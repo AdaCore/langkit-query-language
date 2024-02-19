@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -304,8 +304,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         try {
             return new LongLiteral(loc(integerLiteral), Long.parseLong(integerLiteral.getText()));
         } catch (NumberFormatException e) {
-            return new BigIntegerLiteral(
-                    loc(integerLiteral), new BigInteger(integerLiteral.getText()));
+            return new BigIntegerLiteral(loc(integerLiteral), new BigInteger(integerLiteral.getText()));
         }
     }
 
@@ -502,9 +501,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the new parameter declaration
         return new ParameterDeclaration(
-                new SourceLocation(this.source, parameterDecl.getSourceLocationRange()),
-                name,
-                defaultValue);
+                new SourceLocation(this.source, parameterDecl.getSourceLocationRange()), name, defaultValue);
     }
 
     @Override
@@ -536,26 +533,18 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                     location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpMinus.kindName -> BinMinusNodeGen.create(
                     location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpMul.kindName -> BinMulNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpDiv.kindName -> BinDivNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpMul.kindName -> BinMulNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpDiv.kindName -> BinDivNodeGen.create(location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpAnd.kindName -> new BinAnd(location, left, right);
             case Liblkqllang.OpOr.kindName -> new BinOr(location, left, right);
-            case Liblkqllang.OpEq.kindName -> BinEqNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpNeq.kindName -> BinNeqNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpEq.kindName -> BinEqNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpNeq.kindName -> BinNeqNodeGen.create(location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpConcat.kindName -> BinConcatNodeGen.create(
                     location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpLt.kindName -> BinLtNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpLeq.kindName -> BinLeqNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpGt.kindName -> BinGtNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpGeq.kindName -> BinGeqNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpLt.kindName -> BinLtNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpLeq.kindName -> BinLeqNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpGt.kindName -> BinGtNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpGeq.kindName -> BinGeqNodeGen.create(location, leftLocation, rightLocation, left, right);
             default -> null;
         };
     }
@@ -598,8 +587,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr arg = (Expr) unOp.fOperand().accept(this);
 
         final DummyLocation argLocation = new DummyLocation(arg.getLocation());
-        final SourceLocation location =
-                new SourceLocation(this.source, unOp.getSourceLocationRange());
+        final SourceLocation location = new SourceLocation(this.source, unOp.getSourceLocationRange());
 
         // Create the unary operator by switching on the operator type
         return switch (unOp.fOp().getKindName()) {
@@ -737,9 +725,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the new DotAccess node
         return DotAccessNodeGen.create(
-                loc(dotAccess),
-                new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
-                receiver);
+                loc(dotAccess), new Identifier(loc(memberIdentifier), memberIdentifier.getText()), receiver);
     }
 
     /**
@@ -756,9 +742,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the new DotAccess node
         return SafeDotAccessNodeGen.create(
-                loc(safeAccess),
-                new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
-                receiver);
+                loc(safeAccess), new Identifier(loc(memberIdentifier), memberIdentifier.getText()), receiver);
     }
 
     // --- In clause
@@ -853,7 +837,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final int slot = this.scriptFrames.getBinding(name);
 
         // Visit the associated value pattern
-        final ValuePattern pattern = (ValuePattern) bindingPattern.fValuePattern().accept(this);
+        final ValuePattern pattern =
+                (ValuePattern) bindingPattern.fValuePattern().accept(this);
 
         // Return the result binding pattern node
         return new BindingPattern(loc(bindingPattern), slot, pattern);
@@ -880,8 +865,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         this.scriptFrames.exitFrame();
 
         // Return the result
-        return IsClauseNodeGen.create(
-                loc(isClause), new DummyLocation(nodeExpr.getLocation()), pattern, nodeExpr);
+        return IsClauseNodeGen.create(loc(isClause), new DummyLocation(nodeExpr.getLocation()), pattern, nodeExpr);
     }
 
     /**
@@ -1065,8 +1049,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final List<Expr> collections = new ArrayList<>();
         final Liblkqllang.ListCompAssocList assocListBase = listComprehension.fGenerators();
         for (int i = 0; i < assocListBase.getChildrenCount(); i++) {
-            Liblkqllang.ListCompAssoc assocOrigin =
-                    (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
+            Liblkqllang.ListCompAssoc assocOrigin = (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
             collections.add((Expr) assocOrigin.fCollExpr().accept(this));
         }
 
@@ -1076,8 +1059,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Create the list comprehension associations
         final List<ComprehensionAssoc> assocList = new ArrayList<>();
         for (int i = 0; i < assocListBase.getChildrenCount(); i++) {
-            final Liblkqllang.ListCompAssoc assocBase =
-                    (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
+            final Liblkqllang.ListCompAssoc assocBase = (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
             final String name = assocBase.fBindingName().getText();
             int slot = this.scriptFrames.getParameter(name);
 
@@ -1090,17 +1072,15 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr guard = guardBase.isNone() ? null : (Expr) guardBase.accept(this);
 
         // Create the result
-        final ListComprehension res =
-                new ListComprehension(
-                        loc(listComprehension),
-                        this.scriptFrames.getFrameDescriptor(),
-                        this.scriptFrames.getClosureDescriptor(),
-                        new ComprehensionAssocList(
-                                new SourceLocation(
-                                        this.source, assocListBase.getSourceLocationRange()),
-                                assocList.toArray(new ComprehensionAssoc[0])),
-                        expr,
-                        guard);
+        final ListComprehension res = new ListComprehension(
+                loc(listComprehension),
+                this.scriptFrames.getFrameDescriptor(),
+                this.scriptFrames.getClosureDescriptor(),
+                new ComprehensionAssocList(
+                        new SourceLocation(this.source, assocListBase.getSourceLocationRange()),
+                        assocList.toArray(new ComprehensionAssoc[0])),
+                expr,
+                guard);
 
         // Exit the frame
         this.scriptFrames.exitFrame();
@@ -1172,14 +1152,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Iterate on object associations and translate them
         for (int i = 0; i < assocNumber; i++) {
-            final Liblkqllang.AtObjectAssoc assoc =
-                    (Liblkqllang.AtObjectAssoc) assocList.getChild(i);
+            final Liblkqllang.AtObjectAssoc assoc = (Liblkqllang.AtObjectAssoc) assocList.getChild(i);
             keys[i] = assoc.fName().getText();
             final Liblkqllang.Expr exprBase = assoc.fExpr();
             values[i] =
-                    exprBase.isNone()
-                            ? new ListLiteral(loc(assoc.fName()), new Expr[0])
-                            : (Expr) exprBase.accept(this);
+                    exprBase.isNone() ? new ListLiteral(loc(assoc.fName()), new Expr[0]) : (Expr) exprBase.accept(this);
         }
 
         // Return the new object literal node because at object is juste syntactic sugar
@@ -1294,14 +1271,13 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final var docstring = baseFunction.pDoc();
 
         // Return the new function expression node
-        final FunExpr res =
-                new FunExpr(
-                        loc(baseFunction),
-                        this.scriptFrames.getFrameDescriptor(),
-                        this.scriptFrames.getClosureDescriptor(),
-                        parameters.toArray(new ParameterDeclaration[0]),
-                        docstring.isNone() ? "" : parseStringLiteral(docstring),
-                        body);
+        final FunExpr res = new FunExpr(
+                loc(baseFunction),
+                this.scriptFrames.getFrameDescriptor(),
+                this.scriptFrames.getClosureDescriptor(),
+                parameters.toArray(new ParameterDeclaration[0]),
+                docstring.isNone() ? "" : parseStringLiteral(docstring),
+                body);
 
         // Exit the function frame
         this.scriptFrames.exitFrame();
@@ -1320,8 +1296,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     public LKQLNode visit(Liblkqllang.FunDecl funDecl) {
         // Translate the declaration fields
         final Liblkqllang.DeclAnnotation annotationBase = funDecl.fAnnotation();
-        final Annotation annotation =
-                annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
+        final Annotation annotation = annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
         final String name = funDecl.fName().getText();
 
         // Get the current slot of the name
@@ -1363,8 +1338,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final ArgList arguments = (ArgList) funCall.fArguments().accept(this);
 
         // Return the function call
-        return FunCallNodeGen.create(
-                loc(funCall), isSafe, new DummyLocation(callee.getLocation()), arguments, callee);
+        return FunCallNodeGen.create(loc(funCall), isSafe, new DummyLocation(callee.getLocation()), arguments, callee);
     }
 
     // --- Selector declaration
@@ -1428,7 +1402,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Translate the selector arm fields
         // TODO: Question on why many expressions by arm
         final BasePattern pattern = (BasePattern) selectorArm.fPattern().accept(this);
-        final SelectorExpr expr = (SelectorExpr) selectorArm.fExprsList().getChild(0).accept(this);
+        final SelectorExpr expr =
+                (SelectorExpr) selectorArm.fExprsList().getChild(0).accept(this);
 
         // Exit the arm frame
         this.scriptFrames.exitFrame();
@@ -1453,11 +1428,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Get the name, documentation and annotation for the selector declaration
         final String name = selectorDecl.fName().getText();
         final Liblkqllang.BaseStringLiteral documentationBase = selectorDecl.fDocNode();
-        final String documentation =
-                documentationBase.isNone() ? "" : parseStringLiteral(documentationBase);
+        final String documentation = documentationBase.isNone() ? "" : parseStringLiteral(documentationBase);
         final Liblkqllang.DeclAnnotation annotationBase = selectorDecl.fAnnotation();
-        final Annotation annotation =
-                annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
+        final Annotation annotation = annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
 
         // Get the current slot to place the new selector in
         this.scriptFrames.declareBinding(name);
@@ -1552,7 +1525,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.NodeKindPattern nodeKindPattern) {
-        return new NodeKindPattern(loc(nodeKindPattern), nodeKindPattern.fKindName().getText());
+        return new NodeKindPattern(
+                loc(nodeKindPattern), nodeKindPattern.fKindName().getText());
     }
 
     /**
@@ -1595,7 +1569,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     public LKQLNode visit(Liblkqllang.NodePatternField nodePatternField) {
         // Translate the node pattern detail fields
         final String name = nodePatternField.fIdentifier().getText();
-        final DetailValue expected = (DetailValue) nodePatternField.fExpectedValue().accept(this);
+        final DetailValue expected =
+                (DetailValue) nodePatternField.fExpectedValue().accept(this);
 
         // Return the new node pattern field detail
         return NodePatternFieldNodeGen.create(loc(nodePatternField), name, expected);
@@ -1611,13 +1586,13 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     public LKQLNode visit(Liblkqllang.NodePatternProperty nodePatternProperty) {
         // Translate the node pattern detail fields
         final String propertyName = nodePatternProperty.fCall().fName().getText();
-        final ArgList argList = (ArgList) nodePatternProperty.fCall().fArguments().accept(this);
+        final ArgList argList =
+                (ArgList) nodePatternProperty.fCall().fArguments().accept(this);
         final DetailValue expected =
                 (DetailValue) nodePatternProperty.fExpectedValue().accept(this);
 
         // Return the new node pattern property detail
-        return NodePatternPropertyNodeGen.create(
-                loc(nodePatternProperty), propertyName, argList, expected);
+        return NodePatternPropertyNodeGen.create(loc(nodePatternProperty), propertyName, argList, expected);
     }
 
     /**
@@ -1629,7 +1604,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.NodePatternSelector nodePatternSelector) {
         // Translate the node pattern selector
-        final SelectorCall selectorCall = (SelectorCall) nodePatternSelector.fCall().accept(this);
+        final SelectorCall selectorCall =
+                (SelectorCall) nodePatternSelector.fCall().accept(this);
 
         // Enter the node pattern selector frame
         this.scriptFrames.enterFrame(nodePatternSelector.fPattern());
@@ -1683,7 +1659,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.SelectorLink selectorLink) {
         // Translate the selector link selector
-        final SelectorCall selectorCall = (SelectorCall) selectorLink.fSelector().accept(this);
+        final SelectorCall selectorCall =
+                (SelectorCall) selectorLink.fSelector().accept(this);
 
         // Enter the selector link frame
         this.scriptFrames.enterFrame(selectorLink);
@@ -1755,8 +1732,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Return the new chained node pattern node
-        return new ChainedNodePattern(
-                loc(chainedNodePattern), nodePattern, chain.toArray(new ChainedPatternLink[0]));
+        return new ChainedNodePattern(loc(chainedNodePattern), nodePattern, chain.toArray(new ChainedPatternLink[0]));
     }
 
     // --- Pattern matching

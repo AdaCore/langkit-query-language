@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -30,7 +30,8 @@ import java.io.Serial;
  * @author Hugo GUERRIER
  */
 public final class UnsupportedTypeException extends Exception {
-    @Serial private static final long serialVersionUID = 7197470955602340792L;
+    @Serial
+    private static final long serialVersionUID = 7197470955602340792L;
 
     private final Class<?> type;
 

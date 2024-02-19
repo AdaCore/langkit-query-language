@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -50,68 +50,67 @@ import java.util.Map;
  */
 public final class NodeMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
-            Map.ofEntries(
-                    create(
-                            "children_count",
-                            "Given a node, return the count of its children",
-                            new String[] {"node"},
-                            new Expr[] {null},
-                            new ChildrenCountExpr()),
-                    create(
-                            "children",
-                            "Given a node, get the list of all its children",
-                            new String[] {"node"},
-                            new Expr[] {null},
-                            new ChildrenExpr()),
-                    create(
-                            "parent",
-                            "Given a node, get the parent of it",
-                            new String[] {"node"},
-                            new Expr[] {null},
-                            new ParentExpr()),
-                    create(
-                            "dump",
-                            "Given an ast node, return a structured dump of the subtree",
-                            new String[] {"node"},
-                            new Expr[] {null},
-                            new DumpExpr()),
-                    create(
-                            "text",
-                            "Given an ast node, return its text",
-                            new String[] {"node"},
-                            new Expr[] {null},
-                            new TextExpr()),
-                    create(
-                            "image",
-                            "Given an ast node, return its image",
-                            new String[] {"node"},
-                            new Expr[] {null},
-                            new ImageExpr()),
-                    create(
-                            "unit",
-                            "Given an ast node, return its analysis unit",
-                            new String[] {"node"},
-                            new Expr[] {null},
-                            new UnitExpr()),
-                    create(
-                            "kind",
-                            "Return the kind of this node, as a string",
-                            new String[] {"node"},
-                            new Expr[] {null},
-                            new KindExpr()),
-                    create(
-                            "tokens",
-                            "Given a node, return an iterator on its tokens",
-                            new String[] {"node"},
-                            new Expr[] {null},
-                            new TokensExpr()),
-                    create(
-                            "same_tokens",
-                            "Return whether two nodes have the same tokens, ignoring trivias",
-                            new String[] {"node", "other"},
-                            new Expr[] {null, null},
-                            new SameTokensExpr()));
+    public static final Map<String, BuiltInFunctionValue> methods = Map.ofEntries(
+            create(
+                    "children_count",
+                    "Given a node, return the count of its children",
+                    new String[] {"node"},
+                    new Expr[] {null},
+                    new ChildrenCountExpr()),
+            create(
+                    "children",
+                    "Given a node, get the list of all its children",
+                    new String[] {"node"},
+                    new Expr[] {null},
+                    new ChildrenExpr()),
+            create(
+                    "parent",
+                    "Given a node, get the parent of it",
+                    new String[] {"node"},
+                    new Expr[] {null},
+                    new ParentExpr()),
+            create(
+                    "dump",
+                    "Given an ast node, return a structured dump of the subtree",
+                    new String[] {"node"},
+                    new Expr[] {null},
+                    new DumpExpr()),
+            create(
+                    "text",
+                    "Given an ast node, return its text",
+                    new String[] {"node"},
+                    new Expr[] {null},
+                    new TextExpr()),
+            create(
+                    "image",
+                    "Given an ast node, return its image",
+                    new String[] {"node"},
+                    new Expr[] {null},
+                    new ImageExpr()),
+            create(
+                    "unit",
+                    "Given an ast node, return its analysis unit",
+                    new String[] {"node"},
+                    new Expr[] {null},
+                    new UnitExpr()),
+            create(
+                    "kind",
+                    "Return the kind of this node, as a string",
+                    new String[] {"node"},
+                    new Expr[] {null},
+                    new KindExpr()),
+            create(
+                    "tokens",
+                    "Given a node, return an iterator on its tokens",
+                    new String[] {"node"},
+                    new Expr[] {null},
+                    new TokensExpr()),
+            create(
+                    "same_tokens",
+                    "Return whether two nodes have the same tokens, ignoring trivias",
+                    new String[] {"node", "other"},
+                    new Expr[] {null, null},
+                    new SameTokensExpr()));
 
     /** Expression of the "children" method. */
     public static final class ChildrenExpr extends BuiltinFunctionBody {

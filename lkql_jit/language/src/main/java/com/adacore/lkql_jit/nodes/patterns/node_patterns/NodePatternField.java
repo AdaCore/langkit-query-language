@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -114,7 +114,6 @@ public abstract class NodePatternField extends NodePatternDetail {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"fieldName"}, new Object[] {this.fieldName});
+        return this.nodeRepresentation(indentLevel, new String[] {"fieldName"}, new Object[] {this.fieldName});
     }
 }

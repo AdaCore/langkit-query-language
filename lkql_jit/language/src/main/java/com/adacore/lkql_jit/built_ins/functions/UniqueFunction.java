@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -50,8 +50,7 @@ public final class UniqueFunction {
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,
-                "Given collection, remove all identical elements in order to have only one instance"
-                        + " of each",
+                "Given collection, remove all identical elements in order to have only one instance" + " of each",
                 new String[] {"indexable"},
                 new Expr[] {null},
                 (VirtualFrame frame, FunCall call) -> {

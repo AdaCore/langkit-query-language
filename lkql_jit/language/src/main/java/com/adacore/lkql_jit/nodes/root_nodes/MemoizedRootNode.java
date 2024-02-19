@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -47,8 +47,7 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
      * @param language The language instance which owns the root node.
      * @param frameDescriptor The descriptor of the frame for the root node execution.
      */
-    protected MemoizedRootNode(
-            final TruffleLanguage<?> language, final FrameDescriptor frameDescriptor) {
+    protected MemoizedRootNode(final TruffleLanguage<?> language, final FrameDescriptor frameDescriptor) {
         super(language, frameDescriptor);
         this.memoizationCache = EconomicMap.create();
     }

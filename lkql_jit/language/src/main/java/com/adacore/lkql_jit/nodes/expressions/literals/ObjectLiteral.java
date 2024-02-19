@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -48,7 +48,8 @@ public final class ObjectLiteral extends Expr {
     // ----- Children -----
 
     /** Object ordered values. */
-    @Children private final Expr[] values;
+    @Children
+    private final Expr[] values;
 
     /** Object library to insert values in the result. */
     @Child

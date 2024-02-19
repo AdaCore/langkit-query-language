@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -86,8 +86,7 @@ public final class ChildrenSelector implements BuiltInSelector {
      */
     @Override
     public LKQLSelector getValue() {
-        return new BuiltInSelectorValue(
-                NAME, "Yields all the descendants of the given node in the tree\n", this.arms);
+        return new BuiltInSelectorValue(NAME, "Yields all the descendants of the given node in the tree\n", this.arms);
     }
 
     // ----- Class methods -----
@@ -102,22 +101,18 @@ public final class ChildrenSelector implements BuiltInSelector {
         SelectorArm[] res = new SelectorArm[2];
 
         // Create the children path
-        DotAccess toUnpack =
-                DotAccessNodeGen.create(
-                        null, new Identifier(null, "children"), new ReadBuiltInThis());
-        SelectorArm childrenPath =
-                new SelectorArm(
-                        null,
-                        new NodeKindPattern(null, "AdaNode"),
-                        new SelectorExpr(null, SelectorExpr.Mode.REC, new Unpack(null, toUnpack)));
+        DotAccess toUnpack = DotAccessNodeGen.create(null, new Identifier(null, "children"), new ReadBuiltInThis());
+        SelectorArm childrenPath = new SelectorArm(
+                null,
+                new NodeKindPattern(null, "AdaNode"),
+                new SelectorExpr(null, SelectorExpr.Mode.REC, new Unpack(null, toUnpack)));
         res[0] = childrenPath;
 
         // Create the universal path
-        SelectorArm universalPath =
-                new SelectorArm(
-                        null,
-                        new UniversalPattern(null),
-                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
+        SelectorArm universalPath = new SelectorArm(
+                null,
+                new UniversalPattern(null),
+                new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
         res[1] = universalPath;
 
         // Return the result

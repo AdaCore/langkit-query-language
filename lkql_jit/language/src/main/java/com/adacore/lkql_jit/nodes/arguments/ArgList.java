@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -38,7 +38,8 @@ public final class ArgList extends LKQLNode {
     // ----- Children -----
 
     /** The arguments in the list. */
-    @Children private final Arg[] args;
+    @Children
+    private final Arg[] args;
 
     // ----- Constructors -----
 
@@ -126,8 +127,7 @@ public final class ArgList extends LKQLNode {
             if (index > -1) {
                 res[index] = arg.executeGeneric(frame);
             } else {
-                throw LKQLRuntimeException.unknownArgument(
-                        arg.getArgName().getName(), arg.getArgName());
+                throw LKQLRuntimeException.unknownArgument(arg.getArgName().getName(), arg.getArgName());
             }
         }
 

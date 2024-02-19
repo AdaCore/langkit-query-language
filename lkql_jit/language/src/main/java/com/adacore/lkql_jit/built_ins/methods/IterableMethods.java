@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -44,21 +44,20 @@ import java.util.Map;
  */
 public class IterableMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
-            Map.ofEntries(
-                    Map.entry(ReduceFunction.NAME, ReduceFunction.getValue()),
-                    create(
-                            "to_list",
-                            "Transform an iterator into a list",
-                            new String[] {"iterable"},
-                            new Expr[] {null},
-                            new ToListExpr()),
-                    create(
-                            "length",
-                            "Get the length of the iterable element",
-                            new String[] {"iterable"},
-                            new Expr[] {null},
-                            new LengthExpr()));
+    public static final Map<String, BuiltInFunctionValue> methods = Map.ofEntries(
+            Map.entry(ReduceFunction.NAME, ReduceFunction.getValue()),
+            create(
+                    "to_list",
+                    "Transform an iterator into a list",
+                    new String[] {"iterable"},
+                    new Expr[] {null},
+                    new ToListExpr()),
+            create(
+                    "length",
+                    "Get the length of the iterable element",
+                    new String[] {"iterable"},
+                    new Expr[] {null},
+                    new LengthExpr()));
 
     // ----- Inner classes -----
 

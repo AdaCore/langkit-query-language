@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -133,9 +133,7 @@ public final class ListComprehension extends Expr {
         // Verify that the result size is strictly positive
         if (resultSize < 1) {
             return new LKQLListComprehension(
-                    this.rootNode,
-                    Closure.create(frame.materialize(), this.closureDescriptor),
-                    new Object[0][]);
+                    this.rootNode, Closure.create(frame.materialize(), this.closureDescriptor), new Object[0][]);
         }
 
         // Prepare the array of arguments for each iteration in the list comprehension
@@ -157,9 +155,7 @@ public final class ListComprehension extends Expr {
 
         // Return the result of the list comprehension as a lazy list
         return new LKQLListComprehension(
-                this.rootNode,
-                Closure.create(frame.materialize(), this.closureDescriptor),
-                argsList);
+                this.rootNode, Closure.create(frame.materialize(), this.closureDescriptor), argsList);
     }
 
     // ----- Class methods -----

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -48,7 +48,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             name = "gnatcheck_worker",
             description = "Internal driver meant to be called by GNATcheck. Not for public use")
     public static class Args implements Callable<Integer> {
-        @CommandLine.Unmatched public List<String> unmatched;
+        @CommandLine.Unmatched
+        public List<String> unmatched;
 
         @CommandLine.Option(
                 names = {"-C", "--charset"},
@@ -73,9 +74,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         @CommandLine.Option(
                 names = "-A",
-                description =
-                        "The name of the subproject to analyse, if any. This implies that"
-                                + " `projectFile` designates an aggregate project.")
+                description = "The name of the subproject to analyse, if any. This implies that"
+                        + " `projectFile` designates an aggregate project.")
         public String subProject = null;
 
         @CommandLine.Option(names = "-d", description = "Enable the debug mode")
@@ -87,9 +87,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         @CommandLine.Option(names = "--simple-project", description = "Enable simple project mode")
         public boolean isSimpleProject;
 
-        @CommandLine.Option(
-                names = "--rules-dir",
-                description = "Additional directory in which to check for rules")
+        @CommandLine.Option(names = "--rules-dir", description = "Additional directory in which to check for rules")
         public List<String> rulesDirs = new ArrayList<>();
 
         @CommandLine.Option(names = "--rules-from", description = "The file containing the rules")
@@ -103,9 +101,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         @CommandLine.Option(
                 names = "--ignore-project-switches",
-                description =
-                        "Process all units in the project tree, excluding externally built"
-                                + " projects")
+                description = "Process all units in the project tree, excluding externally built" + " projects")
         public boolean ignore_project_switches;
 
         @Override
@@ -209,12 +205,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         if (!this.args.scenarioVariables.isEmpty()) {
             StringBuilder scenarioVars = new StringBuilder();
             Base64.Encoder encoder = Base64.getEncoder();
-            this.args.scenarioVariables.forEach(
-                    (key, val) -> {
-                        scenarioVars.append(
-                                new String(encoder.encode((key + "=" + val).getBytes())));
-                        scenarioVars.append(";");
-                    });
+            this.args.scenarioVariables.forEach((key, val) -> {
+                scenarioVars.append(new String(encoder.encode((key + "=" + val).getBytes())));
+                scenarioVars.append(";");
+            });
             contextBuilder.option("lkql.scenarioVars", scenarioVars.toString());
         }
 
@@ -244,8 +238,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         // Set the rule directories
         if (!this.args.rulesDirs.isEmpty()) {
-            contextBuilder.option(
-                    "lkql.rulesDirs", String.join(File.pathSeparator, this.args.rulesDirs));
+            contextBuilder.option("lkql.rulesDirs", String.join(File.pathSeparator, this.args.rulesDirs));
         }
 
         // Set the rule to apply
@@ -265,7 +258,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql").build();
+            final Source source =
+                    Source.newBuilder("lkql", checkerSource, "checker.lkql").build();
             final Value executable = context.parse(source);
             executable.executeVoid(true);
             return 0;
@@ -285,8 +279,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * @param allRules The list in which to add all parsed rules.
      * @param allArgs The list in which to add all parsed rule arguments.
      */
-    private static void processRuleSpecificationFile(
-            String filename, List<String> allRules, List<String> allArgs) {
+    private static void processRuleSpecificationFile(String filename, List<String> allRules, List<String> allArgs) {
         try {
             for (String ruleSpec : Files.readAllLines(Paths.get(filename))) {
                 processRuleSpecification(ruleSpec, allRules, allArgs);
@@ -307,8 +300,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * @param allArgs The list of all currently specified rule arguments, which might be expanded
      *     here.
      */
-    private static void processRuleSpecification(
-            String ruleSpec, List<String> allRules, List<String> allArgs) {
+    private static void processRuleSpecification(String ruleSpec, List<String> allRules, List<String> allArgs) {
         if (ruleSpec.startsWith("-")) {
             String ruleName = allRules.get(allRules.size() - 1);
             String arg = ruleSpec.substring(1);
@@ -318,8 +310,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         }
     }
 
-    protected List<String> preprocessArguments(
-            List<String> arguments, Map<String, String> polyglotOptions) {
+    protected List<String> preprocessArguments(List<String> arguments, Map<String, String> polyglotOptions) {
         if (this.args.unmatched != null) {
             return this.args.unmatched;
         } else {

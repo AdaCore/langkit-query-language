@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -92,11 +92,9 @@ public class LKQLProperty extends BasicLKQLValue {
      */
     public Object executeAsProperty(Locatable caller, ArgList argList, Object... arguments) {
         try {
-            return ReflectionUtils.callProperty(
-                    this.node, this.description, caller, argList, arguments);
+            return ReflectionUtils.callProperty(this.node, this.description, caller, argList, arguments);
         } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(
-                    LKQLTypesHelper.category(e.getType()), caller);
+            throw LKQLRuntimeException.unsupportedType(LKQLTypesHelper.category(e.getType()), caller);
         }
     }
 
@@ -109,8 +107,7 @@ public class LKQLProperty extends BasicLKQLValue {
         try {
             return ReflectionUtils.callProperty(this.node, this.description, caller, null);
         } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(
-                    LKQLTypesHelper.category(e.getType()), caller);
+            throw LKQLRuntimeException.unsupportedType(LKQLTypesHelper.category(e.getType()), caller);
         }
     }
 

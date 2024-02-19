@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -39,7 +39,8 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     // ----- Attributes -----
 
     /** Whether the function is memoized. */
-    @CompilerDirectives.CompilationFinal private boolean isMemoized;
+    @CompilerDirectives.CompilationFinal
+    private boolean isMemoized;
 
     // ----- Children -----
 
@@ -59,10 +60,7 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
      * @param body The expression of the function.
      */
     public FunctionRootNode(
-            TruffleLanguage<?> language,
-            FrameDescriptor frameDescriptor,
-            boolean isMemoized,
-            Expr body) {
+            TruffleLanguage<?> language, FrameDescriptor frameDescriptor, boolean isMemoized, Expr body) {
         super(language, frameDescriptor);
         this.isMemoized = isMemoized;
         this.body = body;

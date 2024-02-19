@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -76,15 +76,13 @@ public final class LKQLObject extends ObjectLKQLValue implements LKQLValue {
                 @CachedLibrary("right") DynamicObjectLibrary rights,
                 @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftValues,
                 @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightValues) {
-            return TriState.valueOf(
-                    objectValueEquals(left, right, lefts, rights, leftValues, rightValues));
+            return TriState.valueOf(objectValueEquals(left, right, lefts, rights, leftValues, rightValues));
         }
 
         /** Do the comparison with another element. */
         @Fallback
         protected static TriState onOther(
-                @SuppressWarnings("unused") final LKQLObject receiver,
-                @SuppressWarnings("unused") final Object other) {
+                @SuppressWarnings("unused") final LKQLObject receiver, @SuppressWarnings("unused") final Object other) {
             return TriState.UNDEFINED;
         }
     }

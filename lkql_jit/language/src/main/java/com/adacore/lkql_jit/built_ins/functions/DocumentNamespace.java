@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -84,11 +84,10 @@ public class DocumentNamespace {
             writer.write("Functions\n");
             writer.write("^^^^^^^^^\n");
 
-            var functions =
-                    namespace.asMap().values().stream()
-                            .filter(LKQLTypeSystemGen::isLKQLFunction)
-                            .map(LKQLTypeSystemGen::asLKQLFunction)
-                            .sorted(Comparator.comparing(LKQLFunction::getName));
+            var functions = namespace.asMap().values().stream()
+                    .filter(LKQLTypeSystemGen::isLKQLFunction)
+                    .map(LKQLTypeSystemGen::asLKQLFunction)
+                    .sorted(Comparator.comparing(LKQLFunction::getName));
 
             for (var func : functions.toList()) {
                 documentCallable(writer, func);
@@ -97,11 +96,10 @@ public class DocumentNamespace {
             writer.write("Selectors\n");
             writer.write("^^^^^^^^^\n");
 
-            var selectors =
-                    namespace.asMap().values().stream()
-                            .filter(LKQLTypeSystemGen::isLKQLSelector)
-                            .map(LKQLTypeSystemGen::asLKQLSelector)
-                            .sorted(Comparator.comparing(LKQLSelector::lkqlProfile));
+            var selectors = namespace.asMap().values().stream()
+                    .filter(LKQLTypeSystemGen::isLKQLSelector)
+                    .map(LKQLTypeSystemGen::asLKQLSelector)
+                    .sorted(Comparator.comparing(LKQLSelector::lkqlProfile));
 
             for (var sel : selectors.toList()) {
                 documentCallable(writer, sel);
@@ -115,10 +113,9 @@ public class DocumentNamespace {
 
     private static void documentCallable(TextWriter writer, BasicLKQLValue callable) {
         writer.write(".. function:: " + callable.lkqlProfile() + "\n\n");
-        writer.withIndent(
-                () -> {
-                    writer.write(callable.lkqlDocumentation());
-                });
+        writer.withIndent(() -> {
+            writer.write(callable.lkqlDocumentation());
+        });
         writer.write("\n\n");
     }
 }

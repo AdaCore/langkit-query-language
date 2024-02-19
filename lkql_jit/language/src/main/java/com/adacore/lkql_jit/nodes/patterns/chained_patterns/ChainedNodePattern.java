@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -47,7 +47,8 @@ public final class ChainedNodePattern extends ValuePattern {
     private BasePattern nodePattern;
 
     /** The chain for the node pattern. */
-    @Children private final ChainedPatternLink[] chain;
+    @Children
+    private final ChainedPatternLink[] chain;
 
     // ----- Constructors -----
 
@@ -58,8 +59,7 @@ public final class ChainedNodePattern extends ValuePattern {
      * @param nodePattern The node pattern.
      * @param chain The chain for the node pattern.
      */
-    public ChainedNodePattern(
-            SourceLocation location, BasePattern nodePattern, ChainedPatternLink[] chain) {
+    public ChainedNodePattern(SourceLocation location, BasePattern nodePattern, ChainedPatternLink[] chain) {
         super(location);
         this.nodePattern = nodePattern;
         this.chain = chain;
@@ -102,8 +102,7 @@ public final class ChainedNodePattern extends ValuePattern {
      * @param node The node to execute the link on.
      * @return The array of the link execution result.
      */
-    private Libadalang.AdaNode[] executeLink(
-            VirtualFrame frame, int index, Libadalang.AdaNode node) {
+    private Libadalang.AdaNode[] executeLink(VirtualFrame frame, int index, Libadalang.AdaNode node) {
         // Get the result of the link execution
         Libadalang.AdaNode[] linkRes = this.chain[index].executeLink(frame, node);
 

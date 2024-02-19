@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -340,16 +340,14 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
         // Visit all generator expressions
         for (int i = 0; i < generatorsCount; i++) {
-            final Liblkqllang.ListCompAssoc assoc =
-                    (Liblkqllang.ListCompAssoc) generators.getChild(i);
+            final Liblkqllang.ListCompAssoc assoc = (Liblkqllang.ListCompAssoc) generators.getChild(i);
             assoc.fCollExpr().accept(this);
         }
 
         // Open the frame and visit the list comprehension expressions
         this.scriptFramesBuilder.openFrame(listComprehension);
         for (int i = 0; i < generatorsCount; i++) {
-            final Liblkqllang.ListCompAssoc assoc =
-                    (Liblkqllang.ListCompAssoc) generators.getChild(i);
+            final Liblkqllang.ListCompAssoc assoc = (Liblkqllang.ListCompAssoc) generators.getChild(i);
             final String symbol = assoc.fBindingName().getText();
             checkDuplicateParameters(symbol, assoc.fBindingName());
             this.scriptFramesBuilder.addParameter(symbol);

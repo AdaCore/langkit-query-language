@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -110,16 +110,13 @@ public final class SelectorArm extends LKQLNode {
                     try {
                         if (!LKQLTypeSystemGen.isNullish(obj)) {
                             depthNodes.add(
-                                    new LKQLDepthNode(
-                                            node.getDepth() + 1,
-                                            LKQLTypeSystemGen.expectAdaNode(obj)));
+                                    new LKQLDepthNode(node.getDepth() + 1, LKQLTypeSystemGen.expectAdaNode(obj)));
                         }
                     }
 
                     // If it isn't a node, throw an exception
                     catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeException.wrongSelectorType(
-                                LKQLTypesHelper.fromJava(obj), this.expr);
+                        throw LKQLRuntimeException.wrongSelectorType(LKQLTypesHelper.fromJava(obj), this.expr);
                     }
                 }
                 return new SelectorRootNode.SelectorCallResult(
@@ -134,8 +131,7 @@ public final class SelectorArm extends LKQLNode {
             // If the result of the expression is a node
             else if (LKQLTypeSystemGen.isAdaNode(res)) {
                 return new SelectorRootNode.SelectorCallResult(
-                        this.expr.getMode(),
-                        new LKQLDepthNode(node.getDepth() + 1, LKQLTypeSystemGen.asAdaNode(res)));
+                        this.expr.getMode(), new LKQLDepthNode(node.getDepth() + 1, LKQLTypeSystemGen.asAdaNode(res)));
             }
 
             // Throw an exception

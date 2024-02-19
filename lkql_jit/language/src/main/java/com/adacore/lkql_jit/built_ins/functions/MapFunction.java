@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -110,11 +110,8 @@ public final class MapFunction {
             while (iterator.hasNext()) {
                 try {
                     res[i] =
-                            this.interopLibrary.execute(
-                                    mapFunction, mapFunction.closure.getContent(), iterator.next());
-                } catch (ArityException
-                        | UnsupportedTypeException
-                        | UnsupportedMessageException e) {
+                            this.interopLibrary.execute(mapFunction, mapFunction.closure.getContent(), iterator.next());
+                } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                     // TODO: Implement runtime checks in the LKQLFunction class and base computing
                     // on them (#138)
                     throw LKQLRuntimeException.fromJavaException(e, this.callNode);

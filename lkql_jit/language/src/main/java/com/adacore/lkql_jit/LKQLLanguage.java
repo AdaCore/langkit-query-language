@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -64,8 +64,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             LanguageReference.create(LKQLLanguage.class);
 
     /** The reference to the LKQL context. */
-    private static final ContextReference<LKQLContext> CONTEXT_REFERENCE =
-            ContextReference.create(LKQLLanguage.class);
+    private static final ContextReference<LKQLContext> CONTEXT_REFERENCE = ContextReference.create(LKQLLanguage.class);
 
     /** Whether the current language spawning support the color. */
     public static boolean SUPPORT_COLOR = false;
@@ -84,17 +83,11 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // --- LKQL options
 
     /** The option to define the charset of the LKQL sources. */
-    @Option(
-            help = "The LKQL source charset",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
+    @Option(help = "The LKQL source charset", category = OptionCategory.USER, stability = OptionStability.STABLE)
     static final OptionKey<String> charset = new OptionKey<>("");
 
     /** The option to define the project file to analyze. */
-    @Option(
-            help = "The GPR project file to load",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
+    @Option(help = "The GPR project file to load", category = OptionCategory.USER, stability = OptionStability.STABLE)
     static final OptionKey<String> projectFile = new OptionKey<>("");
 
     /** The name of the subproject to analyze. If empty, use the root project instead */
@@ -105,10 +98,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> subprojectFile = new OptionKey<>("");
 
     /** The runtime to load the project with */
-    @Option(
-            help = "The runtime to pass to GPR",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
+    @Option(help = "The runtime to pass to GPR", category = OptionCategory.USER, stability = OptionStability.STABLE)
     static final OptionKey<String> runtime = new OptionKey<>("");
 
     /** The target to load the project with */
@@ -130,9 +120,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     /** Whether to create an auto provider with the specified files if no project is provided. */
     @Option(
-            help =
-                    "Whether to create an auto provider with the specified files if no project"
-                            + "is provided.",
+            help = "Whether to create an auto provider with the specified files if no project" + "is provided.",
             category = OptionCategory.USER,
             stability = OptionStability.STABLE)
     static final OptionKey<Boolean> useAutoProvider = new OptionKey<>(false);
@@ -196,10 +184,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<Boolean> keepGoingOnMissingFile = new OptionKey<>(false);
 
     /** The option to specify arguments for the rules. */
-    @Option(
-            help = "Arguments for the LKQL rules",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
+    @Option(help = "Arguments for the LKQL rules", category = OptionCategory.USER, stability = OptionStability.STABLE)
     static final OptionKey<String> rulesArgs = new OptionKey<>("");
 
     /** The option to specify the files to ignore during the checking. */
@@ -216,12 +201,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             stability = OptionStability.STABLE)
     static final OptionKey<String> errorMode = new OptionKey<>("");
 
-    @Option(
-            help = "The message emitter",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<DiagnosticOutputMode> diagnosticOutputMode =
-            new OptionKey<>(DiagnosticOutputMode.PRETTY);
+    @Option(help = "The message emitter", category = OptionCategory.USER, stability = OptionStability.STABLE)
+    static final OptionKey<DiagnosticOutputMode> diagnosticOutputMode = new OptionKey<>(DiagnosticOutputMode.PRETTY);
 
     // ----- Constructors -----
 
@@ -318,9 +299,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         try (Liblkqllang.AnalysisContext analysisContext = Liblkqllang.AnalysisContext.create()) {
             if (request.getSource().getPath() == null) {
-                unit =
-                        analysisContext.getUnitFromBuffer(
-                                request.getSource().getCharacters().toString(), "<command-line>");
+                unit = analysisContext.getUnitFromBuffer(
+                        request.getSource().getCharacters().toString(), "<command-line>");
             } else {
                 unit = analysisContext.getUnitFromFile(request.getSource().getPath());
             }
@@ -332,13 +312,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             }
 
             // Get the LKQL langkit AST
-            final Liblkqllang.TopLevelList lkqlLangkitRoot =
-                    (Liblkqllang.TopLevelList) unit.getRoot();
+            final Liblkqllang.TopLevelList lkqlLangkitRoot = (Liblkqllang.TopLevelList) unit.getRoot();
 
             // Translate the LKQL AST from Langkit to a Truffle AST
-            result =
-                    (TopLevelList)
-                            LangkitTranslator.translate(lkqlLangkitRoot, request.getSource());
+            result = (TopLevelList) LangkitTranslator.translate(lkqlLangkitRoot, request.getSource());
         }
 
         // Get the LKQL context
@@ -346,8 +323,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         // Print the Truffle AST if the JIT is in debug mode
         if (context.isVerbose()) {
-            System.out.println(
-                    "=== Truffle AST <" + result.getLocation().getFileName() + "> :\n" + result);
+            System.out.println("=== Truffle AST <" + result.getLocation().getFileName() + "> :\n" + result);
         }
 
         // Return the call target

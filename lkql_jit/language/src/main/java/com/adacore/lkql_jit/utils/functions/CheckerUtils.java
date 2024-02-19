@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -90,10 +90,7 @@ public class CheckerUtils {
          * @param context The context to output the message
          */
         void emitMissingFile(
-                Libadalang.AnalysisUnit fromUnit,
-                String missingFileName,
-                boolean isFatal,
-                LKQLContext context);
+                Libadalang.AnalysisUnit fromUnit, String missingFileName, boolean isFatal, LKQLContext context);
 
         /**
          * @param ruleName The name of the rule the error occurred during.
@@ -139,13 +136,9 @@ public class CheckerUtils {
 
         @Override
         public void emitMissingFile(
-                Libadalang.AnalysisUnit fromUnit,
-                String missingFileName,
-                boolean isFatal,
-                LKQLContext context) {
+                Libadalang.AnalysisUnit fromUnit, String missingFileName, boolean isFatal, LKQLContext context) {
             final String prefix = isFatal ? "ERROR" : "WARNING";
-            context.println(
-                    prefix + ": File " + FileUtils.baseName(missingFileName) + " not found");
+            context.println(prefix + ": File " + FileUtils.baseName(missingFileName) + " not found");
         }
 
         @Override
@@ -158,17 +151,16 @@ public class CheckerUtils {
                 final String errorName,
                 final String errorMessage,
                 final LKQLContext context) {
-            context.println(
-                    unit.getFileName(false)
-                            + ":1:01: internal error: "
-                            + errorName
-                            + ":"
-                            + errorLocation
-                            + ": "
-                            + errorMessage
-                            + " ["
-                            + ruleName.toLowerCase()
-                            + "]");
+            context.println(unit.getFileName(false)
+                    + ":1:01: internal error: "
+                    + errorName
+                    + ":"
+                    + errorLocation
+                    + ": "
+                    + errorMessage
+                    + " ["
+                    + ruleName.toLowerCase()
+                    + "]");
         }
     }
 
@@ -204,25 +196,23 @@ public class CheckerUtils {
             System.arraycopy(sourceLines, startLine - 1, validLines, 0, endLine + 1 - startLine);
 
         String sourceString =
-                StringUtils.underlineSource(
-                        validLines, startLine, startCol, endLine, endCol, StringUtils.ANSI_YELLOW);
+                StringUtils.underlineSource(validLines, startLine, startCol, endLine, endCol, StringUtils.ANSI_YELLOW);
 
         // Print the things
-        context.println(
-                (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_BOLD : "")
-                        + fileName
-                        + ":"
-                        + startLine
-                        + ":"
-                        + startCol
-                        + ":"
-                        + (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_YELLOW : "")
-                        + " rule violation: "
-                        + (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_RESET : "")
-                        + message
-                        + "\n"
-                        + sourceString
-                        + "\n");
+        context.println((LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_BOLD : "")
+                + fileName
+                + ":"
+                + startLine
+                + ":"
+                + startCol
+                + ":"
+                + (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_YELLOW : "")
+                + " rule violation: "
+                + (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_RESET : "")
+                + message
+                + "\n"
+                + sourceString
+                + "\n");
     }
 
     /** Emitter that formats diagnostics such that the GNATcheck driver can parse them. */
@@ -260,30 +250,25 @@ public class CheckerUtils {
             }
 
             // Print the things
-            context.println(
-                    fileName
-                            + ":"
-                            + slocRange.start.line
-                            + ":"
-                            + colPrefix
-                            + slocRange.start.column
-                            + ": "
-                            + "check: "
-                            + message
-                            + " ["
-                            + StringUtils.toLowerCase(ruleName)
-                            + "]");
+            context.println(fileName
+                    + ":"
+                    + slocRange.start.line
+                    + ":"
+                    + colPrefix
+                    + slocRange.start.column
+                    + ": "
+                    + "check: "
+                    + message
+                    + " ["
+                    + StringUtils.toLowerCase(ruleName)
+                    + "]");
         }
 
         @Override
         public void emitMissingFile(
-                Libadalang.AnalysisUnit fromUnit,
-                String missingFileName,
-                boolean isFatal,
-                LKQLContext context) {
+                Libadalang.AnalysisUnit fromUnit, String missingFileName, boolean isFatal, LKQLContext context) {
             // Use the full name for files: GNATcheck will reformat it if a specific flag is set
-            context.println(
-                    fromUnit.getFileName() + ":1:1: warning: cannot find " + missingFileName);
+            context.println(fromUnit.getFileName() + ":1:1: warning: cannot find " + missingFileName);
         }
 
         @Override
@@ -296,23 +281,22 @@ public class CheckerUtils {
                 final String errorName,
                 final String errorMessage,
                 final LKQLContext context) {
-            context.println(
-                    unit.getFileName(false)
-                            + ":"
-                            + adaLocation.line
-                            + ":"
-                            + String.format("%02d", adaLocation.column)
-                            + ": check: "
-                            + "internal error at "
-                            + errorLocation
-                            + ": "
-                            + "raised "
-                            + errorName
-                            + " : "
-                            + errorMessage
-                            + " ["
-                            + ruleName.toLowerCase()
-                            + "]");
+            context.println(unit.getFileName(false)
+                    + ":"
+                    + adaLocation.line
+                    + ":"
+                    + String.format("%02d", adaLocation.column)
+                    + ": check: "
+                    + "internal error at "
+                    + errorLocation
+                    + ": "
+                    + "raised "
+                    + errorName
+                    + " : "
+                    + errorMessage
+                    + " ["
+                    + ruleName.toLowerCase()
+                    + "]");
         }
     }
 }

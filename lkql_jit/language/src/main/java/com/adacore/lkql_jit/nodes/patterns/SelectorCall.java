@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -83,11 +83,7 @@ public final class SelectorCall extends LKQLNode {
      * @param args The arguments for the call.
      */
     public SelectorCall(
-            SourceLocation location,
-            Quantifier quantifier,
-            int bindingSlot,
-            Expr selectorExpr,
-            ArgList args) {
+            SourceLocation location, Quantifier quantifier, int bindingSlot, Expr selectorExpr, ArgList args) {
         super(location);
         this.quantifier = quantifier;
         this.bindingSlot = bindingSlot;
@@ -115,8 +111,7 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to verify.
      * @return True if the traversal verify the pattern, false else.
      */
-    public boolean executeVerification(
-            VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
+    public boolean executeVerification(VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
         // Get the selector list
         LKQLSelectorList selectorListValue = this.getSelectorList(frame, node);
 
@@ -146,8 +141,7 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to perform the filtering logic.
      * @return The list of the validating nodes.
      */
-    public LKQLList executeFiltering(
-            VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
+    public LKQLList executeFiltering(VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
         // Get the selector list
         LKQLSelectorList selectorListValue = this.getSelectorList(frame, node);
 
@@ -191,9 +185,7 @@ public final class SelectorCall extends LKQLNode {
         Object selectorObject = this.selectorExpr.executeGeneric(frame);
         if (!LKQLTypeSystemGen.isLKQLSelector(selectorObject)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_SELECTOR,
-                    LKQLTypesHelper.fromJava(selectorObject),
-                    this.selectorExpr);
+                    LKQLTypesHelper.LKQL_SELECTOR, LKQLTypesHelper.fromJava(selectorObject), this.selectorExpr);
         }
 
         // Get the arguments
@@ -258,8 +250,7 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to verify.
      * @return True of all nodes of the traversal verify the pattern, false else.
      */
-    private boolean isAll(
-            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
+    private boolean isAll(VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
@@ -279,8 +270,7 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to verify.
      * @return True if there is any node that verify the pattern, false else.
      */
-    private boolean isAny(
-            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
+    private boolean isAny(VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
@@ -300,8 +290,7 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern for the filtering.
      * @return The list value
      */
-    private LKQLList getFilteredList(
-            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
+    private LKQLList getFilteredList(VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
         // Prepare the result
         List<Libadalang.AdaNode> resList = new ArrayList<>();
 
@@ -325,8 +314,7 @@ public final class SelectorCall extends LKQLNode {
      * @param selectorListValue The selector list to bind.
      * @param pattern The pattern to filter the list.
      */
-    private void doBinding(
-            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
+    private void doBinding(VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
         LKQLList listValue = this.getFilteredList(frame, selectorListValue, pattern);
         this.doBinding(frame, listValue);
     }
@@ -349,9 +337,7 @@ public final class SelectorCall extends LKQLNode {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] {"quantifier", "slot"},
-                new Object[] {this.quantifier, this.bindingSlot});
+                indentLevel, new String[] {"quantifier", "slot"}, new Object[] {this.quantifier, this.bindingSlot});
     }
 
     // ----- Inner classes -----

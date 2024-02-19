@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -99,19 +99,18 @@ public class Constants {
     // ----- Checker annotation helpers -----
 
     /** The names of the parameters for a checker annotation */
-    public static final String[] CHECKER_PARAMETER_NAMES =
-            new String[] {
-                "message",
-                "help",
-                "follow_generic_instantiations",
-                "category",
-                "subcategory",
-                "remediation",
-                "execution_cost",
-                "parametric_exemption",
-                "impact",
-                "target"
-            };
+    public static final String[] CHECKER_PARAMETER_NAMES = new String[] {
+        "message",
+        "help",
+        "follow_generic_instantiations",
+        "category",
+        "subcategory",
+        "remediation",
+        "execution_cost",
+        "parametric_exemption",
+        "impact",
+        "target"
+    };
 
     /** The default values for annotation parameters. */
     public static final Object[] CHECKER_PARAMETER_DEFAULT_VALUES =

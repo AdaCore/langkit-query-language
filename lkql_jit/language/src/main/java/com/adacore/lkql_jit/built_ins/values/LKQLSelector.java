@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -64,10 +64,7 @@ public class LKQLSelector extends BasicLKQLValue {
      * @param documentation The documentation of the selector.
      */
     public LKQLSelector(
-            final SelectorRootNode rootNode,
-            final Closure closure,
-            final String name,
-            final String documentation) {
+            final SelectorRootNode rootNode, final Closure closure, final String name, final String documentation) {
         this.rootNode = rootNode;
         this.closure = closure;
         this.name = name;
@@ -89,8 +86,7 @@ public class LKQLSelector extends BasicLKQLValue {
      * @param minDepth The minimal depth of the selector list.
      * @param depth The precise depth to get.
      */
-    public LKQLSelectorList getList(
-            Libadalang.AdaNode node, int maxDepth, int minDepth, int depth) {
+    public LKQLSelectorList getList(Libadalang.AdaNode node, int maxDepth, int minDepth, int depth) {
         return new LKQLSelectorList(this.rootNode, this.closure, node, maxDepth, minDepth, depth);
     }
 

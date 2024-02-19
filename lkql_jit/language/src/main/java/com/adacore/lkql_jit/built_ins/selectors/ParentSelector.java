@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -101,22 +101,16 @@ public final class ParentSelector implements BuiltInSelector {
         SelectorArm[] res = new SelectorArm[2];
 
         // Create the children path
-        DotAccess toUnpack =
-                DotAccessNodeGen.create(
-                        null, new Identifier(null, "parent"), new ReadBuiltInThis());
-        SelectorArm parentPath =
-                new SelectorArm(
-                        null,
-                        new NodeKindPattern(null, "AdaNode"),
-                        new SelectorExpr(null, SelectorExpr.Mode.REC, toUnpack));
+        DotAccess toUnpack = DotAccessNodeGen.create(null, new Identifier(null, "parent"), new ReadBuiltInThis());
+        SelectorArm parentPath = new SelectorArm(
+                null, new NodeKindPattern(null, "AdaNode"), new SelectorExpr(null, SelectorExpr.Mode.REC, toUnpack));
         res[0] = parentPath;
 
         // Create the universal path
-        SelectorArm universalPath =
-                new SelectorArm(
-                        null,
-                        new UniversalPattern(null),
-                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
+        SelectorArm universalPath = new SelectorArm(
+                null,
+                new UniversalPattern(null),
+                new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
         res[1] = universalPath;
 
         // Return the result

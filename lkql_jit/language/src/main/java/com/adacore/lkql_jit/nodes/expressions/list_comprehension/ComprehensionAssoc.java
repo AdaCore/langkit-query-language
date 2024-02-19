@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -106,9 +106,7 @@ public final class ComprehensionAssoc extends LKQLNode {
             return this.collection.executeIterable(frame);
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_ITERABLE,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.collection);
+                    LKQLTypesHelper.LKQL_ITERABLE, LKQLTypesHelper.fromJava(e.getResult()), this.collection);
         }
     }
 
@@ -119,7 +117,6 @@ public final class ComprehensionAssoc extends LKQLNode {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"name", "slot"}, new Object[] {this.name, this.slot});
+        return this.nodeRepresentation(indentLevel, new String[] {"name", "slot"}, new Object[] {this.name, this.slot});
     }
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -163,16 +163,11 @@ public final class UnitCheckerFunction {
             arguments[1] = unit;
             for (int i = 1; i < functionValue.parameterDefaultValues.length; i++) {
                 String paramName = functionValue.parameterNames[i];
-                Object userDefinedArg =
-                        context.getRuleArg(
-                                (aliasName == null
-                                        ? lowerRuleName
-                                        : StringUtils.toLowerCase(aliasName)),
-                                paramName);
-                arguments[i + 1] =
-                        userDefinedArg == null
-                                ? functionValue.parameterDefaultValues[i].executeGeneric(frame)
-                                : userDefinedArg;
+                Object userDefinedArg = context.getRuleArg(
+                        (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)), paramName);
+                arguments[i + 1] = userDefinedArg == null
+                        ? functionValue.parameterDefaultValues[i].executeGeneric(frame)
+                        : userDefinedArg;
             }
 
             // Put the closure in the arguments
@@ -181,14 +176,10 @@ public final class UnitCheckerFunction {
             // Get the message list from the checker function
             final Iterable violationList;
             try {
-                violationList =
-                        LKQLTypeSystemGen.expectIterable(
-                                this.interopLibrary.execute(functionValue, arguments));
+                violationList = LKQLTypeSystemGen.expectIterable(this.interopLibrary.execute(functionValue, arguments));
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_LIST,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        functionValue.getBody());
+                        LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.fromJava(e.getResult()), functionValue.getBody());
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
@@ -228,20 +219,12 @@ public final class UnitCheckerFunction {
                     genericInstantiations = node.pGenericInstantiations();
                 } else {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.ADA_NODE,
-                            LKQLTypesHelper.fromJava(loc),
-                            functionValue.getBody());
+                            LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(loc), functionValue.getBody());
                 }
 
                 context.getDiagnosticEmitter()
                         .emitRuleViolation(
-                                lowerRuleName,
-                                message,
-                                slocRange,
-                                locUnit,
-                                genericInstantiations,
-                                linesCache,
-                                context);
+                                lowerRuleName, message, slocRange, locUnit, genericInstantiations, linesCache, context);
             }
         }
     }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -130,9 +130,7 @@ public final class LKQLTypesHelper {
     public static String fromJava(Object obj, String defaultValue) {
         if (LKQLTypeSystemGen.isUnit(obj)) {
             return LKQL_UNIT;
-        } else if (LKQLTypeSystemGen.isLong(obj)
-                || LKQLTypeSystemGen.isBigInteger(obj)
-                || obj instanceof Integer) {
+        } else if (LKQLTypeSystemGen.isLong(obj) || LKQLTypeSystemGen.isBigInteger(obj) || obj instanceof Integer) {
             return LKQL_INTEGER;
         } else if (LKQLTypeSystemGen.isString(obj)) {
             return LKQL_STRING;
@@ -277,12 +275,8 @@ public final class LKQLTypesHelper {
             Object[] values = {
                 aspect.exists,
                 aspect.inherited,
-                aspect.node.node.isNull()
-                        ? LKQLNull.INSTANCE
-                        : Libadalang.AdaNode.fromEntity(aspect.node),
-                aspect.value.node.isNull()
-                        ? LKQLNull.INSTANCE
-                        : Libadalang.AdaNode.fromEntity(aspect.value)
+                aspect.node.node.isNull() ? LKQLNull.INSTANCE : Libadalang.AdaNode.fromEntity(aspect.node),
+                aspect.value.node.isNull() ? LKQLNull.INSTANCE : Libadalang.AdaNode.fromEntity(aspect.value)
             };
             return LKQLObject.createUncached(keys, values);
         }
@@ -303,8 +297,7 @@ public final class LKQLTypesHelper {
         else if (javaValue instanceof Libadalang.ParamActual paramActual) {
             String[] keys = {"actual", "param"};
             Object[] values = {
-                Libadalang.AdaNode.fromEntity(paramActual.actual),
-                Libadalang.AdaNode.fromEntity(paramActual.param)
+                Libadalang.AdaNode.fromEntity(paramActual.actual), Libadalang.AdaNode.fromEntity(paramActual.param)
             };
             return LKQLObject.createUncached(keys, values);
         }

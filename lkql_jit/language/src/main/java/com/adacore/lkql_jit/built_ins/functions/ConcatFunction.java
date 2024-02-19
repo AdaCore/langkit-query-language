@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -85,9 +85,7 @@ public final class ConcatFunction {
                                             LKQLTypesHelper.fromJava(item),
                                             call.getArgList().getArgs()[0]);
                                 }
-                                result =
-                                        StringUtils.concat(
-                                                result, LKQLTypeSystemGen.asString(item));
+                                result = StringUtils.concat(result, LKQLTypeSystemGen.asString(item));
                             }
 
                             // Return the result
@@ -97,7 +95,8 @@ public final class ConcatFunction {
                         // If the first item is a list look for lists in the list
                         if (LKQLTypeSystemGen.isLKQLList(firstItem)) {
                             // Create a result array and add all list of the argument
-                            Object[] result = LKQLTypeSystemGen.asLKQLList(firstItem).getContent();
+                            Object[] result =
+                                    LKQLTypeSystemGen.asLKQLList(firstItem).getContent();
                             for (int i = 1; i < listValue.size(); i++) {
                                 final Object item = listValue.get(i);
                                 if (!LKQLTypeSystemGen.isLKQLList(item)) {
@@ -106,18 +105,16 @@ public final class ConcatFunction {
                                             LKQLTypesHelper.fromJava(item),
                                             call.getArgList().getArgs()[0]);
                                 }
-                                result =
-                                        ArrayUtils.concat(
-                                                result,
-                                                LKQLTypeSystemGen.asLKQLList(item).getContent());
+                                result = ArrayUtils.concat(
+                                        result,
+                                        LKQLTypeSystemGen.asLKQLList(item).getContent());
                             }
                             return new LKQLList(result);
                         }
 
                         // Else there is an error
                         throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.typeUnion(
-                                        LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
+                                LKQLTypesHelper.typeUnion(LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
                                 LKQLTypesHelper.fromJava(firstItem),
                                 call.getArgList().getArgs()[0]);
                     }

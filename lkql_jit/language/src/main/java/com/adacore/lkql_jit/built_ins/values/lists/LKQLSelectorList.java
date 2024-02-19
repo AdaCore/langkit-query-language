@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -106,8 +106,7 @@ public class LKQLSelectorList extends LKQLLazyList {
             // Get the first recurse item and execute the selector on it
             LKQLDepthNode nextNode = this.recursList.remove(0);
             SelectorRootNode.SelectorCallResult result =
-                    this.dispatcher.executeDispatch(
-                            this.rootNode, this.closure.getContent(), nextNode);
+                    this.dispatcher.executeDispatch(this.rootNode, this.closure.getContent(), nextNode);
 
             // If the result is a selector call result, do the needed operations
             if (!LKQLTypeSystemGen.isNullish(result.result())) {

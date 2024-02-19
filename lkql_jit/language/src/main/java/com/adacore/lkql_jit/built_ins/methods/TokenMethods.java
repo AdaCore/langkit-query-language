@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -45,74 +45,48 @@ import java.util.Map;
  */
 public final class TokenMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
-            Map.ofEntries(
-                    create(
-                            "start_column",
-                            "Return the column start",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new StartColExpr()),
-                    create(
-                            "end_column",
-                            "Return the column end",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new EndColExpr()),
-                    create(
-                            "start_line",
-                            "Return the line start",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new StartLineExpr()),
-                    create(
-                            "end_line",
-                            "Return the line end",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new EndLineExpr()),
-                    create(
-                            "is_equivalent",
-                            "Return whether two tokens are structurally equivalent",
-                            new String[] {"this", "other"},
-                            new Expr[] {null, null},
-                            new IsEquivalentExpr()),
-                    create(
-                            "is_trivia",
-                            "Return whether this token is a trivia",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new IsTriviaExpr()),
-                    create(
-                            "next",
-                            "Return the next token",
-                            new String[] {"token", "exclude_trivia"},
-                            new Expr[] {null, new BooleanLiteral(null, false)},
-                            new NextExpr()),
-                    create(
-                            "previous",
-                            "Return the previous token",
-                            new String[] {"token", "exclude_trivia"},
-                            new Expr[] {null, new BooleanLiteral(null, false)},
-                            new PrevExpr()),
-                    create(
-                            "unit",
-                            "Return the unit for this token",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new UnitExpr()),
-                    create(
-                            "text",
-                            "Return the text of the token",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new TextExpr()),
-                    create(
-                            "kind",
-                            "Return the kind of the token",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new KindExpr()));
+    public static final Map<String, BuiltInFunctionValue> methods = Map.ofEntries(
+            create(
+                    "start_column",
+                    "Return the column start",
+                    new String[] {"token"},
+                    new Expr[] {null},
+                    new StartColExpr()),
+            create("end_column", "Return the column end", new String[] {"token"}, new Expr[] {null}, new EndColExpr()),
+            create(
+                    "start_line",
+                    "Return the line start",
+                    new String[] {"token"},
+                    new Expr[] {null},
+                    new StartLineExpr()),
+            create("end_line", "Return the line end", new String[] {"token"}, new Expr[] {null}, new EndLineExpr()),
+            create(
+                    "is_equivalent",
+                    "Return whether two tokens are structurally equivalent",
+                    new String[] {"this", "other"},
+                    new Expr[] {null, null},
+                    new IsEquivalentExpr()),
+            create(
+                    "is_trivia",
+                    "Return whether this token is a trivia",
+                    new String[] {"token"},
+                    new Expr[] {null},
+                    new IsTriviaExpr()),
+            create(
+                    "next",
+                    "Return the next token",
+                    new String[] {"token", "exclude_trivia"},
+                    new Expr[] {null, new BooleanLiteral(null, false)},
+                    new NextExpr()),
+            create(
+                    "previous",
+                    "Return the previous token",
+                    new String[] {"token", "exclude_trivia"},
+                    new Expr[] {null, new BooleanLiteral(null, false)},
+                    new PrevExpr()),
+            create("unit", "Return the unit for this token", new String[] {"token"}, new Expr[] {null}, new UnitExpr()),
+            create("text", "Return the text of the token", new String[] {"token"}, new Expr[] {null}, new TextExpr()),
+            create("kind", "Return the kind of the token", new String[] {"token"}, new Expr[] {null}, new KindExpr()));
 
     // ----- Inner classes -----
 
@@ -120,11 +94,7 @@ public final class TokenMethods {
     public static final class StartColExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return (long)
-                    LKQLTypeSystemGen.asToken(frame.getArguments()[0])
-                            .sourceLocationRange
-                            .start
-                            .column;
+            return (long) LKQLTypeSystemGen.asToken(frame.getArguments()[0]).sourceLocationRange.start.column;
         }
     }
 
@@ -132,11 +102,7 @@ public final class TokenMethods {
     public static final class EndColExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return (long)
-                    LKQLTypeSystemGen.asToken(frame.getArguments()[0])
-                            .sourceLocationRange
-                            .end
-                            .column;
+            return (long) LKQLTypeSystemGen.asToken(frame.getArguments()[0]).sourceLocationRange.end.column;
         }
     }
 
@@ -144,11 +110,7 @@ public final class TokenMethods {
     public static final class StartLineExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return (long)
-                    LKQLTypeSystemGen.asToken(frame.getArguments()[0])
-                            .sourceLocationRange
-                            .start
-                            .line;
+            return (long) LKQLTypeSystemGen.asToken(frame.getArguments()[0]).sourceLocationRange.start.line;
         }
     }
 
@@ -156,8 +118,7 @@ public final class TokenMethods {
     public static final class EndLineExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return (long)
-                    LKQLTypeSystemGen.asToken(frame.getArguments()[0]).sourceLocationRange.end.line;
+            return (long) LKQLTypeSystemGen.asToken(frame.getArguments()[0]).sourceLocationRange.end.line;
         }
     }
 
@@ -204,7 +165,8 @@ public final class TokenMethods {
                         this.callNode.getArgList().getArgs()[1]);
             }
 
-            Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).next();
+            Libadalang.Token res =
+                    LKQLTypeSystemGen.asToken(frame.getArguments()[0]).next();
             if (ignoreTrivia) {
                 while (!res.isNone() && res.triviaIndex != 0) {
                     res = res.next();
@@ -230,7 +192,8 @@ public final class TokenMethods {
                         this.callNode.getArgList().getArgs()[1]);
             }
 
-            Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).previous();
+            Libadalang.Token res =
+                    LKQLTypeSystemGen.asToken(frame.getArguments()[0]).previous();
             if (ignoreTrivia) {
                 while (!res.isNone() && res.triviaIndex != 0) {
                     res = res.previous();

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -34,9 +34,7 @@ import picocli.CommandLine;
 
 @CommandLine.Command(name = "doc", description = "Generate API doc for LKQL modules, in RST format")
 public class LKQLDoc implements Callable<Integer> {
-    @CommandLine.Option(
-            names = "--std",
-            description = "Generate apidoc for the prelude & builtin functions")
+    @CommandLine.Option(names = "--std", description = "Generate apidoc for the prelude & builtin functions")
     public boolean documentStd;
 
     @CommandLine.Option(
@@ -62,11 +60,9 @@ public class LKQLDoc implements Callable<Integer> {
                 //  "interactive" in order for the eval of the TopLevelList to return its result.
                 // We need to think about how to fix that at the language level, so that we don't
                 // have to call `eval` with `interactive=true` below.
-                var res =
-                        context.eval(
-                                Source.newBuilder("lkql", "document_builtins()", "<input>")
-                                        .interactive(true)
-                                        .build());
+                var res = context.eval(Source.newBuilder("lkql", "document_builtins()", "<input>")
+                        .interactive(true)
+                        .build());
                 writer.write(res.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -76,18 +72,13 @@ public class LKQLDoc implements Callable<Integer> {
         for (var mod : modules) {
             var path = FileSystems.getDefault().getPath(outputDir, mod + ".rst");
             try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-                context.eval(
-                        Source.newBuilder("lkql", "import " + mod, "<input>")
+                context.eval(Source.newBuilder("lkql", "import " + mod, "<input>")
+                        .interactive(true)
+                        .build());
+                var doc = context.eval(
+                        Source.newBuilder("lkql", "document_namespace(" + mod + ",\"" + mod + "\")", "<input>")
                                 .interactive(true)
                                 .build());
-                var doc =
-                        context.eval(
-                                Source.newBuilder(
-                                                "lkql",
-                                                "document_namespace(" + mod + ",\"" + mod + "\")",
-                                                "<input>")
-                                        .interactive(true)
-                                        .build());
                 writer.write(doc.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);

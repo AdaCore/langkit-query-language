@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -85,19 +85,17 @@ public final class ScriptFrames {
     public void enterFrame(final Liblkqllang.LkqlNode node) {
         if (this.current == null) {
             if (!this.root.node.equals(node)) {
-                throw new TranslatorException(
-                        "Cannot enter the root frame because of node inequality");
+                throw new TranslatorException("Cannot enter the root frame because of node inequality");
             }
             this.current = this.root;
         } else {
             if (!this.current.children.containsKey(node)) {
-                throw new TranslatorException(
-                        "Cannot enter the frame, "
-                                + node
-                                + " isn't in the children"
-                                + " (current: "
-                                + this.current.node
-                                + ")");
+                throw new TranslatorException("Cannot enter the frame, "
+                        + node
+                        + " isn't in the children"
+                        + " (current: "
+                        + this.current.node
+                        + ")");
             }
             this.current = this.current.children.get(node);
         }
@@ -249,12 +247,7 @@ public final class ScriptFrames {
 
     @Override
     public String toString() {
-        return "ScriptFrames("
-                + "\n\tbuilt_ins: "
-                + this.builtIns
-                + "\n\troot: "
-                + this.root
-                + "\n)";
+        return "ScriptFrames(" + "\n\tbuilt_ins: " + this.builtIns + "\n\troot: " + this.root + "\n)";
     }
 
     // ----- Inner classes -----
@@ -306,8 +299,7 @@ public final class ScriptFrames {
          * @param node Associated node.
          * @param parent The parent of the node frame.
          */
-        protected AbstractNodeFrame(
-                final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
+        protected AbstractNodeFrame(final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
             this.node = node;
             this.parent = parent;
             this.children = new HashMap<>();
@@ -340,8 +332,7 @@ public final class ScriptFrames {
          */
         public void declareBinding(final String symbol) {
             if (!this.bindings.containsKey(symbol)) {
-                throw new TranslatorException(
-                        "Cannot declare the binding '" + symbol + "' if it doesn't exist");
+                throw new TranslatorException("Cannot declare the binding '" + symbol + "' if it doesn't exist");
             }
             this.bindings.get(symbol).declared = true;
         }
@@ -471,10 +462,7 @@ public final class ScriptFrames {
          */
         public ClosureDescriptor getClosureDescriptor() {
             return new ClosureDescriptor(
-                    this.closureCounter,
-                    this.closingBindings,
-                    this.closingParameters,
-                    this.closingClosure);
+                    this.closureCounter, this.closingBindings, this.closingParameters, this.closingClosure);
         }
 
         // --- Symbol methods
@@ -514,9 +502,7 @@ public final class ScriptFrames {
             // Ensure the symbol exists in the closure
             if (!this.closure.containsKey(symbol)) {
                 throw new TranslatorException(
-                        "Cannot verify declaration of a non-existing closure symbol: '"
-                                + symbol
-                                + "'");
+                        "Cannot verify declaration of a non-existing closure symbol: '" + symbol + "'");
             }
 
             // Look in the parent if it is not null
@@ -593,11 +579,9 @@ public final class ScriptFrames {
             }
 
             // Get the next available slot for the child and return it
-            final List<Integer> childAssociatedSlots =
-                    this.virtualChildrenAssociatedSlots.get(child);
+            final List<Integer> childAssociatedSlots = this.virtualChildrenAssociatedSlots.get(child);
             if (childAssociatedSlots.size() >= this.virtualChildrenSlots.size()) {
-                this.virtualChildrenSlots.add(
-                        this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, null, null));
+                this.virtualChildrenSlots.add(this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, null, null));
             }
             final int slot = this.virtualChildrenSlots.get(childAssociatedSlots.size());
             childAssociatedSlots.add(slot);
@@ -614,15 +598,9 @@ public final class ScriptFrames {
                     + (!this.bindings.isEmpty() ? ", bindings: " + this.bindings : "")
                     + (!this.parameters.isEmpty() ? ", parameters: " + this.parameters : "")
                     + (!this.closure.isEmpty() ? ", closure: " + this.closure : "")
-                    + (!this.closingBindings.isEmpty()
-                            ? ", closing_bindings: " + this.closingBindings
-                            : "")
-                    + (!this.closingParameters.isEmpty()
-                            ? ", closing_parameters: " + this.closingParameters
-                            : "")
-                    + (!this.closingClosure.isEmpty()
-                            ? ", closing_closure: " + this.closingClosure
-                            : "")
+                    + (!this.closingBindings.isEmpty() ? ", closing_bindings: " + this.closingBindings : "")
+                    + (!this.closingParameters.isEmpty() ? ", closing_parameters: " + this.closingParameters : "")
+                    + (!this.closingClosure.isEmpty() ? ", closing_closure: " + this.closingClosure : "")
                     + (!this.children.isEmpty() ? ", children: " + this.children.values() : "")
                     + ")";
         }

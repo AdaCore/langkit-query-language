@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -38,7 +38,8 @@ public final class TupleLiteral extends Expr {
     // ----- Children -----
 
     /** The expressions contained in the tuple. */
-    @Children private final Expr[] exprs;
+    @Children
+    private final Expr[] exprs;
 
     // ----- Constructors -----
 

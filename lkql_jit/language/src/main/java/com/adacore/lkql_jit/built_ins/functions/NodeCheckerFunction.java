@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -120,8 +120,7 @@ public final class NodeCheckerFunction {
                 final boolean inSparkCode = currentStep.inSparkCode();
 
                 try {
-                    if (mustFollowInstantiations
-                            && currentNode instanceof Libadalang.GenericInstantiation genInst) {
+                    if (mustFollowInstantiations && currentNode instanceof Libadalang.GenericInstantiation genInst) {
                         // If the node is a generic instantiation, traverse the instantiated generic
                         final Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
                         final Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
@@ -130,8 +129,7 @@ public final class NodeCheckerFunction {
                             visitList.addFirst(new VisitStep(genBody, true, inSparkCode));
                         }
                         visitList.addFirst(new VisitStep(genDecl, true, inSparkCode));
-                    } else if (inGenericInstantiation
-                            && currentNode instanceof Libadalang.BodyStub stub) {
+                    } else if (inGenericInstantiation && currentNode instanceof Libadalang.BodyStub stub) {
                         // If this node is a body stub and we are currently traversing a generic
                         // instantiation,
                         // we should also traverse the stub's completion.
@@ -139,29 +137,18 @@ public final class NodeCheckerFunction {
                         visitList.addFirst(new VisitStep(stubBody, true, inSparkCode));
                     }
                 } catch (Libadalang.LangkitException e) {
-                    context.println(
-                            StringUtils.concat(
-                                    "Error during generic instantiation walking: ",
-                                    e.getMessage()));
+                    context.println(StringUtils.concat("Error during generic instantiation walking: ", e.getMessage()));
                     continue;
                 }
 
                 // Apply the "both" checkers
-                this.executeCheckers(
-                        frame, currentStep, currentNode, allNodeCheckers, context, linesCache);
+                this.executeCheckers(frame, currentStep, currentNode, allNodeCheckers, context, linesCache);
 
                 // If we're in Ada code execute the Ada checkers else execute the SPARK checkers
                 if (inSparkCode) {
-                    this.executeCheckers(
-                            frame,
-                            currentStep,
-                            currentNode,
-                            sparkNodeCheckers,
-                            context,
-                            linesCache);
+                    this.executeCheckers(frame, currentStep, currentNode, sparkNodeCheckers, context, linesCache);
                 } else {
-                    this.executeCheckers(
-                            frame, currentStep, currentNode, adaNodeCheckers, context, linesCache);
+                    this.executeCheckers(frame, currentStep, currentNode, adaNodeCheckers, context, linesCache);
                 }
 
                 // Add the children to the visit list
@@ -174,13 +161,9 @@ public final class NodeCheckerFunction {
                         // SPARK checkers. This avoids useless calls to 'pIsSubjectToProof'.
                         if (hasSparkCheckers && child instanceof Libadalang.BaseSubpBody subpBody) {
                             visitList.addFirst(
-                                    new VisitStep(
-                                            child,
-                                            inGenericInstantiation,
-                                            subpBody.pIsSubjectToProof()));
+                                    new VisitStep(child, inGenericInstantiation, subpBody.pIsSubjectToProof()));
                         } else {
-                            visitList.addFirst(
-                                    new VisitStep(child, inGenericInstantiation, inSparkCode));
+                            visitList.addFirst(new VisitStep(child, inGenericInstantiation, inSparkCode));
                         }
                     }
                 }
@@ -209,8 +192,7 @@ public final class NodeCheckerFunction {
                 CheckerUtils.SourceLinesCache linesCache) {
             // For each checker apply it on the current node if needed
             for (NodeChecker checker : checkers) {
-                if (!currentStep.inGenericInstantiation()
-                        || checker.isFollowGenericInstantiations()) {
+                if (!currentStep.inGenericInstantiation() || checker.isFollowGenericInstantiations()) {
                     try {
                         this.applyNodeRule(frame, checker, currentNode, context, linesCache);
                     } catch (LangkitException e) {
@@ -224,8 +206,7 @@ public final class NodeCheckerFunction {
                                             currentNode.getUnit(),
                                             currentNode.getSourceLocationRange().start,
                                             e.getLoc().toString(),
-                                            StringUtils.concat(
-                                                    "LANGKIT_SUPPORT.ERRORS.", e.getKind()),
+                                            StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getKind()),
                                             e.getMsg(),
                                             context);
                         }
@@ -271,16 +252,12 @@ public final class NodeCheckerFunction {
             arguments[1] = node;
             for (int i = 1; i < functionValue.parameterDefaultValues.length; i++) {
                 String paramName = functionValue.parameterNames[i];
-                Object userDefinedArg =
-                        context.getRuleArg(
-                                (aliasName == null
-                                        ? lowerRuleName
-                                        : StringUtils.toLowerCase(aliasName)),
-                                StringUtils.toLowerCase(paramName));
-                arguments[i + 1] =
-                        userDefinedArg == null
-                                ? functionValue.parameterDefaultValues[i].executeGeneric(frame)
-                                : userDefinedArg;
+                Object userDefinedArg = context.getRuleArg(
+                        (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
+                        StringUtils.toLowerCase(paramName));
+                arguments[i + 1] = userDefinedArg == null
+                        ? functionValue.parameterDefaultValues[i].executeGeneric(frame)
+                        : userDefinedArg;
             }
 
             // Place the closure in the arguments
@@ -289,14 +266,10 @@ public final class NodeCheckerFunction {
             // Call the checker
             final boolean ruleResult;
             try {
-                ruleResult =
-                        LKQLTypeSystemGen.expectBoolean(
-                                interopLibrary.execute(functionValue, arguments));
+                ruleResult = LKQLTypeSystemGen.expectBoolean(interopLibrary.execute(functionValue, arguments));
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        functionValue.getBody());
+                        LKQLTypesHelper.LKQL_BOOLEAN, LKQLTypesHelper.fromJava(e.getResult()), functionValue.getBody());
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
@@ -344,7 +317,6 @@ public final class NodeCheckerFunction {
          * @param node The node to visit.
          * @param inGenericInstantiation Whether the visit is currently in a generic instantiation.
          */
-        private record VisitStep(
-                Libadalang.AdaNode node, boolean inGenericInstantiation, boolean inSparkCode) {}
+        private record VisitStep(Libadalang.AdaNode node, boolean inGenericInstantiation, boolean inSparkCode) {}
     }
 }

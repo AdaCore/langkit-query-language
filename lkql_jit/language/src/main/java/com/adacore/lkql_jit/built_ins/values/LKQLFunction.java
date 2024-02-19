@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -52,7 +52,8 @@ public class LKQLFunction extends BasicLKQLValue {
     public final Closure closure;
 
     /** The name of the function. */
-    @CompilerDirectives.CompilationFinal public String name;
+    @CompilerDirectives.CompilationFinal
+    public String name;
 
     /** The documentation of the function. */
     public final String documentation;
@@ -175,9 +176,7 @@ public class LKQLFunction extends BasicLKQLValue {
         /** Execute the function with the uncached strategy. */
         @Specialization(replaces = "doCached")
         protected static Object doUncached(
-                final LKQLFunction function,
-                final Object[] arguments,
-                @Cached() IndirectCallNode indirectCallNode) {
+                final LKQLFunction function, final Object[] arguments, @Cached() IndirectCallNode indirectCallNode) {
             return indirectCallNode.call(function.getCallTarget(), arguments);
         }
     }
@@ -208,7 +207,8 @@ public class LKQLFunction extends BasicLKQLValue {
         for (int i = 0; i < parameterNames.length; i++) {
             var defVal = parameterDefaultValues[i];
             if (defVal != null) {
-                expandedParams.add(parameterNames[i] + "=" + defVal.getLocation().getText());
+                expandedParams.add(
+                        parameterNames[i] + "=" + defVal.getLocation().getText());
             } else {
                 expandedParams.add(parameterNames[i]);
             }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -30,18 +30,13 @@ import picocli.CommandLine.Command;
         mixinStandardHelpOptions = true,
         name = "lkql",
         synopsisSubcommandLabel = "COMMAND",
-        subcommands = {
-            LKQLLauncher.LKQLRun.class,
-            LKQLChecker.Args.class,
-            GNATCheckWorker.Args.class,
-            LKQLDoc.class
-        },
-        description =
-                "Unified driver for LKQL (Langkit query language). Allows you to run LKQL "
-                        + "scripts or apply specific checks on a given Ada codebase")
+        subcommands = {LKQLLauncher.LKQLRun.class, LKQLChecker.Args.class, GNATCheckWorker.Args.class, LKQLDoc.class},
+        description = "Unified driver for LKQL (Langkit query language). Allows you to run LKQL "
+                + "scripts or apply specific checks on a given Ada codebase")
 public class LKQLMain implements Callable<Integer> {
 
-    @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+    @CommandLine.Spec
+    CommandLine.Model.CommandSpec spec;
 
     @Override
     public Integer call() throws Exception {

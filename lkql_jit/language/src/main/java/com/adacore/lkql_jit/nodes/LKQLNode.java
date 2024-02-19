@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -160,13 +160,10 @@ public abstract class LKQLNode extends Node implements Locatable {
         List<String> res = new ArrayList<>();
 
         // Get the fields annotated with child or children
-        List<Field> childFields =
-                ReflectionUtils.getFieldsUpTo(this.getClass(), null).stream()
-                        .filter(
-                                field ->
-                                        field.getAnnotation(Child.class) != null
-                                                || field.getAnnotation(Children.class) != null)
-                        .toList();
+        List<Field> childFields = ReflectionUtils.getFieldsUpTo(this.getClass(), null).stream()
+                .filter(field ->
+                        field.getAnnotation(Child.class) != null || field.getAnnotation(Children.class) != null)
+                .toList();
 
         // Add all field to the result
         for (Field childField : childFields) {
@@ -230,11 +227,10 @@ public abstract class LKQLNode extends Node implements Locatable {
                 // Add the string to the result
                 res.add(childField.getName() + " = " + fieldValueString);
             } catch (Exception e) {
-                System.err.println(
-                        "Cannot get the child "
-                                + childField.getName()
-                                + " for "
-                                + this.getClass().getSimpleName());
+                System.err.println("Cannot get the child "
+                        + childField.getName()
+                        + " for "
+                        + this.getClass().getSimpleName());
             }
         }
 

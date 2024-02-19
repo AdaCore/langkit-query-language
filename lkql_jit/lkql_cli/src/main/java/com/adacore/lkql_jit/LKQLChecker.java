@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -46,12 +46,12 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
     @CommandLine.Command(
             name = "check",
-            description =
-                    "Alternative checker driver. Like GNATcheck but with less options "
-                            + "& a more modern command line interface")
+            description = "Alternative checker driver. Like GNATcheck but with less options "
+                    + "& a more modern command line interface")
     public static class Args implements Callable<Integer> {
 
-        @CommandLine.Spec public picocli.CommandLine.Model.CommandSpec spec;
+        @CommandLine.Spec
+        public picocli.CommandLine.Model.CommandSpec spec;
 
         @CommandLine.Parameters(description = "Files to analyze")
         public List<String> files = new ArrayList<String>();
@@ -74,9 +74,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         @CommandLine.Option(
                 names = {"-U", "--recursive"},
-                description =
-                        "Process all units in the project tree, excluding externally built"
-                                + " projects")
+                description = "Process all units in the project tree, excluding externally built" + " projects")
         public boolean recursive;
 
         @CommandLine.Option(
@@ -89,9 +87,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 description = "Enable the verbose mode")
         public boolean verbose;
 
-        @CommandLine.Option(
-                names = "--rules-dir",
-                description = "Additional directories where rules will be sought")
+        @CommandLine.Option(names = "--rules-dir", description = "Additional directories where rules will be sought")
         public List<String> rulesDirs = new ArrayList<String>();
 
         @CommandLine.Option(
@@ -101,9 +97,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         @CommandLine.Option(
                 names = {"-a", "--rule-arg"},
-                description =
-                        "Argument to pass to a rule, with the syntax"
-                                + " <rule_name>.<arg_name>=<arg_value>")
+                description = "Argument to pass to a rule, with the syntax" + " <rule_name>.<arg_name>=<arg_value>")
         public List<String> rulesArgs = new ArrayList<String>();
 
         enum PropertyErrorRecoveryMode {
@@ -120,12 +114,11 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 description = "Ada files to ignore during analysis")
         public String ignores = null;
 
-        @CommandLine.Option(
-                names = "--keep-going-on-missing-file",
-                description = "Keep going on missing file")
+        @CommandLine.Option(names = "--keep-going-on-missing-file", description = "Keep going on missing file")
         public Boolean keepGoingOnMissingFile = false;
 
-        @CommandLine.Unmatched public List<String> unmatched;
+        @CommandLine.Unmatched
+        public List<String> unmatched;
 
         @Override
         public Integer call() {
@@ -217,9 +210,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         }
 
         // Set the charset
-        if (this.args.charset != null
-                && !this.args.charset.isEmpty()
-                && !this.args.charset.isBlank()) {
+        if (this.args.charset != null && !this.args.charset.isEmpty() && !this.args.charset.isBlank()) {
             contextBuilder.option("lkql.charset", this.args.charset);
         }
 
@@ -233,13 +224,13 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         // Set the rule directories
         if (!this.args.rulesDirs.isEmpty()) {
-            contextBuilder.option(
-                    "lkql.rulesDirs", String.join(File.pathSeparator, this.args.rulesDirs));
+            contextBuilder.option("lkql.rulesDirs", String.join(File.pathSeparator, this.args.rulesDirs));
         }
 
         // Set the rule to apply
         if (!this.args.rules.isEmpty()) {
-            contextBuilder.option("lkql.rules", String.join(",", this.args.rules).toLowerCase());
+            contextBuilder.option(
+                    "lkql.rules", String.join(",", this.args.rules).toLowerCase());
         }
 
         // Set the rule argument
@@ -252,7 +243,8 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql").build();
+            final Source source =
+                    Source.newBuilder("lkql", checkerSource, "checker.lkql").build();
             final Value executable = context.parse(source);
             executable.executeVoid(true);
             return 0;
@@ -272,8 +264,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     }
 
     @Override
-    protected List<String> preprocessArguments(
-            List<String> arguments, Map<String, String> polyglotOptions) {
+    protected List<String> preprocessArguments(List<String> arguments, Map<String, String> polyglotOptions) {
         if (this.args.unmatched != null) {
             return this.args.unmatched;
         } else {

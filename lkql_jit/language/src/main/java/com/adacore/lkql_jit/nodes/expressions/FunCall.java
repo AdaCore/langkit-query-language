@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -82,11 +82,7 @@ public abstract class FunCall extends Expr {
      * @param calleeLocation The location of the callee expression.
      * @param argList The arguments of the function call.
      */
-    protected FunCall(
-            SourceLocation location,
-            boolean isSafe,
-            DummyLocation calleeLocation,
-            ArgList argList) {
+    protected FunCall(SourceLocation location, boolean isSafe, DummyLocation calleeLocation, ArgList argList) {
         super(location);
         this.isSafe = isSafe;
         this.calleeLocation = calleeLocation;
@@ -110,9 +106,7 @@ public abstract class FunCall extends Expr {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onBuiltIn(
-            VirtualFrame frame,
-            BuiltInFunctionValue builtIn,
-            @CachedLibrary("builtIn") InteropLibrary builtInLibrary) {
+            VirtualFrame frame, BuiltInFunctionValue builtIn, @CachedLibrary("builtIn") InteropLibrary builtInLibrary) {
         // Set the call node in the built-in function
         builtIn.setCallNode(this);
 
@@ -124,8 +118,7 @@ public abstract class FunCall extends Expr {
         // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
         // compilation error
         Object[] realArgs =
-                this.argList.executeArgList(
-                        frame.materialize(), actualParam, builtIn.getThisValue() == null ? 0 : 1);
+                this.argList.executeArgList(frame.materialize(), actualParam, builtIn.getThisValue() == null ? 0 : 1);
 
         // Add the "this" value to the arguments
         if (builtIn.getThisValue() != null) {
@@ -264,9 +257,7 @@ public abstract class FunCall extends Expr {
     @Fallback
     protected void nonExecutable(Object nonExec) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_FUNCTION,
-                LKQLTypesHelper.fromJava(nonExec),
-                this.calleeLocation);
+                LKQLTypesHelper.LKQL_FUNCTION, LKQLTypesHelper.fromJava(nonExec), this.calleeLocation);
     }
 
     // ----- Override methods -----
@@ -276,7 +267,6 @@ public abstract class FunCall extends Expr {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"isSafe"}, new Object[] {this.isSafe});
+        return this.nodeRepresentation(indentLevel, new String[] {"isSafe"}, new Object[] {this.isSafe});
     }
 }

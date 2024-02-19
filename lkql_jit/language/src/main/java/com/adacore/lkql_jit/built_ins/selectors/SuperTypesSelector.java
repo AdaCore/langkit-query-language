@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -107,25 +107,19 @@ public final class SuperTypesSelector implements BuiltInSelector {
 
         // Create the base type path
         DotAccess propertyAccess =
-                DotAccessNodeGen.create(
-                        null, new Identifier(null, "p_base_types"), new ReadBuiltInThis());
-        FunCall propertyCall =
-                FunCallNodeGen.create(
-                        null, false, null, new ArgList(null, new Arg[0]), propertyAccess);
-        SelectorArm baseTypePath =
-                new SelectorArm(
-                        null,
-                        new NodeKindPattern(null, "BaseTypeDecl"),
-                        new SelectorExpr(
-                                null, SelectorExpr.Mode.REC, new Unpack(null, propertyCall)));
+                DotAccessNodeGen.create(null, new Identifier(null, "p_base_types"), new ReadBuiltInThis());
+        FunCall propertyCall = FunCallNodeGen.create(null, false, null, new ArgList(null, new Arg[0]), propertyAccess);
+        SelectorArm baseTypePath = new SelectorArm(
+                null,
+                new NodeKindPattern(null, "BaseTypeDecl"),
+                new SelectorExpr(null, SelectorExpr.Mode.REC, new Unpack(null, propertyCall)));
         res[0] = baseTypePath;
 
         // Create the universal path
-        SelectorArm universalPath =
-                new SelectorArm(
-                        null,
-                        new UniversalPattern(null),
-                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
+        SelectorArm universalPath = new SelectorArm(
+                null,
+                new UniversalPattern(null),
+                new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
         res[1] = universalPath;
 
         // Return the result

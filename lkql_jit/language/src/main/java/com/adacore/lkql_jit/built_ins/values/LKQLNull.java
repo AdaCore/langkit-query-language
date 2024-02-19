@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -49,16 +49,15 @@ public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, 
 
     /** Private constructor for the null value. */
     private LKQLNull() {
-        super(
-                Libadalang.Entity.create(
-                        Libadalang.PointerWrapper.nullPointer(),
-                        Libadalang.EntityInfo.create(
-                                Libadalang.Metadata.create(
-                                        false,
-                                        Libadalang.PointerWrapper.nullPointer(),
-                                        Libadalang.PointerWrapper.nullPointer()),
+        super(Libadalang.Entity.create(
+                Libadalang.PointerWrapper.nullPointer(),
+                Libadalang.EntityInfo.create(
+                        Libadalang.Metadata.create(
+                                false,
                                 Libadalang.PointerWrapper.nullPointer(),
-                                false)));
+                                Libadalang.PointerWrapper.nullPointer()),
+                        Libadalang.PointerWrapper.nullPointer(),
+                        false)));
     }
 
     // ----- Node methods -----
@@ -84,8 +83,7 @@ public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, 
 
     /** Tell the interop API if the given other value is null. */
     @ExportMessage
-    static TriState isIdenticalOrUndefined(
-            @SuppressWarnings("unused") final LKQLNull receiver, final Object other) {
+    static TriState isIdenticalOrUndefined(@SuppressWarnings("unused") final LKQLNull receiver, final Object other) {
         return TriState.valueOf(receiver == other);
     }
 

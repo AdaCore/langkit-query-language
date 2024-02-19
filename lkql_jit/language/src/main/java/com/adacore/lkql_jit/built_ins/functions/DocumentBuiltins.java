@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -52,10 +52,9 @@ public class DocumentBuiltins {
                 writer.write(func.getName());
                 writer.write("(" + String.join(", ", func.parameterNames) + ")");
                 writer.write("\n\n");
-                writer.withIndent(
-                        () -> {
-                            writer.write(func.documentation);
-                        });
+                writer.withIndent(() -> {
+                    writer.write(func.documentation);
+                });
                 writer.write("\n");
                 writer.write("\n");
             }
@@ -69,10 +68,9 @@ public class DocumentBuiltins {
                 writer.write(sel.getName());
                 writer.write("()");
                 writer.write("\n\n");
-                writer.withIndent(
-                        () -> {
-                            writer.write(sel.getValue().lkqlDocumentation());
-                        });
+                writer.withIndent(() -> {
+                    writer.write(sel.getValue().lkqlDocumentation());
+                });
                 writer.write("\n");
                 writer.write("\n");
             }
@@ -81,20 +79,17 @@ public class DocumentBuiltins {
             writer.write("^^^^^^^^^^^^^^^\n");
             writer.write("\n");
 
-            var sortedBuiltinMethods =
-                    new java.util.ArrayList<>(
-                            BuiltInsHolder.get().builtInMethods.entrySet().stream()
-                                    .sorted(Map.Entry.comparingByKey())
-                                    .toList());
+            var sortedBuiltinMethods = new java.util.ArrayList<>(BuiltInsHolder.get().builtInMethods.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .toList());
 
             sortedBuiltinMethods.add(0, Map.entry("Any", BuiltInsHolder.get().commonMethods));
 
             for (var entry : sortedBuiltinMethods) {
 
-                var methods =
-                        entry.getValue().entrySet().stream()
-                                .sorted(Map.Entry.comparingByKey())
-                                .toList();
+                var methods = entry.getValue().entrySet().stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .toList();
 
                 // Skip type if there are no methods to document
                 if (methods.size() == 0) {
@@ -111,10 +106,9 @@ public class DocumentBuiltins {
                     writer.write(typeName + "." + method.getKey());
                     writer.write("(" + String.join(", ", method.getValue().parameterNames) + ")");
                     writer.write("\n\n");
-                    writer.withIndent(
-                            () -> {
-                                writer.write(method.getValue().documentation);
-                            });
+                    writer.withIndent(() -> {
+                        writer.write(method.getValue().documentation);
+                    });
                     writer.write("\n");
                     writer.write("\n");
                 }
@@ -132,7 +126,6 @@ public class DocumentBuiltins {
                 "Return a string in the RsT format containing documentation for all built-ins",
                 new String[] {},
                 new Expr[] {},
-                (VirtualFrame frame, FunCall call) ->
-                        documentBuiltinsImpl(frame.materialize(), call));
+                (VirtualFrame frame, FunCall call) -> documentBuiltinsImpl(frame.materialize(), call));
     }
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -122,12 +122,9 @@ public final class Import extends LKQLNode {
             LKQLContext context = LKQLLanguage.getContext(this);
 
             // Prepare the source
-            Source source =
-                    Source.newBuilder(
-                                    Constants.LKQL_ID,
-                                    context.getEnv()
-                                            .getPublicTruffleFile(moduleFile.getAbsolutePath()))
-                            .build();
+            Source source = Source.newBuilder(
+                            Constants.LKQL_ID, context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath()))
+                    .build();
 
             // Get the current context and parse the file with the internal strategy
             CallTarget target = context.getEnv().parseInternal(source);
@@ -158,18 +155,15 @@ public final class Import extends LKQLNode {
 
         // Compute the directories to import from
         String lkqlPath = System.getenv().getOrDefault(Constants.LKQL_PATH, "");
-        List<File> importableDirs =
-                new ArrayList<>(
-                        Arrays.stream(StringUtils.splitPaths(lkqlPath))
-                                .filter(s -> !s.isEmpty() && !s.isBlank())
-                                .map(File::new)
-                                .toList());
+        List<File> importableDirs = new ArrayList<>(Arrays.stream(StringUtils.splitPaths(lkqlPath))
+                .filter(s -> !s.isEmpty() && !s.isBlank())
+                .map(File::new)
+                .toList());
 
-        importableDirs.addAll(
-                Arrays.stream(LKQLLanguage.getContext(this).getRuleDirectories())
-                        .filter(s -> !s.isEmpty() && !s.isBlank())
-                        .map(File::new)
-                        .toList());
+        importableDirs.addAll(Arrays.stream(LKQLLanguage.getContext(this).getRuleDirectories())
+                .filter(s -> !s.isEmpty() && !s.isBlank())
+                .map(File::new)
+                .toList());
 
         // Search in the importable directories
         for (File dir : importableDirs) {
@@ -193,7 +187,6 @@ public final class Import extends LKQLNode {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"name", "slot"}, new Object[] {this.name, this.slot});
+        return this.nodeRepresentation(indentLevel, new String[] {"name", "slot"}, new Object[] {this.name, this.slot});
     }
 }

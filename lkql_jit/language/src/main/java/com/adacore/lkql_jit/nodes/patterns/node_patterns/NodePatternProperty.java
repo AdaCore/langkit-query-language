@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -65,8 +65,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      * @param argList The arguments for the property call.
      * @param expected The expected value of the property call.
      */
-    public NodePatternProperty(
-            SourceLocation location, String propertyName, ArgList argList, DetailValue expected) {
+    public NodePatternProperty(SourceLocation location, String propertyName, ArgList argList, DetailValue expected) {
         super(location);
         this.propertyName = propertyName;
         this.argList = argList;
@@ -129,7 +128,6 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"propertyName"}, new Object[] {this.propertyName});
+        return this.nodeRepresentation(indentLevel, new String[] {"propertyName"}, new Object[] {this.propertyName});
     }
 }

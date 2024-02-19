@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -88,8 +88,7 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
                     Object leftElem = lefts.readArrayElement(left, i);
                     Object rightElem = rights.readArrayElement(right, i);
                     if (leftElems.hasIdentity(leftElem)) {
-                        if (!leftElems.isIdentical(leftElem, rightElem, rightElems))
-                            return TriState.FALSE;
+                        if (!leftElems.isIdentical(leftElem, rightElem, rightElems)) return TriState.FALSE;
                     } else {
                         if (!ObjectUtils.equals(leftElem, rightElem)) return TriState.FALSE;
                     }

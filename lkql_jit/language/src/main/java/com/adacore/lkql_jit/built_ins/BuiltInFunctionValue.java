@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -54,37 +54,19 @@ public final class BuiltInFunctionValue extends LKQLFunction {
      * @param body The expression representing the built-in body.
      */
     public BuiltInFunctionValue(
-            String name,
-            String documentation,
-            String[] names,
-            Expr[] defaultValues,
-            BuiltinFunctionBody body) {
-        super(
-                new FunctionRootNode(null, null, false, body),
-                Closure.EMPTY,
-                name,
-                documentation,
-                names,
-                defaultValues);
+            String name, String documentation, String[] names, Expr[] defaultValues, BuiltinFunctionBody body) {
+        super(new FunctionRootNode(null, null, false, body), Closure.EMPTY, name, documentation, names, defaultValues);
     }
 
     public BuiltInFunctionValue(
-            String name,
-            String documentation,
-            String[] names,
-            Expr[] defaultValues,
-            BuiltinFunctionCallback fn) {
+            String name, String documentation, String[] names, Expr[] defaultValues, BuiltinFunctionCallback fn) {
         super(
-                new FunctionRootNode(
-                        null,
-                        null,
-                        false,
-                        new BuiltinFunctionBody() {
-                            @Override
-                            public Object executeGeneric(VirtualFrame frame) {
-                                return fn.apply(frame, this.callNode);
-                            }
-                        }),
+                new FunctionRootNode(null, null, false, new BuiltinFunctionBody() {
+                    @Override
+                    public Object executeGeneric(VirtualFrame frame) {
+                        return fn.apply(frame, this.callNode);
+                    }
+                }),
                 Closure.EMPTY,
                 name,
                 documentation,
@@ -121,20 +103,12 @@ public final class BuiltInFunctionValue extends LKQLFunction {
     }
 
     public static Map.Entry<String, BuiltInFunctionValue> create(
-            String name,
-            String doc,
-            String[] names,
-            Expr[] defaultValues,
-            BuiltinFunctionCallback callback) {
+            String name, String doc, String[] names, Expr[] defaultValues, BuiltinFunctionCallback callback) {
         return Map.entry(name, new BuiltInFunctionValue(name, doc, names, defaultValues, callback));
     }
 
     public static Map.Entry<String, BuiltInFunctionValue> create(
-            String name,
-            String doc,
-            String[] names,
-            Expr[] defaultValues,
-            BuiltinFunctionBody body) {
+            String name, String doc, String[] names, Expr[] defaultValues, BuiltinFunctionBody body) {
         return Map.entry(name, new BuiltInFunctionValue(name, doc, names, defaultValues, body));
     }
 }

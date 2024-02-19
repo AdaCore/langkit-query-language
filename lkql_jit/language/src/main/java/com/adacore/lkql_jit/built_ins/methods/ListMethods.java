@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -44,55 +44,49 @@ import java.util.Map;
  */
 public class ListMethods {
 
-    private static final Map.Entry<String, BuiltInFunctionValue> sublistFunction =
-            create(
-                    "sublist",
-                    "Return a sublist of `list` from `low_bound` to `high_bound`",
-                    new String[] {"list", "low_bound", "high_bound"},
-                    new Expr[] {null, null, null},
-                    (VirtualFrame frame, FunCall call) -> {
-                        var args = frame.getArguments();
+    private static final Map.Entry<String, BuiltInFunctionValue> sublistFunction = create(
+            "sublist",
+            "Return a sublist of `list` from `low_bound` to `high_bound`",
+            new String[] {"list", "low_bound", "high_bound"},
+            new Expr[] {null, null, null},
+            (VirtualFrame frame, FunCall call) -> {
+                var args = frame.getArguments();
 
-                        if (!LKQLTypeSystemGen.isLKQLList(args[0])) {
-                            throw LKQLRuntimeException.wrongType(
-                                    LKQLTypesHelper.LKQL_LIST,
-                                    LKQLTypesHelper.fromJava(args[0]),
-                                    call.getArgList().getArgs()[0]);
-                        }
+                if (!LKQLTypeSystemGen.isLKQLList(args[0])) {
+                    throw LKQLRuntimeException.wrongType(
+                            LKQLTypesHelper.LKQL_LIST,
+                            LKQLTypesHelper.fromJava(args[0]),
+                            call.getArgList().getArgs()[0]);
+                }
 
-                        if (!LKQLTypeSystemGen.isLong(args[1])) {
-                            throw LKQLRuntimeException.wrongType(
-                                    LKQLTypesHelper.LKQL_INTEGER,
-                                    LKQLTypesHelper.fromJava(args[1]),
-                                    call.getArgList().getArgs()[1]);
-                        }
+                if (!LKQLTypeSystemGen.isLong(args[1])) {
+                    throw LKQLRuntimeException.wrongType(
+                            LKQLTypesHelper.LKQL_INTEGER,
+                            LKQLTypesHelper.fromJava(args[1]),
+                            call.getArgList().getArgs()[1]);
+                }
 
-                        if (!LKQLTypeSystemGen.isLong(args[2])) {
-                            throw LKQLRuntimeException.wrongType(
-                                    LKQLTypesHelper.LKQL_INTEGER,
-                                    LKQLTypesHelper.fromJava(args[2]),
-                                    call.getArgList().getArgs()[2]);
-                        }
+                if (!LKQLTypeSystemGen.isLong(args[2])) {
+                    throw LKQLRuntimeException.wrongType(
+                            LKQLTypesHelper.LKQL_INTEGER,
+                            LKQLTypesHelper.fromJava(args[2]),
+                            call.getArgList().getArgs()[2]);
+                }
 
-                        LKQLList list = LKQLTypeSystemGen.asLKQLList(args[0]);
-                        long lowBound = LKQLTypeSystemGen.asLong(args[1]);
-                        long highBound = LKQLTypeSystemGen.asLong(args[2]);
+                LKQLList list = LKQLTypeSystemGen.asLKQLList(args[0]);
+                long lowBound = LKQLTypeSystemGen.asLong(args[1]);
+                long highBound = LKQLTypeSystemGen.asLong(args[2]);
 
-                        if (lowBound < 1) {
-                            throw LKQLRuntimeException.invalidIndex((int) lowBound, call);
-                        } else if (highBound > list.getContent().length) {
-                            throw LKQLRuntimeException.invalidIndex((int) highBound, call);
-                        }
+                if (lowBound < 1) {
+                    throw LKQLRuntimeException.invalidIndex((int) lowBound, call);
+                } else if (highBound > list.getContent().length) {
+                    throw LKQLRuntimeException.invalidIndex((int) highBound, call);
+                }
 
-                        return new LKQLList(
-                                Arrays.copyOfRange(
-                                        list.getContent(), (int) lowBound - 1, (int) highBound));
-                    });
+                return new LKQLList(Arrays.copyOfRange(list.getContent(), (int) lowBound - 1, (int) highBound));
+            });
 
-    public static final Map<String, BuiltInFunctionValue> methods =
-            BuiltInsHolder.combine(
-                    Map.ofEntries(
-                            Map.entry(UniqueFunction.NAME, UniqueFunction.getValue()),
-                            sublistFunction),
-                    IterableMethods.methods);
+    public static final Map<String, BuiltInFunctionValue> methods = BuiltInsHolder.combine(
+            Map.ofEntries(Map.entry(UniqueFunction.NAME, UniqueFunction.getValue()), sublistFunction),
+            IterableMethods.methods);
 }

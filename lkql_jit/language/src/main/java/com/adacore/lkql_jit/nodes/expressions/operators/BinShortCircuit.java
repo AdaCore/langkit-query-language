@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -87,9 +87,7 @@ public abstract class BinShortCircuit extends Expr {
             leftValue = this.left.executeBoolean(frame);
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.left);
+                    LKQLTypesHelper.LKQL_BOOLEAN, LKQLTypesHelper.fromJava(e.getResult()), this.left);
         }
 
         // Execute the right value if needed
@@ -99,9 +97,7 @@ public abstract class BinShortCircuit extends Expr {
                 rightValue = this.right.executeBoolean(frame);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.right);
+                        LKQLTypesHelper.LKQL_BOOLEAN, LKQLTypesHelper.fromJava(e.getResult()), this.right);
             }
         }
 

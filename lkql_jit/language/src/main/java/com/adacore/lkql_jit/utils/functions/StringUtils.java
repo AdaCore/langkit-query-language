@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -272,27 +272,21 @@ public final class StringUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static String underlineSource(
-            String[] lines,
-            int startLine,
-            int startCol,
-            int endLine,
-            int endCol,
-            String underLineColor) {
+            String[] lines, int startLine, int startCol, int endLine, int endCol, String underLineColor) {
         // Prepare the result
         StringBuilder res = new StringBuilder();
         int colSize = String.valueOf(endLine).length();
 
         // Create the function to start a line
-        Consumer<Integer> lineStarting =
-                (lineNum) -> {
-                    res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
-                    if (lineNum < 1) {
-                        res.append(" ".repeat(colSize));
-                    } else {
-                        res.append(fill(String.valueOf(lineNum), colSize));
-                    }
-                    res.append(" |").append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
-                };
+        Consumer<Integer> lineStarting = (lineNum) -> {
+            res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
+            if (lineNum < 1) {
+                res.append(" ".repeat(colSize));
+            } else {
+                res.append(fill(String.valueOf(lineNum), colSize));
+            }
+            res.append(" |").append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
+        };
 
         // If the source is single line
         if (lines.length == 1) {

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -197,12 +197,7 @@ public final class ScriptFramesBuilder {
 
     @Override
     public String toString() {
-        return "ScriptFramesBuilder("
-                + "built_ins: "
-                + this.builtIns
-                + ", root: "
-                + this.root
-                + ")";
+        return "ScriptFramesBuilder(" + "built_ins: " + this.builtIns + ", root: " + this.root + ")";
     }
 
     // ----- Inner classes -----
@@ -243,9 +238,7 @@ public final class ScriptFramesBuilder {
          * @param isVirtual If the frame is a virtual one.
          */
         private NodeFrameBuilder(
-                final Liblkqllang.LkqlNode node,
-                final NodeFrameBuilder parent,
-                final boolean isVirtual) {
+                final Liblkqllang.LkqlNode node, final NodeFrameBuilder parent, final boolean isVirtual) {
             this.node = node;
             this.parent = parent;
             this.children = new ArrayList<>();
@@ -263,10 +256,9 @@ public final class ScriptFramesBuilder {
          */
         public ScriptFrames.AbstractNodeFrame build(final ScriptFrames.AbstractNodeFrame parent) {
             // Create the result node frame
-            final ScriptFrames.AbstractNodeFrame res =
-                    this.isVirtual
-                            ? new ScriptFrames.VirtualNodeFrame(this.node, parent)
-                            : new ScriptFrames.NodeFrame(this.node, parent);
+            final ScriptFrames.AbstractNodeFrame res = this.isVirtual
+                    ? new ScriptFrames.VirtualNodeFrame(this.node, parent)
+                    : new ScriptFrames.NodeFrame(this.node, parent);
 
             // Add all bindings to the node frame
             final boolean saveNames = this.node instanceof Liblkqllang.TopLevelList;

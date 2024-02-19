@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -63,16 +63,11 @@ public final class LKQLListComprehension extends LKQLLazyList {
      */
     @CompilerDirectives.TruffleBoundary
     public LKQLListComprehension(
-            final ListComprehensionRootNode rootNode,
-            final Closure closure,
-            final Object[][] argumentsList) {
+            final ListComprehensionRootNode rootNode, final Closure closure, final Object[][] argumentsList) {
         this.rootNode = rootNode;
         this.dispatcher = ListComprehensionDispatcherNodeGen.create();
         this.argumentsList = argumentsList;
-        this.arguments =
-                this.argumentsList.length > 0
-                        ? new Object[this.argumentsList[0].length + 1]
-                        : new Object[1];
+        this.arguments = this.argumentsList.length > 0 ? new Object[this.argumentsList[0].length + 1] : new Object[1];
         this.arguments[0] = closure.getContent();
         this.pointer = 0;
     }

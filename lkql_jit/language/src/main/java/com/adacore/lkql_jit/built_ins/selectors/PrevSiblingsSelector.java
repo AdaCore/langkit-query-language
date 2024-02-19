@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -89,8 +89,7 @@ public final class PrevSiblingsSelector implements BuiltInSelector {
      */
     @Override
     public LKQLSelector getValue() {
-        return new BuiltInSelectorValue(
-                NAME, "Yields the siblings preceding the given node in the tree\n", this.arms);
+        return new BuiltInSelectorValue(NAME, "Yields the siblings preceding the given node in the tree\n", this.arms);
     }
 
     // ----- Class methods -----
@@ -106,24 +105,17 @@ public final class PrevSiblingsSelector implements BuiltInSelector {
 
         // Create the previous path
         DotAccess propertyAccess =
-                DotAccessNodeGen.create(
-                        null, new Identifier(null, "previous_sibling"), new ReadBuiltInThis());
-        FunCall funCall =
-                FunCallNodeGen.create(
-                        null, false, null, new ArgList(null, new Arg[0]), propertyAccess);
-        SelectorArm prevSiblingPath =
-                new SelectorArm(
-                        null,
-                        new NodeKindPattern(null, "AdaNode"),
-                        new SelectorExpr(null, SelectorExpr.Mode.REC, funCall));
+                DotAccessNodeGen.create(null, new Identifier(null, "previous_sibling"), new ReadBuiltInThis());
+        FunCall funCall = FunCallNodeGen.create(null, false, null, new ArgList(null, new Arg[0]), propertyAccess);
+        SelectorArm prevSiblingPath = new SelectorArm(
+                null, new NodeKindPattern(null, "AdaNode"), new SelectorExpr(null, SelectorExpr.Mode.REC, funCall));
         res[0] = prevSiblingPath;
 
         // Create the universal path
-        SelectorArm universalPath =
-                new SelectorArm(
-                        null,
-                        new UniversalPattern(null),
-                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
+        SelectorArm universalPath = new SelectorArm(
+                null,
+                new UniversalPattern(null),
+                new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
         res[1] = universalPath;
 
         // Return the result

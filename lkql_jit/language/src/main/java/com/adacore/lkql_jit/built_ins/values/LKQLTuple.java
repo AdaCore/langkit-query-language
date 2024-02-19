@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -67,15 +67,13 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
                 @CachedLibrary("right") InteropLibrary rights,
                 @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
                 @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems) {
-            return TriState.valueOf(
-                    arrayValueEquals(left, right, lefts, rights, leftElems, rightElems));
+            return TriState.valueOf(arrayValueEquals(left, right, lefts, rights, leftElems, rightElems));
         }
 
         /** Do the comparison with another element. */
         @Fallback
         public static TriState onOther(
-                @SuppressWarnings("unused") final LKQLTuple receiver,
-                @SuppressWarnings("unused") final Object other) {
+                @SuppressWarnings("unused") final LKQLTuple receiver, @SuppressWarnings("unused") final Object other) {
             return TriState.UNDEFINED;
         }
     }

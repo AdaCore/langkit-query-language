@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -46,87 +46,85 @@ import java.util.Map;
  */
 public class StrMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
-            Map.ofEntries(
-                    Map.entry(BaseNameFunction.NAME, BaseNameFunction.getValue()),
-                    create(
-                            "to_lower_case",
-                            "Return the given string written with lower case characters only",
-                            new String[] {"str"},
-                            new Expr[] {null},
-                            new ToLowerCaseExpr()),
-                    create(
-                            "is_lower_case",
-                            "Return whether the given string contains lower case characters only",
-                            new String[] {"str"},
-                            new Expr[] {null},
-                            new IsLowerCaseExpr()),
-                    create(
-                            "to_upper_case",
-                            "Return the given string written with upper case characters only",
-                            new String[] {"str"},
-                            new Expr[] {null},
-                            new ToUpperCaseExpr()),
-                    create(
-                            "is_upper_case",
-                            "Return whether the given string contains upper case characters only",
-                            new String[] {"str"},
-                            new Expr[] {null},
-                            new IsUpperCaseExpr()),
-                    create(
-                            "is_mixed_case",
-                            "Return whether the given string is written in mixed case, that is,"
-                                + " with only lower case characters except the first one and every"
-                                + " character following an underscore",
-                            new String[] {"str"},
-                            new Expr[] {null},
-                            new IsMixedCaseExpr()),
-                    create(
-                            "length",
-                            "Given a string, return the length of it in character",
-                            new String[] {"str"},
-                            new Expr[] {null},
-                            new LengthExpr()),
-                    create(
-                            "substring",
-                            "Given a string and two indices (from and to), return the substring"
-                                    + " contained between indices from and to (both included)",
-                            new String[] {"str", "from", "to"},
-                            new Expr[] {null, null, null},
-                            new SubstringExpr()),
-                    create(
-                            "split",
-                            "Given a string, return an iterator on the words contained by str"
-                                    + " separated by separator",
-                            new String[] {"str", "separator"},
-                            new Expr[] {null, null},
-                            new SplitExpr()),
-                    create(
-                            "contains",
-                            "Search for to_find in the given string. Return whether a match is"
-                                    + " found. to_find can be either a pattern or a string",
-                            new String[] {"str", "to_find"},
-                            new Expr[] {null, null},
-                            new ContainsExpr()),
-                    create(
-                            "find",
-                            "Search for to_find in the given string. Return position of the match,"
-                                + " or -1 if no match. to_find can be either a pattern or a string",
-                            new String[] {"str", "to_find"},
-                            new Expr[] {null, null},
-                            new FindExpr()),
-                    create(
-                            "starts_with",
-                            "Given a string, returns whether it starts with the given prefix",
-                            new String[] {"str", "prefix"},
-                            new Expr[] {null, null},
-                            new StartsWithExpr()),
-                    create(
-                            "ends_with",
-                            "Given a string, returns whether it ends with the given suffix",
-                            new String[] {"str", "suffix"},
-                            new Expr[] {null, null},
-                            new EndsWithExpr()));
+    public static final Map<String, BuiltInFunctionValue> methods = Map.ofEntries(
+            Map.entry(BaseNameFunction.NAME, BaseNameFunction.getValue()),
+            create(
+                    "to_lower_case",
+                    "Return the given string written with lower case characters only",
+                    new String[] {"str"},
+                    new Expr[] {null},
+                    new ToLowerCaseExpr()),
+            create(
+                    "is_lower_case",
+                    "Return whether the given string contains lower case characters only",
+                    new String[] {"str"},
+                    new Expr[] {null},
+                    new IsLowerCaseExpr()),
+            create(
+                    "to_upper_case",
+                    "Return the given string written with upper case characters only",
+                    new String[] {"str"},
+                    new Expr[] {null},
+                    new ToUpperCaseExpr()),
+            create(
+                    "is_upper_case",
+                    "Return whether the given string contains upper case characters only",
+                    new String[] {"str"},
+                    new Expr[] {null},
+                    new IsUpperCaseExpr()),
+            create(
+                    "is_mixed_case",
+                    "Return whether the given string is written in mixed case, that is,"
+                            + " with only lower case characters except the first one and every"
+                            + " character following an underscore",
+                    new String[] {"str"},
+                    new Expr[] {null},
+                    new IsMixedCaseExpr()),
+            create(
+                    "length",
+                    "Given a string, return the length of it in character",
+                    new String[] {"str"},
+                    new Expr[] {null},
+                    new LengthExpr()),
+            create(
+                    "substring",
+                    "Given a string and two indices (from and to), return the substring"
+                            + " contained between indices from and to (both included)",
+                    new String[] {"str", "from", "to"},
+                    new Expr[] {null, null, null},
+                    new SubstringExpr()),
+            create(
+                    "split",
+                    "Given a string, return an iterator on the words contained by str" + " separated by separator",
+                    new String[] {"str", "separator"},
+                    new Expr[] {null, null},
+                    new SplitExpr()),
+            create(
+                    "contains",
+                    "Search for to_find in the given string. Return whether a match is"
+                            + " found. to_find can be either a pattern or a string",
+                    new String[] {"str", "to_find"},
+                    new Expr[] {null, null},
+                    new ContainsExpr()),
+            create(
+                    "find",
+                    "Search for to_find in the given string. Return position of the match,"
+                            + " or -1 if no match. to_find can be either a pattern or a string",
+                    new String[] {"str", "to_find"},
+                    new Expr[] {null, null},
+                    new FindExpr()),
+            create(
+                    "starts_with",
+                    "Given a string, returns whether it starts with the given prefix",
+                    new String[] {"str", "prefix"},
+                    new Expr[] {null, null},
+                    new StartsWithExpr()),
+            create(
+                    "ends_with",
+                    "Given a string, returns whether it ends with the given suffix",
+                    new String[] {"str", "suffix"},
+                    new Expr[] {null, null},
+                    new EndsWithExpr()));
 
     // ----- Inner classes -----
 
@@ -235,8 +233,7 @@ public class StrMethods {
 
             // Cast the arguments
             BigInteger startBig =
-                    BigIntegerUtils.subtract(
-                            LKQLTypeSystemGen.asImplicitBigInteger(startObject), BigInteger.ONE);
+                    BigIntegerUtils.subtract(LKQLTypeSystemGen.asImplicitBigInteger(startObject), BigInteger.ONE);
             BigInteger endBig = LKQLTypeSystemGen.asImplicitBigInteger(endObject);
 
             int start = BigIntegerUtils.intValue(startBig);
@@ -275,9 +272,7 @@ public class StrMethods {
 
             // Split the string
             String[] separated =
-                    StringUtils.split(
-                            LKQLTypeSystemGen.asString(toSplit),
-                            LKQLTypeSystemGen.asString(separatorObject));
+                    StringUtils.split(LKQLTypeSystemGen.asString(toSplit), LKQLTypeSystemGen.asString(separatorObject));
 
             // Return the list value of the split string
             return new LKQLList(separated);

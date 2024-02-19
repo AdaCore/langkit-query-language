@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -64,8 +64,7 @@ public final class Closure {
      * @return The newly created closure
      */
     @CompilerDirectives.TruffleBoundary
-    public static Closure create(
-            final MaterializedFrame frame, final ClosureDescriptor closureDescriptor) {
+    public static Closure create(final MaterializedFrame frame, final ClosureDescriptor closureDescriptor) {
         // Create the content of the closure
         final Cell[] content = new Cell[closureDescriptor.getClosureSize()];
 
@@ -78,15 +77,13 @@ public final class Closure {
         // Put all needed parameters in the closure
         for (Map.Entry<Integer, Integer> closingParameter :
                 closureDescriptor.getClosingParameters().entrySet()) {
-            content[closingParameter.getKey()] =
-                    new Cell(frame.getArguments()[closingParameter.getValue()]);
+            content[closingParameter.getKey()] = new Cell(frame.getArguments()[closingParameter.getValue()]);
         }
 
         // Put all needed closure values in the closure
         for (Map.Entry<Integer, Integer> closingClosure :
                 closureDescriptor.getClosingClosures().entrySet()) {
-            content[closingClosure.getKey()] =
-                    ((Cell[]) frame.getArguments()[0])[closingClosure.getValue()];
+            content[closingClosure.getKey()] = ((Cell[]) frame.getArguments()[0])[closingClosure.getValue()];
         }
 
         // Return the new closure

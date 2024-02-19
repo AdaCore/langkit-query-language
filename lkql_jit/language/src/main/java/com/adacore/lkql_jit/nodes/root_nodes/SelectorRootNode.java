@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -36,8 +36,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorRootNode
-        extends MemoizedRootNode<LKQLDepthNode, SelectorRootNode.SelectorCallResult> {
+public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthNode, SelectorRootNode.SelectorCallResult> {
 
     // ----- Attributes -----
 
@@ -53,7 +52,8 @@ public final class SelectorRootNode
     // ----- Children -----
 
     /** The selector arms. */
-    @Children private final SelectorArm[] arms;
+    @Children
+    private final SelectorArm[] arms;
 
     // ----- Constructors -----
 

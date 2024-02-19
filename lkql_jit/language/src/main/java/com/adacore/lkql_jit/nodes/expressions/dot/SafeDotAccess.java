@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -139,8 +139,7 @@ public abstract class SafeDotAccess extends Expr {
      */
     @Fallback
     protected void onGeneric(Object receiver) {
-        throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(receiver), this);
+        throw LKQLRuntimeException.wrongType(LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(receiver), this);
     }
 
     // ----- Class methods -----
@@ -159,9 +158,7 @@ public abstract class SafeDotAccess extends Expr {
             if (builtIn.parameterNames.length <= 1) {
                 try {
                     return builtInLibrary.execute(builtIn, receiver);
-                } catch (ArityException
-                        | UnsupportedTypeException
-                        | UnsupportedMessageException e) {
+                } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                     // TODO: Implement runtime checks in the LKQLFunction class and base computing
                     // on them (#138)
                     throw LKQLRuntimeException.fromJavaException(e, this.member);
@@ -186,8 +183,7 @@ public abstract class SafeDotAccess extends Expr {
     protected BuiltInFunctionValue getBuiltIn(Object receiver) {
         // Get the LKQL context
         LKQLContext context = LKQLLanguage.getContext(this);
-        Map<String, BuiltInFunctionValue> metaTable =
-                context.getMetaTable(LKQLTypesHelper.fromJava(receiver));
+        Map<String, BuiltInFunctionValue> metaTable = context.getMetaTable(LKQLTypesHelper.fromJava(receiver));
 
         // Return the built-in method or null
         return metaTable.getOrDefault(this.member.getName(), null);
@@ -200,7 +196,6 @@ public abstract class SafeDotAccess extends Expr {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"member"}, new Object[] {this.member});
+        return this.nodeRepresentation(indentLevel, new String[] {"member"}, new Object[] {this.member});
     }
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -52,8 +52,7 @@ public abstract class BinNeq extends BinOp {
      * @param leftLocation The location of the left node.
      * @param rightLocation The location of the right node.
      */
-    protected BinNeq(
-            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
+    protected BinNeq(SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
         super(location, leftLocation, rightLocation);
     }
 
@@ -68,8 +67,7 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization
     protected boolean neqUnit(
-            @SuppressWarnings("unused") final LKQLUnit left,
-            @SuppressWarnings("unused") final LKQLUnit right) {
+            @SuppressWarnings("unused") final LKQLUnit left, @SuppressWarnings("unused") final LKQLUnit right) {
         return false;
     }
 
@@ -243,8 +241,7 @@ public abstract class BinNeq extends BinOp {
      * @return The result of the non-equality verification.
      */
     @Specialization
-    protected boolean neqAnalysisUnits(
-            Libadalang.AnalysisUnit left, Libadalang.AnalysisUnit right) {
+    protected boolean neqAnalysisUnits(Libadalang.AnalysisUnit left, Libadalang.AnalysisUnit right) {
         return !left.equals(right);
     }
 

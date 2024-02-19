@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -48,8 +48,7 @@ public abstract class InClause extends BinOp {
      * @param leftLocation The location of the left node.
      * @param rightLocation The location of the right node.
      */
-    protected InClause(
-            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
+    protected InClause(SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
         super(location, leftLocation, rightLocation);
     }
 
@@ -80,9 +79,7 @@ public abstract class InClause extends BinOp {
     @Fallback
     protected void notIterable(@SuppressWarnings("unused") Object elem, Object notIterable) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_LIST,
-                LKQLTypesHelper.fromJava(notIterable),
-                this.rightLocation);
+                LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.fromJava(notIterable), this.rightLocation);
     }
 
     // ----- Override methods -----

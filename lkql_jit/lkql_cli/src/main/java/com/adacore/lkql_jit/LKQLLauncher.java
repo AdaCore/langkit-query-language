@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -50,7 +50,8 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     @CommandLine.Command(name = "run", description = "Run the LKQL interpreter on a given script")
     public static class LKQLRun implements Callable<Integer> {
 
-        @CommandLine.Spec public CommandLine.Model.CommandSpec spec;
+        @CommandLine.Spec
+        public CommandLine.Model.CommandSpec spec;
 
         @CommandLine.Parameters(description = "Files to analyze")
         public List<String> files;
@@ -73,9 +74,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
         @CommandLine.Option(
                 names = {"-U", "--recursive"},
-                description =
-                        "Process all units in the project tree, excluding externally built"
-                                + " projects")
+                description = "Process all units in the project tree, excluding externally built" + " projects")
         public boolean recursive;
 
         @CommandLine.Option(
@@ -88,7 +87,8 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                 description = "Enable the verbose mode")
         public boolean verbose;
 
-        @CommandLine.Unmatched public List<String> unmatched;
+        @CommandLine.Unmatched
+        public List<String> unmatched;
 
         @CommandLine.Option(
                 names = {"-S", "--script-path"},
@@ -100,9 +100,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                 description = "Run a REPL")
         public boolean interactive;
 
-        @CommandLine.Option(
-                names = "--keep-going-on-missing-file",
-                description = "Keep going on missing file")
+        @CommandLine.Option(names = "--keep-going-on-missing-file", description = "Keep going on missing file")
         public Boolean keepGoingOnMissingFile = false;
 
         @Override
@@ -203,16 +201,15 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         }
 
         // Set the charset
-        if (this.args.charset != null
-                && !this.args.charset.isEmpty()
-                && !this.args.charset.isBlank()) {
+        if (this.args.charset != null && !this.args.charset.isEmpty() && !this.args.charset.isBlank()) {
             contextBuilder.option("lkql.charset", this.args.charset);
         }
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
             if (this.args.script != null) {
-                final Source source = Source.newBuilder("lkql", new File(this.args.script)).build();
+                final Source source =
+                        Source.newBuilder("lkql", new File(this.args.script)).build();
                 context.eval(source);
             }
 
@@ -223,10 +220,9 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                     String line = null;
                     try {
                         line = reader.readLine(prompt);
-                        final Source source =
-                                Source.newBuilder("lkql", line, "<input>")
-                                        .interactive(true)
-                                        .build();
+                        final Source source = Source.newBuilder("lkql", line, "<input>")
+                                .interactive(true)
+                                .build();
                         context.eval(source);
                     } catch (UserInterruptException e) {
                         // Ignore
@@ -261,8 +257,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
      * @return The unrecognized options.
      */
     @Override
-    protected List<String> preprocessArguments(
-            List<String> arguments, Map<String, String> polyglotOptions) {
+    protected List<String> preprocessArguments(List<String> arguments, Map<String, String> polyglotOptions) {
         if (this.args.unmatched != null) {
             return this.args.unmatched;
         } else {

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -59,10 +59,7 @@ public final class ListComprehensionRootNode extends BaseRootNode {
      * @param result The result expression of the list comprehension.
      */
     public ListComprehensionRootNode(
-            TruffleLanguage<?> language,
-            FrameDescriptor frameDescriptor,
-            Expr predicate,
-            Expr result) {
+            TruffleLanguage<?> language, FrameDescriptor frameDescriptor, Expr predicate, Expr result) {
         super(language, frameDescriptor);
         this.predicate = predicate;
         this.result = result;
@@ -94,9 +91,7 @@ public final class ListComprehensionRootNode extends BaseRootNode {
             }
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.predicate);
+                    LKQLTypesHelper.LKQL_BOOLEAN, LKQLTypesHelper.fromJava(e.getResult()), this.predicate);
         }
     }
 }

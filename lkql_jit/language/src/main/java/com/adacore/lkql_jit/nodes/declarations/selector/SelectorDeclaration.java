@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -93,15 +93,13 @@ public final class SelectorDeclaration extends Declaration {
         this.documentation = documentation;
         this.slot = slot;
 
-        this.selectorRootNode =
-                new SelectorRootNode(
-                        LKQLLanguage.getLanguage(this),
-                        frameDescriptor,
-                        annotation != null
-                                && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
-                        thisSlot,
-                        depthSlot,
-                        arms);
+        this.selectorRootNode = new SelectorRootNode(
+                LKQLLanguage.getLanguage(this),
+                frameDescriptor,
+                annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
+                thisSlot,
+                depthSlot,
+                arms);
     }
 
     // ----- Execution methods -----
@@ -130,7 +128,6 @@ public final class SelectorDeclaration extends Declaration {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"name", "slot"}, new Object[] {this.name, this.slot});
+        return this.nodeRepresentation(indentLevel, new String[] {"name", "slot"}, new Object[] {this.name, this.slot});
     }
 }

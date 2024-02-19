@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -119,9 +119,7 @@ public final class Query extends Expr {
                 through = this.throughExpr.executeSelector(frame);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_SELECTOR,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.throughExpr);
+                        LKQLTypesHelper.LKQL_SELECTOR, LKQLTypesHelper.fromJava(e.getResult()), this.throughExpr);
             }
         }
 
@@ -205,10 +203,9 @@ public final class Query extends Expr {
         // Iterate on all node in the iterator
         while (nodeIterator.hasNext()) {
             // Get the current node
-            Libadalang.AdaNode adaNode =
-                    this.throughExpr == null
-                            ? (Libadalang.AdaNode) nodeIterator.next()
-                            : ((LKQLDepthNode) nodeIterator.next()).getNode();
+            Libadalang.AdaNode adaNode = this.throughExpr == null
+                    ? (Libadalang.AdaNode) nodeIterator.next()
+                    : ((LKQLDepthNode) nodeIterator.next()).getNode();
 
             // If the pattern is a chained one
             if (this.pattern instanceof ChainedNodePattern chainedNodePattern) {
@@ -241,10 +238,9 @@ public final class Query extends Expr {
         // Iterate on all node in the iterator
         while (nodeIterator.hasNext()) {
             // Get the current node
-            Libadalang.AdaNode adaNode =
-                    this.throughExpr == null
-                            ? (Libadalang.AdaNode) nodeIterator.next()
-                            : ((LKQLDepthNode) nodeIterator.next()).getNode();
+            Libadalang.AdaNode adaNode = this.throughExpr == null
+                    ? (Libadalang.AdaNode) nodeIterator.next()
+                    : ((LKQLDepthNode) nodeIterator.next()).getNode();
 
             // If the pattern is a chained one
             if (this.pattern instanceof ChainedNodePattern chainedNodePattern) {
@@ -289,8 +285,7 @@ public final class Query extends Expr {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"queryKind"}, new Object[] {this.kind});
+        return this.nodeRepresentation(indentLevel, new String[] {"queryKind"}, new Object[] {this.kind});
     }
 
     // ----- Inner classes -----
@@ -408,8 +403,7 @@ public final class Query extends Expr {
                     if (!genBody.isNone()) {
                         this.queue.add(genBody);
                     }
-                } else if (next instanceof Libadalang.BodyStub stub
-                        && inGenericInstantiation(next)) {
+                } else if (next instanceof Libadalang.BodyStub stub && inGenericInstantiation(next)) {
                     // If this node is a body stub and we are currently traversing a generic
                     // instantiation,
                     // we should also traverse the stub's completion.

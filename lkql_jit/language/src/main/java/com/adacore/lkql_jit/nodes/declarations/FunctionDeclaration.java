@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -59,7 +59,8 @@ public final class FunctionDeclaration extends Declaration {
     // ----- Children -----
 
     /** Expression to get the function value from. */
-    @Child private FunExpr functionExpression;
+    @Child
+    private FunExpr functionExpression;
 
     // ----- Constructors -----
 
@@ -130,14 +131,11 @@ public final class FunctionDeclaration extends Declaration {
     private void exportChecker(VirtualFrame frame, LKQLFunction functionValue) {
         // Execute the annotation arguments
         final Object[] checkerArguments =
-                this.annotation
-                        .getArguments()
-                        .executeArgList(frame, Constants.CHECKER_PARAMETER_NAMES);
+                this.annotation.getArguments().executeArgList(frame, Constants.CHECKER_PARAMETER_NAMES);
 
         // Set the default values of the checker arguments
         for (int i = 0; i < checkerArguments.length; i++) {
-            if (checkerArguments[i] == null)
-                checkerArguments[i] = Constants.CHECKER_PARAMETER_DEFAULT_VALUES[i];
+            if (checkerArguments[i] == null) checkerArguments[i] = Constants.CHECKER_PARAMETER_DEFAULT_VALUES[i];
         }
 
         // Verify the message and help
@@ -153,39 +151,36 @@ public final class FunctionDeclaration extends Declaration {
                 };
 
         // Create the object value representing the checker
-        final BaseChecker checker =
-                this.checkerMode == CheckerMode.NODE
-                        ? new NodeChecker(
-                                this.name,
-                                functionValue,
-                                (String) checkerArguments[0],
-                                (String) checkerArguments[1],
-                                (boolean) checkerArguments[2],
-                                (String) checkerArguments[3],
-                                (String) checkerArguments[4],
-                                remediation,
-                                (long) checkerArguments[6],
-                                (boolean) checkerArguments[7],
-                                (String) checkerArguments[8],
-                                (String) checkerArguments[9])
-                        : new UnitChecker(
-                                this.name,
-                                functionValue,
-                                (String) checkerArguments[0],
-                                (String) checkerArguments[1],
-                                (boolean) checkerArguments[2],
-                                (String) checkerArguments[3],
-                                (String) checkerArguments[4],
-                                remediation,
-                                (long) checkerArguments[6],
-                                (boolean) checkerArguments[7],
-                                (String) checkerArguments[8],
-                                (String) checkerArguments[9]);
+        final BaseChecker checker = this.checkerMode == CheckerMode.NODE
+                ? new NodeChecker(
+                        this.name,
+                        functionValue,
+                        (String) checkerArguments[0],
+                        (String) checkerArguments[1],
+                        (boolean) checkerArguments[2],
+                        (String) checkerArguments[3],
+                        (String) checkerArguments[4],
+                        remediation,
+                        (long) checkerArguments[6],
+                        (boolean) checkerArguments[7],
+                        (String) checkerArguments[8],
+                        (String) checkerArguments[9])
+                : new UnitChecker(
+                        this.name,
+                        functionValue,
+                        (String) checkerArguments[0],
+                        (String) checkerArguments[1],
+                        (boolean) checkerArguments[2],
+                        (String) checkerArguments[3],
+                        (String) checkerArguments[4],
+                        remediation,
+                        (long) checkerArguments[6],
+                        (boolean) checkerArguments[7],
+                        (String) checkerArguments[8],
+                        (String) checkerArguments[9]);
 
         // Put the object in the context
-        LKQLLanguage.getContext(this)
-                .getGlobal()
-                .addChecker(StringUtils.toLowerCase(functionValue.getName()), checker);
+        LKQLLanguage.getContext(this).getGlobal().addChecker(StringUtils.toLowerCase(functionValue.getName()), checker);
     }
 
     // ----- Override methods -----
@@ -195,8 +190,7 @@ public final class FunctionDeclaration extends Declaration {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"slot"}, new Object[] {this.slot});
+        return this.nodeRepresentation(indentLevel, new String[] {"slot"}, new Object[] {this.slot});
     }
 
     // ----- Inner classes -----

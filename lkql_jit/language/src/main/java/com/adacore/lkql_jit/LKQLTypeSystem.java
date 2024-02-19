@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -112,9 +112,7 @@ public abstract class LKQLTypeSystem {
      */
     @TypeCheck(boolean.class)
     public static boolean isBoolean(Object value) {
-        return value instanceof Boolean
-                || value instanceof Truthy
-                || value instanceof Libadalang.AdaNode;
+        return value instanceof Boolean || value instanceof Truthy || value instanceof Libadalang.AdaNode;
     }
 
     /**

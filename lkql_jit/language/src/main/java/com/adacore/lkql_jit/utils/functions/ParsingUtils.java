@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -71,8 +71,7 @@ public class ParsingUtils {
 
             // Verify the rule argument syntax
             if (valueSplit.length != 2 || nameSplit.length != 2) {
-                throw LKQLRuntimeException.fromMessage(
-                        "Rule argument syntax error : '" + ruleArgSource + "'");
+                throw LKQLRuntimeException.fromMessage("Rule argument syntax error : '" + ruleArgSource + "'");
             }
 
             // Get the information from the rule argument source
@@ -81,18 +80,13 @@ public class ParsingUtils {
             final String valueSource = valueSplit[1].trim();
 
             // Parse the value source with Liblkqllang
-            try (Liblkqllang.AnalysisContext analysisContext =
-                    Liblkqllang.AnalysisContext.create()) {
+            try (Liblkqllang.AnalysisContext analysisContext = Liblkqllang.AnalysisContext.create()) {
                 // Parse the argument value source with Liblkqllang
-                final Liblkqllang.AnalysisUnit unit =
-                        analysisContext.getUnitFromBuffer(
-                                valueSource,
-                                "rule_argument",
-                                null,
-                                Liblkqllang.GrammarRule.EXPR_RULE);
+                final Liblkqllang.AnalysisUnit unit = analysisContext.getUnitFromBuffer(
+                        valueSource, "rule_argument", null, Liblkqllang.GrammarRule.EXPR_RULE);
                 final Liblkqllang.LkqlNode root = unit.getRoot();
-                final Source source =
-                        Source.newBuilder(Constants.LKQL_ID, valueSource, "rule_argument").build();
+                final Source source = Source.newBuilder(Constants.LKQL_ID, valueSource, "rule_argument")
+                        .build();
                 final LKQLNode node = LangkitTranslator.translate(root, source);
 
                 try {
@@ -102,8 +96,7 @@ public class ParsingUtils {
                     res.put(ruleName, ruleArgs);
                 } catch (Exception e) {
                     throw LKQLRuntimeException.fromMessage(
-                            "The rule argument value generated an interpreter error: "
-                                    + valueSource);
+                            "The rule argument value generated an interpreter error: " + valueSource);
                 }
             }
         }
@@ -121,8 +114,7 @@ public class ParsingUtils {
      * @param LKQLFile The LKQL file to parse.
      * @return A triplet containing rules, aliases and arguments.
      */
-    public static LKQLConfigFileResult parseLKQLConfigFile(
-            final LKQLContext context, final String LKQLFile) {
+    public static LKQLConfigFileResult parseLKQLConfigFile(final LKQLContext context, final String LKQLFile) {
         try {
             // Prepare the values to return
             final List<String> allRules = new ArrayList<>();
@@ -132,11 +124,9 @@ public class ParsingUtils {
             final Map<String, Map<String, Object>> args = new HashMap<>();
 
             // Create a new source for the LKQL file and parse it
-            final Source source =
-                    Source.newBuilder(
-                                    Constants.LKQL_ID,
-                                    context.getEnv().getPublicTruffleFile(LKQLFile))
-                            .build();
+            final Source source = Source.newBuilder(
+                            Constants.LKQL_ID, context.getEnv().getPublicTruffleFile(LKQLFile))
+                    .build();
             final CallTarget callTarget = context.getEnv().parseInternal(source);
 
             // Get the namespace of the LKQL config file to extract rule configuration
@@ -149,8 +139,7 @@ public class ParsingUtils {
             if (allRulesSource instanceof LKQLObject allRulesObject) {
                 processRulesObject(allRulesObject, allRules, aliases, args);
             } else {
-                throw LKQLRuntimeException.fromMessage(
-                        "LKQL config file must define a 'rules' top level object value");
+                throw LKQLRuntimeException.fromMessage("LKQL config file must define a 'rules' top level object value");
             }
 
             // Get the Ada rules (not mandatory)
@@ -160,8 +149,7 @@ public class ParsingUtils {
             }
 
             // Get the SPARK rules (not mandatory)
-            final Object sparkRulesSource =
-                    objectLibrary.getOrDefault(namespace, "spark_rules", null);
+            final Object sparkRulesSource = objectLibrary.getOrDefault(namespace, "spark_rules", null);
             if (sparkRulesSource instanceof LKQLObject sparkRulesObject) {
                 processRulesObject(sparkRulesObject, sparkRules, aliases, args);
             }
@@ -196,21 +184,16 @@ public class ParsingUtils {
             }
 
             // For each rule argument check its type and parse it
-            final Object[] ruleArgsContent = LKQLTypeSystemGen.asIndexable(ruleArgs).getContent();
+            final Object[] ruleArgsContent =
+                    LKQLTypeSystemGen.asIndexable(ruleArgs).getContent();
             if (ruleArgsContent.length == 0) {
                 rules.add(ruleName);
             } else {
                 for (Object ruleArg : ruleArgsContent) {
                     if (!LKQLTypeSystemGen.isLKQLObject(ruleArg)) {
-                        throw LKQLRuntimeException.fromMessage(
-                                "Rule argument must be an object value");
+                        throw LKQLRuntimeException.fromMessage("Rule argument must be an object value");
                     }
-                    processArgObject(
-                            ruleName,
-                            LKQLTypeSystemGen.asLKQLObject(ruleArg),
-                            rules,
-                            aliases,
-                            args);
+                    processArgObject(ruleName, LKQLTypeSystemGen.asLKQLObject(ruleArg), rules, aliases, args);
                 }
             }
         }

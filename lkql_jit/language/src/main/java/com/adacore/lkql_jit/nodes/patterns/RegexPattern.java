@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -82,7 +82,6 @@ public final class RegexPattern extends ValuePattern {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"pattern"}, new Object[] {this.pattern});
+        return this.nodeRepresentation(indentLevel, new String[] {"pattern"}, new Object[] {this.pattern});
     }
 }

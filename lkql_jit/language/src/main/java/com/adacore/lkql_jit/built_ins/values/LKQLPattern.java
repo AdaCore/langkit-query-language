@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -71,8 +71,7 @@ public final class LKQLPattern extends BasicLKQLValue {
      * @param caseSensitive Whether the regex is case-sensitive.
      */
     @CompilerDirectives.TruffleBoundary
-    public LKQLPattern(
-            final LKQLNode creator, final String regexString, final boolean caseSensitive) {
+    public LKQLPattern(final LKQLNode creator, final String regexString, final boolean caseSensitive) {
         this.regexString = regexString;
         this.caseSensitive = caseSensitive;
 
@@ -81,14 +80,12 @@ public final class LKQLPattern extends BasicLKQLValue {
 
         // Call the TRegex language
         try {
-            this.regexObject =
-                    LKQLLanguage.getContext(creator)
-                            .getEnv()
-                            .parseInternal(
-                                    Source.newBuilder("regex", regexSource, "lkql_jit")
-                                            .internal(true)
-                                            .build())
-                            .call();
+            this.regexObject = LKQLLanguage.getContext(creator)
+                    .getEnv()
+                    .parseInternal(Source.newBuilder("regex", regexSource, "lkql_jit")
+                            .internal(true)
+                            .build())
+                    .call();
         } catch (AbstractTruffleException e) {
             throw LKQLRuntimeException.regexSyntaxError(regexString, creator);
         }
@@ -99,24 +96,20 @@ public final class LKQLPattern extends BasicLKQLValue {
     /** Get whether the given string contains a substring that validate the regex. */
     public boolean contains(String string) {
         try {
-            Object resultObject =
-                    InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
+            Object resultObject = InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
             return (boolean) InteropLibrary.getUncached().readMember(resultObject, "isMatch");
         } catch (Exception e) {
-            throw LKQLRuntimeException.fromMessage(
-                    StringUtils.concat("Pattern execution failed: ", this.regexString));
+            throw LKQLRuntimeException.fromMessage(StringUtils.concat("Pattern execution failed: ", this.regexString));
         }
     }
 
     /** Get the index of the first matched group in the given string, return -1 if there is none. */
     public int find(String string) {
         try {
-            Object resultObject =
-                    InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
+            Object resultObject = InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
             return (int) InteropLibrary.getUncached().invokeMember(resultObject, "getStart", 0);
         } catch (Exception e) {
-            throw LKQLRuntimeException.fromMessage(
-                    StringUtils.concat("Pattern execution failed: ", this.regexString));
+            throw LKQLRuntimeException.fromMessage(StringUtils.concat("Pattern execution failed: ", this.regexString));
         }
     }
 
@@ -129,8 +122,7 @@ public final class LKQLPattern extends BasicLKQLValue {
         @Specialization
         protected static TriState onPattern(final LKQLPattern left, final LKQLPattern right) {
             return TriState.valueOf(
-                    left.regexString.equals(right.regexString)
-                            && left.caseSensitive == right.caseSensitive);
+                    left.regexString.equals(right.regexString) && left.caseSensitive == right.caseSensitive);
         }
 
         /** Do the comparison with another element. */

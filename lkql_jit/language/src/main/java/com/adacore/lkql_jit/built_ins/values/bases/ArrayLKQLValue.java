@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -72,23 +72,18 @@ public abstract class ArrayLKQLValue extends BasicLKQLValue {
      * @param receivers Interop library to access the receiver messages.
      * @param elems Interop library to access the receiver elements messages.
      */
-    protected static int arrayValueHashCode(
-            ArrayLKQLValue receiver, InteropLibrary receivers, InteropLibrary elems) {
+    protected static int arrayValueHashCode(ArrayLKQLValue receiver, InteropLibrary receivers, InteropLibrary elems) {
         try {
             final long size = receivers.getArraySize(receiver);
             int result = 1;
             for (long i = 0; i < size; i++) {
                 Object elem = receivers.readArrayElement(receiver, i);
-                result =
-                        31 * result
-                                + (elems.hasIdentity(elem)
-                                        ? elems.identityHashCode(elem)
-                                        : ObjectUtils.hashCode(elem));
+                result = 31 * result
+                        + (elems.hasIdentity(elem) ? elems.identityHashCode(elem) : ObjectUtils.hashCode(elem));
             }
             return result;
         } catch (Exception e) {
-            throw LKQLRuntimeException.shouldNotHappen(
-                    "Error in array like value hash code computing");
+            throw LKQLRuntimeException.shouldNotHappen("Error in array like value hash code computing");
         }
     }
 }

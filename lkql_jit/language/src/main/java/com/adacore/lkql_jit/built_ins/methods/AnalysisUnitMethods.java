@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -42,32 +42,21 @@ import java.util.Map;
  */
 public final class AnalysisUnitMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
-            Map.ofEntries(
-                    create(
-                            "root",
-                            "Return the root for this unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
-                            new RootExpr()),
-                    create(
-                            "name",
-                            "Return the name of this unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
-                            new NameExpr()),
-                    create(
-                            "tokens",
-                            "Return the tokens of the unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
-                            new TokensExpr()),
-                    create(
-                            "text",
-                            "Return the text of the analysis unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
-                            new TextExpr()));
+    public static final Map<String, BuiltInFunctionValue> methods = Map.ofEntries(
+            create("root", "Return the root for this unit", new String[] {"unit"}, new Expr[] {null}, new RootExpr()),
+            create("name", "Return the name of this unit", new String[] {"unit"}, new Expr[] {null}, new NameExpr()),
+            create(
+                    "tokens",
+                    "Return the tokens of the unit",
+                    new String[] {"unit"},
+                    new Expr[] {null},
+                    new TokensExpr()),
+            create(
+                    "text",
+                    "Return the text of the analysis unit",
+                    new String[] {"unit"},
+                    new Expr[] {null},
+                    new TextExpr()));
 
     // ----- Inner classes -----
 
@@ -93,8 +82,7 @@ public final class AnalysisUnitMethods {
     public static final class TokensExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            Libadalang.AnalysisUnit unit =
-                    LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]);
+            Libadalang.AnalysisUnit unit = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]);
             Libadalang.Token current = unit.getFirstToken();
             Libadalang.Token last = unit.getLastToken();
             ArrayList<Libadalang.Token> resList = new ArrayList<>();

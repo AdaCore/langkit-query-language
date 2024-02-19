@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -42,7 +42,8 @@ public final class ExtendedNodePattern extends NodePattern {
     private ValuePattern basePattern;
 
     /** The details representing the extension. */
-    @Children private final NodePatternDetail[] details;
+    @Children
+    private final NodePatternDetail[] details;
 
     // ----- Constructors -----
 
@@ -53,8 +54,7 @@ public final class ExtendedNodePattern extends NodePattern {
      * @param basePattern The base pattern to extend.
      * @param details The extensions for the base pattern.
      */
-    public ExtendedNodePattern(
-            SourceLocation location, ValuePattern basePattern, NodePatternDetail[] details) {
+    public ExtendedNodePattern(SourceLocation location, ValuePattern basePattern, NodePatternDetail[] details) {
         super(location);
         this.basePattern = basePattern;
         this.details = details;

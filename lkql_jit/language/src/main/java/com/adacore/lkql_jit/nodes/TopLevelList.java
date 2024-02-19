@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -55,10 +55,12 @@ public final class TopLevelList extends LKQLNode {
     // ----- Children -----
 
     /** The rule importation nodes. */
-    @Children private Import[] ruleImports;
+    @Children
+    private Import[] ruleImports;
 
     /** The list of nodes representing the LKQL program. */
-    @Children private final LKQLNode[] program;
+    @Children
+    private final LKQLNode[] program;
 
     private final boolean isInteractive;
 
@@ -150,23 +152,12 @@ public final class TopLevelList extends LKQLNode {
             File ruleDirectory = new File(dirName);
             if (ruleDirectory.isDirectory() && ruleDirectory.canRead()) {
                 final File[] ruleDirectoryFiles =
-                        ruleDirectory.listFiles(
-                                f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION));
+                        ruleDirectory.listFiles(f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION));
                 if (ruleDirectoryFiles != null) {
-                    ruleImports.addAll(
-                            Arrays.stream(ruleDirectoryFiles)
-                                    .filter(File::canRead)
-                                    .map(
-                                            f ->
-                                                    new Import(
-                                                            null,
-                                                            f.getName()
-                                                                    .replace(
-                                                                            Constants
-                                                                                    .LKQL_EXTENSION,
-                                                                            ""),
-                                                            -1))
-                                    .toList());
+                    ruleImports.addAll(Arrays.stream(ruleDirectoryFiles)
+                            .filter(File::canRead)
+                            .map(f -> new Import(null, f.getName().replace(Constants.LKQL_EXTENSION, ""), -1))
+                            .toList());
                 }
             }
         }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -42,8 +42,7 @@ import com.oracle.truffle.api.object.Shape;
 @ExportLibrary(InteropLibrary.class)
 public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue {
 
-    protected static final DynamicObjectLibrary uncachedObjectLibrary =
-            DynamicObjectLibrary.getUncached();
+    protected static final DynamicObjectLibrary uncachedObjectLibrary = DynamicObjectLibrary.getUncached();
     ;
 
     // ----- Constructors -----
@@ -143,8 +142,7 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
      * not modifiable.
      */
     @ExportMessage
-    public boolean isMemberReadable(
-            String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+    public boolean isMemberReadable(String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
         return objectLibrary.containsKey(this, member);
     }
 
@@ -158,8 +156,7 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
 
     /** Get the value of the wanted member in the receiver object like value. */
     @ExportMessage
-    public Object readMember(
-            String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary)
+    public Object readMember(String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary)
             throws UnknownIdentifierException {
         final Object result = objectLibrary.getOrDefault(this, member, null);
         if (result == null) throw UnknownIdentifierException.create(member);
@@ -189,8 +186,7 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
             InteropLibrary thisUncached = InteropLibrary.getUncached(this);
             return thisUncached.identityHashCode(this);
         } catch (UnsupportedMessageException e) {
-            throw LKQLRuntimeException.shouldNotHappen(
-                    "All LKQL values must export an 'identityHashCode' message");
+            throw LKQLRuntimeException.shouldNotHappen("All LKQL values must export an 'identityHashCode' message");
         }
     }
 }

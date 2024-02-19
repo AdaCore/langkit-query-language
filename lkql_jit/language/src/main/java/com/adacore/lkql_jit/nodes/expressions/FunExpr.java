@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -85,8 +85,7 @@ public final class FunExpr extends Expr {
             final Expr body) {
         super(location);
         this.closureDescriptor = closureDescriptor;
-        this.functionRootNode =
-                new FunctionRootNode(LKQLLanguage.getLanguage(this), frameDescriptor, false, body);
+        this.functionRootNode = new FunctionRootNode(LKQLLanguage.getLanguage(this), frameDescriptor, false, body);
         this.parameterNames = new String[parameters.length];
         this.parameterValues = new Expr[parameters.length];
         this.body = body;
@@ -137,8 +136,6 @@ public final class FunExpr extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] {"names"},
-                new Object[] {Arrays.toString(this.parameterNames)});
+                indentLevel, new String[] {"names"}, new Object[] {Arrays.toString(this.parameterNames)});
     }
 }

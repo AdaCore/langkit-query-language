@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -43,8 +43,7 @@ public final class LangkitTranslator {
      * @param source The Truffle source of the AST.
      * @return The translated LKQL Truffle AST.
      */
-    public static LKQLNode translate(
-            final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source) {
+    public static LKQLNode translate(final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source) {
         // Do the framing pass to create the script frame descriptions
         final FramingPass framingPass = new FramingPass(source);
         lkqlLangkitRoot.accept(framingPass);

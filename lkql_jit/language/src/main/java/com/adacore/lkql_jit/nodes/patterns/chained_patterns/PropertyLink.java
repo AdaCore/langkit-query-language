@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022-2023, AdaCore                     --
+--                     Copyright (C) 2022-2024, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -61,8 +61,7 @@ public abstract class PropertyLink extends ChainedPatternLink {
      * @param propertyName The name of the property to call.
      * @param argList The argument list.
      */
-    public PropertyLink(
-            SourceLocation location, BasePattern pattern, String propertyName, ArgList argList) {
+    public PropertyLink(SourceLocation location, BasePattern pattern, String propertyName, ArgList argList) {
         super(location, pattern);
         this.propertyName = propertyName;
         this.argList = argList;
@@ -124,7 +123,6 @@ public abstract class PropertyLink extends ChainedPatternLink {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"propertyName"}, new Object[] {this.propertyName});
+        return this.nodeRepresentation(indentLevel, new String[] {"propertyName"}, new Object[] {this.propertyName});
     }
 }
