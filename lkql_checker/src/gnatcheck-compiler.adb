@@ -1492,6 +1492,9 @@ package body Gnatcheck.Compiler is
          if Target.all /= "" then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--target=" & Target.all);
+         elsif Has_Access_To_Codepeer then
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'("--target=codepeer");
          end if;
       else
          --  Target and runtime will be taken from config project anyway

@@ -141,6 +141,10 @@ public final class LKQLContext {
     /** The project file to analyse. */
     @CompilerDirectives.CompilationFinal private String projectFile = null;
 
+    @CompilerDirectives.CompilationFinal private String target = null;
+
+    @CompilerDirectives.CompilationFinal private String runtime = null;
+
     /** The project's scenario variables. */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private Libadalang.ScenarioVariable[] scenarioVars = null;
@@ -273,11 +277,17 @@ public final class LKQLContext {
     }
 
     public String getTarget() {
-        return this.env.getOptions().get(LKQLLanguage.target);
+        if (this.target == null) {
+            this.target = this.env.getOptions().get(LKQLLanguage.target);
+        }
+        return this.target;
     }
 
     public String getRuntime() {
-        return this.env.getOptions().get(LKQLLanguage.runtime);
+        if (this.runtime == null) {
+            this.runtime = this.env.getOptions().get(LKQLLanguage.runtime);
+        }
+        return this.runtime;
     }
 
     /** Return the list of scenario variables to specify when loading the GPR project file. */
@@ -490,6 +500,11 @@ public final class LKQLContext {
 
     // ----- Project analysis methods -----
 
+    /** Returns the executable name to call to spawn a gnatls process */
+    public String getGnatLs() {
+        return this.getTarget().isEmpty() ? "gnatls" : this.getTarget() + "-gnatls";
+    }
+
     /** Parse the ada source files and store analysis units and root nodes. */
     @CompilerDirectives.TruffleBoundary
     public void parseSources() {
@@ -664,7 +679,15 @@ public final class LKQLContext {
     public List<String> fetchAdaRuntimeFiles() {
         final List<String> runtimeFiles = new ArrayList<>();
         try {
-            final Process gnatls = new ProcessBuilder("gnatls", "-v").start();
+            final Process gnatls =
+                    new ProcessBuilder(
+                                    this.getGnatLs(),
+                                    "-v",
+                                    this.getTarget().isEmpty()
+                                            ? ""
+                                            : "--target=" + this.getTarget(),
+                                    this.getRuntime().isEmpty() ? "" : "--RTS=" + this.getRuntime())
+                            .start();
             final BufferedReader reader =
                     new BufferedReader(new InputStreamReader(gnatls.getInputStream()));
             final Optional<String> adaIncludePath =
