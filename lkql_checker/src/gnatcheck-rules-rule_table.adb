@@ -761,8 +761,9 @@ package body Gnatcheck.Rules.Rule_Table is
      (Option     : String;
       Defined_At : String)
    is
-      First_Idx : constant Natural := Option'First;
-      Last_Idx  : constant Natural := Option'Last;
+      First_Idx    : constant Natural := Option'First;
+      Last_Idx     : constant Natural := Option'Last;
+      Lower_Option : constant String  := To_Lower (Option);
 
       Word_Start : Natural := 0;
       Word_End   : Natural := 0;
@@ -828,10 +829,10 @@ package body Gnatcheck.Rules.Rule_Table is
       end Set_Parameter;
 
    begin
-      if Option = "-ALL" then
+      if Lower_Option = "-all" then
          Turn_All_Rules_Off;
          return;
-      elsif Option = "+ALL" then
+      elsif Lower_Option = "+all" then
          Turn_All_Rules_On;
          return;
       end if;
@@ -879,7 +880,7 @@ package body Gnatcheck.Rules.Rule_Table is
          --  Separate processing for restrictions, style_checks, warnings, and
          --  ordinary rules.
 
-         if To_Lower (Option (Word_Start .. Word_End)) = "restrictions" then
+         if Lower_Option (Word_Start .. Word_End) = "restrictions" then
             Set_Parameter;
 
             if Word_Start = 0 then
@@ -895,7 +896,7 @@ package body Gnatcheck.Rules.Rule_Table is
                Set_Parameter;
             end loop;
 
-         elsif To_Lower (Option (Word_Start .. Word_End)) = "style_checks" then
+         elsif Lower_Option (Word_Start .. Word_End) = "style_checks" then
             if not Enable then
                Error ("there is no -R option for style checks, " &
                       "use style options to turn checks OFF"     &
