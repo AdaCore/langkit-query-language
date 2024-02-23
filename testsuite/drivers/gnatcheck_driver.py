@@ -123,30 +123,41 @@ class GnatcheckDriver(BaseDriver):
     This driver also supports performance testing.
 
     Test arguments:
-        - ``jobs``: The number of jobs to forward to the GNATcheck command.
-        - ``project``: GPR build file to use (if any)
-        - ``input_sources``: Ada files to analyze (if explicit, optional if
-          project is passed)
-        - ``rule_file``: If passed, files to analyse will be fetched from this
-          file
-        - ``ignore_file``: If passed, ignore all sources listed in the provided
-          file.
-        - ``extra_args``: Extra arguments to pass to GNATcheck
-        - ``rules``: A list of rules with their arguments, in the gnatcheck
-          format.  Note that the list can be empty, and people can instead
-          decide to pass rules via the project file.
-        - ``scenario_variables``: Dict containing key to value associations to
-          pass as scenario variables to GNATcheck
+        - ``mode`` (str): The mode to run gnatcheck in; could be `gnatcheck` or
+          `gnatkp`. Default is `gnatcheck`.
+        - ``label`` (str): An arbitrary label to add at the top of the gnatcheck
+          output.
+        - ``worker``: Provide a custom worker for the GNATcheck run.
+
+        - ``jobs`` (int): The number of jobs to forward to the GNATcheck command.
+        - ``project`` (str): GPR build file to use (if any).
+        - ``input_sources`` (list[str]): Ada files to analyze (if explicit,
+          optional if `project` is passed).
+        - ``ignore_file`` (str): If passed, ignore all sources listed in the
+          provided file.
+        - ``scenario_variables`` (dict[str, str]): Dict containing key to value
+          associations to pass as scenario variables to GNATcheck.
+        - ``extra_args`` (list[str]): Extra arguments to pass to GNATcheck.
+
+        - ``rules`` (list[str]): A list of rules with their arguments, in the
+          gnatcheck format.  Note that the list can be empty, and people can
+          instead decide to pass rules via the project file.
+        - ``rule_file`` (str): If passed, will be forwarded as `-from` to
+          gnatcheck.
+        - ``lkql_rule_file`` (str): If passed, will be forwarded as `--from-lkql`
+          to gnatcheck.
+        - ``rules_dirs`` (list[str]): A list of directories to pass to gnatcheck
+          as rule containing directories.
+
+        - ``pre_python``/``post_python`` (str): Python code to be executed
+          before/after the test.
         - ``perf``: Enable and configure the performance testing. Perf arguments:
-            - ``default``: Time measuring repetition number as an integer
-            - ``profile-time``: Enable the time profiling or not as a boolean
-        - ``pre_python``/``post_python``: Python code to be executed
-          before/after the test
-        - ``worker``: Provide a custom worker for the GNATcheck run
-        - ``timeout``: Set the test timeout in seconds.
+            - ``default``: Time measuring repetition number as an integer.
+            - ``profile-time``: Enable the time profiling or not as a boolean.
+        - ``timeout`` (int): Set the test timeout in seconds.
 
     .. NOTE:: In practice, the above allows several different ways to express
-        the same test, which dis not ideal. It was necessary to transition
+        the same test, which is not ideal. It was necessary to transition
         painlessly existing bash tests.
     """
 
