@@ -1027,7 +1027,12 @@ package body Gnatcheck.Projects is
    procedure Set_Subdir_Name (S : String) is
    begin
       Free (Subdir_Name);
-      Subdir_Name := new String'(S);
+      if S = "" then
+         Subdir_Name := new String'("gnatcheck");
+      else
+         Subdir_Name := new String'
+           (S & GNAT.OS_Lib.Directory_Separator & "gnatcheck");
+      end if;
    end Set_Subdir_Name;
 
    ----------------

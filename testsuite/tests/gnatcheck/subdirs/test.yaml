@@ -1,0 +1,9 @@
+driver: gnatcheck
+format: short
+subdirs: custom_subdirs
+project: prj.gpr
+rules:
+  - +RGOTO_Statements
+  - +RWarnings:a
+list_dirs:
+  - custom_subdirs/gnatcheck
