@@ -13,6 +13,15 @@ project GNATcheck is
    for Exec_Dir use "bin";
    for Main use ("gnatcheck_main.adb");
 
+   package Binder is
+      case Build_Mode is
+         when "dev" =>
+            for Switches ("Ada") use ("-Es");
+         when others =>
+            null;
+      end case;
+   end Binder;
+
    package Builder is
       for Executable ("gnatcheck_main.adb") use "gnatcheck";
       for Switches ("Ada") use ("-j0");
