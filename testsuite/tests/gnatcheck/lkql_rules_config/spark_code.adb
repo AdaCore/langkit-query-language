@@ -3,6 +3,8 @@ procedure Spark_Code
 is
    A : String := "hello";
 
+   X : array (1 .. 10) of Integer; --  FLAG
+
    procedure Foo
       with Pre => A'Image = "hello",  --  NOFLAG because in ghost code
            Post => A'Image = "hello";  --  NOFLAG because in ghost code
