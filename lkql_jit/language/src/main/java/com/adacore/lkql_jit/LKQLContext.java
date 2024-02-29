@@ -69,6 +69,20 @@ public final class LKQLContext {
     /** The project manager for the ada project. */
     private Libadalang.ProjectManager projectManager;
 
+    /** Event handler for the project manager. */
+    private final Libadalang.EventHandler eventHandler =
+            Libadalang.EventHandler.create(
+                    (ctx, name, from, found, not_found_is_error) -> {
+                        if (!found && not_found_is_error) {
+                            boolean isFatal = !this.keepGoingOnMissingFile();
+                            this.getDiagnosticEmitter().emitMissingFile(from, name, isFatal, this);
+                            if (isFatal) {
+                                this.env.getContext().closeExited(null, 1);
+                            }
+                        }
+                    },
+                    null);
+
     /**
      * The user-specified source files to analyze. If not explicitly specified, those will be the
      * source files of the root project.
@@ -149,6 +163,8 @@ public final class LKQLContext {
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private Libadalang.ScenarioVariable[] scenarioVars = null;
 
+    private Boolean useAutoProvider = null;
+
     /** The ada files passed through the command line. */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] files = null;
@@ -199,6 +215,7 @@ public final class LKQLContext {
     public void finalizeContext() {
         this.adaContext.close();
         if (this.projectManager != null) this.projectManager.close();
+        this.eventHandler.close();
     }
 
     // ----- Getters -----
@@ -318,6 +335,14 @@ public final class LKQLContext {
             }
         }
         return this.scenarioVars;
+    }
+
+    /** Get whether to use the Libadalang's auto provider. */
+    public boolean useAutoProvider() {
+        if (this.useAutoProvider == null) {
+            this.useAutoProvider = this.env.getOptions().get(LKQLLanguage.useAutoProvider);
+        }
+        return this.useAutoProvider;
     }
 
     /**
@@ -546,9 +571,10 @@ public final class LKQLContext {
 
     /** Initialize the ada sources. */
     public void initSources() {
-        // Prepare the list of ada files to analyse
+        // Reset the context fields
         this.specifiedSourceFiles.clear();
         this.allSourceFiles.clear();
+        this.parsed = false;
 
         // Add all the user-specified files to process after verifying they exist
         for (String file : this.getFiles()) {
@@ -563,31 +589,9 @@ public final class LKQLContext {
             }
         }
 
-        // Setup the event handler
-        final Libadalang.EventHandler.UnitRequestedCallback unitRequested =
-                (ctx, name, from, found, not_found_is_error) -> {
-                    if (!found && not_found_is_error) {
-                        boolean isFatal = !this.keepGoingOnMissingFile();
-                        this.getDiagnosticEmitter().emitMissingFile(from, name, isFatal, this);
-                        if (isFatal) {
-                            this.env.getContext().closeExited(null, 1);
-                        }
-                    }
-                };
-        final Libadalang.EventHandler eventHandler =
-                Libadalang.EventHandler.create(unitRequested, null);
-
-        // If the option is the empty string, the language implementation will end up setting it to
-        // the
-        // default
-        // value for its language (e.g. iso-8859-1 for Ada).
-        String charset = this.env.getOptions().get(LKQLLanguage.charset);
-
-        // Get the project file and parse it if there is one
+        // Get the project file and use it if there is one
         String projectFileName = this.getProjectFile();
-
         if (projectFileName != null && !projectFileName.isEmpty() && !projectFileName.isBlank()) {
-            // Create the project manager
             this.projectManager =
                     Libadalang.ProjectManager.create(
                             projectFileName,
@@ -595,78 +599,86 @@ public final class LKQLContext {
                             this.getTarget(),
                             this.getRuntime());
 
-            // Test if there is any diagnostic in the project manager
+            // Forward the project diagnostics if there are some
             if (!this.projectManager.getDiagnostics().isEmpty()) {
                 throw LKQLRuntimeException.fromMessage(
                         "Error(s) during project opening: " + this.projectManager.getDiagnostics());
             }
 
+            // Get the subproject provided by the user
             final String subprojectName = this.env.getOptions().get(LKQLLanguage.subprojectFile);
             final String[] subprojects =
                     subprojectName.isEmpty() ? null : new String[] {subprojectName};
 
             // If no files were specified by the user, the files to analyze are those of the root
-            // project
-            // (i.e. without recusing into project dependencies)
+            // project (i.e. without recursing into project dependencies)
             if (this.specifiedSourceFiles.isEmpty()) {
-                this.specifiedSourceFiles =
+                this.specifiedSourceFiles.addAll(
                         Arrays.stream(
                                         this.projectManager.getFiles(
                                                 Libadalang.SourceFileMode.ROOT_PROJECT,
                                                 subprojects))
-                                .toList();
+                                .toList());
             }
 
             // The `units()` built-in function must return all units of the project including units
-            // from
-            // its
-            // dependencies. So let's retrieve all those files as well.
-            this.allSourceFiles =
+            // from its dependencies. So let's retrieve all those files as well.
+            this.allSourceFiles.addAll(
                     Arrays.stream(
                                     this.projectManager.getFiles(
                                             Libadalang.SourceFileMode.WHOLE_PROJECT, subprojects))
-                            .toList();
+                            .toList());
 
             this.adaContext =
                     this.projectManager.createContext(
                             subprojectName.isEmpty() ? null : subprojectName,
-                            eventHandler,
+                            this.eventHandler,
                             true,
                             8);
-        } else {
-            // When no project is specified, `units()` should return the same set of units as
-            // `specified_units()`.
-            this.allSourceFiles = this.specifiedSourceFiles;
+        }
 
-            // If required, create an auto provider with the specified files.
-            final Libadalang.UnitProvider provider;
-            if (this.env.getOptions().get(LKQLLanguage.useAutoProvider)) {
-                final List<String> allFiles = this.fetchAdaRuntimeFiles();
-                allFiles.addAll(this.allSourceFiles);
-                provider = Libadalang.createAutoProvider(allFiles.toArray(new String[0]), charset);
-            } else {
-                provider = null;
-            }
-
+        // Else, either load the implicit project or the Libadalang's auto-provider if required
+        // by the user.
+        else {
             // We should not get any scenario variable if we are being run without a project file.
             if (this.getScenarioVars().length != 0) {
                 throw LKQLRuntimeException.fromMessage(
                         "Scenario variable specifications require a project file");
             }
 
+            // If the option is the empty string, the language implementation will end up setting it
+            // to
+            // the default value for its language (e.g. iso-8859-1 for Ada).
+            String charset = this.env.getOptions().get(LKQLLanguage.charset);
+
+            // Create the required unit provider to initialize the analysis context
+            final Libadalang.UnitProvider provider;
+            if (this.useAutoProvider()) {
+                this.allSourceFiles.addAll(this.specifiedSourceFiles);
+                final List<String> allFiles = this.fetchAdaRuntimeFiles();
+                allFiles.addAll(this.allSourceFiles);
+                provider = Libadalang.createAutoProvider(allFiles.toArray(new String[0]), charset);
+            } else {
+                this.projectManager =
+                        Libadalang.ProjectManager.createImplicit(
+                                this.getTarget(), this.getRuntime());
+                this.allSourceFiles.addAll(
+                        Arrays.stream(
+                                        this.projectManager.getFiles(
+                                                Libadalang.SourceFileMode.WHOLE_PROJECT))
+                                .toList());
+                provider = this.projectManager.getProvider();
+            }
+
+            // Create the ada context and store it in the LKQL context
             this.adaContext =
                     Libadalang.AnalysisContext.create(
-                            charset, null, provider, eventHandler, true, 8);
+                            charset, null, provider, this.eventHandler, true, 8);
 
             // In the absence of a project file, we consider for now that there are no configuration
             // pragmas.
             this.adaContext.setConfigPragmasMapping(null, null);
         }
-
-        eventHandler.close();
-
-        // The retrieved source files are not yet parsed
-        this.parsed = false;
     }
 
     /**
