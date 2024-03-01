@@ -1,0 +1,12 @@
+   no exempted violations detected
+main.adb:3:05: goto statement
+   no rule exemption problems detected
+   no language violations detected
+   no internal error detected
+
+<?xml version="1.0"?>
+<gnatcheck-report>
+   <violation file="main.adb" line="3" column="5" rule-id="goto_statements">
+      <message>goto statement</message>
+   </violation>
+</gnatcheck-report>

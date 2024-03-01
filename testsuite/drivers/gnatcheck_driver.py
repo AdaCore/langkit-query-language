@@ -137,6 +137,8 @@ class GnatcheckDriver(BaseDriver):
           optional if `project` is passed).
         - ``ignore_file`` (str): If passed, ignore all sources listed in the
           provided file.
+        - ``output_file`` (str): The file to pass to GNATcheck with the `-o` or
+          `-ox` option then to read the output in.
         - ``scenario_variables`` (dict[str, str]): Dict containing key to value
           associations to pass as scenario variables to GNATcheck.
         - ``extra_args`` (list[str]): Extra arguments to pass to GNATcheck.
@@ -242,7 +244,12 @@ class GnatcheckDriver(BaseDriver):
             brief = output_format == 'brief'
             exe = GnatcheckDriver.modes[test_data.get('mode', 'gnatcheck')]
             args = [exe, '-q', '-m0']
-            output_file_name = self.working_dir("gnatcheck.out")
+            output_file_name = self.working_dir(
+                test_data.get(
+                    "output_file",
+                    f"gnatcheck.{'xml' if output_format == 'xml' else 'out'}"
+                )
+            )
 
             pre_python = test_data.get('pre_python', None)
             post_python = test_data.get('post_python', None)

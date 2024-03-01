@@ -1,0 +1,12 @@
+driver: gnatcheck
+description: Test the GNATcheck output files options with absolute paths
+input_sources:
+  - main.adb
+rules:
+  - +RGoto_Statements
+tests:
+  - output_file: custom_output_file.out
+    format: short
+  - output_file: custom_output_file.xml
+    format: xml
+    extra_args: ['-s']
