@@ -1434,8 +1434,8 @@ package body Gnatcheck.Rules is
          Emit_Wrong_Parameter (Instance, Param);
          Turn_Instance_Off (Instance);
 
-      --  Else, the parameter is not empty and is valid. Just set the instance
-      --  parameter value.
+      --  Else, if the command line is enabling the rule, the parameter is not
+      --  empty and is valid. Just set the instance parameter value.
       elsif Enable then
          if Check_Param_Redefinition and then Tagged_Instance.Param /= Unset
          then
@@ -1444,9 +1444,11 @@ package body Gnatcheck.Rules is
 
          Tagged_Instance.Param := On;
          Instance.Defined_At := To_Unbounded_String (Defined_At);
+
+      --  Else the command line is disabling the rule so no parameter allowed
       else
-         Tagged_Instance.Param := Off;
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
+         Emit_No_Parameter_Allowed (Instance);
+         Turn_Instance_Off (Instance);
       end if;
    end Bool_Param_Process;
 
@@ -1805,42 +1807,11 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the command line is disabling the instance, so process the
-      --  param value to update the instance.
+      --  Else, the command line is disabling the instance with a parameter,
+      --  this is forbidden.
       else
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
-
-         if Lower_Param = "all_suffixes" then
-            Set_Field (Tagged_Instance.Type_Suffix, "");
-            Set_Field (Tagged_Instance.Access_Suffix, "");
-            Set_Field (Tagged_Instance.Access_Access_Suffix, "");
-            Set_Field (Tagged_Instance.Class_Access_Suffix, "");
-            Set_Field (Tagged_Instance.Class_Subtype_Suffix, "");
-            Set_Field (Tagged_Instance.Constant_Suffix, "");
-            Set_Field (Tagged_Instance.Renaming_Suffix, "");
-            Set_Field (Tagged_Instance.Access_Obj_Suffix, "");
-            Set_Field (Tagged_Instance.Interrupt_Suffix, "");
-
-         elsif Lower_Param = "type_suffix" then
-            Set_Field (Tagged_Instance.Type_Suffix, "");
-         elsif Lower_Param = "access_suffix" then
-            Set_Field (Tagged_Instance.Access_Suffix, "");
-            Set_Field (Tagged_Instance.Access_Access_Suffix, "");
-         elsif Lower_Param = "class_access_suffix" then
-            Set_Field (Tagged_Instance.Class_Access_Suffix, "");
-         elsif Lower_Param = "class_subtype_suffix" then
-            Set_Field (Tagged_Instance.Class_Subtype_Suffix, "");
-         elsif Lower_Param = "constant_suffix" then
-            Set_Field (Tagged_Instance.Constant_Suffix, "");
-         elsif Lower_Param = "renaming_suffix" then
-            Set_Field (Tagged_Instance.Renaming_Suffix, "");
-         elsif Lower_Param = "access_obj_suffix" then
-            Set_Field (Tagged_Instance.Access_Obj_Suffix, "");
-         elsif Lower_Param = "interrupt_suffix" then
-            Set_Field (Tagged_Instance.Interrupt_Suffix, "");
-         else
-            Emit_Wrong_Parameter (Instance, Param);
-         end if;
+         Emit_No_Parameter_Allowed (Instance);
+         Turn_Instance_Off (Instance);
       end if;
    end Id_Suffix_Param_Process;
 
@@ -1970,46 +1941,11 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the command line is disabling the instance, so process the
-      --  param value to update the instance.
+      --  Else, the command line is disabling the instance with a parameter,
+      --  this is forbidden.
       else
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
-
-         if Lower_Param = "exclusive" then
-            Tagged_Instance.Exclusive := Off;
-
-         elsif Lower_Param = "all_prefixes" then
-            Set_Field (Tagged_Instance.Type_Prefix, "");
-            Set_Field (Tagged_Instance.Concurrent_Prefix, "");
-            Set_Field (Tagged_Instance.Access_Prefix, "");
-            Set_Field (Tagged_Instance.Class_Access_Prefix, "");
-            Set_Field (Tagged_Instance.Subprogram_Access_Prefix, "");
-            Set_Field (Tagged_Instance.Derived_Prefix, "");
-            Set_Field (Tagged_Instance.Constant_Prefix, "");
-            Set_Field (Tagged_Instance.Exception_Prefix, "");
-            Set_Field (Tagged_Instance.Enum_Prefix, "");
-
-         elsif Lower_Param = "type" then
-            Set_Field (Tagged_Instance.Type_Prefix, "");
-         elsif Lower_Param = "concurrent" then
-            Set_Field (Tagged_Instance.Concurrent_Prefix, "");
-         elsif Lower_Param = "access" then
-            Set_Field (Tagged_Instance.Access_Prefix, "");
-         elsif Lower_Param = "class_access" then
-            Set_Field (Tagged_Instance.Class_Access_Prefix, "");
-         elsif Lower_Param = "subprogram_access" then
-            Set_Field (Tagged_Instance.Subprogram_Access_Prefix, "");
-         elsif Lower_Param = "derived" then
-            Set_Field (Tagged_Instance.Derived_Prefix, "");
-         elsif Lower_Param = "constant" then
-            Set_Field (Tagged_Instance.Constant_Prefix, "");
-         elsif Lower_Param = "exception" then
-            Set_Field (Tagged_Instance.Exception_Prefix, "");
-         elsif Lower_Param = "enum" then
-            Set_Field (Tagged_Instance.Enum_Prefix, "");
-         else
-            Emit_Wrong_Parameter (Instance, Param);
-         end if;
+         Emit_No_Parameter_Allowed (Instance);
+         Turn_Instance_Off (Instance);
       end if;
    end Id_Prefix_Param_Process;
 
@@ -2209,14 +2145,23 @@ package body Gnatcheck.Rules is
         Forbidden_Instance (Instance.all);
       Lower_Param     : constant String := To_Lower (Param);
 
-      procedure Process_Param (Field : in out Unbounded_Wide_Wide_String);
+      procedure Process_Param
+        (Param : String;
+         Field : in out Unbounded_Wide_Wide_String);
       --  Process `Lower_Param` to update the `Field` according to it
+
+      procedure Process_Allowed_List (List : String);
+      --  Process `List` as a list of allowed items and add them in the current
+      --  instance.
 
       -------------------
       -- Process_Param --
       -------------------
 
-      procedure Process_Param (Field : in out Unbounded_Wide_Wide_String) is
+      procedure Process_Param
+        (Param : String;
+         Field : in out Unbounded_Wide_Wide_String)
+      is
          Rule_Name : constant String := Gnatcheck.Rules.Rule_Name (Instance);
       begin
          --  Add a comma to the field if needed
@@ -2225,22 +2170,41 @@ package body Gnatcheck.Rules is
          end if;
 
          --  Special case: If the param is "gnat" and the rule is
-         --  "forbidden_attributes" or "forbidden_pragmas" then add to `FIeld`
+         --  "forbidden_attributes" or "forbidden_pragmas" then add to `Field`
          --  the GNAT defined attributes or pragmas.
-         if Lower_Param = "gnat" then
+         if Param = "gnat" then
             if Rule_Name = "forbidden_attributes" then
                Append (Field, GNAT_Attributes);
             elsif Rule_Name = "forbidden_pragmas" then
                Append (Field, GNAT_Pragmas);
             else
-               Append (Field, To_Wide_Wide_String (Lower_Param));
+               Append (Field, To_Wide_Wide_String (Param));
             end if;
 
          --  Other cases: Just add the param to `Field`
          else
-            Append (Field, To_Wide_Wide_String (Lower_Param));
+            Append (Field, To_Wide_Wide_String (Param));
          end if;
       end Process_Param;
+
+      --------------------------
+      -- Process_Allowed_List --
+      --------------------------
+
+      procedure Process_Allowed_List (List : String) is
+         Sep_Index : Natural := Index (List, ";");
+         Item_Start : Natural := List'First;
+         Item_End : Natural :=
+           (if Sep_Index = 0 then List'Last else Sep_Index - 1);
+      begin
+         while Item_Start < List'Last loop
+            Process_Param
+              (List (Item_Start .. Item_End), Tagged_Instance.Allowed);
+            Item_Start := Item_End + 2;
+            Sep_Index := Index (List (Item_Start .. List'Last), ";");
+            Item_End := (if Sep_Index = 0 then List'Last else Sep_Index - 1);
+         end loop;
+      end Process_Allowed_List;
 
    begin
       --  If the parameter is empty then just disable the instance following
@@ -2255,22 +2219,20 @@ package body Gnatcheck.Rules is
       elsif Enable then
          if Lower_Param = "all" then
             Tagged_Instance.All_Flag := On;
+         elsif Has_Prefix (Lower_Param, "allowed=") then
+            Process_Allowed_List
+              (Lower_Param (Lower_Param'First + 8 .. Lower_Param'Last));
          else
-            Process_Param (Tagged_Instance.Forbidden);
+            Process_Param (Lower_Param, Tagged_Instance.Forbidden);
          end if;
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
       --  Else, the command line is disabling the instance with a non-empty
-      --  parameter. Process the parameter to update the instance, but don't
-      --  disable the instance (unless the parameter is "all"), just update the
-      --  `Allowed` instance field.
+      --  parameter. This is forbidden so emit an error and disable the
+      --  instance.
       else
-         if Lower_Param = "all" then
-            Turn_Instance_Off (Instance);
-         else
-            Process_Param (Tagged_Instance.Allowed);
-            Instance.Defined_At := To_Unbounded_String (Defined_At);
-         end if;
+         Emit_No_Parameter_Allowed (Instance);
+         Turn_Instance_Off (Instance);
       end if;
    end Forbidden_Param_Process;
 

@@ -1919,8 +1919,6 @@ package body Gnatcheck.Projects is
          return;
       end if;
 
-      Set_Compiler_Checks;
-
       Gnatcheck.Projects.Set_Global_Result_Dirs (Gnatcheck_Prj);
       Gnatcheck_Config_File :=
         new String'(Global_Report_Dir.all & Gnatcheck_Config_File.all);

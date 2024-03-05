@@ -1,0 +1,8 @@
+driver: gnatcheck
+format: brief
+input_sources:
+ - main.adb
+show_rule: True
+rules:
+ - +Rgoto_statements
+ - +Rgoto_statements:Only_Unconditional

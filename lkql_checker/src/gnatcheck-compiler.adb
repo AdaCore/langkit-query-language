@@ -1056,35 +1056,6 @@ package body Gnatcheck.Compiler is
          end if;
       end loop;
 
-      if not Enable then
-         if R_Id in All_Restrictions then
-            Restriction_Setting (R_Id).Active := False;
-         else
-            Special_Restriction_Setting (Special_R_Id) := False;
-            --  We may need to correct stored parameters of some restrictions
-
-            if Arg_Present then
-               case Special_R_Id is
-                  when No_Dependence =>
-                     Forbidden_Units_Dictionary.Remove_From_Dictionary
-                       (Trim (Param (Last_Idx .. Param'Last), Both));
-
-                  when No_Use_Of_Entity =>
-                     Forbidden_Entities_Dictionary.Remove_From_Dictionary
-                       (Trim (Param (Last_Idx .. Param'Last), Both));
-
-                  when No_Specification_Of_Aspect =>
-                     Forbidden_Aspects_Dictionary.Remove_From_Dictionary
-                       (Trim (Param (Last_Idx .. Param'Last), Both));
-
-                  when Not_A_Special_Restriction_Id => null;
-               end case;
-            end if;
-         end if;
-
-         return;
-      end if;
-
       if R_Id in All_Boolean_Restrictions then
 
          if Arg_Present then

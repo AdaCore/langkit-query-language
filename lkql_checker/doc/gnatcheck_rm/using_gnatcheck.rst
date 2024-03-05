@@ -348,31 +348,28 @@ can provide as many rule options as you want after the ``-rules`` switch.
   lower case).
   You can create as much instances as you want for a single rule, as long
   as they have distinct names (names aren't case sensitive either). If an
-  instance of the same rule with the same name already exists then update it.
+  instance of the same rule with the same name already exists GNATcheck will
+  raise an error.
 
   For example:
 
   .. code-block:: ada
 
-    --  Create and enable an instance of "GOTO_Statements" named
+    --  Create and enable an instance of "Goto_Statements" named
     --  "goto_statements".
-    +RGOTO_Statements
+    +RGoto_Statements
 
-    --  Create and enable an second instance of "GOTO_Statements" named
+    --  Create and enable an second instance of "Goto_Statements" named
     --  "custom_name".
-    +R:custom_name:GOTO_Statements
-
-    --  Set the 'only_unconditional' parameter of the "custom_name"
-    --  instance.
-    +R:custom_name:GOTO_Statements:only_unconditional
+    +R:custom_name:Goto_Statements
 
     --  Create and enable an instance of "Recursive_Subprograms" named
     --  "other_name".
     +R:other_name:Recursive_Subprograms
 
-    --  This will cause an error since a rule instance named "custom_name"
+    --  This will cause a GNATcheck error because the "goto_statement" instance
     --  already exists.
-    +R:custom_name:Recursive_Subprograms
+    +RGoto_Statements
 
   This feature can be used to map ``gnatcheck`` rules onto a user's coding
   standard.
@@ -380,17 +377,13 @@ can provide as many rule options as you want after the ``-rules`` switch.
   .. index:: -R (gnatcheck)
 
 
-``-R[:instance_name:]rule_id[:param]``
-  If no ``param`` is provided, remove the designated rule instance, disabling it
-  at the same time.
+``-R[:instance_name:]rule_id``
+  Remove the designated rule instance, disabling it at the same time.
 
   .. note::
 
     By removing a rule instance, all previously given instance parameter(s)
     are cleared from the GNATcheck memory.
-
-  If a ``param`` is specified, then reset the value of the given parameter to
-  its default value if allowed, else emit an error.
 
   .. index:: -from (gnatcheck)
 
@@ -414,9 +407,13 @@ The default behavior is that all the rule checks are disabled.
 If a rule option is given in a rule file, it can contain spaces and line breaks.
 Otherwise there should be no spaces between the components of a rule option.
 
-If more than one rule option is specified for the same rule, these options are
-summed together. If a new option contradicts the rule settings specified by
-previous options for this rule, the new option overrides the previous settings.
+If more than one rule option is specified for the same rule, with the same
+instance name, GNATcheck will raise an error and stop its execution.
+
+.. attention::
+
+  Unlike in older versions of GNATcheck, rule instances aren't mutable, so
+  you cannot change options for an instance after its instantiation.
 
 A coding standard file is a text file that contains a set of rule options
 described above.
@@ -538,12 +535,12 @@ to simplify mapping your coding standard requirements onto
 ``GNATcheck`` rules:
 
 *
-   when specifying rule options, use synonyms for the rule names
+   when specifying rule options, use instance names for the rule
    that are relevant to your coding standard::
 
-     +R :My_Coding_Rule_1: Gnatcheck_Rule_1: param1
+     +R:My_Coding_Rule_1:Gnatcheck_Rule_1:param1
      ...
-     +R :My_Coding_Rule_N: Gnatcheck_Rule_N
+     +R:My_Coding_Rule_N:Gnatcheck_Rule_N
 
 *
    call ``gnatcheck`` with the ``--show-rule`` option that adds the rule names
@@ -551,13 +548,13 @@ to simplify mapping your coding standard requirements onto
    enables the rule, then this synonym will be used to annotate the diagnosis
    instead of the rule name::
 
-     foo.adb:2:28: something is wrong here [My_Coding_Rule_1]
+     foo.adb:2:28: something is wrong here [My_Coding_Rule_1|Gnatcheck_Rule_1]
      ...
-     bar.ads:17:3: this is not good [My_Coding_Rule_N]
+     bar.ads:17:3: this is not good [My_Coding_Rule_N|Gnatcheck_Rule_N]
 
 Note that this approach currently does not work for compiler-based checks
 integrated in ``gnatcheck`` (implemented by ``Restrictions``, ``Style_Checks``
-and ``Warnings`` rules.
+and ``Warnings`` rules).
 
 .. _gnatcheck_Exit_Codes:
 

@@ -1,0 +1,3 @@
+gnatcheck: rule instance with the same name already exists: "goto_statements" previously instantiated at command line
+main.adb:3:04: goto statement [goto_statements]
+>>>program returned status code 5

@@ -1,0 +1,20 @@
+driver: gnatcheck
+format: brief
+input_sources:
+ - main.adb
+show_rule: True
+
+tests:
+ - label: Disable an instance with its name
+   rules:
+    - +R:cond_goto:goto_statements:Only_Unconditional
+    - -R:cond_goto:goto_statements
+ - label: Disable an instance with a previously given parameter
+   rules:
+    - +R:cond_goto:goto_statements:Only_Unconditional
+    - -R:cond_goto:goto_statements
+    - +R:cond_goto:goto_statements
+ - label: Disabling the wrong instance
+   rules:
+    - +R:cond_goto:goto_statements:Only_Unconditional
+    - -Rgoto_statements

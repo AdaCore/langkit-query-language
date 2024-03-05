@@ -888,11 +888,20 @@ package body Gnatcheck.Rules.Rule_Table is
       --  parameters are separated by ',', if this check fails, Word_Start is
       --  set to 0.
 
+      function Check_For_Compiler_Rule (Comp_Rule : Rule_Id) return Boolean;
+      --  Check that the current rule option is fulfilling all requirements for
+      --  compiler-based GNATcheck rules. Returns whether the rule option
+      --  processing should continue.
+
       Rule          : Rule_Id;
       Enable        : Boolean;
 
       Diag_Defined_At : constant String :=
         (if Defined_At = "" then "" else " (" & Defined_At & ")");
+
+      -------------------
+      -- Set_Parameter --
+      -------------------
 
       procedure Set_Parameter is
          Found : Boolean := False;
@@ -931,6 +940,40 @@ package body Gnatcheck.Rules.Rule_Table is
             end if;
          end loop;
       end Set_Parameter;
+
+      -----------------------------
+      -- Check_For_Compiler_Rule --
+      -----------------------------
+
+      function Check_For_Compiler_Rule (Comp_Rule : Rule_Id) return Boolean
+      is
+         Name : constant String := Rule_Name (Comp_Rule);
+      begin
+         --  Check if there is already a registered "instance"
+         if Is_Enabled (Comp_Rule) and then Enable then
+            Error
+              ("a " & Name & " instance already exists" & Diag_Defined_At);
+            Bad_Rule_Detected := True;
+            return False;
+         end if;
+
+         --  Then check that the parameters are valid
+         if Word_Start = 0 and then Enable then
+            Error
+              (Name & " rule option must have a parameter" &
+               Diag_Defined_At);
+            Bad_Rule_Detected := True;
+            return False;
+         elsif Word_Start /= 0 and then not Enable then
+            Error
+              ("(" & Name & ") no parameter allowed for -R" &
+               Diag_Defined_At);
+            Bad_Rule_Detected := True;
+            return False;
+         end if;
+
+         return True;
+      end Check_For_Compiler_Rule;
 
    begin
       if Lower_Option = "-all" then
@@ -981,48 +1024,35 @@ package body Gnatcheck.Rules.Rule_Table is
             end if;
          end loop;
 
-         --  Separate processing for restrictions, style_checks, warnings, and
-         --  ordinary rules.
-
+         --  We need to process compiler-based rules in a separate way:
          if Lower_Option (Word_Start .. Word_End) = "restrictions" then
             Set_Parameter;
-
-            if Word_Start = 0 then
-               Error ("restrictions rule option must have a parameter" &
-                      Diag_Defined_At);
-               Bad_Rule_Detected := True;
+            if not Check_For_Compiler_Rule (Restrictions_Id) then
                return;
             end if;
 
-            while Word_Start /= 0 loop
-               Process_Restriction_Param
-                 (Option (Word_Start .. Word_End), Enable);
-               Set_Parameter;
-            end loop;
+            if Enable then
+               while Word_Start /= 0 loop
+                  Process_Restriction_Param
+                    (Option (Word_Start .. Word_End), Enable);
+                  Set_Parameter;
+               end loop;
+            else
+               Disable_Restrictions;
+            end if;
+            Set_Compiler_Checks;
 
          elsif Lower_Option (Word_Start .. Word_End) = "style_checks" then
-            if not Enable then
-               Error ("there is no -R option for style checks, " &
-                      "use style options to turn checks OFF"     &
-                      Diag_Defined_At);
-               Bad_Rule_Detected := True;
-               return;
-            end if;
-
             Set_Parameter;
-
-            if Word_Start = 0 then
-               Error ("style_checks rule option must have a parameter" &
-                      Diag_Defined_At);
-               Bad_Rule_Detected := True;
+            if not Check_For_Compiler_Rule (Style_Checks_Id) then
                return;
             end if;
 
             if Rule_Synonym_Start > 0 then
                declare
-                  User_Synonym : String renames
-                    Option (Rule_Synonym_Start .. Rule_Synonym_End);
-                  J            : Natural;
+                  User_Synonym : String renames Option
+                    (Rule_Synonym_Start .. Rule_Synonym_End);
+                  J : Natural;
 
                begin
                   if Option (Word_Start .. Word_End) = "all_checks" then
@@ -1064,25 +1094,18 @@ package body Gnatcheck.Rules.Rule_Table is
                end;
             end if;
 
-            while Word_Start /= 0 loop
-               Process_Style_Check_Param (Option (Word_Start .. Word_End));
-               Set_Parameter;
-            end loop;
-         elsif To_Lower (Option (Word_Start .. Word_End)) = "warnings" then
-            if not Enable then
-               Error ("there is no -R option for warnings, "     &
-                      "use warning options to turn warnings OFF" &
-                       Diag_Defined_At);
-               Bad_Rule_Detected := True;
-               return;
+            if Enable then
+               while Word_Start /= 0 loop
+                  Process_Style_Check_Param (Option (Word_Start .. Word_End));
+                  Set_Parameter;
+               end loop;
+            else
+               Disable_Style_Checks;
             end if;
 
+         elsif To_Lower (Option (Word_Start .. Word_End)) = "warnings" then
             Set_Parameter;
-
-            if Word_Start = 0 then
-               Error ("warnings rule option must have a parameter" &
-                      Diag_Defined_At);
-               Bad_Rule_Detected := True;
+            if not Check_For_Compiler_Rule (Warnings_Id) then
                return;
             end if;
 
@@ -1110,10 +1133,16 @@ package body Gnatcheck.Rules.Rule_Table is
                end;
             end if;
 
-            while Word_Start /= 0 loop
-               Process_Warning_Param (Option (Word_Start .. Word_End));
-               Set_Parameter;
-            end loop;
+            if Enable then
+               while Word_Start /= 0 loop
+                  Process_Warning_Param (Option (Word_Start .. Word_End));
+                  Set_Parameter;
+               end loop;
+            else
+               Disable_Warnings;
+            end if;
+
+         --  If the rule is not compiler-based, we process it normally
          else
             Rule := Get_Rule (Option (Word_Start .. Word_End));
 
@@ -1131,10 +1160,16 @@ package body Gnatcheck.Rules.Rule_Table is
                   --  Check that if there is another instance with the same
                   --  name for a difference rule. If so emit an error message
                   --  and raise an exception.
-                  if Instance /= null and then Instance.Rule /= Rule then
-                     Error ("multiple rule instances with the same name: """ &
-                            Instance_Name & """");
-                     raise Gnatcheck.Options.Fatal_Error;
+                  if Instance /= null and Enable then
+                     Error
+                       ("rule instance with the same name already exists: """ &
+                        Instance_Name & """" & " previously instantiated at " &
+                        (if Instance.Defined_At /= ""
+                         then To_String (Instance.Defined_At)
+                         else "command line")                                 &
+                        Diag_Defined_At);
+                     Bad_Rule_Detected := True;
+                     return;
                   end if;
 
                   if Word_Start = 0 then
@@ -1246,6 +1281,7 @@ package body Gnatcheck.Rules.Rule_Table is
                for S of Arg loop
                   Process_Restriction_Param (S, True);
                end loop;
+               Set_Compiler_Checks;
             end;
 
          --  Others expects a simple string

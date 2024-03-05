@@ -800,33 +800,27 @@ rule options file:
 and for the ``-R`` option:
 
 *Forbidden [list[string]]*
-   Removes the specified aspects from the set of aspects to be
-   detected without affecting detection checks for other aspects.
+   Removes the specified aspects from the set of aspects to be detected without
+   affecting detection checks for other aspects.
+
+*Allowed [string]*
+   A semi-colon separated list of aspects to remove from the set of aspects to
+   be detected. You have to use the named parameter formatting to specify it.
 
 *All [bool]*
    If ``true``, clear the list of the aspects to be detected and turn the rule
    OFF.
 
-Parameters are case insensitive. If an element of *Forbidden* does not
-have the syntax of an Ada identifier, it is (silently) ignored, but if
-such a parameter is given for the ``+R`` option, this turns the rule ON.
+Parameters are case insensitive. If an element of *Forbidden* or *Allowed*
+does not have the syntax of an Ada identifier, it is (silently) ignored, but
+if such a parameter is given for the ``+R`` option, this turns the rule ON.
 
-If more than one option for this rule is specified for the gnatcheck call, for the
-same *Forbidden* a new option overrides the previous one(s). Options for
-different *Forbidden* are cumulative.
-
-The ``+R`` option with no parameters turns the rule ON, with the set of
-aspects to be detected defined by the previous rule options.
-(By default this set is empty, so if the only option specified for the rule is
-``+RForbidden_Aspects`` with no parameter, then the rule is enabled,
-but it does not detect anything).
-The ``-R`` option with no parameter turns the rule OFF, but it does not
-affect the set of aspects to be detected.
+The ``+R`` option with no parameters doesn't create any instance for the rule,
+thus, it has no effect.
 
 .. note::
-   In LKQL rule options files, you can specify a named ``Allowed`` parameter
-   as a list of strings. This way you can exempt some aspects from being
-   flagged. Example:
+   In LKQL rule options files, the ``Allowed`` parameter should be a list of
+   strings:
 
    .. code-block:: lkql
 
@@ -840,7 +834,7 @@ definition of exemption sections are *Forbidden*.
 .. rubric:: Example
 
 .. code-block:: ada
-   :emphasize-lines: 3, 8
+   :emphasize-lines: 3, 8, 23
 
    --  if the rule is activated as +RForbidden_Aspects:Pack,Pre
    package Foo is
@@ -853,6 +847,18 @@ definition of exemption sections are *Forbidden*.
 
       procedure Proc2 (X : in out T)
         with Pre'Class => Predicate2;                     --  NO FLAG
+
+   --  if the rule is activated as +RForbidden_Aspects:ALL,Allowed=Pack;Pre
+   package Foo is
+      type Arr is array (1 .. 10) of Integer with Pack;   --  NOFLAG (because of 'Allowed' rule arg)
+
+      type T is tagged private;
+
+      procedure Proc1 (X : in out T)
+        with Pre => Predicate1;                           --  NOFLAG (because of 'Allowed' rule arg)
+
+      procedure Proc2 (X : in out T)
+        with Pre'Class => Predicate2;                     --  FLAG
 
 
 
@@ -892,32 +898,27 @@ and for the ``-R`` option:
    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
    attributes are removed from the set of attributes to be detected.
 
+*Allowed [string]*
+   A semi-colon separated list of attributes to remove from the set of attributes
+   to be detected. You have to use the named parameter formatting to specify it.
+
 *All [bool]*
    If ``true``, clear the list of the attributes to be detected and turn the
    rule OFF.
 
-Parameters are not case sensitive. If an element of *Forbidden* does not
-have the syntax of an Ada identifier and therefore can not be considered as a
-(part of an) attribute designator, a diagnostic message is generated and the
-corresponding parameter is ignored. (If an attribute allows a static
-expression to be a part of the attribute designator, this expression is
+Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
+does not have the syntax of an Ada identifier and therefore can not be
+considered as a (part of an) attribute designator, a diagnostic message is
+generated and the corresponding parameter is ignored. (If an attribute allows a
+static expression to be a part of the attribute designator, this expression is
 ignored by this rule.)
 
-If more than one option for this rule is specified for the gnatcheck call, a
-new option overrides the previous one(s).
-
-The ``+R`` option with no parameters turns the rule ON, with the set of
-attributes to be detected defined by the previous rule options.
-(By default this set is empty, so if the only option specified for the rule is
-``+RForbidden_Attributes`` (with
-no parameter), then the rule is enabled, but it does not detect anything).
-The ``-R`` option with no parameter turns the rule OFF, but it does not
-affect the set of attributes to be detected.
+The ``+R`` option with no parameters doesn't create any instance for the rule,
+thus, it has no effect.
 
 .. note::
-   In LKQL rule options files, you can specify a named ``Allowed`` parameter
-   as a list of strings. This way you can exempt some attributes from being
-   flagged. Example:
+   In LKQL rule options files, the ``Allowed`` parameter should be a list of
+   strings:
 
    .. code-block:: lkql
 
@@ -933,7 +934,7 @@ a predefined or GNAT-specific attribute.
 .. rubric:: Example
 
 .. code-block:: ada
-   :emphasize-lines: 6, 9
+   :emphasize-lines: 6, 9, 20
 
    --  if the rule is activated as +RForbidden_Attributes:Range,First,Last
    procedure Foo is
@@ -946,6 +947,16 @@ a predefined or GNAT-specific attribute.
       for J in Arr'Range loop                             --  FLAG
          Arr_Var (J) := Integer'Succ (J);
 
+   --  if the rule is activated as +RForbidden_Attributes:ALL,Allowed=First,Last
+   procedure Foo is
+      type Arr is array (1 .. 10) of Integer;
+      Arr_Var : Arr;
+
+      subtype Ind is Integer range Arr'First .. Arr'Last; --  NOFLAG (because of 'Allowed' rule arg)
+   begin
+
+      for J in Arr'Range loop                             --  FLAG
+         Arr_Var (J) := Integer'Succ (J);
 
 
 .. _Forbidden_Pragmas:
@@ -984,32 +995,29 @@ and for the ``-R`` option:
    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
    pragmas are removed to the set of attributes to be detected.
 
+*Allowed [string]*
+   A semi-colon separated list of pragmas to remove from the set of pragmas to
+   be detected. You have to use the named parameter formatting to specify it.
+
 *All [bool]*
    If ``true``, clear the list of the pragmas to be detected and turn the rule
    OFF.
 
-Parameters are not case sensitive. If an element of *Forbidden* does not have
-the syntax of an Ada identifier and therefore can not be considered
-as a pragma name, a diagnostic message is generated and the corresponding
-parameter is ignored.
+Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
+does not have the syntax of an Ada identifier and therefore can not be
+considered as a pragma name, a diagnostic message is generated and the
+corresponding parameter is ignored.
 
-If more than one option for this rule is specified for the ``gnatcheck``
-call, a new option overrides the previous one(s).
-
-The ``+R`` option with no parameters turns the rule ON with the set of
-pragmas to be detected defined by the previous rule options.
-(By default this set is empty, so if the only option specified for the rule is
-``+RForbidden_Pragmas`` (with
-no parameter), then the rule is enabled, but it does not detect anything).
-The ``-R`` option with no parameter turns the rule OFF, but it does not
-affect the set of pragmas to be detected.
+The ``+R`` option with no parameters doesn't create any instance for the rule,
+thus, it has no effect.
 
 Note that in case when the rule is enabled with *All* parameter, then
 the rule will flag also pragmas ``Annotate`` used to exempt rules, see
 :ref:`Rule_exemption`. Even if you exempt this *Forbidden_Pragmas* rule
 then the pragma ``Annotate`` that closes the exemption section will be
-flagged as non-exempted. To avoid this, turn off the check for pragma
-``Annotate`` by using ``-RForbidden_Pragmas:Annotate`` rule option.
+flagged as non-exempted. To avoid this, remove the pragma ``Annotate``
+from the "to be flagged" list by using ``+RForbidden_Pragmas:ALL,Allowed=Annotate``
+rule option.
 
 .. note::
    In LKQL rule options files, you can specify a named ``Allowed`` parameter
@@ -1886,11 +1894,6 @@ options files:
          Actual_Parameters: [{Forbidden: [("P.SubP", "Param", "Value")]}]
       }
 
-``-R`` option cannot have a parameter, it turns the rule OFF, but all the
-previously specified by rule parameters function names are stored. ``+R``
-option without parameter turns the rule ON with all the previously specified
-parameters, if any.
-
 For all the calls to ``subprogram`` the rule checks if the called subprogram
 has a formal parameter named as ``formal``, and if it does, it checks
 if the actual for this parameter is either a call to a function denoted by
@@ -2196,11 +2199,6 @@ options files:
 *Subprograms [list[string]]*
    A list of full expanded Ada name of subprograms.
 
-``-R`` option cannot have a parameter, it turns the rule OFF, but all the
-previously specified by rule parameters function names are stored. ``+R``
-option without parameter turns the rule ON with all the previously specified
-parameters, if any.
-
 Note that if a rule parameter does not denote the name of an existing
 subprogram, the parameter itself is (silently) ignored and does not have any
 effect except for turning the rule ON.
@@ -2257,11 +2255,6 @@ options files:
 
 *Forbidden [list[string]]*
    A list of full expanded Ada name of subprograms.
-
-``-R`` option cannot have a parameter, it turns the rule OFF, but all the
-previously specified by rule parameters function names are stored. ``+R``
-option without parameter turns the rule ON with all the previously specified
-parameters, if any.
 
 Note that if a rule parameter does not denote the name of an existing
 subprogram, the parameter itself is (silently) ignored and does not have any
@@ -2399,11 +2392,6 @@ options files:
    declaration, number declaration, parameter specification, generic object
    declaration or object renaming declaration. Any other parameter does not
    have any effect except of turning the rule ON.
-
-``-R`` option cannot have a parameter, it turns the rule OFF, but all the
-previously specified by rule parameters function names are stored. ``+R``
-option without parameter turns the rule ON with all the previously specified
-parameters, if any.
 
 Be aware that the rule does not follow renamings. It checks if an operand of
 an (un)equality operator is exactly the name provided as rule parameter
@@ -2629,11 +2617,6 @@ options files:
       val rules = @{
          Exception_Propagation_From_Callbacks: [{Forbidden: [("P.SubP", "Param")]}]
       }
-
-``-R`` option cannot have a parameter, it turns the rule OFF, but all the
-previously specified rule parameters are stored. ``+R`` option without
-parameter turns the rule ON with all the previously specified parameters, if
-any.
 
 Note that if a rule parameter does not denote the name of an existing
 subprogram or if its ``parameter`` part does not correspond to any formal
@@ -4751,11 +4734,6 @@ options files:
 *Functions [list[string]]*
    A list of fully expanded Ada names of functions to flag parameters from.
 
-``-R`` option cannot have a parameter, it turns the rule OFF, but all the
-previously specified by rule parameters function names are stored. ``+R``
-option without parameter turns the rule ON with all the previously specified
-parameters, if any.
-
 Note that a rule parameter should be a function name but not the name defined
 by a function renaming declaration. Note also, that if a rule parameter does not
 denote the name of an existing function or if it denotes a name defined by
@@ -5956,8 +5934,6 @@ against the casing scheme specified for a given entity/declaration kind.
 
 The rule activation option should contain at least one parameter.
 
-There is no parameter for the ``-R`` option, it just turns the rule off.
-
 The rule allows parametric exemption, the parameters that are allowed in
 the definition of exemption sections are:
 
@@ -6156,16 +6132,8 @@ For the ``-R`` option:
 If more than one parameter is used, parameters must be separated by
 commas.
 
-If more than one option is specified for the gnatcheck invocation, a new
-option overrides the previous one(s).
-
-The ``+RIdentifier_Prefixes`` option (with no parameter) enables checks
-for all the name prefixes specified by previous options used for this
-rule. If no prefix is specified, the rule is not enabled.
-
-The ``-RIdentifier_Prefixes`` option (with no parameter) disables all the
-checks but keeps all the prefixes specified by previous options used for
-this rule.
+The ``+RIdentifier_Prefixes`` option (with no parameter) does not create a new
+instance for the rule; thus, it has no effect on the current GNATcheck run.
 
 There is no default prefix setting for this rule. All checks for
 name prefixes are case-sensitive
@@ -6401,16 +6369,8 @@ For the ``-R`` option:
 
 If more than one parameter is used, parameters must be separated by commas.
 
-If more than one  option is specified for the ``gnatcheck`` invocation,
-a new option overrides the previous one(s).
-
-The ``+RIdentifier_Suffixes`` option (with no parameter) enables
-checks for all the
-name suffixes specified by previous options used for this rule.
-
-The ``-RIdentifier_Suffixes`` option (with no parameter) disables
-all the checks but keeps
-all the suffixes specified by previous options used for this rule.
+The ``+RIdentifier_Prefixes`` option (with no parameter) does not create a new
+instance for the rule; thus, it has no effect on the current GNATcheck run.
 
 The *string* value must be a valid suffix for an Ada identifier (after
 trimming all the leading and trailing space characters, if any).
@@ -8018,11 +7978,6 @@ literals is not limited by statements only.
 The last specified check limit (or the fact that there is no limit at
 all) is used when multiple ``+R`` options appear.
 
-The ``-R`` option for this rule has no parameters.
-It disables the rule and restores its default operation mode.
-If the ``+R`` option subsequently appears, will be 1, and the check will
-not be limited by statements only.
-
 .. rubric:: Example
 
 .. code-block:: ada
@@ -8671,8 +8626,6 @@ the same as in *gnatmetric*.
 
 For the ``+R`` option, each metrics rule has a numeric parameter
 specifying the bound (integer or real, depending on a metric).
-The ``-R``
-option for the metrics rules does not have a parameter.
 
 *Example:* the rule
 
@@ -8875,9 +8828,6 @@ LKQL rule options files:
    List of string with the following interpretation: the first character
    is the special comment character, and the rest is the comment marker.
    Items must not contain any white space.
-
-The ``-R`` option erases all definitions of special comment annotations
-specified by the previous ``+R`` options.
 
 The rule is case-sensitive.
 
