@@ -4,17 +4,17 @@
 --
 
 with Ada.Containers.Vectors;
+
 with GNAT.Regexp;
 
-with Liblkqllang.Analysis;
+with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
+with Langkit_Support.Generic_API.Analysis;
+use Langkit_Support.Generic_API.Analysis;
+with Langkit_Support.Text;        use Langkit_Support.Text;
 
 with Libadalang.Analysis;
 
-with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
-with Langkit_Support.Text; use Langkit_Support.Text;
-
-with Langkit_Support.Generic_API.Analysis;
-use Langkit_Support.Generic_API.Analysis;
+with Liblkqllang.Analysis;
 
 --  A diagnostic is composed of a collection of individual rule commands
 package Rule_Commands is

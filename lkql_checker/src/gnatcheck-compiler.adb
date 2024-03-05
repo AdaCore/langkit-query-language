@@ -13,19 +13,18 @@ with GNAT.Case_Util;
 with GNAT.Strings;
 with GNAT.String_Split;
 
-with GNATCOLL.VFS; use GNATCOLL.VFS;
-
+with Gnatcheck.Diagnoses;          use Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;                use Gnatcheck.Ids;
 with Gnatcheck.Options;            use Gnatcheck.Options;
 with Gnatcheck.Output;             use Gnatcheck.Output;
 with Gnatcheck.Projects;           use Gnatcheck.Projects;
 with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
-with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 with Gnatcheck.Rules;              use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
+with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
-with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;       use Gnatcheck.Ids;
+with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 package body Gnatcheck.Compiler is
 

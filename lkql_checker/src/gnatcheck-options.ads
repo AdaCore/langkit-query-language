@@ -7,10 +7,13 @@
 --  for all the tools.
 
 with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Directories; use Ada.Directories;
+with Ada.Directories;  use Ada.Directories;
 with Ada.Environment_Variables;
+
 with GNAT.OS_Lib;
+
 with Gnatcheck.Projects;
+
 with Rules_Factory; use Rules_Factory;
 
 package Gnatcheck.Options is

@@ -8,14 +8,15 @@
 --  supports rule exemption mechanism. Note, that most of the rule exemption
 --  mechanism is hidden in the body of the package.
 
-with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Langkit_Support.Slocs;  use Langkit_Support.Slocs;
+with Gnatcheck.Ids;          use Gnatcheck.Ids;
+with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
+
+with Langkit_Support.Slocs; use Langkit_Support.Slocs;
+
 with Libadalang.Analysis;
 with Libadalang.Common;
-
-with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
-with Gnatcheck.Ids;          use Gnatcheck.Ids;
 
 package Gnatcheck.Diagnoses is
 

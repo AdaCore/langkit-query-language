@@ -9,8 +9,8 @@ with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.Directory_Operations;   use GNAT.Directory_Operations;
-with GNAT.OS_Lib;                 use GNAT.OS_Lib;
+with GNAT.Directory_Operations; use GNAT.Directory_Operations;
+with GNAT.OS_Lib;               use GNAT.OS_Lib;
 with GNAT.Traceback.Symbolic;
 
 with Gnatcheck.Options;          use Gnatcheck.Options;

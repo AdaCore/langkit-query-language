@@ -3,34 +3,35 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Characters.Handling;     use Ada.Characters.Handling;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Directories;
-with Ada.Exceptions;              use Ada.Exceptions;
-with Ada.Strings;                 use Ada.Strings;
-with Ada.Strings.Fixed;           use Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;       use Ada.Strings.Unbounded;
-with Ada.Text_IO;                 use Ada.Text_IO;
+with Ada.Exceptions;          use Ada.Exceptions;
+with Ada.Strings;             use Ada.Strings;
+with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
+with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.String_Split;           use GNAT.String_Split;
-with GNAT.Directory_Operations;   use GNAT.Directory_Operations;
-with GNAT.Expect;                 use GNAT.Expect;
-with GNAT.OS_Lib;                 use GNAT.OS_Lib;
+with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
+with GNAT.Expect;                use GNAT.Expect;
+with GNAT.OS_Lib;                use GNAT.OS_Lib;
+with GNAT.String_Split;          use GNAT.String_Split;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
-with GNATCOLL.VFS;                use GNATCOLL.VFS;
+with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
+with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;              use Gnatcheck.Ids;
+with Gnatcheck.Output;           use Gnatcheck.Output;
+with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+
+with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 with GPR2.Path_Name;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
 with GPR2.Project.Source.Set;
 
-with Gnatcheck.Compiler;          use Gnatcheck.Compiler;
-with Gnatcheck.Diagnoses;         use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;               use Gnatcheck.Ids;
-with Gnatcheck.Output;            use Gnatcheck.Output;
-with Gnatcheck.String_Utilities;  use Gnatcheck.String_Utilities;
-
+with Langkit_Support.Generic_API.Analysis;
 with Langkit_Support.Generic_API.Introspection;
 
 with Libadalang.Analysis;         use Libadalang.Analysis;
@@ -41,8 +42,6 @@ with Libadalang.Iterators;
 with Libadalang.Generic_API;      use Libadalang.Generic_API;
 with Libadalang.Common;
 with Libadalang.Config_Pragmas;
-
-with Langkit_Support.Generic_API.Analysis;
 
 with Liblkqllang.Analysis;
 

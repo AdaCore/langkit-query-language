@@ -7,22 +7,23 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
-with Ada.Text_IO;       use Ada.Text_IO;
+with Ada.Text_IO; use Ada.Text_IO;
+
+with Checker_App;
+
 with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
-with Gnatcheck.Compiler;  use Gnatcheck.Compiler;
-with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
-with Gnatcheck.Options;   use Gnatcheck.Options;
-with Gnatcheck.Output;    use Gnatcheck.Output;
-with Gnatcheck.Projects;  use Gnatcheck.Projects;
+with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
+with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
+with Gnatcheck.Options;          use Gnatcheck.Options;
+with Gnatcheck.Output;           use Gnatcheck.Output;
+with Gnatcheck.Projects;         use Gnatcheck.Projects;
 with Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
-with Gnatcheck.Rules;     use Gnatcheck.Rules;
+with Gnatcheck.Rules;            use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
-
-with Checker_App;
 
 with GPR2.Project.Registry.Exchange;
 

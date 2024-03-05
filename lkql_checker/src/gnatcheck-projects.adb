@@ -4,17 +4,32 @@
 --
 
 with Ada.Calendar;
-with Ada.Characters.Handling;    use Ada.Characters.Handling;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
-with Ada.Directories;            use Ada.Directories;
+with Ada.Directories;         use Ada.Directories;
 with Ada.Environment_Variables;
-with Ada.Strings;                use Ada.Strings;
-with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
+with Ada.Strings;             use Ada.Strings;
+with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
-with System.Multiprocessors;
+with GNAT.Directory_Operations;
+with GNAT.Regexp;       use GNAT.Regexp;
+with GNAT.Strings;
+with GNAT.String_Split; use GNAT.String_Split;
+with GNAT.Table;
+
+with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
+with Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;                use Gnatcheck.Ids;
+with Gnatcheck.Options;            use Gnatcheck.Options;
+with Gnatcheck.Output;             use Gnatcheck.Output;
+with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
+with Gnatcheck.Rules;              use Gnatcheck.Rules;
+with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
+with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
 with GNATCOLL.Traces;
 
@@ -35,27 +50,11 @@ with GPR2.Project.Source.Set;
 with GPR2.Project.View;
 with GPR2.Project.View.Set;
 
-with GNAT.Directory_Operations;
-with GNAT.Strings;
-with GNAT.Regexp;       use GNAT.Regexp;
-with GNAT.String_Split; use GNAT.String_Split;
-with GNAT.Table;
-
-with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
-with Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;                use Gnatcheck.Ids;
-with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Rules;              use Gnatcheck.Rules;
-with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
-
-with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
+with Libadalang.Auto_Provider; use Libadalang.Auto_Provider;
 
 with Rule_Commands; use Rule_Commands;
 
-with Libadalang.Auto_Provider; use Libadalang.Auto_Provider;
+with System.Multiprocessors;
 
 package body Gnatcheck.Projects is
 

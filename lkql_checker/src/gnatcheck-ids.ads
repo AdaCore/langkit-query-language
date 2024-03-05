@@ -7,6 +7,7 @@
 
 with Ada.Containers;
 with Ada.Containers.Indefinite_Vectors;
+
 with Langkit_Support.Symbols; use Langkit_Support.Symbols;
 with Langkit_Support.Text;    use Langkit_Support.Text;
 

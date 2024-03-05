@@ -7,9 +7,10 @@ with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
-with GNAT.String_Split;          use GNAT.String_Split;
 with GNAT.OS_Lib;
+with GNAT.String_Split;          use GNAT.String_Split;
 
 with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 with Gnatcheck.Options;          use Gnatcheck.Options;

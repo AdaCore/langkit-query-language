@@ -3,33 +3,34 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Calendar;                 use Ada.Calendar;
-with Ada.Characters.Handling;      use Ada.Characters.Handling;
+with Ada.Calendar;            use Ada.Calendar;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
 with Ada.Directories;
 with Ada.Exceptions;
-with Ada.Strings;                  use Ada.Strings;
-with Ada.Strings.Fixed;            use Ada.Strings.Fixed;
-with Ada.Text_IO;                  use Ada.Text_IO;
+with Ada.Strings;             use Ada.Strings;
+with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
+with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.Directory_Operations;    use GNAT.Directory_Operations;
+with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.Case_Util;
 with GNAT.OS_Lib;
-with GNAT.Regpat;                  use GNAT.Regpat;
+with GNAT.Regpat;               use GNAT.Regpat;
 
-with GNATCOLL.Strings;             use GNATCOLL.Strings;
-
-with Gnatcheck.Rules;              use Gnatcheck.Rules;
-with Gnatcheck.Output;             use Gnatcheck.Output;
-with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
 with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
 with Gnatcheck.Options;            use Gnatcheck.Options;
+with Gnatcheck.Output;             use Gnatcheck.Output;
+with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
+with Gnatcheck.Rules;              use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
+with GNATCOLL.Strings; use GNATCOLL.Strings;
+
 with Langkit_Support.Text; use Langkit_Support.Text;
+
 with Libadalang.Expr_Eval;
 
 package body Gnatcheck.Diagnoses is

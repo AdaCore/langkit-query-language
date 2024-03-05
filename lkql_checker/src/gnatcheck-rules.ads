@@ -16,14 +16,15 @@ with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
 with Ada.Text_IO;                     use Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with System.Rident;
+with Gnatcheck.Ids; use Gnatcheck.Ids;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 
 with Liblkqllang.Analysis;
+
 with Rule_Commands; use Rule_Commands;
 
-with Gnatcheck.Ids; use Gnatcheck.Ids;
+with System.Rident;
 
 package Gnatcheck.Rules is
 
