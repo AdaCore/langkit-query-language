@@ -336,36 +336,39 @@ package body Gnatcheck.Compiler is
                  Index (Source  => Msg (Msg'First .. Msg'Last - 1),
                         Pattern => "[",
                         Going   => Backward);
-               Alias_Split : constant Natural :=
+               Name_Split : constant Natural :=
                  Index (Source  => Msg (Last + 1 .. Msg'Last - 1),
                         Pattern => "|");
 
                Rule_Name : constant String :=
-                 (if Alias_Split /= 0 then
-                    Msg (Alias_Split + 1 .. Msg'Last - 1)
+                 (if Name_Split /= 0 then
+                    Msg (Name_Split + 1 .. Msg'Last - 1)
                   elsif Last /= 0 then
                     Msg (Last + 1 .. Msg'Last - 1)
                   else "");
-               Alias_Name : constant String :=
-                 (if Alias_Split /= 0 then
-                    Msg (Last + 1 .. Alias_Split - 1)
+               Instance_Name : constant String :=
+                 (if Name_Split /= 0 then
+                    Msg (Last + 1 .. Name_Split - 1)
                   else "");
 
                Id : Rule_Id := No_Rule_Id;
-
             begin
                if Last = 0 then
                   Format_Error;
                   return;
                end if;
 
+               --  Get the rule information and save the diagnosis about it.
+               --  Important: Here we don't use the instance map because of the
+               --  `-from-lkql` option which can define and enable rules
+               --  without the driver knowing.
                Id := Get_Rule (Rule_Name);
                Store_Diagnosis
                  (Text           => Gnatcheck.Source_Table.File_Name (SF) &
                                     Msg (File_Idx .. Idx - 1) &
                                     Msg (Idx + 7 .. Last - 2) &
-                                    Annotate_Rule (All_Rules (Id).all,
-                                                   Alias_Name),
+                                    Annotate_Rule
+                                      (All_Rules (Id).all, Instance_Name),
                   Diagnosis_Kind =>
                     (if Last - Idx > 21
                        and then Msg (Idx + 7 .. Idx + 20) = "internal error"

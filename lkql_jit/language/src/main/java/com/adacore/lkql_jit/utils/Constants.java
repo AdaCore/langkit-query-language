@@ -85,6 +85,9 @@ public class Constants {
     /** Special object key for LKQL config file to define rule alias. */
     public static final String ALIAS_NAME_SYMBOL = "alias_name";
 
+    /** Special object key for LKQL config file to define the rule instance name. IOW rule alias. */
+    public static final String INSTANCE_NAME_SYMBOL = "instance_name";
+
     // ----- Special annotations -----
 
     /** The memoization annotation string value. */

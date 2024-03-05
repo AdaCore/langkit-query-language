@@ -233,12 +233,16 @@ public class ParsingUtils {
             final Map<String, Map<String, Object>> args) {
         // If the arg has an alias get the name of it and add it in the alias list
         final String realName;
-        final Object aliasName = argObject.getUncached(Constants.ALIAS_NAME_SYMBOL);
-        if (aliasName != null) {
-            if (!LKQLTypeSystemGen.isString(aliasName)) {
+        Object instanceName = argObject.getUncached(Constants.INSTANCE_NAME_SYMBOL);
+        instanceName =
+                instanceName == null
+                        ? argObject.getUncached(Constants.ALIAS_NAME_SYMBOL)
+                        : instanceName;
+        if (instanceName != null) {
+            if (!LKQLTypeSystemGen.isString(instanceName)) {
                 throw LKQLRuntimeException.fromMessage("Rule alias name must be a string");
             }
-            realName = LKQLTypeSystemGen.asString(aliasName);
+            realName = LKQLTypeSystemGen.asString(instanceName);
             aliases.put(realName.toLowerCase(), ruleName.toLowerCase());
         } else {
             realName = ruleName;

@@ -77,6 +77,9 @@ procedure Gnatcheck_Main is
    --  libraries to find their dependencies without requiring users to
    --  explicitly set these paths.
 
+   procedure Schedule_Files;
+   --  Schedule jobs per set of files
+
    ------------------------
    -- Setup_Search_Paths --
    ------------------------
@@ -131,9 +134,6 @@ procedure Gnatcheck_Main is
       Free (Executable);
    end Setup_Search_Paths;
 
-   procedure Schedule_Files;
-   --  Schedule jobs per set of files
-
    --------------------
    -- Schedule_Files --
    --------------------
@@ -176,20 +176,20 @@ procedure Gnatcheck_Main is
 
       Create (File, Out_File, File_Name ("rules", 0));
 
-      for Rule_Cursor in All_Rules.Iterate loop
-         if Is_Enabled (All_Rules (Rule_Cursor).all) then
-            Print_Rule_To_Universal_File (All_Rules (Rule_Cursor).all, File);
+      declare
+         To_Print : Rule_Instance_Vector.Vector;
+      begin
+         --  Here we compute the list of instance to print before printing it
+         --  to avoid modifications of the global instances map while iterating
+         --  on it.
+         for Instance_Cursor in All_Rule_Instances.Iterate loop
+            To_Print.Append (All_Rule_Instances (Instance_Cursor));
+         end loop;
+         for Instance of To_Print loop
+            Print_Rule_Instance_To_Universal_File (Instance.all, File);
             New_Line (File);
-         end if;
-      end loop;
-
-      for Alias_Cursor in All_Aliases.Iterate loop
-         if Is_Enabled (All_Aliases (Alias_Cursor).all) then
-            All_Aliases
-              (Alias_Cursor).all.Print_Alias_To_Universal_File (File);
-            New_Line (File);
-         end if;
-      end loop;
+         end loop;
+      end;
 
       Close (File);
 
@@ -471,6 +471,7 @@ begin
             Duration'Image (Ada.Calendar.Clock - Time_Start));
    end if;
 
+   Gnatcheck.Rules.Rule_Table.Clean_Up;
    Close_Log_File;
 
    OS_Exit (if Tool_Failures /= 0
