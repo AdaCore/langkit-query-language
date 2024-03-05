@@ -548,7 +548,7 @@ package body Gnatcheck.Diagnoses is
       elsif Rule = Warnings_Id then
          return Is_Warning_Exemption_Par (Param);
       else
-         return Allowed_As_Exemption_Parameter (All_Rules (Rule).all, Param);
+         return All_Rules (Rule).Allowed_As_Exemption_Parameter (Param);
       end if;
    end Allowed_As_Exemption_Parameter;
 
@@ -1409,11 +1409,11 @@ package body Gnatcheck.Diagnoses is
                Create (Rule_List_File, Out_File, Full_Rule_List_File_Name);
             end if;
 
-            for Cursor in All_Rules.Iterate loop
-               if Is_Enabled (All_Rules (Cursor).all) then
-                  Print_Rule_To_File (All_Rules (Cursor).all, Rule_List_File);
-                  New_Line (Rule_List_File);
-               end if;
+            for Cursor in All_Rule_Instances.Iterate loop
+               Print_Rule_Instance_To_File
+                 (All_Rule_Instances (Cursor).all,
+                  Rule_List_File);
+               New_Line (Rule_List_File);
             end loop;
 
             --  Compiler-made checks:
@@ -1455,10 +1455,8 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if XML_Report_ON then
-         for Cursor in All_Rules.Iterate loop
-            if Is_Enabled (All_Rules (Cursor).all) then
-               XML_Print_Rule (All_Rules (Cursor).all, Indent_Level => 2);
-            end if;
+         for Cursor in All_Rule_Instances.Iterate loop
+            XML_Print_Rule_Instance (All_Rule_Instances (Cursor).all, 2);
          end loop;
 
          if Use_gnaty_Option then
@@ -2038,12 +2036,8 @@ package body Gnatcheck.Diagnoses is
    ---------------------------
 
    procedure Process_Exempt_Action (Self : Exempt_Action) is
-      function Is_Enabled (Rule : Rule_Id) return Boolean;
-      --  Get whether the given rule is enabled or has an enabled alias
-
-      SF              : constant SF_Id   := File_Find (Self.Unit.Get_Filename);
-      Rule_Name       : constant String  := To_String (Self.Rule_Name);
-      Lower_Rule_Name : constant String  := To_Lower (Rule_Name);
+      SF              : constant SF_Id := File_Find (Self.Unit.Get_Filename);
+      Rule_Name       : constant String := To_String (Self.Rule_Name);
       Rule            : constant Rule_Id := Get_Rule (Rule_Name);
       Has_Params      : constant Boolean := not Self.Params.Is_Empty;
       Exempted_At     : Parametrized_Exemption_Sections.Cursor;
@@ -2051,31 +2045,12 @@ package body Gnatcheck.Diagnoses is
         Langkit_Support.Slocs.Start_Sloc (Self.Sloc_Range);
       Sloc_End        : constant Source_Location :=
         Langkit_Support.Slocs.End_Sloc (Self.Sloc_Range);
-      Alias           : Alias_Access     := null;
 
       use Parametrized_Exemption_Sections;
 
       Action : Exempt_Action := Self;
-
-      function Is_Enabled (Rule : Rule_Id) return Boolean is
-      begin
-         if Gnatcheck.Rules.Rule_Table.Is_Enabled (Rule) then
-            return True;
-         end if;
-
-         if not Is_Compiler_Check (Rule) then
-            for Alias of All_Rules (Rule).Aliases loop
-               if Is_Enabled (Alias) then
-                  return True;
-               end if;
-            end loop;
-         end if;
-
-         return False;
-      end Is_Enabled;
    begin
       --  First part: Legality checks
-
       if Self.Exemption_Control = Not_An_Exemption then
          Store_Diagnosis
            (Full_File_Name     => Self.Unit.Get_Filename,
@@ -2086,8 +2061,7 @@ package body Gnatcheck.Diagnoses is
          return;
       end if;
 
-      --  3.1 Check if we have an existing rule
-
+      --  3.1 Check if we have an existing instance
       if not Present (Rule) then
          Store_Diagnosis
            (Full_File_Name     => Self.Unit.Get_Filename,
@@ -2116,7 +2090,6 @@ package body Gnatcheck.Diagnoses is
 
       --  Justification is not expected (and shouldn't be present) if the
       --  action is to turn off an exemption.
-
       if Action.Exemption_Control = Exempt_Off
          and then Action.Justification /= Null_Unbounded_String
          and then Action.Check_Justification
@@ -2131,7 +2104,6 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       --  6. If exemption is turned ON, justification is expected
-
       if Action.Exemption_Control = Exempt_On
          and then Action.Justification = Null_Unbounded_String
          and then Action.Check_Justification
@@ -2145,30 +2117,21 @@ package body Gnatcheck.Diagnoses is
             SF                 => SF);
       end if;
 
-      --  Get the alias designated by the rule name if the latter is not the
-      --  same as the provided rule.
-
-      if Lower_Rule_Name /= Gnatcheck.Rules.Rule_Table.Rule_Name (Rule) then
-         Alias := All_Aliases (Lower_Rule_Name);
-      end if;
-
-      --  If Rule does not denote the enabled rule or alias - nothing to do
-
-      if not ((Alias /= null and then Is_Enabled (Alias.all))
-              or else Is_Enabled (Rule)
-              or else
-                (Rule = Warnings_Id and then Is_Enabled (Restrictions_Id)))
+      --  If `Rule` is not enabled - nothing to do
+      if not
+        (Is_Enabled (Rule) or else
+         (Rule = Warnings_Id and then Is_Enabled (Restrictions_Id)))
       then
-       --  In case when a Restriction rule is enabled, we may want to use
-       --  exemptions section for Warnings rule to suppress default warnings.
-       --  We may get rid of this if and when we get a possibility to turn
-       --  off all the warnings except related to restrictions only.
+         --  In case when a Restriction rule is enabled, we may want to use
+         --  exemptions section for Warnings rule to suppress default warnings.
+         --  We may get rid of this if and when we get a possibility to turn
+         --  off all the warnings except related to restrictions only.
          return;
       end if;
 
       --  Now - processing of the exemption pragma. If we are here, we are
-      --  sure that Rule denotes an existing and enabled rule.
-
+      --  sure that Rule denotes an existing rule and Instance is an instance
+      --  of it.
       case Action.Exemption_Control is
          when Exempt_On =>
 
@@ -2726,7 +2689,7 @@ package body Gnatcheck.Diagnoses is
       elsif Rule = Style_Checks_Id then
          return Style_Rule_Parameter (Diag);
       else
-         return Rule_Parameter (All_Rules (Rule).all, Diag);
+         return All_Rules (Rule).Rule_Param_From_Diag (Diag);
       end if;
    end Rule_Parameter;
 

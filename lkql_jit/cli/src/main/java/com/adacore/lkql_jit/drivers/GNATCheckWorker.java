@@ -378,8 +378,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                     final Map<String, String> arguments = new HashMap<>();
                     final Value argObject = argList.getArrayElement(i);
                     for (String argName : argObject.getMemberKeys()) {
-                        if (argName.equals("alias_name")) {
-                            final String aliasName = argObject.getMember("alias_name").asString();
+                        if (argName.equals("instance_name")) {
+                            final String aliasName =
+                                    argObject.getMember("instance_name").asString();
                             instanceId = aliasName.toLowerCase();
                             instanceName = Optional.of(aliasName);
                         } else {

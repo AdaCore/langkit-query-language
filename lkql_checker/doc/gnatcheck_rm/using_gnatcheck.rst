@@ -331,23 +331,66 @@ can provide as many rule options as you want after the ``-rules`` switch.
 
   .. index:: +R (gnatcheck)
 
-``+R[:rule_synonym:]rule_id[:param{,param}]``
-  Turn on the check for a specified rule with the specified parameter(s), if
-  any. `rule_id` must be the identifier of one of the currently implemented
+``+R[:instance_name:]rule_id[:param{,param}]``
+  Create and enable an instance of the specified rule with the specified
+  parameter(s), if any.
+  `rule_id` must be the identifier of one of the currently implemented
   rules (use ``-h`` for the list of implemented rules). Rule identifiers
-  are not case-sensitive. Each `param` item must
-  be a non-empty string representing a valid parameter for the specified rule.
-  If the part of the rule option that follows the colon character contains any
-  space characters then this part must be enclosed in quotation marks.
+  are not case-sensitive.
 
-  `rule_synonym` is a user-defined synonym for a rule name, it can be used
-  to map ``gnatcheck`` rules onto a user coding standard.
+  Each `param` item must be a non-empty string representing a valid parameter
+  for the specified rule. If the part of the rule option that follows the
+  colon character contains any space characters then this part must be enclosed
+  in quotation marks.
+
+  `instance_name` is a user-defined name for the created rule instance. If this
+  is not specified, the instance name is set to the rule name (normalized to
+  lower case).
+  You can create as much instances as you want for a single rule, as long
+  as they have distinct names (names aren't case sensitive either). If an
+  instance of the same rule with the same name already exists then update it.
+
+  For example:
+
+  .. code-block:: ada
+
+    --  Create and enable an instance of "GOTO_Statements" named
+    --  "goto_statements".
+    +RGOTO_Statements
+
+    --  Create and enable an second instance of "GOTO_Statements" named
+    --  "custom_name".
+    +R:custom_name:GOTO_Statements
+
+    --  Set the 'only_unconditional' parameter of the "custom_name"
+    --  instance.
+    +R:custom_name:GOTO_Statements:only_unconditional
+
+    --  Create and enable an instance of "Recursive_Subprograms" named
+    --  "other_name".
+    +R:other_name:Recursive_Subprograms
+
+    --  This will cause an error since a rule instance named "custom_name"
+    --  already exists.
+    +R:custom_name:Recursive_Subprograms
+
+  This feature can be used to map ``gnatcheck`` rules onto a user's coding
+  standard.
 
   .. index:: -R (gnatcheck)
 
 
-``-Rrule_id[:param]``
-  Turn off the check for a specified rule with the specified parameter, if any.
+``-R[:instance_name:]rule_id[:param]``
+  If no ``param`` is provided, remove the designated rule instance, disabling it
+  at the same time.
+
+  .. note::
+
+    By removing a rule instance, all previously given instance parameter(s)
+    are cleared from the GNATcheck memory.
+
+  If a ``param`` is specified, then reset the value of the given parameter to
+  its default value if allowed, else emit an error.
 
   .. index:: -from (gnatcheck)
 
@@ -371,10 +414,9 @@ The default behavior is that all the rule checks are disabled.
 If a rule option is given in a rule file, it can contain spaces and line breaks.
 Otherwise there should be no spaces between the components of a rule option.
 
-If more than one rule option
-is specified for the same rule, these options are summed together. If a new option contradicts
-the rule settings specified by previous options for this rule, the new option overrides
-the previous settings.
+If more than one rule option is specified for the same rule, these options are
+summed together. If a new option contradicts the rule settings specified by
+previous options for this rule, the new option overrides the previous settings.
 
 A coding standard file is a text file that contains a set of rule options
 described above.
@@ -445,15 +487,16 @@ maps to:
       gnatcheck_rule_1: [{param_1: "Hello", param_2: "World"}]
     }
 
-You can use the ``alias_name`` key in a parameter object to define an alias for the
-rule.
+You can use the ``instance_name`` key in an argument object to define a name for the
+created rule instance.
 
 ::
 
   val rules = @{
     gnatcheck_rule_1,
     gnatcheck_rule_2: [
-      {param_1: "Foo", param_2: "Bar", alias_name: "Rule_Alias"}
+      {param_1: "Hello", param_2: "World"},
+      {param_1: "Foo",   param_2: "Bar", instance_name: "My_Name"}
     ]
   }
 

@@ -328,36 +328,39 @@ package body Gnatcheck.Compiler is
                  Index (Source  => Msg (Msg'First .. Msg'Last - 1),
                         Pattern => "[",
                         Going   => Backward);
-               Alias_Split : constant Natural :=
+               Name_Split : constant Natural :=
                  Index (Source  => Msg (Last + 1 .. Msg'Last - 1),
                         Pattern => "|");
 
                Rule_Name : constant String :=
-                 (if Alias_Split /= 0 then
-                    Msg (Alias_Split + 1 .. Msg'Last - 1)
+                 (if Name_Split /= 0 then
+                    Msg (Name_Split + 1 .. Msg'Last - 1)
                   elsif Last /= 0 then
                     Msg (Last + 1 .. Msg'Last - 1)
                   else "");
-               Alias_Name : constant String :=
-                 (if Alias_Split /= 0 then
-                    Msg (Last + 1 .. Alias_Split - 1)
+               Instance_Name : constant String :=
+                 (if Name_Split /= 0 then
+                    Msg (Last + 1 .. Name_Split - 1)
                   else "");
 
                Id : Rule_Id := No_Rule_Id;
-
             begin
                if Last = 0 then
                   Format_Error;
                   return;
                end if;
 
+               --  Get the rule information and save the diagnosis about it.
+               --  Important: Here we don't use the instance map because of the
+               --  `-from-lkql` option which can define and enable rules
+               --  without the driver knowing.
                Id := Get_Rule (Rule_Name);
                Store_Diagnosis
                  (Text           => Gnatcheck.Source_Table.File_Name (SF) &
                                     Msg (File_Idx .. Idx - 1) &
                                     Msg (Idx + 7 .. Last - 2) &
                                     Annotate_Rule
-                                      (All_Rules (Id).all, Alias_Name),
+                                      (All_Rules (Id).all, Instance_Name),
                   Diagnosis_Kind => Rule_Violation,
                   SF             => SF,
                   Rule           => Id);
@@ -1264,6 +1267,22 @@ package body Gnatcheck.Compiler is
       end if;
    end Process_Restriction_Param;
 
+   --------------------------
+   -- Disable_Restrictions --
+   --------------------------
+
+   procedure Disable_Restrictions is
+   begin
+      for J in Restriction_Setting'Range loop
+         Restriction_Setting (J).Active := False;
+         Free (Restriction_Setting (J).Param);
+      end loop;
+
+      for J in Special_Restriction_Setting'Range loop
+         Special_Restriction_Setting (J) := False;
+      end loop;
+   end Disable_Restrictions;
+
    -------------------------------
    -- Process_Style_Check_Param --
    -------------------------------
@@ -1300,6 +1319,17 @@ package body Gnatcheck.Compiler is
       end if;
    end Process_Style_Options;
 
+   --------------------------
+   -- Disable_Style_Checks --
+   --------------------------
+
+   procedure Disable_Style_Checks is
+   begin
+      Use_gnaty_Option := False;
+      Free (Style_Options_String);
+      Style_Options_String := new String'("-gnaty");
+   end Disable_Style_Checks;
+
    ---------------------------
    -- Process_Warning_Param --
    ---------------------------
@@ -1326,6 +1356,17 @@ package body Gnatcheck.Compiler is
       Free (Warning_Options_String);
       Warning_Options_String := new String'(New_Options);
    end Process_Warning_Param;
+
+   ----------------------
+   -- Disable_Warnings --
+   ----------------------
+
+   procedure Disable_Warnings is
+   begin
+      Use_gnatw_Option := False;
+      Free (Warning_Options_String);
+      Warning_Options_String := new String'("-gnatw");
+   end Disable_Warnings;
 
    --------------------------------
    -- Restriction_Rule_parameter --

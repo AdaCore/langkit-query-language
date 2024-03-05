@@ -102,36 +102,54 @@ package Gnatcheck.Rules.Rule_Table is
 
    package Rule_Map is new Ada.Containers.Indefinite_Hashed_Maps
      (Key_Type        => Rule_Id,
-      Element_Type    => Rule_Access,
+      Element_Type    => Rule_Info_Access,
       Hash            => Hash,
       Equivalent_Keys => "=");
    All_Rules : Rule_Map.Map;
-   --  This map contains all parsed and predefined rules, associating their
-   --  normalized names to an access to the corresponding rule.
+   --  This map is used to store all parsed rules associated to their
+   --  identifiers.
 
-   package Alias_Map is new Ada.Containers.Indefinite_Hashed_Maps (
-      Key_Type        => String,
-      Element_Type    => Alias_Access,
+   package Rule_Instance_Map is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => String,
+      Element_Type    => Rule_Instance_Access,
       Hash            => Ada.Strings.Hash,
       Equivalent_Keys => "=");
-   All_Aliases : Alias_Map.Map;
-   --  Map containins all defined aliases associated to their information,
-   --  with the identifier of the original rule and actual parameters.
+   All_Rule_Instances : Rule_Instance_Map.Map;
+   --  This global map contains all created instances, from their normalized
+   --  name to their address.
 
    function Get_Rule (Rule_Name : String) return Rule_Id;
    --  Returns the identifier for the provided rule name. This identifier is
-   --  associated to the rule template access in `All_Rules` map.
+   --  associated to the rule information access in `All_Rules` map. This
+   --  function also looks into the `All_Rule_Instances` map for possible
+   --  aliases of the rule.
    --  If there is no rule designated by `Rule_Name`, this function returns the
    --  `No_Rule_Id` value.
+
+   function Get_Rule (Instance : Rule_Instance'Class) return Rule_Info_Access;
+   --  Returns an access to the rule information associated with the given rule
+   --  instance.
+
+   function Get_Instance
+     (Instance_Name : String) return Rule_Instance_Access;
+   --  Return an access to the rule instance associated with the given instance
+   --  name. If there is no such instance, this function returns null.
+
+   procedure Turn_Instance_On (Instance : Rule_Instance_Access);
+   --  Insert the given rule instance in `All_Rule_Instances` to represents its
+   --  enabling.
+
+   procedure Turn_Instance_Off (Instance_Name : String);
+   --  Remove the instance associated with `Instance_Name` after its
+   --  normalization. If there is no instance assocaited to the provided name
+   --  this function does nothing.
 
    procedure Turn_All_Rules_Off;
    --  Turns OFF all the rules currently implemented in gnatcheck
 
    procedure Turn_All_Rules_On;
-   --  Turns ON all the rules currently implemented in gnatcheck
-
-   procedure Set_Rule_State (For_Rule : Rule_Id; To_State : Rule_States);
-   --  Sets the state of the argument rule. Requires Present (For_Rule)
+   --  Turns ON all the rules currently implemented in gnatcheck. This function
+   --  will only turn on rules that are not enabled yet.
 
    function Rule_Name (Rule : Rule_Id) return String;
    --  Returns the name of the rule.
@@ -143,5 +161,8 @@ package Gnatcheck.Rules.Rule_Table is
    procedure Process_Rules (Ctx : in out Lkql_Context);
    --  Process input rules: Put the rules that have been requested by the user
    --  in internal data structures.
+
+   procedure Clean_Up;
+   --  Release all allocated ressources for rules and instances storage.
 
 end Gnatcheck.Rules.Rule_Table;

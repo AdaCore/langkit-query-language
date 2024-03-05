@@ -59,6 +59,13 @@ procedure Gnatcheck_Main is
    --  libraries to find their dependencies without requiring users to
    --  explicitly set these paths.
 
+   procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes);
+   --  Print the rule configuration of the given source mode into the given
+   --  file using the LKQL rule config file format.
+
+   procedure Schedule_Files;
+   --  Schedule jobs per set of files
+
    ------------------------
    -- Setup_Search_Paths --
    ------------------------
@@ -113,13 +120,6 @@ procedure Gnatcheck_Main is
       Free (Executable);
    end Setup_Search_Paths;
 
-   procedure Schedule_Files;
-   --  Schedule jobs per set of files
-
-   procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes);
-   --  Print the rule configuration of the given source mode into the given
-   --  file using the LKQL rule config file format.
-
    ----------------------
    -- Print_LKQL_Rules --
    ----------------------
@@ -135,18 +135,9 @@ procedure Gnatcheck_Main is
    begin
       Put_Line (File, "val " & Mode_String & " = @{");
       for Rule in All_Rules.Iterate loop
-         if Is_Enabled (All_Rules (Rule).all)
-           or else not All_Rules (Rule).Aliases.Is_Empty
-         then
-            if All_Rules (Rule).all.Source_Mode = Mode then
-               if First then
-                  First := False;
-               else
-                  Put_Line (File, ",");
-               end if;
-               Put (File, "    ");
-               All_Rules (Rule).all.Print_Rule_To_LKQL_File (File);
-            end if;
+         if Is_Enabled (All_Rules (Rule).all) then
+            Print_Rule_Instances_To_LKQL_File
+              (All_Rules (Rule).all, File, Mode, First);
          end if;
       end loop;
       New_Line (File);
@@ -480,6 +471,7 @@ begin
             Duration'Image (Ada.Calendar.Clock - Time_Start));
    end if;
 
+   Gnatcheck.Rules.Rule_Table.Clean_Up;
    Close_Log_File;
 
    OS_Exit (if Tool_Failures /= 0

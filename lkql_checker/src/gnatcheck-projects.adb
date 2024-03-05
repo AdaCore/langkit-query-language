@@ -43,6 +43,7 @@ with GNAT.Table;
 
 with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;                use Gnatcheck.Ids;
 with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
 with Gnatcheck.Rules;              use Gnatcheck.Rules;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
@@ -1947,52 +1948,48 @@ package body Gnatcheck.Projects is
          end if;
       end if;
 
+      --  If GNATcheck is in KP mode and there is a command line specified KP
+      --  version, we have to iterate over all implemented rules to enable
+      --  those which match the version.
       if Gnatkp_Mode and then KP_Version /= null then
-         for Rule in All_Rules.Iterate loop
-            if All_Rules (Rule).Impact /= null
-              and then Match (KP_Version.all,
-                              All_Rules (Rule).Impact.all)
-            then
-               if All_Rules (Rule).Target /= null
-                 and then Target.all /= ""
-                 and then not Match (Target.all,
-                                     All_Rules (Rule).Target.all)
+         for Rule_Cursor in All_Rules.Iterate loop
+            declare
+               Id       : constant Rule_Id := Rule_Map.Key (Rule_Cursor);
+               Rule     : constant Rule_Info := All_Rules (Rule_Cursor).all;
+               Instance : Rule_Instance_Access;
+            begin
+               if Rule.Impact /= null
+                 and then Match (KP_Version.all, Rule.Impact.all)
                then
-                  if not Quiet_Mode then
-                     Info
-                       ("info: " &
-                        Ada.Strings.Unbounded.To_String
-                          (All_Rules (Rule).Name) &
-                        " disabled, target does not match");
-                  end if;
-               else
-                  if not Quiet_Mode then
-                     Info
-                       ("info: " &
-                        Ada.Strings.Unbounded.To_String
-                          (All_Rules (Rule).Name) &
-                        " enabled");
-                  end if;
+                  if Rule.Target /= null
+                    and then Target.all /= ""
+                    and then not Match (Target.all, Rule.Target.all)
+                  then
+                     if not Quiet_Mode then
+                        Info
+                          ("info: " &
+                           Ada.Strings.Unbounded.To_String (Rule.Name) &
+                           " disabled, target does not match");
+                     end if;
+                  else
+                     if not Quiet_Mode then
+                        Info
+                          ("info: " &
+                           Ada.Strings.Unbounded.To_String (Rule.Name) &
+                           " enabled");
+                     end if;
 
-                  Set_Rule_State (Rule_Map.Key (Rule), Enabled);
+                     Instance := Rule.Create_Instance (Is_Alias => False);
+                     Instance.Rule := Id;
+                     Instance.Source_Mode := General;
+                     Turn_Instance_On (Instance);
+                  end if;
                end if;
-            end if;
+            end;
          end loop;
       end if;
 
-      for Rule_Cursor in All_Rules.Iterate loop
-         if Is_Enabled (All_Rules (Rule_Cursor).all) then
-            Active_Rule_Present := True;
-            exit;
-         end if;
-      end loop;
-
-      for Alias_Cursor in All_Aliases.Iterate loop
-         if Is_Enabled (All_Aliases (Alias_Cursor).all) then
-            Active_Rule_Present := True;
-            exit;
-         end if;
-      end loop;
+      Active_Rule_Present := not All_Rule_Instances.Is_Empty;
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
          if Gnatkp_Mode and then KP_Version /= null then
