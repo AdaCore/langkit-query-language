@@ -21,12 +21,12 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Langkit_Support.Generic_API.Analysis;
+with Langkit_Support.Generic_API.Introspection;
+
 with Libadalang.Analysis; use Libadalang.Analysis;
 
 with Rules_Factory; use Rules_Factory;
-
-with Langkit_Support.Generic_API.Analysis;
-with Langkit_Support.Generic_API.Introspection;
 
 --  TODO: Factor into another package, check what is dead. See #190
 package Checker_App is

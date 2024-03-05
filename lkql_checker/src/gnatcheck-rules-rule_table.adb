@@ -17,29 +17,27 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Characters.Conversions; use Ada.Characters.Conversions;
-with Ada.Characters.Handling;    use Ada.Characters.Handling;
+with Ada.Characters.Conversions;      use Ada.Characters.Conversions;
+with Ada.Characters.Handling;         use Ada.Characters.Handling;
 with Ada.Containers.Ordered_Sets;
-with Ada.Strings;                use Ada.Strings;
-with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
-with Ada.Text_IO;                use Ada.Text_IO;
+with Ada.Strings;                     use Ada.Strings;
+with Ada.Strings.Fixed;               use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Text_IO;                     use Ada.Text_IO;
 
-with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
-with GNAT.OS_Lib;                use GNAT.OS_Lib;
-with GNAT.Regexp;                use GNAT.Regexp;
+with GNAT.Directory_Operations; use GNAT.Directory_Operations;
+with GNAT.OS_Lib;               use GNAT.OS_Lib;
+with GNAT.Regexp;               use GNAT.Regexp;
 with GNAT.Table;
 
+with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
-with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
-
-with Rule_Commands;              use Rule_Commands;
-with Rules_Factory;              use Rules_Factory;
-
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Rule_Commands; use Rule_Commands;
+with Rules_Factory; use Rules_Factory;
 
 package body Gnatcheck.Rules.Rule_Table is
 

@@ -21,16 +21,16 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Rule_Commands; use Rule_Commands;
-
-with Liblkqllang.Analysis;
-
 with Ada.Containers.Indefinite_Hashed_Sets;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
 with Ada.Strings.Hash;
 
 with GNATCOLL.VFS; use GNATCOLL.VFS;
+
+with Liblkqllang.Analysis;
+
+with Rule_Commands; use Rule_Commands;
 
 package Rules_Factory is
 
