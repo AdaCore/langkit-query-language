@@ -226,12 +226,6 @@ package body Gnatcheck.Rules.Rule_Table is
       end if;
    end Get_Rule;
 
-   function Get_Rule
-     (Instance : Rule_Instance'Class) return Rule_Info_Access is
-   begin
-      return All_Rules (Instance.Rule);
-   end Get_Rule;
-
    ------------------
    -- Get_Instance --
    ------------------
@@ -272,7 +266,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
       --  Insert the instance in the global map and the rule instance
       All_Rule_Instances.Insert (Normalized_Instance_Name, Instance);
-      Get_Rule (Instance.all).Instances.Append (Instance);
+      All_Rules (Instance.Rule).Instances.Append (Instance);
    end Turn_Instance_On;
 
    -----------------------
@@ -351,7 +345,7 @@ package body Gnatcheck.Rules.Rule_Table is
       elsif Rule = Warnings_Id then
          return Use_gnatw_Option;
       else
-         return Is_Enabled (All_Rules (Rule).all);
+         return Is_Enabled (All_Rules (Rule));
       end if;
    end Is_Enabled;
 
@@ -1356,14 +1350,14 @@ package body Gnatcheck.Rules.Rule_Table is
    ----------------
 
    procedure Rules_Help is
-      function "<" (Left, Right : Rule_Info_Access) return Boolean is
+      function "<" (Left, Right : Rule_Info) return Boolean is
         (Left.Name < Right.Name);
 
-      function Equal (Left, Right : Rule_Info_Access) return Boolean is
+      function Equal (Left, Right : Rule_Info) return Boolean is
         (Left.Name = Right.Name);
 
       package Rule_Sets is new
-        Ada.Containers.Ordered_Sets (Rule_Info_Access, "=" => Equal);
+        Ada.Containers.Ordered_Sets (Rule_Info, "=" => Equal);
 
       Set : Rule_Sets.Set;
 
@@ -1411,7 +1405,7 @@ package body Gnatcheck.Rules.Rule_Table is
             Info (" No rule found");
          else
             for R of Set loop
-               Print_Rule_Help (R.all);
+               Print_Rule_Help (R);
             end loop;
          end if;
 
@@ -1481,23 +1475,23 @@ package body Gnatcheck.Rules.Rule_Table is
    -- XML_Help --
    --------------
 
-   function Name (R : Rule_Info_Access) return String is
+   function Name (R : Rule_Info) return String is
      (To_String (R.Category & "/" & R.Subcategory));
 
-   function "<" (Left, Right : Rule_Info_Access) return Boolean is
+   function "<" (Left, Right : Rule_Info) return Boolean is
      (Name (Left) < Name (Right));
 
-   function Equal (Left, Right : Rule_Info_Access) return Boolean is
+   function Equal (Left, Right : Rule_Info) return Boolean is
      (Name (Left) = Name (Right));
 
    package Category_Sets is new
-     Ada.Containers.Ordered_Sets (Rule_Info_Access, "=" => Equal);
+     Ada.Containers.Ordered_Sets (Rule_Info, "=" => Equal);
 
    procedure XML_Help is
-      Level    : Positive;
-      Set      : Category_Sets.Set;
-      Previous : Rule_Info_Access;
-
+      Level        : Positive;
+      Set          : Category_Sets.Set;
+      Previous     : Rule_Info;
+      Has_Previous : Boolean := False;
    begin
       Info ("<?xml version=""1.0""?>");
       Info ("<gnatcheck>");
@@ -1509,7 +1503,7 @@ package body Gnatcheck.Rules.Rule_Table is
       for R of Set loop
          Level := 1;
 
-         if Previous /= null
+         if Has_Previous
            and then Previous.Subcategory /= ""
            and then Previous.Category /= R.Category
          then
@@ -1520,7 +1514,7 @@ package body Gnatcheck.Rules.Rule_Table is
             Info (Indent_String & "<category name=""" &
                   To_String (R.Category) & """>");
          else
-            if Previous = null
+            if Has_Previous
               or else Previous.Category /= R.Category
             then
                Info (Indent_String & "<category name=""" &
@@ -1538,13 +1532,14 @@ package body Gnatcheck.Rules.Rule_Table is
             for Rule in All_Rules.Iterate loop
                if Name (All_Rules (Rule)) = Category then
                   All_Rules (Rule).XML_Rule_Help
-                    (All_Rules (Rule).all, Level + 1);
+                    (All_Rules (Rule), Level + 1);
                end if;
             end loop;
          end;
 
          Info (Level * Indent_String & "</category>");
          Previous := R;
+         Has_Previous := True;
       end loop;
 
       if Previous.Subcategory /= "" then
@@ -1586,8 +1581,8 @@ package body Gnatcheck.Rules.Rule_Table is
    begin
       for Rule_Cursor in All_Rules.Iterate loop
          declare
-            Rule : constant Rule_Info_Access := All_Rules (Rule_Cursor);
-            Instance_Name : constant String := To_Lower (Rule_Name (Rule.all));
+            Rule : constant Rule_Info := All_Rules (Rule_Cursor);
+            Instance_Name : constant String := To_Lower (Rule_Name (Rule));
             Instance : Rule_Instance_Access;
          begin
             if not All_Rule_Instances.Contains (Instance_Name) then
@@ -1605,7 +1600,7 @@ package body Gnatcheck.Rules.Rule_Table is
    -------------------
 
    procedure Process_Rules (Ctx : in out Lkql_Context) is
-      Rule : Rule_Info_Access;
+      Rule : Rule_Info;
    begin
       if not Ctx.All_Rules.Is_Empty then
          return;

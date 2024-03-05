@@ -1955,7 +1955,7 @@ package body Gnatcheck.Projects is
          for Rule_Cursor in All_Rules.Iterate loop
             declare
                Id       : constant Rule_Id := Rule_Map.Key (Rule_Cursor);
-               Rule     : constant Rule_Info := All_Rules (Rule_Cursor).all;
+               Rule     : constant Rule_Info := All_Rules (Rule_Cursor);
                Instance : Rule_Instance_Access;
             begin
                if Rule.Impact /= null

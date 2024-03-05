@@ -102,7 +102,7 @@ package Gnatcheck.Rules.Rule_Table is
 
    package Rule_Map is new Ada.Containers.Indefinite_Hashed_Maps
      (Key_Type        => Rule_Id,
-      Element_Type    => Rule_Info_Access,
+      Element_Type    => Rule_Info,
       Hash            => Hash,
       Equivalent_Keys => "=");
    All_Rules : Rule_Map.Map;
@@ -125,10 +125,6 @@ package Gnatcheck.Rules.Rule_Table is
    --  aliases of the rule.
    --  If there is no rule designated by `Rule_Name`, this function returns the
    --  `No_Rule_Id` value.
-
-   function Get_Rule (Instance : Rule_Instance'Class) return Rule_Info_Access;
-   --  Returns an access to the rule information associated with the given rule
-   --  instance.
 
    function Get_Instance
      (Instance_Name : String) return Rule_Instance_Access;

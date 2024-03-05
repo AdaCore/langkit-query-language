@@ -67,7 +67,7 @@ package body Gnatcheck.Rules is
 
    function Param_Name
      (Instance : Rule_Instance'Class; Index : Positive) return String is
-     (Param_Name (Get_Rule (Instance).all, Index));
+     (Param_Name (All_Rules (Instance.Rule), Index));
 
    function Rule_Name (Instance : Rule_Instance_Access) return String is
      (Rule_Name (Instance.all));
@@ -1204,7 +1204,7 @@ package body Gnatcheck.Rules is
      (Id            : Rule_Id;
       Instance_Name : String) return Rule_Instance_Access
    is
-      Rule                     : constant Rule_Info_Access := All_Rules (Id);
+      Rule                     : constant Rule_Info := All_Rules (Id);
       Normalized_Rule_Name     : constant String :=
         To_Lower (To_String (Rule.Name));
       Normalized_Instance_Name : constant String := To_Lower (Instance_Name);
@@ -1429,7 +1429,7 @@ package body Gnatcheck.Rules is
 
       --  Else, if the parameter has a different value from the LKQL parameter
       --  name, emit an error.
-      elsif Param_Name (All_Rules (Rule).all, 2) /= To_Lower (Param) then
+      elsif Param_Name (All_Rules (Rule), 2) /= To_Lower (Param) then
          Emit_Wrong_Parameter (Instance, Param);
          Turn_Instance_Off (Instance);
 
@@ -1650,7 +1650,7 @@ package body Gnatcheck.Rules is
             if not Param_Found then
                for J in 2 .. All_Rules (Rule).Parameters.Last_Child_Index
                loop
-                  if Param_Name (All_Rules (Rule).all, J) = To_Lower (Param)
+                  if Param_Name (All_Rules (Rule), J) = To_Lower (Param)
                   then
                      if Check_Param_Redefinition
                        and then Tagged_Instance.Boolean_Params (J) = On
@@ -2385,7 +2385,7 @@ package body Gnatcheck.Rules is
          begin
             for J in 1 .. All_Rules (Rule).Parameters.Last_Child_Index loop
                if Gnatcheck.Rules.Param_Name
-                 (All_Rules (Rule).all, J) = Param_Name
+                 (All_Rules (Rule), J) = Param_Name
                then
                   Found := True;
                   exit;
@@ -2517,7 +2517,7 @@ package body Gnatcheck.Rules is
      (Args     : in out Rule_Argument_Vectors.Vector;
       Instance : in out One_Array_Parameter_Instance)
    is
-      Rule : constant Rule_Info := Get_Rule (Instance).all;
+      Rule : constant Rule_Info := All_Rules (Instance.Rule);
       Last : constant Natural := Length (Instance.Param);
 
       procedure Error;
@@ -2701,9 +2701,9 @@ package body Gnatcheck.Rules is
 
    function Create_Rule
      (Param_Kind : Rule_Param_Kind;
-      Rule_Name  : String) return Rule_Info_Access
+      Rule_Name  : String) return Rule_Info
    is
-      Res : constant Rule_Info_Access := new Rule_Info;
+      Res : Rule_Info;
    begin
       Res.Allowed_As_Exemption_Parameter := No_Exemption_Param_Allowed'Access;
       Res.Rule_Param_From_Diag := No_Param_From_Diag'Access;
@@ -2926,7 +2926,7 @@ package body Gnatcheck.Rules is
 
    function Rule_Name (Instance : Rule_Instance'Class) return String is
    begin
-      return Rule_Name (All_Rules (Instance.Rule).all);
+      return Rule_Name (All_Rules (Instance.Rule));
    end Rule_Name;
 
    -------------------
@@ -3091,7 +3091,7 @@ package body Gnatcheck.Rules is
    begin
       --  Iterate over all rules parameters and try getting it from the
       --  arguments object.
-      for I in 2 .. Get_Rule (Instance).Parameters.Last_Child_Index loop
+      for I in 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index loop
          if Params_Object.Has_Field (Param_Name (Instance, I)) then
             --  Try getting the parameter as an integer
             begin
@@ -3360,7 +3360,7 @@ package body Gnatcheck.Rules is
      (Instance      : in out Custom_Instance;
       Params_Object : in out JSON_Value) is
    begin
-      for I in 2 .. Get_Rule (Instance).Parameters.Last_Child_Index loop
+      for I in 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index loop
          declare
             P_Name : constant String := Param_Name (Instance, I);
          begin
@@ -3386,7 +3386,7 @@ package body Gnatcheck.Rules is
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_Int_Param
-        (Args, Param_Name (Get_Rule (Instance).all, 2), Instance.Param);
+        (Args, Param_Name (All_Rules (Instance.Rule), 2), Instance.Param);
    end Map_Parameters;
 
    overriding procedure Map_Parameters
@@ -3394,7 +3394,7 @@ package body Gnatcheck.Rules is
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_Bool_Param
-        (Args, Param_Name (Get_Rule (Instance).all, 2), Instance.Param);
+        (Args, Param_Name (All_Rules (Instance.Rule), 2), Instance.Param);
    end Map_Parameters;
 
    overriding procedure Map_Parameters
@@ -3402,7 +3402,7 @@ package body Gnatcheck.Rules is
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_String_Param
-        (Args, Param_Name (Get_Rule (Instance).all, 2), Instance.Param);
+        (Args, Param_Name (All_Rules (Instance.Rule), 2), Instance.Param);
    end Map_Parameters;
 
    overriding procedure Map_Parameters
@@ -3418,11 +3418,11 @@ package body Gnatcheck.Rules is
    begin
       Append_Int_Param
         (Args, Param_Name
-          (Get_Rule (Instance).all, 2), Instance.Integer_Param);
-      for J in 2 .. Get_Rule (Instance).Parameters.Last_Child_Index loop
+          (All_Rules (Instance.Rule), 2), Instance.Integer_Param);
+      for J in 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index loop
          Append_Bool_Param
            (Args, Param_Name
-             (Get_Rule (Instance).all, J), Instance.Boolean_Params (J));
+             (All_Rules (Instance.Rule), J), Instance.Boolean_Params (J));
       end loop;
    end Map_Parameters;
 
@@ -3555,7 +3555,7 @@ package body Gnatcheck.Rules is
         (Rule_Instance (Instance), Rule_File, Indent_Level);
 
       if Instance.Param = On then
-         Put (Rule_File, ":" & Param_Name (Get_Rule (Instance).all, 2));
+         Put (Rule_File, ":" & Param_Name (All_Rules (Instance.Rule), 2));
       end if;
    end Print_Rule_Instance_To_File;
 
@@ -3593,7 +3593,7 @@ package body Gnatcheck.Rules is
       for J in Instance.Boolean_Params'Range loop
          if Instance.Boolean_Params (J) = On then
             Put (Rule_File, (if Has_Param then "," else ":"));
-            Put (Rule_File, Param_Name (Get_Rule (Instance).all, J));
+            Put (Rule_File, Param_Name (All_Rules (Instance.Rule), J));
             Has_Param := True;
          end if;
       end loop;
@@ -3973,7 +3973,7 @@ package body Gnatcheck.Rules is
 
       if Instance.Param = On then
          XML_Report
-           (XML_Param (Param_Name (Get_Rule (Instance).all, 2)),
+           (XML_Param (Param_Name (All_Rules (Instance.Rule), 2)),
             Indent_Level + 1);
       end if;
 
@@ -4008,7 +4008,7 @@ package body Gnatcheck.Rules is
       for J in Instance.Boolean_Params'Range loop
          if Instance.Boolean_Params (J) = On then
             XML_Report
-              (XML_Param (Param_Name (Get_Rule (Instance).all, J)),
+              (XML_Param (Param_Name (All_Rules (Instance.Rule), J)),
                Indent_Level + 1);
          end if;
       end loop;

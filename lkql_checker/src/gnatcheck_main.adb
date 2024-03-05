@@ -135,9 +135,9 @@ procedure Gnatcheck_Main is
    begin
       Put_Line (File, "val " & Mode_String & " = @{");
       for Rule in All_Rules.Iterate loop
-         if Is_Enabled (All_Rules (Rule).all) then
+         if Is_Enabled (All_Rules (Rule)) then
             Print_Rule_Instances_To_LKQL_File
-              (All_Rules (Rule).all, File, Mode, First);
+              (All_Rules (Rule), File, Mode, First);
          end if;
       end loop;
       New_Line (File);

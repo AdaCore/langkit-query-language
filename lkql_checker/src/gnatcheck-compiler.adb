@@ -360,7 +360,7 @@ package body Gnatcheck.Compiler is
                                     Msg (File_Idx .. Idx - 1) &
                                     Msg (Idx + 7 .. Last - 2) &
                                     Annotate_Rule
-                                      (All_Rules (Id).all, Instance_Name),
+                                      (All_Rules (Id), Instance_Name),
                   Diagnosis_Kind => Rule_Violation,
                   SF             => SF,
                   Rule           => Id);

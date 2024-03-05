@@ -185,15 +185,13 @@ package Gnatcheck.Rules is
    end record;
    --  This record store all needed read-only information about a rule.
 
-   type Rule_Info_Access is access Rule_Info;
-
    ------------------------------------
    -- Operations on rule information --
    ------------------------------------
 
    function Create_Rule
      (Param_Kind : Rule_Param_Kind;
-      Rule_Name  : String) return Rule_Info_Access;
+      Rule_Name  : String) return Rule_Info;
    --  Allocate a new rule information record with the given param kind. The
    --  returned pointer should be freed by the caller.
 
