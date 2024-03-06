@@ -939,6 +939,35 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return new NullPattern(loc(nullPattern));
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.ObjectPattern objectPattern) {
+        // Get the association list and prepare the keys and values
+        final Liblkqllang.LkqlNodeList nodeList = objectPattern.fPatterns();
+        SplatPattern splat = null;
+        final int assocNumber = nodeList.getChildrenCount();
+        var keys = new ArrayList<String>();
+        var patterns = new ArrayList<BasePattern>();
+
+        // Iterate on the object associations and get keys and patterns
+        for (int i = 0; i < assocNumber; i++) {
+            final var assoc = nodeList.getChild(i);
+            if (assoc instanceof Liblkqllang.ObjectPatternAssoc objectPatternAssoc) {
+                patterns.add((BasePattern) objectPatternAssoc.fPattern().accept(this));
+                keys.add(objectPatternAssoc.fName().getText());
+            } else if (assoc instanceof Liblkqllang.SplatPattern splatPattern) {
+                splat = (SplatPattern) this.visit(splatPattern);
+            } else {
+                throw LKQLRuntimeException.shouldNotHappen("Invalid assoc in object pattern");
+            }
+        }
+
+        return ObjectPatternNodeGen.create(
+                loc(objectPattern),
+                patterns.toArray(new BasePattern[0]),
+                keys.toArray(new String[0]),
+                splat);
+    }
+
     /**
      * Visit a universal pattern node.
      *
@@ -1108,6 +1137,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return null;
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.LkqlNodeList lkqlNodeList) {
+        return null;
+    }
+
     /**
      * Visit a list comprehension node.
      *
@@ -1168,6 +1202,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     @Override
     public LKQLNode visit(Liblkqllang.ObjectAssoc objectAssoc) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.ObjectPatternAssoc objectPatternAssoc) {
         return null;
     }
 

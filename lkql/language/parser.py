@@ -15,7 +15,6 @@ from language.lexer import Token, lkql_lexer as L
 
 
 @abstract
-@has_abstract_list
 class LkqlNode(ASTNode):
     """
     Root node class for LKQL AST nodes.
@@ -487,6 +486,22 @@ class SplatPattern(ValuePattern):
     Pattern to match any remaining number of elements in a list pattern.
     """
     binding = Field(type=Identifier)
+
+
+class ObjectPatternAssoc(LkqlNode):
+    """
+    Object pattern assoc in an object pattern:
+    ``label: <pattern>``
+    """
+    name = Field(type=Identifier)
+    pattern = Field(type=BasePattern)
+
+
+class ObjectPattern(ValuePattern):
+    """
+    Pattern to match on objects.
+    """
+    patterns = Field(type=LkqlNode.list)
 
 
 class ParenPattern(ValuePattern):
@@ -1100,6 +1115,8 @@ lkql_grammar.add_rules(
         G.value_pattern
     ),
 
+    object_pattern_assoc=ObjectPatternAssoc(G.id, ":", G.pattern),
+
     value_pattern=Or(
         ExtendedNodePattern(
 
@@ -1120,6 +1137,11 @@ lkql_grammar.add_rules(
         ListPattern(
             "[",
             List(G.binding_pattern | G.splat_pattern, sep=","), "]"
+        ),
+        ObjectPattern(
+            "{",
+            List(G.object_pattern_assoc | G.splat_pattern, sep=",", empty_valid=False),
+            "}"
         ),
         ParenPattern("(", G.pattern, ")"),
         TuplePattern("(", List(G.binding_pattern, sep=","), ")"),
