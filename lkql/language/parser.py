@@ -411,7 +411,7 @@ class BindingPattern(BasePattern):
 
     For instance::
 
-       o : ObjectDecl
+       o@ObjectDecl
     """
 
     binding = Field(type=Identifier)
