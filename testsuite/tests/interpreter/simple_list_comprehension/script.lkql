@@ -1,3 +1,3 @@
 val all = select p
-val decls = [a for a in all if a is ObjectDecl]
+val decls = [a for a in all if a is ObjectDecl].to_list
 print(decls)

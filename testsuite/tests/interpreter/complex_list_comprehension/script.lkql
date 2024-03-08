@@ -2,4 +2,4 @@ val subtypes = select SubtypeIndication
 val objects = select ObjectDecl
 print([ o.img & " " & st.img
        for o in objects, st in subtypes
-       if (o.img & " " & st.img).length != 64])
+       if (o.img & " " & st.img).length != 64].to_list)
