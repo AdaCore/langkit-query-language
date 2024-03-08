@@ -4,7 +4,7 @@ In debug_id: 2
 2
 Querying element 1, already computed
 1
-Printing iterator will consume itt entirely
+Calling to_list will consume itt entirely
 In debug_id: 3
 In debug_id: 4
 In debug_id: 5

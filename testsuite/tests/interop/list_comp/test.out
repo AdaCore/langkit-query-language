@@ -1,5 +1,5 @@
 === Lazy list interop messages:
-  toString(): [1, "Coucou", [4, 5]]
+  toString(): <LazyList>
   hasArrayElements(): true
   getArraySize(): 3
   isBoolean(): true

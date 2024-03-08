@@ -1,2 +1,2 @@
-val texts = [bd.text for bd in select DefiningName]
+val texts = [bd.text for bd in select DefiningName].to_list
 print(texts)

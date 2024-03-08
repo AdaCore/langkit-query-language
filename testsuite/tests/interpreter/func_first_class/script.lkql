@@ -1,4 +1,4 @@
-fun map_fc(fn, coll) = [fn(el) for el in coll]
+fun map_fc(fn, coll) = [fn(el) for el in coll].to_list
 
 print(map_fc((x) => x.text, select BasicDecl))
 

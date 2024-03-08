@@ -1,1 +1,1 @@
-print(children((select ObjectDecl)[1]))
+print(children((select ObjectDecl)[1]).to_list)

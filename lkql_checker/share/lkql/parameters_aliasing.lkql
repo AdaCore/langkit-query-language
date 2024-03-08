@@ -75,9 +75,9 @@ fun fully_expanded_name(name, canonical_indexes) =
                then img([(if can_eval_as_int(n.f_r_expr)
                           then img(n.f_r_expr.p_eval_as_int())
                           else 0)
-                         for n in name.f_suffix.children])
+                         for n in name.f_suffix.children].to_list)
                else img([fully_expanded_name(n.f_r_expr, canonical_indexes)
-                         for n in name.f_suffix.children])) & ")")
+                         for n in name.f_suffix.children].to_list)) & ")")
     | Name          =>
         (match name.p_referenced_decl()
          # Follow renamings
