@@ -4263,6 +4263,12 @@ following constructs are flagged:
   insensitive);
 
 *
+  ``if`` expressions that have ``if`` and ``else`` paths (without any ``elseif``)
+  if one path expression is ``True`` and the other is ``False``, where ``True``
+  and ``False`` are literals of the ``Standard.Boolean`` type (or any type derived
+  from it).
+
+*
   infix call to a predefined ``=`` or ``/=`` operator when the right operand
   is ``True`` or ``False`` where ``True`` and ``False`` are literals of the type
   ``Standard.Boolean`` or any type derived from it.

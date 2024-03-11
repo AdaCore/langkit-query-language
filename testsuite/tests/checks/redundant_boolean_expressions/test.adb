@@ -13,6 +13,10 @@ begin
       return True;
    end if;
 
+   X := (if Cond               -- FLAG
+         then True
+         else False);
+
    X := X = Standard.true;     --  FLAG
 
    if not (J > 1) then         --  FLAG
