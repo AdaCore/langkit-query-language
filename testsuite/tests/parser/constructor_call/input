@@ -1,0 +1,7 @@
+new IntLiteral("50")
+new BinOp(f_op=new OpPlus(),
+            f_left=new IntLiteral("40"),
+            f_right=new IntLiteral("2"))
+new BinOp(f_left=new IntLiteral("40"),
+          f_op=new OpPlus(),
+          f_right=new IntLiteral("2"))

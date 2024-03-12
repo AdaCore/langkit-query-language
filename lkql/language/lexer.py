@@ -30,6 +30,7 @@ class Token(LexerToken):
     Else = WithSymbol()
     Not = WithSymbol()
     Null = WithSymbol()
+    New = WithSymbol()
     Import = WithSymbol()
 
     Dot = WithText()
@@ -132,6 +133,7 @@ lkql_lexer.add_rules(
     (Literal("then"),                             Token.Then),
     (Literal("not"),                              Token.Not),
     (Literal("null"),                             Token.Null),
+    (Literal("new"),                              Token.New),
     (Pattern("[0-9]+"),                           Token.Integer),
     (Pattern("[a-z][A-Za-z0-9_]*"),               Token.Identifier),
     (Pattern("[A-Z][A-Za-z_]*(.list)?"),          Token.KindName),
