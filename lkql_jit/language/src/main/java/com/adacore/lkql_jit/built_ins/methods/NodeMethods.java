@@ -156,7 +156,7 @@ public final class NodeMethods {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             LKQLLanguage.getContext(this)
-                    .print(LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).dumpAST());
+                    .print(LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).dumpTree());
             return LKQLUnit.INSTANCE;
         }
     }
