@@ -352,6 +352,34 @@ take only one argument, which is the starting point of the selector call chain:
 
   children(select first AdaNode)
 
+Constructor call
+^^^^^^^^^^^^^^^^
+
+.. lkql_doc_class:: ConstructorCall
+
+.. raw:: html
+  :file: ../../lkql/build/railroad-diagrams/constructor_call.svg
+
+You can call node constructors to create new nodes possibly used for the
+tree rewriting layer of LKQL. The result of a constructor call is a value
+of the ``RewritingNode`` type.
+
+.. code-block:: lkql
+
+  val token_node = new BooleanLiteral("Hello!")
+  val list_node = new SomeListNode(child_1, child_2)
+  val composite_node = new CompositeNode(
+      f_child_1=token_node,
+      f_child_2=list_node
+  )
+
+As function calls, you can pass arguments via positional or named associations
+for composite nodes. About token and list nodes, you may only pass arguments
+through the positional format.
+
+To know whether a node is a token, list or composite one, you may refer to the
+Langkit specification of the language you're querying.
+
 
 Indexing Expression
 ^^^^^^^^^^^^^^^^^^^
