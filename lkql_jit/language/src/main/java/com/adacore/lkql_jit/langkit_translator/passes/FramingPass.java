@@ -913,6 +913,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
+    public Void visit(Liblkqllang.ConstructorCall constructorCall) {
+        traverseChildren(constructorCall);
+        return null;
+    }
+
+    @Override
     public Void visit(Liblkqllang.SelectorArmList selectorArmList) {
         traverseChildren(selectorArmList);
         return null;
