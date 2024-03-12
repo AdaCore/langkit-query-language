@@ -207,33 +207,33 @@ Methods for `Node`
 
 Methods for `RewritingContext`
 """"""""""""""""""""""""""""""
-.. method:: RewritingContext.delete(ctx, to_remove)
+.. method:: RewritingContext.delete(this, to_remove)
 
     Delete the given node from its list node parent
 
-.. method:: RewritingContext.insertAfter(ctx, node, new_node)
+.. method:: RewritingContext.insert_after(this, node, new_node)
 
     Insert the given new node after the other provided node in its parent
 
-.. method:: RewritingContext.insertBefore(ctx, node, new_node)
+.. method:: RewritingContext.insert_before(this, node, new_node)
 
     Insert the given new node before the other provided node in its parent
 
-.. method:: RewritingContext.insertFirst(ctx, list_node, new_node)
+.. method:: RewritingContext.insert_first(this, list_node, new_node)
 
     Insert the given new node at the beginning of the given list node
 
-.. method:: RewritingContext.insertLast(ctx, list_node, new_node)
+.. method:: RewritingContext.insert_last(this, list_node, new_node)
 
     Insert the given new node at the end of the given list node
 
-.. method:: RewritingContext.replace(ctx, to_replace, new_node)
+.. method:: RewritingContext.replace(this, to_replace, new_node)
 
     Replace the first node by the second one
 
 Methods for `RewritingNode`
 """""""""""""""""""""""""""
-.. method:: RewritingNode.clone(node)
+.. method:: RewritingNode.clone(this)
 
     Given a rewriting node, clone it and return its copy
 
