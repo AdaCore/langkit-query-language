@@ -845,6 +845,22 @@ class FunCall(Expr):
                   Self.depth_expr)
 
 
+class ConstructorCall(Expr):
+    """
+    Call of a constructor.
+
+    For instance::
+
+        new IntLiteral("50")
+        new BinOp(f_op=new OpPlus(),
+                  f_left=new IntLiteral("40"),
+                  f_right=new IntLiteral("2"))
+    """
+
+    name = Field(type=Identifier)
+    arguments = Field(type=Arg.list)
+
+
 class RecExpr(Expr):
     """
     Expression that is only valid in a selector. Describes the next actions of
@@ -1260,6 +1276,7 @@ lkql_grammar.add_rules(
             G.value_expr, Safe("?"),
             "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
         ),
+        G.constructor_call,
         G.term
     ),
 
@@ -1321,6 +1338,11 @@ lkql_grammar.add_rules(
 
     fun_call=FunCall(
         G.id, Safe("?"), "(", c(), G.arg_list, ")"
+    ),
+
+    constructor_call=ConstructorCall(
+        "new", G.upper_id,
+        "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
     ),
 
     arg_list=List(G.arg, empty_valid=True, sep=","),

@@ -92,6 +92,11 @@ public final class LKQLTypesHelper {
         return String.join(" | ", types);
     }
 
+    /** Get list type representation with its precise element type. */
+    public static String listOf(String elementType) {
+        return LKQL_LIST + "[" + elementType + "]";
+    }
+
     /**
      * Get the LKQL type in a string from the Java type.
      *

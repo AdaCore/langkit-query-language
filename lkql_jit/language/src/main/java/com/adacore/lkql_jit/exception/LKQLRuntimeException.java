@@ -144,6 +144,11 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         return LKQLRuntimeException.fromMessage("Invalid kind name", location);
     }
 
+    /** Create a new exception when expecting a concrete node kind and got an abstract one. */
+    public static LKQLRuntimeException invalidAbstractKind(Node location) {
+        return LKQLRuntimeException.fromMessage("Expect a concrete kind", location);
+    }
+
     /**
      * Create a new exception for a wrong import statement, if the module is not found.
      *
@@ -373,6 +378,13 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException multipleSameNameArgument(Node location) {
         return LKQLRuntimeException.fromMessage("Multiple arguments with the same name", location);
+    }
+
+    /** Create an exception when a named argument re-set the value of a positional one. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeException namedOverlapPositional(Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "This named argument overlaps a previous positional argument", location);
     }
 
     /**
