@@ -847,6 +847,22 @@ class FunCall(Expr):
                   Self.depth_expr)
 
 
+class ConstructorCall(Expr):
+    """
+    Call of a constructor.
+
+    For instance::
+
+        new IntLiteral("50")
+        new BinOp(f_op=new OpPlus(),
+                  f_left=new IntLiteral("40"),
+                  f_right=new IntLiteral("2"))
+    """
+
+    name = Field(type=Identifier)
+    arguments = Field(type=Arg.list)
+
+
 class SelectorExprMode(LkqlNode):
     """
     Modes for selector values:
@@ -1250,6 +1266,10 @@ lkql_grammar.add_rules(
         SafeIndexing(G.value_expr, "?[", c(), G.expr, "]"),
         FunCall(
             G.value_expr, Safe("?"),
+            "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
+        ),
+        ConstructorCall(
+            "new", G.kind_name,
             "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
         ),
         G.term

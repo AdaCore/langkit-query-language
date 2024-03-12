@@ -243,6 +243,12 @@ Methods for `RewritingContext`
 
     Replace the first node by the second one
 
+Methods for `RewritingNode`
+"""""""""""""""""""""""""""
+.. method:: RewritingNode.clone(node)
+
+    Given a rewriting node, clone it and return its copy
+
 Methods for `SelectorList`
 """"""""""""""""""""""""""
 .. method:: SelectorList.length(iterable)

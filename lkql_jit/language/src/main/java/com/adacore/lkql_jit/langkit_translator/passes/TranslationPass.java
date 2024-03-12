@@ -1474,6 +1474,21 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                 loc(funCall), isSafe, new DummyLocation(callee.getLocation()), arguments, callee);
     }
 
+    /**
+     * Visit a constructor call node. For now constructor is only available for rewriting nodes,
+     * thus we can statically determine required children and their order.
+     *
+     * @param constructorCall The constructor call from Langkit.
+     * @return The constructor call node for Truffle.
+     */
+    @Override
+    public LKQLNode visit(Liblkqllang.ConstructorCall constructorCall) {
+        return new ConstructorCall(
+                loc(constructorCall),
+                new Identifier(loc(constructorCall.fName()), constructorCall.fName().getText()),
+                (ArgList) constructorCall.fArguments().accept(this));
+    }
+
     // --- Selector declaration
 
     @Override
