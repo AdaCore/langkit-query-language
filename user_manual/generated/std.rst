@@ -72,9 +72,6 @@ Builtin functions
 
     Given a unit, apply all the unit checker on it
 
-Builtin selectors
-^^^^^^^^^^^^^^^^^
-
 Builtin methods
 ^^^^^^^^^^^^^^^
 

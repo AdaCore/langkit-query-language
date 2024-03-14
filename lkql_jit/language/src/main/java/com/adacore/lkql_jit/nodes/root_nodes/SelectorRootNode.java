@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
-import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
+import com.adacore.lkql_jit.built_ins.values.LKQLRecValue;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
@@ -19,8 +19,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorRootNode
-        extends MemoizedRootNode<LKQLDepthValue, SelectorRootNode.SelectorCallResult> {
+public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQLRecValue> {
 
     // ----- Attributes -----
 
@@ -78,12 +77,14 @@ public final class SelectorRootNode
         // Initialize the frame
         this.initFrame(frame);
 
-        // Get the node and set it into the frame
+        // Get the depthVal and set it into the frame
         LKQLDepthValue value = (LKQLDepthValue) frame.getArguments()[1];
 
         // Try memoization
         if (this.isMemoized) {
-            if (this.isMemoized(value)) return this.getMemoized(value);
+            if (this.isMemoized(value)) {
+                return this.getMemoized(value);
+            }
         }
 
         if (this.thisSlot > -1 && this.depthSlot > -1) {
@@ -92,7 +93,7 @@ public final class SelectorRootNode
         }
 
         // Prepare the result
-        SelectorCallResult res = null;
+        LKQLRecValue res = null;
 
         // Try to match an arm, if there is none, set the result to unit
         for (SelectorArm arm : this.arms) {
@@ -100,7 +101,7 @@ public final class SelectorRootNode
             if (res != null) break;
         }
         if (res == null) {
-            res = new SelectorCallResult(SelectorExpr.Mode.DEFAULT, LKQLUnit.INSTANCE);
+            res = new LKQLRecValue(new Object[0], new Object[0]);
         }
 
         // Do the memoization cache addition

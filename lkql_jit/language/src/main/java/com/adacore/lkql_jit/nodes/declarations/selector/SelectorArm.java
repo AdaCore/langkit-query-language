@@ -7,16 +7,14 @@ package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLRecValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This node represents an arm for a selector declaration in the LKQL language.
@@ -35,7 +33,7 @@ public final class SelectorArm extends LKQLNode {
     /** The expression to return if the arm is executed. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private SelectorExpr expr;
+    private Expr expr;
 
     // ----- Constructors -----
 
@@ -46,7 +44,7 @@ public final class SelectorArm extends LKQLNode {
      * @param pattern The pattern for the arm.
      * @param expr The expression to return.
      */
-    public SelectorArm(SourceLocation location, BasePattern pattern, SelectorExpr expr) {
+    public SelectorArm(SourceLocation location, BasePattern pattern, Expr expr) {
         super(location);
         this.pattern = pattern;
         this.expr = expr;
@@ -58,7 +56,7 @@ public final class SelectorArm extends LKQLNode {
         return pattern;
     }
 
-    public SelectorExpr getExpr() {
+    public Expr getExpr() {
         return expr;
     }
 
@@ -80,57 +78,21 @@ public final class SelectorArm extends LKQLNode {
      * @param node The node to match.
      * @return The result of the arm execution or null if the arm doesn't match.
      */
-    public SelectorRootNode.SelectorCallResult executeArm(VirtualFrame frame, LKQLDepthValue node) {
+    public LKQLRecValue executeArm(VirtualFrame frame, LKQLDepthValue node) {
         if (this.pattern.executeValue(frame, node.value)) {
-            // Execute the selector expression
-            Object res = this.expr.executeGeneric(frame);
+            final var expr = this.expr.executeGeneric(frame);
 
-            // If the result of the expression is an array
-            if (this.expr.hasUnpack) {
-                if (LKQLTypeSystemGen.isIndexable(res)) {
-                    var ct = LKQLTypeSystemGen.asIndexable(res).getContent();
-                    List<LKQLDepthValue> depthNodes = new ArrayList<>(ct.length);
-                    for (Object obj : ct) {
-                        // For each object of the array, verify that it is a node
-                        try {
-                            if (!LKQLTypeSystemGen.isNullish(obj)) {
-                                depthNodes.add(
-                                        new LKQLDepthValue(
-                                                node.depth + 1,
-                                                LKQLTypeSystemGen.expectAdaNode(obj)));
-                            }
-                        }
-
-                        // If it isn't a node, throw an exception
-                        catch (UnexpectedResultException e) {
-                            throw LKQLRuntimeException.wrongSelectorType(
-                                    LKQLTypesHelper.fromJava(obj), this.expr);
-                        }
-                    }
-                    return new SelectorRootNode.SelectorCallResult(
-                            this.expr.getMode(), depthNodes.toArray(new LKQLDepthValue[0]));
-                } else {
-                    throw LKQLRuntimeException.wrongType(
-                            "indexable", LKQLTypesHelper.fromJava(res), this.expr);
-                }
+            if (LKQLTypeSystemGen.isLKQLRecValue(expr)) {
+                LKQLRecValue val = LKQLTypeSystemGen.asLKQLRecValue(expr);
+                val.depth = node.depth + 1;
+                return val;
+            } else if (LKQLTypeSystemGen.isNullish(expr)) {
+                return new LKQLRecValue(new Object[0], new Object[0]);
+            } else {
+                throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_REC_VALUE, LKQLTypesHelper.fromJava(expr), this.expr);
             }
-
-            // If the result of the expression is nullish
-            else if (LKQLTypeSystemGen.isNullish(res)) {
-                return new SelectorRootNode.SelectorCallResult(this.expr.getMode(), res);
-            }
-
-            // If the result of the expression is a node
-            else if (LKQLTypeSystemGen.isAdaNode(res)) {
-                return new SelectorRootNode.SelectorCallResult(
-                        this.expr.getMode(),
-                        new LKQLDepthValue(node.depth + 1, LKQLTypeSystemGen.asAdaNode(res)));
-            }
-
-            // Throw an exception
-            throw LKQLRuntimeException.wrongSelectorType(LKQLTypesHelper.fromJava(res), this.expr);
         }
-
         // Return null if the arm hasn't been executed
         return null;
     }

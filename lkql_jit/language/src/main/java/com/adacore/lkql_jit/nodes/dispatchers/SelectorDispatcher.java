@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.nodes.dispatchers;
 
 import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLRecValue;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Cell;
 import com.oracle.truffle.api.dsl.Cached;
@@ -22,7 +23,7 @@ import com.oracle.truffle.api.nodes.Node;
 public abstract class SelectorDispatcher extends Node {
 
     /** Function to execute the selector root node and get the result. */
-    public abstract SelectorRootNode.SelectorCallResult executeDispatch(
+    public abstract LKQLRecValue executeDispatch(
             SelectorRootNode rootNode, Cell[] closure, LKQLDepthValue node);
 
     /**
@@ -34,12 +35,12 @@ public abstract class SelectorDispatcher extends Node {
      * @return The result of the selector call.
      */
     @Specialization(guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()")
-    protected static SelectorRootNode.SelectorCallResult executeCached(
+    protected static LKQLRecValue executeCached(
             SelectorRootNode rootNode,
             Cell[] closure,
             LKQLDepthValue node,
             @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode) {
-        return (SelectorRootNode.SelectorCallResult) directCallNode.call(closure, node);
+        return (LKQLRecValue) directCallNode.call(closure, node);
     }
 
     /**
@@ -51,13 +52,12 @@ public abstract class SelectorDispatcher extends Node {
      * @return The result of the selector call.
      */
     @Specialization(replaces = "executeCached")
-    protected static SelectorRootNode.SelectorCallResult executeUncached(
+    protected static LKQLRecValue executeUncached(
             SelectorRootNode rootNode,
             Cell[] closure,
             LKQLDepthValue node,
             @Cached IndirectCallNode indirectCallNode) {
-        return (SelectorRootNode.SelectorCallResult)
-                indirectCallNode.call(rootNode.getRealCallTarget(), closure, node);
+        return (LKQLRecValue) indirectCallNode.call(rootNode.getRealCallTarget(), closure, node);
     }
 
     // ----- Override methods -----

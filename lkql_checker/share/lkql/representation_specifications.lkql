@@ -8,7 +8,7 @@ selector defining_names
     |" Return all the defining names of this basic decl. This can be used
     |" instead of `any children is DefiningName...` to avoid selecting the
     |" defining names of nested basic decls.
-    | BasicDecl => *(this.p_defining_names())
+    | BasicDecl => rec(*[d for d in this.p_defining_names() if d != null])
     | *         => ()
 
 fun has_aspect(node, aspect) = {

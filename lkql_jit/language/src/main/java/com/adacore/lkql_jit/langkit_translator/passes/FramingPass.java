@@ -178,7 +178,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     public Void visit(Liblkqllang.SelectorArm selectorArm) {
         this.scriptFramesBuilder.openVirtualFrame(selectorArm);
         selectorArm.fPattern().accept(this);
-        selectorArm.fExprsList().accept(this);
+        selectorArm.fExpr().accept(this);
         this.scriptFramesBuilder.closeFrame();
         return null;
     }
@@ -376,6 +376,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         }
         query.fPattern().accept(this);
         this.scriptFramesBuilder.closeFrame();
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.RecExpr recExpr) {
+        traverseChildren(recExpr);
         return null;
     }
 
@@ -889,36 +895,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.FunCall funCall) {
         traverseChildren(funCall);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExprModeDefault selectorExprModeDefault) {
-        traverseChildren(selectorExprModeDefault);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExprModeRec selectorExprModeRec) {
-        traverseChildren(selectorExprModeRec);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExprModeSkip selectorExprModeSkip) {
-        traverseChildren(selectorExprModeSkip);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExpr selectorExpr) {
-        traverseChildren(selectorExpr);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExprList selectorExprList) {
-        traverseChildren(selectorExprList);
         return null;
     }
 

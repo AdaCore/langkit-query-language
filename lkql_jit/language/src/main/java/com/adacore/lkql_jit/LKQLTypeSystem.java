@@ -9,6 +9,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.*;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.interfaces.*;
+import com.adacore.lkql_jit.built_ins.values.lists.BaseLKQLList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -35,6 +36,7 @@ import java.math.BigInteger;
     LKQLTuple.class,
     LKQLList.class,
     LKQLLazyList.class,
+    BaseLKQLList.class,
     Indexable.class,
     Iterable.class,
     Libadalang.AdaNode.class,
@@ -44,6 +46,7 @@ import java.math.BigInteger;
     LKQLNamespace.class,
     LKQLObject.class,
     Nullish.class,
+    LKQLRecValue.class,
     LKQLValue.class,
 })
 public abstract class LKQLTypeSystem {

@@ -1,4 +1,4 @@
-script.lkql:2:18: error: Type error: expected indexable but got Node
-2 |     | AdaNode => rec *this.parent
-  |                  ^^^^^^^^^^^^^^^^
+script.lkql:2:23: error: Type error: expected Iterable but got Node
+2 |     | AdaNode => rec(*this.parent, this)
+  |                       ^^^^^^^^^^^
 

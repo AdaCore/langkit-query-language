@@ -52,26 +52,26 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             """
         selector children
         |" Yields all the descendants of the given node
-        | AdaNode => rec *this.children
+        | AdaNode => rec(*this.children)
         | * => ()
 
         selector next_siblings
         |" Yields all the next siblings of the given node
-        | AdaNode => rec this.next_sibling()
+        | AdaNode => rec(this.next_sibling())
         | * => ()
 
         selector parent
         |" Yields all the enclosing parents of the given node
-        | AdaNode => rec this.parent
+        | AdaNode => rec(this.parent)
         | * => ()
 
         selector prev_siblings
         |" Yields all the previous siblings of the given node
-        | AdaNode => rec this.previous_sibling()
+        | AdaNode => rec(this.previous_sibling())
         | * => ()
 
         selector super_types
-        | BaseTypeDecl => rec *this.p_base_types()
+        | BaseTypeDecl => rec(*this.p_base_types())
         | * => ()
         """;
 

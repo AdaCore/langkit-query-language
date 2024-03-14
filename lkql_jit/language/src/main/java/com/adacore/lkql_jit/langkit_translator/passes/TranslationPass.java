@@ -17,9 +17,9 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.declarations.*;
+import com.adacore.lkql_jit.nodes.declarations.selector.RecExpr;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorDeclaration;
-import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
@@ -1080,6 +1080,20 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return new Query(loc(query), queryKind, followGenerics, throughExpr, fromExpr, pattern);
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.RecExpr recExpr) {
+        final boolean recurseHasUnpack =
+                recExpr.fRecurseUnpack() instanceof Liblkqllang.UnpackPresent;
+        final Expr recurseExpr = (Expr) recExpr.fRecurseExpr().accept(this);
+
+        final boolean resultHasUnpack =
+                recExpr.fResultUnpack() instanceof Liblkqllang.UnpackPresent;
+        final Expr resultExpr =
+                recExpr.fResultExpr().isNone() ? null : (Expr) recExpr.fResultExpr().accept(this);
+        return new RecExpr(
+                loc(recExpr), recurseHasUnpack, recurseExpr, resultHasUnpack, resultExpr);
+    }
+
     // --- Lists
 
     /**
@@ -1441,53 +1455,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     // --- Selector declaration
 
-    @Override
-    public LKQLNode visit(Liblkqllang.SelectorExprModeDefault selectorExprModeDefault) {
-        return null;
-    }
-
-    @Override
-    public LKQLNode visit(Liblkqllang.SelectorExprModeRec selectorExprModeRec) {
-        return null;
-    }
-
-    @Override
-    public LKQLNode visit(Liblkqllang.SelectorExprModeSkip selectorExprModeSkip) {
-        return null;
-    }
-
-    /**
-     * Visit a selector expression node.
-     *
-     * @param selectorExpr The selector expression node from Langkit.
-     * @return The selector expression node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.SelectorExpr selectorExpr) {
-        // Translate the selector expression fields
-        final Expr expr = (Expr) selectorExpr.fExpr().accept(this);
-
-        final boolean hasUnpack = selectorExpr.fUnpack() instanceof Liblkqllang.UnpackPresent;
-
-        // Get the expression mode
-        // TODO: Create specialized node for each mode
-        SelectorExpr.Mode mode = SelectorExpr.Mode.DEFAULT;
-        final Liblkqllang.SelectorExprMode modeNode = selectorExpr.fMode();
-        if (modeNode instanceof Liblkqllang.SelectorExprModeRec) {
-            mode = SelectorExpr.Mode.REC;
-        } else if (modeNode instanceof Liblkqllang.SelectorExprModeSkip) {
-            mode = SelectorExpr.Mode.SKIP;
-        }
-
-        // Create the new selector expression
-        return new SelectorExpr(loc(selectorExpr), mode, expr, hasUnpack);
-    }
-
-    @Override
-    public LKQLNode visit(Liblkqllang.SelectorExprList selectorExprList) {
-        return null;
-    }
-
     /**
      * Visit a selector arm node.
      *
@@ -1502,7 +1469,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Translate the selector arm fields
         // TODO: Question on why many expressions by arm
         final BasePattern pattern = (BasePattern) selectorArm.fPattern().accept(this);
-        final SelectorExpr expr = (SelectorExpr) selectorArm.fExprsList().getChild(0).accept(this);
+        final Expr expr = (Expr) selectorArm.fExpr().accept(this);
 
         // Exit the arm frame
         this.scriptFrames.exitFrame();

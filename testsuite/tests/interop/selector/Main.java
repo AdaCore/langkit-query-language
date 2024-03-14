@@ -7,7 +7,7 @@ public class Main {
         val node = units()[1].root
 
         selector my_selector
-          | AdaNode => rec *this.children
+          | AdaNode => rec(*this.children)
           | *       => ()
         """;
 

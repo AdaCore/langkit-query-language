@@ -35,9 +35,10 @@ public final class LKQLDepthValue extends BasicLKQLValue {
     public LKQLDepthValue(int depth, Object value) {
         this.depth = depth;
         this.value = value;
+        if (value instanceof LKQLDepthValue) {
+            assert false;
+        }
     }
-
-    // ----- Value methods -----
 
     /** Exported message to compare two LKQL depth nodes. */
     @ExportMessage
