@@ -1,5 +1,5 @@
 selector pparent
-    | AdaNode => rec *this.parent
+    | AdaNode => rec(*this.parent, this)
     | * => ()
 
 # Access first element to evaluate selector call

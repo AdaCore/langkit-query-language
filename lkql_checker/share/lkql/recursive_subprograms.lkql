@@ -35,13 +35,13 @@ fun get_body(node) =
 # Get the bodies of the functions called statically by a given function body
 @memoized
 selector static_calls
-    | b@(BodyNode | GenericDecl) => rec *
+    | b@(BodyNode | GenericDecl) => rec(*
         # Grab the bodies for every static call
         [get_body(a)
          for a in stdlib.children_no_nested(b)
          if a is (GenericInstantiation |
                  BaseId when a.p_is_static_call() or
-                             a.p_referenced_decl() is TaskTypeDecl)].to_list
+                             a.p_referenced_decl() is TaskTypeDecl)].to_list)
     | *      => ()
 
 @memoized
@@ -72,7 +72,7 @@ fun calls_helper(b) =
 
 @memoized
 selector calls
-   | b@(BodyNode | GenericDecl) => rec * calls_helper(b)
+   | b@(BodyNode | GenericDecl) => rec(*calls_helper(b))
        # Grab the bodies for every direct call
    | *      => ()
 

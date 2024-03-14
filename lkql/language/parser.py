@@ -845,28 +845,15 @@ class FunCall(Expr):
                   Self.depth_expr)
 
 
-class SelectorExprMode(LkqlNode):
+class RecExpr(Expr):
     """
-    Modes for selector values:
-
-    - ``default``: add the value to the result set
-    - ``rec``: add the value to the result set and call the selector
-      recursively
-    - ``skip``: call the selector recursively without adding the value to the
-      result set
+    Expression that is only valid in a selector. Describes the next actions of
+    a selector.
     """
-    enum_node = True
-
-    alternatives = ['default', 'rec', 'skip']
-
-
-class SelectorExpr(LkqlNode):
-    """
-    Expression appearing in the right part of a selector arm.
-    """
-    mode = Field(type=SelectorExprMode)
-    unpack = Field(type=Unpack)
-    expr = Field(type=Expr)
+    recurse_unpack = Field(type=Unpack)
+    recurse_expr = Field(type=Expr)
+    result_unpack = Field(type=Unpack)
+    result_expr = Field(type=Expr)
 
 
 class SelectorArm(LkqlNode):
@@ -879,7 +866,7 @@ class SelectorArm(LkqlNode):
     """
 
     pattern = Field(type=BasePattern)
-    exprs_list = Field(type=SelectorExpr.list)
+    expr = Field(type=Expr)
 
 
 class SelectorDecl(Declaration):
@@ -895,20 +882,6 @@ class SelectorDecl(Declaration):
     @langkit_property()
     def doc():
         return Self.doc_node
-
-    @langkit_property(return_type=SelectorExpr.list, public=True)
-    def nth_expressions(n=(T.Int, 0)):
-        """
-        Return the selector expressions associated with the nth selector arm.
-        """
-        return Self.arms.at(n - 1).exprs_list
-
-    @langkit_property(return_type=BasePattern.entity.array, public=True)
-    def patterns():
-        """
-        Return a list of the patterns that appear n the selector's arms.
-        """
-        return Self.arms.map(lambda x: x.pattern.as_entity)
 
 
 class SelectorCall(LkqlNode):
@@ -1252,6 +1225,7 @@ lkql_grammar.add_rules(
         SafeAccess(G.value_expr, "?.", c(), G.id),
         Indexing(G.value_expr, "[", c(), G.expr, "]"),
         SafeIndexing(G.value_expr, "?[", c(), G.expr, "]"),
+        G.selector_expr,
         FunCall(
             G.value_expr, Safe("?"),
             "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
@@ -1332,17 +1306,12 @@ lkql_grammar.add_rules(
     selector_arm=SelectorArm(
         "|",
         G.pattern,
-        "=>",
-        List(G.selector_expr,
-             empty_valid=False, sep="<>")
+        "=>", G.expr
     ),
 
-    selector_expr=SelectorExpr(
-        Or(SelectorExprMode.alt_rec("rec"),
-           SelectorExprMode.alt_skip("skip"),
-           SelectorExprMode.alt_default()),
-        Unpack("*"),
-        G.expr
+    selector_expr=Or(
+        RecExpr("rec", "(", Unpack("*"), G.expr, ",", Unpack("*"), G.expr, ")"),
+        RecExpr("rec", "(", Unpack("*"), G.expr, Null(Unpack), Null(G.expr), ")")
     ),
 
     match=Match("match", G.expr, List(G.match_arm, empty_valid=False)),

@@ -6,10 +6,10 @@ selector eligible_children
 
     | BodyNode =>
         # Don't recurse on bodies except if it's the root node (depth == 0)
-        rec *(if depth == 0 then this.children else [])
+        rec(*if depth == 0 then this.children else [])
     | n@PragmaNode when n.p_is_ghost_code() => ()
     | null     => ()
-    | *        => rec *this.children
+    | *        => rec(*this.children)
 
 fun parent_quantified_expr(s) =
     |" Helper: All quantified expressions containing ``s``
@@ -29,7 +29,7 @@ fun expr_complexity(body, exempt_case=false) =
            0)
 }
 
-fun statement_complexity(body, exempt_case=false) = 
+fun statement_complexity(body, exempt_case=false) =
     |" Return the cyclomatic complexity of statements in the given body
 {
     fun node_weight (n) = match n
@@ -51,7 +51,7 @@ fun statement_complexity(body, exempt_case=false) =
         (comp, node) => comp + node_weight(node),
         1
     )
-} 
+}
 
 fun cyclomatic_complexity(body, exempt_case=false) =
     |" Return the cyclomatic complexity for the given body
@@ -61,24 +61,24 @@ selector composite_parents
     |" Return a list of composite statement parents, stopping at the enclosing
     |" declaration.
     | *(parent: CaseStmt | IfStmt | ForLoopStmt
-        | LoopStmt | WhileLoopStmt | SelectStmt) => rec this.parent
+        | LoopStmt | WhileLoopStmt | SelectStmt) => rec(this.parent)
 
     # Stop exploring downwards when we get out of the current decl
-    | BasicDecl => () 
+    | BasicDecl => ()
 
     # Skip every other node
-    | * => skip this.parent
+    | * => rec(this.parent, ())
 
 # TODO: There might be a way to build on top of ``composite_parents``, rt.
 # duplicating it
 selector composite_parents_stop_at_loop
     |" Return a list of composite statement parents, stopping at the enclosing
     |" declaration or at the enclosing loop.
-    | *(parent: ForLoopStmt | LoopStmt | WhileLoopStmt) => this.parent
-    | *(parent: CaseStmt | IfStmt | SelectStmt) => rec this.parent
+    | *(parent: ForLoopStmt | LoopStmt | WhileLoopStmt) => rec((), this.parent)
+    | *(parent: CaseStmt | IfStmt | SelectStmt) => rec(this.parent)
     # Stop exploring downwards when we get out of the current decl
-    | BasicDecl => () 
-    | * => skip this.parent
+    | BasicDecl => ()
+    | * => rec(this.parent, ())
 
 
 fun essential_complexity(body, treat_exit_as_goto=true) =
@@ -90,7 +90,7 @@ fun essential_complexity(body, treat_exit_as_goto=true) =
              | (ExitStmt when treat_exit_as_goto))
     ];
 
-    val to_count_nodes = 
+    val to_count_nodes =
         if not jump_nodes then []
         else reduce(
             jump_nodes,
@@ -114,7 +114,7 @@ fun logical_slocs (node) =
         s@Stmt when s is not (Label | TerminateAlternative | NamedStmt)
     ) | (
         b@(BasicDecl | EntryIndexSpec) when b is not (
-            GenericFormal | GenericPackageInternal | AnonymousTypeDecl 
+            GenericFormal | GenericPackageInternal | AnonymousTypeDecl
             | NamedStmtDecl | LabelDecl | SingleTaskTypeDecl
             | GenericSubpInternal | ExceptionHandler
         )

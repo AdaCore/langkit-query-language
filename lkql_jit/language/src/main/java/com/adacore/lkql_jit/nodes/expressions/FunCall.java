@@ -22,7 +22,6 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.values.*;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Nullish;
@@ -44,7 +43,6 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 /**
  * This node represents a function call node in the LKQL language.
@@ -229,17 +227,8 @@ public abstract class FunCall extends Expr {
             throw LKQLRuntimeException.selectorWithoutNode(this);
         }
 
-        // Get the node from the argument
-        Libadalang.AdaNode node;
-        try {
-            node = argList[0].getArgExpr().executeNode(frame);
-        } catch (UnexpectedResultException e) {
-            throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(e.getResult()), argList[0]);
-        }
-
         // Return the selector list value
-        return selectorValue.getList(node);
+        return selectorValue.getList(argList[0].getArgExpr().executeGeneric(frame));
     }
 
     /**

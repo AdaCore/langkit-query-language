@@ -1,4 +1,4 @@
-script.lkql:2:12: error: Cannot use values of kind Bool in a selector
+script.lkql:2:12: error: Type error: expected RecValue but got Bool
 2 |     | * => true
   |            ^^^^
 

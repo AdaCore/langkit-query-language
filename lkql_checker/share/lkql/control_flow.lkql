@@ -14,10 +14,10 @@ selector executed_children
     |" exist execution scenarios in which where they are not taken.
     | null     => ()
     | BodyNode => ()
-    | IfStmt   => rec this.f_cond_expr
-    | CaseStmt => rec this.f_expr
-    | BaseLoopStmt => rec this.f_spec
-    | *        => rec *this.children
+    | IfStmt   => rec(this.f_cond_expr)
+    | CaseStmt => rec(this.f_expr)
+    | BaseLoopStmt => rec(this.f_spec)
+    | *        => rec(*this.children)
 
 fun all_branches(stmt) =
     |" Return a list of branches corresponding to alternative execution paths

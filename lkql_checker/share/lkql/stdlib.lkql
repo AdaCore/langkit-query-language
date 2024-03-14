@@ -7,7 +7,7 @@
 selector semantic_parent
     |" Return all semantic parent nodes starting from a given node.
     | null     => ()
-    | *        => rec this.p_semantic_parent()
+    | *        => rec(this.p_semantic_parent())
 
 selector children_no_nested
     |" Return all children nodes starting from a base subprogram body, but not
@@ -15,9 +15,9 @@ selector children_no_nested
 
     | BodyNode =>
         # Don't recurse on bodies except if it's the root node (depth == 0)
-        rec *(if depth == 0 then this.children else [])
+        rec(*if depth == 0 then this.children else [])
     | null     => ()
-    | *        => rec *this.children
+    | *        => rec(*this.children)
 
 fun all(iterable) =
     |" Return whether all elements in the given iterable are truthy
@@ -230,14 +230,14 @@ selector parent_decl_chain
     |" This allows us to, if in a generic template, always find back the
     |" generic formal.
     | null         => ()
-    | (BaseSubpBody | PackageBody) => rec {
+    | (BaseSubpBody | PackageBody) => rec({
         val prev_part = this.p_decl_part();
 
         # Some subprogram bodies don't have a previous part because they're
         # also the decl. In that case, return the semantic parent.
         if prev_part then prev_part else this.p_semantic_parent()
-    }
-    | *            => rec this.p_semantic_parent()
+    })
+    | *            => rec(this.p_semantic_parent())
 
 fun closest_enclosing_generic(n) =
     |" If ``n`` is part of a generic package or subprogram, whether it is
@@ -596,22 +596,22 @@ selector component_types
     |" Return all the ``BaseTypeDecl`` corresponding to all fields of a given
     |" type, including their full views, base types and subtypes.
     | TypeDecl(f_type_def: d@RecordTypeDef) =>
-        skip *(from d select ComponentDecl)
+        rec(*(from d select ComponentDecl), ())
     | TypeDecl(f_type_def: DerivedTypeDef(f_record_extension:
                                             def@BaseRecordDef)) =>
-        skip *([this.p_base_type()] & (from def select ComponentDecl))
-    | TypeDecl(f_type_def: DerivedTypeDef) => rec this.p_base_type()
-    | TypeDecl(f_type_def: ArrayTypeDef)   => rec this.p_comp_type()
-    | TypeDecl(f_type_def: PrivateTypeDef) => rec this.p_full_view()
-    | SubtypeDecl                            => rec this.p_base_subtype()
+        rec(*([this.p_base_type()] & (from def select ComponentDecl)), ())
+    | TypeDecl(f_type_def: DerivedTypeDef) => rec(this.p_base_type())
+    | TypeDecl(f_type_def: ArrayTypeDef)   => rec(this.p_comp_type())
+    | TypeDecl(f_type_def: PrivateTypeDef) => rec(this.p_full_view())
+    | SubtypeDecl                            => rec(this.p_base_subtype())
     | ComponentDecl(f_component_def: ComponentDef(f_type_expr:
                     ind@SubtypeIndication))  =>
-        rec ind.f_name.p_referenced_decl()
+        rec(ind.f_name.p_referenced_decl())
     | *                                      => ()
 
 selector full_parent_types
     |" Return all base (sub)types full views
-    | SubtypeDecl       => rec this.p_base_subtype().p_full_view()
-    | ClasswideTypeDecl => rec this.f_name.p_basic_decl().p_full_view()
-    | BaseTypeDecl      => rec *this.p_full_view().p_base_types()
+    | SubtypeDecl       => rec(this.p_base_subtype().p_full_view())
+    | ClasswideTypeDecl => rec(this.f_name.p_basic_decl().p_full_view())
+    | BaseTypeDecl      => rec(*this.p_full_view().p_base_types())
     | *            => ()
