@@ -122,6 +122,10 @@ class BaseDriver(DiffTestDriver):
     flag_checking_supported = False
 
     @property
+    def is_codepeer(self) -> bool:
+        return self.testsuite_options.codepeer
+
+    @property
     def perf_mode(self) -> bool:
         return hasattr(self.env, 'perf_mode') and self.env.perf_mode
 
@@ -145,6 +149,7 @@ class BaseDriver(DiffTestDriver):
         return YAMLTestControlCreator({
             'mode': self.env.options.mode,
             'os': self.env.build.os.name,
+            'is_codepeer': self.is_codepeer,
         })
 
     def set_up(self) -> None:

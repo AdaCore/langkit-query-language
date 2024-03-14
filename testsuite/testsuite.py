@@ -93,6 +93,10 @@ class LKQLTestsuite(Testsuite):
                  ' Possible values are "jit" and "native_jit".'
         )
         parser.add_argument(
+            "--codepeer", action="store_true",
+            help="Run the testsuite with the codepeer target and runtime"
+        )
+        parser.add_argument(
             '--no-auto-path', action='store_true',
             help='Do not add test programs to the PATH. Useful to test'
                  ' packages.'
