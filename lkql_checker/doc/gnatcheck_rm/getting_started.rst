@@ -162,54 +162,55 @@ the file :file:`coding_standard`. The ``gnatcheck``
 report file named :file:`gnatcheck.out` will be created in the ``obj``
 directory, and it will have the following content::
 
-  GNATCheck report
+    GNATCheck report
 
-  date              : YYYY-MM-DD HH:MM
-  gnatcheck version : gnatcheck XX.Y
-  command line      : gnatcheck -Pgnatcheck_example.gpr
-  runtime           : <default>
-  coding standard   : coding_standard
-  list of sources   : gnatcheck-source-list.out
+    date              : YYYY-MM-DD HH:MM
+    gnatcheck version : gnatcheck XX.Y
+    command line      : gnatcheck -Pgnatcheck_example.gpr
+    runtime           : <default>
+    coding standard   : coding_standard
+    list of sources   : gnatcheck-source-list.out
 
-  1. Summary
+    1. Summary
 
-     fully compliant sources               : 0
-     sources with exempted violations only : 0
-     sources with non-exempted violations  : 3
-     unverified sources                    : 0
-     total sources                         : 3
-     ignored sources                       : 0
+       fully compliant sources               : 0
+       sources with exempted violations only : 0
+       sources with non-exempted violations  : 3
+       unverified sources                    : 0
+       total sources                         : 3
+       ignored sources                       : 0
 
-     non-exempted violations               : 9
-     rule exemption warnings               : 0
-     compilation errors                    : 0
-     exempted violations                   : 0
-     internal errors                       : 0
+       non-exempted violations               : 8
+       rule exemption warnings               : 0
+       compilation errors                    : 0
+       exempted violations                   : 1
+       internal errors                       : 0
 
-  2. Exempted Coding Standard Violations
+    2. Exempted Coding Standard Violations
 
-     no exempted violations detected
+    main.adb:6:18: anonymous array type
+       (this one is fine)
 
-  3. Non-exempted Coding Standard Violations
+    3. Non-exempted Coding Standard Violations
 
-  main.adb:6:20: anonymous array type
-  main.adb:9:28: anonymous array type
-  main.adb:19:12: exit statement with no loop name
-  pack.adb:5:19: use of equality operation for float values
-  pack.adb:6:09: (style) "end Is_Equal" required
-  pack.ads:2:16: declaration of abstract type
-  pack.ads:5:14: declaration of local package
-  pack.ads:10:16: declaration of abstract type
-  pack.ads:11:03: (style) "end Pack" required
+    main.adb:9:26: anonymous array type
+    main.adb:19:10: exit statement with no loop name
+    pack.adb:5:17: use of equality operation for float values
+    pack.adb:6:07: "end Is_Equal" required
+    pack.ads:2:14: declaration of abstract type
+    pack.ads:5:12: declaration of local package
+    pack.ads:10:14: declaration of abstract type
+    pack.ads:11:01: "end Pack" required
 
-  4. Rule exemption problems
+    4. Rule exemption problems
 
-     no rule exemption problems detected
+       no rule exemption problems detected
 
-  5. Language violations
+    5. Language violations
 
-     no language violations detected
+       no language violations detected
 
-  6. Gnatcheck internal errors
+    6. Gnatcheck internal errors
 
-     no internal error detected
+       no internal error detected
+
