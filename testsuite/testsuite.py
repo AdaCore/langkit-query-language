@@ -125,7 +125,8 @@ class LKQLTestsuite(Testsuite):
             '--perf-mode',
             help='Run the testsuite in performance mode: only run tests with'
                  ' instructions to measure performance. The argument is the'
-                 ' directory in which to put profile data files.'
+                 ' directory in which to put profile data files.',
+            dest='perf_output_dir'
         )
         parser.add_argument(
             '--perf-no-profile',
@@ -148,7 +149,7 @@ class LKQLTestsuite(Testsuite):
         self.env.rewrite_baselines = self.env.options.rewrite
 
         # Perf mode is incompatible with some other modes
-        if self.env.options.perf_mode:
+        if self.env.options.perf_output_dir:
             if self.env.options.coverage:
                 logger.error(f"--perf-mode incompatible with --coverage")
                 raise RuntimeError
@@ -168,7 +169,7 @@ class LKQLTestsuite(Testsuite):
         # If the performance mode is enabled, verify that the user has checked
         # out the common-testsuite-sources in the "ada_projects" directory.
         # Additionally add the internal sources to the GPR project path.
-        if self.env.options.perf_mode:
+        if self.env.options.perf_output_dir:
             common_sources = P.join(
                 self.root_dir,
                 "ada_projects",
@@ -220,8 +221,8 @@ class LKQLTestsuite(Testsuite):
 
         # If requested, enable the performance mode and ensure that the output
         # profile data exists.
-        if self.env.options.perf_mode:
-            perf_dir = P.abspath(self.env.options.perf_mode)
+        if self.env.options.perf_output_dir:
+            perf_dir = P.abspath(self.env.options.perf_output_dir)
             if not P.isdir(perf_dir):
                 os.makedirs(perf_dir)
 
