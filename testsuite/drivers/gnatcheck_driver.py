@@ -249,7 +249,7 @@ class GnatcheckDriver(BaseDriver):
             output_file_name = self.working_dir(
                 test_data.get(
                     "output_file",
-                    f"gnatcheck.{'xml' if output_format == 'xml' else 'out'}"
+                    f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
                 )
             )
 
