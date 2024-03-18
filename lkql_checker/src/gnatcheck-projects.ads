@@ -185,7 +185,7 @@ package Gnatcheck.Projects is
    -- --subdirs=<d>  : <d> is subdirectories to place the tool output into --
    --------------------------------------------------------------------------
 
-   Subdir_Name : String_Access;
+   Subdir_Name : String_Access := new String'("gnatcheck");
    --  If Subdir_Name is null, no special subdirectory is used for tool
    --  results.
 

@@ -1530,7 +1530,7 @@ package body Gnatcheck.Compiler is
       Args (2) := new String'("-s");
       Args (3) := new String'("-k");
       Args (4) := new String'("-q");
-      Args (5) := new String'("--subdirs=gnatcheck");
+      Args (5) := new String'("--subdirs=" & Subdir_Name.all);
 
       Args (6) := new String'("--no-object-check");
       Args (7) := new String'("--complete-output");

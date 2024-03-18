@@ -1,0 +1,12 @@
+gnatcheck: error when calling gprbuild:
+
+   compilation of main.adb failed
+
+gprbuild: *** compilation phase failed
+   no exempted violations detected
+main.adb:3:05: goto statement
+   no rule exemption problems detected
+main.adb:6:05: error: "Put_Line" is undefined
+main.adb:6:05: error: possible missing "with Ada.Text_IO; use Ada.Text_IO"
+   no internal error detected
+Content of custom_subdirs/gnatcheck : ['restriction_pragmas.adc', 'main.adb.stderr', 'main.adb.stdout']
