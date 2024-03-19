@@ -4248,12 +4248,25 @@ following constructs are flagged:
 
 *
   ``if`` statements that have ``if`` and ``else`` paths (and no ``elsif`` path) if
-  both paths contain a single statement that is either an assignment to the same
-  variable or return statement that in one path returns ``True`` and in another
-  path - ``False``, where ``True`` and ``False`` are literals of the type
-  ``Standard.Boolean`` or any type derived from it. Note that in case of
-  assignment statements the variable names in the left part should be
-  literally the same (case insensitive);
+  both paths contain a single statement that is either:
+
+  *
+    an assignment to the same variable of ``True`` in one path and ``False``
+    in the other path
+  *
+    a return statement that in one path returns ``True`` and in the other
+    path - ``False``
+
+  where ``True`` and ``False`` are literals of the type ``Standard.Boolean``
+  or any type derived from it. Note that in case of assignment statements the
+  variable names in the left part should be literally the same (case
+  insensitive);
+
+*
+  ``if`` expressions that have ``if`` and ``else`` paths (without any ``elseif``)
+  if one path expression is ``True`` and the other is ``False``, where ``True``
+  and ``False`` are literals of the ``Standard.Boolean`` type (or any type derived
+  from it).
 
 *
   infix call to a predefined ``=`` or ``/=`` operator when the right operand

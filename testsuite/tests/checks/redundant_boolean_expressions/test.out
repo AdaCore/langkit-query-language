@@ -16,19 +16,28 @@ test.adb:10:4: rule violation: redundant boolean expression
 14 ||    end if;
    ||__________^
 
-test.adb:16:9: rule violation: redundant boolean expression
-16 |    X := X = Standard.true;     --  FLAG
+test.adb:16:10: rule violation: redundant boolean expression
+16 |     X := (if Cond               -- FLAG
+   | __________^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+18 ||          else False);
+   ||___________________^
+
+test.adb:20:9: rule violation: redundant boolean expression
+20 |    X := X = Standard.true;     --  FLAG
    |         ^^^^^^^^^^^^^^^^^
 
-test.adb:18:7: rule violation: redundant boolean expression
-18 |    if not (J > 1) then         --  FLAG
+test.adb:22:7: rule violation: redundant boolean expression
+22 |    if not (J > 1) then         --  FLAG
    |       ^^^^^^^^^^^
 
-test.adb:26:10: rule violation: redundant boolean expression
-26 |       if Y = True then    --  FLAG
+test.adb:30:10: rule violation: redundant boolean expression
+30 |       if Y = True then    --  FLAG
    |          ^^^^^^^^
 
-test.adb:31:11: rule violation: redundant boolean expression
-31 |    return X = Standard.False;  --  FLAG
+test.adb:35:11: rule violation: redundant boolean expression
+35 |    return X = Standard.False;  --  FLAG
    |           ^^^^^^^^^^^^^^^^^^
 
