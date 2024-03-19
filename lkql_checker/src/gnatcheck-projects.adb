@@ -967,6 +967,17 @@ package body Gnatcheck.Projects is
       GPR2.Project.Registry.Pack.Check_Attributes (+"Check");
    end Register_Tool_Attributes;
 
+   ------------------------
+   -- Set_Default_Target --
+   ------------------------
+
+   procedure Set_Default_Target is
+   begin
+      if not Gnatkp_Mode and then Has_Access_To_Codepeer then
+         GPR2.KB.Set_Default_Target ("codepeer");
+      end if;
+   end Set_Default_Target;
+
    -------------------------
    -- Set_External_Values --
    -------------------------
@@ -1769,11 +1780,7 @@ package body Gnatcheck.Projects is
                      --  Target hasn't been set explicitly and codepeer-gnatls
                      --  is available, force its use by setting the "codepeer"
                      --  target.
-
-                     if Target'Length = 0
-                       and then Locate_Exec_On_Path ("codepeer-gnatls") /= null
-                     then
-                        Free (Target);
+                     if Target'Length = 0 and then Has_Access_To_Codepeer then
                         Target := new String'("codepeer");
                      end if;
 

@@ -152,6 +152,8 @@ class GnatcheckDriver(BaseDriver):
           to gnatcheck.
         - ``rules_dirs`` (list[str]): A list of directories to pass to gnatcheck
           as rule containing directories.
+        - ``rule_list_file``: If provided, read the given rule file and add its
+          sorted content to the test output.
 
         - ``pre_python``/``post_python`` (str): Python code to be executed
           before/after the test.
@@ -247,7 +249,7 @@ class GnatcheckDriver(BaseDriver):
             output_file_name = self.working_dir(
                 test_data.get(
                     "output_file",
-                    f"gnatcheck.{'xml' if output_format == 'xml' else 'out'}"
+                    f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
                 )
             )
 
@@ -258,6 +260,10 @@ class GnatcheckDriver(BaseDriver):
             # for this test, run it and capture its output
             if pre_python:
                 capture_exec_python(pre_python)
+
+            # Set the codepeer target if needed
+            if self.is_codepeer:
+                args.append("--target=codepeer")
 
             # Set the "--show-rule" flag according to the test
             if test_data.get('show_rule', False):
@@ -371,6 +377,17 @@ class GnatcheckDriver(BaseDriver):
 
                 # Add the execution output to the test output
                 self.output += exec_output
+
+                # If requested, add a list of enabled rules to the test output
+                if test_data.get("rule_list_file", None):
+                    try:
+                        with open(
+                            self.working_dir(test_data["rule_list_file"]), 'r'
+                        ) as f:
+                            self.output += "".join(sorted(f.readlines()))
+                    except FileNotFoundError as _:
+                        self.output += ("testsuite_driver: Cannot found the rule "
+                                        f"list file '{test_data['rule_list_file']}'")
 
                 if (not brief and p.status not in [0, 1]) or (brief and p.status != 0):
                     self.output += ">>>program returned status code {}\n".format(p.status)

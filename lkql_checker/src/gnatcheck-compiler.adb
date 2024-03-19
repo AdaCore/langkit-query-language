@@ -1351,6 +1351,50 @@ package body Gnatcheck.Compiler is
       end if;
    end Restriction_Rule_Parameter;
 
+   ----------------------------
+   -- Has_Access_To_Codepeer --
+   ----------------------------
+
+   function Has_Access_To_Codepeer return Boolean
+   is
+      Gnatls : String_Access := Locate_Exec_On_Path ("codepeer-gnatls");
+      Res   : Boolean := False;
+   begin
+      if Gnatls /= null then
+         Res := True;
+         Free (Gnatls);
+      end if;
+      return Res;
+   end Has_Access_To_Codepeer;
+
+   -------------------
+   -- GPRbuild_Exec --
+   -------------------
+
+   function GPRbuild_Exec return String is
+   begin
+      if Has_Access_To_Codepeer then
+         return "codepeer-gprbuild";
+      else
+         return "gprbuild";
+      end if;
+   end GPRbuild_Exec;
+
+   ----------------
+   -- Gnatls_Exec --
+   ----------------
+
+   function Gnatls_Exec return String is
+   begin
+      if Has_Access_To_Codepeer then
+         return "codepeer-gnatls";
+      elsif Target.all /= "" then
+         return Target.all & "-gnatls";
+      else
+         return "gnatls";
+      end if;
+   end Gnatls_Exec;
+
    -------------------------
    -- Set_Compiler_Checks --
    -------------------------
@@ -1448,6 +1492,9 @@ package body Gnatcheck.Compiler is
          if Target.all /= "" then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--target=" & Target.all);
+         elsif Has_Access_To_Codepeer then
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'("--target=codepeer");
          end if;
       else
          --  Target and runtime will be taken from config project anyway
@@ -1514,7 +1561,7 @@ package body Gnatcheck.Compiler is
 
    function Spawn_GPRbuild (Output_File : String) return Process_Id is
       Pid         : Process_Id;
-      GPRbuild    : String_Access := Locate_Exec_On_Path ("gprbuild");
+      GPRbuild    : String_Access := Locate_Exec_On_Path (GPRbuild_Exec);
       Prj         : constant String := Gnatcheck_Prj.Source_Prj;
       Last_Source : constant SF_Id := Last_Argument_Source;
       Args        : Argument_List (1 .. 128 + Integer (Last_Source));
@@ -1536,6 +1583,11 @@ package body Gnatcheck.Compiler is
       Args (7) := new String'("--complete-output");
       Args (8) := new String'("--restricted-to-languages=ada");
       Num_Args := 8;
+
+      if Has_Access_To_Codepeer then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--target=codepeer");
+      end if;
 
       if Process_Num > 1 then
          Num_Args := @ + 1;
@@ -1581,7 +1633,7 @@ package body Gnatcheck.Compiler is
       Append_Variables (Args, Num_Args);
 
       if Debug_Mode then
-         Put ("gprbuild");
+         Put (GPRbuild_Exec);
 
          for J in 1 .. Num_Args loop
             Put (" " & Args (J).all);
