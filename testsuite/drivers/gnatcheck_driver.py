@@ -397,7 +397,7 @@ class GnatcheckDriver(BaseDriver):
                     for dir_name in test_data['list_dirs']:
                         self.output += (
                             f"Content of {dir_name} : "
-                            f"{os.listdir(self.working_dir(dir_name))}\n"
+                            f"{sorted(os.listdir(self.working_dir(dir_name)))}\n"
                         )
 
             # If python code to be executed post running gnatcheck was passed
