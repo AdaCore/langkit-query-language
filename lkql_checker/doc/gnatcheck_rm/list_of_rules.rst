@@ -171,6 +171,7 @@ GNATcheck rules.
 * :ref:`Single_Value_Enumeration_Types`
 * :ref:`Size_Attribute_For_Types`
 * :ref:`Slices`
+* :ref:`SPARK_Procedures_Without_Globals`
 * :ref:`Specific_Parent_Type_Invariant`
 * :ref:`Specific_Pre_Post`
 * :ref:`Specific_Type_Invariants`
