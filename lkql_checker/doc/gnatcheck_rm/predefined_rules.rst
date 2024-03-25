@@ -1804,6 +1804,55 @@ This rule has no parameters.
    package Pack_G is
 
 
+.. _Ada_2022_In_Ghost_Code:
+
+``Ada_2022_In_Ghost_Code``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Ada_2022_In_Ghost_Code
+
+Flag usages of Ada 2022 specific constructions used outside of Ghost code and
+Assertion code.
+
+This check is meant to allow users to use the new standard in code that is not
+shipped with the final executable version of their application.
+
+You can check this page
+https://learn.adacore.com/courses/whats-new-in-ada-2022/index.html for a quick
+overview of the new features of Ada 2022.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+
+   procedure Test_Ghost_Code is
+      A : String := "hello";
+
+      B : String := A'Image; --  FLAG
+
+      procedure Foo
+         with Pre => A'Image = "hello";  --  NOFLAG
+
+      B : String := A'Image with Ghost;  --  NOFLAG
+
+      function Bar return String is (A'Image) with Ghost;  --  NOFLAG
+
+      package P with Ghost is
+         B : String := A'Image; --  NOFLAG
+      end P;
+
+      generic
+      package Gen_Pkg is
+         B : String := A'Image;  --  FLAG (via instantiation line 23)
+      end Gen_Pkg;
+
+      package Inst is new Gen_Pkg;
+   begin
+      null;
+   end Test_Ghost_Code;
+
 .. _Address_Attribute_For_Non_Volatile_Objects:
 
 ``Address_Attribute_For_Non_Volatile_Objects``
