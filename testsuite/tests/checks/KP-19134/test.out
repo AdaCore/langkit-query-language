@@ -1,0 +1,30 @@
+main.adb:47:9: rule violation: possible occurrence of KP 19134
+47 |         Test (Int_Array_To_Byte_Array (My_Int_Array));            -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:48:9: rule violation: possible occurrence of KP 19134
+48 |         Test (Renamed_Conversion (My_Int_Array));                 -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:49:9: rule violation: possible occurrence of KP 19134
+49 |         Test (Char_Array_To_Byte_Array (My_Char_Array));          -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:50:9: rule violation: possible occurrence of KP 19134
+50 |         Test (Int_Array_To_Sub_Byte_Array (My_Int_Array));        -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:51:9: rule violation: possible occurrence of KP 19134
+51 |         Test (Int_Array_To_New_Byte_Array (My_Int_Array));        -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:52:9: rule violation: possible occurrence of KP 19134
+52 |         Test (Int_Array_To_Private_Byte_Array (My_Int_Array));    -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:58:12: rule violation: possible occurrence of KP 19134
+58 |            (Byte_Array_To_Char_Array                               -- FLAG
+   | ____________^
+59 ||             (Int_Array_To_Byte_Array (My_Int_Array)));
+   ||____________________________________________________^
+

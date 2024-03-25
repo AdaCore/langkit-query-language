@@ -1,0 +1,34 @@
+# Flag subprogram calls which have an actual parameter set to the result
+# of a call to 'Unchecked_Conversion' which target type is an array of
+# integer.
+
+import stdlib
+
+# Check that 'type_decl' is an array of int
+fun is_array_of_int(type_decl) =
+    type_decl.p_root_type() is TypeDecl(
+        p_is_array_type() is true,
+        f_type_def is def@ArrayTypeDef
+        when def.f_component_type.f_type_expr.p_designated_type_decl().p_is_int_type()
+    )
+
+# Check that `call` is a call to an unchecked conversion to an array of int
+fun is_unck_conv_to_array_of_int(call) =
+    call is CallExpr
+    when {
+        val subp = stdlib.ultimate_subprogram_alias(call.p_referenced_decl());
+        stdlib.is_unchecked_conversion(subp)
+        and stdlib.any(
+            [assoc.p_get_params()[1].p_name_is("target")
+             and assoc.f_r_expr is n@Name when is_array_of_int(n.p_referenced_decl())
+             for assoc in subp.f_params.children]
+        )
+    }
+
+@check(help="possible occurrence of KP 19134",
+       message="possible occurrence of KP 19134",
+       impact="23.*,24.*")
+fun kp_19134(node) =
+    node is CallExpr(p_is_call() is true)
+    when stdlib.any([is_unck_conv_to_array_of_int(p.actual)
+                     for p in node.p_call_params()])
