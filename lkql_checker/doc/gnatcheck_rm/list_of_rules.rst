@@ -12,6 +12,7 @@ GNATcheck rules.
 * :ref:`Access_To_Local_Objects`
 * :ref:`Actual_Parameters`
 * :ref:`Ada05_Formal_Packages`
+* :ref:`Ada_2022_In_Ghost_Code`
 * :ref:`Address_Attribute_For_Non_Volatile_Objects`
 * :ref:`Address_Specifications_For_Initialized_Objects`
 * :ref:`Address_Specifications_For_Local_Objects`
@@ -170,6 +171,7 @@ GNATcheck rules.
 * :ref:`Single_Value_Enumeration_Types`
 * :ref:`Size_Attribute_For_Types`
 * :ref:`Slices`
+* :ref:`SPARK_Procedures_Without_Globals`
 * :ref:`Specific_Parent_Type_Invariant`
 * :ref:`Specific_Pre_Post`
 * :ref:`Specific_Type_Invariants`

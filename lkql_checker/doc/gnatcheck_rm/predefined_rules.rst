@@ -1800,6 +1800,55 @@ This rule has no parameters.
    package Pack_G is
 
 
+.. _Ada_2022_In_Ghost_Code:
+
+``Ada_2022_In_Ghost_Code``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Ada_2022_In_Ghost_Code
+
+Flag usages of Ada 2022 specific constructions used outside of Ghost code and
+Assertion code.
+
+This check is meant to allow users to use the new standard in code that is not
+shipped with the final executable version of their application.
+
+You can check this page
+https://learn.adacore.com/courses/whats-new-in-ada-2022/index.html for a quick
+overview of the new features of Ada 2022.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+
+   procedure Test_Ghost_Code is
+      A : String := "hello";
+
+      B : String := A'Image; --  FLAG
+
+      procedure Foo
+         with Pre => A'Image = "hello";  --  NOFLAG
+
+      B : String := A'Image with Ghost;  --  NOFLAG
+
+      function Bar return String is (A'Image) with Ghost;  --  NOFLAG
+
+      package P with Ghost is
+         B : String := A'Image; --  NOFLAG
+      end P;
+
+      generic
+      package Gen_Pkg is
+         B : String := A'Image;  --  FLAG (via instantiation line 23)
+      end Gen_Pkg;
+
+      package Inst is new Gen_Pkg;
+   begin
+      null;
+   end Test_Ghost_Code;
+
 .. _Address_Attribute_For_Non_Volatile_Objects:
 
 ``Address_Attribute_For_Non_Volatile_Objects``
@@ -4129,15 +4178,15 @@ This rule has the following (optional) parameter for the ``+R`` option:
 .. code-block:: ada
    :emphasize-lines: 9
 
-package Pack is
-   procedure Proc (P1 : out Integer; P2 : in out Integer);
-   type Arr is array (1 .. 10 ) of Integer;
-end Pack;
+    package Pack is
+       procedure Proc (P1 : out Integer; P2 : in out Integer);
+       type Arr is array (1 .. 10 ) of Integer;
+    end Pack;
 
-with Pack; use Pack;
-procedure Proc (X : in out Arr; I, J : Integer) is
-begin
-   Proc (X (I), X (J));   --  FLAG
+    with Pack; use Pack;
+    procedure Proc (X : in out Arr; I, J : Integer) is
+    begin
+       Proc (X (I), X (J));   --  FLAG
 
 
 .. _Profile_Discrepancies:
@@ -4197,6 +4246,9 @@ Generic subprograms and subprograms detected in generic units are not
 flagged. Recursive subprograms in generic instantiations
 are flagged.
 
+Ghost code and assertion code such as pre & post conditions or code inside of
+`pragma Assert` is not flagged either by default.
+
 The rule does not take into account implicit calls that are the
 result of computing default initial values for an object or a subcomponent
 thereof as a part of the elaboration of an object declaration.
@@ -4209,6 +4261,10 @@ The rule has an optional parameter for the ``+R`` option:
 *Follow_Dispatching_Calls*
    Treat a dispatching call as a set of calls to all the subprograms
    the dispatching call may dispatch to.
+
+*Follow_Ghost_Code*
+   Analyze ghost code and assertion code, which isn't analyzed by this check by
+   default.
 
 .. rubric:: Example
 
@@ -4559,6 +4615,37 @@ This rule has no parameters.
    type Enum3 is (A, B, C);
    type Enum1 is (D);      --  FLAG
 
+
+.. _SPARK_Procedures_Without_Globals:
+
+``SPARK_Procedures_Without_Globals``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Separates
+
+Flags SPARK procedures that don't have a global aspect.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+
+   package Test is
+       procedure P with SPARK_Mode => On; -- FLAG
+
+       procedure Q is null; -- NOFLAG
+
+       function Foo return Integer  -- NOFLAG
+       is (12)
+       with SPARK_Mode => On;
+
+       V : Integer;
+
+       procedure T with Global => V;  -- NOFLAG
+
+       function Bar return Integer with SPARK_Mode => On;  -- NOFLAG
+   end Test;
 
 .. _Trivial_Exception_Handlers:
 
