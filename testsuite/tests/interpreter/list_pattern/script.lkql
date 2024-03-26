@@ -1,0 +1,22 @@
+fun test_list_patterns(lst) =
+    print(
+        img(lst) & " matches " &
+        match lst
+        | [1, 2, 3] => "[1, 2, 3]"
+        | [1, a@*, 3] => "[1, a@*, 3], with a = " & img(a)
+        | [11, 12, ...] => "[11, 12, ...]"
+        | [1, b@*, c@...] => "[1, b@*, c@...] with b = " & img(b) & " & c = " & img(c)
+        | [...] => "[...]"
+        | [..., 1, 2] => "Can never match"
+        | * => "*"
+    )
+
+test_list_patterns([1, 2, 3])
+test_list_patterns([1, 8, 3])
+test_list_patterns([11, 12, 80])
+test_list_patterns([11, 12, 80, 81, 82])
+test_list_patterns([11, 12])
+test_list_patterns([1, 20, 21, 22])
+test_list_patterns([])
+test_list_patterns(["lol"])
+test_list_patterns({})

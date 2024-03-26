@@ -22,7 +22,6 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -67,14 +66,12 @@ public final class FilteredPattern extends BasePattern {
     // ----- Execution methods -----
 
     /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.libadalang.Libadalang.AdaNode)
+     * @see BasePattern#executeValue(VirtualFrame, Object)
      */
     @Override
-    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean executeValue(VirtualFrame frame, Object value) {
         // If the pattern match, execute the predicate
-        if (this.pattern.executeNode(frame, node)) {
+        if (this.pattern.executeValue(frame, value)) {
             // Try to execute the predicate in a boolean
             try {
                 return this.predicate.executeBoolean(frame);

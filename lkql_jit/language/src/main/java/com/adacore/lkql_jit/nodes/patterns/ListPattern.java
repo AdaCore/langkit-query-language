@@ -20,71 +20,58 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.patterns.node_patterns;
+package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.Node;
 
-/**
- * This node represents a pattern detail value in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public final class DetailPattern extends DetailValue {
+public abstract class ListPattern extends ValuePattern {
+    /** The sub-patterns for this list pattern. */
+    @Node.Children private final BasePattern[] patterns;
 
-    // ----- Children -----
-
-    /** The pattern to verify for the detail value. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private BasePattern pattern;
-
-    // ----- Constructors -----
-
-    /**
-     * Create a new pattern detail.
-     *
-     * @param location The location of the node in the source.
-     * @param pattern The pattern to verify.
-     */
-    public DetailPattern(SourceLocation location, BasePattern pattern) {
+    public ListPattern(SourceLocation location, BasePattern[] patterns) {
         super(location);
-        this.pattern = pattern;
+        this.patterns = patterns;
     }
 
-    // ----- Execution methods -----
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame,
-     *     java.lang.Object)
-     */
-    @Override
-    public boolean executeDetailValue(VirtualFrame frame, Object value) {
-        // Check if the value is a string
-        if (LKQLTypeSystemGen.isString(value)) {
-            return this.pattern.executeString(frame, LKQLTypeSystemGen.asString(value));
+    @Specialization
+    public boolean onList(VirtualFrame frame, LKQLList list) {
+        var lastMatch = 0;
+        for (int i = 0; i < list.getArraySize(); i++) {
+            var pattern = patterns[i];
+            lastMatch = i;
+            // SplatPattern matches the rest of the list
+            if (pattern instanceof SplatPattern) {
+                return pattern.executeValue(
+                        frame, new LKQLList(list.getSlice(i, list.getArraySize())));
+            }
+            // Else, fail on the first pattern that fails
+            else if (!pattern.executeValue(frame, list.get(i))) {
+                return false;
+            }
         }
 
-        // Verify that the value is a node
-        if (!LKQLTypeSystemGen.isAdaNode(value)) {
-            throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(value), this);
+        if (lastMatch < patterns.length - 1) {
+            // If there are remaining patterns, there need to be only one, and it needs to be a
+            // SplatPattern.
+            if (lastMatch + 1 != patterns.length - 1
+                    || !(patterns[lastMatch + 1] instanceof SplatPattern)) {
+                return false;
+            }
         }
 
-        // Execute the pattern with the node
-        return this.pattern.executeNode(frame, LKQLTypeSystemGen.asAdaNode(value));
+        return true;
     }
 
-    // ----- Override methods -----
+    @Fallback
+    public boolean onOther(VirtualFrame frame, Object other) {
+        return false;
+    }
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

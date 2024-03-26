@@ -1,0 +1,11 @@
+fun test_match_int(i) =
+    match i
+    | 1 => print("un")
+    | 2 => print("dos")
+    | 3 => print("tres")
+    | * => print("un pasito adelante maria")
+
+test_match_int(1)
+test_match_int(2)
+test_match_int(3)
+test_match_int(null)

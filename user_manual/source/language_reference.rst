@@ -55,8 +55,7 @@ Basic Data Types
 * Nodes: Coming from the queried language (in the common case, Ada), those are
   the only composite data types for the moment. They correspond to the syntax
   nodes of the source files being queried. They can be explored as part of the
-  general language subset, through `Field access`_, or via the `Tree
-  query language subset`_.
+  general language subset, through `Field access`_, or via the `Query language subset`_.
 
 * Patterns: Patterns are compiled regular expressions that can be used in a few
   contexts to match a string against, notably in the string built-in functions
@@ -298,10 +297,11 @@ for example.
 
 Unwrap will raise an error if the value is null.
 
-Function Call
-^^^^^^^^^^^^^
+Call
+^^^^
 
 .. lkql_doc_class:: FunCall
+.. lkql_doc_class:: SelectorCall
 .. lkql_doc_class:: Arg
 
 .. raw:: html
@@ -331,6 +331,14 @@ the callee is null:
     fun add(a, b) = a + b
     val fn = if true then null else add
     fn?(1, 2) # Returns null
+
+Additionally, you can also call selectors via the call syntax. Selector calls
+take only one argument, which is the starting point of the selector call chain.
+
+.. code-block:: lkql
+
+   children(select first AdaNode)
+
 
 Indexing Expression
 ^^^^^^^^^^^^^^^^^^^
@@ -527,9 +535,10 @@ Match Expression
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/match.svg
 
-Pattern matching expression. Matchers will be evaluated in order against the
-match's target expression. The first matcher to match the object will trigger
-the evaluation of the associated expression in the match arm.
+This expression is a pattern matching expression, and reuses the same patterns
+as the query part of the language. Matchers will be evaluated in order against
+the match's target expression. The first matcher to match the object will
+trigger the evaluation of the associated expression in the match arm.
 
 .. code-block:: lkql
 
@@ -663,10 +672,10 @@ LKQL will search for files:
    There is no way to create hierarchies of modules for now, only flat modules
    are supported.
 
-Tree Query Language Subset
-==========================
+Query Language Subset
+=====================
 
-The tree query language subset is mainly composed of three language constructs:
+The query language subset is mainly composed of three language constructs:
 patterns, queries and selectors.
 
 Patterns allow the user to express filtering logic on trees and graphs, akin to
@@ -797,7 +806,6 @@ keyword.
 Pattern
 -------
 
-.. lkql_doc_class:: UnfilteredPattern
 .. lkql_doc_class:: ValuePattern
 
 .. raw:: html
@@ -809,45 +817,19 @@ Pattern
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/binding_pattern.svg
 
-Patterns are by far the most complex part of the tree query language subset,
-but at its core, the concept of a pattern is very simple:
+Patterns are by far the most complex part of the query language subset, but at
+its core, the concept of a pattern is very simple:
 
 A pattern is at its core a very simple concept: it's an expression that you
-will match against a node. In the context of a query, the pattern will return a
-node or collection of nodes for each matched node. In the context of an ``is``
-comparison expression, lkql will check that the node matches the pattern, and
-produce ``true`` if it does.
+will match against a value. Lkql will check that the node matches the pattern,
+and produce ``true`` if it does. In the context of a query, that will add the
+value to the result of the query.
 
-High Level Pattern Kinds
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-There are two kinds of top-level patterns: chained patterns and nested patterns
-(called value_patterns in the grammar), and the way they're different is in how
-you use sub-patterns. In the end they'll they differ by which nodes will be
-produced by the pattern when used in a query. Let's take an example to
-illustrate:
-
-.. code-block:: lkql
-
-   select ObjectDecl(default_expr is IntLiteral)
-
-This query uses a nested pattern, it will return every ``ObjectDecl`` that has
-an ``IntLiteral`` node in the default expression.
-
-.. code-block:: lkql
-
-   select ObjectDecl.default_expr is IntLiteral
-
-This query uses a chained pattern, it will return every ``IntLiteral`` that is
-the default expression of an ``ObjectDecl``.
-
-Hence, the difference between the two kind of sub-patterns is that in the first
-case, the sub-pattern doesn't change what is returned, it only adds a filtering
-condition, whereas in the second case, the chained pattern makes the pattern
-return a sub object.
+Node patterns
+^^^^^^^^^^^^^
 
 Simple Value Patterns
-^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/value_pattern.svg
@@ -871,7 +853,7 @@ The ``null`` pattern is a shortcut, which doesn't seem very useful in the query
 above, but is useful in nested queries.
 
 Nested Sub Patterns
-^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""
 
 .. lkql_doc_class:: NodePatternDetail
 .. lkql_doc_class:: DetailValue
@@ -927,57 +909,125 @@ this is denoted by the parentheses after the property name.
 
    select BaseId(p_referenced_decl() is ObjectDecl)
 
-Chained Sub Patterns
-^^^^^^^^^^^^^^^^^^^^
+Regular values patterns
+^^^^^^^^^^^^^^^^^^^^^^^
 
-.. lkql_doc_class:: ChainedPatternLink
-.. lkql_doc_class:: SelectorCall
+Not only nodes can be matched in LKQL: Any value can be matched via a pattern,
+including basic and composite data types.
 
-Chained sub patterns are roughly similar to nested sub patterns, and come in
-similar flavours. The big difference between the two kind of patterns, is which
-nodes are yielded when the pattern is used in a query. Chained patterns will
-yield the sub-nodes, rather than just filtering and returning the top level
-node.
+Integer pattern
+"""""""""""""""
 
-You have the three different kind of chained patterns, corresponding to the
-nested ones.
+.. lkql_doc_class:: IntegerPattern
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/integer_pattern.svg
 
-Selector Chain
+You can match simple integer values with this pattern
+
+.. code-block:: lkql
+
+   v is 12
+
+Bool pattern
+""""""""""""
+
+.. lkql_doc_class:: BoolPattern
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/bool_pattern.svg
+
+You can match simple boolean values with this pattern
+
+.. code-block:: lkql
+
+   v is true
+
+Regex pattern
+"""""""""""""
+
+.. lkql_doc_class:: RegexPattern
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/regex_pattern.svg
+
+You can match simple string values with this pattern, but you can also do more
+complicated matching based on regular expressions.
+
+.. code-block:: lkql
+
+   v is "hello"
+   v is "hello.*?world"
+
+Tuple pattern
+"""""""""""""
+
+.. lkql_doc_class:: TuplePattern
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/tuple_pattern.svg
+
+You can match tuple values with this pattern.
+
+.. code-block:: lkql
+
+    match i
+    | (1, 2, 3) => print("un, dos, tres")
+    | * => print("un pasito adelante maria")
+
+    match i
+    | (1, a@*, b@*, 4) => { print(a); print(b) }
+
+List pattern
+""""""""""""
+
+.. lkql_doc_class:: ListPattern
+.. lkql_doc_class:: SplatPattern
+
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/list_pattern.svg
+
+You can match list values with this pattern.
+
+.. code-block:: lkql
+
+    match lst
+    | [1, 2, 3] => "[1, 2, 3]"
+    | [1, a@*, 3] => "[1, a@*, 3], with a = " & img(a)
+
+You can use the "splat" pattern at the end of a list pattern to match remaining
+elements:
+
+.. code-block:: lkql
+
+    match lst
+    | [11, 12, ...] => "[11, 12, ...]"
+    | [1, c@...] => "[1, c@...] with b = " & img(b) & " & c = " & img(c)
+    | [...] => "Any list"
+
+Object pattern
 """"""""""""""
 
-A selector chain is a sub-pattern that allows you to recursively yield a
-sub-query via a selector call:
+.. lkql_doc_class:: ObjectPattern
+.. lkql_doc_class:: ObjectPatternAssoc
+.. lkql_doc_class:: SplatPattern
+
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/object_pattern.svg
+
+You can match object values with this pattern.
 
 .. code-block:: lkql
 
-   select Body any children is ForLoopStmt
+    match obj
+     | {a: 12} => "{a: 12}"
+     | {a: a@*} => "Any object with an a key. Bind the result to a"
 
-The quantifier part (``any``) can be either ``any`` or ``all``, which will
-alter how the sub-pattern matches:
-
-Field Chain
-"""""""""""
-
-A field chain is a sub-pattern that allows you to yield a specific field in the
-parent object, given that it satisfies a pattern.
+You can use the "splat" pattern anywhere in an object pattern to match
+remaining elements:
 
 .. code-block:: lkql
 
-   select ObjectDecl.f_default_expr is IntLiteral
+    match obj
+         | {a@..., b: "hello"} => "Bind keys that are not b to var a"
+         | {a@...} => "Bind all the object to a"
 
-This will yield the default exprssions for object decls, given that those
-default expressions are int literals.
-
-Property Chain
-""""""""""""""
-
-A property chain is very similar to a field chain, except that a property of
-the node is called, instead of a field accessed. Syntactically, this is denoted
-by the parentheses after the property name.
-
-.. code-block:: lkql
-
-   select BaseId.p_referenced_decl() is ObjectDecl
 
 Filtered Patterns and Binding Patterns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -22,7 +22,6 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -47,22 +46,10 @@ public final class UniversalPattern extends ValuePattern {
     // ----- Execution methods -----
 
     /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.libadalang.Libadalang.AdaNode)
+     * @see BasePattern#executeValue(VirtualFrame, Object)
      */
     @Override
-    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return true;
-    }
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame,
-     *     String)
-     */
-    @Override
-    public boolean executeString(VirtualFrame frame, String str) {
+    public boolean executeValue(VirtualFrame frame, Object value) {
         return true;
     }
 

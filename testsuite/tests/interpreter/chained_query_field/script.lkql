@@ -1,6 +1,0 @@
-val inDottedInWith =
-    select t @ TypeDecl.children is d @ DefiningName when {
-        val x = print(t);
-        val y = print(d);
-        true
-    }

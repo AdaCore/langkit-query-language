@@ -20,69 +20,45 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.patterns.node_patterns;
+package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.functions.ObjectUtils;
+import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.nodes.Node;
 
-/**
- * This node represents an expression detail value in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public final class DetailExpr extends DetailValue {
+public abstract class TuplePattern extends ValuePattern {
+    /** The sub-patterns for this tuple pattern. */
+    @Node.Children private final BasePattern[] patterns;
 
-    // ----- Children -----
-
-    /** The expression of the detail value. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private Expr expr;
-
-    // ----- Constructors -----
-
-    /**
-     * Create a new detail expression node.
-     *
-     * @param location The location of the node in the source.
-     * @param expr The expression of the detail value.
-     */
-    public DetailExpr(SourceLocation location, Expr expr) {
+    public TuplePattern(SourceLocation location, BasePattern[] patterns) {
         super(location);
-        this.expr = expr;
+        this.patterns = patterns;
     }
 
-    // ----- Execution methods -----
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame,
-     *     java.lang.Object)
-     */
-    @Override
-    public boolean executeDetailValue(VirtualFrame frame, Object value) {
-        // Execute the expression
-        Object expected = this.expr.executeGeneric(frame);
-
-        // Verify the equality
-        if (LKQLTypeSystemGen.isLKQLValue(value) && LKQLTypeSystemGen.isLKQLValue(expected)) {
-            InteropLibrary valueLibrary = InteropLibrary.getUncached(value);
-            InteropLibrary expectedLibrary = InteropLibrary.getUncached(expected);
-            return valueLibrary.isIdentical(value, expected, expectedLibrary);
-        } else {
-            return ObjectUtils.equals(value, expected);
+    @Specialization
+    @ExplodeLoop
+    public boolean onTuple(VirtualFrame frame, LKQLTuple tuple) {
+        if (tuple.getArraySize() != patterns.length) {
+            return false;
         }
+
+        for (int i = 0; i < tuple.getArraySize(); i++) {
+            if (!patterns[i].executeValue(frame, tuple.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    // ----- Override methods -----
+    @Fallback
+    public boolean onOther(VirtualFrame frame, Object other) {
+        return false;
+    }
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

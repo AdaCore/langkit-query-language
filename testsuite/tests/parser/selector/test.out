@@ -43,11 +43,9 @@ SelectorDecl
 |  |  |  |  |  |f_identifier:
 |  |  |  |  |  |  Identifier: children
 |  |  |  |  |  |f_expected_value:
-|  |  |  |  |  |  DetailPattern
-|  |  |  |  |  |  |f_pattern_value:
-|  |  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  |  Identifier: ThirdNodeKind
+|  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  Identifier: ThirdNodeKind
 |  |  |f_exprs_list:
 |  |  |  SelectorExprList
 |  |  |  |  SelectorExpr

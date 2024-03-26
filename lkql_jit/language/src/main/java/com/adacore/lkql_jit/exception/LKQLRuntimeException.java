@@ -58,13 +58,13 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
 
     // --- Misc exception
 
-    /**
-     * Create a new exception with an arbitrary message and a location.
-     *
-     * @param message The message of the exception.
-     * @param location The node where there is an error.
-     * @return The exception.
-     */
+    /** Create a new exception with an arbitrary message and a location. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeException fromMessage(String message, SourceLocation location) {
+        return new LKQLRuntimeException(fullErrorText(message, location));
+    }
+
+    /** Create a new exception with an arbitrary message and a location. */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException fromMessage(String message, Locatable location) {
         return new LKQLRuntimeException(fullErrorText(message, location));
@@ -79,6 +79,22 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException fromMessage(String message) {
         return new LKQLRuntimeException(message);
+    }
+
+    /**
+     * Create an exception from a Java exception with the location.
+     *
+     * @param e The Java exception.
+     * @param location The location of the LKQL call.
+     * @return The exception.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeException fromJavaException(Throwable e, SourceLocation location) {
+        LKQLRuntimeException res =
+                new LKQLRuntimeException(
+                        fullErrorText("Error from Java bindings: " + e.getMessage(), location));
+        res.setStackTrace(e.getStackTrace());
+        return res;
     }
 
     /**
@@ -506,16 +522,16 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @param location The location of the error.
      * @return The base exception text for all exception.
      */
-    private static String baseErrorText(Locatable location) {
+    private static String baseErrorText(SourceLocation location) {
         if (LKQLLanguage.SUPPORT_COLOR) {
             return StringUtils.ANSI_BOLD
-                    + location.getLocation().toString()
+                    + location.toString()
                     + ":"
                     + StringUtils.ANSI_RED
                     + " error: "
                     + StringUtils.ANSI_RESET;
         } else {
-            return location.getLocation().toString() + ": error: ";
+            return location.toString() + ": error: ";
         }
     }
 
@@ -525,14 +541,14 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @param location The location to generate source representation for.
      * @return The string representing the LKQL source.
      */
-    private static String sourceText(Locatable location) {
+    private static String sourceText(SourceLocation location) {
         // Get the positional information
-        int startLine = location.getLocation().getStartLine();
-        int endLine = location.getLocation().getEndLine();
-        int startCol = location.getLocation().getStartColumn();
-        int endCol = location.getLocation().getEndColumn();
+        int startLine = location.getStartLine();
+        int endLine = location.getEndLine();
+        int startCol = location.getStartColumn();
+        int endCol = location.getEndColumn();
 
-        String[] lines = location.getLocation().getLines(startLine - 1, endLine);
+        String[] lines = location.getLines(startLine - 1, endLine);
         return StringUtils.underlineSource(
                 lines, startLine, startCol, endLine, endCol, StringUtils.ANSI_RED);
     }
@@ -545,6 +561,14 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The full error text.
      */
     private static String fullErrorText(String errorMessage, Locatable location) {
+        return baseErrorText(location.getLocation())
+                + errorMessage
+                + "\n"
+                + sourceText(location.getLocation())
+                + "\n";
+    }
+
+    private static String fullErrorText(String errorMessage, SourceLocation location) {
         return baseErrorText(location) + errorMessage + "\n" + sourceText(location) + "\n";
     }
 

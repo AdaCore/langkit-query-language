@@ -80,7 +80,7 @@ public abstract class IsClause extends Expr {
      */
     @Specialization
     protected boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return this.pattern.executeNode(frame, node);
+        return this.pattern.executeValue(frame, node);
     }
 
     /**

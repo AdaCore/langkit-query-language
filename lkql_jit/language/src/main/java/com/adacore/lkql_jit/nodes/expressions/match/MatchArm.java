@@ -22,14 +22,11 @@
 
 package com.adacore.lkql_jit.nodes.expressions.match;
 
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**
@@ -37,7 +34,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public abstract class MatchArm extends LKQLNode {
+public class MatchArm extends LKQLNode {
 
     // ----- Children -----
 
@@ -60,7 +57,7 @@ public abstract class MatchArm extends LKQLNode {
      * @param pattern The pattern of the match arm.
      * @param expr The result of the match arm.
      */
-    protected MatchArm(SourceLocation location, BasePattern pattern, Expr expr) {
+    public MatchArm(SourceLocation location, BasePattern pattern, Expr expr) {
         super(location);
         this.pattern = pattern;
         this.expr = expr;
@@ -93,50 +90,12 @@ public abstract class MatchArm extends LKQLNode {
      * @param toMatch The node to match.
      * @return The result of the arm expression if the pattern is valid, null else.
      */
-    public abstract Object executeArm(VirtualFrame frame, Object toMatch);
-
-    /**
-     * Execute the matching arm on a node value.
-     *
-     * @param frame The frame to execute in.
-     * @param node The node value.
-     * @return The match expression if the pattern is valid.
-     */
-    @Specialization
-    protected Object onNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        if (this.pattern.executeNode(frame, node)) {
+    public Object executeArm(VirtualFrame frame, Object toMatch) {
+        if (this.pattern.executeValue(frame, toMatch)) {
             return this.expr.executeGeneric(frame);
         } else {
             return null;
         }
-    }
-
-    /**
-     * Execute the matching arm on a string value.
-     *
-     * @param frame The frame to execute in.
-     * @param str The string value.
-     * @return The match expression if the pattern is valid.
-     */
-    @Specialization
-    protected Object onString(VirtualFrame frame, String str) {
-        if (this.pattern.executeString(frame, str)) {
-            return this.expr.executeGeneric(frame);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Fallback when the value cannot be matched.
-     *
-     * @param frame The frame to execute in.
-     * @param other The value.
-     * @return Just null.
-     */
-    @Fallback
-    protected Object onOther(VirtualFrame frame, Object other) {
-        return null;
     }
 
     // ----- Override methods -----

@@ -15,7 +15,6 @@ from language.lexer import Token, lkql_lexer as L
 
 
 @abstract
-@has_abstract_list
 class LkqlNode(ASTNode):
     """
     Root node class for LKQL AST nodes.
@@ -380,36 +379,6 @@ class BasePattern(LkqlNode):
     """
     Root node class for patterns.
     """
-
-    @langkit_property(return_type=T.Identifier, public=True,
-                      kind=AbstractKind.abstract)
-    def binding_name():
-        """
-        Return the pattern's binding name.
-        Return an empty String if the pattern doesn't contain a binding name.
-        """
-        pass
-
-    @langkit_property(return_type=T.Bool, public=True)
-    def has_binding():
-        """
-        Return whether the node pattern contains a binding name.
-        """
-        return dsl_expr.Not(Self.binding_name.is_null)
-
-    @langkit_property(return_type=T.ValuePattern, public=True)
-    def value_part():
-        """
-        Return the value pattern contained in the pattern , if any.
-        """
-        return No(ValuePattern)
-
-
-@abstract
-class UnfilteredPattern(BasePattern):
-    """
-    Pattern without a filtering predicate.
-    """
     pass
 
 
@@ -422,50 +391,31 @@ class FilteredPattern(BasePattern):
 
        o@ObjectDecl when o.children.length == 3
     """
-    pattern = Field(type=UnfilteredPattern)
+    pattern = Field(type=BasePattern)
     predicate = Field(type=Expr)
-
-    @langkit_property()
-    def binding_name():
-        return Self.pattern.binding_name
-
-    @langkit_property()
-    def value_part():
-        return Self.pattern.value_part()
 
 
 @abstract
-class ValuePattern(UnfilteredPattern):
+class ValuePattern(BasePattern):
     """
     Root node class for patterns that filter values.
     (As opposed to patterns that only bind values to a given name without
     doing any kind of filtering)
     """
-
-    @langkit_property()
-    def binding_name():
-        return dsl_expr.No(T.Identifier)
-
-    @langkit_property()
-    def value_part():
-        return Self
+    pass
 
 
-class BindingPattern(UnfilteredPattern):
+class BindingPattern(BasePattern):
     """
     Pattern comprising a binding name and a value pattern.
 
     For instance::
 
-       o : ObjectDecl
+       o@ObjectDecl
     """
 
     binding = Field(type=Identifier)
     value_pattern = Field(type=ValuePattern)
-
-    @langkit_property()
-    def binding_name():
-        return Self.binding
 
 
 class IsClause(Expr):
@@ -500,6 +450,58 @@ class RegexPattern(ValuePattern):
     given regular expression.
     """
     token_node = True
+
+
+class BoolPattern(ValuePattern):
+    """
+    Pattern to match on booleans.
+    """
+    enum_node = True
+    alternatives = ['true', 'false']
+
+
+class IntegerPattern(ValuePattern):
+    """
+    Pattern to match on integers.
+    """
+    token_node = True
+
+
+class TuplePattern(ValuePattern):
+    """
+    Pattern to match on tuples.
+    """
+    patterns = Field(type=BasePattern.list)
+
+
+class ListPattern(ValuePattern):
+    """
+    Pattern to match on lists.
+    """
+    patterns = Field(type=BasePattern.list)
+
+
+class SplatPattern(ValuePattern):
+    """
+    Pattern to match any remaining number of elements in a list pattern.
+    """
+    binding = Field(type=Identifier)
+
+
+class ObjectPatternAssoc(LkqlNode):
+    """
+    Object pattern assoc in an object pattern:
+    ``label: <pattern>``
+    """
+    name = Field(type=Identifier)
+    pattern = Field(type=BasePattern)
+
+
+class ObjectPattern(ValuePattern):
+    """
+    Pattern to match on objects.
+    """
+    patterns = Field(type=LkqlNode.list)
 
 
 class ParenPattern(ValuePattern):
@@ -954,29 +956,6 @@ class NodeKindPattern(NodePattern):
 
 
 @abstract
-class DetailValue(LkqlNode):
-    """
-    Root node class for pattern data values.
-    Pattern data values can be expressions or patterns.
-    """
-    pass
-
-
-class DetailExpr(DetailValue):
-    """
-    Expression pattern data value.
-    """
-    expr_value = Field(type=Expr)
-
-
-class DetailPattern(DetailValue):
-    """
-    Pattern pattern data value
-    """
-    pattern_value = Field(type=BasePattern)
-
-
-@abstract
 class NodePatternDetail(LkqlNode):
     """
     Access to a field, property or selector inside a node pattern.
@@ -989,7 +968,7 @@ class NodePatternField(NodePatternDetail):
     Access to a field in a node pattern.
     """
     identifier = Field(type=Identifier)
-    expected_value = Field(type=DetailValue)
+    expected_value = Field(type=BasePattern)
 
 
 class NodePatternProperty(NodePatternDetail):
@@ -997,7 +976,7 @@ class NodePatternProperty(NodePatternDetail):
     Access to a property in a node pattern.
     """
     call = Field(type=FunCall)
-    expected_value = Field(type=DetailValue)
+    expected_value = Field(type=BasePattern)
 
 
 class NodePatternSelector(NodePatternDetail):
@@ -1020,52 +999,6 @@ class ExtendedNodePattern(NodePattern):
     """
     node_pattern = Field(type=ValuePattern)
     details = Field(type=NodePatternDetail.list)
-
-
-@abstract
-class ChainedPatternLink(LkqlNode):
-    """
-    Element of a chained pattern of the form:
-    ``(selector|field|property) pattern``
-    """
-    pattern = AbstractField(type=BasePattern)
-
-
-class SelectorLink(ChainedPatternLink):
-    """
-    Element of a chained pattern of the form:
-    ``quantifier selector_name pattern``
-    """
-    selector = Field(type=SelectorCall)
-    pattern = Field(type=BasePattern)
-
-
-class FieldLink(ChainedPatternLink):
-    """
-    Element of a chained pattern of the form:
-    ``field pattern``
-    """
-    field = Field(type=Identifier)
-    pattern = Field(type=BasePattern)
-
-
-class PropertyLink(ChainedPatternLink):
-    """
-    Element of a chained pattern of the form:
-    ``property(args) pattern``
-    """
-    property = Field(type=FunCall)
-    pattern = Field(type=BasePattern)
-
-
-class ChainedNodePattern(ValuePattern):
-    """
-    Node pattern of the form::
-
-    ``Kind1(details...) selector1 Kind2(details...) selector2 ... KindN``
-    """
-    first_pattern = Field(type=BasePattern)
-    chain = Field(type=ChainedPatternLink.list)
 
 
 class MatchArm(LkqlNode):
@@ -1135,38 +1068,16 @@ lkql_grammar.add_rules(
     import_clause=Import("import", G.id),
 
     query=Query(
-        Opt(
-            "from",
-            Or(G.expr, Unpack("*", G.expr))
-        ),
-        Opt(
-            "through",
-            Or(G.expr)
-        ),
-        "select", c(), Or(
-            QueryKind.alt_first(L.Identifier(match_text="first")),
-            QueryKind.alt_all(),
-        ), G.pattern
+        Opt("from", Or(G.expr, Unpack("*", G.expr))),
+        Opt("through", Or(G.expr)),
+        "select", c(), 
+        Or(QueryKind.alt_first(L.Identifier(match_text="first")),
+           QueryKind.alt_all()), 
+        G.pattern
     ),
 
     pattern=Or(
-        OrPattern(
-            G.chained_node_pattern,
-            "or",
-            G.pattern
-        ),
-        G.chained_node_pattern
-    ),
-
-    chained_node_pattern=Or(
-        ChainedNodePattern(
-            G.filtered_pattern,
-            List(Or(
-                SelectorLink(G.selector_call, "is", G.filtered_pattern),
-                FieldLink(".", G.id, "is", G.filtered_pattern),
-                PropertyLink(".", G.fun_call, "is", G.filtered_pattern)
-            ))
-        ),
+        OrPattern(G.filtered_pattern, "or", G.pattern),
         G.filtered_pattern
     ),
 
@@ -1181,6 +1092,8 @@ lkql_grammar.add_rules(
         G.value_pattern
     ),
 
+    object_pattern_assoc=ObjectPatternAssoc(G.id, ":", G.pattern),
+
     value_pattern=Or(
         ExtendedNodePattern(
 
@@ -1193,18 +1106,42 @@ lkql_grammar.add_rules(
         NodeKindPattern(G.kind_name),
         UniversalPattern("*"),
         NullPattern("null"),
-        RegexPattern(Token.String),
+        G.regex_pattern,
         NotPattern("not", G.value_pattern),
-        ParenPattern("(", G.pattern, ")")
+        G.bool_pattern,
+        G.integer_pattern,
+        G.list_pattern,
+        G.object_pattern,
+        ParenPattern("(", G.pattern, ")"),
+        G.tuple_pattern
     ),
+
+    regex_pattern=RegexPattern(Token.String),
+
+    bool_pattern=Or(
+        BoolPattern.alt_true("true"),
+        BoolPattern.alt_false("false"),
+    ),
+
+    splat_pattern=SplatPattern(Opt(G.id, "@"), "..."),
+
+    integer_pattern=IntegerPattern(Token.Integer),
+    list_pattern=ListPattern(
+        "[",
+        List(G.binding_pattern | G.splat_pattern, sep=","), "]"
+    ),
+    object_pattern=ObjectPattern(
+        "{",
+        List(G.object_pattern_assoc | G.splat_pattern, sep=",", empty_valid=False),
+        "}"
+    ),
+    tuple_pattern=TuplePattern("(", List(G.binding_pattern, sep=","), ")"),
 
     pattern_arg=Or(
         NodePatternSelector(G.selector_call, "is", G.pattern),
-        NodePatternField(G.id, "is", c(), G.detail_value),
-        NodePatternProperty(G.fun_call, "is", c(), G.detail_value)
+        NodePatternField(G.id, "is", c(), G.pattern),
+        NodePatternProperty(G.fun_call, "is", c(), G.pattern)
     ),
-
-    detail_value=Or(DetailPattern(G.pattern), DetailExpr(G.expr)),
 
     selector_call=SelectorCall(
         Identifier(Or(

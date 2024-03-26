@@ -33,6 +33,7 @@ class Token(LexerToken):
     Import = WithSymbol()
 
     Dot = WithText()
+    DotDotDot = WithText()
     QuestionDot = WithText()
     QuestionBrack = WithText()
     Question = WithText()
@@ -76,6 +77,7 @@ lkql_lexer = Lexer(Token)
 lkql_lexer.add_rules(
     (Pattern(r"[ \t\n\r]"),                       Token.Whitespace),
     (Literal("."),                                Token.Dot),
+    (Literal("..."),                              Token.DotDotDot),
     (Literal("?."),                               Token.QuestionDot),
     (Literal("?["),                               Token.QuestionBrack),
     (Literal("?"),                                Token.Question),

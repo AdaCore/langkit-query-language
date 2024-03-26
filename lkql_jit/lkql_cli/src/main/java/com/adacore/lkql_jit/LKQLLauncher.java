@@ -232,6 +232,8 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                         // Ignore
                     } catch (EndOfFileException e) {
                         return 12;
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
                     }
                 }
             }

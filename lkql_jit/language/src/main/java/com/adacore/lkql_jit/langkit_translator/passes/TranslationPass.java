@@ -50,11 +50,9 @@ import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListComprehensi
 import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
-import com.adacore.lkql_jit.nodes.expressions.match.MatchArmNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.value_read.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
-import com.adacore.lkql_jit.nodes.patterns.chained_patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
@@ -837,6 +835,51 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return new FilteredPattern(loc(filteredPattern), pattern, predicate);
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.BoolPatternFalse boolPatternFalse) {
+        return BoolPatternNodeGen.create(loc(boolPatternFalse), false);
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.BoolPatternTrue boolPatternTrue) {
+        return BoolPatternNodeGen.create(loc(boolPatternTrue), true);
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.IntegerPattern integerPattern) {
+        try {
+            return IntegerPatternNodeGen.create(
+                    loc(integerPattern), Integer.parseInt(integerPattern.getText()));
+        } catch (NumberFormatException e) {
+            throw LKQLRuntimeException.fromMessage(
+                    "Invalid number literal for pattern", loc(integerPattern));
+        }
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.ListPattern listPattern) {
+        // Get the patterns inside the list
+        final List<BasePattern> listPatterns = new ArrayList<>();
+        for (Liblkqllang.LkqlNode pattern : listPattern.fPatterns().children()) {
+            listPatterns.add((BasePattern) pattern.accept(this));
+        }
+
+        return ListPatternNodeGen.create(
+                loc(listPattern), listPatterns.toArray(new BasePattern[0]));
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.SplatPattern splatPattern) {
+        // Get the binding value name
+        final String name = splatPattern.fBinding().getText();
+
+        // Get the slot of the binding
+        this.scriptFrames.declareBinding(name);
+        final int slot = this.scriptFrames.getBinding(name);
+
+        return new SplatPattern(loc(splatPattern), slot);
+    }
+
     /**
      * Visit a binding pattern node.
      *
@@ -896,6 +939,35 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return new NullPattern(loc(nullPattern));
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.ObjectPattern objectPattern) {
+        // Get the association list and prepare the keys and values
+        final Liblkqllang.LkqlNodeList nodeList = objectPattern.fPatterns();
+        SplatPattern splat = null;
+        final int assocNumber = nodeList.getChildrenCount();
+        var keys = new ArrayList<String>();
+        var patterns = new ArrayList<BasePattern>();
+
+        // Iterate on the object associations and get keys and patterns
+        for (int i = 0; i < assocNumber; i++) {
+            final var assoc = nodeList.getChild(i);
+            if (assoc instanceof Liblkqllang.ObjectPatternAssoc objectPatternAssoc) {
+                patterns.add((BasePattern) objectPatternAssoc.fPattern().accept(this));
+                keys.add(objectPatternAssoc.fName().getText());
+            } else if (assoc instanceof Liblkqllang.SplatPattern splatPattern) {
+                splat = (SplatPattern) this.visit(splatPattern);
+            } else {
+                throw LKQLRuntimeException.shouldNotHappen("Invalid assoc in object pattern");
+            }
+        }
+
+        return ObjectPatternNodeGen.create(
+                loc(objectPattern),
+                patterns.toArray(new BasePattern[0]),
+                keys.toArray(new String[0]),
+                splat);
+    }
+
     /**
      * Visit a universal pattern node.
      *
@@ -921,7 +993,19 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         regex = regex.substring(1, regex.length() - 1);
 
         // Return the new regex pattern node
-        return new RegexPattern(loc(regexPattern), regex);
+        return RegexPatternNodeGen.create(loc(regexPattern), regex);
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.TuplePattern tuplePattern) {
+        // Get the sub-patterns inside the tuple pattern
+        final List<BasePattern> tuplePatterns = new ArrayList<>();
+        for (Liblkqllang.LkqlNode pattern : tuplePattern.fPatterns().children()) {
+            tuplePatterns.add((BasePattern) pattern.accept(this));
+        }
+
+        return TuplePatternNodeGen.create(
+                loc(tuplePattern), tuplePatterns.toArray(new BasePattern[0]));
     }
 
     /**
@@ -1053,6 +1137,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return null;
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.LkqlNodeList lkqlNodeList) {
+        return null;
+    }
+
     /**
      * Visit a list comprehension node.
      *
@@ -1117,6 +1206,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     }
 
     @Override
+    public LKQLNode visit(Liblkqllang.ObjectPatternAssoc objectPatternAssoc) {
+        return null;
+    }
+
+    @Override
     public LKQLNode visit(Liblkqllang.ObjectAssocList objectAssocList) {
         return null;
     }
@@ -1153,6 +1247,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     @Override
     public LKQLNode visit(Liblkqllang.AtObjectAssocList atObjectAssocList) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.BasePatternList basePatternList) {
         return null;
     }
 
@@ -1556,36 +1655,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     }
 
     /**
-     * Visit a detail expression node.
-     *
-     * @param detailExpr The detail expression node from Langkit.
-     * @return The detail expression node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.DetailExpr detailExpr) {
-        // Translate the detail expression fields
-        final Expr expr = (Expr) detailExpr.fExprValue().accept(this);
-
-        // Return the new detail expression node
-        return new DetailExpr(loc(detailExpr), expr);
-    }
-
-    /**
-     * Visit a detail pattern node.
-     *
-     * @param detailPattern The detail pattern node from Langkit
-     * @return The detail pattern node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.DetailPattern detailPattern) {
-        // Translate the detail pattern fields
-        final BasePattern pattern = (BasePattern) detailPattern.fPatternValue().accept(this);
-
-        // Return the new detail pattern node
-        return new DetailPattern(loc(detailPattern), pattern);
-    }
-
-    /**
      * Visit a node pattern field node.
      *
      * @param nodePatternField The node pattern field node from Langkit.
@@ -1595,7 +1664,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     public LKQLNode visit(Liblkqllang.NodePatternField nodePatternField) {
         // Translate the node pattern detail fields
         final String name = nodePatternField.fIdentifier().getText();
-        final DetailValue expected = (DetailValue) nodePatternField.fExpectedValue().accept(this);
+        final BasePattern expected = (BasePattern) nodePatternField.fExpectedValue().accept(this);
 
         // Return the new node pattern field detail
         return NodePatternFieldNodeGen.create(loc(nodePatternField), name, expected);
@@ -1612,8 +1681,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Translate the node pattern detail fields
         final String propertyName = nodePatternProperty.fCall().fName().getText();
         final ArgList argList = (ArgList) nodePatternProperty.fCall().fArguments().accept(this);
-        final DetailValue expected =
-                (DetailValue) nodePatternProperty.fExpectedValue().accept(this);
+        final BasePattern expected =
+                (BasePattern) nodePatternProperty.fExpectedValue().accept(this);
 
         // Return the new node pattern property detail
         return NodePatternPropertyNodeGen.create(
@@ -1672,93 +1741,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                 loc(extendedNodePattern), nodePattern, details.toArray(new NodePatternDetail[0]));
     }
 
-    // --- Chained node patterns
-
-    /**
-     * Visit a selector link node.
-     *
-     * @param selectorLink The selector link node from Langkit.
-     * @return The selector link node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.SelectorLink selectorLink) {
-        // Translate the selector link selector
-        final SelectorCall selectorCall = (SelectorCall) selectorLink.fSelector().accept(this);
-
-        // Enter the selector link frame
-        this.scriptFrames.enterFrame(selectorLink);
-
-        // Translate the selector link pattern
-        final BasePattern pattern = (BasePattern) selectorLink.fPattern().accept(this);
-
-        // Exit the selector link frame
-        this.scriptFrames.exitFrame();
-
-        // Return the new selector link node
-        return new SelectorLink(loc(selectorLink), pattern, selectorCall);
-    }
-
-    /**
-     * Visit a field link node.
-     *
-     * @param fieldLink The field link node from Langkit.
-     * @return The field link node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.FieldLink fieldLink) {
-        // Translate the field link fields
-        final BasePattern pattern = (BasePattern) fieldLink.fPattern().accept(this);
-        final String fieldName = fieldLink.fField().getText();
-
-        // Return the new field link node
-        return FieldLinkNodeGen.create(loc(fieldLink), pattern, fieldName);
-    }
-
-    /**
-     * Visit a property link node.
-     *
-     * @param propertyLink The property link node from Langkit.
-     * @return The property link node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.PropertyLink propertyLink) {
-        // Translate the property link fields
-        final BasePattern pattern = (BasePattern) propertyLink.fPattern().accept(this);
-        final String propertyName = propertyLink.fProperty().fName().getText();
-        final ArgList argList = (ArgList) propertyLink.fProperty().fArguments().accept(this);
-
-        // Return the new field link node
-        return PropertyLinkNodeGen.create(loc(propertyLink), pattern, propertyName, argList);
-    }
-
-    @Override
-    public LKQLNode visit(Liblkqllang.ChainedPatternLinkList chainedPatternLinkList) {
-        return null;
-    }
-
-    /**
-     * Visit a chained node pattern node.
-     *
-     * @param chainedNodePattern The chained node pattern node from Langkit.
-     * @return The chained node pattern node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.ChainedNodePattern chainedNodePattern) {
-        // Translate the chained node pattern fields
-        final BasePattern nodePattern =
-                (BasePattern) chainedNodePattern.fFirstPattern().accept(this);
-
-        // Get the chained pattern link list
-        final List<ChainedPatternLink> chain = new ArrayList<>();
-        for (Liblkqllang.LkqlNode node : chainedNodePattern.fChain().children()) {
-            chain.add((ChainedPatternLink) node.accept(this));
-        }
-
-        // Return the new chained node pattern node
-        return new ChainedNodePattern(
-                loc(chainedNodePattern), nodePattern, chain.toArray(new ChainedPatternLink[0]));
-    }
-
     // --- Pattern matching
 
     /**
@@ -1780,7 +1762,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         this.scriptFrames.exitFrame();
 
         // Return the new match arm
-        return MatchArmNodeGen.create(loc(matchArm), pattern, expr);
+        return new MatchArm(loc(matchArm), pattern, expr);
     }
 
     @Override

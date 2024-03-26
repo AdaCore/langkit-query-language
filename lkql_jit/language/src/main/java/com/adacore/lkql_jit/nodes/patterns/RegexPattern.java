@@ -26,6 +26,8 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLPattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**
@@ -33,7 +35,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class RegexPattern extends ValuePattern {
+public abstract class RegexPattern extends ValuePattern {
 
     // ----- Attributes -----
 
@@ -53,26 +55,19 @@ public final class RegexPattern extends ValuePattern {
         this.pattern = new LKQLPattern(this, regex, true);
     }
 
-    // ----- Execution methods -----
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.libadalang.Libadalang.AdaNode)
-     */
-    @Override
-    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return this.pattern.contains(node.getText()) && node != LKQLNull.INSTANCE;
+    @Specialization
+    public boolean onAdaNode(VirtualFrame frame, Libadalang.AdaNode node) {
+        return node != LKQLNull.INSTANCE && this.pattern.contains(node.getText());
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame,
-     *     String)
-     */
-    @Override
-    public boolean executeString(VirtualFrame frame, String str) {
-        return pattern.contains(str);
+    @Specialization
+    public boolean onString(VirtualFrame frame, String value) {
+        return pattern.contains(value);
+    }
+
+    @Fallback
+    public boolean onOther(VirtualFrame frame, Object other) {
+        return false;
     }
 
     // ----- Override methods -----

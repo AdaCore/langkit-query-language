@@ -26,61 +26,57 @@ FunDecl
 |  |  |f_query_kind:
 |  |  |  QueryKindAll
 |  |  |f_pattern:
-|  |  |  ChainedNodePattern
-|  |  |  |f_first_pattern:
-|  |  |  |  ExtendedNodePattern
-|  |  |  |  |f_node_pattern:
-|  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  Identifier: CompilationUnit
-|  |  |  |  |f_details:
-|  |  |  |  |  NodePatternDetailList
-|  |  |  |  |  |  NodePatternSelector
-|  |  |  |  |  |  |f_call:
-|  |  |  |  |  |  |  SelectorCall
-|  |  |  |  |  |  |  |f_quantifier:
-|  |  |  |  |  |  |  |  Identifier: any
-|  |  |  |  |  |  |  |f_binding:
-|  |  |  |  |  |  |  |  Identifier: c
-|  |  |  |  |  |  |  |f_selector_call:
-|  |  |  |  |  |  |  |  Identifier: children
-|  |  |  |  |  |  |f_pattern:
-|  |  |  |  |  |  |  ExtendedNodePattern
-|  |  |  |  |  |  |  |f_node_pattern:
-|  |  |  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  |  |  Identifier: Identifier
-|  |  |  |  |  |  |  |f_details:
-|  |  |  |  |  |  |  |  NodePatternDetailList
-|  |  |  |  |  |  |  |  |  NodePatternSelector
-|  |  |  |  |  |  |  |  |  |f_call:
-|  |  |  |  |  |  |  |  |  |  SelectorCall
-|  |  |  |  |  |  |  |  |  |  |f_quantifier:
-|  |  |  |  |  |  |  |  |  |  |  Identifier: any
-|  |  |  |  |  |  |  |  |  |  |f_binding: <null>
-|  |  |  |  |  |  |  |  |  |  |f_selector_call:
-|  |  |  |  |  |  |  |  |  |  |  FunCall
-|  |  |  |  |  |  |  |  |  |  |  |f_name:
-|  |  |  |  |  |  |  |  |  |  |  |  Identifier: parent
-|  |  |  |  |  |  |  |  |  |  |  |f_has_safe:
-|  |  |  |  |  |  |  |  |  |  |  |  SafeAbsent
-|  |  |  |  |  |  |  |  |  |  |  |f_arguments:
-|  |  |  |  |  |  |  |  |  |  |  |  ArgList
-|  |  |  |  |  |  |  |  |  |  |  |  |  NamedArg
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_arg_name:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: depth
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_value_expr:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  IntegerLiteral: 2
-|  |  |  |  |  |  |  |  |  |f_pattern:
-|  |  |  |  |  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  |  |  |  |  Identifier: WithClause
-|  |  |  |f_chain:
-|  |  |  |  ChainedPatternLinkList
-|  |  |  |  |  FieldLink
-|  |  |  |  |  |f_field:
-|  |  |  |  |  |  Identifier: f_body
+|  |  |  ExtendedNodePattern
+|  |  |  |f_node_pattern:
+|  |  |  |  NodeKindPattern
+|  |  |  |  |f_kind_name:
+|  |  |  |  |  Identifier: CompilationUnit
+|  |  |  |f_details:
+|  |  |  |  NodePatternDetailList
+|  |  |  |  |  NodePatternSelector
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  SelectorCall
+|  |  |  |  |  |  |f_quantifier:
+|  |  |  |  |  |  |  Identifier: any
+|  |  |  |  |  |  |f_binding:
+|  |  |  |  |  |  |  Identifier: c
+|  |  |  |  |  |  |f_selector_call:
+|  |  |  |  |  |  |  Identifier: children
 |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  ExtendedNodePattern
+|  |  |  |  |  |  |f_node_pattern:
+|  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  Identifier: Identifier
+|  |  |  |  |  |  |f_details:
+|  |  |  |  |  |  |  NodePatternDetailList
+|  |  |  |  |  |  |  |  NodePatternSelector
+|  |  |  |  |  |  |  |  |f_call:
+|  |  |  |  |  |  |  |  |  SelectorCall
+|  |  |  |  |  |  |  |  |  |f_quantifier:
+|  |  |  |  |  |  |  |  |  |  Identifier: any
+|  |  |  |  |  |  |  |  |  |f_binding: <null>
+|  |  |  |  |  |  |  |  |  |f_selector_call:
+|  |  |  |  |  |  |  |  |  |  FunCall
+|  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  Identifier: parent
+|  |  |  |  |  |  |  |  |  |  |f_has_safe:
+|  |  |  |  |  |  |  |  |  |  |  SafeAbsent
+|  |  |  |  |  |  |  |  |  |  |f_arguments:
+|  |  |  |  |  |  |  |  |  |  |  ArgList
+|  |  |  |  |  |  |  |  |  |  |  |  NamedArg
+|  |  |  |  |  |  |  |  |  |  |  |  |f_arg_name:
+|  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: depth
+|  |  |  |  |  |  |  |  |  |  |  |  |f_value_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  IntegerLiteral: 2
+|  |  |  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  |  |  Identifier: WithClause
+|  |  |  |  |  NodePatternField
+|  |  |  |  |  |f_identifier:
+|  |  |  |  |  |  Identifier: f_body
+|  |  |  |  |  |f_expected_value:
 |  |  |  |  |  |  FilteredPattern
 |  |  |  |  |  |  |f_pattern:
 |  |  |  |  |  |  |  BindingPattern

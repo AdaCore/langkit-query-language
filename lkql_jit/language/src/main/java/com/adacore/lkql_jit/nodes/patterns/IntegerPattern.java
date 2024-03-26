@@ -20,62 +20,35 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
+package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.nodes.patterns.SelectorCall;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-/**
- * This node represents a selector in a chained pattern.
- *
- * @author Hugo GUERRIER
- */
-public final class SelectorLink extends ChainedPatternLink {
+public abstract class IntegerPattern extends ValuePattern {
 
-    // ----- Children -----
+    private final long toMatch;
 
-    /** The selector call to perform during link execution. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private SelectorCall selectorCall;
-
-    // ----- Constructors -----
-
-    /**
-     * Create a new selector link node.
-     *
-     * @param location The location of the node in the source.
-     * @param pattern The pattern to verify.
-     * @param selectorCall The selector call.
-     */
-    public SelectorLink(SourceLocation location, BasePattern pattern, SelectorCall selectorCall) {
-        super(location, pattern);
-        this.selectorCall = selectorCall;
+    public IntegerPattern(SourceLocation loc, long toMatch) {
+        super(loc);
+        this.toMatch = toMatch;
     }
 
-    // ----- Execution methods -----
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedPatternLink#executeLink(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.libadalang.Libadalang.AdaNode)
-     */
-    @Override
-    public Libadalang.AdaNode[] executeLink(VirtualFrame frame, Libadalang.AdaNode node) {
-        return (Libadalang.AdaNode[])
-                this.selectorCall.executeFiltering(frame, node, this.pattern).getContent();
+    @Specialization
+    public boolean onInt(VirtualFrame frame, long val) {
+        return val == toMatch;
     }
 
-    // ----- Override methods -----
+    @Fallback
+    public boolean onOther(VirtualFrame frame, Object other) {
+        return false;
+    }
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(indentLevel);
+        return this.nodeRepresentation(
+                indentLevel, new String[] {"toMatch"}, new Object[] {this.toMatch});
     }
 }

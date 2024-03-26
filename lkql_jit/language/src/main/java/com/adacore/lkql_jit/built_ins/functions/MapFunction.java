@@ -94,7 +94,7 @@ public final class MapFunction {
                         this.callNode.getArgList().getArgs()[1]);
             }
 
-            // Verify the function arrity
+            // Verify the function arity
             if (mapFunction.parameterNames.length != 1) {
                 throw LKQLRuntimeException.fromMessage(
                         "Function passed to map should have arity of one",

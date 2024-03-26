@@ -1,0 +1,9 @@
+[1, 2, 3] matches [1, 2, 3]
+[1, 8, 3] matches [1, a@*, 3], with a = 8
+[11, 12, 80] matches [11, 12, ...]
+[11, 12, 80, 81, 82] matches [11, 12, ...]
+[11, 12] matches [11, 12, ...]
+[1, 20, 21, 22] matches [1, b@*, c@...] with b = 20 & c = [21, 22]
+[] matches [...]
+["lol"] matches [...]
+{} matches *

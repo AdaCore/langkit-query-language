@@ -20,46 +20,36 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.patterns.node_patterns;
+package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-/**
- * This node represents the detail value in an extended node pattern in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public abstract class DetailValue extends LKQLNode {
+/** Pattern to match a boolean value */
+public abstract class BoolPattern extends ValuePattern {
 
-    /**
-     * Create a new detail value.
-     *
-     * @param location The location of the node in the source.
-     */
-    protected DetailValue(SourceLocation location) {
+    private final boolean toMatch;
+
+    protected BoolPattern(SourceLocation location, boolean toMatch) {
         super(location);
+        this.toMatch = toMatch;
     }
 
-    // ----- Execution methods -----
+    @Specialization
+    public boolean onBool(VirtualFrame frame, boolean val) {
+        return val == toMatch;
+    }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
+    @Fallback
+    public boolean onOther(VirtualFrame frame, Object other) {
+        return false;
+    }
+
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+    public String toString(int indentLevel) {
+        return this.nodeRepresentation(
+                indentLevel, new String[] {"toMatch"}, new Object[] {this.toMatch});
     }
-
-    /**
-     * Execute the detail value to verify if it's valid.
-     *
-     * @param frame The frame to execute in.
-     * @param value The value to verify.
-     * @return True of the value is valid, false else.
-     */
-    public abstract boolean executeDetailValue(VirtualFrame frame, Object value);
 }

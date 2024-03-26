@@ -22,8 +22,10 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -63,21 +65,26 @@ public final class ExtendedNodePattern extends NodePattern {
     // ----- Execution methods -----
 
     /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.libadalang.Libadalang.AdaNode)
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeValue(VirtualFrame, Object)
      */
     @Override
-    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean executeValue(VirtualFrame frame, Object value) {
         // Test the base pattern
-        if (this.basePattern.executeNode(frame, node)) {
-            // Verify all details
-            for (NodePatternDetail detail : this.details) {
-                if (!detail.executeDetail(frame, node)) return false;
-            }
+        if (this.basePattern.executeValue(frame, value)) {
+            if (LKQLTypeSystemGen.isAdaNode(value)) {
+                var node = LKQLTypeSystemGen.asAdaNode(value);
 
-            // Return the success
-            return true;
+                // Verify all details
+                for (NodePatternDetail detail : this.details) {
+                    if (!detail.executeDetail(frame, node)) return false;
+                }
+
+                // Return the success
+                return true;
+            } else {
+                throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(value), this);
+            }
         }
 
         // Return the failure

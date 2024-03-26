@@ -445,21 +445,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a selector link.
-     *
-     * @param selectorLink The Langkit selector link node.
-     * @return Nothing.
-     */
-    @Override
-    public Void visit(Liblkqllang.SelectorLink selectorLink) {
-        selectorLink.fSelector().accept(this);
-        this.scriptFramesBuilder.openVirtualFrame(selectorLink);
-        selectorLink.fPattern().accept(this);
-        this.scriptFramesBuilder.closeFrame();
-        return null;
-    }
-
     // --- Non frame-changing nodes
 
     @Override
@@ -727,8 +712,44 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
+    public Void visit(Liblkqllang.BoolPatternFalse boolPatternFalse) {
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.BoolPatternTrue boolPatternTrue) {
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.IntegerPattern integerPattern) {
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.ListPattern listPattern) {
+        traverseChildren(listPattern);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.SplatPattern splatPattern) {
+        if (splatPattern.fBinding() != null) {
+            final String symbol = splatPattern.fBinding().getText();
+            this.scriptFramesBuilder.addBinding(symbol);
+        }
+        return null;
+    }
+
+    @Override
     public Void visit(Liblkqllang.NullPattern nullPattern) {
         traverseChildren(nullPattern);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.ObjectPattern objectPattern) {
+        traverseChildren(objectPattern);
         return null;
     }
 
@@ -741,6 +762,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.RegexPattern regexPattern) {
         traverseChildren(regexPattern);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.TuplePattern tuplePattern) {
+        traverseChildren(tuplePattern);
         return null;
     }
 
@@ -787,6 +814,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
+    public Void visit(Liblkqllang.LkqlNodeList lkqlNodeList) {
+        traverseChildren(lkqlNodeList);
+        return null;
+    }
+
+    @Override
     public Void visit(Liblkqllang.ListLiteral listLiteral) {
         traverseChildren(listLiteral);
         return null;
@@ -805,6 +838,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
+    public Void visit(Liblkqllang.ObjectPatternAssoc objectPatternAssoc) {
+        traverseChildren(objectPatternAssoc);
+        return null;
+    }
+
+    @Override
     public Void visit(Liblkqllang.AtObjectAssoc atObjectAssoc) {
         traverseChildren(atObjectAssoc);
         return null;
@@ -813,6 +852,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.AtObjectAssocList atObjectAssocList) {
         traverseChildren(atObjectAssocList);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.BasePatternList basePatternList) {
+        traverseChildren(basePatternList);
         return null;
     }
 
@@ -907,18 +952,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
-    public Void visit(Liblkqllang.DetailExpr detailExpr) {
-        traverseChildren(detailExpr);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.DetailPattern detailPattern) {
-        traverseChildren(detailPattern);
-        return null;
-    }
-
-    @Override
     public Void visit(Liblkqllang.NodePatternDetailList nodePatternDetailList) {
         traverseChildren(nodePatternDetailList);
         return null;
@@ -939,30 +972,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.ExtendedNodePattern extendedNodePattern) {
         traverseChildren(extendedNodePattern);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.ChainedPatternLinkList chainedPatternLinkList) {
-        traverseChildren(chainedPatternLinkList);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.FieldLink fieldLink) {
-        traverseChildren(fieldLink);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.PropertyLink propertyLink) {
-        traverseChildren(propertyLink);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.ChainedNodePattern chainedNodePattern) {
-        traverseChildren(chainedNodePattern);
         return null;
     }
 
