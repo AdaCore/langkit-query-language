@@ -1,16 +1,23 @@
 # Flag each occurrence of list of statements that can be moved outside
-# an enclosing if statement. This happens when the if statement has only then
-# and else paths, and one of them only ends with a "breaking" statement
-# (raise, return, exit or goto, possibly nested in a block with no exception
-# handler); in this case, the other path needs not be nested inside the if
-# statement and is flagged.
+# an enclosing `IF` statement. This happens when the if statement has only then
+# and else paths, and:
+#  - only one of them ends with a breaking statement, then the other path needs
+#    not be nested in the `IF` statement
+#  - both of them end with a breaking statement of different kinds, then the
+#    else path can be moved outside the `IF` statement
+#
+# A breaking statement can be a `raise`, a `return`, an unconditional `exit`
+# or a `goto`, possibly nested in a block with no exception handler.
 
-fun has_last_breaking_stmt(list) =
+fun last_breaking_stmt(list) =
+    |" Get the last statement of the given list if it is a breaking one,
+    |" else null is returned.
     match list[list.children_count]
-    | (RaiseStmt | ReturnStmt | ExitStmt(f_cond_expr: null) | GotoStmt) => true
-    | b@BlockStmt => b.f_stmts.f_exceptions[1] == null and
-                     has_last_breaking_stmt(b.f_stmts.f_stmts)
-    | *           => false
+    | b@(RaiseStmt | ReturnStmt | ExitStmt(f_cond_expr: null) | GotoStmt) => b
+    | b@BlockStmt => if b.f_stmts.f_exceptions[1] == null
+                     then last_breaking_stmt(b.f_stmts.f_stmts)
+                     else null
+    | *           => null
 
 @check(message="nested path may be moved outside if statement",
        category="Style", subcategory="Programming Practice")
@@ -18,7 +25,14 @@ fun nested_paths(node) =
     node is StmtList(parent: if_stmt@IfStmt)
      when if_stmt.f_alternatives[1] == null
       and if_stmt.f_else_stmts[1] != null
-      and not has_last_breaking_stmt(node)
-      and has_last_breaking_stmt(if if_stmt.f_then_stmts == node
-                                 then if_stmt.f_else_stmts
-                                 else if_stmt.f_then_stmts)
+      and {
+          # Get the breaking statements of the current node and the other path
+          val self_bs = last_breaking_stmt(node);
+          val other_bs = last_breaking_stmt(if if_stmt.f_then_stmts == node
+                                            then if_stmt.f_else_stmts
+                                            else if_stmt.f_then_stmts);
+
+          if self_bs and other_bs
+          then node == if_stmt.f_else_stmts and not self_bs.kind == other_bs.kind
+          else not self_bs and other_bs
+      }

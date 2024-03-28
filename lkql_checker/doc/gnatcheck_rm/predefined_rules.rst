@@ -3281,6 +3281,12 @@ flagged if:
   This sequence of statements does not end with a breaking statement but
   the sequence of statement in another path does end with a breaking statement.
 
+  **OR**
+
+  This sequence of statements is in the ``ELSE`` path, ends with a breaking
+  statement, and the ``IF`` path also ends with a breaking statement with a
+  different kind from the breaking statement in the ``ELSE`` path.
+
 A breaking statement is either a raise statement, or a return statement,
 or an unconditional exit statement, or a goto statement or a block
 statement without an exception handler with the enclosed sequence of
@@ -3291,7 +3297,7 @@ This rule has no parameters.
 .. rubric:: Example
 
 .. code-block:: ada
-   :emphasize-lines: 3
+   :emphasize-lines: 3, 20
 
    loop
       if I > K then
@@ -3302,6 +3308,18 @@ This rule has no parameters.
          exit;
       end if;
    end loop;
+
+   if Condition then
+      return 1;        --  NOFLAG
+   else
+      return 2;        --  NOFLAG
+   end if;
+
+   if Condition then
+      return 1;
+   else
+      goto <<label>>;  --  FLAG
+   end if;
 
 
 

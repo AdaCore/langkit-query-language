@@ -10,7 +10,7 @@ begin
    if Cond then
       raise Constraint_Error;   --  NOFLAG
    else
-      return;                   --  NOFLAG
+      return;                   --  FLAG
    end if;
 
    if Cond then
@@ -50,7 +50,7 @@ begin
          raise Constraint_Error;
       end;
    else
-      return;
+      return;                      -- FLAG
    end if;
 
    if Cond then
@@ -69,7 +69,7 @@ begin
          raise Constraint_Error;
       end;
    else
-      return;
+      return;                      --  FLAG
    end if;
 
    if Cond then
@@ -80,17 +80,52 @@ begin
          end;
       end;
    else
-      return;
+      return;                      --  FLAG
    end if;
 
    if Cond then
       begin
          raise Constraint_Error;
       exception
-         when Constraint_Error =>
-            null;
+         when Constraint_Error => null;
       end;
    else
       I := I + 1;                  --  NOFLAG
    end if;
+
+   if Cond then
+      return 1;  --  NOFLAG
+   else
+      return 2;  --  NOFLAG
+   end if;
+
+   if Cond then
+      return 1;
+   else
+      exit;      --  FLAG
+   end if;
+
+   if Cond then
+      goto lbl;
+   else
+      return 2;  --  FLAG
+   end if;
+
+   if Cond then
+      begin         --  NOFLAG
+         return 1;
+      end;
+   else
+      return 2;     --  NOFLAG
+   end if;
+
+   if Cond then
+      return 1;
+   else
+      begin  --  FLAG
+         exit;
+      end;
+   end if;
+
+   <<lbl>>
 end Paths;
