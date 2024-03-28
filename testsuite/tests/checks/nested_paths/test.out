@@ -2,6 +2,10 @@ paths.adb:7:7: rule violation: nested path may be moved outside if statement
 7 |       null;   --  FLAG
   |       ^^^^^
 
+paths.adb:13:7: rule violation: nested path may be moved outside if statement
+13 |       return;                   --  FLAG
+   |       ^^^^^^^
+
 paths.adb:19:7: rule violation: nested path may be moved outside if statement
 19 |       I := 1;       --  FLAG
    |       ^^^^^^^
@@ -18,6 +22,10 @@ paths.adb:44:10: rule violation: nested path may be moved outside if statement
 44 |          exit when Cond;   --  FLAG
    |          ^^^^^^^^^^^^^^^
 
+paths.adb:53:7: rule violation: nested path may be moved outside if statement
+53 |       return;                      -- FLAG
+   |       ^^^^^^^
+
 paths.adb:57:7: rule violation: nested path may be moved outside if statement
 57 |        begin                        --  FLAG
    | _______^
@@ -26,4 +34,29 @@ paths.adb:57:7: rule violation: nested path may be moved outside if statement
    ||
 61 ||       end;
    ||__________^
+
+paths.adb:72:7: rule violation: nested path may be moved outside if statement
+72 |       return;                      --  FLAG
+   |       ^^^^^^^
+
+paths.adb:83:7: rule violation: nested path may be moved outside if statement
+83 |       return;                      --  FLAG
+   |       ^^^^^^^
+
+paths.adb:105:7: rule violation: nested path may be moved outside if statement
+105 |       exit;      --  FLAG
+    |       ^^^^^
+
+paths.adb:111:7: rule violation: nested path may be moved outside if statement
+111 |       return 2;  --  FLAG
+    |       ^^^^^^^^^
+
+paths.adb:125:7: rule violation: nested path may be moved outside if statement
+125 |        begin  --  FLAG
+    | _______^
+    ||
+    || ~~~ 1 other lines ~~~
+    ||
+127 ||       end;
+    ||__________^
 
