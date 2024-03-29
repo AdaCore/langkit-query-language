@@ -29,14 +29,14 @@ with Rules_Factory; use Rules_Factory;
 
 package Gnatcheck.Options is
 
-   Gnatcheck_Version : constant String := "23.0w";
+   Gnatcheck_Version : constant String := "25.0w";
    --  Full major.minor version for Gnatcheck
 
    Date : constant String := "unknown date";
 
-   Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
+   Current_Year : constant String := "2024";
 
-   Current_Year : constant String := "2022";
+   Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
 
    Executable : constant String := Base_Name (Command_Name);
    --  Name of the current executable (e.g. "gnatcheck" or "gnatkp")
