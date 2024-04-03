@@ -277,12 +277,8 @@ public final class LKQLTypesHelper {
             Object[] values = {
                 aspect.exists,
                 aspect.inherited,
-                aspect.node.node.isNull()
-                        ? LKQLNull.INSTANCE
-                        : Libadalang.AdaNode.fromEntity(aspect.node),
-                aspect.value.node.isNull()
-                        ? LKQLNull.INSTANCE
-                        : Libadalang.AdaNode.fromEntity(aspect.value)
+                aspect.node.isNone() ? LKQLNull.INSTANCE : aspect.node,
+                aspect.value.isNone() ? LKQLNull.INSTANCE : aspect.value
             };
             return LKQLObject.createUncached(keys, values);
         }
@@ -292,9 +288,7 @@ public final class LKQLTypesHelper {
             String[] keys = {"kind", "ref"};
             Object[] values = {
                 toLKQLValue(refResultStruct.kind),
-                refResultStruct.ref.node.isNull()
-                        ? LKQLNull.INSTANCE
-                        : Libadalang.AdaNode.fromEntity(refResultStruct.ref)
+                refResultStruct.ref.isNone() ? LKQLNull.INSTANCE : refResultStruct.ref
             };
             return LKQLObject.createUncached(keys, values);
         }
@@ -302,10 +296,7 @@ public final class LKQLTypesHelper {
         // If the source is a parameter-actual structure
         else if (javaValue instanceof Libadalang.ParamActual paramActual) {
             String[] keys = {"actual", "param"};
-            Object[] values = {
-                Libadalang.AdaNode.fromEntity(paramActual.actual),
-                Libadalang.AdaNode.fromEntity(paramActual.param)
-            };
+            Object[] values = {paramActual.actual, paramActual.param};
             return LKQLObject.createUncached(keys, values);
         }
 
