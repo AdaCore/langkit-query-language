@@ -11,7 +11,9 @@ from typing import TextIO, Callable
 
 from e3.fs import mkdir, rm
 from e3.testsuite import Testsuite, logger, TestsuiteCore
-from e3.testsuite.testcase_finder import ProbingError, YAMLTestFinder, TestFinderResult
+from e3.testsuite.testcase_finder import (
+    ProbingError, TestFinder, YAMLTestFinder, TestFinderResult
+)
 
 from drivers import (
     checker_driver, gnatcheck_driver, interpreter_driver, parser_driver, java_driver,
@@ -123,7 +125,8 @@ class LKQLTestsuite(Testsuite):
             '--perf-mode',
             help='Run the testsuite in performance mode: only run tests with'
                  ' instructions to measure performance. The argument is the'
-                 ' directory in which to put profile data files.'
+                 ' directory in which to put profile data files.',
+            dest='perf_output_dir'
         )
         parser.add_argument(
             '--perf-no-profile',
@@ -134,7 +137,7 @@ class LKQLTestsuite(Testsuite):
         )
 
     @property
-    def test_finders(self) -> list[YAMLTestFinder]:
+    def test_finders(self) -> list[TestFinder]:
         return [
             PerfTestFinder()
             if self.env.perf_mode else
@@ -146,7 +149,7 @@ class LKQLTestsuite(Testsuite):
         self.env.rewrite_baselines = self.env.options.rewrite
 
         # Perf mode is incompatible with some other modes
-        if self.env.options.perf_mode:
+        if self.env.options.perf_output_dir:
             if self.env.options.coverage:
                 logger.error(f"--perf-mode incompatible with --coverage")
                 raise RuntimeError
@@ -166,7 +169,7 @@ class LKQLTestsuite(Testsuite):
         # If the performance mode is enabled, verify that the user has checked
         # out the common-testsuite-sources in the "ada_projects" directory.
         # Additionally add the internal sources to the GPR project path.
-        if self.env.options.perf_mode:
+        if self.env.options.perf_output_dir:
             common_sources = P.join(
                 self.root_dir,
                 "ada_projects",
@@ -218,8 +221,8 @@ class LKQLTestsuite(Testsuite):
 
         # If requested, enable the performance mode and ensure that the output
         # profile data exists.
-        if self.env.options.perf_mode:
-            perf_dir = P.abspath(self.env.options.perf_mode)
+        if self.env.options.perf_output_dir:
+            perf_dir = P.abspath(self.env.options.perf_output_dir)
             if not P.isdir(perf_dir):
                 os.makedirs(perf_dir)
 
@@ -272,7 +275,7 @@ class LKQLTestsuite(Testsuite):
             return "{:.2f}s".format(seconds)
 
         def format_memory(bytes_count: int) -> str:
-            units = ["B", "KB", "MB", "GB"]
+            units = ["KB", "MB", "GB"]
             unit = units.pop(0)
             while units and bytes_count > 1000:
                 unit = units.pop(0)
@@ -292,6 +295,7 @@ class LKQLTestsuite(Testsuite):
 
         # Define the function to display the statistics of the ``time`` output
         def print_time_stats(entry):
+            print(f"--- {test_name} (run {entry.info['run_count']} time(s))", file=output_file)
             print(
                 f"    time:"
                 f" {compute_stats(entry.info['time'], float, format_time)}",

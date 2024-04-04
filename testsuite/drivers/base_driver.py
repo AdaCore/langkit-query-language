@@ -245,6 +245,7 @@ class BaseDriver(DiffTestDriver):
                     memory, time = result.split()[-2:]
                     times.append(time)
                     memories.append(memory)
+                self.result.info["run_count"] = param
                 self.result.info["time"] = " ".join(times)
                 self.result.info["memory"] = " ".join(memories)
 

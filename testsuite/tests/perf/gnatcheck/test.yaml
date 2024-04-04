@@ -1,0 +1,9 @@
+driver: gnatcheck
+project: gnatcoll.gpr
+rules:
+  - +ALL
+timeout: 1200
+
+perf:
+  default: 1
+  profile-time: false
