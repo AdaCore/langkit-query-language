@@ -94,13 +94,13 @@ package body Gnatcheck.Compiler is
 
    type Restriction_State is record
       Active : Boolean;
-      Param  : String_List_Access;
+      Param  : String_Vector;
    end record;
    --  We can not use Option_Parameter here, because some restrictions (e.g.
    --  Max_Task_Entries) may be active and may have zero parameter
 
    Restriction_Setting : array (All_Restrictions) of Restriction_State :=
-     [others => (False, null)];
+     [others => (False, String_Vectors.Empty_Vector)];
    --  This array represents only restrictions that are values of
    --  System.Rident.Restriction_Id. But we need to process restrictions that
    --  are not included in values of this type.
@@ -594,11 +594,11 @@ package body Gnatcheck.Compiler is
             if R in All_Boolean_Restrictions then
                Add_Line ("pragma Restriction_Warnings (" & R'Img & ");");
             else
-               for J in Restriction_Setting (R).Param'Range loop
+               for J in Restriction_Setting (R).Param.Iterate loop
                   Append (Contents, "pragma Restriction_Warnings (");
                   Append (Contents, R'Img);
                   Append (Contents,
-                          " =>"  & Restriction_Setting (R).Param (J).all);
+                          " =>"  & Restriction_Setting (R).Param (J));
                   Add_Line (");");
                end loop;
             end if;
@@ -871,9 +871,9 @@ package body Gnatcheck.Compiler is
             if R in All_Boolean_Restrictions then
                Report (To_Mixed (R'Img), Ident_Level);
             else
-               for J in Restriction_Setting (R).Param'Range loop
+               for J in Restriction_Setting (R).Param.Iterate loop
                   Report_No_EOL (To_Mixed (R'Img), Ident_Level);
-                  Report (" =>"  & Restriction_Setting (R).Param (J).all);
+                  Report (" =>"  & Restriction_Setting (R).Param (J));
                end loop;
             end if;
          end if;
@@ -929,10 +929,10 @@ package body Gnatcheck.Compiler is
             if R in All_Boolean_Restrictions then
                Put_Line (Rule_File, "+RRestrictions : " & To_Mixed (R'Img));
             else
-               for J in Restriction_Setting (R).Param'Range loop
+               for J in Restriction_Setting (R).Param.Iterate loop
                   Put (Rule_File, "+RRestrictions : " & To_Mixed (R'Img));
                   Put_Line (Rule_File,
-                            " =>"  & Restriction_Setting (R).Param (J).all);
+                            " =>"  & Restriction_Setting (R).Param (J));
                end loop;
             end if;
          end if;
@@ -1110,11 +1110,10 @@ package body Gnatcheck.Compiler is
                     Option_Parameter'Value
                       (Trim (Param (Last_Idx .. Param'Last), Both));
 
-                  if Restriction_Setting (R_Id).Param /= null
-                    and then
-                     Gnatcheck.Options.Check_Param_Redefinition
+                  if not Restriction_Setting (R_Id).Param.Is_Empty
+                    and then Gnatcheck.Options.Check_Param_Redefinition
                   then
-                     Free (Restriction_Setting (R_Id).Param);
+                     Restriction_Setting (R_Id).Param.Clear;
                      Last_Idx := Index (Param, "=", Backward) - 1;
 
                      for J in reverse First_Idx .. Last_Idx loop
@@ -1130,8 +1129,7 @@ package body Gnatcheck.Compiler is
                      Rule_Option_Problem_Detected := True;
                   end if;
 
-                  Restriction_Setting (R_Id).Param  :=
-                    new String_List'(1 => new String'(R_Val'Img));
+                  Restriction_Setting (R_Id).Param.Append (R_Val'Img);
                exception
                   when Constraint_Error =>
                      Error ("wrong restriction parameter expression in " &
@@ -1144,22 +1142,8 @@ package body Gnatcheck.Compiler is
                --  No check is made for the moment for non-integer restriction
                --  parameters:
 
-               if Restriction_Setting (R_Id).Param = null then
-                  Restriction_Setting (R_Id).Param  :=
-                    new String_List'(1 => new String'
-                      (Trim (Param (Last_Idx .. Param'Last), Both)));
-
-               else
-                  declare
-                     Tmp : constant String_List :=
-                       Restriction_Setting (R_Id).Param.all &
-                       new String'(Trim
-                         (Param (Last_Idx .. Param'Last), Both));
-                  begin
-                     Restriction_Setting (R_Id).Param :=
-                       new String_List'(Tmp);
-                  end;
-               end if;
+               Restriction_Setting (R_Id).Param.Append
+                 (Trim (Param (Last_Idx .. Param'Last), Both));
             end if;
          end if;
 
@@ -1274,7 +1258,7 @@ package body Gnatcheck.Compiler is
    begin
       for J in Restriction_Setting'Range loop
          Restriction_Setting (J).Active := False;
-         Free (Restriction_Setting (J).Param);
+         Restriction_Setting (J).Param.Clear;
       end loop;
 
       for J in Special_Restriction_Setting'Range loop
@@ -1862,10 +1846,10 @@ package body Gnatcheck.Compiler is
                  ("<parameter>" & To_Mixed (R'Img) & "</parameter>",
                   Indent_Level + 1);
             else
-               for J in Restriction_Setting (R).Param'Range loop
+               for J in Restriction_Setting (R).Param.Iterate loop
                   XML_Report
                     ("<parameter>" & To_Mixed (R'Img) &
-                     "=>"  & Restriction_Setting (R).Param (J).all &
+                     "=>"  & Restriction_Setting (R).Param (J) &
                      "</parameter>",
                      Indent_Level + 1);
                end loop;
