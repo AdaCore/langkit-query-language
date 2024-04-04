@@ -50,10 +50,11 @@ public final class NodeKindPattern extends NodePattern {
      */
     public NodeKindPattern(SourceLocation location, String kindName) {
         super(location);
-        this.nodeClazz = Libadalang.NODE_CLASS_MAP.get(kindName);
-        if (this.nodeClazz == null) {
+        final var description = Libadalang.NODE_DESCRIPTION_MAP.get(kindName);
+        if (description == null) {
             throw LKQLRuntimeException.invalidKindName(this);
         }
+        this.nodeClazz = description.clazz;
     }
 
     // ----- Execution methods -----
