@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.built_ins.functions;
+package com.adacore.lkql_jit.checker.built_ins;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
@@ -15,13 +15,13 @@ import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
+import com.adacore.lkql_jit.checker.UnitChecker;
+import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.checkers.UnitChecker;
-import com.adacore.lkql_jit.utils.functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;

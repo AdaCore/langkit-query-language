@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.utils.checkers;
+package com.adacore.lkql_jit.checker;
 
 import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 

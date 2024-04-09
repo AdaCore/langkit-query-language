@@ -3,11 +3,13 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.utils.functions;
+package com.adacore.lkql_jit.checker.utils;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.utils.functions.FileUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import org.graalvm.collections.EconomicMap;
 

@@ -3,15 +3,15 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.utils.functions;
+package com.adacore.lkql_jit.checker.utils;
 
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
+import com.adacore.lkql_jit.checker.LKQLConfigFileResult;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.LKQLConfigFileResult;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.source.Source;
