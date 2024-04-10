@@ -10,7 +10,7 @@
         <version>0.1.0</version>
     </parent>
 
-    <artifactId>lkql_cli</artifactId>
+    <artifactId>cli</artifactId>
 
     <build>
         <plugins>
