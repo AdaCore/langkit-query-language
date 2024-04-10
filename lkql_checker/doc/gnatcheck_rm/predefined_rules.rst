@@ -6824,7 +6824,7 @@ This rule has no parameters.
 .. _At_Representation_Clauses:
 
 ``At_Representation_Clauses``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 .. index:: At_Representation_Clauses
 
