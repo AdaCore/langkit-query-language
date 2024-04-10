@@ -37,7 +37,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         @CommandLine.Spec public picocli.CommandLine.Model.CommandSpec spec;
 
         @CommandLine.Parameters(description = "Files to analyze")
-        public List<String> files = new ArrayList<String>();
+        public List<String> files = new ArrayList<>();
 
         @CommandLine.Option(
                 names = {"-C", "--charset"},
@@ -75,19 +75,19 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         @CommandLine.Option(
                 names = "--rules-dir",
                 description = "Additional directories where rules will be sought")
-        public List<String> rulesDirs = new ArrayList<String>();
+        public List<String> rulesDirs = new ArrayList<>();
 
         @CommandLine.Option(
                 names = {"-r", "--rule"},
                 description = "Additional directories where rules will be sought")
-        public List<String> rules = new ArrayList<String>();
+        public List<String> rules = new ArrayList<>();
 
         @CommandLine.Option(
                 names = {"-a", "--rule-arg"},
                 description =
                         "Argument to pass to a rule, with the syntax"
                                 + " <rule_name>.<arg_name>=<arg_value>")
-        public List<String> rulesArgs = new ArrayList<String>();
+        public List<String> rulesArgs = new ArrayList<>();
 
         enum PropertyErrorRecoveryMode {
             continueAndWarn,
@@ -266,7 +266,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         if (this.args.unmatched != null) {
             return this.args.unmatched;
         } else {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
     }
 
