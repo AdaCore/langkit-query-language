@@ -103,8 +103,6 @@ public final class UnitCheckerFunction {
                 try {
                     this.applyUnitRule(frame, checker, unit, context, linesCache);
                 } catch (LangkitException e) {
-                    // TODO: Remove those clunky hardcoded names when getting rid of Ada
-                    // implementation
                     // Report LAL exception only in debug mode
                     if (context.isCheckerDebug()) {
                         context.getDiagnosticEmitter()
@@ -117,8 +115,6 @@ public final class UnitCheckerFunction {
                                         context);
                     }
                 } catch (LKQLRuntimeException e) {
-                    // TODO: Remove those clunky hardcoded names when getting rid of Ada
-                    // implementation
                     context.getDiagnosticEmitter()
                             .emitInternalError(
                                     checker.getName(),
