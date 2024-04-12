@@ -35,13 +35,30 @@
                         <configuration>
                             <finalName>lkql_jit</finalName>
                             <artifactSet>
-                                <excludes>
-                                    <exclude>org.graalvm.truffle:truffle-api</exclude>
-                                    <exclude>org.graalvm.truffle:truffle-dsl-processor</exclude>
-                                    <exclude>org.graalvm.truffle:truffle-tck</exclude>
-                                    <exclude>org.graalvm:graal-sdk</exclude>
-                                </excludes>
+                                <includes>
+                                    <include>com.adacore:liblkqllang</include>
+                                    <include>com.adacore:libadalang</include>
+                                    <include>com.adacore:checker</include>
+                                    <include>org.json:json</include>
+                                </includes>
                             </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/*.DES</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>com.adacore:checker</artifact>
+                                    <includes>
+                                        <exclude>com/adacore/lkql_jit/options/**</exclude>
+                                    </includes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -50,6 +67,12 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>checker</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.graalvm.truffle</groupId>
             <artifactId>truffle-api</artifactId>

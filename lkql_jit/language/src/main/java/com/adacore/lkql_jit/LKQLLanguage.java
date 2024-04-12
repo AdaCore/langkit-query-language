@@ -191,24 +191,25 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> rulesDirs = new OptionKey<>("");
 
     /**
-     * The option to specify the rule to run.
+     * Option to specify rules that the user instantiated for a run. The provided value must follow
+     * the JSON encoding standard for rule instances:
+     *
+     * <pre>
+     * {
+     *     "instance_id_1": {...},
+     *     "instance_id_2": {...}
+     * }
+     * </pre>
+     *
+     * The default value if this option is an empty object. See the {@link
+     * com.adacore.lkql_jit.options.RuleInstance RuleInstance} class for more information about rule
+     * instance JSON encoding.
      */
     @Option(
-        help = "The comma separated rules to apply",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
-    static final OptionKey<String> rules = new OptionKey<>("");
-
-    /**
-     * The option to specify the LKQL configuration file.
-     */
-    @Option(
-        help = "The LKQL file to get the rule configuration from",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
-    static final OptionKey<String> LKQLRuleFile = new OptionKey<>("");
+            help = "The JSON encoded rule instances, the value must be a JSON object",
+            category = OptionCategory.INTERNAL,
+            stability = OptionStability.STABLE)
+    public static final OptionKey<String> ruleInstances = new OptionKey<>("{}");
 
     /**
      * The option to control what should be done when no rules are provided
@@ -230,19 +231,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     )
     static final OptionKey<Boolean> keepGoingOnMissingFile = new OptionKey<>(false);
 
-    /**
-     * The option to specify arguments for the rules.
-     */
-    @Option(
-        help = "Arguments for the LKQL rules",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
-    static final OptionKey<String> rulesArgs = new OptionKey<>("");
-
-    /**
-     * The option to specify the files to ignore during the checking.
-     */
+    /** The option to specify the files to ignore during the checking. */
     @Option(
         help = "Files to ignore during the analysis",
         category = OptionCategory.USER,

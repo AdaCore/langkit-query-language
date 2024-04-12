@@ -23,7 +23,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -47,13 +47,22 @@
                         <configuration>
                             <finalName>lkql_jit_checker</finalName>
                             <artifactSet>
-                                <excludes>
-                                    <exclude>org.graalvm.truffle:truffle-api</exclude>
-                                    <exclude>org.graalvm.truffle:truffle-dsl-processor</exclude>
-                                    <exclude>org.graalvm.truffle:truffle-tck</exclude>
-                                    <exclude>org.graalvm:graal-sdk</exclude>
-                                </excludes>
+                                <includes>
+                                    <include>org.graalvm.sdk:launcher-common</include>
+                                    <include>org.json:json</include>
+                                </includes>
                             </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/*.DES</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -62,6 +71,12 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+
         <dependency>
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>graal-sdk</artifactId>
@@ -72,12 +87,6 @@
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>launcher-common</artifactId>
             <version>${graalvm.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.adacore</groupId>
-            <artifactId>language</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 
