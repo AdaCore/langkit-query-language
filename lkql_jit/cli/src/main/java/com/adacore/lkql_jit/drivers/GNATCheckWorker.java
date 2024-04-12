@@ -5,6 +5,8 @@
 
 package com.adacore.lkql_jit.drivers;
 
+import com.adacore.lkql_jit.options.JsonUtils;
+import com.adacore.lkql_jit.options.RuleInstance;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -231,20 +233,18 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                     "lkql.rulesDirs", String.join(File.pathSeparator, this.args.rulesDirs));
         }
 
-        // Set the rule to apply
+        // Set the rule instances
+        final Map<String, RuleInstance> instances = new HashMap<>();
         for (var rulesFrom : this.args.rulesFroms) {
             if (!rulesFrom.isEmpty()) {
                 if (rulesFrom.endsWith(".lkql")) {
-                    contextBuilder.option("lkql.LKQLRuleFile", rulesFrom);
+                    instances.putAll(parseLKQLRuleFile(rulesFrom));
                 } else {
-                    final List<String> allRules = new ArrayList<>();
-                    final List<String> allArgs = new ArrayList<>();
-                    processRuleSpecificationFile(rulesFrom, allRules, allArgs);
-                    contextBuilder.option("lkql.rules", String.join(",", allRules));
-                    contextBuilder.option("lkql.rulesArgs", String.join(";", allArgs));
+                    instances.putAll(parseGNATcheckRuleFile(rulesFrom));
                 }
             }
         }
+        contextBuilder.option("lkql.ruleInstances", JsonUtils.serializeInstances(instances));
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
@@ -258,55 +258,151 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         }
     }
 
-    /**
-     * Parse the given GNATcheck rule specification file and fill in the list of rules and rule
-     * arguments accordingly.
-     *
-     * <p>The file is expected to have one rule specification per line.
-     *
-     * @param filename The filename containing the rule specifications for this run.
-     * @param allRules The list in which to add all parsed rules.
-     * @param allArgs The list in which to add all parsed rule arguments.
-     */
-    private static void processRuleSpecificationFile(
-            String filename, List<String> allRules, List<String> allArgs) {
-        try {
-            for (String ruleSpec : Files.readAllLines(Paths.get(filename))) {
-                processRuleSpecification(ruleSpec, allRules, allArgs);
-            }
-        } catch (IOException e) {
-            System.err.println("Could not read file: " + filename);
-        }
-    }
-
-    /**
-     * Parse the given GNATcheck rule specification and add it to the list of rules to run.
-     *
-     * <p>A GNATcheck rule specification can also specify arguments for that rule, so these are
-     * parsed as well and added to the list of rule arguments.
-     *
-     * @param ruleSpec The rule specification to parse.
-     * @param allRules The list of all currently parsed rules, in which we'll add this one.
-     * @param allArgs The list of all currently specified rule arguments, which might be expanded
-     *     here.
-     */
-    private static void processRuleSpecification(
-            String ruleSpec, List<String> allRules, List<String> allArgs) {
-        if (ruleSpec.startsWith("-")) {
-            String ruleName = allRules.get(allRules.size() - 1);
-            String arg = ruleSpec.substring(1);
-            allArgs.add(ruleName + "." + arg);
-        } else {
-            allRules.add(ruleSpec);
-        }
-    }
-
     protected List<String> preprocessArguments(
             List<String> arguments, Map<String, String> polyglotOptions) {
         if (this.args.unmatched != null) {
             return this.args.unmatched;
         } else {
             return new ArrayList<>();
+        }
+    }
+
+    // ----- Option parsing helpers -----
+
+    /**
+     * Open the given GNATcheck rule file and parse it to extract all user defined rule instances.
+     */
+    private static Map<String, RuleInstance> parseGNATcheckRuleFile(
+            final String gnatcheckRuleFile) {
+        String currentInstanceId = null;
+        final Map<String, RuleInstance> res = new HashMap<>();
+        try {
+            for (String ruleSpec :
+                    Files.readAllLines(Paths.get(gnatcheckRuleFile)).stream()
+                            .filter(s -> !s.isBlank())
+                            .toList()) {
+                if (ruleSpec.startsWith("-")) {
+                    final String[] argSplit = ruleSpec.substring(1).split("=");
+                    res.get(currentInstanceId).arguments().put(argSplit[0], argSplit[1]);
+                } else {
+                    currentInstanceId = ruleSpec.toLowerCase();
+                    res.put(
+                            currentInstanceId,
+                            new RuleInstance(
+                                    currentInstanceId,
+                                    Optional.empty(),
+                                    RuleInstance.SourceMode.GENERAL,
+                                    new HashMap<>()));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("WORKER_FATAL_ERROR: Could not read file: " + gnatcheckRuleFile);
+        }
+        return res;
+    }
+
+    /**
+     * Read the given LKQL file and parse it as a rule configuration file to return the extracted
+     * instances.
+     */
+    private static Map<String, RuleInstance> parseLKQLRuleFile(final String lkqlRuleFile) {
+        final Map<String, RuleInstance> res = new HashMap<>();
+        try (Context context =
+                Context.newBuilder()
+                        .option("lkql.diagnosticOutputMode", "GNATCHECK")
+                        .allowIO(true)
+                        .build()) {
+            // Parse the LKQL rule configuration file with a polyglot context
+            final Source source = Source.newBuilder("lkql", new File(lkqlRuleFile)).build();
+            final Value executable = context.parse(source);
+            final Value topLevel = executable.execute(false);
+
+            // Get the mandatory general instances object and populate the result with it
+            if (topLevel.hasMember("rules")) {
+                processInstancesObject(
+                        topLevel.getMember("rules"), RuleInstance.SourceMode.GENERAL, res);
+
+                // Then get the optional Ada and SPARK instances
+                if (topLevel.hasMember("ada_rules")) {
+                    processInstancesObject(
+                            topLevel.getMember("ada_rules"), RuleInstance.SourceMode.ADA, res);
+                }
+                if (topLevel.hasMember("spark_rules")) {
+                    processInstancesObject(
+                            topLevel.getMember("spark_rules"), RuleInstance.SourceMode.SPARK, res);
+                }
+            } else {
+                System.err.println(
+                        "WORKER_FATAL_ERROR: LKQL config file must define a 'rules' "
+                                + "top level object value");
+            }
+        } catch (IOException e) {
+            System.err.println("WORKER_FATAL_ERROR: Could not read file: " + lkqlRuleFile);
+        } catch (Exception e) {
+            System.err.println(
+                    "WORKER_FATAL_ERROR: error during processing of rule file: "
+                            + lkqlRuleFile
+                            + ": "
+                            + e.getMessage());
+        }
+        return res;
+    }
+
+    /**
+     * Internal method to process an instance object, extracted from the LKQL rule config file
+     * top-level.
+     */
+    private static void processInstancesObject(
+            final Value instancesObject,
+            final RuleInstance.SourceMode sourceMode,
+            final Map<String, RuleInstance> toPopulate) {
+        // Iterate on all instance object keys
+        for (String ruleName : instancesObject.getMemberKeys()) {
+            final String lowerRuleName = ruleName.toLowerCase();
+            final Value argList = instancesObject.getMember(ruleName);
+
+            // Check that the value associated to the rule name is an array like value
+            if (!argList.hasArrayElements()) {
+                System.err.println("WORKER_FATAL_ERROR: Rule arguments must be an indexable value");
+                continue;
+            }
+
+            // If there is no element in the argument list, just create an instance with no argument
+            // and no alias.
+            final long argListSize = argList.getArraySize();
+            if (argListSize == 0) {
+                toPopulate.put(
+                        lowerRuleName,
+                        new RuleInstance(
+                                lowerRuleName, Optional.empty(), sourceMode, new HashMap<>()));
+            }
+
+            // Else iterate over each argument object and create one instance for each
+            else {
+                for (long i = 0; i < argListSize; i++) {
+                    String instanceId = lowerRuleName;
+                    Optional<String> instanceName = Optional.empty();
+                    final Map<String, String> arguments = new HashMap<>();
+                    final Value argObject = argList.getArrayElement(i);
+                    for (String argName : argObject.getMemberKeys()) {
+                        if (argName.equals("alias_name")) {
+                            final String aliasName = argObject.getMember("alias_name").asString();
+                            instanceId = aliasName.toLowerCase();
+                            instanceName = Optional.of(aliasName);
+                        } else {
+                            Value argValue = argObject.getMember(argName);
+                            arguments.put(
+                                    argName,
+                                    argValue.isString()
+                                            ? "\"" + argValue + "\""
+                                            : argValue.toString());
+                        }
+                    }
+                    toPopulate.put(
+                            instanceId,
+                            new RuleInstance(lowerRuleName, instanceName, sourceMode, arguments));
+                }
+            }
         }
     }
 

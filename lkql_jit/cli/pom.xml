@@ -45,6 +45,7 @@
                                 <includes>
                                     <include>org.graalvm.sdk:launcher-common</include>
                                     <include>info.picocli:picocli</include>
+                                    <include>org.json:json</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -104,6 +105,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>graal-sdk</artifactId>
             <version>${graalvm.version}</version>
@@ -113,12 +120,6 @@
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>launcher-common</artifactId>
             <version>${graalvm.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.adacore</groupId>
-            <artifactId>language</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

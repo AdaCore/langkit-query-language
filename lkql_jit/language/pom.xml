@@ -38,6 +38,8 @@
                                 <includes>
                                     <include>com.adacore:liblkqllang</include>
                                     <include>com.adacore:libadalang</include>
+                                    <include>com.adacore:cli</include>
+                                    <include>org.json:json</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -48,6 +50,12 @@
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
                                         <exclude>META-INF/*.DES</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>com.adacore:cli</artifact>
+                                    <excludes>
+                                        <exclude>com/adacore/lkql_jit/drivers/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
@@ -87,6 +95,12 @@
             <artifactId>truffle-tck</artifactId>
             <version>${graalvm.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>cli</artifactId>
+            <version>0.1.0</version>
         </dependency>
 
         <dependency>

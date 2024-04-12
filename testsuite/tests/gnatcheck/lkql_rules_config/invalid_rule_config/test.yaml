@@ -1,0 +1,10 @@
+driver: gnatcheck
+input_sources:
+ - main.adb
+format: brief
+
+tests:
+ - lkql_rule_file: invalid_semantic.lkql
+ - lkql_rule_file: no_rules_object.lkql
+ - lkql_rule_file: non_indexable_args.lkql
+ - lkql_rule_file: not_existant.lkql
