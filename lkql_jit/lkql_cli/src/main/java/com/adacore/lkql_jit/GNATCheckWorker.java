@@ -89,7 +89,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 description =
                         "Process all units in the project tree, excluding externally built"
                                 + " projects")
-        public boolean ignore_project_switches;
+        public boolean ignoreProjectSwitches;
 
         @Override
         public Integer call() {
