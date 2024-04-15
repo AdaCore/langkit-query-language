@@ -100,6 +100,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      */
     private String rulesDirs = null;
 
+    /** The LKQL file to parse as config file. */
+    private String lkqlConfigToParse = null;
+
     /**
      * The rules to apply.
      */
@@ -180,6 +183,13 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         // Do not stop the worker's execution when a source file is missing
         contextBuilder.option("lkql.keepGoingOnMissingFile", "true");
+
+        // If a LKQL rule config file has been provided, parse it and display the result
+        if (this.lkqlConfigToParse != null) {
+            System.out.println(
+                JsonUtils.serializeInstances(parseLKQLRuleFile(this.lkqlConfigToParse)));
+            return 0;
+        }
 
         // Set the context options
         if (this.verbose) {
@@ -300,9 +310,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         ListIterator<String> iterator = arguments.listIterator();
         String currentArg = iterator.next();
 
-        // First argument should be "--subprocess"
-
-        assert currentArg.equals("--subprocess");
+        // Test the first argument value
+        if (currentArg.equals("--parse-lkql-config")) {
+            this.lkqlConfigToParse = iterator.next();
+            return List.of();
+        }
         currentArg = iterator.next();
 
         // Optional argument: project file
