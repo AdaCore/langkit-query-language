@@ -36,6 +36,14 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         @CommandLine.Unmatched public List<String> unmatched;
 
         @CommandLine.Option(
+                names = {"--parse-lkql-config"},
+                description =
+                        "Parse the given LKQL file as a rule configuration file and return its"
+                            + " result as a JSON encoded string. If this option is provided, all"
+                            + " other features are disabled.")
+        public String lkqlConfigFile = null;
+
+        @CommandLine.Option(
                 names = {"-C", "--charset"},
                 description = "Charset to use for the source decoding")
         public String charset = null;
@@ -166,6 +174,13 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         // Do not stop the worker's execution when a source file is missing
         contextBuilder.option("lkql.keepGoingOnMissingFile", "true");
+
+        // If a LKQL rule config file has been provided, parse it and display the result
+        if (this.args.lkqlConfigFile != null) {
+            System.out.println(
+                    JsonUtils.serializeInstances(parseLKQLRuleFile(this.args.lkqlConfigFile)));
+            return 0;
+        }
 
         // Set the context options
         if (this.args.verbose) {
