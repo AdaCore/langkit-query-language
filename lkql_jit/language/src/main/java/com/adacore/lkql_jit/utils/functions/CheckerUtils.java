@@ -62,7 +62,7 @@ public class CheckerUtils {
                 String message,
                 Libadalang.SourceLocationRange slocRange,
                 Libadalang.AnalysisUnit unit,
-                Libadalang.AdaNodeArray genericInstantiations,
+                Libadalang.AdaNode[] genericInstantiations,
                 SourceLinesCache linesCache,
                 LKQLContext context);
 
@@ -104,7 +104,7 @@ public class CheckerUtils {
                 String message,
                 Libadalang.SourceLocationRange slocRange,
                 Libadalang.AnalysisUnit unit,
-                Libadalang.AdaNodeArray genericInstantiations,
+                Libadalang.AdaNode[] genericInstantiations,
                 SourceLinesCache linesCache,
                 LKQLContext context) {
             printRuleViolation(
@@ -214,7 +214,7 @@ public class CheckerUtils {
                 String message,
                 Libadalang.SourceLocationRange slocRange,
                 Libadalang.AnalysisUnit unit,
-                Libadalang.AdaNodeArray genericInstantiations,
+                Libadalang.AdaNode[] genericInstantiations,
                 SourceLinesCache linesCache,
                 LKQLContext context) {
             // Get the file name
@@ -222,20 +222,20 @@ public class CheckerUtils {
             final String colPrefix = slocRange.start.column < 10 ? "0" : "";
 
             // Append generic instantiation information to the message
-            if (genericInstantiations.size() > 0) {
+            if (genericInstantiations.length > 0) {
                 StringBuilder messageBuilder = new StringBuilder(message);
-                for (int i = 0; i < genericInstantiations.size(); ++i) {
+                for (int i = 0; i < genericInstantiations.length; ++i) {
                     if (i > 0) {
                         messageBuilder.append(" [");
                     } else {
                         messageBuilder.append(" [instance at ");
                     }
-                    final Libadalang.AdaNode inst = genericInstantiations.get(i);
+                    final Libadalang.AdaNode inst = genericInstantiations[i];
                     messageBuilder.append(FileUtils.baseName(inst.getUnit().getFileName()));
                     messageBuilder.append(":");
                     messageBuilder.append(inst.getSourceLocationRange().start.line);
                 }
-                messageBuilder.append("]".repeat(genericInstantiations.size()));
+                messageBuilder.append("]".repeat(genericInstantiations.length));
                 message = messageBuilder.toString();
             }
 

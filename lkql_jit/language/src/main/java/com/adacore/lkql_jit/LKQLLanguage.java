@@ -23,7 +23,6 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.options.OptionDescriptors;
 import org.graalvm.options.OptionKey;
@@ -342,8 +341,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             }
 
             // Verify the parsing result
-            final List<Liblkqllang.Diagnostic> diagnostics = unit.getDiagnostics();
-            if (diagnostics.size() > 0) {
+            final Liblkqllang.Diagnostic[] diagnostics = unit.getDiagnostics();
+            if (diagnostics.length > 0) {
                 throw LKQLRuntimeException.parsingException(diagnostics, request.getSource());
             }
 
