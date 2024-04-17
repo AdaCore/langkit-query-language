@@ -1,27 +1,7 @@
-------------------------------------------------------------------------------
---                                                                          --
---                          GNATCHECK COMPONENTS                            --
---                                                                          --
---                  G N A T C H E C K . D I A G N O S E S                   --
---                                                                          --
---                                 B o d y                                  --
---                                                                          --
---                     Copyright (C) 2005-2023, AdaCore                     --
---                                                                          --
--- GNATCHECK  is  free  software;  you can redistribute it and/or modify it --
--- under terms of the  GNU  General Public License as published by the Free --
--- Software Foundation;  either version 3, or ( at your option)  any  later --
--- version.  GNATCHECK  is  distributed in the hope that it will be useful, --
--- but  WITHOUT  ANY  WARRANTY;   without  even  the  implied  warranty  of --
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General --
--- Public License for more details.  You should have received a copy of the --
--- GNU General Public License distributed with GNAT; see file  COPYING3. If --
--- not,  go  to  http://www.gnu.org/licenses  for  a  complete  copy of the --
--- license.                                                                 --
---                                                                          --
--- GNATCHECK is maintained by AdaCore (http://www.adacore.com).             --
---                                                                          --
-------------------------------------------------------------------------------
+--
+--  Copyright (C) 2005-2024, AdaCore
+--  SPDX-License-Identifier: GPL-3.0-or-later
+--
 
 with Ada.Calendar;                 use Ada.Calendar;
 with Ada.Characters.Handling;      use Ada.Characters.Handling;

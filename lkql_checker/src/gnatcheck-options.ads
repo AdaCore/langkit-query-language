@@ -1,21 +1,7 @@
-------------------------------------------------------------------------------
---                                                                          --
---                                 GNATCHECK                                --
---                                                                          --
---                     Copyright (C) 2004-2023, AdaCore                     --
---                                                                          --
--- GNATCHECK  is free software;  you can redistribute it and/or modify  it  --
--- under terms of the GNU General Public License  as published by the Free  --
--- Software Foundation;  either version 3,  or (at your option)  any later  --
--- version.   This  software  is distributed in the hope that it  will  be  --
--- useful but  WITHOUT ANY WARRANTY;  without even the implied warranty of  --
--- MERCHANTABILITY  or  FITNESS  FOR  A PARTICULAR PURPOSE.                 --
---                                                                          --
--- You should have received a copy of the GNU General Public License and a  --
--- copy of the GCC Runtime Library Exception along with this program;  see  --
--- the files COPYING3 and COPYING.RUNTIME respectively.  If not, see        --
--- <http://www.gnu.org/licenses/>.                                          --
-------------------------------------------------------------------------------
+--
+--  Copyright (C) 2005-2024, AdaCore
+--  SPDX-License-Identifier: GPL-3.0-or-later
+--
 
 --  This package defines options that are supposed to be of a common interest
 --  for all the tools.
@@ -29,14 +15,14 @@ with Rules_Factory; use Rules_Factory;
 
 package Gnatcheck.Options is
 
-   Gnatcheck_Version : constant String := "23.0w";
+   Gnatcheck_Version : constant String := "25.0w";
    --  Full major.minor version for Gnatcheck
 
    Date : constant String := "unknown date";
 
-   Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
+   Current_Year : constant String := "2024";
 
-   Current_Year : constant String := "2022";
+   Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
 
    Executable : constant String := Base_Name (Command_Name);
    --  Name of the current executable (e.g. "gnatcheck" or "gnatkp")
