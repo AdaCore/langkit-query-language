@@ -31,6 +31,8 @@ begin
 
    --  Entry call
    T.E1 (10, 11);                       --  FLAG (2)
+   T.E2 (True) (10, 11);                --  FLAG (2)
+   T.E3 (True);                         --  NOFLAG
 
    --  Function calls
    I := Fun1 (J);                       --  NOFLAG because ALL is not set
