@@ -13,6 +13,8 @@ package Pack is
 
    task T is
       entry E1 (I : Integer; J : Integer);
+      entry E2 (Boolean) (I : Integer; J : Integer);
+      entry E3 (Boolean);
    end T;
 
 end Pack;
