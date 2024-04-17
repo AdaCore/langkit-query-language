@@ -28,7 +28,8 @@ fun check_actual_param(spec, node, check_dot) =
 fun positional_parameters(node, all=false) =
     node is ParamAssoc(f_designator is null, parent is l@AssocList)
     when l.parent is c@CallExpr(
+        p_is_call() is true,
         f_name is not AttributeRef,
         f_name is id@*(p_is_operator_name() is false)
-            when (all or check_actual_param(id.p_called_subp_spec(), node,
+            when (all or check_actual_param(c.p_called_subp_spec(), node,
                                             id.p_is_dot_call())))
