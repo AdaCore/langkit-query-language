@@ -24,6 +24,7 @@ fun one_construct_per_line(node) =
                        # generating false positives.
                        SingleTaskTypeDecl or AnonymousTypeDecl or
                        LabelDecl or GenericSubpInternal or
+                       ConcreteFormalSubpDecl or
                        ExtendedReturnStmtObjectDecl or
                        NamedStmtDecl))
      and (node.token_end().end_line ==
