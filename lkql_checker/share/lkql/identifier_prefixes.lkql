@@ -120,26 +120,26 @@ fun identifier_prefixes(unit,
 
     [{message: n.text &
       (match n.parent
-       | p@(TaskTypeDecl or ProtectedTypeDecl or
-            SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
+       | p@(TaskTypeDecl | ProtectedTypeDecl |
+            SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
          when p is not SingleTaskTypeDecl and concurrent != "-"
        => str_prefix & "concurrent prefix " & concurrent
-       | (TypeDecl(f_type_def is TypeAccessDef(f_subtype_indication is *(f_name is
-          AttributeRef(f_attribute is Identifier(p_name_is("Class") is true))))) or
-          SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is
-                      TypeAccessDef(f_subtype_indication is *(f_name is
-          AttributeRef(f_attribute is Identifier(p_name_is("Class") is true)))))))
+       | (TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
+          AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
+          SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
+                      TypeAccessDef(f_subtype_indication: *(f_name:
+          AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
          when class_access != "-" => str_prefix & "access-to-class prefix " & class_access
-       | (TypeDecl(f_type_def is AccessToSubpDef) or
-          SubtypeDecl(p_canonical_type() is
-                      TypeDecl(f_type_def is AccessToSubpDef)))
+       | (TypeDecl(f_type_def: AccessToSubpDef) |
+          SubtypeDecl(p_canonical_type():
+                      TypeDecl(f_type_def: AccessToSubpDef)))
          when subprogram_access != "-" =>
            str_prefix & "access-to-subprogram prefix " & subprogram_access
-       | (TypeDecl(f_type_def is AccessDef) or
-          SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is AccessDef)))
+       | (TypeDecl(f_type_def: AccessDef) |
+          SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
          when access != "-" => str_prefix & "access prefix " & access
 
-       | p@(TypeDecl(f_type_def is DerivedTypeDef) or SubtypeDecl)
+       | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
          when derived != [] and
               p.p_canonical_type().p_base_type() is t@BaseTypeDecl
               when get_derived(t, derived) != ""
@@ -151,8 +151,8 @@ fun identifier_prefixes(unit,
 
        | BaseTypeDecl    => str_prefix & "subtype prefix " & type
        | EnumLiteralDecl => str_prefix & "enumeration prefix " & enum
-       | p@* => match p.parent
-                | ObjectDecl or NumberDecl =>
+       | p => match p.parent
+                | (ObjectDecl | NumberDecl) =>
                     str_prefix & "constant prefix " & constant
                 | SubpRenamingDecl         => str_prefix & "enumeration prefix " & enum
                 | ExceptionDecl            => str_prefix & "exception prefix " & exception
@@ -160,48 +160,48 @@ fun identifier_prefixes(unit,
       loc: n}
     for n in from unit.root select node@DefiningName when match node.parent
     # Concurrent types
-    | p@(TaskTypeDecl or ProtectedTypeDecl or TaskBody or ProtectedBody or
-         SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
+    | p@(TaskTypeDecl | ProtectedTypeDecl | TaskBody | ProtectedBody |
+         SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
       when p is not SingleTaskTypeDecl and concurrent != "-"
     =>
-        p.p_previous_part() is (null or IncompleteTypeDecl) and
+        p.p_previous_part() is (null | IncompleteTypeDecl) and
         ((not node.f_name.text.starts_with(concurrent)) or
          check_exclusive(node.f_name.text,
                          exclusive=exclusive,
                          concurrent_exclusive=false))
 
     # 'Class access
-    | (p@TypeDecl(f_type_def is TypeAccessDef(f_subtype_indication is *(f_name is
-       AttributeRef(f_attribute is Identifier(p_name_is("Class") is true))))) or
-       p@SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is
-                     TypeAccessDef(f_subtype_indication is *(f_name is
-       AttributeRef(f_attribute is Identifier(p_name_is("Class") is true)))))))
+    | (p@TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
+       AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
+       p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
+                     TypeAccessDef(f_subtype_indication: *(f_name:
+       AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
       when class_access != "-"
     =>
-        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+        p?.p_previous_part() is (null | IncompleteTypeDecl) and
         ((not node.f_name.text.starts_with(class_access)) or
          check_exclusive(node.f_name.text,
                          exclusive=exclusive,
                          class_access_exclusive=false))
 
     # Subprogram access
-    | (p@TypeDecl(f_type_def is AccessToSubpDef) or
-       p@SubtypeDecl(p_canonical_type() is
-                     TypeDecl(f_type_def is AccessToSubpDef)))
+    | (p@TypeDecl(f_type_def: AccessToSubpDef) |
+       p@SubtypeDecl(p_canonical_type():
+                     TypeDecl(f_type_def: AccessToSubpDef)))
       when subprogram_access != "-"
     =>
-        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+        p?.p_previous_part() is (null | IncompleteTypeDecl) and
         ((not node.f_name.text.starts_with(subprogram_access)) or
          check_exclusive(node.f_name.text,
                          exclusive=exclusive,
                          subprogram_access_exclusive=false))
 
     # Other access types
-    | (p@TypeDecl(f_type_def is AccessDef) or
-       p@SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is AccessDef)))
+    | (p@TypeDecl(f_type_def: AccessDef) |
+       p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
       when access != "-"
     =>
-        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+        p?.p_previous_part() is (null | IncompleteTypeDecl) and
         ((not node.f_name.text.starts_with(access)) or
          check_exclusive(node.f_name.text,
                          exclusive=exclusive,
@@ -213,13 +213,13 @@ fun identifier_prefixes(unit,
                          type_exclusive=false))
 
     # (Sub)Types derived from `derived`
-    | p@(TypeDecl(f_type_def is DerivedTypeDef) or SubtypeDecl)
+    | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
       when derived != [] and
            p.p_canonical_type().p_base_type() is t@BaseTypeDecl
            when get_derived(t, derived) != ""
     => {
          val t = p.p_canonical_type().p_base_type();
-         p.p_previous_part() is (null or IncompleteTypeDecl) and
+         p.p_previous_part() is (null | IncompleteTypeDecl) and
          not node.f_name.text.starts_with(get_derived(t, derived)
            .split(":")[2])
        }
@@ -229,7 +229,7 @@ fun identifier_prefixes(unit,
 
     # Other types and subtypes
     | p@BaseTypeDecl when p is not SingleTaskTypeDecl =>
-        p.p_previous_part() is (null or IncompleteTypeDecl) and
+        p.p_previous_part() is (null | IncompleteTypeDecl) and
         ((type != "-" and not node.f_name.text.starts_with(type)) or
          check_exclusive(node.f_name.text,
                          exclusive=exclusive,
@@ -239,10 +239,10 @@ fun identifier_prefixes(unit,
     | EnumLiteralDecl => check_enum(node.f_name.text)
 
     # Look one level up for remaining cases
-    | p@* => match p.parent
+    | p => match p.parent
         # Constants
-        | (ObjectDecl(p_is_constant_object() is true) when not node.p_previous_part())
-          or NumberDecl
+        | ((ObjectDecl(p_is_constant_object(): true) when not node.p_previous_part())
+          | NumberDecl)
         =>
             (constant != "-" and not node.f_name.text.starts_with(constant)) or
             check_exclusive(node.f_name.text,
@@ -264,8 +264,8 @@ fun identifier_prefixes(unit,
 
         # Check all other defining names for exclusion except for completions
         # and renaming-as-body
-        | p2@* =>
-            (not p2 is (BodyNode or SubpRenamingDecl) or not p2.p_previous_part()) and
+        | p2 =>
+            (not p2 is (BodyNode | SubpRenamingDecl) or not p2.p_previous_part()) and
             (not p2 is ObjectDecl or not node.p_previous_part()) and
             check_exclusive(node.f_name.text, exclusive=exclusive)]
 }

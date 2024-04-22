@@ -5,14 +5,11 @@
 
 package com.adacore.lkql_jit.utils.functions;
 
-import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
-import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLConfigFileResult;
 import com.oracle.truffle.api.CallTarget;
@@ -33,67 +30,6 @@ import java.util.Map;
 public class ParsingUtils {
 
     // ----- Rules arguments from command line -----
-
-    /**
-     * Parse the command line rule arguments.
-     *
-     * @param argsSource The source of rule arguments to parse.
-     * @return The map containing the rules arguments.
-     */
-    public static Map<String, Map<String, Object>> parseRulesArgs(final String[] argsSource) {
-        // Prepare the result
-        Map<String, Map<String, Object>> res = new HashMap<>();
-
-        for (String ruleArgSource : argsSource) {
-            // Verify that the rule is not empty
-            if (ruleArgSource.isEmpty() || ruleArgSource.isBlank()) continue;
-
-            // Split the get the names and the value
-            final String[] valueSplit = ruleArgSource.split("=");
-            final String[] nameSplit = valueSplit[0].split("\\.");
-
-            // Verify the rule argument syntax
-            if (valueSplit.length != 2 || nameSplit.length != 2) {
-                throw LKQLRuntimeException.fromMessage(
-                        "Rule argument syntax error : '" + ruleArgSource + "'");
-            }
-
-            // Get the information from the rule argument source
-            final String ruleName = nameSplit[0].toLowerCase().trim();
-            final String argName = nameSplit[1].toLowerCase().trim();
-            final String valueSource = valueSplit[1].trim();
-
-            // Parse the value source with Liblkqllang
-            try (Liblkqllang.AnalysisContext analysisContext =
-                    Liblkqllang.AnalysisContext.create()) {
-                // Parse the argument value source with Liblkqllang
-                final Liblkqllang.AnalysisUnit unit =
-                        analysisContext.getUnitFromBuffer(
-                                valueSource,
-                                "rule_argument",
-                                null,
-                                Liblkqllang.GrammarRule.EXPR_RULE);
-                final Liblkqllang.LkqlNode root = unit.getRoot();
-                final Source source =
-                        Source.newBuilder(Constants.LKQL_ID, valueSource, "rule_argument").build();
-                final LKQLNode node = LangkitTranslator.translate(root, source);
-
-                try {
-                    // Add the argument in the result
-                    Map<String, Object> ruleArgs = res.getOrDefault(ruleName, new HashMap<>());
-                    ruleArgs.put(argName, node.executeGeneric(null));
-                    res.put(ruleName, ruleArgs);
-                } catch (Exception e) {
-                    throw LKQLRuntimeException.fromMessage(
-                            "The rule argument value generated an interpreter error: "
-                                    + valueSource);
-                }
-            }
-        }
-
-        // Return the result
-        return res;
-    }
 
     // ----- LKQL rule configuration file -----
 

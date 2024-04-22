@@ -9,6 +9,6 @@ import stdlib
 @check(message="object of anonymous type", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun objects_of_anonymous_types(node) =
-    node is ObjectDecl(f_type_expr is TypeExpr(p_designated_type_decl() is
+    node is ObjectDecl(f_type_expr: TypeExpr(p_designated_type_decl():
                                                AnonymousTypeDecl))
     when stdlib.is_in_package_scope(node)

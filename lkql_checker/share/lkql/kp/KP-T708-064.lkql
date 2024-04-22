@@ -21,8 +21,8 @@ fun has_variant_with_varsize(t) =
           from (from def.f_components select Variant)
           select c@ComponentDef
           when c.f_type_expr is
-               s@SubtypeIndication(f_constraint is CompositeConstraint(
-                   p_is_discriminant_constraint() is true))
+               s@SubtypeIndication(f_constraint: CompositeConstraint(
+                   p_is_discriminant_constraint(): true))
                when has_varsize_comp(s.f_name.p_referenced_decl())]
 
 @check(message="possible occurrence of KP T708-064", impact="20.[12]")
@@ -34,6 +34,6 @@ fun kp_t708_064(node) =
           from (from def.f_components select Variant)
           select c@ComponentDef
           when c.f_type_expr is
-               s@SubtypeIndication(f_constraint is CompositeConstraint(
-                   p_is_discriminant_constraint() is true))
+               s@SubtypeIndication(f_constraint: CompositeConstraint(
+                   p_is_discriminant_constraint(): true))
                when has_variant_with_varsize(s.f_name.p_referenced_decl())]

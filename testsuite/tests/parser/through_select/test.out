@@ -1,4 +1,6 @@
 Query
+|f_unpack_from:
+|  UnpackAbsent
 |f_from_expr:
 |  Identifier: a
 |f_through_expr:

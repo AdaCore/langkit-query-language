@@ -2,4 +2,4 @@
 # langkit. In that case, it will be the `kind` key of `RefResult` values in the
 # returned array.
 
-print([a.p_denoted_value() for a in select CharLiteral])
+print([a.p_denoted_value() for a in select CharLiteral].to_list)

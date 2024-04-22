@@ -7,7 +7,7 @@
             category="Style", subcategory="Portability")
 fun forbidden_aspects(unit, all=false, forbidden=[], allowed=[]) = [
     {message: "use of aspect " & node.f_id.text, loc: node}
-    for node in from unit.root select AspectAssoc(f_id is id@Name)
+    for node in from unit.root select AspectAssoc(f_id: id@Name)
     # Note that p_name_is doesn't work on e.g. AttributeRef, so compare strings
     # directly instead.
     when {

@@ -3,10 +3,10 @@
 
 @check(message="possible occurrence of KP VB24-008", impact="23.*")
 fun kp_vb24_008(node) =
-    node is AspectAssoc(f_id is Name(p_name_is("Post") is true))
+    node is AspectAssoc(f_id: Name(p_name_is("Post"): true))
     when (from node.f_expr select first
-          AttributeRef(f_attribute is Identifier(p_name_is("Old") is true))) != null
+          AttributeRef(f_attribute: Identifier(p_name_is("Old"): true))) != null
      and (from node.f_expr select first
-          op@BinOp(f_op is OpEq or OpNeq)
+          op@BinOp(f_op: OpEq | OpNeq)
           when op.f_left is NullLiteral or op.f_right is NullLiteral) != null
 

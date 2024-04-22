@@ -71,6 +71,8 @@ public final class LKQLTypesHelper {
     /** The string representing the LKQL namespace type. */
     public static final String LKQL_NAMESPACE = "Namespace";
 
+    public static final String LKQL_REC_VALUE = "RecValue";
+
     /** The string representing the ada node type. */
     public static final String ADA_NODE = "Node";
 

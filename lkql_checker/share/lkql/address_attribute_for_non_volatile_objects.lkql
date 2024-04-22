@@ -8,7 +8,7 @@
 import stdlib
 
 fun is_non_volatile_object(o) =
-    o is ObjectDecl(f_has_constant is ConstantAbsent)
+    o is ObjectDecl(f_has_constant: ConstantAbsent)
      and not (o?.p_has_aspect("Volatile") or
               o?.p_has_aspect("Atomic") or
               o?.p_has_aspect("Shared"))

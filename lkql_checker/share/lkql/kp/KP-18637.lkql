@@ -1,16 +1,18 @@
 # Flag type conversions from expressions of a class-wide interface type
 # to some ancestor (possibly class-wide) type.
 
+import stdlib
+
 @check(message="possible occurrence of KP 18637", impact="23.*")
 fun kp_18637(node) =
     node is CallExpr(
-        f_name is Name(
-            p_referenced_decl() is t@BaseTypeDecl(p_is_interface_type() is true)))
+        f_name: Name(
+            p_referenced_decl(): t@BaseTypeDecl(p_is_interface_type(): true)))
     when {
         val type = if t is ClasswideTypeDecl then t.p_specific_type() else t;
         node.f_suffix[1].f_r_expr is Expr(
-            p_expression_type() is ClasswideTypeDecl(
-                p_is_interface_type() is true,
-                p_specific_type() is BaseTypeDecl(
-                    any super_types is p@BaseTypeDecl when p == type)))
+            p_expression_type(): ClasswideTypeDecl(
+                p_is_interface_type(): true,
+                p_specific_type(): BaseTypeDecl(
+                    any stdlib.super_types: p@BaseTypeDecl when p == type)))
     }

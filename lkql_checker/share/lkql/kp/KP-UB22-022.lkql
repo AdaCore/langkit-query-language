@@ -4,17 +4,17 @@
 @check(message="possible occurrence of KP UB22-022",
        impact="19.*,20.*,21.*")
 fun kp_ub22_022(node) =
-    node is ForLoopStmt(f_spec is ForLoopSpec(
-        f_loop_type is IterTypeOf,
-        f_iter_expr is DottedName(
+    node is ForLoopStmt(f_spec: ForLoopSpec(
+        f_loop_type: IterTypeOf,
+        f_iter_expr: DottedName(
             # Check whether Comp1 is a discriminated component
-            f_prefix is DottedName(f_suffix is id@Identifier(
-                p_referenced_decl() is c@ComponentDecl
+            f_prefix: DottedName(f_suffix: id@Identifier(
+                p_referenced_decl(): c@ComponentDecl
                 when c.f_component_def.f_type_expr.p_designated_type_decl() is
-                     BaseTypeDecl(p_is_record_type() is true,
-                                  f_discriminants is KnownDiscriminantPart))),
+                     BaseTypeDecl(p_is_record_type(): true,
+                                  f_discriminants: KnownDiscriminantPart))),
             # Check whether Comp2 is an array-valued component
-            f_suffix is id@Identifier(
-                p_referenced_decl() is c@ComponentDecl
+            f_suffix: id@Identifier(
+                p_referenced_decl(): c@ComponentDecl
                 when c.f_component_def.f_type_expr.p_designated_type_decl()?.
                      p_is_array_type()))))

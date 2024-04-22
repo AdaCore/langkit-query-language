@@ -9,5 +9,5 @@ fun has_detect_blocking(unit) =
 @check(help="possible occurrence of KP V216-031 - global analysis required",
        message="possible occurrence of KP V216-031", impact="21.*")
 fun kp_v216_031(node) =
-    node is ForLoopSpec(f_loop_type is IterTypeOf)
+    node is ForLoopSpec(f_loop_type: IterTypeOf)
     when has_detect_blocking(node.p_enclosing_compilation_unit())

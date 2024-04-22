@@ -5,8 +5,8 @@
 @check(message="same operands",
        category="Style", subcategory="Programming Practice")
 fun same_operands(node) =
-    node is BinOp(f_op is OpDiv or OpEq or OpGt or OpGte or OpLt or OpLte or
-                          OpMinus or OpMod or OpNeq or OpRem)
+    node is BinOp(f_op: OpDiv | OpEq | OpGt | OpGte | OpLt | OpLte |
+                          OpMinus | OpMod | OpNeq | OpRem)
     when node.f_left.p_expression_type() is not
-         BaseTypeDecl(p_is_float_type() is true)
+         BaseTypeDecl(p_is_float_type(): true)
      and node.f_left.same_tokens(node.f_right)

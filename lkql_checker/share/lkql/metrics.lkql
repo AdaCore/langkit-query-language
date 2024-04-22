@@ -6,10 +6,10 @@ selector eligible_children
 
     | BodyNode =>
         # Don't recurse on bodies except if it's the root node (depth == 0)
-        rec *(if depth == 0 then this.children else [])
+        rec(*if depth == 0 then this.children else [])
     | n@PragmaNode when n.p_is_ghost_code() => ()
     | null     => ()
-    | *        => rec *this.children
+    | *        => rec(*this.children)
 
 fun parent_quantified_expr(s) =
     |" Helper: All quantified expressions containing ``s``
@@ -19,8 +19,8 @@ fun expr_complexity(body, exempt_case=false) =
     |" Return the cyclomatic complexity of expressions in the given body
 {
     fun node_weight (n) = match n
-        | BinOp(f_op is OpOrElse or OpAndThen) or IfExpr or ElsifExprPart => 1
-        | CaseExpr(f_cases is c@*) => if exempt_case then 1 else c.children_count - 1
+        | (BinOp(f_op: OpOrElse | OpAndThen) | IfExpr | ElsifExprPart) => 1
+        | CaseExpr(f_cases: c) => if exempt_case then 1 else c.children_count - 1
         | QuantifiedExpr => 2
         | * => 0;
 
@@ -29,18 +29,18 @@ fun expr_complexity(body, exempt_case=false) =
            0)
 }
 
-fun statement_complexity(body, exempt_case=false) = 
+fun statement_complexity(body, exempt_case=false) =
     |" Return the cyclomatic complexity of statements in the given body
 {
     fun node_weight (n) = match n
-        | IfStmt or ElsifStmtPart or WhileLoopSpec => 1
+        | (IfStmt | ElsifStmtPart | WhileLoopSpec) => 1
         | f@ForLoopSpec when not parent_quantified_expr(f) => 1
         | c@CaseStmt => if exempt_case then 1 else c.f_alternatives.children_count - 1
-        | e@ExitStmt(f_cond_expr is not null) => 1
+        | e@ExitStmt(f_cond_expr: not null) => 1
         | s@SelectStmt(
-            f_guards is guards@*,
-            f_else_stmts is elses_stmts@*,
-            f_abort_stmts is abort_stmts@*
+            f_guards: guards,
+            f_else_stmts: elses_stmts,
+            f_abort_stmts: abort_stmts
         ) => guards.children_count
              + (if elses_stmts.children_count == 0 then 0 else 1)
              + (if abort_stmts.children_count == 0 then 0 else 1)
@@ -51,7 +51,7 @@ fun statement_complexity(body, exempt_case=false) =
         (comp, node) => comp + node_weight(node),
         1
     )
-} 
+}
 
 fun cyclomatic_complexity(body, exempt_case=false) =
     |" Return the cyclomatic complexity for the given body
@@ -60,25 +60,25 @@ fun cyclomatic_complexity(body, exempt_case=false) =
 selector composite_parents
     |" Return a list of composite statement parents, stopping at the enclosing
     |" declaration.
-    | *(parent is CaseStmt or IfStmt or ForLoopStmt
-        or LoopStmt or WhileLoopStmt or SelectStmt) => rec this.parent
+    | *(parent: CaseStmt | IfStmt | ForLoopStmt
+        | LoopStmt | WhileLoopStmt | SelectStmt) => rec(this.parent)
 
     # Stop exploring downwards when we get out of the current decl
-    | BasicDecl => () 
+    | BasicDecl => ()
 
     # Skip every other node
-    | * => skip this.parent
+    | * => rec(this.parent, ())
 
 # TODO: There might be a way to build on top of ``composite_parents``, rt.
 # duplicating it
 selector composite_parents_stop_at_loop
     |" Return a list of composite statement parents, stopping at the enclosing
     |" declaration or at the enclosing loop.
-    | *(parent is ForLoopStmt or LoopStmt or WhileLoopStmt) => this.parent
-    | *(parent is CaseStmt or IfStmt or SelectStmt) => rec this.parent
+    | *(parent: ForLoopStmt | LoopStmt | WhileLoopStmt) => rec((), this.parent)
+    | *(parent: CaseStmt | IfStmt | SelectStmt) => rec(this.parent)
     # Stop exploring downwards when we get out of the current decl
-    | BasicDecl => () 
-    | * => skip this.parent
+    | BasicDecl => ()
+    | * => rec(this.parent, ())
 
 
 fun essential_complexity(body, treat_exit_as_goto=true) =
@@ -86,11 +86,11 @@ fun essential_complexity(body, treat_exit_as_goto=true) =
 {
     val jump_nodes = [
         i for i in stdlib.children_no_nested(body)
-        if i is ReturnStmt or RaiseStmt or TerminateAlternative or GotoStmt
-             or (ExitStmt when treat_exit_as_goto)
+        if i is (ReturnStmt | RaiseStmt | TerminateAlternative | GotoStmt
+             | (ExitStmt when treat_exit_as_goto))
     ];
 
-    val to_count_nodes = 
+    val to_count_nodes =
         if not jump_nodes then []
         else reduce(
             jump_nodes,
@@ -110,15 +110,15 @@ fun logical_slocs (node) =
 {
     # TODO: And pattern
 
-    val nodes = (from node select (
-        s@Stmt when s is not (Label or TerminateAlternative or NamedStmt)
-    ) or (
-        b@(BasicDecl or EntryIndexSpec) when b is not (
-            GenericFormal or GenericPackageInternal or AnonymousTypeDecl 
-            or NamedStmtDecl or LabelDecl or SingleTaskTypeDecl
-            or GenericSubpInternal or ExceptionHandler
+    val nodes = (from node select ((
+        s@Stmt when s is not (Label | TerminateAlternative | NamedStmt)
+    ) | (
+        b@(BasicDecl | EntryIndexSpec) when b is not (
+            GenericFormal | GenericPackageInternal | AnonymousTypeDecl
+            | NamedStmtDecl | LabelDecl | SingleTaskTypeDecl
+            | GenericSubpInternal | ExceptionHandler
         )
-    ) or ExceptionHandler(f_exception_name is not null));
+    ) | ExceptionHandler(f_exception_name: not null)));
 
     nodes.length
 }

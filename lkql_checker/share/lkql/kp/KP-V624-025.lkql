@@ -10,7 +10,7 @@ fun kp_v624_025(node) =
     when node.f_attribute.p_name_is("Valid_Scalars")
      and node.f_prefix.p_expression_type() is t@TypeDecl
      when t.p_full_view() is TypeDecl(
-              p_is_record_type() is true,
-              any stdlib.component_types is t@TypeDecl(p_is_private() is true)
+              p_is_record_type(): true,
+              any stdlib.component_types: t@TypeDecl(p_is_private(): true)
               when stdlib.full_root_type(t) is TypeDecl(
-                   f_type_def is SignedIntTypeDef))
+                   f_type_def: SignedIntTypeDef))

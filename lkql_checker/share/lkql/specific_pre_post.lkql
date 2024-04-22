@@ -4,12 +4,12 @@
 @check(message="definition of non class-wide aspect",
        category="Style", subcategory="Object Orientation")
 fun specific_pre_post(node) =
-    node is (BasicSubpDecl or
-             BaseSubpBody(p_previous_part() is null) or
-             SubpBodyStub(p_previous_part() is null))
+    node is (BasicSubpDecl |
+             BaseSubpBody(p_previous_part(): null) |
+             SubpBodyStub(p_previous_part(): null))
     # Get subprogram declarations
     when node.p_subp_spec_or_null() is
          # primitive of a tagged type
-         AdaNode(p_primitive_subp_tagged_type() is AdaNode)
+         AdaNode(p_primitive_subp_tagged_type(): AdaNode)
          # with direct pre/post aspect definitions
          when node.p_has_aspect("Pre", true) or node.p_has_aspect("Post", true)

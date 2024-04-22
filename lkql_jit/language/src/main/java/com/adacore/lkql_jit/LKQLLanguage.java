@@ -6,8 +6,11 @@
 package com.adacore.lkql_jit;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
+import com.adacore.lkql_jit.langkit_translator.passes.FramingPass;
+import com.adacore.lkql_jit.langkit_translator.passes.TranslationPass;
+import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
@@ -17,6 +20,7 @@ import com.adacore.lkql_jit.utils.enums.DiagnosticOutputMode;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Option;
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.source.Source;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -39,6 +43,33 @@ import org.graalvm.options.OptionStability;
         contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
         dependentLanguages = {"regex"})
 public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
+
+    /**
+     * This is the LKQL prelude. Those definitions are visible at the root of the LKQL context. This
+     * is where we put all global definitions that must be accessible in every context
+     */
+    private static final String PRELUDE_SOURCE =
+            """
+        selector children
+        |" Yields all the descendants of the given node
+        | AdaNode => rec(*this.children)
+        | * => ()
+
+        selector next_siblings
+        |" Yields all the next siblings of the given node
+        | AdaNode => rec(this.next_sibling())
+        | * => ()
+
+        selector parent
+        |" Yields all the enclosing parents of the given node
+        | AdaNode => rec(this.parent)
+        | * => ()
+
+        selector prev_siblings
+        |" Yields all the previous siblings of the given node
+        | AdaNode => rec(this.previous_sibling())
+        | * => ()
+        """;
 
     // ----- Static variables -----
 
@@ -206,12 +237,14 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<DiagnosticOutputMode> diagnosticOutputMode =
             new OptionKey<>(DiagnosticOutputMode.PRETTY);
 
+    Liblkqllang.AnalysisContext lkqlAnalysisContext;
+
     // ----- Constructors -----
 
     /** A simple constructor for the library loading. */
     public LKQLLanguage() {
         super();
-
+        this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create();
         // Set the color support flag
         SUPPORT_COLOR = System.getenv("TERM") != null && System.console() != null;
     }
@@ -250,7 +283,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         GlobalScope globalValues = new GlobalScope();
 
         // Return the new context
-        return new LKQLContext(env, globalValues);
+        return new LKQLContext(env, globalValues, this);
     }
 
     /**
@@ -299,13 +332,13 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         final Liblkqllang.AnalysisUnit unit;
         TopLevelList result;
 
-        try (Liblkqllang.AnalysisContext analysisContext = Liblkqllang.AnalysisContext.create()) {
+        {
             if (request.getSource().getPath() == null) {
                 unit =
-                        analysisContext.getUnitFromBuffer(
+                        lkqlAnalysisContext.getUnitFromBuffer(
                                 request.getSource().getCharacters().toString(), "<command-line>");
             } else {
-                unit = analysisContext.getUnitFromFile(request.getSource().getPath());
+                unit = lkqlAnalysisContext.getUnitFromFile(request.getSource().getPath());
             }
 
             // Verify the parsing result
@@ -319,21 +352,70 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                     (Liblkqllang.TopLevelList) unit.getRoot();
 
             // Translate the LKQL AST from Langkit to a Truffle AST
-            result =
-                    (TopLevelList)
-                            LangkitTranslator.translate(lkqlLangkitRoot, request.getSource());
+            result = (TopLevelList) translate(lkqlLangkitRoot, request.getSource());
         }
 
-        // Get the LKQL context
-        LKQLContext context = getContext(result);
-
         // Print the Truffle AST if the JIT is in debug mode
-        if (context.isVerbose()) {
+        if (getContext(result).isVerbose()) {
             System.out.println(
                     "=== Truffle AST <" + result.getLocation().getFileName() + "> :\n" + result);
         }
 
         // Return the call target
         return new TopLevelRootNode(result, this).getCallTarget();
+    }
+
+    /**
+     * Translate the given source Langkit AST.
+     *
+     * @param lkqlLangkitRoot The LKQL Langkit AST to translate.
+     * @param source The Truffle source of the AST.
+     * @return The translated LKQL Truffle AST.
+     */
+    public LKQLNode translate(
+            final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source, boolean isPrelude) {
+
+        if (!isPrelude) {
+            var global = getContext(null).getGlobal();
+            if (global.prelude == null) {
+                // Eval prelude
+                Source preludeSource =
+                        Source.newBuilder(Constants.LKQL_ID, PRELUDE_SOURCE, "<prelude>").build();
+                var root =
+                        lkqlAnalysisContext
+                                .getUnitFromBuffer(PRELUDE_SOURCE, "<prelude>")
+                                .getRoot();
+                var preludeRoot = (TopLevelList) translate(root, preludeSource, true);
+                var callTarget = new TopLevelRootNode(preludeRoot, this).getCallTarget();
+                global.prelude = (LKQLNamespace) callTarget.call();
+                var preludeMap = global.prelude.asMap();
+
+                var objects = new Object[preludeMap.size()];
+                var i = 0;
+                for (var entry : preludeMap.entrySet()) {
+                    global.preludeMap.put(entry.getKey(), i);
+                    objects[i] = entry.getValue();
+                    i += 1;
+                }
+                global.preludeObjects = objects;
+            }
+        }
+
+        // Do the framing pass to create the script frame descriptions
+        final FramingPass framingPass = new FramingPass(source);
+        lkqlLangkitRoot.accept(framingPass);
+        final ScriptFrames scriptFrames =
+                framingPass.getScriptFramesBuilder().build(CONTEXT_REFERENCE.get(null).getGlobal());
+
+        // Do the translation pass and return the result
+        final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
+
+        var res = lkqlLangkitRoot.accept(translationPass);
+
+        return res;
+    }
+
+    public LKQLNode translate(final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source) {
+        return translate(lkqlLangkitRoot, source, false);
     }
 }

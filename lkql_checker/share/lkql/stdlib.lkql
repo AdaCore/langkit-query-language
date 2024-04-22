@@ -4,10 +4,15 @@
 |" These functions may be moved in the future in Libadalang or LKQL's builtin
 |" library.
 
+selector super_types
+    |" Yields the chain of super types for the given type
+    | BaseTypeDecl => rec(*this.p_base_types())
+    | * => ()
+
 selector semantic_parent
     |" Return all semantic parent nodes starting from a given node.
     | null     => ()
-    | *        => rec this.p_semantic_parent()
+    | *        => rec(this.p_semantic_parent())
 
 selector children_no_nested
     |" Return all children nodes starting from a base subprogram body, but not
@@ -15,9 +20,9 @@ selector children_no_nested
 
     | BodyNode =>
         # Don't recurse on bodies except if it's the root node (depth == 0)
-        rec *(if depth == 0 then this.children else [])
+        rec(*if depth == 0 then this.children else [])
     | null     => ()
-    | *        => rec *this.children
+    | *        => rec(*this.children)
 
 fun all(iterable) =
     |" Return whether all elements in the given iterable are truthy
@@ -61,9 +66,9 @@ fun is_assert_aspect(s) =
 fun within_assert(node) =
     |" Return ``true`` if ``node`` is part of an assertion-related pragma or
     |" aspect.
-    node is *(any parent is
+    node is *(any parent:
         (p@PragmaNode when is_assert_pragma(p.f_id?.p_canonical_text()))
-     or a@AspectAssoc
+     | a@AspectAssoc
         when (match a.f_id
               | id@Identifier   =>
                   is_assert_aspect(id.p_canonical_text())
@@ -79,11 +84,11 @@ fun ultimate_alias(name, all_nodes=true, strip_component=false) =
     |" ``DottedName``. If ``strip_component`` is true, go to the prefix when
     |" encountering a component, otherwise stop at the ``ComponentDecl``.
 
-    if all_nodes or name is (BaseId or DottedName) then {
+    if all_nodes or name is (BaseId | DottedName) then {
         val decl = name.p_referenced_decl();
 
         match decl
-        | ObjectDecl(f_renaming_clause is r@RenamingClause) =>
+        | ObjectDecl(f_renaming_clause: r@RenamingClause) =>
             ultimate_alias(r.f_renamed_object, all_nodes, strip_component)
         | ComponentDecl when strip_component and name is DottedName =>
             ultimate_alias(name.f_prefix, all_nodes, strip_component)
@@ -96,7 +101,7 @@ fun ultimate_exception_alias(name) =
 {
     val decl = name.p_referenced_decl();
 
-    if decl is ExceptionDecl(f_renames is RenamingClause)
+    if decl is ExceptionDecl(f_renames: RenamingClause)
     then ultimate_exception_alias(decl?.f_renames?.f_renamed_object)
     else decl
 }
@@ -113,13 +118,13 @@ fun ultimate_subprogram_alias(name) =
 fun has_local_scope(n) =
     |" Return ``true`` if ``n`` is enclosed in a local scope
     n.parent is GenericFormalObjDecl or
-    n is *(any semantic_parent is BasicSubpDecl or SubpBody or TaskBody or
-                                  ExprFunction or BlockStmt or EntryBody or
+    n is *(any semantic_parent: BasicSubpDecl | SubpBody | TaskBody |
+                                  ExprFunction | BlockStmt | EntryBody |
                                   ProtectedBody)
 
 fun is_local_object(o) =
     |" Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
-    o is ParamSpec or ObjectDecl when has_local_scope(o)
+    o is (ParamSpec | ObjectDecl when has_local_scope(o))
 
 @memoized
 fun is_in_package_scope(o) =
@@ -141,12 +146,12 @@ fun is_in_package_scope(o) =
 
 fun is_program_unit(n) =
     |" Return ``true`` if ``n`` is a program unit spec, body or stub
-    n is SubpDecl or AbstractSubpDecl or BaseSubpBody
-      or BasePackageDecl or PackageBody or GenericPackageInstantiation
-      or GenericDecl or GenericInstantiation
-      or SingleTaskDecl or TaskTypeDecl or TaskBody
-      or SubpBodyStub or ProtectedBodyStub or PackageBodyStub or TaskBodyStub
-      or SingleProtectedDecl or ProtectedTypeDecl
+    n is (SubpDecl | AbstractSubpDecl | BaseSubpBody
+      | BasePackageDecl | PackageBody | GenericPackageInstantiation
+      | GenericDecl | GenericInstantiation
+      | SingleTaskDecl | TaskTypeDecl | TaskBody
+      | SubpBodyStub | ProtectedBodyStub | PackageBodyStub | TaskBodyStub
+      | SingleProtectedDecl | ProtectedTypeDecl)
 
 @memoized
 fun is_in_library_unit_body(o) =
@@ -215,8 +220,8 @@ fun is_predefined_type(n) =
     ].to_list;
 
     packages and packages[packages.length] is
-        BasePackageDecl(f_package_name is
-                        DefiningName(p_canonical_part() is name@DefiningName))
+        BasePackageDecl(f_package_name:
+                        DefiningName(p_canonical_part(): name@DefiningName))
         when name.p_name_is("Standard")
           or name.p_name_is("System")
           or name.p_name_is("Ada")
@@ -230,14 +235,14 @@ selector parent_decl_chain
     |" This allows us to, if in a generic template, always find back the
     |" generic formal.
     | null         => ()
-    | BaseSubpBody or PackageBody => rec {
+    | (BaseSubpBody | PackageBody) => rec({
         val prev_part = this.p_decl_part();
 
         # Some subprogram bodies don't have a previous part because they're
         # also the decl. In that case, return the semantic parent.
         if prev_part then prev_part else this.p_semantic_parent()
-    }
-    | *            => rec this.p_semantic_parent()
+    })
+    | *            => rec(this.p_semantic_parent())
 
 fun closest_enclosing_generic(n) =
     |" If ``n`` is part of a generic package or subprogram, whether it is
@@ -296,7 +301,7 @@ fun enclosing_package(n) =
     |" null otherwise
 {
     val pkg = [p for p in n.parents(include_self=false)
-                  if p is BasePackageDecl or PackageBody]?[1];
+                  if p is (BasePackageDecl | PackageBody)]?[1];
     if pkg then pkg else null
 }
 
@@ -312,14 +317,14 @@ fun ultimate_designated_generic_subp(subp_inst) =
 # TODO: move to LAL
 fun is_classwide_type(t) =
     |" Return true if t is a classwide TypeDecl.
-    t is ClasswideTypeDecl or
-         BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
+    t is (ClasswideTypeDecl |
+         BaseSubtypeDecl(p_base_subtype(): ClasswideTypeDecl))
 
 # TODO: move to LAL
 fun is_controlling_param_type(t, spec) =
     |" Return true if `t` is a TypeExpr corresponding to a controlling
     |" parameter of the subprogram spec `spec`.
-    t is TypeExpr(p_designated_type_decl() is d@BaseTypeDecl)
+    t is TypeExpr(p_designated_type_decl(): d@BaseTypeDecl)
     when ((d.p_is_tagged_type() and not is_classwide_type(d)) or
           (d is AnonymousTypeDecl and
            d.p_accessed_type()?.p_is_tagged_type() and
@@ -337,7 +342,7 @@ fun is_constructor(spec) =
 
 fun is_constant_object(node) =
     |" Return true is node represents a constant object, false otherwise
-    node is ObjectDecl or ParamSpec and node.p_is_constant_object()
+    node is (ObjectDecl | ParamSpec) and node.p_is_constant_object()
 
 fun is_unchecked_conversion(node) =
     |" Return true if node represents an instantiation of the
@@ -387,9 +392,9 @@ fun get_subp_body(node) =
 fun is_limited_type(type) =
     |" Return `true` if type is a limited type
     type.f_type_def is
-        (def@(DerivedTypeDef or PrivateTypeDef or RecordTypeDef)
-         when def.f_has_limited.p_as_bool()) or
-    InterfaceTypeDef(f_interface_kind is InterfaceKindLimited)
+        ((def@(DerivedTypeDef | PrivateTypeDef | RecordTypeDef)
+         when def.f_has_limited.p_as_bool()) |
+    InterfaceTypeDef(f_interface_kind: InterfaceKindLimited))
 
 @memoized
 fun list_of_units() =
@@ -463,52 +468,32 @@ fun range_values(left, right) =
 fun number_of_values(type) =
     |" Return the number of values covered by a given BaseTypeDecl, -1 if
     |" this value cannot be determined.
-{
-    fun count_values_decl(decl) = {
-        val def = decl.f_type_def;
-        match def
-        | EnumTypeDef           => (
-            match decl.f_name?.p_canonical_fully_qualified_name()
+    match type
+    | SubtypeDecl(f_subtype: *(f_constraint: RangeConstraint(f_range: *(f_range: op@BinOp)) => range_values(op.f_left, op.f_right)
+    | SubtypeDecl => number_of_values(type.f_subtype.f_name.p_referenced_decl())
+    | * when type == type.p_universal_int_type() => -1
+    | TypeDecl(f_type_def: type_def) => match type_def
+        | EnumTypeDef(f_enum_literals: e) => (
+            match type.f_name?.p_canonical_fully_qualified_name()
             | "standard.character"           => 256
             | "standard.wide_character"      => 65536
             | "standard.wide_wide_character" => 2147483648
-            | *                              => def.f_enum_literals.children_count
+            | * => e.children_count
         )
-        | ModIntTypeDef         => if def.f_expr.p_is_static_expr()
-                                then def.f_expr.p_eval_as_int() else -1
-        | SignedIntTypeDef
-        when def.f_range.f_range is BinOp(f_op is OpDoubleDot) => {
-            val op = def.f_range.f_range;
+        | m@ModIntTypeDef when m.f_expr.p_is_static_expr() => m.f_expr.p_eval_as_int()
+        | s@SignedIntTypeDef when s.f_range.f_range is BinOp(f_op: OpDoubleDot) => {
+            val op = s.f_range.f_range;
             range_values(op.f_left, op.f_right)
-        }
-        | DerivedTypeDef        =>
-            (match def.f_subtype_indication.f_constraint
-            | r@RangeConstraint =>
-                (match r.f_range.f_range
-                | op@BinOp => range_values(op.f_left, op.f_right)
-                | *        => -1)
-            | * => number_of_values(
-                def.f_subtype_indication.f_name.p_referenced_decl()))
-        | FormalDiscreteTypeDef => -1
+          }
+        | DerivedTypeDef(f_subtype_indication: *(f_constraint: RangeConstraint(f_range: *(f_range: op@BinOp)))) =>
+            range_values(op.f_left, op.f_right)
+        | DerivedTypeDef(f_subtype_indication: s) => number_of_values(s.f_name.p_referenced_decl())
         | *                     => -1
-    };
-
-    if type is SubtypeDecl
-    then (match type.f_subtype.f_constraint
-          | r@RangeConstraint => (match r.f_range.f_range
-                                  | op@BinOp => range_values(op.f_left, op.f_right)
-                                  | *        => -1)
-          | *                 => number_of_values(
-              type.f_subtype.f_name.p_referenced_decl()))
-    else if type == type.p_universal_int_type()
-    then -1
-    else count_values_decl(type)
-}
 
 fun has_interfaces(n) =
     |" Return true if ``n`` is an interface or implements some interfaces
     n.p_is_interface_type() or
-    n is TypeDecl(any super_types is TypeDecl(p_is_interface_type() is true))
+    n is TypeDecl(any super_types: TypeDecl(p_is_interface_type(): true))
 
 @memoized
 fun propagate_exceptions(body) =
@@ -526,17 +511,17 @@ fun propagate_exceptions(body) =
                select first OthersDesignator) != null] and
           # and no (re)raise statement
           (from body.f_stmts.f_exceptions.children
-           select first RaiseStmt or
-               CallStmt(f_call is c@CallExpr) when {
+           select first (RaiseStmt |
+               CallStmt(f_call: c@CallExpr) when {
                    val name = c.f_name.p_referenced_decl()?.
                               p_fully_qualified_name?();
                    name == "Ada.Exceptions.Raise_Exception" or
-                   name == "Ada.Exceptions.Reraise_Occurrence" }) == null)
+                   name == "Ada.Exceptions.Reraise_Occurrence" })) == null)
 
 fun is_by_copy(param) =
     |" Return true if ``param`` (a ``ParamActual``) has a non aliased by-copy
     |" type
-    not (param.param.parent.parent is ParamSpec(f_has_aliased is AliasedPresent)) and
+    not (param.param.parent.parent is ParamSpec(f_has_aliased: AliasedPresent)) and
     param.actual.p_expression_type() is expr@BaseTypeDecl
     when expr.p_root_type().p_full_view().p_root_type() is t@BaseTypeDecl
     when t.p_is_discrete_type() or t.p_is_access_type() or
@@ -562,7 +547,7 @@ fun strip_conversions(node) =
     # Strip type qualifications
     | QualExpr  => strip_conversions(node.f_suffix)
     # Strip type conversions
-    | CallExpr(p_kind() is "type_conversion")
+    | CallExpr(p_kind(): "type_conversion")
                 => strip_conversions(node.f_suffix[1].f_r_expr)
     | *         => node
 
@@ -579,15 +564,15 @@ fun default_bit_order() =
     |" clause is found, null otherwise.
 {
     val w = (select first w@WithClause
-             when from w select first Name(p_name_is("System") is true));
+             when from w select first Name(p_name_is("System"): true));
 
     if w == null then null
     else {
-        val system = from w select first Name(p_name_is("System") is true);
+        val system = from w select first Name(p_name_is("System"): true);
 
         (from system.p_referenced_decl()
-         select first decl@ObjectDecl(f_has_constant is ConstantPresent,
-                                      f_default_expr is not null)
+         select first decl@ObjectDecl(f_has_constant: ConstantPresent,
+                                      f_default_expr: not null)
          when decl.p_canonical_fully_qualified_name()
               == "system.default_bit_order").f_default_expr
     }
@@ -602,7 +587,7 @@ fun has_non_default_sso(decl) =
 
     aspect.exists and match default_bit_order()
     | null   => true
-    | expr@* => match expr.text
+    | expr => match expr.text
         | "High_Order_First" =>
             ultimate_alias(aspect.value).p_canonical_fully_qualified_name()
             != "system.bit_order.high_order_first"
@@ -615,23 +600,23 @@ fun has_non_default_sso(decl) =
 selector component_types
     |" Return all the ``BaseTypeDecl`` corresponding to all fields of a given
     |" type, including their full views, base types and subtypes.
-    | TypeDecl(f_type_def is d@RecordTypeDef) =>
-        skip *(from d select ComponentDecl)
-    | TypeDecl(f_type_def is DerivedTypeDef(f_record_extension is
+    | TypeDecl(f_type_def: d@RecordTypeDef) =>
+        rec(*(from d select ComponentDecl), ())
+    | TypeDecl(f_type_def: DerivedTypeDef(f_record_extension:
                                             def@BaseRecordDef)) =>
-        skip *([this.p_base_type()] & (from def select ComponentDecl))
-    | TypeDecl(f_type_def is DerivedTypeDef) => rec this.p_base_type()
-    | TypeDecl(f_type_def is ArrayTypeDef)   => rec this.p_comp_type()
-    | TypeDecl(f_type_def is PrivateTypeDef) => rec this.p_full_view()
-    | SubtypeDecl                            => rec this.p_base_subtype()
-    | ComponentDecl(f_component_def is ComponentDef(f_type_expr is
+        rec(*([this.p_base_type()] & (from def select ComponentDecl)), ())
+    | TypeDecl(f_type_def: DerivedTypeDef) => rec(this.p_base_type())
+    | TypeDecl(f_type_def: ArrayTypeDef)   => rec(this.p_comp_type())
+    | TypeDecl(f_type_def: PrivateTypeDef) => rec(this.p_full_view())
+    | SubtypeDecl                            => rec(this.p_base_subtype())
+    | ComponentDecl(f_component_def: ComponentDef(f_type_expr:
                     ind@SubtypeIndication))  =>
-        rec ind.f_name.p_referenced_decl()
+        rec(ind.f_name.p_referenced_decl())
     | *                                      => ()
 
 selector full_parent_types
     |" Return all base (sub)types full views
-    | SubtypeDecl       => rec this.p_base_subtype().p_full_view()
-    | ClasswideTypeDecl => rec this.f_name.p_basic_decl().p_full_view()
-    | BaseTypeDecl      => rec *this.p_full_view().p_base_types()
+    | SubtypeDecl       => rec(this.p_base_subtype().p_full_view())
+    | ClasswideTypeDecl => rec(this.f_name.p_basic_decl().p_full_view())
+    | BaseTypeDecl      => rec(*this.p_full_view().p_base_types())
     | *            => ()

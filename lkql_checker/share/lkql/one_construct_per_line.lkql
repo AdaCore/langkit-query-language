@@ -14,18 +14,18 @@ import stdlib
        category="Style", subcategory="Readability")
 fun one_construct_per_line(node) =
     # Flag any statement, declaration or representation clause
-    node is (Stmt or BasicDecl or AttributeDefClause or
-             EnumRepClause or RecordRepClause or AtClause)
+    node is (Stmt | BasicDecl | AttributeDefClause |
+             EnumRepClause | RecordRepClause | AtClause)
     # except for enum literal, param spec, discriminant spec
-    when (not node is (EnumLiteralDecl or ParamSpec or DiscriminantSpec or
+    when (not node is (EnumLiteralDecl | ParamSpec | DiscriminantSpec |
                        # or loop param or entry index.
-                       ForLoopVarDecl or EntryIndexSpec or
+                       ForLoopVarDecl | EntryIndexSpec |
                        # Also ignore anonymous or nested constructs
                        # generating false positives.
-                       SingleTaskTypeDecl or AnonymousTypeDecl or
-                       LabelDecl or GenericSubpInternal or
-                       ConcreteFormalSubpDecl or
-                       ExtendedReturnStmtObjectDecl or
+                       SingleTaskTypeDecl | AnonymousTypeDecl |
+                       LabelDecl | GenericSubpInternal |
+                       ConcreteFormalSubpDecl |
+                       ExtendedReturnStmtObjectDecl |
                        NamedStmtDecl))
      and (node.token_end().end_line ==
           stdlib.next_non_blank_token_line(node.token_end())

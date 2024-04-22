@@ -11,14 +11,14 @@
 import stdlib
 
 fun is_static_relation(expr) =
-    expr is RelationOp(f_right is Expr(p_is_static_expr() is true),
-                       f_op is op@Op when stdlib.is_predefined_op(op))
+    expr is RelationOp(f_right: Expr(p_is_static_expr(): true),
+                       f_op: op@Op when stdlib.is_predefined_op(op))
 
 fun check_alternatives(list, id) =
     |" Check that all alternatives are of the form:
     |" Id <relation op> static-expr
     [x for x in list
-     if x.f_cond_expr is r@RelationOp(f_left is id2@(Identifier or DottedName))
+     if x.f_cond_expr is r@RelationOp(f_left: id2@(Identifier | DottedName))
         when is_static_relation(r) and id2.p_name_matches(id)
      ].length == list.length
 
@@ -26,11 +26,11 @@ fun check_alternatives(list, id) =
        category="Style", subcategory="Programming Practice")
 fun use_case_statements(node) =
     node is IfStmt(
-        f_alternatives is l@ElsifStmtPartList when l[1],
-        f_cond_expr is r@RelationOp
+        f_alternatives: l@ElsifStmtPartList when l[1],
+        f_cond_expr: r@RelationOp
         when r.f_left is id@(
                  (Identifier when id.p_expression_type().p_is_discrete_type())
-              or (DottedName
+              | (DottedName
                   when id.f_suffix is suffix@Name
                       when suffix.p_referenced_decl() is ComponentDecl
                        and suffix.p_expression_type().p_is_discrete_type()))

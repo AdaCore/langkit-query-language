@@ -22,11 +22,11 @@ fun operator_image(node) =
 fun non_short_circuit_operators(unit, except_assertions=false) = [
     {message: "use of predefined " & operator_image(n) & " for boolean type",
      loc: n}
-    for n in from unit.root select node@(((OpAnd or OpOr)
+    for n in from unit.root select node@(((OpAnd | OpOr)
               when stdlib.is_predefined_op(node)
                and stdlib.is_standard_boolean(node.parent)
                and stdlib.is_standard_boolean(node.parent?.f_left))
-     or CallExpr(p_relative_name() is n@Name
+     | CallExpr(p_relative_name(): n@Name
                  when n?.p_name_is("\"and\"") or n?.p_name_is("\"or\""))
         when stdlib.is_predefined_op(node)
          and stdlib.is_standard_boolean(node)

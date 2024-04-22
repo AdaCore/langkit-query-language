@@ -4,16 +4,16 @@
 
 fun is_real_without_range(decl) =
     decl is
-        (TypeDecl
+        ((TypeDecl
          when decl.f_type_def is
-              RealTypeDef(f_range is null) or
+              (RealTypeDef(f_range: null) |
               d@DerivedTypeDef
               when not (from d.f_subtype_indication.f_constraint
                         select first RangeSpec)
-               and is_real_without_range(decl.p_base_type()))
-      or SubtypeDecl
+               and is_real_without_range(decl.p_base_type())))
+      | SubtypeDecl
          when not (from decl.f_subtype.f_constraint select first RangeSpec)
-          and is_real_without_range(decl.p_base_subtype())
+          and is_real_without_range(decl.p_base_subtype()))
 
 @check(message="real type with no range definition",
        category="Style", subcategory="Portability")

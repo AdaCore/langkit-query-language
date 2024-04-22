@@ -4,5 +4,5 @@
 @check(message="declaration of local package",
        category="Style", subcategory="Program Structure")
 fun local_packages(node) =
-    node is PackageDecl(any parent is PackageDecl or GenericPackageDecl)
-     and not node is *(any parent is PackageBody)
+    node is PackageDecl(any parent: PackageDecl | GenericPackageDecl)
+     and not node is *(any parent: PackageBody)

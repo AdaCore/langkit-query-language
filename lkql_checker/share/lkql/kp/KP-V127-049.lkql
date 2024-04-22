@@ -17,10 +17,10 @@ fun is_operator(params, expr) =
 @check(message="possible occurrence of KP V127-049", impact="21.*,22.1")
 fun kp_v127_049(node) =
     # Look for parameter associations of generic instantiations
-    node is ParamAssoc(parent is AssocList(parent is inst@GenericInstantiation),
-                       f_r_expr is expr@Name)
+    node is ParamAssoc(parent: AssocList(parent: inst@GenericInstantiation),
+                       f_r_expr: expr@Name)
     # where the parameter is a subprogram
-    when expr.p_referenced_decl() is decl@(BaseSubpBody or ClassicSubpDecl or
+    when expr.p_referenced_decl() is decl@(BaseSubpBody | ClassicSubpDecl |
                                            SubpBodyStub)
      # returning a boolean (sub)type
      when (decl.f_subp_spec.f_subp_returns is t@TypeExpr

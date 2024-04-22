@@ -32,13 +32,13 @@ fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
     # check parameter N if we have an integer literal, unless ALL is set
     when (all or (node is RealLiteral or node.p_denoted_value() > n)
     # exclude right expression of an exponentiation
-     and (not node.parent is BinOp(f_op is OpPow)
+     and (not node.parent is BinOp(f_op: OpPow)
               when node.parent.f_right == node)
      # exclude indexing of an array attribute
      and (not node.parent is ParamAssoc(
-              parent is AssocList(
-                  parent is AttributeRef(
-                      f_attribute is id@Identifier
+              parent: AssocList(
+                  parent: AttributeRef(
+                      f_attribute: id@Identifier
                       when id.p_name_is("First")
                         or id.p_name_is("Last")
                         or id.p_name_is("Length")))))

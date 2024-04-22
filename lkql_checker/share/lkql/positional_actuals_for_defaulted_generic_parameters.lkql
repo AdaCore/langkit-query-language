@@ -8,7 +8,7 @@ fun get_formal(decls, pos, n: int = 1) =
     match decls[n]
     | f@GenericFormal => {
         val count = match f.f_decl
-                    | d@(ObjectDecl or NumberDecl) => d.f_ids.children_count
+                    | d@(ObjectDecl | NumberDecl) => d.f_ids.children_count
                     | *                            => 1;
         if pos <= count then f else get_formal(decls, pos - count, n + 1) }
     | *               => get_formal(decls, pos, n + 1)
@@ -16,13 +16,13 @@ fun get_formal(decls, pos, n: int = 1) =
 fun check_generic(n, node) =
     get_formal(n.p_referenced_decl().f_formal_part.f_decls,
                stdlib.param_pos(node)) is
-    GenericFormal(f_decl is d@(FormalSubpDecl or ObjectDecl)
+    GenericFormal(f_decl: d@(FormalSubpDecl | ObjectDecl)
                   when d.f_default_expr)
 
 @check(message="use named notation when passing actual to defaulted generic parameter",
        remediation="EASY", category="Style", subcategory="Programming Practice")
 fun positional_actuals_for_defaulted_generic_parameters(node) =
-    node is ParamAssoc(f_designator is null, parent is l@AssocList)
+    node is ParamAssoc(f_designator: null, parent: l@AssocList)
     when match l.parent
           | p@GenericSubpInstantiation    =>
               check_generic(p.f_generic_subp_name, node)

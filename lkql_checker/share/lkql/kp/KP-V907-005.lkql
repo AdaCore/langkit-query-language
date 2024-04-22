@@ -6,10 +6,10 @@
        impact="22.*")
 fun kp_v907_005(node) =
     node is BaseLoopStmt(
-        any parent is BaseLoopStmt,
-        any children is AssignStmt(f_dest is c@CallExpr
+        any parent: BaseLoopStmt,
+        any children: AssignStmt(f_dest: c@CallExpr
             when c.p_kind() == "array_index"
              and [p for p in c.f_suffix.children
                   if not p.f_r_expr is
-                      Expr(p_is_static_expr() is true) or
-                      Identifier(p_referenced_decl() is ForLoopVarDecl]))
+                      (Expr(p_is_static_expr(): true) |
+                      Identifier(p_referenced_decl(): ForLoopVarDecl))]))

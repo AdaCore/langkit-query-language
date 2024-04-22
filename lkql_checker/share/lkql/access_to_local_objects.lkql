@@ -13,8 +13,8 @@
 import stdlib
 
 fun has_access_type(n) =
-    n.p_type_expression() is TypeExpr(p_designated_type_decl() is
-    BaseTypeDecl(p_is_access_type() is true))
+    n.p_type_expression() is TypeExpr(p_designated_type_decl():
+    BaseTypeDecl(p_is_access_type(): true))
 
 fun denotes_local_object(n) = {
     fun dotted_prefix(n) =
@@ -29,7 +29,7 @@ fun denotes_local_object(n) = {
                                            denotes_local_object(n.f_prefix)
         | p@GenericPackageInstantiation => stdlib.has_local_scope(p) or
                                            denotes_local_object(n.f_prefix)
-        | r@*                           =>
+        | r                           =>
           (not has_access_type(r)) and denotes_local_object(n.f_prefix);
 
     match n

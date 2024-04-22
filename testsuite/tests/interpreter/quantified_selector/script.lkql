@@ -1,2 +1,2 @@
-val result = select AdaNodeList(all children(depth=1) is ObjectDecl)
+val result = select AdaNodeList(all children(depth=1): ObjectDecl)
 print(result)

@@ -6,7 +6,7 @@ import stdlib
        impact="7.[1-4].*,17.*,18.*")
 fun kp_r511_017(node) =
     node is SubtypeDecl(
-        p_has_aspect("Object_Size") is true,
-        any stdlib.full_parent_types is
-            BaseTypeDecl(p_has_aspect("Pack") is true,
-                         p_is_array_type() is true))
+        p_has_aspect("Object_Size"): true,
+        any stdlib.full_parent_types:
+            BaseTypeDecl(p_has_aspect("Pack"): true,
+                         p_is_array_type(): true))

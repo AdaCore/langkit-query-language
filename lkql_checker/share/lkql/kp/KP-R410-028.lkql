@@ -9,22 +9,22 @@ fun has_rec_with_discriminants(type) =
 fun check_type(type) =
     type is BaseTypeDecl and
     (has_rec_with_discriminants(type) or
-     type is *(any stdlib.component_types is t@BaseTypeDecl
+     type is *(any stdlib.component_types: t@BaseTypeDecl
                when has_rec_with_discriminants(t)))
 
 fun check_subp(subp) =
-    subp.f_subp_spec is spec@SubpSpec(f_subp_kind is SubpKindFunction)
+    subp.f_subp_spec is spec@SubpSpec(f_subp_kind: SubpKindFunction)
     when check_type(stdlib.full_root_type(spec.f_subp_returns.
                    p_designated_type_decl()))
 
 @check(message="possible occurrence of KP R410-028", impact="7.[123].*")
 fun kp_r410_028(node) =
     node is BaseId(
-        p_is_call() is true,
-        any parent is ForLoopSpec,
-        p_referenced_decl() is
-            (decl@(ClassicSubpDecl or BaseSubpBody or SubpBodyStub)
+        p_is_call(): true,
+        any parent: ForLoopSpec,
+        p_referenced_decl():
+            (decl@(ClassicSubpDecl | BaseSubpBody | SubpBodyStub)
              when check_subp(decl))
-        or
+        |
             inst@GenericSubpInstantiation
             when check_subp(inst.p_designated_subp()))

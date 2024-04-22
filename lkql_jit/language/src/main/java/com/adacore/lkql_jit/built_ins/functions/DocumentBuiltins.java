@@ -43,23 +43,6 @@ public class DocumentBuiltins {
                 writer.write("\n");
             }
 
-            writer.write("Builtin selectors\n");
-            writer.write("^^^^^^^^^^^^^^^^^\n");
-            writer.write("\n");
-
-            for (var sel : BuiltInsHolder.get().builtInSelectors) {
-                writer.write(".. function:: ");
-                writer.write(sel.getName());
-                writer.write("()");
-                writer.write("\n\n");
-                writer.withIndent(
-                        () -> {
-                            writer.write(sel.getValue().lkqlDocumentation());
-                        });
-                writer.write("\n");
-                writer.write("\n");
-            }
-
             writer.write("Builtin methods\n");
             writer.write("^^^^^^^^^^^^^^^\n");
             writer.write("\n");

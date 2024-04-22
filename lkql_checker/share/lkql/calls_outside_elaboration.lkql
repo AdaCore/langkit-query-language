@@ -7,9 +7,9 @@ import stdlib
 @check(message="call performed outside elaboration",
        category="Style", subcategory="Programming Practice")
 fun calls_outside_elaboration(node, forbidden=[]) =
-    node is BaseId(p_is_call() is true,
-                   any stdlib.semantic_parent is BasicSubpDecl or SubpBody or TaskBody or
-                                                 ExprFunction or EntryBody or ProtectedBody)
+    node is BaseId(p_is_call(): true,
+                   any stdlib.semantic_parent: BasicSubpDecl | SubpBody | TaskBody |
+                                                 ExprFunction | EntryBody | ProtectedBody)
     when node.p_referenced_decl() is subp@BasicDecl
      when {
         val name = subp.p_canonical_fully_qualified_name();

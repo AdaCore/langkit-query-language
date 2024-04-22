@@ -5,7 +5,7 @@
 # declares operators in its visible part.
 
 fun is_operator(s) =
-    s is (BasicSubpDecl or BaseSubpBody)
+    s is (BasicSubpDecl | BaseSubpBody)
     when s.p_defining_name().p_is_operator_name()
 
 fun decls_not_only_operator(pkg) =

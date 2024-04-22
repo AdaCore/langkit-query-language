@@ -1,4 +1,4 @@
 selector testSelector
-    | FirstNodeKind                              => skip it.field1 <> rec it.field2
-    | SecondNodeKind(children is ThirdNodeKind)  => it.field
-    | *                                          => ()
+    | FirstNodeKind                           => rec(*[it.field1, it.field2], ())
+    | SecondNodeKind(children: ThirdNodeKind) => rec((), it.field)
+    | *                                       => ()

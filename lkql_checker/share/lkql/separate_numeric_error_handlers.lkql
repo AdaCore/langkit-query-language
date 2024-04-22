@@ -9,14 +9,14 @@ fun decl_name(n) =
 @check(message="Constraint_Error is handled separately from Numeric_Error",
        category="Style", subcategory="Portability")
 fun separate_numeric_error_handlers(node) =
-    node is BaseId(parent is l @ AlternativesList(parent is ExceptionHandler))
+    node is BaseId(parent: l @ AlternativesList(parent: ExceptionHandler))
     when (
         decl_name(node) == "standard.constraint_error"
-        and not l is *(any children(depth=1) is e@*
+        and not l is *(any children(depth=1): e
                        when decl_name(e) == "standard.numeric_error")
     )
     or (
         decl_name(node) == "standard.numeric_error"
-        and not l is *(any children(depth=1) is e@*
+        and not l is *(any children(depth=1): e
                        when decl_name(e) == "standard.constraint_error")
     )

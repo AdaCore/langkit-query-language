@@ -9,15 +9,15 @@ import stdlib
 
 fun match_name(name, actuals) =
     name is Name(
-        p_referenced_defining_name() is DefiningName(
-            p_basic_decl() is ObjectDecl or NumberDecl or
-                              ParamSpec or GenericFormalObjDecl,
-            p_canonical_fully_qualified_name() is str@*)) when
+        p_referenced_defining_name(): DefiningName(
+            p_basic_decl(): ObjectDecl | NumberDecl |
+                              ParamSpec | GenericFormalObjDecl,
+            p_canonical_fully_qualified_name(): str)) when
     [s for s in actuals if str == s.to_lower_case]
 
 @check(message="direct (in)equality",
        category="Style", subcategory="Programming Practice")
 fun direct_equalities(node, actuals = []) =
-    node is BinOp(f_op is op@(OpEq or OpNeq))
+    node is BinOp(f_op: op@(OpEq | OpNeq))
     when stdlib.is_predefined_op(op)
      and match_name(node.f_left, actuals) or match_name(node.f_right, actuals)

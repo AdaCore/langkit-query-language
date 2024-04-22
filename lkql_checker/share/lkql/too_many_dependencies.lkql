@@ -21,10 +21,10 @@ fun dependencies(unit, parent) = {
           if p.p_referenced_decl() != parent].to_list
          for w in (from unit.f_prelude select WithClause)].to_list);
     unique(match unit.f_body
-           | LibraryItem(f_item is BodyNode(p_previous_part()
-             is prev@BasicDecl))
+           | LibraryItem(f_item: BodyNode(p_previous_part()
+            : prev@BasicDecl))
                => l & dependencies(comp_unit(prev), parent)
-           | Subunit(f_body is *(p_previous_part() is prev@BasicDecl))
+           | Subunit(f_body: *(p_previous_part(): prev@BasicDecl))
                => l & dependencies(comp_unit(prev), parent)
            | * => l)
 }
@@ -44,7 +44,7 @@ fun too_many_dependencies(unit, n : int = 5) = [
                   else num_deps(node.parent, node.p_semantic_parent())) & ")",
      loc: node}
     for node in from unit.root select
-        lib@(LibraryItem when num_deps(lib.parent,
-                                       lib.f_item.p_semantic_parent()) > n) or
-        sub@Subunit when num_deps(sub.parent, sub.p_semantic_parent()) > n
+        (lib@(LibraryItem when num_deps(lib.parent,
+                                       lib.f_item.p_semantic_parent()) > n) |
+        sub@Subunit when num_deps(sub.parent, sub.p_semantic_parent()) > n)
 ]

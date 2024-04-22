@@ -11,13 +11,13 @@ import stdlib
 # Return true if t represents a SubtypeDecl with a predicate (directly or via
 # a parent type).
 fun has_predicate(t) =
-    t is SubtypeDecl
+    t is (SubtypeDecl
          when t.p_has_aspect("Predicate")
            or t.p_has_aspect("Static_Predicate")
            or t.p_has_aspect("Dynamic_Predicate")
            or has_predicate(t.f_subtype?.f_name?.p_referenced_decl())
-      or TypeDecl(f_type_def is d@DerivedTypeDef)
-         when has_predicate(d.f_subtype_indication.f_name.p_referenced_decl())
+      | TypeDecl(f_type_def: d@DerivedTypeDef)
+         when has_predicate(d.f_subtype_indication.f_name.p_referenced_decl()))
 
 @check(message="expression needs subtype predicate evaluation",
        category="Feature")

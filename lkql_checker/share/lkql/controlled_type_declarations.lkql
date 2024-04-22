@@ -13,14 +13,14 @@ fun canonical_fully_qualified_name(t) =
 
 selector complete_super_types
     | b@BaseTypeDecl when b.p_is_private() =>
-        rec *this.p_next_part()?.p_base_types?()
+        rec(*this.p_next_part()?.p_base_types?())
     | BaseTypeDecl =>
-        rec *this.p_base_types()
+        rec(*this.p_base_types())
     | * => ()
 
 @check(message="declaration of controlled type", category="Feature")
 fun controlled_type_declarations(node) =
     node is BaseTypeDecl (
-        any complete_super_types is b @ *
+        any complete_super_types: b
         when canonical_fully_qualified_name(b) == "ada.finalization.controlled"
     )

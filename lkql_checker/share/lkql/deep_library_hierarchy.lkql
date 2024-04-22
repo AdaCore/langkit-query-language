@@ -9,7 +9,7 @@
 @check(message="unit has too many ancestors",
        category="Style", subcategory="Program Structure")
 fun deep_library_hierarchy(node, n: int = 3) =
-    node is BasePackageDecl(f_package_name is
-                            DefiningName(any children(depth=n+2) is Name))
-    or GenericPackageInstantiation(f_name is
-                                   DefiningName(any children(depth=n+2) is Name))
+    node is (BasePackageDecl(f_package_name:
+                            DefiningName(any children(depth=n+2): Name))
+    | GenericPackageInstantiation(f_name:
+                                   DefiningName(any children(depth=n+2): Name)))

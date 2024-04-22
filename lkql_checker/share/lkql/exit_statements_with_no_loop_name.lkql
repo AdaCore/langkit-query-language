@@ -20,6 +20,6 @@ fun is_in_nested_loop(n) = {
        category="Style", subcategory="Programming Practice")
 fun exit_statements_with_no_loop_name(node, nested_only=false) =
    if nested_only then
-      node is e@ExitStmt(f_loop_name is null) when is_in_nested_loop(e)
+      node is e@ExitStmt(f_loop_name: null) when is_in_nested_loop(e)
    else
-      node is ExitStmt(f_loop_name is null)
+      node is ExitStmt(f_loop_name: null)

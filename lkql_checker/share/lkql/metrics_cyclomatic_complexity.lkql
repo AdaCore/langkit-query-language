@@ -11,7 +11,7 @@ fun metrics_cyclomatic_complexity(unit, n : int = 5,
     { message: "cyclomatic complexity is too high: " & img(t[2]), loc: t[1] }
     for t in [(body, metrics.cyclomatic_complexity(body, exempt_case_statements))
               for body in (from unit.root select
-                           BaseSubpBody or PackageBody or TaskBody or EntryBody)]
+                           (BaseSubpBody | PackageBody | TaskBody | EntryBody))]
     if t[2] > n
 ]
 

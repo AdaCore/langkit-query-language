@@ -20,11 +20,11 @@
 # Any part of the tree is a discriminant of the enclosing type decl
 fun is_using_discriminant(node, type_decl) =
     type_decl and
-    node is *(any children is id@Identifier
+    node is *(any children: id@Identifier
               when type_decl is TypeDecl(
-                 any children(depth=3) is DiscriminantSpec(
-                    f_ids is DefiningNameList(
-                        any children is i@Identifier
+                 any children(depth=3): DiscriminantSpec(
+                    f_ids: DefiningNameList(
+                        any children: i@Identifier
                         when i.p_name_matches(id)))))
 
 fun get_type_decl(node) =
@@ -33,31 +33,31 @@ fun get_type_decl(node) =
 # A self-reference has the form Type'Access
 fun is_self_referencing(expr, type_decl) =
     type_decl and
-    expr is *(any children is at@AttributeRef
+    expr is *(any children: at@AttributeRef
               when at.f_attribute.p_name_is("Access")
                and at.f_prefix.p_name_matches(type_decl.f_name?.f_name))
 
 @check(message="anonymous subtype", category="Feature")
 fun anonymous_subtypes(node) =
-    node is (SubtypeIndication(f_constraint is constraint@Constraint)
+    node is ((SubtypeIndication(f_constraint: constraint@Constraint)
          when (not (constraint is
-                    CompositeConstraint(p_is_discriminant_constraint() is true)
+                    CompositeConstraint(p_is_discriminant_constraint(): true)
                     and is_self_referencing(constraint, get_type_decl(node))))
           and not (node.parent is SubtypeDecl and
                    constraint is
-                       RangeConstraint or
+                       (RangeConstraint |
                        (CompositeConstraint
                         when constraint.p_is_discriminant_constraint()
                         # If it's an index constraint, check that all
                         # constraints are references to other types
                           or not [c for c in constraint.f_constraints.children
                                   if c.f_constraint_expr is not Name(
-                                      p_referenced_decl() is BaseTypeDecl)])))
-    or BinOp(f_op is OpDoubleDot,
-             parent is not RangeSpec(parent is TypeDef or ComponentClause),
-             all parent is not Constraint(parent is SubtypeIndication))
-    or AttributeRef(f_attribute is Identifier(p_name_is("Range") is true),
-                    parent is not RangeSpec(parent is
-                                            TypeDef or ComponentClause),
-                    all parent is not Constraint(parent is SubtypeIndication))
+                                      p_referenced_decl(): BaseTypeDecl)]))))
+    | BinOp(f_op: OpDoubleDot,
+             parent: not RangeSpec(parent: TypeDef | ComponentClause),
+             all parent: not Constraint(parent: SubtypeIndication))
+    | AttributeRef(f_attribute: Identifier(p_name_is("Range"): true),
+                    parent: not RangeSpec(parent:
+                                            TypeDef | ComponentClause),
+                    all parent: not Constraint(parent: SubtypeIndication)))
     and not is_using_discriminant(node, get_type_decl(node))

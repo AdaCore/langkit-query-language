@@ -17,7 +17,7 @@ fun potential_parameters_aliasing(unit, in_parameters = false) = [
                   canonical_indexes=true),
      loc: n.parent}
     for n in from unit.root select
-    AssocList(parent is call@CallExpr(p_is_call() is true))
+    AssocList(parent: call@CallExpr(p_is_call(): true))
     when parameters_aliasing.params_aliasing(
              call.p_call_params(), in_parameters, canonical_indexes=true)
 ]

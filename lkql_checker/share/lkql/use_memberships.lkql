@@ -13,39 +13,39 @@ fun check_expr(expr, id, short_circuit) =
     # Strip parenthesis
     | ParenExpr                    => check_expr(expr.f_expr, id, short_circuit)
     # Check both "or" operands
-    | BinOp(f_op is OpOr or OpOrElse when short_circuit) =>
+    | BinOp(f_op: OpOr | OpOrElse when short_circuit) =>
         check_expr(expr.f_left, id, short_circuit) and
         check_expr(expr.f_right, id, short_circuit)
     # Allow X >= E1 and X <= E2
-    | BinOp(f_op is (op@OpAnd when stdlib.is_predefined_op(op)) or
+    | BinOp(f_op: (op@OpAnd when stdlib.is_predefined_op(op)) |
                     OpAndThen when short_circuit) =>
         expr.f_left is RelationOp(
-            f_op is gte@OpGte,
-            f_left is Identifier(p_name_matches(id) is true)) when
+            f_op: gte@OpGte,
+            f_left: Identifier(p_name_matches(id): true)) when
         expr.f_right is RelationOp(
-            f_op is lte@OpLte,
-            f_left is Identifier(p_name_matches(id) is true)) when
+            f_op: lte@OpLte,
+            f_left: Identifier(p_name_matches(id): true)) when
         stdlib.is_predefined_op(gte) and
         stdlib.is_predefined_op(lte)
     # Allow X = C
-    | RelationOp(f_op is op@OpEq)  =>
-        expr.f_left is Name(p_name_matches(id) is true) and
+    | RelationOp(f_op: op@OpEq)  =>
+        expr.f_left is Name(p_name_matches(id): true) and
         stdlib.is_predefined_op(op)
     # Allow X in ...
-    | MembershipExpr(f_op is OpIn) => expr.f_expr.p_name_matches(id)
+    | MembershipExpr(f_op: OpIn) => expr.f_expr.p_name_matches(id)
     # Reject anything else
     | *                            => false
 
 @check(message="expression may be replaced by a membership test",
        category="Style", subcategory="Programming Practice")
 fun use_memberships(node, short_circuit = false) =
-    node is BinOp(parent is not Expr,
-                  f_op is (op@OpOr when stdlib.is_predefined_op(op)) or
+    node is BinOp(parent: not Expr,
+                  f_op: (op@OpOr when stdlib.is_predefined_op(op)) |
                           OpOrElse when short_circuit)
     # Find a first variable used as LHS (id) and pass it to check_expr
     and match (from node select first
-               RelationOp(f_left is Identifier)
-               or MembershipExpr(f_expr is Identifier))
+               (RelationOp(f_left: Identifier)
+               | MembershipExpr(f_expr: Identifier)))
         | r@RelationOp     => check_expr(node, r.f_left, short_circuit)
         | m@MembershipExpr => check_expr(node, m.f_expr, short_circuit)
         | *                => false

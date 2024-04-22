@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltInsHolder;
-import com.adacore.lkql_jit.built_ins.selectors.BuiltInSelector;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.TranslatorException;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
@@ -132,11 +131,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
             this.scriptFramesBuilder.addBuiltIn(function.getName());
         }
 
-        // Add the built-in selectors
-        for (BuiltInSelector selector : BuiltInsHolder.get().builtInSelectors) {
-            this.scriptFramesBuilder.addBuiltIn(selector.getName());
-        }
-
         this.traverseChildren(topLevelList);
         this.scriptFramesBuilder.closeFrame();
         return null;
@@ -184,7 +178,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     public Void visit(Liblkqllang.SelectorArm selectorArm) {
         this.scriptFramesBuilder.openVirtualFrame(selectorArm);
         selectorArm.fPattern().accept(this);
-        selectorArm.fExprsList().accept(this);
+        selectorArm.fExpr().accept(this);
         this.scriptFramesBuilder.closeFrame();
         return null;
     }
@@ -273,7 +267,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         // TODO: Enable the duplicate binding detection here
         // checkDuplicateBindings(symbol, bindingPattern.fBinding());
         this.scriptFramesBuilder.addBinding(symbol);
-        bindingPattern.fValuePattern().accept(this);
+        if (!bindingPattern.fValuePattern().isNone()) {
+            bindingPattern.fValuePattern().accept(this);
+        }
         return null;
     }
 
@@ -380,6 +376,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         }
         query.fPattern().accept(this);
         this.scriptFramesBuilder.closeFrame();
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.RecExpr recExpr) {
+        traverseChildren(recExpr);
         return null;
     }
 
@@ -493,6 +495,16 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.SubBlockLiteral subBlockLiteral) {
         traverseChildren(subBlockLiteral);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.UnpackAbsent unpackAbsent) {
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.UnpackPresent unpackPresent) {
         return null;
     }
 
@@ -649,12 +661,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.ArithBinOp arithBinOp) {
         traverseChildren(arithBinOp);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.Unpack unpack) {
-        traverseChildren(unpack);
         return null;
     }
 
@@ -889,36 +895,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.FunCall funCall) {
         traverseChildren(funCall);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExprModeDefault selectorExprModeDefault) {
-        traverseChildren(selectorExprModeDefault);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExprModeRec selectorExprModeRec) {
-        traverseChildren(selectorExprModeRec);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExprModeSkip selectorExprModeSkip) {
-        traverseChildren(selectorExprModeSkip);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExpr selectorExpr) {
-        traverseChildren(selectorExpr);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.SelectorExprList selectorExprList) {
-        traverseChildren(selectorExprList);
         return null;
     }
 

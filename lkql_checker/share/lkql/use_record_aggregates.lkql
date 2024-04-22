@@ -6,25 +6,26 @@
 fun assign_stmts(n, prefix) =
     |" Return all consecutive AssignStmt starting at n and following siblings
     |" when the destination is a DottedName whose prefix matches prefix.
-    if n is AssignStmt(f_dest is DottedName(
-                       f_prefix is Name(p_name_matches(prefix) is true)))
-    then [n] & assign_stmts(n.next_sibling(), prefix) else []
+    match n
+    | AssignStmt(f_dest: DottedName(f_prefix: Name(p_name_matches(prefix): true)))
+        => [n] & assign_stmts(n.next_sibling(), prefix)
+    | * => []
 
 @check(message="component assignments may be replaced by an aggregate",
        category="Style", subcategory="Programming Practice")
 fun use_record_aggregates(node) =
     node is AssignStmt(
-        f_dest is DottedName(
-            f_prefix is prefix@Name,
-            f_suffix is Identifier(
-                p_referenced_decl() is ComponentDecl(
-                    p_semantic_parent() is type@TypeDecl(
-                        f_discriminants is null,
-                        p_is_tagged_type() is false)))))
+        f_dest: DottedName(
+            f_prefix: prefix@Name,
+            f_suffix: Identifier(
+                p_referenced_decl(): ComponentDecl(
+                    p_semantic_parent(): type@TypeDecl(
+                        f_discriminants: null,
+                        p_is_tagged_type(): false)))))
     # Only check for the first assignment in a row
     when node.previous_sibling() is not
-         AssignStmt(f_dest is DottedName(
-                    f_prefix is Name(p_name_matches(prefix) is true))) and
+         AssignStmt(f_dest: DottedName(
+                    f_prefix: Name(p_name_matches(prefix): true))) and
     {
         val num_comps = (from type.f_type_def select DefiningName).length;
         # More than 1 component
@@ -32,10 +33,10 @@ fun use_record_aggregates(node) =
         # All components are assigned individually
         unique([s.f_dest.f_suffix.text
                 for s in (from assign_stmts(node, prefix) select s@AssignStmt(
-                    f_dest is DottedName(
+                    f_dest: DottedName(
                         # Check that the suffix is a ComponentDecl of the same
                         # type.
-                        f_suffix is Identifier(p_referenced_decl() is
+                        f_suffix: Identifier(p_referenced_decl():
                                                c2@ComponentDecl)
                         when type == c2.p_semantic_parent())))])
         .length == num_comps

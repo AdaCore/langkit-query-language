@@ -5,7 +5,7 @@ fun check_generic(n) =
     |" Return true if the generic decl corresponding to n contains more than 1
     |" formal parameter.
     [(match x.f_decl
-      | d@(ObjectDecl or NumberDecl) => d.f_ids.children_count
+      | d@(ObjectDecl | NumberDecl) => d.f_ids.children_count
       | *                            => 1)
      for x in from n.p_referenced_decl().f_formal_part.f_decls
               select GenericFormal].length > 1
@@ -13,8 +13,8 @@ fun check_generic(n) =
 @check(message="positional generic association", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun positional_generic_parameters(node) =
-    node is ParamAssoc(f_designator is null,
-                       parent is l@AssocList(parent is g@GenericInstantiation))
+    node is ParamAssoc(f_designator: null,
+                       parent: l@AssocList(parent: g@GenericInstantiation))
     when l.children_count > 1
       or match g
          | p@GenericSubpInstantiation    => check_generic(p.f_generic_subp_name)

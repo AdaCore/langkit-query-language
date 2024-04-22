@@ -26,10 +26,10 @@ fun check_actual_param(spec, node, check_dot) =
 @check(message="positional parameter association", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun positional_parameters(node, all=false) =
-    node is ParamAssoc(f_designator is null, parent is l@AssocList)
+    node is ParamAssoc(f_designator: null, parent: l@AssocList)
     when l.parent is c@CallExpr(
-        p_is_call() is true,
-        f_name is not AttributeRef,
-        f_name is id@*(p_is_operator_name() is false)
+        p_is_call(): true,
+        f_name: not AttributeRef,
+        f_name: id@*(p_is_operator_name(): false)
             when (all or check_actual_param(c.p_called_subp_spec(), node,
                                             id.p_is_dot_call())))

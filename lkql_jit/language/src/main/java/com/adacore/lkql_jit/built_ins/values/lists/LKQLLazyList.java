@@ -8,8 +8,11 @@ package com.adacore.lkql_jit.built_ins.values.lists;
 import com.adacore.lkql_jit.built_ins.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.built_ins.values.iterators.LKQLLazyListIterator;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
+import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.ArrayList;
@@ -68,5 +71,13 @@ public abstract class LKQLLazyList extends BaseLKQLList {
     @ExportMessage
     public static int identityHashCode(LKQLLazyList receiver) {
         return System.identityHashCode(receiver);
+    }
+
+    @Override
+    @ExportMessage
+    public Object toDisplayString(
+            @SuppressWarnings("unused") final boolean allowSideEffect,
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems) {
+        return "<" + LKQLTypesHelper.LKQL_LAZY_LIST + ">";
     }
 }

@@ -18,5 +18,5 @@ fun canonical_exception_name(name) = {
 
 @check(message="explicit raise of a predefined exception", category="Feature")
 fun raising_predefined_exceptions(node) =
-    node is RaiseStmt(f_exception_name is exc@Name)
+    node is RaiseStmt(f_exception_name: exc@Name)
     when is_predefined_raise(canonical_exception_name(exc))

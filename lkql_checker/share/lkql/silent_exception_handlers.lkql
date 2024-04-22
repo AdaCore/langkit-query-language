@@ -13,14 +13,14 @@ import control_flow
        category="Style", subcategory="Programming Practice")
 fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) = {
     fun is_raise_or_log(stmt) =
-        stmt is RaiseStmt
-        or n@BaseId(p_is_call() is true)
+        stmt is (RaiseStmt
+        | n@BaseId(p_is_call(): true)
             when n.p_referenced_decl() is decl@BasicDecl
                 when match decl.p_canonical_fully_qualified_name()
                  | "^ada.exceptions.(raise_exception|reraise_occurrence)$" => true
-                 | n@* => [s for s in subprograms if n == s] or
+                 | n => [s for s in subprograms if n == s] or
                           [r for r in subprogram_regexps
-                           if n.contains(pattern(r, case_sensitive=false))];
+                           if n.contains(pattern(r, case_sensitive=false))]);
 
     # Run a `must` control-flow analysis on the given exception handler to check
     # that *all* execution paths contain a raise statement or a call to an

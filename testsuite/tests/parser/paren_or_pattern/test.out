@@ -1,5 +1,6 @@
 TopLevelList
 |  Query
+|  |f_unpack_from: <null>
 |  |f_from_expr: <null>
 |  |f_through_expr: <null>
 |  |f_query_kind:
@@ -27,15 +28,16 @@ TopLevelList
 |  |  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  |  Identifier: C
 |  Query
+|  |f_unpack_from: <null>
 |  |f_from_expr: <null>
 |  |f_through_expr: <null>
 |  |f_query_kind:
 |  |  QueryKindAll
 |  |f_pattern:
-|  |  OrPattern
-|  |  |f_left:
-|  |  |  ParenPattern
-|  |  |  |f_pattern:
+|  |  ParenPattern
+|  |  |f_pattern:
+|  |  |  OrPattern
+|  |  |  |f_left:
 |  |  |  |  BindingPattern
 |  |  |  |  |f_binding:
 |  |  |  |  |  Identifier: x
@@ -43,11 +45,9 @@ TopLevelList
 |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  Identifier: A
-|  |  |f_right:
-|  |  |  OrPattern
-|  |  |  |f_left:
-|  |  |  |  ParenPattern
-|  |  |  |  |f_pattern:
+|  |  |  |f_right:
+|  |  |  |  OrPattern
+|  |  |  |  |f_left:
 |  |  |  |  |  BindingPattern
 |  |  |  |  |  |f_binding:
 |  |  |  |  |  |  Identifier: x
@@ -55,9 +55,7 @@ TopLevelList
 |  |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  |  Identifier: B
-|  |  |  |f_right:
-|  |  |  |  ParenPattern
-|  |  |  |  |f_pattern:
+|  |  |  |  |f_right:
 |  |  |  |  |  BindingPattern
 |  |  |  |  |  |f_binding:
 |  |  |  |  |  |  Identifier: x

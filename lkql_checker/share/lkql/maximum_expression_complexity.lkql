@@ -10,8 +10,8 @@
 fun num_expr(node) =
     |" Return the number of relevant expressions as defined above of a given
     |" node.
-    (from node select (e@SingleTokNode when e is not Op) or CondExpr or
-                       QuantifiedExpr or BaseAggregate or TargetName).length
+    (from node select ((e@SingleTokNode when e is not Op) | CondExpr |
+                       QuantifiedExpr | BaseAggregate | TargetName)).length
 
 @unit_check(help="maximum complexity of an expression",
             category="Style", subcategory="Program Structure")
@@ -23,6 +23,6 @@ fun maximum_expression_complexity(unit, n: int = 10) = [
     # slow down this rule significantly and checking one level is good enough
     # in practice.
     # Exclude standalone identifiers which are not expressions per se.
-    expr@Expr(parent is not Expr)
-    when expr is not (Identifier or DefiningName or EndName)
+    expr@Expr(parent: not Expr)
+    when expr is not (Identifier | DefiningName | EndName)
      and num_expr(expr) > n]

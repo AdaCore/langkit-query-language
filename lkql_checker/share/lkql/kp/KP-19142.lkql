@@ -22,10 +22,10 @@ fun is_unconstrained_discriminated(type_decl) =
     match type_decl
     | SubtypeDecl  => not type_decl.f_subtype.p_subtype_constraint()
                       and is_unconstrained_discriminated(type_decl.p_get_type())
-    | BaseTypeDecl(p_base_type() is not null)
+    | BaseTypeDecl(p_base_type(): not null)
                    => not type_decl.f_type_def.f_subtype_indication.p_subtype_constraint()
                       and is_unconstrained_discriminated(type_decl.p_base_type())
-    | BaseTypeDecl(p_private_completion() is not null)
+    | BaseTypeDecl(p_private_completion(): not null)
                    => is_unconstrained_discriminated(type_decl.p_private_completion())
     # TODO: Remove the 'p_discriminants_list' parameter when langkit#776 will be resolved
     | BaseTypeDecl => stdlib.any([d.f_default_expr != null
@@ -46,4 +46,4 @@ fun kp_19142(node) =
                                  for id in p.f_ids.children])
                      for p in node.f_subp_spec.p_params()
                      if is_unconstrained_discriminated(p.p_formal_type())
-                        and p.f_mode is (ModeOut or ModeInOut)])
+                        and p.f_mode is (ModeOut | ModeInOut)])

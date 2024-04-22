@@ -7,7 +7,7 @@ fun check_deps(node, n : int) =
     |" Return true if node has a chain of at least n generic units withed
     n == 0 or
     node is LibraryItem(
-        parent is unit@CompilationUnit
+        parent: unit@CompilationUnit
         when [x for x in concat(
                   [[p for p in w.f_packages.children
                       if p.p_referenced_decl() is GenericDecl].to_list

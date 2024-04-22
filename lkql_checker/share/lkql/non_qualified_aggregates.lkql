@@ -7,7 +7,7 @@
 @check(message="aggregate is not a part of a qualified expression",
        remediation="EASY", category="Feature")
 fun non_qualified_aggregates(node) =
-    node is Aggregate(p_expression_type() is not AnonymousTypeDecl,
-                      p_is_subaggregate() is false,
-                      all parent is not (QualExpr or AspectClause or Aggregate(
-                          p_expression_type() is not AnonymousTypeDecl)))
+    node is Aggregate(p_expression_type(): not AnonymousTypeDecl,
+                      p_is_subaggregate(): false,
+                      all parent: not (QualExpr | AspectClause | Aggregate(
+                          p_expression_type(): not AnonymousTypeDecl)))

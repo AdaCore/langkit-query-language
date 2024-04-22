@@ -1,2 +1,2 @@
-val declWithAssoc = select *(any children(depth=3) is AspectAssoc)
+val declWithAssoc = select *(any children(depth=3): AspectAssoc)
 print(declWithAssoc)

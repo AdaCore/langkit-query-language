@@ -11,9 +11,9 @@ import stdlib
 fun can_eval_as_int(expr) =
     |" Return true is expr is an expression on which p_eval_as_int() can be
     |" called.
-    expr is Expr(p_is_static_expr() is true,
-                 p_expression_type() is BaseTypeDecl(
-                     p_is_discrete_type() is true))
+    expr is Expr(p_is_static_expr(): true,
+                 p_expression_type(): BaseTypeDecl(
+                     p_is_discrete_type(): true))
 
 @memoized
 fun fully_expanded_name(name, canonical_indexes) =
@@ -33,7 +33,7 @@ fun fully_expanded_name(name, canonical_indexes) =
     # Punt on aggregates
     | BaseAggregate => "NO MATCH"
     # Punt for now on attribute references
-    | AttributeRef or ReduceAttributeRef or UpdateAttributeRef => "NO MATCH"
+    | (AttributeRef | ReduceAttributeRef | UpdateAttributeRef) => "NO MATCH"
     # Strip dereferences
     | ExplicitDeref => fully_expanded_name(name.f_prefix, canonical_indexes)
     # Strip type qualifications
@@ -41,7 +41,7 @@ fun fully_expanded_name(name, canonical_indexes) =
     | DottedName    =>
         # Strip named blocks and subprograms
         (if name.f_prefix is Identifier(
-             p_referenced_decl() is NamedStmtDecl or BasicSubpDecl or
+             p_referenced_decl(): NamedStmtDecl | BasicSubpDecl |
                                     BaseSubpBody)
          then ""
          else fully_expanded_name(name.f_prefix, canonical_indexes) & ".") &
@@ -52,7 +52,7 @@ fun fully_expanded_name(name, canonical_indexes) =
         # Punt on subprogram calls ("call")
         (if name.p_is_call()
          then "NO MATCH"
-         else if name.f_name is Name(p_referenced_decl() is BaseTypeDecl)
+         else if name.f_name is Name(p_referenced_decl(): BaseTypeDecl)
          # Strip type conversions ("type_conversion")
          then fully_expanded_name(name.f_suffix[1].f_r_expr, canonical_indexes)
          else if name.p_is_array_slice()
@@ -75,19 +75,19 @@ fun fully_expanded_name(name, canonical_indexes) =
                then img([(if can_eval_as_int(n.f_r_expr)
                           then img(n.f_r_expr.p_eval_as_int())
                           else 0)
-                         for n in name.f_suffix.children])
+                         for n in name.f_suffix.children].to_list)
                else img([fully_expanded_name(n.f_r_expr, canonical_indexes)
-                         for n in name.f_suffix.children])) & ")")
+                         for n in name.f_suffix.children].to_list)) & ")")
     | Name          =>
         (match name.p_referenced_decl()
          # Follow renamings
-         | ObjectDecl(f_renaming_clause is r@RenamingClause) =>
+         | ObjectDecl(f_renaming_clause: r@RenamingClause) =>
              fully_expanded_name(r.f_renamed_object, canonical_indexes)
          | decl@PackageRenamingDecl =>
              fully_expanded_name(decl.p_final_renamed_package(), canonical_indexes)
          | * => name.text.to_lower_case)
     | BasicDecl     => name.p_defining_name().text.to_lower_case
-    | StringLiteral or CharLiteral => name.text
+    | (StringLiteral | CharLiteral) => name.text
     # Punt on all other expressions
     | Expr          => "NO MATCH"
     # Default fallback: take the name in lower case
@@ -116,14 +116,14 @@ fun second_param(params, p, canonical_indexes) =
     # the second pair.
     [q for q in params
      if p != q and
-        q.param.parent.parent is ParamSpec(f_mode is ModeOut or ModeInOut) and
+        q.param.parent.parent is ParamSpec(f_mode: ModeOut | ModeInOut) and
         param_aliasing(p.actual, q.actual, canonical_indexes)]
 
 fun params_aliasing(params, in_parameters, canonical_indexes = false) =
     # We consider out and in (if in_parameters) here, and only out parameters
     # in second_param, since at least one of the aliases should be [in] out.
     [p for p in params
-     if (p.param.parent.parent is ParamSpec(f_mode is ModeOut or ModeInOut) or
+     if (p.param.parent.parent is ParamSpec(f_mode: ModeOut | ModeInOut) or
          (in_parameters and not stdlib.is_by_copy(p))) and
         second_param(params, p, canonical_indexes)]
 
@@ -140,6 +140,6 @@ fun parameters_aliasing(unit, in_parameters = false) = [
               param_image(n.parent.p_call_params(), in_parameters),
      loc: n.parent}
     for n in from unit.root select
-    AssocList(parent is call@CallExpr(p_is_call() is true))
+    AssocList(parent: call@CallExpr(p_is_call(): true))
     when params_aliasing(call.p_call_params(), in_parameters)
 ]

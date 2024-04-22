@@ -72,34 +72,6 @@ Builtin functions
 
     Given a unit, apply all the unit checker on it
 
-Builtin selectors
-^^^^^^^^^^^^^^^^^
-
-.. function:: children()
-
-    Yields all the descendants of the given node in the tree
-    
-
-.. function:: parent()
-
-    Yields the parents (ancestors) of the given node in the tree
-    
-
-.. function:: next_siblings()
-
-    Yields the siblings following the given node in the tree
-    
-
-.. function:: prev_siblings()
-
-    Yields the siblings preceding the given node in the tree
-    
-
-.. function:: super_types()
-
-    Given a TypeDecl node, yields all the super types of the type
-    
-
 Builtin methods
 ^^^^^^^^^^^^^^^
 

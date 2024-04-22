@@ -17,14 +17,14 @@
        category="Style", subcategory="Programming Practice")
 fun enumeration_ranges_in_case_statements(node) =
     node is AlternativesList(
-        any parent(depth=3) is CaseStmt(
+        any parent(depth=3): CaseStmt(
             # case statement over enumeration
-            f_expr is e@Expr
-            when e.p_expression_type() is BaseTypeDecl(p_is_enum_type() is true)),
-        any children is
+            f_expr: e@Expr
+            when e.p_expression_type() is BaseTypeDecl(p_is_enum_type(): true)),
+        any children:
             # explicit range
-            BinOp(f_op is OpDoubleDot) or
+            BinOp(f_op: OpDoubleDot) |
             # subtype mark
-            Identifier(p_referenced_decl() is BaseTypeDecl) or
+            Identifier(p_referenced_decl(): BaseTypeDecl) |
             # range attribute
-            AttributeRef(f_attribute is Identifier(p_name_is("Range") is true)))
+            AttributeRef(f_attribute: Identifier(p_name_is("Range"): true)))

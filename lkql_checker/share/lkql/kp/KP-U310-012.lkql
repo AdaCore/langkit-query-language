@@ -3,13 +3,13 @@
 
 fun is_unconstrained(t) =
     t.f_type_def is
-        ArrayTypeDef(f_indices is UnconstrainedArrayIndices) or
-    t is ConcreteTypeDecl(f_discriminants is KnownDiscriminantPart)
+        ArrayTypeDef(f_indices: UnconstrainedArrayIndices) or
+    t is ConcreteTypeDecl(f_discriminants: KnownDiscriminantPart)
 
 @check(message="possible occurrence of KP U310-012", impact="22.*")
 fun kp_u310_012(node) =
-    node is SubpSpec(f_subp_kind is SubpKindFunction)
-    when node.p_return_type() is TypeDecl(p_full_view() is ret@TypeDecl)
+    node is SubpSpec(f_subp_kind: SubpKindFunction)
+    when node.p_return_type() is TypeDecl(p_full_view(): ret@TypeDecl)
      when is_unconstrained(ret)
       and (node.parent.p_has_aspect("Post") or
            ret.p_has_aspect("Type_Invariant"))

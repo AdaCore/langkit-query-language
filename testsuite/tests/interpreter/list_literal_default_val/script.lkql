@@ -1,4 +1,4 @@
 fun woot(v = ["hello", "how", "are", "you"]) =
     [el.length for el in v]
 
-print(woot())
+print(woot().to_list)

@@ -3,6 +3,6 @@
 @check(message="concurrent interface",
        category="Style", subcategory="Programming Practice")
 fun concurrent_interfaces(node) =
-    node is InterfaceKindSynchronized or
-            InterfaceKindTask or
-            InterfaceKindProtected
+    node is (InterfaceKindSynchronized |
+            InterfaceKindTask |
+            InterfaceKindProtected)

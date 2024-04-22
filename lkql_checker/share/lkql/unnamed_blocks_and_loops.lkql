@@ -7,11 +7,11 @@
 fun unnamed_blocks_and_loops(unit) = [
     {message: "non-named " &
               (if n is BlockStmt then "block"
-               else (if n is BaseLoopStmt(any children is BaseLoopStmt)
+               else (if n is BaseLoopStmt(any children: BaseLoopStmt)
                      then "nesting " else "nested ") & "loop") & " statement",
      loc: n}
     for n in from unit.root select node@CompositeStmt
     when (not node.parent is NamedStmt)
-     and node is BlockStmt or
-                 BaseLoopStmt (any children is BaseLoopStmt) or
-                 BaseLoopStmt (any parent is BaseLoopStmt)]
+     and node is (BlockStmt |
+                 BaseLoopStmt (any children: BaseLoopStmt) |
+                 BaseLoopStmt (any parent: BaseLoopStmt))]

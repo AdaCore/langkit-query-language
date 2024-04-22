@@ -4,4 +4,4 @@
        message="possible occurrence of KP UB15-001: use of Small aspect",
        impact="18.*,19.*,20.*,21.*")
 fun kp_ub15_001(node) =
-    node is AspectAssoc(f_id is Identifier(p_name_is("Small") is true))
+    node is AspectAssoc(f_id: Identifier(p_name_is("Small"): true))

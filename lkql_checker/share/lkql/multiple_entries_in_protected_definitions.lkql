@@ -7,4 +7,4 @@
 @check(message="more than one entry in protected definition",
        category="Style", subcategory="Tasking")
 fun multiple_entries_in_protected_definitions(node) =
-    node is EntryDecl(any prev_siblings is EntryDecl)
+    node is EntryDecl(any prev_siblings: EntryDecl)

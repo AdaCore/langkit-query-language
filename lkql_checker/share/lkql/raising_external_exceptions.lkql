@@ -15,14 +15,14 @@ fun is_predefined_exception(e) = {
 fun check_raise(n, lib) = {
     val e = n.f_exception_name.p_referenced_decl();
     not (is_predefined_exception(e)
-         or e is *(all parent is not PrivatePart,
-                   any parent is exc_lib@LibraryItem when exc_lib == lib))
+         or e is *(all parent: not PrivatePart,
+                   any parent: exc_lib@LibraryItem when exc_lib == lib))
 }
 
 @check(message="raised exception is not declared in visible part of enclosing library package",
        category="Style", subcategory="Program Structure")
 fun raising_external_exceptions(node) =
-    node is RaiseStmt(f_exception_name is Name, any parent is lib@LibraryItem
+    node is RaiseStmt(f_exception_name: Name, any parent: lib@LibraryItem
     when match lib.f_item
     | BasePackageDecl => check_raise(node, lib)
     | PackageBody     => check_raise(node, lib.f_item.p_decl_part()?.parent)

@@ -13,22 +13,22 @@ fun use_ranges(unit) = [
      loc: n}
     for n in from unit.root select
     # Find 'Range in membership tests, for loop spec or case statements/expr
-    AttributeRef(
-        f_attribute is Identifier(
-            p_name_is("Range") is true),
-        parent is ForLoopSpec or
-            ExprAlternativesList or
+    (AttributeRef(
+        f_attribute: Identifier(
+            p_name_is("Range"): true),
+        parent: ForLoopSpec |
+            ExprAlternativesList |
             AlternativesList(
-                parent is CaseStmtAlternative or CaseExprAlternative),
-        f_prefix is Name(
-            p_referenced_decl() is BaseTypeDecl(
-                p_is_discrete_type() is true))) or
+                parent: CaseStmtAlternative | CaseExprAlternative),
+        f_prefix: Name(
+            p_referenced_decl(): BaseTypeDecl(
+                p_is_discrete_type(): true))) |
     # Find T'First .. T'Last
-    BinOp(f_op is OpDoubleDot,
-          f_left is AttributeRef(
-              f_attribute is Identifier(p_name_is("First") is true),
-              f_prefix is name@Name),
-          f_right is AttributeRef(
-              f_attribute is Identifier(p_name_is("Last") is true),
-              f_prefix is Name(p_name_matches(name) is true)))
+    BinOp(f_op: OpDoubleDot,
+          f_left: AttributeRef(
+              f_attribute: Identifier(p_name_is("First"): true),
+              f_prefix: name@Name),
+          f_right: AttributeRef(
+              f_attribute: Identifier(p_name_is("Last"): true),
+              f_prefix: Name(p_name_matches(name): true))))
 ]

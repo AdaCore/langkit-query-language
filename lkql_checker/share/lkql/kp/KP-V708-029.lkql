@@ -7,6 +7,6 @@ fun kp_v708_029(node) =
     when node.f_attribute.p_name_is("Image")
      and match node.f_prefix.p_referenced_decl()
          | t@BaseTypeDecl              => not t.p_is_discrete_type()
-         | o@(ObjectDecl or ParamSpec) =>
+         | o@(ObjectDecl | ParamSpec) =>
              not o.f_type_expr.p_designated_type_decl().p_is_discrete_type()
          | * => not node.p_expression_type().p_is_discrete_type()

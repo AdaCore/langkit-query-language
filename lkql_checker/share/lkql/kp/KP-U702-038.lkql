@@ -4,9 +4,9 @@
 @check(message="possible occurrence of KP U702-038", impact="21.*")
 fun kp_u702_038(node) =
     node is ObjectDecl(
-        f_default_expr is Allocator,
-        f_type_expr is TypeExpr(
-            p_designated_type_decl() is AnonymousTypeDecl(
-                p_accessed_type() is
-                    ClasswideTypeDecl or
-                    BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl))))
+        f_default_expr: Allocator,
+        f_type_expr: TypeExpr(
+            p_designated_type_decl(): AnonymousTypeDecl(
+                p_accessed_type():
+                    ClasswideTypeDecl |
+                    BaseSubtypeDecl(p_base_subtype(): ClasswideTypeDecl))))

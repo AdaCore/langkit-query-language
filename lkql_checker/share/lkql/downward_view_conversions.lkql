@@ -16,7 +16,7 @@ fun is_tagged(typ) =
     |" Whether typ is tagged or an access to a tagged type
     |" TODO: Maybe share in the stdlib?
     typ.p_is_tagged_type()
-    or typ.p_accessed_type() is BaseTypeDecl(p_is_tagged_type() is true)
+    or typ.p_accessed_type() is BaseTypeDecl(p_is_tagged_type(): true)
 
 @check(message="downward view conversion",
        category="Style", subcategory="Object Orientation")
@@ -24,8 +24,8 @@ fun downward_view_conversions(node) =
 
     node is CallExpr(
         # Select type conversions
-        p_referenced_decl() is BaseTypeDecl(
-            p_base_subtype() is t@BaseTypeDecl when is_tagged (t)
+        p_referenced_decl(): BaseTypeDecl(
+            p_base_subtype(): t@BaseTypeDecl when is_tagged (t)
         )
     )
 

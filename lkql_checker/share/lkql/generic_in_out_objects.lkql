@@ -2,4 +2,4 @@
 
 @check(message="generic IN OUT object", category="Feature")
 fun generic_in_out_objects(node) =
-    node is GenericFormalObjDecl(f_decl is ObjectDecl(f_mode is ModeInOut))
+    node is GenericFormalObjDecl(f_decl: ObjectDecl(f_mode: ModeInOut))

@@ -14,7 +14,7 @@ fun check_type(t) =
     t.p_get_record_representation_clause() is rep@RecordRepClause when
     # and at least one component clause has a size that is not a power of two
     [f for f in (from rep select ComponentClause(
-                  f_range is RangeSpec(f_range is r@BinOp(f_op is OpDoubleDot))
+                  f_range: RangeSpec(f_range: r@BinOp(f_op: OpDoubleDot))
                   when not is_power_of_two(r.f_right.p_eval_as_int() -
                                            r.f_left.p_eval_as_int() + 1)
       ))]

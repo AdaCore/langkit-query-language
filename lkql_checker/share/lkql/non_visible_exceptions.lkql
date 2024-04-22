@@ -28,22 +28,22 @@ fun non_visible_exceptions(unit) = [
      loc: n}
     for n in from unit.root select
     # Find exception identifiers part of an ExceptionDecl and not a renaming...
-    node@(Identifier(parent is DefiningName(parent is DefiningNameList(parent is
-                                            e@ExceptionDecl(f_renames is null)
+    node@(Identifier(parent: DefiningName(parent: DefiningNameList(parent:
+                                            e@ExceptionDecl(f_renames: null)
     # ...declared in a subprogram body, task body or block
-    when e.p_semantic_parent() is p@(SubpBody or TaskBody or DeclBlock)
+    when e.p_semantic_parent() is p@(SubpBody | TaskBody | DeclBlock)
        # with either no exception handler
        when not p.f_stmts.f_exceptions
          # or no handler referencing node or "others"
          or not p.f_stmts.f_exceptions is
-            AdaNodeList(any children(depth=3) is
-                OthersDesignator or
-                (id@(Identifier or DottedName)
+            AdaNodeList(any children(depth=3):
+                OthersDesignator |
+                (id@(Identifier | DottedName)
                  when stdlib.ultimate_exception_alias(id) == e)))))
     # Find also raise statements in an exception handler of a subprogram body,
     # task body or block statement
-    or RaiseStmt(any parent is h@ExceptionHandler
-        when h.p_semantic_parent() is p@(SubpBody or TaskBody or DeclBlock)
+    | RaiseStmt(any parent: h@ExceptionHandler
+        when h.p_semantic_parent() is p@(SubpBody | TaskBody | DeclBlock)
          when
            # raises a locally declared exception
            if node.f_exception_name
@@ -51,5 +51,5 @@ fun non_visible_exceptions(unit) = [
                 == p.f_decls
            # does not specify an exception name and the enclosing handler
            # contains a locally declared exception in its choices
-           else h.f_handled_exceptions is *(any children is id@Identifier
+           else h.f_handled_exceptions is *(any children: id@Identifier
                 when id.p_referenced_decl()?.p_semantic_parent?() == p)))]

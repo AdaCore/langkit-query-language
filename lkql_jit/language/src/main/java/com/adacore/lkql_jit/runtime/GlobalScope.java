@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.runtime;
 
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltInsHolder;
-import com.adacore.lkql_jit.built_ins.selectors.BuiltInSelector;
+import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.utils.checkers.BaseChecker;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.HashMap;
@@ -26,8 +26,13 @@ public final class GlobalScope {
     /** The defined LKQL rules. */
     private final Map<String, BaseChecker> checkers;
 
-    /** The array containing the built-in functions and selectors. */
+    /** The array containing the built-in functions . */
     private final Object[] builtIns;
+
+    public LKQLNamespace prelude = null;
+
+    public HashMap<String, Integer> preludeMap = new HashMap<>();
+    public Object[] preludeObjects = null;
 
     /** The meta tables that contains built-in methods. */
     private final Map<String, Map<String, BuiltInFunctionValue>> metaTables;
@@ -55,12 +60,6 @@ public final class GlobalScope {
         for (int i = 0; i < builtInsHolder.builtInFunctions.size(); i++) {
             BuiltInFunctionValue function = builtInsHolder.builtInFunctions.get(i);
             builtIns[i] = function;
-        }
-
-        // Add the built-in selectors
-        for (int i = 0; i < builtInsHolder.builtInSelectors.size(); i++) {
-            BuiltInSelector selector = builtInsHolder.builtInSelectors.get(i);
-            builtIns[i + builtInsHolder.builtInFunctions.size()] = selector.getValue();
         }
 
         // Add the built-in methods

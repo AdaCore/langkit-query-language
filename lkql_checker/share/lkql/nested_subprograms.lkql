@@ -12,11 +12,11 @@ import stdlib
 @check(message="subprogram declared in executable body",
        category="Style", subcategory="Programming Practice")
 fun nested_subprograms(node) =
-    node is (SubpBody or ExprFunction or SubpBodyStub or BasicSubpDecl or
+    node is (SubpBody | ExprFunction | SubpBodyStub | BasicSubpDecl |
              GenericSubpInstantiation)
-    when (node is (BasicSubpDecl or GenericSubpInstantiation) or
-          node.p_previous_part() is null or SubpBodyStub)
+    when (node is (BasicSubpDecl | GenericSubpInstantiation) or
+          node.p_previous_part() is (null | SubpBodyStub))
      and node.p_semantic_parent()
-         is not (ProtectedTypeDecl or SingleProtectedDecl)
-     and node is not ClassicSubpDecl(p_body_part() is NullSubpDecl)
-     and node is *(any stdlib.semantic_parent is BaseSubpBody or TaskBody or EntryBody)
+         is not (ProtectedTypeDecl | SingleProtectedDecl)
+     and node is not ClassicSubpDecl(p_body_part(): NullSubpDecl)
+     and node is *(any stdlib.semantic_parent: BaseSubpBody | TaskBody | EntryBody)

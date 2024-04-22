@@ -19,6 +19,6 @@ fun kp_q609_033(node) =
     when has_no_local_timing_events_restriction(node.p_enclosing_compilation_unit())
      and stdlib.has_local_scope(node)
      and node.f_type_expr.p_designated_type_decl() is BaseTypeDecl(
-             any stdlib.component_types is type@TypeDecl
+             any stdlib.component_types: type@TypeDecl
              when type.p_fully_qualified_name() ==
                   "Ada.Real_Time.Timing_Events.Timing_Event")

@@ -7,6 +7,6 @@ fun is_array_or_record(n) =
 @check(message="aggregate with a positional component association",
        remediation="EASY", category="Style", subcategory="Programming Practice")
 fun positional_components(node) =
-    node is Aggregate(f_assocs is *(any children(depth=2) is a@AlternativesList
+    node is Aggregate(f_assocs: *(any children(depth=2): a@AlternativesList
                       when not a[1]))
     when is_array_or_record(node.p_expression_type())

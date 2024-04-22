@@ -10,7 +10,7 @@ fun check_list(l, functions) =
         val func = f.to_lower_case;
         # Find at least two calls to the same function
         [n for n in (from [p.actual for p in l].to_list select BaseId)
-         if n.p_referenced_decl() is decl@BasicDecl(p_is_subprogram() is true)
+         if n.p_referenced_decl() is decl@BasicDecl(p_is_subprogram(): true)
              when stdlib.ultimate_subprogram_alias(decl) is decl@BasicSubpDecl
                   when decl.p_canonical_fully_qualified_name() == func]?[2] != ()
     }]
@@ -18,8 +18,8 @@ fun check_list(l, functions) =
 @check(message="call with side effects",
        category="Style", subcategory="Programming Practice")
 fun side_effect_parameters(node, functions=[]) =
-    node is GenericInstantiation
+    node is (GenericInstantiation
             when check_list(node.p_inst_params(), functions)
-    or
-            AssocList(parent is n@Name(p_is_call() is true))
-            when check_list(n.p_call_params(), functions)
+    |
+            AssocList(parent: n@Name(p_is_call(): true))
+            when check_list(n.p_call_params(), functions))

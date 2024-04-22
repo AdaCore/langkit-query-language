@@ -8,26 +8,26 @@ fun is_overloaded(n) = {
     val d    = if n is BodyNode then n.p_decl_part() else n;
     val decl = if d == null then n else d;
 
-    decl is (ClassicSubpDecl or BaseSubpBody) and
+    decl is (ClassicSubpDecl | BaseSubpBody) and
     decl.f_subp_spec.f_subp_name is name@DefiningName
-    when (decl is *(any prev_siblings is sib@SubpDecl
+    when (decl is *(any prev_siblings: sib@SubpDecl
                    when sib.f_subp_spec.f_subp_name.p_name_matches(name)) or
-          decl is *(any next_siblings is sib@SubpDecl
+          decl is *(any next_siblings: sib@SubpDecl
                    when sib.f_subp_spec.f_subp_name.p_name_matches(name)))
 }
 
 fun is_wrong_call(n, pkg) =
    # n is a function call
-   n is Name(p_is_call() is true,
+   n is Name(p_is_call(): true,
    # declared in pkg
-             any stdlib.semantic_parent() is
+             any stdlib.semantic_parent():
                  p@GenericPackageDecl when p == pkg,
-             p_referenced_decl() is decl@*)
+             p_referenced_decl(): decl)
    # and is overloaded
    when is_overloaded(decl)
    # and the result type is declared outside pkg
     and n.p_expression_type() is not
-        BasicDecl(any stdlib.semantic_parent is p@GenericPackageDecl
+        BasicDecl(any stdlib.semantic_parent: p@GenericPackageDecl
                   when p == pkg)
 
 fun check_params(n) = {
@@ -48,6 +48,6 @@ fun check_params(n) = {
        message="possible occurrence of KP 18801",
        impact="23.*")
 fun kp_18801(node) =
-    node is (BinOp(f_op is OpEq) or
-             CallExpr(p_kind() is "call") when node.f_name.p_name_is("\"=\""))
+    node is (BinOp(f_op: OpEq) |
+             CallExpr(p_kind(): "call") when node.f_name.p_name_is("\"=\""))
     when check_params(node)

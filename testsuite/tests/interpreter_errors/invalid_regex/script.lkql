@@ -1,2 +1,2 @@
 # Should show an error as the string below is not a valid regex
-select BasicDecl(p_defining_name() is "*")
+select BasicDecl(p_defining_name(): "*")

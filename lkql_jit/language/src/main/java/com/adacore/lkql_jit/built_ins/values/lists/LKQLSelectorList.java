@@ -5,10 +5,8 @@
 
 package com.adacore.lkql_jit.built_ins.values.lists;
 
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.built_ins.values.LKQLRecValue;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcherNodeGen;
@@ -59,7 +57,6 @@ public class LKQLSelectorList extends LKQLLazyList {
      *
      * @param rootNode The selector root node.
      * @param closure The closure for the root node execution.
-     * @param adaNode The ada node.
      * @param maxDepth The maximum depth of the returned nodes.
      * @param minDepth The minimum depth of the returned nodes.
      * @param depth The precise required depth of the returned nodes.
@@ -68,7 +65,7 @@ public class LKQLSelectorList extends LKQLLazyList {
     public LKQLSelectorList(
             final SelectorRootNode rootNode,
             final Closure closure,
-            final Libadalang.AdaNode adaNode,
+            final Object value,
             final int maxDepth,
             final int minDepth,
             final int depth) {
@@ -80,7 +77,7 @@ public class LKQLSelectorList extends LKQLLazyList {
         this.maxDepth = maxDepth;
         this.minDepth = minDepth;
         this.exactDepth = depth;
-        this.recursList.add(new LKQLDepthValue(0, adaNode));
+        this.recursList.add(new LKQLDepthValue(0, value));
     }
 
     // ----- Lazy list required methods -----
@@ -90,102 +87,51 @@ public class LKQLSelectorList extends LKQLLazyList {
         while (!(this.recursList.size() == 0) && (this.cache.size() - 1 < n || n == -1)) {
             // Get the first recurse item and execute the selector on it
             LKQLDepthValue nextNode = this.recursList.remove(0);
-            SelectorRootNode.SelectorCallResult result =
+            LKQLRecValue result =
                     this.dispatcher.executeDispatch(
                             this.rootNode, this.closure.getContent(), nextNode);
 
-            // If the result is a selector call result, do the needed operations
-            if (!LKQLTypeSystemGen.isNullish(result.result())) {
-                switch (result.mode()) {
-                    case REC -> this.addRecursAndResult(result.result());
-                    case DEFAULT -> this.addResult(result.result());
-                    case SKIP -> this.addRecurs(result.result());
-                }
-            }
+            addToRecurs(result.recurseVal, result.depth);
+            addToResult(result.resultVal, result.depth);
         }
     }
 
     /** Add the object to the result cache of the selector list. */
     @CompilerDirectives.TruffleBoundary
-    private void addResult(Object toAdd) {
-        // If the object is just a node
-        if (toAdd instanceof LKQLDepthValue node) {
-            if (!this.alreadyVisited.contains(node)) {
-                this.addNodeResult(node);
-            }
-        }
-
-        // If the object is an array of node
-        else if (toAdd instanceof LKQLDepthValue[] nodes) {
-            for (LKQLDepthValue node : nodes) {
-                if (!this.alreadyVisited.contains(node)) {
-                    this.addNodeResult(node);
-                }
-            }
-        } else {
-            throw LKQLRuntimeException.shouldNotHappen("Should not happen");
+    private void addToResult(Object[] toAdd, int depth) {
+        for (var val : toAdd) {
+            var depthVal = new LKQLDepthValue(depth, val);
+            this.addResult(depthVal);
         }
     }
 
     /** Add the object to the recursing list of the selector list. */
     @CompilerDirectives.TruffleBoundary
-    private void addRecurs(Object toAdd) {
-        // If the object is just a node
-        if (toAdd instanceof LKQLDepthValue node) {
-            if (!this.alreadyVisited.contains(node)) {
-                this.recursList.add(node);
-            }
-        }
-
-        // If the object is an array of node
-        else if (toAdd instanceof LKQLDepthValue[] nodes) {
-            for (LKQLDepthValue node : nodes) {
-                if (!this.alreadyVisited.contains(node)) {
-                    this.recursList.add(node);
-                }
-            }
-        }
-    }
-
-    /** Add the object to the result and the recursing list. */
-    @CompilerDirectives.TruffleBoundary
-    private void addRecursAndResult(Object toAdd) {
-        // If the object is just a node
-        if (toAdd instanceof LKQLDepthValue node) {
-            if (!this.alreadyVisited.contains(node)) {
-                this.addNodeResult(node);
-                this.recursList.add(node);
-            }
-        }
-
-        // If the object is an array of node
-        else if (toAdd instanceof LKQLDepthValue[] nodes) {
-            for (LKQLDepthValue node : nodes) {
-                if (!this.alreadyVisited.contains(node)) {
-                    this.addNodeResult(node);
-                    this.recursList.add(node);
-                }
+    private void addToRecurs(Object[] toAdd, int depth) {
+        for (var val : toAdd) {
+            var depthVal = new LKQLDepthValue(depth, val);
+            if (!this.alreadyVisited.contains(depthVal)) {
+                this.recursList.add(depthVal);
+                this.alreadyVisited.add(depthVal);
             }
         }
     }
 
     /** Add a node in the result and hashed cache with all verifications. */
     @CompilerDirectives.TruffleBoundary
-    private void addNodeResult(LKQLDepthValue node) {
+    private void addResult(LKQLDepthValue value) {
         // If there is no defined depth
         if (this.exactDepth < 0) {
-            if ((this.maxDepth < 0 || node.depth <= this.maxDepth)
-                    && (this.minDepth < 0 || node.depth >= this.minDepth)) {
-                this.cache.add(node);
-                this.alreadyVisited.add(node);
+            if ((this.maxDepth < 0 || value.depth <= this.maxDepth)
+                    && (this.minDepth < 0 || value.depth >= this.minDepth)) {
+                this.cache.add(value);
             }
         }
 
         // Else, only get the wanted nodes
         else {
-            if (node.depth == this.exactDepth) {
-                this.cache.add(node);
-                this.alreadyVisited.add(node);
+            if (value.depth == this.exactDepth) {
+                this.cache.add(value);
             }
         }
     }
