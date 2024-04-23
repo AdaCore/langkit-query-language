@@ -1,0 +1,16 @@
+main.adb:16:7: rule violation: possible occurrence of KP 19198
+16 |       X : constant Ints := (1 .. 4 => 123) with Address => Addr; --  FLAG
+   |       ^
+
+main.adb:22:7: rule violation: possible occurrence of KP 19198
+22 |       X : constant Ints := (1 .. Four => 123) with Address => Addr; --  FLAG
+   |       ^
+
+main.adb:29:7: rule violation: possible occurrence of KP 19198
+29 |       X : constant False_Drec := (True, 123) with Address => Addr; --  FLAG
+   |       ^
+
+main.adb:36:7: rule violation: possible occurrence of KP 19198
+36 |       X : constant False_Drec := (True, 123) with Address => Addr; --  FLAG
+   |       ^
+
