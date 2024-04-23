@@ -1,0 +1,8 @@
+@check(help="possible occurrence of KP 19198", message="possible occurrence of KP 19198", impact="24.*")
+fun kp_19198(node) =
+    |" Flag occurences of KP 19198
+    node is ObjectDecl(
+        f_type_expr: *(p_is_definite_subtype(): true),
+        f_default_expr: Aggregate,
+        p_has_aspect("address"): true
+    )
