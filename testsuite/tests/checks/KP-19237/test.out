@@ -1,0 +1,4 @@
+main.adb:65:19: rule violation: possible occurrence of KP 19237
+65 |       Result.Set (Op (Left, Right));  --  FLAG
+   |                   ^^^^^^^^^^^^^^^^
+

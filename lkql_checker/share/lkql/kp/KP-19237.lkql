@@ -1,0 +1,13 @@
+@check(help="possible occurrence of KP 19237",
+       message="possible occurrence of KP 19237",
+       impact="23.*,24.*")
+fun kp_19237(node) =
+    |" Search for indirect calls to functions returning limited tagged objects.
+    node is CallExpr(
+        p_is_access_call(): true,
+        p_called_subp_spec(): BaseSubpSpec(
+            p_return_type():  BaseTypeDecl(
+                p_is_limited_type(): true, p_is_tagged_type(): true
+            )
+        )
+    )
