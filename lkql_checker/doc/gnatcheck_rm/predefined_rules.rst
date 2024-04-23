@@ -2955,7 +2955,7 @@ This rule has the following (mandatory) parameter for the ``+R`` option:
 Flag any subprogram declaration, subprogram body declaration, expression
 function declaration, null procedure declaration, subprogram
 body stub or generic subprogram declaration if the corresponding
-subprogram has more than *N* formal parameters of mode ``in`` or
+subprogram has more than *N* formal parameters of mode ``out`` or
 ``in out``, where *N* is a parameter of the rule.
 
 A subprogram body, an expression function, a null procedure or
@@ -2968,7 +2968,7 @@ This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *N*
   Positive integer specifying the maximum allowed total number of
-  subprogram formal parameters of modes ``in`` and ``in out``.
+  subprogram formal parameters of modes ``out`` and ``in out``.
 
 .. rubric:: Example
 
