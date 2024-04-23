@@ -66,10 +66,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.source.Source;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -1163,18 +1160,23 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Get the association list and prepare the keys and values
         final Liblkqllang.ObjectAssocList assocList = objectLiteral.fAssocs();
         final int assocNumber = assocList.getChildrenCount();
-        final String[] keys = new String[assocNumber];
+        final List<String> keys = new ArrayList<>(assocNumber);
         final Expr[] values = new Expr[assocNumber];
 
         // Iterate on the object associations and get keys and values
         for (int i = 0; i < assocNumber; i++) {
             final Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
-            keys[i] = assoc.fName().getText();
+            final String key = assoc.fName().getText();
+            if (keys.contains(key)) {
+                throw LKQLRuntimeException.multipleSameNameKeys(
+                        key, new DummyLocation(loc(objectLiteral)));
+            }
+            keys.add(key);
             values[i] = (Expr) assoc.fExpr().accept(this);
         }
 
         // Return the new object literal
-        return new ObjectLiteral(loc(objectLiteral), keys, values);
+        return new ObjectLiteral(loc(objectLiteral), keys.toArray(new String[0]), values);
     }
 
     @Override
@@ -1198,13 +1200,19 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Get the association list and prepare the keys and values
         final Liblkqllang.AtObjectAssocList assocList = atObjectLiteral.fAssocs();
         final int assocNumber = assocList.getChildrenCount();
-        final String[] keys = new String[assocNumber];
+        final List<String> keys = new ArrayList<>(assocNumber);
         final Expr[] values = new Expr[assocNumber];
 
         // Iterate on object associations and translate them
         for (int i = 0; i < assocNumber; i++) {
-            final Liblkqllang.AtObjectAssoc assoc = (Liblkqllang.AtObjectAssoc) assocList.getChild(i);
-            keys[i] = assoc.fName().getText();
+            final Liblkqllang.AtObjectAssoc assoc =
+                    (Liblkqllang.AtObjectAssoc) assocList.getChild(i);
+            final String key = assoc.fName().getText();
+            if (keys.contains(key)) {
+                throw LKQLRuntimeException.multipleSameNameKeys(
+                        key, new DummyLocation(loc(atObjectLiteral)));
+            }
+            keys.add(key);
             final Liblkqllang.Expr exprBase = assoc.fExpr();
             values[i] = exprBase.isNone() ?
                 new ListLiteral(loc(assoc.fName()), new Expr[0]) :
@@ -1212,7 +1220,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Return the new object literal node because at object is juste syntactic sugar
-        return new ObjectLiteral(loc(atObjectLiteral), keys, values);
+        return new ObjectLiteral(loc(atObjectLiteral), keys.toArray(new String[0]), values);
     }
 
 
