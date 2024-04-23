@@ -168,6 +168,14 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
                         "Can't ignore the return value of an expr in a block expr", location));
     }
 
+    /** Create a new exception when a key appears many times in the same object literal. */
+    public static LKQLRuntimeException multipleSameNameKeys(String key, Locatable location) {
+        return new LKQLRuntimeException(
+                fullErrorText(
+                        "Multiple keys with the same name in the object: \"" + key + "\"",
+                        location));
+    }
+
     // --- Symbol exception
 
     /**

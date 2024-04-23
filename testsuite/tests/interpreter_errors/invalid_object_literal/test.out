@@ -1,0 +1,4 @@
+script.lkql:1:9: error: Multiple keys with the same name in the object: "a"
+1 | val x = {a: "Hello", b: 50, a: "SAME KEY!!!!"}
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
