@@ -1132,6 +1132,40 @@ Here is for example how the ``super_types`` selector is expressed in Ada:
         | BaseTypeDecl      => rec(*this.p_base_types())
         | *                 => ()
 
+While selectors are in the vast majority of cases used to express tree
+traversals of graph of nodes, you can use selectors to generate or process more
+general sequences:
+
+.. code-block:: lkql
+
+    selector infinite_sequence
+    |" Infinite sequence generator
+    | nb => rec(
+        nb + 1, # Recurse with value nb + 1
+        nb # Add nb to the result list
+    )
+
+
+    fun my_map(lst, fn) =
+        |" User defined map function. Uses an inner selector to return a lazy
+        |" iterator result
+    {
+        selector internal
+        | idx => rec(
+            idx + 1,     # Recurse with value idx + 1
+            fn(lst[idx]) # Add the result of calling fn on list[idx] to the result list
+        );
+
+        internal(1)
+    }
+
+    val mpd = my_map(infinite_sequence(0), (x) => x * 4)
+    print(mpd)
+    print(mpd[51])
+
+.. attention:: The user interface for selectors is not optimal at the moment,
+   so we might change it again soon
+
 Built-in Selectors
 ^^^^^^^^^^^^^^^^^^
 

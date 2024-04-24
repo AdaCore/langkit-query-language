@@ -1,0 +1,18 @@
+selector infinite_sequence
+|" Infinite sequence generator
+| nb => rec(nb + 1, nb)
+
+
+fun my_map(lst, fn) =
+    |" User defined map function. Uses an inner selector to return a lazy
+    |" iterator result
+{
+    selector internal
+    | idx => rec(idx + 1, fn(lst[idx]));
+
+    internal(1)
+}
+
+val mpd = my_map(infinite_sequence(0), (x) => x * 4)
+print(mpd)
+print(mpd[51])
