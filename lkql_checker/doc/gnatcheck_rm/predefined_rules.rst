@@ -2651,6 +2651,31 @@ This rule has the following (optional) parameter for the ``+R`` option:
    end Bar;
 
 
+.. _Final_Package:
+
+``Final_Package``
+^^^^^^^^^^^^^^^^^
+
+Check that package declarations annotated as final don't have child
+packages
+
+.. note:: We don't do a transitive check, so grandchild packages won't
+   be flagged. We consider this is not necessary, because the child
+   package will be flagged anyway.
+
+Here is an example:
+
+   .. code-block:: ada
+
+      package Pkg with Annotate => (GNATcheck, Final) is
+      end Pkg;
+
+      package Pkg.Child is -- FLAG
+      end Pkg.Child;
+
+      package Pkg.Child.Grandchild is -- NOFLAG
+      end Pkg.Child.Grandchild;
+
 .. _Global_Variables:
 
 ``Global_Variables``
