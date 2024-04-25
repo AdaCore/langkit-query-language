@@ -1,0 +1,4 @@
+test.adb:4:27: rule violation: possible occurrence of KP 19038
+4 |    protected type PT with Exclusive_Functions is   -- FLAG
+  |                           ^^^^^^^^^^^^^^^^^^^
+
