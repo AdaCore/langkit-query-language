@@ -1,0 +1,16 @@
+main.adb:45:26: rule violation: possible occurrence of KP 18926
+45 |    Copy :      Vector := [ for E of V => E ];                   --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^
+
+main.adb:46:26: rule violation: possible occurrence of KP 18926
+46 |    Only_Even : Vector := [ for E of V when E mod 2 = 0 => E ];  --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:51:32: rule violation: possible occurrence of KP 18926
+51 |    C_2_2 : Test_Container_2 := [ for E of V => E ];    --  FLAG
+   |                                ^^^^^^^^^^^^^^^^^^^
+
+main.adb:53:33: rule violation: possible occurrence of KP 18926
+53 |    D_C_2 : Derived_Container := [ for E of V => E ];   --  FLAG
+   |                                 ^^^^^^^^^^^^^^^^^^^
+
