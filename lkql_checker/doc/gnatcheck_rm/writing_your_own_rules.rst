@@ -172,60 +172,46 @@ errors) are reported as part of the gnatcheck output.
 You can then use one (or a mix) of the approaches described in the following
 sections.
 
-The LKQL REPL
-~~~~~~~~~~~~~
+The LKQL interpreter
+~~~~~~~~~~~~~~~~~~~~
 
-LKQL comes with a REPL (Read-Eval-Print-Loop) which allows you to elaborate and
-verify all your LKQL expressions line by line, as well as explore the available
-properties and functions via the code completion provided by this interactive
-environment.
-
-The REPL is a python script called ``lkql_repl.py`` which is found in the
-:file:`bin` directory of your GNATcheck installation. In order to execute it,
-you need a Python 64bits installation (3.7 or later, available from
-https://www.python.org/downloads/), along with the ``prompt_toolkit`` and
-``pygments`` modules installed (you need to have the ``pip`` and ``python``
-executables in your PATH):
+LKQL comes with a command line interpreter. The interpreter is part of the
+``lkql`` executable, shipped with your GNATcheck distribution. ``lkql`` has an
+interpreter mode, that you can access via the ``lkql run`` command:
 
 .. code-block:: sh
 
-   $ pip install prompt_toolkit pygments
+   $ lkql run -S my_script.lkql [-P my_project] [sources]
 
-You then need to setup the proper environment by adding the directory
-:file:`install root/lib/python` to the ``PYTHONPATH`` environment
-variable. For example under a Linux shell, assuming GNATcheck is installed
-under :file:`/opt/gnatcheck`:
+This is different from how GNATcheck interfaces with the LKQL language, because
+GNATcheck only executes LKQL code through the `check` functions, whereas with
+the interpreter you can execute arbitrary LKQL code. Here is an example LKQL
+script:
 
-.. code-block:: sh
+.. code-block:: lkql
 
-   $ export PYTHONPATH=/opt/gnatcheck/lib/python:$PYTHONPATH
+   # Prints the first basic declaration
+   print(select first BasicDecl)
 
-and similarly under a Windows cmd, assuming that python is in your PATH already
-and GNATcheck is installed under :file:`\\opt\\gnatcheck`:
-
-.. code-block:: sh
-
-   $ set PYTHONPATH=\opt\gnatcheck\lib\python
-
-Once done, you should be able to run ``lkql_repl.py``:
+This interpreter has an interactive mode, which is also commonly known as an
+REPL (Read-Eval-Print-Loop). This REPL allows you to elaborate and verify all
+your LKQL expressions line by line, as well as explore the available properties
+and functions via the code completion provided by this interactive environment.
 
 .. code-block:: sh
 
-   $ lkql_repl.py -Pprj
+   $ lkql run -i -P prj
 
 where prj is your project file :file:`prj.gpr`. From there you have access to
 an interactive shell which provides a history of commands available via e.g.
 the up and down keys, as well as automatic completion. To exit this shell, you
 can use the :kbd:`Control-D` key combination.
 
-Note that under Windows, the Command Prompt (cmd) is required by the
-``prompt_toolkit`` module.
-
 Here is an example session:
 
 .. code-block:: sh
 
-   $ lkql_repl.py -Pprj
+   $ lkql run -i -Pprj
 
    .-.   .-. .-..----. .-.
    | |   | |/ //  {}  \| |        Welcome to LKQL repl
