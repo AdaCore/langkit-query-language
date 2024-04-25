@@ -890,7 +890,7 @@ construct in the introduction, and it's one of the simplest kind of patterns.
 
 .. code-block:: lkql
 
-   select ObjectDecl(p_default_val(): IntLiteral)
+   select ObjectDecl(f_default_expr : IntLiteral)
 
 Property Call Predicate
 """""""""""""""""""""""
