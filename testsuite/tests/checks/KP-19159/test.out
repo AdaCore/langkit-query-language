@@ -1,0 +1,4 @@
+test.adb:27:3: rule violation: possible occurrence of KP 19159
+27 |   Foo (Arr2 (A));    --  FLAG
+   |   ^^^^^^^^^^^^^^
+

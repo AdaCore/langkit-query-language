@@ -1,0 +1,16 @@
+import stdlib
+
+@check(help="possible occurrence of KP 19159",
+       message="possible occurrence of KP 19159",
+       impact="23.*,24.*")
+fun kp_19159(node) =
+    |" Look for a value conversion between array types directly
+    |" passed as an actual parameter in a call to a subprogram.
+    node is CallExpr(p_is_call(): true) when stdlib.any([
+        p.actual is CallExpr(
+            p_kind(): "type_conversion",
+            p_expression_type(): BaseTypeDecl(p_is_array_type(): true)
+        )
+        for p in node.p_call_params()
+    ])
+
