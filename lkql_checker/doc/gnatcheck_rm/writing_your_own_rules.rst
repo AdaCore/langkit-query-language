@@ -159,8 +159,10 @@ Here is an example rule:
        |" Will flag object declarations for which the type is the standard
        |" ``Integer`` type
        node is o@ObjectDecl(
-           p_type_expression() is SubtypeIndication(
-               p_designated_type_decl() is t@* when t == o.p_std_entity("Integer")))
+           p_type_expression(): SubtypeIndication(
+               p_designated_type_decl(): t@* when t == o.p_std_entity("Integer")
+           )
+       )
 
 Debugging Your Rules
 --------------------
@@ -303,7 +305,7 @@ by using the libadalang ``p_is_int_type`` property:
 .. code-block:: lkql
 
    @check(message="integer type may be replaced by an enumeration")
-   fun integer_types_as_enum(node) = node is TypeDecl(p_is_int_type() is true)
+   fun integer_types_as_enum(node) = node is TypeDecl(p_is_int_type(): true)
 
 Now, we'll add a first criteria to consider: there should be no use
 of any arithmetic or bitwise operator on this type anywhere in the sources. To
@@ -313,10 +315,10 @@ operators:
 
 .. code-block:: lkql
 
-   select BinOp(f_op is OpDiv or OpMinus or OpMod or OpMult or
-                        OpPlus or OpPow or OpRem or OpXor or
-                        OpAnd or OpOr)
-       or UnOp(f_op is OpAbs or OpMinus or OpPlus or OpNot)
+   select (
+       BinOp(f_op: OpDiv | OpMinus | OpMod | OpMult | OpPlus | OpPow | OpRem | OpXor | OpAnd | OpOr)
+       | UnOp(f_op: OpAbs | OpMinus | OpPlus | OpNot)
+   )
 
 we then create a function that will compute all the types associated with
 these expressions in a list:
@@ -326,11 +328,13 @@ these expressions in a list:
    fun arithmetic_ops() =
        |" Return a list of all types referenced in any arithmetic operator
        [op.p_expression_type()
-        for op in select
-            BinOp(f_op is OpDiv or OpMinus or OpMod or OpMult or
-                          OpPlus or OpPow or OpRem or OpXor or
-                          OpAnd or OpOr) or
-            UnOp(f_op is OpAbs or OpMinus or OpPlus or OpNot)].to_list
+        for op in select (
+            BinOp(f_op: OpDiv | OpMinus | OpMod | OpMult |
+                        OpPlus | OpPow | OpRem | OpXor |
+                        OpAnd | OpOr)
+            | UnOp(f_op: OpAbs | OpMinus | OpPlus | OpNot)
+        )
+       ].to_list
 
 and we update our rule accordingly to find all integer types for which no
 arithmetic operator is found. To achieve that, we use a list comprehension
@@ -342,7 +346,7 @@ element evaluates to ``true``:
 .. code-block:: lkql
 
    fun integer_types_as_enum(node) =
-        node is TypeDecl(p_is_int_type() is true)
+        node is TypeDecl(p_is_int_type(): true)
         when not [t for t in arithmetic_ops() if t == node]
 
 Running this rule we realize that it finds some interesting matches, but
@@ -357,14 +361,14 @@ referenced declaration (``p_referenced_decl`` property) is a type declaration
 
     fun types() =
         [c.p_referenced_decl()
-         for c in select CallExpr(p_referenced_decl() is TypeDecl)].to_list
+         for c in select CallExpr(p_referenced_decl(): TypeDecl)].to_list
 
 And we update our rule accordingly:
 
 .. code-block:: lkql
 
    fun integer_types_as_enum(node) =
-        node is TypeDecl(p_is_int_type() is true)
+        node is TypeDecl(p_is_int_type(): true)
         when not [t for t in arithmetic_ops() if t == node]
          and not [t for t in types() if t == node]
 
@@ -386,7 +390,7 @@ declarations with both source and target types of conversions:
 
    fun types() =
        concat([[c.p_referenced_decl(), c.f_suffix[1].f_r_expr.p_expression_type()]
-               for c in select CallExpr(p_referenced_decl() is TypeDecl)].to_list)
+               for c in select CallExpr(p_referenced_decl(): TypeDecl)].to_list)
 
 This gives much better results and much fewer false positives! We then
 realize that we need to perform a similar filtering on subtype declarations:
@@ -406,7 +410,7 @@ We combine this with the previous results:
        |" Return a list of TypeDecl matching all type conversions (both as source
        |" and target) and subtype declarations in the project.
        concat([[c.p_referenced_decl(), c.f_suffix[1].f_r_expr.p_expression_type()]
-               for c in select CallExpr(p_referenced_decl() is TypeDecl)].to_list)
+               for c in select CallExpr(p_referenced_decl(): TypeDecl)].to_list)
        & [s.f_subtype.f_name.p_referenced_decl() for s in select SubtypeDecl].to_list
 
 We're getting even less false positives now, and quickly realize that we need
@@ -415,7 +419,7 @@ to do the same for type derivations:
 .. code-block:: lkql
 
    [c.f_type_def.f_subtype_indication.f_name.p_referenced_decl()
-    for c in select TypeDecl(f_type_def is DerivedTypeDef)].to_list
+    for c in select TypeDecl(f_type_def: DerivedTypeDef)].to_list
 
 We combine again the results, which gives us our final ``types`` function:
 
@@ -425,10 +429,10 @@ We combine again the results, which gives us our final ``types`` function:
        |" Return a list of TypeDecl matching all type conversions (both as source
        |" and target), subtype declarations and type derivations in the project.
        concat([[c.p_referenced_decl(), c.f_suffix[1].f_r_expr.p_expression_type()]
-               for c in select CallExpr(p_referenced_decl() is TypeDecl)].to_list)
+               for c in select CallExpr(p_referenced_decl(): TypeDecl)].to_list)
        & [s.f_subtype.f_name.p_referenced_decl() for s in select SubtypeDecl].to_list
        & [c.f_type_def.f_subtype_indication.f_name.p_referenced_decl()
-          for c in select TypeDecl(f_type_def is DerivedTypeDef)].to_list
+          for c in select TypeDecl(f_type_def: DerivedTypeDef)].to_list
 
 Running our rule again, we find a final source of false positives: types
 referenced as parameter of generic instantiations also need to be filtered
@@ -461,7 +465,7 @@ Updating our rule this gives us:
 ..  code-block:: lkql
 
     fun integer_types_as_enum(node) =
-         node is TypeDecl(p_is_int_type() is true)
+         node is TypeDecl(p_is_int_type(): true)
          when not [t for t in arithmetic_ops() if t == node]
           and not [t for t in types() if t == node]
           and not [t for t in instantiations() if t == node]
@@ -491,7 +495,7 @@ order of the tests:
 ..  code-block:: lkql
 
     fun integer_types_as_enum(node) =
-         node is TypeDecl(p_is_int_type() is true)
+         node is TypeDecl(p_is_int_type(): true)
          when not [t for t in types() if t == node]
           and not [t for t in instantiations() if t == node]
           and not [t for t in arithmetic_ops() if t == node]
@@ -504,11 +508,11 @@ which gives us this complete rule:
    fun arithmetic_ops() =
        |" Return a list of all types referenced in any arithmetic operator
        unique([op.p_expression_type()
-               for op in select
-                   BinOp(f_op is OpDiv or OpMinus or OpMod or OpMult or
-                                 OpPlus or OpPow or OpRem or OpXor or
-                                 OpAnd or OpOr) or
-                   UnOp(f_op is OpAbs or OpMinus or OpPlus or OpNot)].to_list)
+               for op in select (
+                   BinOp(f_op: OpDiv | OpMinus | OpMod | OpMult |
+                                 OpPlus | OpPow | OpRem | OpXor |
+                                 OpAnd | OpOr) |
+                   UnOp(f_op: OpAbs | OpMinus | OpPlus | OpNot))].to_list)
 
    @memoized
    fun instantiations() =
@@ -522,14 +526,14 @@ which gives us this complete rule:
        |" and target), subtype declarations and type derivations in the project.
        unique(concat([[c.p_referenced_decl(),
                        c.f_suffix[1].f_r_expr.p_expression_type()]
-                      for c in select CallExpr(p_referenced_decl() is TypeDecl)].to_list) &
+                      for c in select CallExpr(p_referenced_decl(): TypeDecl)].to_list) &
               [s.f_subtype.f_name.p_referenced_decl() for s in select SubtypeDecl].to_list &
               [c.f_type_def.f_subtype_indication.f_name.p_referenced_decl()
-               for c in select TypeDecl(f_type_def is DerivedTypeDef)].to_list)
+               for c in select TypeDecl(f_type_def: DerivedTypeDef)].to_list)
 
    @check(message="integer type may be replaced by an enumeration")
    fun integer_types_as_enum(node) =
-        node is TypeDecl(p_is_int_type() is true)
+        node is TypeDecl(p_is_int_type(): true)
         when not [t for t in types() if t == node]
          and not [t for t in instantiations() if t == node]
          and not [t for t in arithmetic_ops() if t == node]
