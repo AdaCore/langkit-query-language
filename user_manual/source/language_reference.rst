@@ -11,6 +11,105 @@ technology. As such, it is theoretically capable of running queries on any
 language with a Langkit frontend. In practice for the moment, LKQL is hardwired
 for Ada (and Libadalang).
 
+.. attention:: While mostly stable, LKQL is not completely done yet. The
+   language will keep being extended with new constructs, and from time to time
+   syntax might change to accomodate new language constructs/enhance the
+   language ergonomics/fix design mistakes.
+
+Language changes
+================
+
+Under this section, we'll document language changes chronogically, and
+categorize them by AdaCore GNATcheck release.
+
+25.0
+----
+
+Syntax of pattern details (breaking)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pattern details were specified with the syntax `<left_part> is <pattern>`, and
+are now specified with the syntax `<left_part>: <pattern>`.
+
+Syntax of selectors recursion definition (breaking)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The syntax for defining a recursion in selectors has completely changed. The
+old `rec` and `skip` keywords have been replaced by a single `rec` construct
+that allows to specify what elements will be recursed upon, and what elements
+will be yielded by the selector.
+
+.. code-block:: lkql
+
+   selector parent
+      | AdaNode => rec(*this.parent, this)
+      #                ^ Add parent to the recurse list
+      #                ^             ^ Add this to the return list
+      | *       => ()
+
+.. warning:: This syntax is more general than the previous one, but is still
+   not optimal, and might change again in a further release. Please take that
+   into account when using selectors in your own code.
+
+More details in the `Selector Declaration`_ section.
+
+Or patterns syntax (breaking)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Or patterns were defined with the `<pattern> or <pattern>` syntax, and are now
+defined with the `<pattern> | <pattern>` syntax.
+
+Binding patterns without value pattern
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Patterns binding any value to a name can simply be expressed with a binding
+name now:
+
+.. code-block:: lkql
+
+    match d
+    | BasicDecl(p_doc(): doc) => print(doc)
+
+More patterns
+^^^^^^^^^^^^^
+
+So far, only node values had corresponding patterns to match them. Now,
+patterns can be used to match other values:
+
+.. code-block:: lkql
+
+   v is 12
+   v is true
+   v is "hello"
+   v is "hello.*?world"
+
+   match i
+   | (1, 2, 3) => print("un, dos, tres")
+   | * => print("un pasito adelante maria")
+
+   match i
+   | (1, a@*, b@*, 4) => { print(a); print(b) }
+
+   match lst
+   | [1, 2, 3] => "[1, 2, 3]"
+   | [1, a@*, 3] => "[1, a@*, 3], with a = " & img(a)
+
+   match lst
+   | [11, 12, ...] => "[11, 12, ...]"
+   | [1, c@...] => "[1, c@...] with b = " & img(b) & " & c = " & img(c)
+   | [...] => "Any list"
+
+   match obj
+   | {a: 12} => "{a: 12}"
+   | {a: a@*} => "Any object with an a key. Bind the result to a"
+
+   match obj
+   | {a@..., b: "hello"} => "Bind keys that are not b to var a"
+   | {a@...} => "Bind all the object to a"
+
+General Purpose Language Subset
+===============================
+
 LKQL today is the mixture of two language subsets:
 
 * The first is a dynamically typed, functional, small but general
@@ -26,8 +125,6 @@ Those two languages will be documented separately. The general language will be
 documented first, because its knowledge is needed for understanding the tree
 query language.
 
-General Purpose Language Subset
-===============================
 
 This language subset is composed of a reduced set of declarations and
 expressions that forms a minimal but turing complete language.

@@ -18,7 +18,7 @@ class LKQLPygmentsLexer(RegexLexer):
             (r"\|\".+", token.String),
             (r"#(.?)+", token.Comment),
             (r"(\-\>|=|\=\>|\<\=|\>\=|\=|\!\=|\+|\-|\*|\/|\&|"
-             r"\@|\||\>|\<)", token.Operator),
+             r"\@|\||\>|\<|:)", token.Operator),
             (r"\b(and|or|not)\b", token.Operator),
             (r"\{|\}|\(|\)|\[|\]|;|\.|,", token.Punctuation),
             (r'"(\\.|[^"])*"', token.String),
