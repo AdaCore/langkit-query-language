@@ -1159,8 +1159,6 @@ Selector Declaration
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/selector_arm.svg
 
-.. raw:: html
-
 Selectors are a special form of functions that return a lazy stream of values.
 They're at the basis of the query DSL of LKQL, allowing the easy expression of
 traversal blueprints.
