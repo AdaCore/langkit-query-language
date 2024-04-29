@@ -383,7 +383,7 @@ public final class Query extends Expr {
          * @param node The node to check
          */
         private static boolean inGenericInstantiation(Libadalang.AdaNode node) {
-            return node.pGenericInstantiations().size() > 0;
+            return node.pGenericInstantiations().length > 0;
         }
 
         // ----- Un-needed methods -----

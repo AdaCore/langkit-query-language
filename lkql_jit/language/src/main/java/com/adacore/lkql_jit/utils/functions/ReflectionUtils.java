@@ -60,7 +60,7 @@ public final class ReflectionUtils {
         }
 
         // If the required type is a unit array
-        else if (type.equals(Libadalang.AnalysisUnitArray.class)) {
+        else if (type.equals(Libadalang.AnalysisUnit[].class)) {
             LKQLList resList;
             try {
                 resList = LKQLTypeSystemGen.expectLKQLList(res);
@@ -70,11 +70,10 @@ public final class ReflectionUtils {
                         LKQLTypesHelper.fromJava(e.getResult()),
                         argument);
             }
-            Libadalang.AnalysisUnitArray resArray =
-                    Libadalang.AnalysisUnitArray.create((int) resList.size());
+            Libadalang.AnalysisUnit[] resArray = new Libadalang.AnalysisUnit[(int) resList.size()];
             for (int i = 0; i < resList.size(); i++) {
                 try {
-                    resArray.set(i, LKQLTypeSystemGen.expectAnalysisUnit(resList.get(i)));
+                    resArray[i] = LKQLTypeSystemGen.expectAnalysisUnit(resList.get(i));
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
                             LKQLTypesHelper.ANALYSIS_UNIT,

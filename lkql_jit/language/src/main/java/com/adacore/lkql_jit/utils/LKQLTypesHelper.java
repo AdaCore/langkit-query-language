@@ -241,8 +241,8 @@ public final class LKQLTypesHelper {
         }
 
         // If the source is an array from libadalang
-        else if (javaValue instanceof Libadalang.ArrayBase<?> array) {
-            Object[] res = new Object[array.size()];
+        else if (javaValue instanceof Object[] array) {
+            Object[] res = new Object[array.length];
             int i = 0;
             for (Object obj : array) {
                 res[i] = toLKQLValue(obj);

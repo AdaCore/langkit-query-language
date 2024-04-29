@@ -15,7 +15,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.source.Source;
 import java.io.Serial;
-import java.util.List;
 
 /**
  * This exception means that there is an error in the LKQL execution.
@@ -125,7 +124,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException parsingException(
-            List<Liblkqllang.Diagnostic> diagnostics, Source source) {
+            Liblkqllang.Diagnostic[] diagnostics, Source source) {
         // Prepare the error message builder
         StringBuilder builder = new StringBuilder();
 
