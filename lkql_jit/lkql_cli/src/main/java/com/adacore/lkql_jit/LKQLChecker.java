@@ -233,6 +233,12 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.ignores", this.args.ignores);
         }
 
+        // This is needed to make sure that calls to `exitContext` done from within an isolate
+        // thread (e.g. executing a Java callback from Ada code) directly stop the program instead
+        // of going it the normal way by raising a special exception, as such exceptions won't be
+        // handled by the caller when thrown from inside the isolate thread.
+        contextBuilder.useSystemExit(true);
+
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
             final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql").build();

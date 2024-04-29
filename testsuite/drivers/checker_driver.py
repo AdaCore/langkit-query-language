@@ -42,13 +42,17 @@ class CheckerDriver(BaseDriver):
 
         args += ['-r', self.test_env['rule_name']]
         args += ['--rules-dir', self.test_env['test_dir']]
-        args += ['--keep-going-on-missing-file']
+
+        if self.test_env.get("keep_going_on_missing_file", False):
+            args += ['--keep-going-on-missing-file']
 
         # Run the checker
         if self.perf_mode:
             self.perf_run(args)
         else:
-            self.check_run(args)
+            # Use `catch_error=False` to avoid failing on non-zero status code,
+            # as some tests actually exert erroneous behaviors.
+            self.check_run(args, catch_error=False)
 
     def parse_flagged_lines(self, output: str) -> Flags:
         # Compile the pattern to match a checker output
