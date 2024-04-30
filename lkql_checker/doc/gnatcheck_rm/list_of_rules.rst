@@ -61,6 +61,7 @@ GNATcheck rules.
 * :ref:`Explicit_Full_Discrete_Ranges`
 * :ref:`Explicit_Inlining`
 * :ref:`Expression_Functions`
+* :ref:`Final_Package`
 * :ref:`Fixed_Equality_Checks`
 * :ref:`Float_Equality_Checks`
 * :ref:`Forbidden_Aspects`
