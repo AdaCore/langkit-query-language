@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a literal integer that fit in a long java value.
@@ -29,7 +29,7 @@ public final class LongLiteral extends Expr {
      * @param location The location of the node in the source.
      * @param value The integer value.
      */
-    public LongLiteral(SourceLocation location, long value) {
+    public LongLiteral(SourceSection location, long value) {
         super(location);
         this.value = value;
     }

@@ -9,10 +9,10 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a pattern detail on a field in the LKQL language.
@@ -42,7 +42,7 @@ public abstract class NodePatternField extends NodePatternDetail {
      * @param fieldName The name of the field to get.
      * @param expected The expected value for the field.
      */
-    protected NodePatternField(SourceLocation location, String fieldName, BasePattern expected) {
+    protected NodePatternField(SourceSection location, String fieldName, BasePattern expected) {
         super(location);
         this.fieldName = fieldName;
         this.expected = expected;

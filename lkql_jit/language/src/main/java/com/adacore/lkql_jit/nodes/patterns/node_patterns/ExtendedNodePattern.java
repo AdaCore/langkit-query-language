@@ -9,8 +9,8 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a pattern that access fields or properties of nodes.
@@ -39,7 +39,7 @@ public final class ExtendedNodePattern extends NodePattern {
      * @param details The extensions for the base pattern.
      */
     public ExtendedNodePattern(
-            SourceLocation location, ValuePattern basePattern, NodePatternDetail[] details) {
+            SourceSection location, ValuePattern basePattern, NodePatternDetail[] details) {
         super(location);
         this.basePattern = basePattern;
         this.details = details;

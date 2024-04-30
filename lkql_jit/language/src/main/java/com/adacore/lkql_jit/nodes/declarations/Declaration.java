@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents all declarations done in the LKQL: language imports, values or functions.
@@ -28,7 +28,7 @@ public abstract class Declaration extends LKQLNode {
      * @param location The location of the node in the source.
      * @param annotation The annotation associated with the declaration.
      */
-    protected Declaration(SourceLocation location, Annotation annotation) {
+    protected Declaration(SourceSection location, Annotation annotation) {
         super(location);
         this.annotation = annotation;
     }

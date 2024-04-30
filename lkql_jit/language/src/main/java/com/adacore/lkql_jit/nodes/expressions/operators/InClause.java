@@ -10,10 +10,9 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the "in" clause in the LKQL language.
@@ -28,12 +27,9 @@ public abstract class InClause extends BinOp {
      * Create an "in" clause node.
      *
      * @param location The location of the node in the source.
-     * @param leftLocation The location of the left node.
-     * @param rightLocation The location of the right node.
      */
-    protected InClause(
-            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
-        super(location, leftLocation, rightLocation);
+    protected InClause(SourceSection location) {
+        super(location);
     }
 
     // ----- Execution methods -----
@@ -63,9 +59,7 @@ public abstract class InClause extends BinOp {
     @Fallback
     protected void notIterable(@SuppressWarnings("unused") Object elem, Object notIterable) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_LIST,
-                LKQLTypesHelper.fromJava(notIterable),
-                this.rightLocation);
+                LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.fromJava(notIterable), getRight());
     }
 
     // ----- Override methods -----

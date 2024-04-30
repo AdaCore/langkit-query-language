@@ -8,9 +8,9 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This class represent the base of the binary operation node that are edibles to the short circuit
@@ -41,7 +41,7 @@ public abstract class BinShortCircuit extends Expr {
      * @param left The left expression.
      * @param right The right expression.
      */
-    protected BinShortCircuit(SourceLocation location, Expr left, Expr right) {
+    protected BinShortCircuit(SourceSection location, Expr left, Expr right) {
         super(location);
         this.left = left;
         this.right = right;

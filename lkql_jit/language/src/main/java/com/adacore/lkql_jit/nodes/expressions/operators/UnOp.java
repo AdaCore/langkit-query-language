@@ -6,9 +6,8 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the base of unary operations in the LKQL language.
@@ -18,21 +17,14 @@ import com.oracle.truffle.api.dsl.NodeChild;
 @NodeChild(value = "arg", type = Expr.class)
 public abstract class UnOp extends Expr {
 
-    // ----- Attributes -----
-
-    /** The location of the argument node. */
-    protected final DummyLocation argLocation;
-
-    // ----- Constructors -----
-
     /**
      * Create a unary operation node.
      *
      * @param location The location of the node in the source.
-     * @param argLocation The location of the argument node.
      */
-    protected UnOp(SourceLocation location, DummyLocation argLocation) {
+    protected UnOp(SourceSection location) {
         super(location);
-        this.argLocation = argLocation;
     }
+
+    public abstract Expr getArg();
 }

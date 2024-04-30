@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a list of list comprehension association in the LKQL language.
@@ -31,7 +31,7 @@ public final class ComprehensionAssocList extends LKQLNode {
      * @param location The location of the node in the source.
      * @param compAssocs The comprehension associations.
      */
-    public ComprehensionAssocList(SourceLocation location, ComprehensionAssoc[] compAssocs) {
+    public ComprehensionAssocList(SourceSection location, ComprehensionAssoc[] compAssocs) {
         super(location);
         this.compAssocs = compAssocs;
     }

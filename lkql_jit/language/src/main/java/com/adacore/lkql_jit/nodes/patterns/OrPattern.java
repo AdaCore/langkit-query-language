@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the "or" pattern that combines two other patterns in the LKQL language.
@@ -36,7 +36,7 @@ public final class OrPattern extends ValuePattern {
      * @param left The left part of the "or".
      * @param right The right part of the "or".
      */
-    public OrPattern(SourceLocation location, BasePattern left, BasePattern right) {
+    public OrPattern(SourceSection location, BasePattern left, BasePattern right) {
         super(location);
         this.left = left;
         this.right = right;

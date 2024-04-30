@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.arguments;
 
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a named argument in the LKQL language.
@@ -25,7 +25,7 @@ public final class NamedArg extends Arg {
      * @param name The name of the argument.
      * @param expr The expression of the argument.
      */
-    public NamedArg(SourceLocation location, Identifier name, Expr expr) {
+    public NamedArg(SourceSection location, Identifier name, Expr expr) {
         super(location, name, expr);
     }
 

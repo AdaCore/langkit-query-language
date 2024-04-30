@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.expressions.literals;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a null literal in the LKQL language.
@@ -25,7 +25,7 @@ public final class NullLiteral extends Expr {
      *
      * @param location The location of the node in the source.
      */
-    public NullLiteral(SourceLocation location) {
+    public NullLiteral(SourceSection location) {
         super(location);
     }
 

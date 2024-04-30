@@ -1,4 +1,3 @@
 script.lkql:1:8: error: Type error: expected Int but got Bool
 1 | print (true + 2)
   |        ^^^^
-

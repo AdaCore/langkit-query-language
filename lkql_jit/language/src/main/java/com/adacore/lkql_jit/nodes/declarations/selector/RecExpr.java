@@ -11,8 +11,8 @@ import com.adacore.lkql_jit.built_ins.values.lists.BaseLKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 public class RecExpr extends Expr {
 
@@ -29,7 +29,7 @@ public class RecExpr extends Expr {
     private Expr resultExpr;
 
     public RecExpr(
-            SourceLocation location,
+            SourceSection location,
             boolean recurseHasUnpack,
             Expr recurseExpr,
             boolean resultHasUnpack,

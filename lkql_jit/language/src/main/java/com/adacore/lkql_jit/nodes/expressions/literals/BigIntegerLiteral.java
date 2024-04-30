@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
 /**
@@ -30,7 +30,7 @@ public final class BigIntegerLiteral extends Expr {
      * @param location The location of the node in the source.
      * @param value The value of the big integer.
      */
-    public BigIntegerLiteral(SourceLocation location, BigInteger value) {
+    public BigIntegerLiteral(SourceSection location, BigInteger value) {
         super(location);
         this.value = value;
     }

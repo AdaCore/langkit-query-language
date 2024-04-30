@@ -191,7 +191,10 @@ public class LKQLFunction extends BasicLKQLValue {
         for (int i = 0; i < parameterNames.length; i++) {
             var defVal = parameterDefaultValues[i];
             if (defVal != null) {
-                expandedParams.add(parameterNames[i] + "=" + defVal.getLocation().getText());
+                expandedParams.add(
+                        parameterNames[i]
+                                + "="
+                                + defVal.getSourceSection().getCharacters().toString());
             } else {
                 expandedParams.add(parameterNames[i]);
             }

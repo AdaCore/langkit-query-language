@@ -7,9 +7,9 @@ package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a list literal node in the LKQL language.
@@ -31,7 +31,7 @@ public final class ListLiteral extends Expr {
      * @param location The location of the node in the source.
      * @param exprs The expressions inside the list.
      */
-    public ListLiteral(final SourceLocation location, final Expr[] exprs) {
+    public ListLiteral(final SourceSection location, final Expr[] exprs) {
         super(location);
         this.exprs = exprs;
     }

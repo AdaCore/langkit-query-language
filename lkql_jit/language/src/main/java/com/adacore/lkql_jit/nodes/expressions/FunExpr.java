@@ -12,9 +12,9 @@ import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
 /**
@@ -60,7 +60,7 @@ public final class FunExpr extends Expr {
      * @param body The body of the function.
      */
     public FunExpr(
-            final SourceLocation location,
+            final SourceSection location,
             final FrameDescriptor frameDescriptor,
             final ClosureDescriptor closureDescriptor,
             final ParameterDeclaration[] parameters,

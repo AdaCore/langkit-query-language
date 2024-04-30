@@ -15,7 +15,6 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -23,6 +22,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the indexing operation in the LKQL language.
@@ -46,7 +46,7 @@ public abstract class Indexing extends Expr {
      * @param location The location of the node in the source.
      * @param isSafe Whether the indexing operation is safe.
      */
-    protected Indexing(SourceLocation location, boolean isSafe) {
+    protected Indexing(SourceSection location, boolean isSafe) {
         super(location);
         this.isSafe = isSafe;
     }

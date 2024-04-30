@@ -8,9 +8,9 @@ package com.adacore.lkql_jit.nodes.patterns;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a pattern with a filter in the LKQL language.
@@ -40,7 +40,7 @@ public final class FilteredPattern extends BasePattern {
      * @param pattern The pattern to filter.
      * @param predicate The predicate expression.
      */
-    public FilteredPattern(SourceLocation location, UnfilteredPattern pattern, Expr predicate) {
+    public FilteredPattern(SourceSection location, UnfilteredPattern pattern, Expr predicate) {
         super(location);
         this.pattern = pattern;
         this.predicate = predicate;

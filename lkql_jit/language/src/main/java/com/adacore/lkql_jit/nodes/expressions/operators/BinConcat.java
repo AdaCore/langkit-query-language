@@ -11,13 +11,12 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
 /**
@@ -33,12 +32,9 @@ public abstract class BinConcat extends BinOp {
      * Create a concatenation node.
      *
      * @param location The location of the node in the source.
-     * @param leftLocation The location of the left node.
-     * @param rightLocation The location of the right node.
      */
-    protected BinConcat(
-            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
-        super(location, leftLocation, rightLocation);
+    protected BinConcat(SourceSection location) {
+        super(location);
     }
 
     // ----- Execution methods -----

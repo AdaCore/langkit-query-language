@@ -11,12 +11,11 @@ import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
 /**
@@ -32,12 +31,9 @@ public abstract class BinEq extends BinOp {
      * Create an equality verification node.
      *
      * @param location The location of the node in the source.
-     * @param leftLocation The location of the left node.
-     * @param rightLocation The location of the right node.
      */
-    protected BinEq(
-            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
-        super(location, leftLocation, rightLocation);
+    protected BinEq(SourceSection location) {
+        super(location);
     }
 
     // ----- Execution methods -----

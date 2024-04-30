@@ -7,8 +7,8 @@ package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents an expression in the right part of a selector arm.
@@ -41,7 +41,7 @@ public final class SelectorExpr extends LKQLNode {
      * @param expr The expression.
      * @param hasUnpack
      */
-    public SelectorExpr(SourceLocation location, Mode mode, Expr expr, boolean hasUnpack) {
+    public SelectorExpr(SourceSection location, Mode mode, Expr expr, boolean hasUnpack) {
         super(location);
         this.mode = mode;
         this.expr = expr;

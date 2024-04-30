@@ -7,8 +7,8 @@ package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the declaration of a parameter in a function signature in LKQL language.
@@ -37,7 +37,7 @@ public final class ParameterDeclaration extends Declaration {
      * @param defaultValue The default value of the parameter (can be null).
      */
     public ParameterDeclaration(
-            final SourceLocation location, final String name, final Expr defaultValue) {
+            final SourceSection location, final String name, final Expr defaultValue) {
         super(location, null);
         this.name = name;
         this.defaultValue = defaultValue;

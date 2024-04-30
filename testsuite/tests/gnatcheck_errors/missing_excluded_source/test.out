@@ -1,1 +1,1 @@
-gnatcheck: error raised by the worker: Error(s) during project opening: [prj.gpr:2:36: unknown file "invalid.adb"]
+gnatcheck: error raised by the worker: error: Error(s) during project opening: [prj.gpr:2:36: unknown file "invalid.adb"]

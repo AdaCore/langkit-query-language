@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the "or" logical operation in the LKQL language.
@@ -24,7 +24,7 @@ public final class BinOr extends BinShortCircuit {
      * @param left The left expression.
      * @param right The right expression.
      */
-    public BinOr(SourceLocation location, Expr left, Expr right) {
+    public BinOr(SourceSection location, Expr left, Expr right) {
         super(location, left, right);
     }
 

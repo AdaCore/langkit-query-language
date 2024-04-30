@@ -7,8 +7,8 @@ package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the unit literal in the LKQL language.
@@ -24,7 +24,7 @@ public final class UnitLiteral extends Expr {
      *
      * @param location The location of the node in the source.
      */
-    public UnitLiteral(SourceLocation location) {
+    public UnitLiteral(SourceSection location) {
         super(location);
     }
 

@@ -2,4 +2,3 @@
 script.lkql:6:7: error: No such member
 6 | print(dep.reduce)
   |       ^^^^^^^^^^
-

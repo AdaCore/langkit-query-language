@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.declarations;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This class represents a value declaration in the LKQL language.
@@ -39,7 +39,7 @@ public final class ValueDeclaration extends Declaration {
      * @param slot The frame slot to place the value in.
      * @param value The expression representing the value.
      */
-    public ValueDeclaration(final SourceLocation location, final int slot, final Expr value) {
+    public ValueDeclaration(final SourceSection location, final int slot, final Expr value) {
         super(location, null);
         this.slot = slot;
         this.value = value;

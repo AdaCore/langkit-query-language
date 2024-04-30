@@ -32,14 +32,14 @@ Total gnatcheck failures: 9
 
 6. Gnatcheck internal errors
 
-main.adb:1:01: internal error at foo.lkql:4:17: Null receiver in dot access
-main.adb:1:01: internal error at foo_unit.lkql:4:22: Null receiver in dot access
-main.adb:1:11: internal error at foo.lkql:4:17: Null receiver in dot access
-main.adb:1:18: internal error at foo.lkql:4:17: Null receiver in dot access
-main.adb:2:06: internal error at foo.lkql:4:17: Null receiver in dot access
-main.adb:3:04: internal error at foo.lkql:4:17: Null receiver in dot access
-main.adb:3:08: internal error at foo.lkql:4:17: Null receiver in dot access
-main.adb:4:05: internal error at foo.lkql:4:17: Null receiver in dot access
-main.adb:4:10: internal error at foo.lkql:4:17: Null receiver in dot access
+main.adb:1:01: error: internal error at foo.lkql:4:17: Null receiver in dot access [foo]
+main.adb:1:01: error: internal error at foo_unit.lkql:4:22: Null receiver in dot access [foo_unit]
+main.adb:1:11: error: internal error at foo.lkql:4:17: Null receiver in dot access [foo]
+main.adb:1:18: error: internal error at foo.lkql:4:17: Null receiver in dot access [foo]
+main.adb:2:06: error: internal error at foo.lkql:4:17: Null receiver in dot access [foo]
+main.adb:3:04: error: internal error at foo.lkql:4:17: Null receiver in dot access [foo]
+main.adb:3:08: error: internal error at foo.lkql:4:17: Null receiver in dot access [foo]
+main.adb:4:05: error: internal error at foo.lkql:4:17: Null receiver in dot access [foo]
+main.adb:4:10: error: internal error at foo.lkql:4:17: Null receiver in dot access [foo]
 
 >>>program returned status code 2

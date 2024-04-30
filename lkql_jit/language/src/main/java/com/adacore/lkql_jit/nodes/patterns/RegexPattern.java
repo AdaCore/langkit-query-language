@@ -8,10 +8,10 @@ package com.adacore.lkql_jit.nodes.patterns;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLPattern;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a regular expression pattern in the LKQL language.
@@ -33,7 +33,7 @@ public abstract class RegexPattern extends ValuePattern {
      * @param location The location of the node in the source.
      * @param regex The regular expression string.
      */
-    public RegexPattern(SourceLocation location, String regex) {
+    public RegexPattern(SourceSection location, String regex) {
         super(location);
         this.pattern = new LKQLPattern(this, regex, true);
     }

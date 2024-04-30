@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.SelectorCall;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a pattern detail on a selector in the LKQL language.
@@ -39,7 +39,7 @@ public final class NodePatternSelector extends NodePatternDetail {
      * @param call The selector call.
      * @param pattern The pattern to check the selector.
      */
-    public NodePatternSelector(SourceLocation location, SelectorCall call, BasePattern pattern) {
+    public NodePatternSelector(SourceSection location, SelectorCall call, BasePattern pattern) {
         super(location);
         this.call = call;
         this.pattern = pattern;

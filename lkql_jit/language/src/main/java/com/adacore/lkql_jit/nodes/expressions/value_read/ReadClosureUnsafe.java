@@ -7,8 +7,8 @@ package com.adacore.lkql_jit.nodes.expressions.value_read;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a value reading in the closure when we don't know if the value is defined.
@@ -31,7 +31,7 @@ public final class ReadClosureUnsafe extends BaseRead {
      * @param slot The closure slot to read.
      * @param name The name of the closure symbol.
      */
-    public ReadClosureUnsafe(final SourceLocation location, final int slot, final String name) {
+    public ReadClosureUnsafe(final SourceSection location, final int slot, final String name) {
         super(location, slot);
         this.name = name;
     }

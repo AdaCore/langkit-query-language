@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.utils.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.io.File;
 import java.util.ArrayList;
@@ -242,28 +243,14 @@ public final class StringUtils {
         return lines.toArray(new String[0]);
     }
 
-    /**
-     * Get the underlined source representation.
-     *
-     * @param lines The lines to display.
-     * @param startLine The starting line.
-     * @param startCol The starting column.
-     * @param endLine The ending line.
-     * @param endCol The ending colum.
-     * @param underLineColor The color of the underline.
-     * @return The underlined lines in a string.
-     */
+    /** Get the underlined source representation. */
     @CompilerDirectives.TruffleBoundary
-    public static String underlineSource(
-            String[] lines,
-            int startLine,
-            int startCol,
-            int endLine,
-            int endCol,
-            String underLineColor) {
+    public static String underlineSource(SourceLocation loc, String underLineColor) {
         // Prepare the result
         StringBuilder res = new StringBuilder();
-        int colSize = String.valueOf(endLine).length();
+        int colSize = String.valueOf(loc.endLine()).length();
+
+        var lines = loc.getLines();
 
         // Create the function to start a line
         Consumer<Integer> lineStarting =
@@ -279,26 +266,26 @@ public final class StringUtils {
 
         // If the source is single line
         if (lines.length == 1) {
-            lineStarting.accept(startLine);
+            lineStarting.accept(loc.startLine());
             res.append(' ').append(lines[0]);
-            if (startCol != endCol) {
+            if (loc.startColumn() != loc.endColumn() + 1) {
                 res.append('\n');
                 lineStarting.accept(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                        .append(" ".repeat(startCol))
-                        .append("^".repeat(Math.max(0, endCol - startCol)));
+                        .append(" ".repeat(loc.startColumn()))
+                        .append("^".repeat(Math.max(0, loc.endColumn() - loc.startColumn() + 1)));
             }
         }
 
         // Else do the multiline display
         else {
-            int difference = endLine - startLine - 1;
-            lineStarting.accept(startLine);
+            int difference = loc.endLine() - loc.startLine() - 1;
+            lineStarting.accept(loc.startLine());
             res.append("  ").append(lines[0]).append("\n");
             lineStarting.accept(0);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
                     .append(" ")
-                    .append("_".repeat(startCol))
+                    .append("_".repeat(loc.startColumn()))
                     .append("^\n");
 
             if (difference > 0) {
@@ -314,7 +301,7 @@ public final class StringUtils {
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "").append("|\n");
             }
 
-            lineStarting.accept(endLine);
+            lineStarting.accept(loc.endLine());
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
                     .append("| ")
                     .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "")
@@ -323,7 +310,7 @@ public final class StringUtils {
             lineStarting.accept(0);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
                     .append("|")
-                    .append("_".repeat(Math.max(1, endCol - 1)))
+                    .append("_".repeat(Math.max(1, loc.endColumn())))
                     .append("^");
         }
 

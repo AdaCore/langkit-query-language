@@ -14,8 +14,8 @@ import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -102,7 +102,7 @@ public final class ReflectionUtils {
     public static Object callProperty(
             Libadalang.AdaNode node,
             Libadalang.LibadalangField fieldDescription,
-            Locatable caller,
+            Node caller,
             ArgList argList,
             Object... arguments)
             throws LangkitException, UnsupportedTypeException {
@@ -154,7 +154,7 @@ public final class ReflectionUtils {
                 throw new LangkitException(
                         langkitException.kind.toString(),
                         langkitException.getMessage(),
-                        caller.getLocation());
+                        caller.getSourceSection());
             } else if (targetException instanceof Error error) {
                 // Forward fatal errors without wrapping them in LKQLRuntimeExceptions: those
                 // shouldn't

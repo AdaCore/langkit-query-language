@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the base of all pattern related to the node in the LKQL language.
@@ -20,7 +20,7 @@ public abstract class NodePattern extends ValuePattern {
      *
      * @param location The location of the node in the source.
      */
-    protected NodePattern(SourceLocation location) {
+    protected NodePattern(SourceSection location) {
         super(location);
     }
 }

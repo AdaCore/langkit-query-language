@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the "unwrap" operation in the LKQL language
@@ -33,7 +33,7 @@ public final class Unwrap extends Expr {
      * @param location The location of the node in the source.
      * @param expr The node expression.
      */
-    public Unwrap(SourceLocation location, Expr expr) {
+    public Unwrap(SourceSection location, Expr expr) {
         super(location);
         this.expr = expr;
     }

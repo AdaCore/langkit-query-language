@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.declarations;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents an annotation associated with a declaration in the LKQL language.
@@ -39,7 +39,7 @@ public final class Annotation extends LKQLNode {
      * @param name The name of the annotation.
      * @param arguments The arguments of the annotation (can be empty or null).
      */
-    public Annotation(SourceLocation location, String name, ArgList arguments) {
+    public Annotation(SourceSection location, String name, ArgList arguments) {
         super(location);
         this.name = name;
         this.arguments = arguments;

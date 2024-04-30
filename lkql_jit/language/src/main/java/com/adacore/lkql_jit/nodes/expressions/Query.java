@@ -16,9 +16,9 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,7 +68,7 @@ public final class Query extends Expr {
      * @param pattern The pattern of the query node
      */
     public Query(
-            SourceLocation location,
+            SourceSection location,
             Kind kind,
             boolean followGenerics,
             Expr throughExpr,

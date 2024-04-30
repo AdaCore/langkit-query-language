@@ -7,12 +7,13 @@ package com.adacore.lkql_jit.nodes;
 
 import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
-import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.source.SourceSection;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +24,12 @@ import java.util.List;
  * @author Hugo GUERRIER
  */
 @TypeSystemReference(LKQLTypeSystem.class)
-public abstract class LKQLNode extends Node implements Locatable {
+public abstract class LKQLNode extends Node {
 
     // ----- Attributes -----
 
     /** The location of the node in the source. */
-    protected final SourceLocation location;
+    protected final SourceSection location;
 
     // ----- Constructor -----
 
@@ -37,17 +38,14 @@ public abstract class LKQLNode extends Node implements Locatable {
      *
      * @param location The location of the node in the source.
      */
-    protected LKQLNode(SourceLocation location) {
+    protected LKQLNode(SourceSection location) {
         this.location = location;
     }
 
     // ----- Getters -----
 
-    /**
-     * @see com.adacore.lkql_jit.utils.source_location.Locatable#getLocation()
-     */
     @Override
-    public SourceLocation getLocation() {
+    public SourceSection getSourceSection() {
         return location;
     }
 
@@ -239,4 +237,8 @@ public abstract class LKQLNode extends Node implements Locatable {
      * @return The tree representation of the node in a string.
      */
     public abstract String toString(int indentLevel);
+
+    public SourceLocation getLocation() {
+        return new SourceSectionWrapper(this.getSourceSection());
+    }
 }

@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import org.graalvm.collections.EconomicMap;
 
@@ -19,6 +20,7 @@ import org.graalvm.collections.EconomicMap;
  * @author Hugo GUERRIER
  */
 public class CheckerUtils {
+
     /**
      * Caches source lines of analysis units to avoid recomputing them each time a diagnostic needs
      * to be emitted.
@@ -34,7 +36,7 @@ public class CheckerUtils {
          * @param unit The unit from which to extract source lines
          */
         @CompilerDirectives.TruffleBoundary
-        private String[] getLines(Libadalang.AnalysisUnit unit) {
+        public String[] getLines(Libadalang.AnalysisUnit unit) {
             final Libadalang.AdaNode root = unit.getRoot();
             String[] result = sourcesLines.get(root, null);
             if (result == null) {
@@ -45,56 +47,104 @@ public class CheckerUtils {
         }
     }
 
+    public static enum MessageKind {
+        WARNING,
+        ERROR,
+        RULE_VIOLATION
+    }
+
     /**
      * Common interface for diagnostic emitters. All given parameters need not be used in the
      * output.
      */
     public interface DiagnosticEmitter {
-        /**
-         * @param ruleName The name of the rule.
-         * @param message The message of the violated rule.
-         * @param slocRange The location where the error occurs in the code.
-         * @param unit The analysis unit in which the error occurs.
-         * @param genericInstantiations The current stack of generic instantiations.
-         * @param linesCache The cache of all units' source text lines.
-         * @param context The context to output the message.
-         */
+
+        /** Emit a rule violation TODO: Meld that into emitDiagnostic eventually */
         void emitRuleViolation(
                 String ruleName,
                 String message,
-                Libadalang.SourceLocationRange slocRange,
-                Libadalang.AnalysisUnit unit,
+                SourceLocation violationLocation,
                 Libadalang.AdaNode[] genericInstantiations,
-                SourceLinesCache linesCache,
                 LKQLContext context);
 
         /**
-         * @param fromUnit The unit from which an attempt to retrieve the file was made
-         * @param missingFileName The file that failed to be loaded
-         * @param isFatal Whether the error will terminate the execution or not
-         * @param context The context to output the message
+         * Main method to be overridden by implementing classes. Produces the diagnostic as a string
+         * and return it. Diagnostics can be emitted for Ada code, LKQL code, or both, depending on
+         * the location parameters.
+         *
+         * @param messageKind The kind of the diagnostic to emit
+         * @param message The message for the diagnostic
+         * @param adaErrorLocation The location in Ada code, if any, else null
+         * @param lkqlErrorLocation The location in LKQL code, if any, else null
+         * @param ruleName The name of the associated LKQL rule, if any, else ""
+         * @return The diagnostic as a string
          */
-        void emitMissingFile(
-                Libadalang.AnalysisUnit fromUnit,
-                String missingFileName,
-                boolean isFatal,
-                LKQLContext context);
+        String diagnostic(
+                MessageKind messageKind,
+                String message,
+                SourceLocation adaErrorLocation,
+                SourceLocation lkqlErrorLocation,
+                String ruleName);
 
         /**
-         * @param ruleName The name of the rule the error occurred during.
-         * @param unit The analysis unit in which the error occurred.
-         * @param adaLocation The location in the unit of the error.
-         * @param errorLocation The location in the LKQL code which rose the exception.
-         * @param errorMessage The message of the error.
-         * @param context The context to output the message.
+         * Emit a diagnostic. Location parameters can be null. If both are null, then a non located
+         * diagnostic will be emitted. The ruleName can also be "", in which case the diagnostic
+         * will not be associated to a rule.
          */
-        void emitInternalError(
-                String ruleName,
-                Libadalang.AnalysisUnit unit,
-                Libadalang.SourceLocation adaLocation,
-                String errorLocation,
+        @CompilerDirectives.TruffleBoundary
+        default void emitDiagnostic(
+                MessageKind messageKind,
                 String errorMessage,
-                LKQLContext context);
+                SourceLocation adaErrorLocation,
+                SourceLocation lkqlErrorLocation,
+                String ruleName) {
+            LKQLLanguage.getContext(null)
+                    .println(
+                            this.diagnostic(
+                                    messageKind,
+                                    errorMessage,
+                                    adaErrorLocation,
+                                    lkqlErrorLocation,
+                                    ruleName));
+        }
+
+        /** Shortcut to emit a diagnostic with no rule. */
+        default void emitDiagnostic(
+                MessageKind messageKind,
+                String errorMessage,
+                SourceLocation adaErrorLocation,
+                SourceLocation lkqlErrorLocation) {
+            emitDiagnostic(messageKind, errorMessage, adaErrorLocation, lkqlErrorLocation, "");
+        }
+
+        /**
+         * Default mapping from MessageKind to string. Can be overriden by subclasses to alter the
+         * way the message is formatted.
+         */
+        default String kindtoString(MessageKind messageKind) {
+            return switch (messageKind) {
+                case WARNING -> "warning";
+                case ERROR -> "error";
+                case RULE_VIOLATION -> "rule violation";
+            };
+        }
+
+        /** Shortcut to emit a "file not found" message. */
+        default void emitFileNotFound(SourceLocation from, String fileName, boolean isError) {
+
+            this.emitDiagnostic(
+                    isError ? MessageKind.ERROR : MessageKind.WARNING,
+                    "File "
+                            + (useFullFilePath() ? fileName : FileUtils.baseName(fileName))
+                            + " not found",
+                    from,
+                    null,
+                    "");
+        }
+
+        default boolean useFullFilePath() {
+            return false;
+        }
     }
 
     /** The default renderer for emitting diagnostic. Uses colors when possible. */
@@ -104,107 +154,50 @@ public class CheckerUtils {
         public void emitRuleViolation(
                 String ruleName,
                 String message,
-                Libadalang.SourceLocationRange slocRange,
-                Libadalang.AnalysisUnit unit,
+                SourceLocation violationLocation,
                 Libadalang.AdaNode[] genericInstantiations,
-                SourceLinesCache linesCache,
                 LKQLContext context) {
-            printRuleViolation(
-                    message,
-                    slocRange.start.line,
-                    slocRange.start.column,
-                    slocRange.end.line,
-                    slocRange.end.column,
-                    unit,
-                    linesCache,
-                    context);
+
+            // Print the things
+            context.println(
+                    "%s%s:%s rule violation: %s%s\n%s\n"
+                            .formatted(
+                                    (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_BOLD : ""),
+                                    violationLocation.display(),
+                                    (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_YELLOW : ""),
+                                    (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_RESET : ""),
+                                    message,
+                                    StringUtils.underlineSource(
+                                            violationLocation, StringUtils.ANSI_YELLOW)));
         }
 
         @Override
-        public void emitMissingFile(
-                Libadalang.AnalysisUnit fromUnit,
-                String missingFileName,
-                boolean isFatal,
-                LKQLContext context) {
-            final String prefix = isFatal ? "ERROR" : "WARNING";
-            context.println(
-                    prefix + ": File " + FileUtils.baseName(missingFileName) + " not found");
+        public String diagnostic(
+                MessageKind messageKind,
+                String message,
+                SourceLocation adaErrorLocation,
+                SourceLocation lkqlErrorLocation,
+                String ruleName) {
+
+            var adaLoc = adaErrorLocation != null ? adaErrorLocation.display() + ": " : "";
+            var lkqlLoc = lkqlErrorLocation != null ? lkqlErrorLocation.display() + ": " : "";
+            var rulePart = ruleName.equals("") ? "" : "[" + ruleName.toLowerCase() + "]";
+
+            String sourceString =
+                    lkqlErrorLocation != null
+                            ? "\n"
+                                    + StringUtils.underlineSource(
+                                            lkqlErrorLocation, StringUtils.ANSI_YELLOW)
+                            : "";
+
+            return adaLoc
+                    + lkqlLoc
+                    + kindtoString(messageKind)
+                    + ": "
+                    + message
+                    + rulePart
+                    + sourceString;
         }
-
-        @Override
-        @CompilerDirectives.TruffleBoundary
-        public void emitInternalError(
-                final String ruleName,
-                final Libadalang.AnalysisUnit unit,
-                final Libadalang.SourceLocation adaLocation,
-                final String errorLocation,
-                final String errorMessage,
-                final LKQLContext context) {
-            context.println(
-                    unit.getFileName(false)
-                            + ":"
-                            + adaLocation.toString()
-                            + ":"
-                            + errorLocation
-                            + ": "
-                            + errorMessage
-                            + " ["
-                            + ruleName.toLowerCase()
-                            + "]");
-        }
-    }
-
-    /**
-     * Display a rule violation on the standard output.
-     *
-     * @param message The message of the violated rule.
-     * @param startLine The position start line.
-     * @param startCol The position start column.
-     * @param endLine The position end line.
-     * @param endCol The position end column.
-     * @param unit The analysis unit where the violation happened.
-     * @param linesCache The cache of all units' source text lines.
-     * @param context The LKQL context to use for the output.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static void printRuleViolation(
-            String message,
-            int startLine,
-            int startCol,
-            int endLine,
-            int endCol,
-            Libadalang.AnalysisUnit unit,
-            SourceLinesCache linesCache,
-            LKQLContext context) {
-        // Get the file name
-        String fileName = FileUtils.baseName(unit.getFileName());
-
-        // Get the valid lines and the source representation
-        String[] sourceLines = linesCache.getLines(unit);
-        String[] validLines = new String[(endLine + 1) - startLine];
-        if (endLine + 1 - startLine >= 0)
-            System.arraycopy(sourceLines, startLine - 1, validLines, 0, endLine + 1 - startLine);
-
-        String sourceString =
-                StringUtils.underlineSource(
-                        validLines, startLine, startCol, endLine, endCol, StringUtils.ANSI_YELLOW);
-
-        // Print the things
-        context.println(
-                (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_BOLD : "")
-                        + fileName
-                        + ":"
-                        + startLine
-                        + ":"
-                        + startCol
-                        + ":"
-                        + (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_YELLOW : "")
-                        + " rule violation: "
-                        + (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_RESET : "")
-                        + message
-                        + "\n"
-                        + sourceString
-                        + "\n");
     }
 
     /** Emitter that formats diagnostics such that the GNATcheck driver can parse them. */
@@ -214,15 +207,9 @@ public class CheckerUtils {
         public void emitRuleViolation(
                 String ruleName,
                 String message,
-                Libadalang.SourceLocationRange slocRange,
-                Libadalang.AnalysisUnit unit,
+                SourceLocation violationLocation,
                 Libadalang.AdaNode[] genericInstantiations,
-                SourceLinesCache linesCache,
                 LKQLContext context) {
-            // Get the file name
-            final String fileName = FileUtils.baseName(unit.getFileName());
-            final String colPrefix = slocRange.start.column < 10 ? "0" : "";
-
             // Append generic instantiation information to the message
             if (genericInstantiations.length > 0) {
                 StringBuilder messageBuilder = new StringBuilder(message);
@@ -243,12 +230,7 @@ public class CheckerUtils {
 
             // Print the things
             context.println(
-                    fileName
-                            + ":"
-                            + slocRange.start.line
-                            + ":"
-                            + colPrefix
-                            + slocRange.start.column
+                    violationLocation.display()
                             + ": "
                             + "check: "
                             + message
@@ -258,39 +240,35 @@ public class CheckerUtils {
         }
 
         @Override
-        public void emitMissingFile(
-                Libadalang.AnalysisUnit fromUnit,
-                String missingFileName,
-                boolean isFatal,
-                LKQLContext context) {
-            // Use the full name for files: GNATcheck will reformat it if a specific flag is set
-            context.println(
-                    fromUnit.getFileName() + ":1:1: warning: cannot find " + missingFileName);
+        public String diagnostic(
+                MessageKind messageKind,
+                String message,
+                SourceLocation adaErrorLocation,
+                SourceLocation lkqlErrorLocation,
+                String ruleName) {
+
+            var adaLoc = adaErrorLocation != null ? adaErrorLocation.display(true) + ": " : "";
+            var lkqlLoc =
+                    lkqlErrorLocation != null
+                            ? "internal error at " + lkqlErrorLocation.display(true) + ": "
+                            : "";
+            var rulePart = ruleName.equals("") ? "" : " [" + ruleName.toLowerCase() + "]";
+
+            return adaLoc + kindtoString(messageKind) + ": " + lkqlLoc + message + rulePart;
         }
 
         @Override
-        @CompilerDirectives.TruffleBoundary
-        public void emitInternalError(
-                final String ruleName,
-                final Libadalang.AnalysisUnit unit,
-                final Libadalang.SourceLocation adaLocation,
-                final String errorLocation,
-                final String errorMessage,
-                final LKQLContext context) {
-            context.println(
-                    unit.getFileName(false)
-                            + ":"
-                            + adaLocation.line
-                            + ":"
-                            + String.format("%02d", adaLocation.column)
-                            + ": check: "
-                            + "internal error at "
-                            + errorLocation
-                            + ": "
-                            + errorMessage
-                            + " ["
-                            + ruleName.toLowerCase()
-                            + "]");
+        public boolean useFullFilePath() {
+            return true;
+        }
+
+        @Override
+        public String kindtoString(MessageKind messageKind) {
+            return switch (messageKind) {
+                case WARNING -> "warning";
+                case ERROR -> "error";
+                case RULE_VIOLATION -> "check";
+            };
         }
     }
 }

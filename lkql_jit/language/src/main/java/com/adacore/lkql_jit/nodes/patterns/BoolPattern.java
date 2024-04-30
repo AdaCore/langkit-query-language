@@ -5,17 +5,17 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /** Pattern to match a boolean value */
 public abstract class BoolPattern extends ValuePattern {
 
     private final boolean toMatch;
 
-    protected BoolPattern(SourceLocation location, boolean toMatch) {
+    protected BoolPattern(SourceSection location, boolean toMatch) {
         super(location);
         this.toMatch = toMatch;
     }

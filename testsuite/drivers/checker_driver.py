@@ -57,7 +57,7 @@ class CheckerDriver(BaseDriver):
     def parse_flagged_lines(self, output: str) -> Flags:
         # Compile the pattern to match a checker output
         pattern = re.compile(
-            r"^([a-zA-Z][a-zA-Z0-9_\-]*\.(adb|ads)):(\d+):\d+: .*$"
+            r"^([a-zA-Z][a-zA-Z0-9_\-]*\.(adb|ads)):(\d+):\d+: rule violation: .*$"
         )
 
         # Prepare the result

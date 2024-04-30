@@ -6,17 +6,17 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class ListPattern extends ValuePattern {
     /** The sub-patterns for this list pattern. */
     @Node.Children private final BasePattern[] patterns;
 
-    public ListPattern(SourceLocation location, BasePattern[] patterns) {
+    public ListPattern(SourceSection location, BasePattern[] patterns) {
         super(location);
         this.patterns = patterns;
     }

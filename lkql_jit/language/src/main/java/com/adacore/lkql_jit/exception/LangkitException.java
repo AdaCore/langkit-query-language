@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.exception;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
+import com.oracle.truffle.api.source.SourceSection;
 import java.io.Serial;
 
 /**
@@ -27,7 +27,7 @@ public final class LangkitException extends AbstractTruffleException {
     private final String msg;
 
     /** Location of the node which rose this error. */
-    private final SourceLocation location;
+    private final SourceSection location;
 
     // ----- Constructors -----
 
@@ -38,7 +38,7 @@ public final class LangkitException extends AbstractTruffleException {
      * @param msg The message of the exception.
      * @param location The location of the exception.
      */
-    public LangkitException(String kind, String msg, SourceLocation location) {
+    public LangkitException(String kind, String msg, SourceSection location) {
         this.kind = kind;
         this.msg = msg;
         this.location = location;
@@ -54,7 +54,7 @@ public final class LangkitException extends AbstractTruffleException {
         return this.msg;
     }
 
-    public SourceLocation getLoc() {
+    public SourceSection getLoc() {
         return location;
     }
 }

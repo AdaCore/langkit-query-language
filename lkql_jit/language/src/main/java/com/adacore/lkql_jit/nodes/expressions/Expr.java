@@ -15,9 +15,9 @@ import com.adacore.lkql_jit.built_ins.values.interfaces.Nullish;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
 /**
@@ -34,7 +34,7 @@ public abstract class Expr extends LKQLNode {
      *
      * @param location The location of the node in the source.
      */
-    protected Expr(SourceLocation location) {
+    protected Expr(SourceSection location) {
         super(location);
     }
 

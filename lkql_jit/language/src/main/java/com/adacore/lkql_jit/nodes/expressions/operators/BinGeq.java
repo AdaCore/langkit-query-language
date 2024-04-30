@@ -8,10 +8,9 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
 /**
@@ -27,12 +26,9 @@ public abstract class BinGeq extends BinOp {
      * Create a "greater or equals" node.
      *
      * @param location The location of the node in the source.
-     * @param leftLocation The location of the left node.
-     * @param rightLocation The location of the right node.
      */
-    protected BinGeq(
-            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
-        super(location, leftLocation, rightLocation);
+    protected BinGeq(SourceSection location) {
+        super(location);
     }
 
     // ----- Execution methods -----

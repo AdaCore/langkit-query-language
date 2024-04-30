@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a binding pattern in the LKQL language.
@@ -37,7 +37,7 @@ public final class BindingPattern extends UnfilteredPattern {
      * @param slot The frame slot to put the node in.
      * @param pattern The pattern to bind in.
      */
-    public BindingPattern(SourceLocation location, int slot, ValuePattern pattern) {
+    public BindingPattern(SourceSection location, int slot, ValuePattern pattern) {
         super(location);
         this.slot = slot;
         this.pattern = pattern;

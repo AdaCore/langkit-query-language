@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node is the base for all variable reading in the LKQL language.
@@ -28,7 +28,7 @@ public abstract class BaseRead extends Expr {
      * @param location The location of the node in the source.
      * @param slot The slot to read.
      */
-    protected BaseRead(final SourceLocation location, final int slot) {
+    protected BaseRead(final SourceSection location, final int slot) {
         super(location);
         this.slot = slot;
     }

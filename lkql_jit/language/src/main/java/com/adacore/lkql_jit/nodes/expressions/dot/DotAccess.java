@@ -15,7 +15,6 @@ import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -27,6 +26,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.Map;
 
 /**
@@ -50,7 +50,7 @@ public abstract class DotAccess extends Expr {
      * @param location The location of the node in the source.
      * @param member The member to access.
      */
-    protected DotAccess(SourceLocation location, Identifier member) {
+    protected DotAccess(SourceSection location, Identifier member) {
         super(location);
         this.member = member;
     }
@@ -209,7 +209,7 @@ public abstract class DotAccess extends Expr {
                         | UnsupportedMessageException e) {
                     // TODO: Implement runtime checks in the LKQLFunction class and base computing
                     // on them (#138)
-                    throw LKQLRuntimeException.fromJavaException(e, this.member);
+                    throw LKQLRuntimeException.fromJavaException(e, this);
                 }
             } else {
                 builtIn.setThisValue(receiver);
