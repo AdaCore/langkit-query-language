@@ -1,0 +1,28 @@
+# Flag container aggregates of a type whose `Aggregate` aspect specifies both
+# `Add_Unnamed` and `New_Indexed` operations, and where the associations of
+# the aggregate contains an iterator specification.
+
+import stdlib
+
+fun aspect_define_op(aspect, op_name) =
+    |" Returns whether the given aspect spec defines the given operation name
+    aspect.f_assocs is *(
+        any children(depth=1): AggregateAssoc(
+            f_designators: *(any children(depth=1): Name(p_name_is(op_name): true))
+        )
+    )
+
+fun is_flagged_aspect(aspect) =
+    |" Returns whether the given aspect should be flagged by the KP detector
+    match aspect
+    | {exists: true, value: v, ...} =>
+        aspect_define_op(v, "add_unnamed") and aspect_define_op(v, "new_indexed")
+    | * => false
+
+@check(help="possible occurrence of KP 18926",
+       message="possible occurrence of KP 18926",
+       impact="23.*,24.1")
+fun kp_18926(node) =
+    node is BracketAggregate
+    when is_flagged_aspect(node.p_expression_type().p_get_aspect("Aggregate"))
+     and stdlib.any([a is IteratedAssoc for a in node.f_assocs.children])
