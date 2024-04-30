@@ -8,19 +8,19 @@
 
 import stdlib
 
-fun num_interfaces(n) =
-    |" Return the number of interfaces for a SingleProtectedDecl, 0 otherwise
-    |" since for all type declarations, super_types takes interfaces into
-    |" account.
-    if n is SingleProtectedDecl then n.f_interfaces.children_count else 0
-
 @check(message="type has too many parents", remediation="MAJOR",
        category="Style", subcategory="Object Orientation")
 fun too_many_parents(node, n : int = 5) =
     node is (TypeDecl(p_is_tagged_type(): true) |
              TaskTypeDecl | ProtectedTypeDecl | SingleProtectedDecl)
     when ({
-        val l = num_interfaces(node);
-        val st = stdlib.super_types(node, max_depth=n - l + 1);
-        l + st.length > n
+        # Compute the number of interfaces for a SingleProtectedDecl, 0 otherwise
+        # since for all type declarations, super_types takes interfaces into
+        # account.
+        val nb_single_protected_interfaces = (
+            if node is SingleProtectedDecl then node.f_interfaces.children_count else 0
+        );
+        # Compute the length of the set of unique parent types
+        val nb_parent_types = stdlib.super_types(node).to_list.unique.length;
+        nb_parent_types + nb_single_protected_interfaces > n
     })
