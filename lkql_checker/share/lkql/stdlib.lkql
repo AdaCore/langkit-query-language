@@ -5,8 +5,27 @@
 |" library.
 
 selector super_types
-    |" Yields the chain of super types for the given type
+    |" Yields the chain of super types of the given type, as viewed from that
+    |" type. Hence, for a type T which public view derives from a type A but
+    |" private view derives from a type B (which itself derives from A),
+    |" invoking this selector on the public view of T will yield A.
     | BaseTypeDecl => rec(*this.p_base_types())
+    | * => ()
+
+selector complete_super_types
+    |" Yields the chain of super types of the given type in their most complete
+    |" view. Hence, for a type T which public view derives from a type A but
+    |" private view derives from a type B (which itself derives from A),
+    |" invoking this selector on the public view of T will yield B and then A.
+    | b@BaseTypeDecl when b.p_is_private() => {
+        # We go through `p_base_subtype` to correctly handle SubtypeDecl nodes:
+        # while they themselves don't have a next part, their base type may.
+        val np = this.p_base_subtype().p_next_part();
+        val typ = if np == null then this else np;
+        rec(*typ.p_base_types())
+    }
+    | BaseTypeDecl =>
+        rec(*this.p_base_types())
     | * => ()
 
 selector semantic_parent
