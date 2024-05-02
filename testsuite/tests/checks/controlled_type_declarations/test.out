@@ -2,7 +2,11 @@ controlled_type_declarations.ads:3:9: rule violation: declaration of controlled 
 3 |    type Resource is new Ada.Finalization.Controlled with private;  --  FLAG
   |         ^^^^^^^^
 
-controlled_type_declarations.ads:5:9: rule violation: declaration of controlled type
-5 |    type Resource is new Ada.Finalization.Controlled with null record; --  FLAG
+controlled_type_declarations.ads:7:9: rule violation: declaration of controlled type
+7 |    type New_Resource is new Sub_Resource;  --  FLAG
+  |         ^^^^^^^^^^^^
+
+controlled_type_declarations.ads:9:9: rule violation: declaration of controlled type
+9 |    type Resource is new Ada.Finalization.Controlled with null record; --  FLAG
   |         ^^^^^^^^
 

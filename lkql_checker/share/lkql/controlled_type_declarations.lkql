@@ -8,19 +8,14 @@
 #   declared in `Ada.Finalization' but has a controlled component is not
 #   checked.
 
+import stdlib
+
 fun canonical_fully_qualified_name(t) =
     t.f_name?.p_basic_decl()?.p_canonical_fully_qualified_name()
 
-selector complete_super_types
-    | b@BaseTypeDecl when b.p_is_private() =>
-        rec(*this.p_next_part()?.p_base_types?())
-    | BaseTypeDecl =>
-        rec(*this.p_base_types())
-    | * => ()
-
 @check(message="declaration of controlled type", category="Feature")
 fun controlled_type_declarations(node) =
-    node is BaseTypeDecl (
-        any complete_super_types: b
+    node is TypeDecl (
+        any stdlib.complete_super_types: b
         when canonical_fully_qualified_name(b) == "ada.finalization.controlled"
     )
