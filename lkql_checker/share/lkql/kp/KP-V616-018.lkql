@@ -16,3 +16,5 @@ fun kp_v616_018(node) =
                 f_name: n@Name
                 when access_to_unconstrained_array(n.p_referenced_decl())) |
             a@AnonymousType when access_to_unconstrained_array(a.f_type_decl)
+        )
+    )
