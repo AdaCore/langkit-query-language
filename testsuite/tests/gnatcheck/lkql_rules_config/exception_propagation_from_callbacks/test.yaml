@@ -1,0 +1,10 @@
+driver: gnatcheck
+format: brief
+input_sources:
+ - main.adb
+
+tests:
+ - label: Valid run
+   lkql_rule_file: config.lkql
+ - label: Invalid type
+   lkql_rule_file: invalid_type.lkql

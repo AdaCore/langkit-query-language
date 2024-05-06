@@ -1,0 +1,3 @@
+val rules = @{
+    goto_statements: [{only_unconditional: true, extra: false}]
+}

@@ -1,0 +1,3 @@
+val rules = @{
+    identifier_prefixes: [{type: "Type_", exclusive: false}]
+}

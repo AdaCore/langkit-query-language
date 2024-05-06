@@ -1,0 +1,3 @@
+val rules = @{
+    membership_tests: [{float_types_only: "true"}]
+}

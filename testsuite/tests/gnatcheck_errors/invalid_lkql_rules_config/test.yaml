@@ -1,0 +1,22 @@
+driver: gnatcheck
+input_sources:
+ - main.adb
+format: brief
+
+tests:
+ - label: Invalid LKQL semantic
+   lkql_rule_file: invalid_semantic.lkql
+ - label: No 'rules' object
+   lkql_rule_file: no_rules_object.lkql
+ - label: Empty rules object
+   lkql_rule_file: empty_config.lkql
+ - label: Not existing rule
+   lkql_rule_file: not_existing_rule.lkql
+ - label: Not indexable arguments
+   lkql_rule_file: not_indexable_args.lkql
+ - label: Not existing file
+   lkql_rule_file: not_existing.lkql
+ - label: Missing mandatory parameter
+   lkql_rule_file: missing_param.lkql
+ - label: Extra parameter
+   lkql_rule_file: extra_param.lkql
