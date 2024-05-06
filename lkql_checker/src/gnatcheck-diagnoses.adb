@@ -1845,7 +1845,7 @@ package body Gnatcheck.Diagnoses is
       begin
          if not Limit_Exceeded then
             if Max_Diagnoses > 0 and then
-               Diagnoses_Reported > Max_Diagnoses
+               Diagnoses_Reported >= Max_Diagnoses
             then
                Limit_Exceeded := True;
                Info ("Maximum diagnoses reached, " &

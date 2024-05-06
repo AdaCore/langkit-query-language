@@ -1,0 +1,6 @@
+format: brief
+driver: gnatcheck
+input_sources: [test.adb]
+extra_args: [-m1]
+rules:
+  - +Rsuspicious_equalities
