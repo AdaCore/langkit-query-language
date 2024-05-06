@@ -1,0 +1,4 @@
+driver: 'checker'
+rule_name: 'Unassigned_OUT_Parameters'
+project: 'prj.gpr'
+
