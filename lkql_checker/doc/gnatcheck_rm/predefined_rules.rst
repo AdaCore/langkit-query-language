@@ -8321,17 +8321,17 @@ This rule has the following (mandatory) parameter for the ``+R`` option:
 
 .. index:: Unassigned_OUT_Parameters
 
-Flag procedures' ``out`` parameters that are not assigned.
+Flag subprograms' ``out`` parameters that are not assigned.
 
-An ``out`` parameter is flagged if the *sequence of statements* of
-the procedure body (before the procedure body's exception part, if any)
-contains no assignment to the parameter.
+An ``out`` parameter is flagged if neither the *declarative part* nor the
+*sequence of statements* of the subprogram body (before the subprogram body's
+exception part, if any) contain an assignment to the parameter.
 
 An ``out`` parameter is flagged if an *exception handler* contains neither an
 assignment to the parameter nor a raise statement nor a call to a procedure
 marked No_Return.
 
-Bodies of generic procedures are also considered.
+Bodies of generic subprograms are also considered.
 
 The following are treated as assignments to an ``out`` parameter:
 
@@ -8344,6 +8344,10 @@ The rule has an optional parameter for the ``+R`` option:
 *Ignore_Component_Assignments*
   Ignore assignments to subcomponents of an ``out`` parameter when detecting
   if the parameter is assigned.
+
+.. note:: An assignment to a subprogram's parameter can occur in the subprogram
+   body's *declarative part* in the presence of a nested subprogram declaration
+   which itself contains an assignment to the enclosing subprogram's parameter.
 
 .. warning:: This rule only detects the described cases of unassigned variables
    and doesn't provide a full guarantee that there is no uninitialized access.

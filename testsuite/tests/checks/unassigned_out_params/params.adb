@@ -87,6 +87,17 @@ procedure Params is
          raise;
    end;
 
+   function Func_With_Out_Param (X : in out Integer) return Integer is
+   begin
+      X := 1;
+      return 2;
+   end Func_With_Out_Param;
+
+   procedure Proc_Param_Assigned_In_Decl_Part (X : in out Integer) is
+      I : Integer := Func_With_Out_Param (X);
+   begin
+      null;
+   end Proc_Param_Assigned_In_Decl_Part;
 begin
    null;
 end Params;
