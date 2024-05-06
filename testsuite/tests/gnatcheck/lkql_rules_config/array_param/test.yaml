@@ -1,0 +1,12 @@
+driver: gnatcheck
+control:
+  - [SKIP, "mode == 'ada'", "LKQL rule file feature unavailable on Ada implementation"]
+format: brief
+input_sources:
+ - main.adb
+
+tests:
+ - label: Direct_Equalities
+   lkql_rule_file: direct_eq.lkql
+ - label: Invalid type
+   lkql_rule_file: invalid_type.lkql

@@ -1,0 +1,12 @@
+driver: gnatcheck
+control:
+  - [SKIP, "mode == 'ada'", "LKQL rule file feature unavailable on Ada implementation"]
+format: brief
+input_sources:
+ - main.adb
+
+tests:
+ - label: Valid run
+   lkql_rule_file: config.lkql
+ - label: Missing parameter
+   lkql_rule_file: missing_param.lkql

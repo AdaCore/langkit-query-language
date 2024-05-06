@@ -1053,15 +1053,7 @@ package body Gnatcheck.Projects is
             when File =>
                Process_Rule_File (To_String (O.Value));
             when LKQL_File =>
-               declare
-                  LKQL_Rule_File_Name : constant String := To_String (O.Value);
-               begin
-                  if not Is_Regular_File (LKQL_Rule_File_Name) then
-                     Error ("can not locate LKQL rule file " &
-                            LKQL_Rule_File_Name);
-                     Missing_Rule_File_Detected := True;
-                  end if;
-               end;
+               Process_LKQL_Rule_File (To_String (O.Value));
             when Option =>
                Process_Rule_Option (To_String (O.Value), Defined_At => "");
          end case;
@@ -1745,12 +1737,6 @@ package body Gnatcheck.Projects is
             exit;
          end if;
       end loop;
-
-      --  If an LKQL rule files was provided consider that there are active
-      --  rules.
-      if LKQL_Rule_File_Name /= null then
-         Active_Rule_Present := True;
-      end if;
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
          Error ("No rule to check specified");

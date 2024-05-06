@@ -135,6 +135,15 @@ package Gnatcheck.Compiler is
    --  Source_File is the name of a file listing all the source files to
    --  analyze.
 
+   function Spawn_LKQL_Rule_File_Parser
+     (LKQL_RF_Name : String;
+      Result_File : String;
+      Error_File : String) return Process_Id;
+   --  Spawn the executable which handles the LKQL rule config file parsing
+   --  with the provided `LKQL_RF_Name` then return the process identifier
+   --  associated to it. Redirects all output made by the process in the
+   --  `Result_File` file.
+
    function Spawn_GPRbuild (Output_File : String) return Process_Id;
    --  Spawn gprbuild on the main project file with the relevant options,
    --  redirecting the standard error to the given Output_File, to be used by

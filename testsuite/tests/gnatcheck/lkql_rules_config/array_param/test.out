@@ -1,0 +1,13 @@
+Direct_Equalities
+=================
+
+main.adb:8:07: direct (in)equality
+main.adb:9:15: direct (in)equality
+
+Invalid type
+============
+
+gnatcheck: invalid parameter for rule direct_equalities: 'actuals' value should be a list (invalid_type.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

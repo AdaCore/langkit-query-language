@@ -1,0 +1,11 @@
+val rules = @{
+    identifier_suffixes: [{type_suffix: "_T", alias_name: "my_alias"}]
+}
+
+val ada_rules = @{
+    goto_statements
+}
+
+val spark_rules = @{
+    ada_2022_in_ghost_code
+}

@@ -34,6 +34,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;             use Ada.Text_IO;
 with System.Rident;
 
+with GNATCOLL.JSON; use GNATCOLL.JSON;
+
 with Liblkqllang.Analysis;
 with Rule_Commands;           use Rule_Commands;
 
@@ -58,6 +60,10 @@ package Gnatcheck.Rules is
    --  Zero means that the rule has exactly one variant of the diagnostic
    --  message
 
+   Invalid_Value : exception;
+   --  Exception to raise when an unexpected valud is provided to a rule
+   --  processing function.
+
    -----------------
    -- Rule States --
    -----------------
@@ -69,6 +75,13 @@ package Gnatcheck.Rules is
    --              a control comment in the analyzed source)
    --   Disabled - the rule is disabled for the given gnatcheck run, this
    --              state cannot be changed during the gnatcheck run
+
+   type Source_Modes is (General, Ada_Only, Spark_Only);
+   --  Each rule may have a source mode, this information sets on which types
+   --  of source code the rule should be executed:
+   --  Ada     - Only on pure Ada code (not run on SPARK snippets)
+   --  Spark   - Only on SPARK code
+   --  General - On both
 
    type Rule_Template is tagged record
       Name : String_Access;
@@ -87,6 +100,9 @@ package Gnatcheck.Rules is
 
       Rule_State : Rule_States;
       --  Is the rule active or not
+
+      Source_Mode : Source_Modes;
+      --  The behavior of the rule regarding the sources.
 
       Remediation_Level : Remediation_Levels;
 
@@ -204,6 +220,20 @@ package Gnatcheck.Rules is
    --  - otherwise generates the error message saying that no parameter can be
    --    set for a given rule and that the parameter is ignored.
 
+   procedure Process_Rule_Params_Object
+     (Rule          : in out Rule_Template;
+      Params_Object : in out JSON_Value)
+   is null;
+   --  Process the given JSON value as an arguments object for `Rule`. This
+   --  object contains argument names as keys, associated with their value
+   --  expressed by an LKQL literal value.
+   --  This function will remove a key from `Args_Object` if it is used as an
+   --  argument for the rule.
+   --
+   --  This function may throw `Gnatcheck.JSON_Utilities.Field_Not_Found` if an
+   --  argument is missing, or `Gnatcheck.JSON_Utilities.Invalid_Type` if an
+   --  argument is not of the valid type.
+
    procedure Map_Parameters
      (Rule : in out Rule_Template; Args : in out Rule_Argument_Vectors.Vector)
    is null;
@@ -234,6 +264,9 @@ package Gnatcheck.Rules is
 
    function Is_Enabled (Rule : Rule_Template) return Boolean;
    --  Checks if the rule should be checked
+
+   function Source_Mode_String (Rule : Rule_Template) return String;
+   --  Get the string representing the rule source mode
 
    procedure Print_Rule_To_Universal_File
      (Rule         : in out Rule_Template'Class;
@@ -270,6 +303,12 @@ package Gnatcheck.Rules is
    --  If Has_Synonym (Rule) then returns the rule synonym, otherwise returns
    --  an empty string.
 
+   function Parameter_Name
+     (Rule : Rule_Template'Class;
+      Param_Index : Integer) return String;
+   --  Get the name of the `Index`th `Rule` parameter. This function will raise
+   --  a `Constraint_Error` if the parameter index is out of bounds.
+
    ----------------------------------
    -- "One integer parameter" rule --
    ----------------------------------
@@ -294,6 +333,10 @@ package Gnatcheck.Rules is
    --  turns the rule OFF.
    --  Defined_At parameter is used to form warning in case of redefinition of
    --  the rule parameter.
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_Integer_Parameter_Rule;
+      Params_Object : in out JSON_Value);
 
    overriding procedure Map_Parameters
      (Rule : in out One_Integer_Parameter_Rule;
@@ -328,6 +371,10 @@ package Gnatcheck.Rules is
       Enable     : Boolean;
       Defined_At : String);
 
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_Boolean_Parameter_Rule;
+      Params_Object : in out JSON_Value);
+
    overriding procedure Map_Parameters
      (Rule : in out One_Boolean_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
@@ -360,6 +407,10 @@ package Gnatcheck.Rules is
       Enable     : Boolean;
       Defined_At : String);
 
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_String_Parameter_Rule;
+      Params_Object : in out JSON_Value);
+
    overriding procedure Map_Parameters
      (Rule : in out One_String_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
@@ -377,6 +428,12 @@ package Gnatcheck.Rules is
      (Rule         : One_String_Parameter_Rule;
       Indent_Level : Natural := 0);
 
+   procedure Load_File
+     (Rule      : in out One_String_Parameter_Rule;
+      File_Name : String);
+   --  Load the `File_Name` file content in the rule parameter. This procedure
+   --  will disable the rule if the file cannot be read.
+
    --------------------------------
    -- "One array parameter" rule --
    --------------------------------
@@ -389,6 +446,10 @@ package Gnatcheck.Rules is
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_Array_Parameter_Rule;
+      Params_Object : in out JSON_Value);
 
    overriding procedure Map_Parameters
      (Rule : in out One_Array_Parameter_Rule;
@@ -410,6 +471,10 @@ package Gnatcheck.Rules is
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_Integer_Or_Booleans_Parameter_Rule;
+      Params_Object : in out JSON_Value);
 
    overriding procedure Map_Parameters
      (Rule : in out One_Integer_Or_Booleans_Parameter_Rule;
@@ -453,6 +518,10 @@ package Gnatcheck.Rules is
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Identifier_Suffixes_Rule;
+      Params_Object : in out JSON_Value);
 
    overriding function Allowed_As_Exemption_Parameter
      (Rule      : Identifier_Suffixes_Rule;
@@ -501,6 +570,10 @@ package Gnatcheck.Rules is
       Enable     : Boolean;
       Defined_At : String);
 
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Identifier_Prefixes_Rule;
+      Params_Object : in out JSON_Value);
+
    overriding function Allowed_As_Exemption_Parameter
      (Rule      : Identifier_Prefixes_Rule;
       Parameter : String) return Boolean is
@@ -548,6 +621,10 @@ package Gnatcheck.Rules is
       Enable     : Boolean;
       Defined_At : String);
 
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Identifier_Casing_Rule;
+      Params_Object : in out JSON_Value);
+
    overriding function Allowed_As_Exemption_Parameter
      (Rule      : Identifier_Casing_Rule;
       Parameter : String) return Boolean is
@@ -591,6 +668,10 @@ package Gnatcheck.Rules is
       Enable     : Boolean;
       Defined_At : String);
 
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Forbidden_Rule;
+      Params_Object : in out JSON_Value);
+
    function Allowed_As_Exemption_Parameter
      (Ignored_Rule  : Forbidden_Rule;
       Ignored_Param : String) return Boolean is (True);
@@ -627,6 +708,10 @@ package Gnatcheck.Rules is
       Enable     : Boolean;
       Defined_At : String);
 
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Silent_Exception_Handlers_Rule;
+      Params_Object : in out JSON_Value);
+
    overriding procedure Map_Parameters
      (Rule : in out Silent_Exception_Handlers_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
@@ -657,6 +742,10 @@ package Gnatcheck.Rules is
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Custom_Rule;
+      Params_Object : in out JSON_Value);
 
    overriding procedure Map_Parameters
      (Rule : in out Custom_Rule;

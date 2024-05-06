@@ -99,6 +99,13 @@ package Gnatcheck.Rules.Rule_Table is
    --  in the description of the rule options in documentation of
    --  Process_Rule_Option is also ignored.
 
+   procedure Process_LKQL_Rule_File (LKQL_RF_Name : String);
+   --  Process the given LKQL file as a rule configuration file and populate
+   --  the global rule table with its content.
+   --
+   --  This procedure calls the GNATcheck worker with the `--parse-lkql-config`
+   --  option to extract all information from the LKQL file.
+
    function Processed_Rule_File_Name return String;
    --  Returns the full path to the rule file currently being processed.
    --  Returns an empty string if no rule file is processed at the moment of

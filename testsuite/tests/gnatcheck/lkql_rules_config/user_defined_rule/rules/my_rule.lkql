@@ -1,0 +1,2 @@
+@check(message="Invalid integer literal")
+fun my_rule(node, value=0) = node is IntLiteral when node.p_denoted_value() == value

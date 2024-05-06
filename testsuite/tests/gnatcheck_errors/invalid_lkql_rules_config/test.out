@@ -1,0 +1,60 @@
+Invalid LKQL semantic
+=====================
+
+gnatcheck: error raised by the worker: during processing of rule file: invalid_semantic.lkql: invalid_semantic.lkql:1:25: error: Type error: expected Int but got Bool
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+No 'rules' object
+=================
+
+gnatcheck: error raised by the worker: LKQL config file must define a 'rules' top level object value
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Empty rules object
+==================
+
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Not existing rule
+=================
+
+gnatcheck: unknown rule: this_is_not_a_rule (not_existing_rule.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Not indexable arguments
+=======================
+
+gnatcheck: error raised by the worker: Rule arguments must be an indexable value
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Not existing file
+=================
+
+gnatcheck: can not locate LKQL rule file not_existing.lkql
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Missing mandatory parameter
+===========================
+
+gnatcheck: missing parameter for rule headers: 'header' (missing_param.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Extra parameter
+===============
+
+gnatcheck: extra argument for rule goto_statements: 'extra' (extra_param.lkql)
+>>>program returned status code 5

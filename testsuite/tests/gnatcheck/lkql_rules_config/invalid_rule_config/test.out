@@ -1,9 +1,0 @@
-gnatcheck: error raised by the worker: could not process the LKQL rule config file: invalid_semantic.lkql
-
-gnatcheck: error raised by the worker: LKQL config file must define a 'rules' top level object value
-
-gnatcheck: error raised by the worker: Rule arguments must be an indexable value
-
-gnatcheck: can not locate LKQL rule file not_existant.lkql
-gnatcheck: error raised by the worker: Could not read file: not_existant.lkql
->>>program returned status code 4

@@ -400,8 +400,6 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             currentArg = iterator.next();
             if (currentArg.startsWith("-from=")) {
                 this.rulesFrom = currentArg.substring(6);
-            } else if (currentArg.startsWith("-from-lkql=")) {
-                this.rulesFromLKQL = currentArg.substring(11);
             }
         }
 
@@ -432,13 +430,16 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                     final String[] argSplit = ruleSpec.substring(1).split("=");
                     res.get(currentInstanceId).arguments().put(argSplit[0], argSplit[1]);
                 } else {
-                    currentInstanceId = ruleSpec.toLowerCase();
+                    final String[] ruleSplit = ruleSpec.split("\\|");
+                    final RuleInstance.SourceMode sourceMode =
+                        RuleInstance.SourceMode.valueOf(ruleSplit[1]);
+                    currentInstanceId = ruleSplit[0].toLowerCase();
                     res.put(
                         currentInstanceId,
                         new RuleInstance(
                             currentInstanceId,
                             Optional.empty(),
-                            RuleInstance.SourceMode.GENERAL,
+                            sourceMode,
                             new HashMap<>()));
                 }
             }
@@ -487,7 +488,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             System.err.println("WORKER_FATAL_ERROR: Could not read file: " + lkqlRuleFile);
         } catch (Exception e) {
             System.err.println(
-                "WORKER_FATAL_ERROR: error during processing of rule file: "
+                "WORKER_FATAL_ERROR: during processing of rule file: "
                     + lkqlRuleFile
                     + ": "
                     + e.getMessage());

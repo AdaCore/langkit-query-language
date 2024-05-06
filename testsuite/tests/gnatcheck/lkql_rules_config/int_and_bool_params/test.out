@@ -1,0 +1,22 @@
+Numeric_Literals
+================
+
+main.adb:4:11: numeric literal
+
+Others_In_Case_Statements
+=========================
+
+main.adb:11:12: OTHERS choice in case statement
+
+Membership_Tests
+================
+
+main.adb:17:10: membership test
+
+Invalid type
+============
+
+gnatcheck: invalid parameter for rule membership_tests: 'float_types_only' value should be a boolean (invalid_type.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
