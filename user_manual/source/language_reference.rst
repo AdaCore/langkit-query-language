@@ -552,6 +552,14 @@ empty list as default value for any key.
    # Is similar to
    {a: 1, b: [], c: null, d: []}
 
+Object keys may contain upper-case characters at declaration, but the LKQL
+engine will lower them. This means that object keys are case-insensitive.
+
+..  code-block:: lkql
+
+    val o = {lower: "Hello", UPPER: "World"}
+    print(o.lower & " " & o.upper) # Will display "Hello World"
+
 Please note that objects are immutable.
 
 List Literals

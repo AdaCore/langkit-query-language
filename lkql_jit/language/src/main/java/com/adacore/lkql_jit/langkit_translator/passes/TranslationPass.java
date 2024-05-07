@@ -1216,7 +1216,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Iterate on the object associations and get keys and values
         for (int i = 0; i < assocNumber; i++) {
             final Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
-            final String key = assoc.fName().getText();
+            final String key = assoc.fName().getText().toLowerCase();
             if (keys.contains(key)) {
                 throw LKQLRuntimeException.multipleSameNameKeys(
                         key, new DummyLocation(loc(objectLiteral)));
@@ -1262,7 +1262,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         for (int i = 0; i < assocNumber; i++) {
             final Liblkqllang.AtObjectAssoc assoc =
                     (Liblkqllang.AtObjectAssoc) assocList.getChild(i);
-            final String key = assoc.fName().getText();
+            final String key = assoc.fName().getText().toLowerCase();
             if (keys.contains(key)) {
                 throw LKQLRuntimeException.multipleSameNameKeys(
                         key, new DummyLocation(loc(atObjectLiteral)));

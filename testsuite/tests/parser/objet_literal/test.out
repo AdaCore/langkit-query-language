@@ -22,3 +22,8 @@ ObjectLiteral
 |  |  |  |  |  StringLiteral: "is"
 |  |  |  |  |  StringLiteral: "a"
 |  |  |  |  |  StringLiteral: "list"
+|  |  ObjectAssoc
+|  |  |f_name:
+|  |  |  Identifier: KEY4
+|  |  |f_expr:
+|  |  |  IntegerLiteral: 42

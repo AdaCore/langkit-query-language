@@ -1,7 +1,7 @@
 val x = @{
     key1,
     key2: [1, 2, 3],
-    key3: "Coucou"
+    KEY3: "Coucou"
 }
 
 print(x.key1)

@@ -1074,12 +1074,12 @@ lkql_grammar.add_rules(
         ExtendedNodePattern(
 
             Or(UniversalPattern("*"),
-               NodeKindPattern(G.kind_name),
+               NodeKindPattern(G.upper_id),
                ParenPattern("(", G.or_pattern, ")")),
 
             Pick("(", c(), List(G.pattern_arg, sep=","), ")")
         ),
-        NodeKindPattern(G.kind_name),
+        NodeKindPattern(G.upper_id),
         UniversalPattern("*"),
         NullPattern("null"),
         G.regex_pattern,
@@ -1138,14 +1138,22 @@ lkql_grammar.add_rules(
         List(G.object_assoc, empty_valid=True, sep=","),
         "}"
     ),
-    object_assoc=ObjectAssoc(G.id, ":", G.expr),
+    object_assoc=ObjectAssoc(G.object_key, ":", G.expr),
 
     at_object_lit=AtObjectLiteral(
         "@", "{",
         List(G.at_object_assoc, empty_valid=True, sep=","),
         "}"
     ),
-    at_object_assoc=AtObjectAssoc(G.id, Opt(":", G.expr)),
+    at_object_assoc=AtObjectAssoc(
+        G.object_key,
+        Opt(":", G.expr)
+    ),
+
+    object_key=Or(
+        G.id,
+        G.upper_id
+    ),
 
     listcomp=ListComprehension(
         "[",
@@ -1321,7 +1329,7 @@ lkql_grammar.add_rules(
     if_then_else=IfThenElse("if", G.expr, "then", G.expr, "else", G.expr),
 
     id=Identifier(Token.Identifier),
-    kind_name=Identifier(Token.KindName),
+    upper_id=Identifier(Token.UpperIdentifier),
     integer=IntegerLiteral(Token.Integer),
 
     bool_literal=Or(BoolLiteral.alt_true("true"),
