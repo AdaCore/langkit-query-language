@@ -423,15 +423,13 @@ maps to:
 
 ::
 
-  val rules = {
-    goto_statements: [{only_unconditional: true}]
+  val rules = @{
+    Goto_Statements: [{Only_Unconditional: true}]
   }
 
 .. attention::
 
-  Please note that the provided rule names (that are object keys) must strictly be
-  lowercase, following the LKQL parsing rules.
-  Moreover, you cannot provide the same key twice; thus, the following code will
+  You cannot provide the same key twice; thus, the following code will
   result in a runtime error.
 
   ::

@@ -37,7 +37,7 @@ GNATcheck's predefined rules' parameters may have the following types:
    .. code-block:: lkql
 
       val rules = @{
-         my_rule: [{bool_param: true}]
+         My_Rule: [{Bool_Param: true}]
       }
 
 *[int]*
@@ -54,7 +54,7 @@ GNATcheck's predefined rules' parameters may have the following types:
    .. code-block:: lkql
 
       val rules = @{
-         my_rule: [{n: 5}] # If the rule param is named 'n'
+         My_Rule: [{N: 5}] # If the rule param is named 'N'
       }
 
 *[string]*
@@ -70,7 +70,7 @@ GNATcheck's predefined rules' parameters may have the following types:
    .. code-block:: lkql
 
       val rules = @{
-         my_rule: [{str: "i_am_a_string"}] # If the rule param is named 'str'
+         My_Rule: [{Str: "i_am_a_string"}] # If the rule param is named 'Str'
       }
 
 *[list[string]]*
@@ -87,7 +87,7 @@ GNATcheck's predefined rules' parameters may have the following types:
    .. code-block:: lkql
 
       val rules = @{
-         my_rule: [{lst: ["One", "Two", "Three"]}] # If the rule param is named 'lst'
+         My_Rule: [{Lst: ["One", "Two", "Three"]}] # If the rule param is named 'Lst'
       }
 
 
@@ -820,13 +820,14 @@ The ``-R`` option with no parameter turns the rule OFF, but it does not
 affect the set of aspects to be detected.
 
 .. note::
-   In LKQL rule options files, you can specify a named ``allowed`` parameter
+   In LKQL rule options files, you can specify a named ``Allowed`` parameter
    as a list of strings. This way you can exempt some aspects from being
    flagged. Example:
-   ::
+
+   .. code-block:: lkql
 
       val rules = @{
-         forbidden_aspects: [{forbidden: ["one", "two"], allowed: ["two"]}]
+         Forbidden_Aspects: [{Forbidden: ["one", "two"], Allowed: ["two"]}]
       }
 
 The rule allows parametric exemption, the parameters that are allowed in the
@@ -910,13 +911,14 @@ The ``-R`` option with no parameter turns the rule OFF, but it does not
 affect the set of attributes to be detected.
 
 .. note::
-   In LKQL rule options files, you can specify a named ``allowed`` parameter
+   In LKQL rule options files, you can specify a named ``Allowed`` parameter
    as a list of strings. This way you can exempt some attributes from being
    flagged. Example:
-   ::
+
+   .. code-block:: lkql
 
       val rules = @{
-         forbidden_attributes: [{forbidden: ["X", "Y", "GNAT"], allowed: ["Z"]}]
+         Forbidden_Attributes: [{Forbidden: ["X", "Y", "GNAT"], Allowed: ["Z"]}]
       }
 
 The rule allows parametric exemption, the parameters that are allowed in the
@@ -1006,13 +1008,14 @@ flagged as non-exempted. To avoid this, turn off the check for pragma
 ``Annotate`` by using ``-RForbidden_Pragmas:Annotate`` rule option.
 
 .. note::
-   In LKQL rule options files, you can specify a named ``allowed`` parameter
+   In LKQL rule options files, you can specify a named ``Allowed`` parameter
    as a list of strings. This way you can exempt some pragmas from being
    flagged. Example:
-   ::
+
+   .. code-block:: lkql
 
       val rules = @{
-         forbidden_pragmas: [{forbidden: ["gnat"], allowed: ["Annotate"]}]
+         Forbidden_Pragmas: [{Forbidden: ["gnat"], Allowed: ["Annotate"]}]
       }
 
 The rule allows parametric exemption, the parameters that are allowed in the
@@ -1872,10 +1875,11 @@ options files:
    In LKQL rule options files, the ``Forbidden`` parameter should be a list
    of three-elements tuples. Mapping ``subprogram:formal:actual`` to
    ``(<subprogram>, <formal>, <actual>)``. For example:
-   ::
+
+   .. code-block:: lkql
 
       val rules = @{
-         actual_parameters: [{forbidden: [("P.SubP", "Param", "Value")]}]
+         Actual_Parameters: [{Forbidden: [("P.SubP", "Param", "Value")]}]
       }
 
 ``-R`` option cannot have a parameter, it turns the rule OFF, but all the
@@ -2615,10 +2619,11 @@ options files:
    In LKQL rule options files, the ``Callbacks`` parameter should be a list
    of two-elements tuples. Mapping ``subprogram_name.parameter`` to
    ``(<subprogram_name>, <parameter>)``. For example:
-   ::
+
+   .. code-block:: lkql
 
       val rules = @{
-         exception_propagation_from_callbacks: [{forbidden: [("P.SubP", "Param")]}]
+         Exception_Propagation_From_Callbacks: [{Forbidden: [("P.SubP", "Param")]}]
       }
 
 ``-R`` option cannot have a parameter, it turns the rule OFF, but all the
@@ -4572,13 +4577,14 @@ same as the parameter of
 the pragma ``Restrictions`` or ``Restriction_Warnings``.
 
 .. note::
-   In LKQL rule options files, this rule should have an ``arg`` named parameter
+   In LKQL rule options files, this rule should have an ``Arg`` named parameter
    associated to a list of strings. Each element of this list should be a
    restriction parameter, for example:
-   ::
+
+   .. code-block:: lkql
 
       val rules = @{
-         restrictions: [{arg: ["Max_Task_Entries=>2", "No_Access_Subprograms"]}]
+         Restrictions: [{Arg: ["Max_Task_Entries=>2", "No_Access_Subprograms"]}]
       }
 
 If your code contains pragmas ``Warnings`` with parameter ``Off``, this may
@@ -4768,10 +4774,10 @@ options files:
 
    maps to:
 
-   ::
+   .. code-block:: lkql
 
       val rules = @{
-         silent_exception_handlers: [{subprograms: ["My.Expanded.Name", "|My\.Regex\..*"]}]
+         Silent_Exception_Handlers: [{Subprograms: ["My.Expanded.Name", "|My\.Regex\..*"]}]
       }
 
 Note that if you specify the rule with parameters in a command shell, you may
@@ -5678,12 +5684,13 @@ be a valid ``static_string_expression`` listing GNAT warnings switches
 mentioned above).
 
 .. note::
-   In LKQL rule options files, this rule should have an ``arg`` named parameter
+   In LKQL rule options files, this rule should have an ``Arg`` named parameter
    associated to a string corresponding to the wanted GNAT warning switches.
    Example:
-   ::
 
-      val rules = @{ warnings: [{arg: "u"}] }
+   .. code-block:: lkql
+
+      val rules = @{ Warnings: [{Arg: "u"}] }
 
 Note that the ``s`` parameter corresponding to the GNAT ``-gnatws`` option
 disables all the specific warnings, but not does not suppress the warning mode,
@@ -6701,12 +6708,13 @@ For instance, the ``+RStyle_Checks:O`` rule option activates
 the compiler style check that corresponds to ``-gnatyO`` style check option.
 
 .. note::
-   In LKQL rule options files, this rule should have an ``arg`` named parameter
+   In LKQL rule options files, this rule should have an ``Arg`` named parameter
    associated to a string corresponding to the wanted GNAT style checks
    switches. Example:
-   ::
 
-      val rules = @{ style_checks: [{arg: "xz"}] }
+   .. code-block:: lkql
+
+      val rules = @{ Style_Checks: [{Arg: "xz"}] }
 
 This rule allows parametric rule exemptions, the parameters
 that are allowed in the definition of exemption sections are the
