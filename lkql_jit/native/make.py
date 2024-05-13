@@ -56,57 +56,47 @@ if __name__ == "__main__":
     graal = GraalManager()
     args = parse_args()
 
-    # Get the components to build
-    build_lkql = "lkql_cli" in args.native_components
-
-    # Create the common command
-    cmd = [
-        graal.native_image,
-        "--macro:truffle",
-        "--no-fallback",
-        "--language:regex",
-        "--initialize-at-build-time=com.adacore.lkql_jit,com.adacore.liblkqllang",
-    ]
-
-    # Handle the dev and debug build mode
-    if args.build_mode in ("dev", "debug"):
-        cmd.extend(
-            [
-                "-g",
-                "-O0",
-                "-H:-DeleteLocalSymbols",
-                "-H:+SourceLevelDebug",
-                "-H:+PreserveFramePointer",
-                "-H:+IncludeNodeSourcePositions",
-            ]
-        )
-        if args.build_mode == "debug":
-            cmd.append("-H:+PrintRuntimeCompileMethods")
-
-    # Get the language JAR and verify its existence
+    # Get the language and CLI JARs and verify their existences
     language_jar = P.join("..", "language", "target", "lkql_jit.jar")
     if not P.isfile(language_jar):
         raise missing_module("language", language_jar)
 
-    for name, do_native_build, jar_filename, exe_name, class_name in [
-        (
-                "cli",
-                build_lkql,
-                P.join("..", "cli", "target", "lkql_cli.jar"),
-                "lkql",
-                "LKQLMain"
-        ),
-    ]:
-        if do_native_build:
-            if not P.isfile(jar_filename):
-                raise missing_module(name, jar_filename)
+    cli_jar = P.join("..", "cli", "target", "lkql_cli.jar")
+    if not P.isfile(cli_jar):
+        raise missing_module("cli", cli_jar)
 
-            class_path = os.pathsep.join([language_jar, jar_filename])
-            final_cmd = cmd + [
-                "-cp",
-                class_path,
-                f"com.adacore.lkql_jit.{class_name}",
-                P.join("bin", exe_name),
-            ]
-            print(f"Execute: {final_cmd}", flush=True)
-            subprocess.check_call(final_cmd)
+    # Run the Native-Image compiler if required by the build process
+    if "lkql_cli" in args.native_components:
+        # Create the base Native-Image command
+        cmd = [
+            graal.native_image,
+            "--macro:truffle",
+            "--no-fallback",
+            "--language:regex",
+            "--initialize-at-build-time=com.adacore.lkql_jit,com.adacore.liblkqllang",
+        ]
+
+        if args.build_mode in ("dev", "debug"):
+            cmd.extend(
+                [
+                    "-g",
+                    "-O0",
+                    "-H:-DeleteLocalSymbols",
+                    "-H:+SourceLevelDebug",
+                    "-H:+PreserveFramePointer",
+                    "-H:+IncludeNodeSourcePositions",
+                ]
+            )
+            if args.build_mode == "debug":
+                cmd.append("-H:+PrintRuntimeCompileMethods")
+
+        final_cmd = cmd + [
+            "-cp",
+            os.pathsep.join([language_jar, cli_jar]),
+            f"com.adacore.lkql_jit.LKQLMain",
+            P.join("bin", "lkql"),
+        ]
+
+        # Debug print and run
+        print(f"Execute: {final_cmd}", flush=True)
+        subprocess.check_call(final_cmd)
