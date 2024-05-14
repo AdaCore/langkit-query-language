@@ -116,6 +116,41 @@ procedure Gnatcheck_Main is
    procedure Schedule_Files;
    --  Schedule jobs per set of files
 
+   procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes);
+   --  Print the rule configuration of the given source mode into the given
+   --  file using the LKQL rule config file format.
+
+   ----------------------
+   -- Print_LKQL_Rules --
+   ----------------------
+
+   procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes) is
+      Mode_String : constant String :=
+        (case Mode is
+            when General => "rules",
+            when Ada_Only => "ada_rules",
+            when Spark_Only => "spark_rules");
+
+      First : Boolean := True;
+   begin
+      Put_Line (File, "val " & Mode_String & " = @{");
+      for Rule in All_Rules.First .. All_Rules.Last loop
+         if Is_Enabled (All_Rules.Table (Rule).all) then
+            if All_Rules.Table (Rule).all.Source_Mode = Mode then
+               if First then
+                  First := False;
+               else
+                  Put_Line (File, ",");
+               end if;
+               Put (File, "    ");
+               All_Rules.Table (Rule).Print_Rule_To_LKQL_File (File);
+            end if;
+         end if;
+      end loop;
+      New_Line (File);
+      Put_Line (File, "}");
+   end Print_LKQL_Rules;
+
    --------------------
    -- Schedule_Files --
    --------------------
@@ -129,7 +164,6 @@ procedure Gnatcheck_Main is
       File          : Ada.Text_IO.File_Type;
       Status        : Boolean;
       Total_Jobs    : Natural;
-
    begin
       --  Compute number of files
 
@@ -158,22 +192,9 @@ procedure Gnatcheck_Main is
 
       Create (File, Out_File, File_Name ("rules", 0));
 
-      for Rule in All_Rules.First .. All_Rules.Last loop
-         if Is_Enabled (All_Rules.Table (Rule).all) then
-            --  When the worker process to use is the GNATcheck executable
-            --  itself, the set of rules and their options are transfered in
-            --  the standard legacy GNATcheck rule format (the same format used
-            --  by users to specify rules). Otherwise, they are transfered in a
-            --  more universal format that can be easily parsed by custom
-            --  worker implementations.
-            if Use_External_Worker then
-               All_Rules.Table (Rule).Print_Rule_To_Universal_File (File);
-            else
-               All_Rules.Table (Rule).Print_Rule_To_File (File);
-            end if;
-            New_Line (File);
-         end if;
-      end loop;
+      Print_LKQL_Rules (File, General);
+      Print_LKQL_Rules (File, Ada_Only);
+      Print_LKQL_Rules (File, Spark_Only);
 
       Close (File);
 

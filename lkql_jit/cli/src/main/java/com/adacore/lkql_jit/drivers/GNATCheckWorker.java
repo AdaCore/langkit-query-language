@@ -252,11 +252,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         final Map<String, RuleInstance> instances = new HashMap<>();
         for (var rulesFrom : this.args.rulesFroms) {
             if (!rulesFrom.isEmpty()) {
-                if (rulesFrom.endsWith(".lkql")) {
-                    instances.putAll(parseLKQLRuleFile(rulesFrom));
-                } else {
-                    instances.putAll(parseGNATcheckRuleFile(rulesFrom));
-                }
+                instances.putAll(parseLKQLRuleFile(rulesFrom));
             }
         }
         contextBuilder.option("lkql.ruleInstances", JsonUtils.serializeInstances(instances));
@@ -283,41 +279,6 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     }
 
     // ----- Option parsing helpers -----
-
-    /**
-     * Open the given GNATcheck rule file and parse it to extract all user defined rule instances.
-     */
-    private static Map<String, RuleInstance> parseGNATcheckRuleFile(
-            final String gnatcheckRuleFile) {
-        String currentInstanceId = null;
-        final Map<String, RuleInstance> res = new HashMap<>();
-        try {
-            for (String ruleSpec :
-                    Files.readAllLines(Paths.get(gnatcheckRuleFile)).stream()
-                            .filter(s -> !s.isBlank())
-                            .toList()) {
-                if (ruleSpec.startsWith("-")) {
-                    final String[] argSplit = ruleSpec.substring(1).split("=");
-                    res.get(currentInstanceId).arguments().put(argSplit[0], argSplit[1]);
-                } else {
-                    final String[] ruleSplit = ruleSpec.split("\\|");
-                    final RuleInstance.SourceMode sourceMode =
-                            RuleInstance.SourceMode.valueOf(ruleSplit[1]);
-                    currentInstanceId = ruleSplit[0].toLowerCase();
-                    res.put(
-                            currentInstanceId,
-                            new RuleInstance(
-                                    currentInstanceId,
-                                    Optional.empty(),
-                                    sourceMode,
-                                    new HashMap<>()));
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("WORKER_FATAL_ERROR: Could not read file: " + gnatcheckRuleFile);
-        }
-        return res;
-    }
 
     /**
      * Read the given LKQL file and parse it as a rule configuration file to return the extracted
