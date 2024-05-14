@@ -66,7 +66,6 @@ public class LKQLSelector extends BasicLKQLValue {
     /**
      * Execute the selector value on an ada node with additional arguments.
      *
-     * @param node The node to execute the selector on.
      * @param maxDepth The maximum depth of the selector list.
      * @param minDepth The minimal depth of the selector list.
      * @param depth The precise depth to get.
