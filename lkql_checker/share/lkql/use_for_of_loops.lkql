@@ -10,6 +10,8 @@
 # This rule has one parameter N: specifies the minimal number of references
 # that will trigger the detection (defaults to 1).
 
+import stdlib
+
 fun num_indices(type) =
     match type.f_type_def
     | def@ArrayTypeDef => (match def.f_indices
@@ -42,9 +44,9 @@ fun use_for_of_loops(node, n : int = 1, ignore = false) =
             f_loop_type: IterTypeIn,
             f_iter_expr: attr@AttributeRef))
     when attr.f_attribute.p_name_is("Range")
+     # where <array> is a one dimension array.
      and attr.f_prefix.p_expression_type() is
          iter_type@TypeDecl(p_is_array_type(): true)
-     # where <array> is a one dimension array.
      when num_indices(iter_type) == 1
       and {
          val ids = (from node.f_stmts select
@@ -60,3 +62,9 @@ fun use_for_of_loops(node, n : int = 1, ignore = false) =
          and ids.length >= n
       }
 
+     # and <array> is not a mutable discriminant-dependent component
+     and attr.f_prefix.p_referenced_decl() is comp@ComponentDecl
+     when (match attr.f_prefix
+           | d@DottedName => d.f_prefix.p_referenced_decl().p_is_constant_object()
+           | o@* => o.p_referenced_decl().p_is_constant_object())
+       or not stdlib.depends_on_mutable_discriminant(comp)
