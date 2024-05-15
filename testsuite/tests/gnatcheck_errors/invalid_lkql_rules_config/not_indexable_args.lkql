@@ -1,0 +1,3 @@
+val rules = @{
+    identifier_suffixes: "huho"
+}

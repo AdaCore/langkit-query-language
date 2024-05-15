@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.runtime;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltInsHolder;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
-import com.adacore.lkql_jit.utils.checkers.BaseChecker;
+import com.adacore.lkql_jit.checker.BaseChecker;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.HashMap;
 import java.util.Map;

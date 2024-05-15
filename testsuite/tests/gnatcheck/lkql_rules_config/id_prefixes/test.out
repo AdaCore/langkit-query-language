@@ -1,0 +1,15 @@
+Valid run
+=========
+
+main.adb:2:09: A_Int does not start with access prefix Access_
+main.adb:5:09: My_Base does not start with subtype prefix Type_
+main.adb:7:09: Derived does not start with derived prefix Based_
+
+Exclusive parameter
+===================
+
+main.adb:2:09: A_Int does not start with subtype prefix Type_
+main.adb:3:09: Access_Int does not start with subtype prefix Type_
+main.adb:5:09: My_Base does not start with subtype prefix Type_
+main.adb:7:09: Derived does not start with subtype prefix Type_
+main.adb:8:09: Based_Derived does not start with subtype prefix Type_

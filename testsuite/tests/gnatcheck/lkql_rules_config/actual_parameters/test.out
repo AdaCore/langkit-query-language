@@ -1,0 +1,15 @@
+Valid run
+=========
+
+main.adb:11:08: actual parameter mismatch
+main.adb:15:08: actual parameter mismatch
+main.adb:16:08: actual parameter mismatch
+main.adb:17:08: actual parameter mismatch
+
+Invalid type
+============
+
+gnatcheck: invalid parameter for rule actual_parameters: 'forbidden' should be a list of string tuples (invalid_type.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

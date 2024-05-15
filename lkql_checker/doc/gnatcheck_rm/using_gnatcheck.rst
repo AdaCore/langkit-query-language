@@ -402,7 +402,8 @@ You can configure GNATcheck rules using an LKQL file, provided with the ``-from-
 command-line option. This file must be a valid LKQL file that exports at least a
 ``rules`` top-level symbol. This symbol must refer to an object value containing rules
 configuration; keys are GNATcheck rules to enable; and values are lists of objects
-containing arguments for a run of the rule.
+containing rule parameter. An rule parameter value can be a boolean, an integer,
+a string or an list of strings.
 
 ::
 
@@ -411,11 +412,24 @@ containing arguments for a run of the rule.
     gnatcheck_rule_2: [{param_1: "Hello", param_2: "World"}]
   }
 
+You can map a boolean parameter from a ``+R`` option to an LKQL rule options file by
+passing an LKQL boolean value to it. For example:
+
+::
+
+  +RGoto_Statements:Only_Unconditional
+
+maps to:
+
+::
+
+  val rules = @{
+    Goto_Statements: [{Only_Unconditional: true}]
+  }
+
 .. attention::
 
-  Please note that the provided rule names (that are object keys) must strictly be
-  lowercase, following the LKQL parsing rules.
-  Moreover, you cannot provide the same key twice; thus, the following code will 
+  You cannot provide the same key twice; thus, the following code will
   result in a runtime error.
 
   ::
@@ -425,7 +439,7 @@ containing arguments for a run of the rule.
       gnatcheck_rule_1: [{param_1: "Hello", param_2: "World"}]
     }
 
-You can use the ``alias_name`` key in an argument object to define an alias for the
+You can use the ``alias_name`` key in a parameter object to define an alias for the
 rule.
 
 ::
@@ -433,8 +447,7 @@ rule.
   val rules = @{
     gnatcheck_rule_1,
     gnatcheck_rule_2: [
-      {param_1: "Hello", param_2: "World"},
-      {param_1: "Foo",   param_2: "Bar", alias_name: "Rule_Alias"}
+      {param_1: "Foo", param_2: "Bar", alias_name: "Rule_Alias"}
     ]
   }
 

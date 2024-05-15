@@ -11,6 +11,7 @@ with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 with GNAT.String_Split;          use GNAT.String_Split;
 with GNAT.OS_Lib;
 
+with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
@@ -33,6 +34,18 @@ package body Gnatcheck.Rules is
       Value : Unbounded_Wide_Wide_String);
    --  Like Append_Param, for an array of strings represented by a comma
    --  separated list in Value.
+
+   procedure Process_String_Arg
+     (Params_Object : JSON_Value;
+      Param_Name : String;
+      Rule_Field : in out Unbounded_Wide_Wide_String;
+      Normalize : Boolean := False);
+   --  If the given `Param_Name` is present as a field in the `Params_Object`,
+   --  then parse it as a string literal and set `Rule_Field` to the result
+   --  value.
+   --  If `Params_Object` contains `Param_Name` then unset the field.
+   --  If `Narmalize` is true, then remove spaces and lower the extracted
+   --  string.
 
    function Expand_Env_Variables (Name : String) return String;
    --  Assuming that Name is a name of a dictionary file (used as rule
@@ -59,6 +72,10 @@ package body Gnatcheck.Rules is
    function To_String (S : Unbounded_Wide_Wide_String) return String
    is (To_String (To_Wide_Wide_String (S)));
    --  Convert an Unbounded_Wide_Wide_String to a String
+
+   function From_Boolean (B : Boolean) return Tri_State is
+     (if B then On else Off);
+   --  Get the `Tri_State` value corresponding to the given boolean
 
    ------------------------
    -- Append_Array_Param --
@@ -110,6 +127,31 @@ package body Gnatcheck.Rules is
                          ('"' & To_Wide_Wide_String (Value) & '"')));
       end if;
    end Append_Param;
+
+   ------------------------
+   -- Process_String_Arg --
+   ------------------------
+
+   procedure Process_String_Arg
+     (Params_Object : JSON_Value;
+      Param_Name : String;
+      Rule_Field : in out Unbounded_Wide_Wide_String;
+      Normalize : Boolean := False) is
+   begin
+      if Params_Object.Has_Field (Param_Name) then
+         declare
+            Field_Val : constant String :=
+              (if Normalize
+               then Remove_Spaces
+                 (To_Lower (Expect_Literal (Params_Object, Param_Name)))
+               else Expect_Literal (Params_Object, Param_Name));
+         begin
+            Set_Unbounded_Wide_Wide_String
+              (Rule_Field, To_Wide_Wide_String (Field_Val));
+            Params_Object.Unset_Field (Param_Name);
+         end;
+      end if;
+   end Process_String_Arg;
 
    -------------------
    -- Annotate_Rule --
@@ -251,6 +293,7 @@ package body Gnatcheck.Rules is
    procedure Init_Rule (Rule : in out Rule_Template) is
    begin
       Rule.Rule_State        := Disabled;
+      Rule.Source_Mode       := General;
       Rule.Remediation_Level := Medium;
    end Init_Rule;
 
@@ -262,6 +305,19 @@ package body Gnatcheck.Rules is
    begin
       return Rule.Rule_State = Enabled;
    end Is_Enabled;
+
+   ------------------------
+   -- Source_Mode_String --
+   ------------------------
+
+   function Source_Mode_String (Rule : Rule_Template) return String is
+   begin
+      case Rule.Source_Mode is
+         when General => return "GENERAL";
+         when Ada_Only => return "ADA";
+         when Spark_Only => return "SPARK";
+      end case;
+   end Source_Mode_String;
 
    ---------------------
    -- Load_Dictionary --
@@ -330,7 +386,7 @@ package body Gnatcheck.Rules is
    begin
       Map_Parameters (Rule, Args);
 
-      Put (Rule_File, Rule_Name (Rule));
+      Put (Rule_File, Rule_Name (Rule) & "|" & Rule.Source_Mode_String);
       for Param of Args loop
          New_Line (Rule_File);
          Put (Rule_File, "-");
@@ -916,36 +972,7 @@ package body Gnatcheck.Rules is
          --  header contents.
 
          if Rule.Name.all = "headers" then
-            declare
-               Name : constant String := Find_File (Param);
-               Str  : GNAT.OS_Lib.String_Access;
-               Last : Natural;
-
-            begin
-               if Name /= "" then
-                  Str := Read_File (Name);
-                  Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File, Name);
-               else
-                  Error ("(" & Rule.Name.all & "): cannot load file " & Param);
-                  Bad_Rule_Detected := True;
-                  Rule.Rule_State   := Disabled;
-                  return;
-               end if;
-
-               Last := Str'Last;
-
-               --  If `Last` is null or less, then the header file is empty.
-               --  Thus don't append anything to the rule parameter.
-               if Last > 0 then
-                  --  Strip trailing end of line
-                  if Str (Str'Last) = ASCII.LF then
-                     Last := Last - 1;
-                  end if;
-
-                  Append (Rule.Param, To_Wide_Wide_String (Str (1 .. Last)));
-                  GNAT.OS_Lib.Free (Str);
-               end if;
-            end;
+            Rule.Load_File (Param);
          else
             Append (Rule.Param, To_Wide_Wide_String (Param));
          end if;
@@ -1740,6 +1767,419 @@ package body Gnatcheck.Rules is
       end if;
    end Process_Rule_Parameter;
 
+   --------------------------------
+   -- Process_Rule_Params_Object --
+   --------------------------------
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_Integer_Parameter_Rule;
+      Params_Object : in out JSON_Value)
+   is
+      Param_Name : constant String := Rule.Parameter_Name (2);
+   begin
+      Rule.Param := Expect_Literal (Params_Object, Param_Name);
+      Params_Object.Unset_Field (Param_Name);
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_Boolean_Parameter_Rule;
+      Params_Object : in out JSON_Value)
+   is
+      Param_Name : constant String := Rule.Parameter_Name (2);
+   begin
+      if Params_Object.Has_Field (Param_Name) then
+         Rule.Param :=
+           From_Boolean (Expect_Literal (Params_Object, Param_Name));
+         Params_Object.Unset_Field (Param_Name);
+      end if;
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_String_Parameter_Rule;
+      Params_Object : in out JSON_Value)
+   is
+      Param_Name : constant String := Rule.Parameter_Name (2);
+   begin
+      --  Handle the "headers" rule in a special way since the argument should
+      --  be a file name.
+      --  TODOCUMENT
+      if Rule.Name.all = "headers" then
+         Rule.Load_File (Expect_Literal (Params_Object, Param_Name));
+         Params_Object.Unset_Field (Param_Name);
+
+      --  Else, handle the parameter as a simple string
+      else
+         Set_Unbounded_Wide_Wide_String
+            (Rule.Param,
+            To_Wide_Wide_String
+               (Expect_Literal (Params_Object, Param_Name)));
+         Params_Object.Unset_Field (Param_Name);
+      end if;
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_Array_Parameter_Rule;
+      Params_Object : in out JSON_Value)
+   is
+      Param_Name : constant String := Rule.Parameter_Name (2);
+   begin
+      --  If the rule is "name_clashes", then load the provided file a
+      --  dictionary file.
+      --  TODOCUMENT
+      if Rule.Name.all = "name_clashes" then
+         declare
+            Param_Value : constant String :=
+            Expect_Literal (Params_Object, "dictionary_file");
+         begin
+            Set_Unbounded_String (Rule.File, Param_Value);
+            Load_Dictionary
+              (Expand_Env_Variables (Param_Value), Rule, Rule.Param);
+            Params_Object.Unset_Field ("dictionary_file");
+         end;
+      end if;
+
+      --  Else, handle the real array parametrized rules
+      if Params_Object.Has_Field (Param_Name) then
+         declare
+            Param_Value : constant String_Vector :=
+               Expect_Literal (Params_Object, Param_Name);
+            Res : String_Vector;
+         begin
+
+            --  Special case for the "parameters_out_of_order" rule to verify
+            --  that the argument value contains valid values.
+            if Rule.Name.all = "parameters_out_of_order" then
+               for S of Param_Value loop
+                  if To_Lower (S) not in
+                    "in" | "defaulted_in" | "in_out" | "access" | "out"
+                  then
+                     raise Invalid_Value with
+                       "'" & Param_Name & "' should contains only 'in', " &
+                       "'defaulted_in', 'in_out', 'access' or 'out' strings";
+                  end if;
+               end loop;
+
+            --  Special case for the "actual_parameters" rule which should
+            --  have a list of three-elem tuples of strings.
+            --  TODOCUMENT
+            elsif Rule.Name.all = "actual_parameters" then
+               begin
+                  for S of Param_Value loop
+                     Res.Append (Join (Parse_String_Tuple (S), ":"));
+                  end loop;
+               exception
+                  when Invalid_Type =>
+                     raise Invalid_Type with
+                       "'" & Param_Name & "' should be a list of string " &
+                       "tuples";
+               end;
+
+            --  Special case for the "exception_propagation_from_callbacks"
+            --  rule which should have a list of two-elems tuples of strings.
+            --  TODOCUMENT
+            elsif Rule.Name.all = "exception_propagation_from_callbacks"
+            then
+               begin
+                  for S of Param_Value loop
+                     Res.Append (Join (Parse_String_Tuple (S), "."));
+                  end loop;
+               exception
+                  when Invalid_Type =>
+                     raise Invalid_Type with
+                       "'" & Param_Name & "' should be a list of string " &
+                       "tuples";
+               end;
+
+            --  Else the rule parameter is just a list of strings
+            --  TODOCUMENT
+            else
+               Res := Param_Value;
+            end if;
+            Set_Unbounded_Wide_Wide_String
+              (Rule.Param, To_Wide_Wide_String (Join (Res, ",")));
+         end;
+         Params_Object.Unset_Field (Param_Name);
+      end if;
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out One_Integer_Or_Booleans_Parameter_Rule;
+      Params_Object : in out JSON_Value) is
+   begin
+      --  Iterate over all rules parameters and try getting it from the
+      --  arguments object.
+      for I in 2 .. Rule.Parameters.Last_Child_Index loop
+         if Params_Object.Has_Field (Rule.Parameter_Name (I)) then
+            --  Try getting the parameter as an integer
+            begin
+               Rule.Integer_Param :=
+                 Expect_Literal (Params_Object, Rule.Parameter_Name (I));
+
+            --  If it fails, then the argument should be a boolean
+            exception
+               when Invalid_Type =>
+                  Rule.Boolean_Params (I) :=
+                    From_Boolean
+                      (Expect_Literal
+                         (Params_Object, Rule.Parameter_Name (I)));
+            end;
+            Params_Object.Unset_Field (Rule.Parameter_Name (I));
+         end if;
+      end loop;
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Identifier_Suffixes_Rule;
+      Params_Object : in out JSON_Value) is
+   begin
+      --  Process the "default" boolean parameter
+      --  TODOCUMENT
+      if Params_Object.Has_Field ("default") then
+         if Expect_Literal (Params_Object, "default") then
+            Set_Unbounded_Wide_Wide_String (Rule.Type_Suffix, "_T");
+            Set_Unbounded_Wide_Wide_String (Rule.Access_Suffix, "_A");
+            Set_Unbounded_Wide_Wide_String (Rule.Access_Access_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Rule.Class_Access_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Rule.Class_Subtype_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Rule.Constant_Suffix, "_C");
+            Set_Unbounded_Wide_Wide_String (Rule.Renaming_Suffix, "_R");
+            Set_Unbounded_Wide_Wide_String (Rule.Access_Obj_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Rule.Interrupt_Suffix, "");
+         end if;
+         Params_Object.Unset_Field ("default");
+      end if;
+
+      --  Process the "access_suffix" special string argument
+      --  TODOCUMENT
+      if Params_Object.Has_Field ("access_suffix") then
+         declare
+            Arg : constant String :=
+              Expect_Literal (Params_Object, "access_suffix");
+            Paren_Index : Natural;
+         begin
+            if Has_Suffix (Arg, ")") then
+               Paren_Index := Index (Arg, "(");
+               Set_Unbounded_Wide_Wide_String
+                 (Rule.Access_Suffix,
+                  To_Wide_Wide_String (Arg (Arg'First .. Paren_Index - 1)));
+               Set_Unbounded_Wide_Wide_String
+                 (Rule.Access_Access_Suffix,
+                  To_Wide_Wide_String (Arg (Paren_Index + 1 .. Arg'Last - 1)));
+            else
+               Set_Unbounded_Wide_Wide_String
+                 (Rule.Access_Suffix, To_Wide_Wide_String (Arg));
+            end if;
+         end;
+         Params_Object.Unset_Field ("access_suffix");
+      end if;
+
+      --  Then process the other arguments
+      Process_String_Arg (Params_Object, "type_suffix", Rule.Type_Suffix);
+      Process_String_Arg
+        (Params_Object, "class_access_suffix", Rule.Class_Access_Suffix);
+      Process_String_Arg
+        (Params_Object, "class_subtype_suffix", Rule.Class_Subtype_Suffix);
+      Process_String_Arg
+        (Params_Object, "constant_suffix", Rule.Constant_Suffix);
+      Process_String_Arg
+        (Params_Object, "renaming_suffix", Rule.Renaming_Suffix);
+      Process_String_Arg
+        (Params_Object, "access_obj_suffix", Rule.Access_Obj_Suffix);
+      Process_String_Arg
+        (Params_Object, "interrupt_suffix", Rule.Interrupt_Suffix);
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Identifier_Prefixes_Rule;
+      Params_Object : in out JSON_Value)
+   is
+      Derived_Param : String_Vector;
+      Col_Index : Natural;
+   begin
+      --  Process the exclusive boolean argument
+      --  TODOCUMENT
+      if Params_Object.Has_Field ("exclusive") then
+         Rule.Exclusive :=
+           From_Boolean (Expect_Literal (Params_Object, "exclusive"));
+         Params_Object.Unset_Field ("exclusive");
+      end if;
+
+      --  Process the "derived" argument
+      --  TODOCUMENT
+      if Params_Object.Has_Field ("derived") then
+         Derived_Param := Expect_Literal (Params_Object, "derived");
+         for S of Derived_Param loop
+            if Length (Rule.Derived_Prefix) /= 0 then
+               Append (Rule.Derived_Prefix, ",");
+            end if;
+            Col_Index := Index (S, ":");
+            if Col_Index /= 0 then
+               Append
+                 (Rule.Derived_Prefix,
+                  To_Wide_Wide_String
+                    (To_Lower (S (S'First .. Col_Index - 1))));
+               Append
+                 (Rule.Derived_Prefix,
+                  To_Wide_Wide_String (S (Col_Index .. S'Last)));
+            else
+               raise Invalid_Value with
+                 "'derived' elements should contain a colon";
+            end if;
+         end loop;
+         Params_Object.Unset_Field ("derived");
+      end if;
+
+      --  The process the other arguments
+      Process_String_Arg (Params_Object, "type", Rule.Type_Prefix);
+      Process_String_Arg (Params_Object, "concurrent", Rule.Concurrent_Prefix);
+      Process_String_Arg (Params_Object, "access", Rule.Access_Prefix);
+      Process_String_Arg
+        (Params_Object, "class_access", Rule.Class_Access_Prefix);
+      Process_String_Arg
+        (Params_Object, "subprogram_access", Rule.Subprogram_Access_Prefix);
+      Process_String_Arg (Params_Object, "constant", Rule.Constant_Prefix);
+      Process_String_Arg (Params_Object, "exception", Rule.Exception_Prefix);
+      Process_String_Arg (Params_Object, "enum", Rule.Enum_Prefix);
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Identifier_Casing_Rule;
+      Params_Object : in out JSON_Value) is
+   begin
+      --  Process the "exclude" argument
+      --  TODOCUMENT
+      if Params_Object.Has_Field ("exclude") then
+         Load_Dictionary
+           (Expand_Env_Variables (Expect_Literal (Params_Object, "exclude")),
+            Rule,
+            Rule.Exclude);
+         Params_Object.Unset_Field ("exclude");
+      end if;
+
+      --  Then process the other arguments
+      Process_String_Arg
+        (Params_Object, "type", Rule.Type_Casing, Normalize => True);
+      Process_String_Arg
+        (Params_Object, "enum", Rule.Enum_Casing, Normalize => True);
+      Process_String_Arg
+        (Params_Object, "constant", Rule.Constant_Casing, Normalize => True);
+      Process_String_Arg
+        (Params_Object, "exception", Rule.Exception_Casing, Normalize => True);
+      Process_String_Arg
+        (Params_Object, "others", Rule.Others_Casing, Normalize => True);
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Forbidden_Rule;
+      Params_Object : in out JSON_Value)
+   is
+      procedure Process_List_Field
+        (Field_Name : String;
+         Field : in out Unbounded_Wide_Wide_String);
+      --  Get the given `Field_Name` in the arguments object, if presents, get
+      --  a string vector from it and add its comma separated items in `Field`.
+
+      ------------------------
+      -- Process_List_Field --
+      ------------------------
+
+      procedure Process_List_Field
+        (Field_Name : String;
+         Field : in out Unbounded_Wide_Wide_String)
+      is
+         Val : String_Vector;
+      begin
+         if Params_Object.Has_Field (Field_Name) then
+            Val := Expect_Literal (Params_Object, Field_Name);
+            for S of Val loop
+               declare
+                  Lower_S : constant String := To_Lower (S);
+               begin
+                  if Length (Field) > 0 then
+                     Append (Field, ",");
+                  end if;
+
+                  --  Special cases when the current value is "gnat"
+                  if Lower_S = "gnat" then
+                     if Rule.Name.all = "forbidden_attributes" then
+                        Append (Field, GNAT_Attributes);
+                     elsif Rule.Name.all = "forbidden_pragmas" then
+                        Append (Field, GNAT_Pragmas);
+                     else
+                        Append (Field, To_Wide_Wide_String (Lower_S));
+                     end if;
+                  else
+                     Append (Field, To_Wide_Wide_String (Lower_S));
+                  end if;
+               end;
+            end loop;
+            Params_Object.Unset_Field (Field_Name);
+         end if;
+      end Process_List_Field;
+   begin
+      --  Process the "all" boolean argument
+      --  TODOCUMENT
+      if Params_Object.Has_Field ("all") then
+         Rule.All_Flag := From_Boolean (Expect_Literal (Params_Object, "all"));
+         Params_Object.Unset_Field ("all");
+      end if;
+
+      --  Process the "forbidden" and "allowed" list argument
+      --  TODOCUMENT
+      Process_List_Field ("forbidden", Rule.Forbidden);
+      Process_List_Field ("allowed", Rule.Allowed);
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Silent_Exception_Handlers_Rule;
+      Params_Object : in out JSON_Value)
+   is
+      Subp_Value : String_Vector;
+   begin
+      --  Process the "subprograms" list argument
+      --  TODOCUMENT
+      if Params_Object.Has_Field ("subprograms") then
+         Subp_Value := Expect_Literal (Params_Object, "subprograms");
+         for S of Subp_Value loop
+            if S (S'First) = '|' then
+               if Length (Rule.Subprogram_Regexps) /= 0 then
+                  Append (Rule.Subprogram_Regexps, ",");
+               end if;
+               Append
+                 (Rule.Subprogram_Regexps,
+                  To_Wide_Wide_String (S (S'First + 1 .. S'Last)));
+            else
+               if Length (Rule.Subprograms) /= 0 then
+                  Append (Rule.Subprograms, ",");
+               end if;
+               Append (Rule.Subprograms, To_Wide_Wide_String (To_Lower (S)));
+            end if;
+         end loop;
+         Params_Object.Unset_Field ("subprograms");
+      end if;
+   end Process_Rule_Params_Object;
+
+   overriding procedure Process_Rule_Params_Object
+     (Rule          : in out Custom_Rule;
+      Params_Object : in out JSON_Value) is
+   begin
+      for I in 2 .. Rule.Parameters.Last_Child_Index loop
+         declare
+            Param_Name : constant String := Rule.Parameter_Name (I);
+         begin
+            if Params_Object.Has_Field (Param_Name) then
+               Rule.Arguments.Append
+                 (Rule_Argument'
+                   (Name => To_Unbounded_Text (To_Text (Param_Name)),
+                    Value => To_Unbounded_Text
+                               (To_Text
+                                  (Expect (Params_Object, Param_Name)))));
+               Params_Object.Unset_Field (Param_Name);
+            end if;
+         end;
+      end loop;
+   end Process_Rule_Params_Object;
+
    --------------------
    -- Map_Parameters --
    --------------------
@@ -2226,6 +2666,25 @@ package body Gnatcheck.Rules is
          return "";
       end if;
    end Rule_Synonym;
+
+   --------------------
+   -- Parameter_Name --
+   --------------------
+
+   function Parameter_Name
+     (Rule : Rule_Template'Class;
+      Param_Index : Integer) return String
+   is
+      Param_Node : constant Liblkqllang.Analysis.Lkql_Node :=
+        Rule.Parameters.Child (Param_Index);
+   begin
+      if not Param_Node.Is_Null then
+         return To_String
+           (Param_Node.As_Parameter_Decl.F_Param_Identifier.Text);
+      else
+         raise Constraint_Error with "Parameter index out of bounds";
+      end if;
+   end Parameter_Name;
 
    --------------------
    -- XML_Print_Rule --
@@ -2931,5 +3390,43 @@ package body Gnatcheck.Rules is
    begin
       null;
    end XML_Rule_Help_Tip;
+
+   ---------------
+   -- Load_File --
+   ---------------
+
+   procedure Load_File
+     (Rule      : in out One_String_Parameter_Rule;
+      File_Name : String)
+   is
+      Abs_Name : constant String := Find_File (File_Name);
+      Str  : GNAT.OS_Lib.String_Access;
+      Last : Natural;
+   begin
+      if Abs_Name /= "" then
+         Str := Read_File (Abs_Name);
+         Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File, Abs_Name);
+      else
+         Error ("(" & Rule.Name.all & "): cannot load file " & File_Name);
+         Bad_Rule_Detected := True;
+         Rule.Rule_State   := Disabled;
+         return;
+      end if;
+
+      Last := Str'Last;
+
+      --  If `Last` is null or less, then the file is empty.
+      --  Thus don't append anything to the rule parameter.
+      if Last > 0 then
+         --  Strip trailing end of line
+         if Str (Str'Last) = ASCII.LF then
+            Last := Last - 1;
+         end if;
+
+         Ada.Strings.Wide_Wide_Unbounded.Set_Unbounded_Wide_Wide_String
+           (Rule.Param, To_Wide_Wide_String (Str (1 .. Last)));
+         GNAT.OS_Lib.Free (Str);
+      end if;
+   end Load_File;
 
 end Gnatcheck.Rules;

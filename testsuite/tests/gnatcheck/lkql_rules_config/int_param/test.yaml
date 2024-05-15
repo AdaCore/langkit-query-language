@@ -1,0 +1,12 @@
+driver: gnatcheck
+format: brief
+input_sources:
+ - main.ads
+
+tests:
+ - label: Maximum_OUT_Parameters
+   lkql_rule_file: max_out_params.lkql
+ - label: Missing parameter
+   lkql_rule_file: missing_param.lkql
+ - label: Invalid type
+   lkql_rule_file: invalid_type.lkql

@@ -10,7 +10,7 @@
     <version>0.1.0</version>
     <modules>
         <module>language</module>
-        <module>lkql_cli</module>
+        <module>cli</module>
         <module>native</module>
         <module>component</module>
         <module>benchmarks</module>
@@ -122,7 +122,7 @@
                     <java>
                         <includes>
                             <include>language/src/main/java/**/*.java</include>
-                            <include>lkql_cli/src/main/java/**/*.java</include>
+                            <include>cli/src/main/java/**/*.java</include>
                             <include>benchmarks/src/test/java/**/*.java</include>
                         </includes>
 

@@ -8,6 +8,8 @@ package com.adacore.lkql_jit.built_ins;
 import com.adacore.lkql_jit.built_ins.functions.*;
 import com.adacore.lkql_jit.built_ins.methods.*;
 import com.adacore.lkql_jit.built_ins.selectors.*;
+import com.adacore.lkql_jit.checker.built_ins.NodeCheckerFunction;
+import com.adacore.lkql_jit.checker.built_ins.UnitCheckerFunction;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import java.util.HashMap;
 import java.util.List;

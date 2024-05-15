@@ -5,6 +5,7 @@
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Hashed_Sets;
+with Ada.Strings.Unbounded;
 with Ada.Strings.Hash;
 with Ada.Text_IO;
 
@@ -160,6 +161,46 @@ package body Gnatcheck.String_Utilities is
 
       return Result (1 .. Res_Last);
    end Remove_Spaces;
+
+   -------------------
+   -- Remove_Quotes --
+   -------------------
+
+   function Remove_Quotes (S : String) return String is
+   begin
+      if S'Length > 1 then
+         declare
+            First_Char : constant Character := S (S'First);
+            Last_Char : constant Character := S (S'Last);
+         begin
+            if (First_Char = '"' and then Last_Char = '"')
+              or else (First_Char = ''' and then Last_Char = ''')
+            then
+               return S (S'First + 1 .. S'Last - 1);
+            end if;
+         end;
+      end if;
+
+      return S;
+   end Remove_Quotes;
+
+   ----------
+   -- Join --
+   ----------
+
+   function Join (V : String_Vector; Sep : String) return String
+   is
+      use Ada.Strings;
+      Res : Unbounded.Unbounded_String;
+   begin
+      for S of V loop
+         if Unbounded.Length (Res) > 0 then
+            Unbounded.Append (Res, Sep);
+         end if;
+         Unbounded.Append (Res, S);
+      end loop;
+      return Unbounded.To_String (Res);
+   end Join;
 
    ------------------------------
    -- Simple_String_Dictionary --

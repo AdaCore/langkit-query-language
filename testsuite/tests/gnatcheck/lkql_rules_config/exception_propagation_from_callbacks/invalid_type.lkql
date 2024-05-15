@@ -1,0 +1,3 @@
+val rules = @{
+    exception_propagation_from_callbacks: [{callbacks: ["hello"]}]
+}

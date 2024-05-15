@@ -1,0 +1,12 @@
+driver: gnatcheck
+format: brief
+input_sources:
+ - main.adb
+
+tests:
+ - label: Goto_Statements
+   lkql_rule_file: goto_statements_config.lkql
+ - label: Non_Short_Circuits_Operators
+   lkql_rule_file: non_short_op_config.lkql
+ - label: Invalid type
+   lkql_rule_file: invalid_type.lkql

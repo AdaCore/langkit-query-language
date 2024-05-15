@@ -34,6 +34,10 @@ package Gnatcheck.String_Utilities is
    function Remove_Spaces (S : String) return String;
    --  Removes all the white spaces from the argument
 
+   function Remove_Quotes (S : String) return String;
+   --  Removes surrounding quotes or double-quotes from the provided string
+   --  if any, else just return the string.
+
    function Is_White_Space (Ch : Character) return Boolean is
      (Ch in ' ' | ASCII.HT);
    --  Checks if the argument is either a space or HT character
@@ -45,6 +49,9 @@ package Gnatcheck.String_Utilities is
    package String_Vectors is
      new Ada.Containers.Indefinite_Vectors (Positive, String);
    subtype String_Vector is String_Vectors.Vector;
+
+   function Join (V : String_Vector; Sep : String) return String;
+   --  Join all element of the given vector `V` with `Sep`.
 
    ------------------------------
    -- Simple String dictionary --

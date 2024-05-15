@@ -1,0 +1,3 @@
+val rules = @{
+    direct_equalities: [{actuals: true}]
+}

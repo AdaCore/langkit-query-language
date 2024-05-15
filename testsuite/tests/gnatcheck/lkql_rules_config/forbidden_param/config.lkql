@@ -1,0 +1,3 @@
+val rules = @{
+    forbidden_pragmas: [{forbidden: ["GNAT", "custom"], allowed: ["Annotate"]}]
+}

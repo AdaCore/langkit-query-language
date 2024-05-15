@@ -6,6 +6,7 @@
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
 with Ada.Containers.Ordered_Sets;
+with Ada.Exceptions;             use Ada.Exceptions;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
@@ -18,6 +19,7 @@ with GNAT.Regexp;                use GNAT.Regexp;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 
@@ -56,6 +58,16 @@ package body Gnatcheck.Rules.Rule_Table is
    --  macro expansion that is currently performed, is used to detect looping
    --  in macro expansions
 
+   function Get_Rule_File_Name (RF : String) return String is
+        (if Is_Absolute_Path (RF)
+           or else not Gnatcheck.Options.Gnatcheck_Prj.Is_Specified
+         then RF
+         else Normalize_Pathname
+                (Dir_Name (Gnatcheck.Options.Gnatcheck_Prj.Source_Prj) & RF));
+      --  If gnatcheck is called with a project file, all the (relative) names
+      --  of the rule files are considered as related to the project file
+      --  directory, otherwise - as related to the current directory
+
    procedure Check_For_Looping (RF_Name : String; Success : in out Boolean);
    --  Checks if we have a looping in rule files macro expansions. That is,
    --  checks if RF_Name is already stored in Rule_File_Stack. If it is,
@@ -93,6 +105,15 @@ package body Gnatcheck.Rules.Rule_Table is
    function Has_Natural_Parameter (R : Rident.All_Restrictions) return Boolean;
    function Has_Name_Parameter (R : Rident.All_Restrictions) return Boolean;
    --  Tries to guess what kind of parameter the argument restriction has.
+
+   procedure Process_Rule_Object
+     (LKQL_Rule_File_Name : String;
+      Instance_Id : String;
+      Instance_Object : GNATCOLL.JSON.JSON_Value);
+   --  Process a JSON object representing a rule option coming from the JSON
+   --  configuration file.
+   --  This function populates the `All_Rules` table according to the given
+   --  rule object.
 
    -----------------------
    -- Check_For_Looping --
@@ -353,16 +374,6 @@ package body Gnatcheck.Rules.Rule_Table is
       --  one.
 
       Success : Boolean := True;
-
-      function Get_Rule_File_Name (RF : String) return String is
-        (if Is_Absolute_Path (RF_Name)
-           or else not Gnatcheck.Options.Gnatcheck_Prj.Is_Specified
-         then RF
-         else Normalize_Pathname
-                (Dir_Name (Gnatcheck.Options.Gnatcheck_Prj.Source_Prj) & RF));
-      --  If gnatcheck is called with a project file, all the (relative) names
-      --  of the rule files are considered as related to the project file
-      --  directory, otherwise - as related to the current directory
 
       Rule_File_Name : constant String := Get_Rule_File_Name (RF_Name);
 
@@ -739,6 +750,73 @@ package body Gnatcheck.Rules.Rule_Table is
          raise;
    end Process_Rule_File;
 
+   ----------------------------
+   -- Process_LKQL_Rule_File --
+   ----------------------------
+
+   procedure Process_LKQL_Rule_File (LKQL_RF_Name : String)
+   is
+      Rule_File_Name : constant String := Get_Rule_File_Name (LKQL_RF_Name);
+      JSON_Config_File_Name : constant String :=
+        Global_Report_Dir.all & "gnatcheck-rules.json.out";
+      Error_File_Name : constant String :=
+        Global_Report_Dir.all & "gnatcheck-rules.json.err";
+      Parser_Pid : Process_Id;
+      Waited_Pid : Process_Id;
+      Success : Boolean;
+      Config_JSON : Read_Result;
+
+      procedure Rule_Object_Mapper
+        (Instance_Id : UTF8_String;
+         Instance_Object : JSON_Value);
+      --  Stub procedure to call the instance JSON object processing function
+
+      procedure Rule_Object_Mapper
+        (Instance_Id : UTF8_String;
+         Instance_Object : JSON_Value) is
+      begin
+         Process_Rule_Object
+           (Rule_File_Name, String (Instance_Id), Instance_Object);
+      end Rule_Object_Mapper;
+
+   begin
+      --  Ensure that the provided rule file exists
+      if not Is_Regular_File (Rule_File_Name) then
+         Error ("can not locate LKQL rule file " & Rule_File_Name);
+         Missing_Rule_File_Detected := True;
+         return;
+      end if;
+
+      --  Call the LKQL rule config file parser and parse its result
+      Parser_Pid :=
+        Spawn_LKQL_Rule_File_Parser
+          (Rule_File_Name, JSON_Config_File_Name, Error_File_Name);
+      Wait_Process (Waited_Pid, Success);
+
+      if Parser_Pid /= Waited_Pid or else not Success then
+         Error ("can not call the LKQL rule file parser");
+         Rule_Option_Problem_Detected := True;
+         return;
+      end if;
+      Analyze_Output (Error_File_Name, Success);
+
+      Config_JSON := Read (Read_File (JSON_Config_File_Name).all);
+      if not Config_JSON.Success then
+         Error ("can not parse the rule config JSON file");
+         Rule_Option_Problem_Detected := True;
+         return;
+      end if;
+
+      --  Populate the global rule table with the rule config
+      Map_JSON_Object (Config_JSON.Value, Rule_Object_Mapper'Access);
+
+      --  Delete the temporary JSON files if not it debug mode
+      if not Debug_Mode then
+         Delete_File (JSON_Config_File_Name, Success);
+         Delete_File (Error_File_Name, Success);
+      end if;
+   end Process_LKQL_Rule_File;
+
    -------------------------
    -- Process_Rule_Option --
    -------------------------
@@ -1038,6 +1116,146 @@ package body Gnatcheck.Rules.Rule_Table is
          Bad_Rule_Detected := True;
       end if;
    end Process_Rule_Option;
+
+   -------------------------
+   -- Process_Rule_Object --
+   -------------------------
+
+   procedure Process_Rule_Object
+     (LKQL_Rule_File_Name : String;
+      Instance_Id : String;
+      Instance_Object : JSON_Value)
+   is
+      pragma Unreferenced (Instance_Id);
+
+      Output_Rule_File : constant String :=
+        (if Full_Source_Locations
+         then LKQL_Rule_File_Name
+         else Base_Name (LKQL_Rule_File_Name));
+      Rule_Name : constant String := Instance_Object.Get ("ruleName");
+      R_Id : constant Rule_Id := Get_Rule (Rule_Name);
+      Rule : Rule_Access;
+      Source_Mode_String : constant String :=
+        Expect (Instance_Object, "sourceMode");
+      Params_Object : JSON_Value := Instance_Object.Get ("arguments");
+
+      procedure Error_In_Rule_File (Msg : String);
+      --  Emit a GNATcheck error when there is an error during the processing
+      --  of rules defined in `LKQL_Rule_File_Name`.
+
+      procedure Report_Extra_Arg
+        (Arg_Name : UTF8_String;
+         Arg_Value : JSON_Value);
+      --  Report an given argument that hasn't been used during the LKQL rule
+      --  file processing.
+
+      ------------------------
+      -- Error_In_Rule_File --
+      ------------------------
+
+      procedure Error_In_Rule_File (Msg : String) is
+      begin
+         Error (Msg & " (" & Output_Rule_File & ")");
+         Bad_Rule_Detected := True;
+      end Error_In_Rule_File;
+
+      ----------------------
+      -- Report_Extra_Arg --
+      ----------------------
+
+      procedure Report_Extra_Arg
+        (Arg_Name : UTF8_String;
+         Arg_Value : JSON_Value)
+      is
+         pragma Unreferenced (Arg_Value);
+      begin
+         Error_In_Rule_File
+           ("extra argument for rule " & Rule_Name & ": '" & Arg_Name & "'");
+      end Report_Extra_Arg;
+
+   begin
+      --  If the rule is a compiler check then get the argument and process it
+      if R_Id in Compiler_Checks then
+         --  Restrictions rule expect a string list as argument
+         if R_Id = Restrictions_Id then
+            declare
+               Arg : constant String_Vector :=
+                 Expect_Literal (Params_Object, "arg");
+            begin
+               for S of Arg loop
+                  Process_Restriction_Param (S, True);
+               end loop;
+            end;
+
+         --  Others expects a simple string
+         else
+            declare
+               Arg : constant String := Expect_Literal (Params_Object, "arg");
+            begin
+               case R_Id is
+                  when Style_Checks_Id =>
+                     Process_Style_Check_Param (Arg);
+                  when Warnings_Id =>
+                     Process_Warning_Param (Arg);
+                  when others =>
+                     raise Constraint_Error;
+               end case;
+            end;
+         end if;
+         Params_Object.Unset_Field ("arg");
+
+      --  Else the rule is an LKQL check, check its presence, get the rule
+      --  template and call the processing function.
+      elsif Present (R_Id) then
+         Rule := All_Rules.Table (R_Id);
+         Rule.Defined_At := new String'(Output_Rule_File);
+
+         --  Start by setting the rule's source mode
+         if Source_Mode_String = "ADA" then
+            Rule.Source_Mode := Ada_Only;
+         elsif Source_Mode_String = "SPARK" then
+            Rule.Source_Mode := Spark_Only;
+         else
+            Rule.Source_Mode := General;
+         end if;
+
+         --  Then get the alias if there is any
+         if Instance_Object.Has_Field ("instanceName") then
+            Free (Rule.User_Synonym);
+            Rule.User_Synonym :=
+              new String'(Expect (Instance_Object, "instanceName"));
+         end if;
+
+         --  Process the arguments object with the rule template
+         Rule.Process_Rule_Params_Object (Params_Object);
+
+         --  Enable the rule if there is not error in the arguments object
+         --  processing.
+         Rule.Rule_State := Enabled;
+
+         --  Finally check that all arguments have been used, else emit an
+         --  error for each.
+         Params_Object.Map_JSON_Object (Report_Extra_Arg'Access);
+
+      --  Else the rule is not present, emit an error
+      else
+         Error_In_Rule_File ("unknown rule: " & Rule_Name);
+      end if;
+
+   exception
+      when E : Field_Not_Found =>
+         Error_In_Rule_File
+           ("missing parameter for rule " & Rule_Name & ": '" &
+            Exception_Message (E) & "'");
+      when E : Invalid_Type =>
+         Error_In_Rule_File
+           ("invalid parameter for rule " & Rule_Name & ": " &
+            Exception_Message (E));
+      when E : Invalid_Value =>
+         Error_In_Rule_File
+           ("invalid parameter value for rule " & Rule_Name & ": " &
+            Exception_Message (E));
+   end Process_Rule_Object;
 
    ------------------------------
    -- Processed_Rule_File_Name --

@@ -1,0 +1,18 @@
+Goto_Statements
+===============
+
+main.adb:5:04: goto statement
+
+Non_Short_Circuits_Operators
+============================
+
+main.adb:2:34: use of predefined AND for boolean type
+main.adb:3:24: use of predefined OR for boolean type
+
+Invalid type
+============
+
+gnatcheck: invalid parameter for rule goto_statements: 'only_unconditional' value should be a boolean (invalid_type.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
