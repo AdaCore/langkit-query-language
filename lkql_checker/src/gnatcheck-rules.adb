@@ -306,19 +306,6 @@ package body Gnatcheck.Rules is
       return Rule.Rule_State = Enabled;
    end Is_Enabled;
 
-   ------------------------
-   -- Source_Mode_String --
-   ------------------------
-
-   function Source_Mode_String (Rule : Rule_Template) return String is
-   begin
-      case Rule.Source_Mode is
-         when General => return "GENERAL";
-         when Ada_Only => return "ADA";
-         when Spark_Only => return "SPARK";
-      end case;
-   end Source_Mode_String;
-
    ---------------------
    -- Load_Dictionary --
    ---------------------
@@ -374,27 +361,36 @@ package body Gnatcheck.Rules is
          Bad_Rule_Detected := True;
    end Load_Dictionary;
 
-   ----------------------------------
-   -- Print_Rule_To_Universal_File --
-   ----------------------------------
+   -----------------------------
+   -- Print_Rule_To_LKQL_File --
+   -----------------------------
 
-   procedure Print_Rule_To_Universal_File
+   procedure Print_Rule_To_LKQL_File
      (Rule         : in out Rule_Template'Class;
       Rule_File    : File_Type)
    is
-      Args        : Rule_Argument_Vectors.Vector;
+      Args  : Rule_Argument_Vectors.Vector;
+      First : Boolean := True;
    begin
       Map_Parameters (Rule, Args);
 
-      Put (Rule_File, Rule_Name (Rule) & "|" & Rule.Source_Mode_String);
-      for Param of Args loop
-         New_Line (Rule_File);
-         Put (Rule_File, "-");
-         Put (Rule_File,
-              To_String (To_Wide_Wide_String (Param.Name)) & "=" &
-              To_String (To_Wide_Wide_String (Param.Value)));
-      end loop;
-   end Print_Rule_To_Universal_File;
+      Put (Rule_File, Rule_Name (Rule));
+
+      if not Args.Is_Empty then
+         Put (Rule_File, ": [{");
+         for Param of Args loop
+            if First then
+               First := False;
+            else
+               Put (Rule_File, ", ");
+            end if;
+            Put (Rule_File,
+                 To_String (To_Wide_Wide_String (Param.Name)) & ": " &
+                   To_String (To_Wide_Wide_String (Param.Value)));
+         end loop;
+         Put (Rule_File, "}]");
+      end if;
+   end Print_Rule_To_LKQL_File;
 
    ------------------------
    -- Print_Rule_To_File --
