@@ -142,7 +142,7 @@ public final class Import extends LKQLNode {
 
             // Get the current context and parse the file with the internal strategy
             CallTarget target = context.getEnv().parseInternal(source);
-            NamespaceValue res = (NamespaceValue) context.getEnv().asHostObject(target.call());
+            NamespaceValue res = (NamespaceValue) target.call();
             importCache.put(moduleFile, res);
             return res;
         }

@@ -32,6 +32,10 @@ import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 
 import java.util.Objects;
 
@@ -41,7 +45,8 @@ import java.util.Objects;
  *
  * @author Hugo GUERRIER
  */
-public final class ListValue implements Iterable, Indexable, Truthy {
+@ExportLibrary(InteropLibrary.class)
+public final class ListValue implements Iterable, Indexable, Truthy, TruffleObject {
 
     // ----- Attributes -----
 
@@ -136,6 +141,37 @@ public final class ListValue implements Iterable, Indexable, Truthy {
             }
         }
         return true;
+    }
+
+    // ----- Interop methods -----
+
+    /** Tell the interop library that tuple has array elements. */
+    @ExportMessage
+    public boolean hasArrayElements() {
+        return true;
+    }
+
+    /** Get the array size for the interop library. */
+    @ExportMessage
+    public long getArraySize() {
+        return this.size();
+    }
+
+    /** Tell the interop library if the wanted index is readable. */
+    @ExportMessage
+    public boolean isArrayElementReadable(long index) {
+        try {
+            this.get((int) index);
+            return true;
+        } catch (InvalidIndexException e) {
+            return false;
+        }
+    }
+
+    /** Get the array element of the given index. */
+    @ExportMessage
+    public Object readArrayElement(long index) {
+        return this.get((int) index);
     }
 
     // ----- Override methods -----
