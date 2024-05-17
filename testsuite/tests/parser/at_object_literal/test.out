@@ -7,16 +7,16 @@ AtObjectLiteral
 |  |  |f_expr: <null>
 |  |  AtObjectAssoc
 |  |  |f_name:
-|  |  |  Identifier: key2
+|  |  |  Identifier: Key2
 |  |  |f_expr:
 |  |  |  StringLiteral: "value"
 |  |  AtObjectAssoc
 |  |  |f_name:
-|  |  |  Identifier: key3
+|  |  |  Identifier: KEY_3
 |  |  |f_expr: <null>
 |  |  AtObjectAssoc
 |  |  |f_name:
-|  |  |  Identifier: key4
+|  |  |  Identifier: key_4
 |  |  |f_expr:
 |  |  |  ObjectLiteral
 |  |  |  |f_assocs:

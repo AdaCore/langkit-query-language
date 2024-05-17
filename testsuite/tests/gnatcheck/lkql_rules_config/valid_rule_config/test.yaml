@@ -1,0 +1,8 @@
+driver: gnatcheck
+control:
+  - [SKIP, "mode == 'ada'", "LKQL rule file feature unavailable on Ada implementation"]
+project: prj.gpr
+lkql_rule_file: config.lkql
+rule_file: rules.txt
+format: brief
+show_rule: True

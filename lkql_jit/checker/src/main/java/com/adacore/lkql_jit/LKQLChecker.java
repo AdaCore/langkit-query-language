@@ -23,6 +23,8 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.lkql_jit.options.JsonUtils;
+import com.adacore.lkql_jit.options.RuleInstance;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
@@ -31,10 +33,7 @@ import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -243,13 +242,13 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.rulesDirs", this.rulesDirs);
         }
 
-        // Set the rule to apply
-        if (this.rules != null && !this.rules.isEmpty() && !this.rules.isBlank()) {
-            contextBuilder.option("lkql.rules", this.rules.toLowerCase());
+        // Pass the rule instances to the LKQL engine
+        try {
+            contextBuilder.option(
+                "lkql.ruleInstances", JsonUtils.serializeInstances(this.getRuleInstances()));
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
-
-        // Set the rule argument
-        contextBuilder.option("lkql.rulesArgs", String.join(";", this.rulesArgs));
 
         // Set the Ada files to ignore during the analysis
         if (this.ignores != null && !this.ignores.isEmpty() && !this.ignores.isBlank()) {
@@ -487,6 +486,51 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         if (this.files.isEmpty() && (this.projectFile == null || this.projectFile.isEmpty())) {
             System.err.println("No source file to process");
         }
+    }
+
+    // ----- Option parsing helpers -----
+
+    /** Get the rule instances defined be the user through the LKQL checker command-line. */
+    private Map<String, RuleInstance> getRuleInstances() {
+        // === First, parse the rule arguments in a map
+        Map<String, Map<String, String>> instanceArgs = new HashMap<>();
+        for (String arg : this.rulesArgs) {
+            // Verify that the rule argument is not empty
+            if (arg.isEmpty() || arg.isBlank()) continue;
+
+            // Split the get the names and the value
+            final String[] valueSplit = arg.split("=");
+            final String[] nameSplit = valueSplit[0].split("\\.");
+
+            // Verify the rule argument syntax
+            if (valueSplit.length != 2 || nameSplit.length != 2) {
+                System.err.println("Rule argument syntax error: '" + arg + "'");
+                continue;
+            }
+
+            // Get the information from the rule argument source
+            final String instanceId = nameSplit[0].toLowerCase().trim();
+            final String argName = nameSplit[1].toLowerCase().trim();
+            final String argValue = valueSplit[1].trim();
+
+            Map<String, String> ruleArgs = instanceArgs.getOrDefault(instanceId, new HashMap<>());
+            ruleArgs.put(argName, argValue);
+            instanceArgs.put(instanceId, ruleArgs);
+        }
+
+        // === Then, parse the provided instances, filling them with the previously parsed arguments
+        HashMap<String, RuleInstance> res = new HashMap<>();
+        for (String ruleName : this.rules.split(",")) {
+            final String instanceId = ruleName.toLowerCase();
+            res.put(
+                instanceId,
+                new RuleInstance(
+                    ruleName,
+                    Optional.empty(),
+                    RuleInstance.SourceMode.GENERAL,
+                    instanceArgs.get(instanceId)));
+        }
+        return res;
     }
 
     // ----- The LKQL checker -----

@@ -4,7 +4,7 @@ from langkit.lexer import Lexer, LexerToken, WithText, WithSymbol, Pattern,\
 
 class Token(LexerToken):
     Identifier = WithSymbol()
-    KindName = WithSymbol()
+    UpperIdentifier = WithSymbol()
     String = WithText()
     Integer = WithText()
 
@@ -134,7 +134,7 @@ lkql_lexer.add_rules(
     (Literal("null"),                             Token.Null),
     (Pattern("[0-9]+"),                           Token.Integer),
     (Pattern("[a-z][A-Za-z0-9_]*"),               Token.Identifier),
-    (Pattern("[A-Z][A-Za-z_]*(.list)?"),          Token.KindName),
+    (Pattern("[A-Za-z][A-Za-z0-9_]*"),            Token.UpperIdentifier),
     (Pattern(r'"(\\.|[^"])*"'),                   Token.String),
     (Pattern(r"#(.?)+"),                          Token.Comment)
 )

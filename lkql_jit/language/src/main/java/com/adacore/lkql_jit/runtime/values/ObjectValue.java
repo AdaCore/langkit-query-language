@@ -26,6 +26,11 @@ package com.adacore.lkql_jit.runtime.values;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +43,8 @@ import java.util.Objects;
  *
  * @author Hugo GUERRIER
  */
-public final class ObjectValue implements LKQLValue {
+@ExportLibrary(InteropLibrary.class)
+public final class ObjectValue implements LKQLValue, TruffleObject {
 
     // ----- Attributes -----
 
@@ -120,6 +126,51 @@ public final class ObjectValue implements LKQLValue {
             }
         }
         return true;
+    }
+
+    // ----- Interop value -----
+
+    /**
+     * Get the default displayable string, exporting because this message is abstract and all
+     * classes which export the interop library must implement it.
+     */
+    @ExportMessage
+    public String toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+        return this.toString();
+    }
+
+    /** Tell the interop library that this value has members. */
+    @ExportMessage
+    public boolean hasMembers() {
+        return true;
+    }
+
+    /**
+     * Get if the given member is in the receiver object like value. All members are readable but
+     * not modifiable.
+     */
+    @ExportMessage
+    @CompilerDirectives.TruffleBoundary
+    public boolean isMemberReadable(String member) {
+        return this.content.containsKey(member);
+    }
+
+    /** Get the existing members for the receiver object like value. */
+    @ExportMessage
+    @CompilerDirectives.TruffleBoundary
+    public Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
+        return new ListValue(this.content.keySet().toArray(new String[0]));
+    }
+
+    /** Get the value of the wanted member in the receiver object like value. */
+    @ExportMessage
+    @CompilerDirectives.TruffleBoundary
+    public Object readMember(String member) throws UnknownIdentifierException {
+        if (this.content.containsKey(member)) {
+            return this.content.get(member);
+        } else {
+            throw UnknownIdentifierException.create(member);
+        }
     }
 
     // ----- Override methods -----

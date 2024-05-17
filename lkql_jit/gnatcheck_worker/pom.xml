@@ -32,13 +32,29 @@
                         <configuration>
                             <finalName>gnatcheck_worker</finalName>
                             <artifactSet>
-                                <excludes>
-                                    <exclude>org.graalvm.truffle:truffle-api</exclude>
-                                    <exclude>org.graalvm.truffle:truffle-dsl-processor</exclude>
-                                    <exclude>org.graalvm.truffle:truffle-tck</exclude>
-                                    <exclude>org.graalvm:graal-sdk</exclude>
-                                </excludes>
+                                <includes>
+                                    <include>org.graalvm.sdk:launcher-common</include>
+                                    <include>com.adacore:checker</include>
+                                    <include>org.json:json</include>
+                                </includes>
                             </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/*.DES</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>com.adacore:checker</artifact>
+                                    <includes>
+                                        <exclude>com/adacore/lkql_jit/options/**</exclude>
+                                    </includes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -47,6 +63,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -60,6 +77,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>checker</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>graal-sdk</artifactId>
             <version>${graalvm.version}</version>
@@ -69,12 +92,6 @@
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>launcher-common</artifactId>
             <version>${graalvm.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.adacore</groupId>
-            <artifactId>language</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

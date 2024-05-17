@@ -1,0 +1,5 @@
+driver: 'interpreter'
+project: 'default_project/default.gpr'
+failure: True
+control:
+  - [XFAIL, "mode == 'ada'", "Upper-cased object keys aren't supported"]

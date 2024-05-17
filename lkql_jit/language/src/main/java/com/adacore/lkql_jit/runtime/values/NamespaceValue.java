@@ -28,6 +28,11 @@ import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.MaterializedFrame;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +43,8 @@ import java.util.Map;
  *
  * @author Hugo GUERRIER
  */
-public final class NamespaceValue implements LKQLValue {
+@ExportLibrary(InteropLibrary.class)
+public final class NamespaceValue implements LKQLValue, TruffleObject {
 
     // ----- Attributes -----
 
@@ -99,6 +105,51 @@ public final class NamespaceValue implements LKQLValue {
         final String symbol
     ) {
         return this.symbols.getOrDefault(symbol, null);
+    }
+
+    // ----- Interop methods -----
+
+    /**
+     * Get the default displayable string, exporting because this message is abstract and all
+     * classes which export the interop library must implement it.
+     */
+    @ExportMessage
+    public String toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+        return this.toString();
+    }
+
+    /** Tell the interop library that this value has members. */
+    @ExportMessage
+    public boolean hasMembers() {
+        return true;
+    }
+
+    /**
+     * Get if the given member is in the receiver object like value. All members are readable but
+     * not modifiable.
+     */
+    @ExportMessage
+    @CompilerDirectives.TruffleBoundary
+    public boolean isMemberReadable(String member) {
+        return this.symbols.containsKey(member);
+    }
+
+    /** Get the existing members for the receiver object like value. */
+    @ExportMessage
+    @CompilerDirectives.TruffleBoundary
+    public Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
+        return new ListValue(this.symbols.keySet().toArray(new String[0]));
+    }
+
+    /** Get the value of the wanted member in the receiver object like value. */
+    @ExportMessage
+    @CompilerDirectives.TruffleBoundary
+    public Object readMember(String member) throws UnknownIdentifierException {
+        if (this.symbols.containsKey(member)) {
+            return this.symbols.get(member);
+        } else {
+            throw UnknownIdentifierException.create(member);
+        }
     }
 
     // ----- Value methods -----

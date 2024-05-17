@@ -23,7 +23,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -72,12 +72,6 @@
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>launcher-common</artifactId>
             <version>${graalvm.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.adacore</groupId>
-            <artifactId>language</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

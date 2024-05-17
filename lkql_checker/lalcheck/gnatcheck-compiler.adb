@@ -478,6 +478,12 @@ package body Gnatcheck.Compiler is
                   end if;
                end;
             end if;
+         elsif Line_Len >= 20
+               and then Line (1 .. 20) = "WORKER_FATAL_ERROR: "
+         then
+            Error ("error raised by the worker: " & Line (21 .. Line_Len));
+            Errors := True;
+            return;
          else
             Analyze_Line (Line (1 .. Line_Len));
          end if;
@@ -1487,12 +1493,6 @@ package body Gnatcheck.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("-from=" & Rule_File);
 
-      if LKQL_Rule_File_Name /= null then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-from-lkql=" &
-                                        LKQL_Rule_File_Name.all);
-      end if;
-
       if Debug_Mode then
          --  For debug purposes, we don't want to put the full path to the
          --  worker command, if it is a full path. We just want the base name
@@ -1516,6 +1516,66 @@ package body Gnatcheck.Compiler is
 
       return Pid;
    end Spawn_Gnatcheck;
+
+   -----------------------------------
+   -- Spawn_LKQL_Rule_Config_Parser --
+   -----------------------------------
+
+   function Spawn_LKQL_Rule_File_Parser
+     (LKQL_RF_Name : String;
+      Result_File : String;
+      Error_File : String) return Process_Id
+   is
+      use GNAT.String_Split;
+
+      Pid           : Process_Id;
+      Split_Command : constant Slice_Set := Create (Worker_Command, " ");
+      Worker : String_Access := null;
+      Args : Argument_List (1 .. 128);
+      Num_Args : Integer := 0;
+   begin
+      --  Call the GNATcheck worker with the '--parse-lkql-config' option to
+      --  get the rule configuration from the provided rule file.
+      for Arg of Split_Command loop
+         if Worker = null then
+            Worker := Locate_Exec_On_Path (Arg);
+         else
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'(Arg);
+         end if;
+      end loop;
+
+      if Worker = null then
+         Error ("cannot locate the worker executable: "
+                & Base_Name (Worker_Command));
+         raise Fatal_Error;
+      end if;
+
+      Num_Args := @ + 1;
+      Args (Num_Args) := new String'("--parse-lkql-config");
+      Num_Args := @ + 1;
+      Args (Num_Args) := new String'(LKQL_RF_Name);
+
+      --  Output the called command if in debug mode
+      if Debug_Mode then
+         Put (Base_Name (Worker.all));
+         for J in 1 .. Num_Args loop
+            Put (" " & Args (J).all);
+         end loop;
+         New_Line;
+      end if;
+
+      --  Spawn the process and return the associated process ID
+      Pid :=
+        Non_Blocking_Spawn
+          (Worker.all, Args (1 .. Num_Args), Result_File, Error_File);
+
+      for J in Args'Range loop
+         Free (Args (J));
+      end loop;
+
+      return Pid;
+   end Spawn_LKQL_Rule_File_Parser;
 
    --------------------
    -- Spawn_GPRbuild --

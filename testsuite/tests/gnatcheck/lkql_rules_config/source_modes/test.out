@@ -1,0 +1,5 @@
+ada_code.adb:2:09: Int does not end with type suffix _T [my_alias|identifier_suffixes]
+ada_code.adb:9:04: goto statement [goto_statements]
+spark_code.adb:4:09: My_Int does not end with type suffix _T [my_alias|identifier_suffixes]
+spark_code.adb:14:07: Ada 2022 construct forbidden outside of ghost code [ada_2022_in_ghost_code]
+spark_code.adb:17:12: Ada 2022 construct forbidden outside of ghost code [ada_2022_in_ghost_code]

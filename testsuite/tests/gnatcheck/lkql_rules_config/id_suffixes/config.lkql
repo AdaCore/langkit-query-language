@@ -1,0 +1,3 @@
+val rules = @{
+    identifier_suffixes: [{access_suffix: "_PTR(_PTR)", type_suffix: "_T", constant_suffix: "_C"}]
+}

@@ -1,0 +1,3 @@
+val rules = @{
+    duplicate_branches: [{min_stmt: 2}]
+}

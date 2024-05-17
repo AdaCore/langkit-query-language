@@ -1,0 +1,1 @@
+val invalid_operation = true + 42

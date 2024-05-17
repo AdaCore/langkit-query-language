@@ -444,9 +444,15 @@ empty list as default value for any key.
    # Is similar to
    {a: 1, b: [], c: null, d: []}
 
-Objects are immutable, and objects literals are the primary way to create new
-lists from nothing, with list comprehensions being the way to create new lists
-from existing lists.
+Object keys may contain upper-case characters at declaration, but the LKQL
+engine will lower them. This means that object keys are case-insensitive.
+
+..  code-block:: lkql
+
+    val o = {lower: "Hello", UPPER: "World"}
+    print(o.lower & " " & o.upper) # Will display "Hello World"
+
+Please note that objects are immutable.
 
 List Literals
 ^^^^^^^^^^^^^

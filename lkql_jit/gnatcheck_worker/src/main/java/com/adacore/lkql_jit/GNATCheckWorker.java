@@ -23,6 +23,8 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.lkql_jit.options.JsonUtils;
+import com.adacore.lkql_jit.options.RuleInstance;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
@@ -97,6 +99,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * A directory containing all user added rules.
      */
     private String rulesDirs = null;
+
+    /** The LKQL file to parse as config file. */
+    private String lkqlConfigToParse = null;
 
     /**
      * The rules to apply.
@@ -179,6 +184,13 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // Do not stop the worker's execution when a source file is missing
         contextBuilder.option("lkql.keepGoingOnMissingFile", "true");
 
+        // If a LKQL rule config file has been provided, parse it and display the result
+        if (this.lkqlConfigToParse != null) {
+            System.out.println(
+                JsonUtils.serializeInstances(parseLKQLRuleFile(this.lkqlConfigToParse)));
+            return 0;
+        }
+
         // Set the context options
         if (this.verbose) {
             contextBuilder.option("lkql.verbose", "true");
@@ -226,19 +238,15 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.rulesDirs", this.rulesDirs);
         }
 
-        // Set the rule to apply
-        if (!this.rulesFrom.isEmpty()) {
-            final List<String> allRules = new ArrayList<>();
-            final List<String> allArgs = new ArrayList<>();
-            processRuleSpecificationFile(this.rulesFrom, allRules, allArgs);
-            contextBuilder.option("lkql.rules", String.join(",", allRules));
-            contextBuilder.option("lkql.rulesArgs", String.join(";", allArgs));
+        // Set the rule instances
+        final Map<String, RuleInstance> instances = new HashMap<>();
+        if (this.rulesFrom != null && !this.rulesFrom.isBlank()) {
+            instances.putAll(parseGNATcheckRuleFile(this.rulesFrom));
         }
-
-        // Set the LKQL rule config file
         if (this.rulesFromLKQL != null && !this.rulesFromLKQL.isEmpty()) {
-            contextBuilder.option("lkql.LKQLRuleFile", this.rulesFromLKQL);
+            instances.putAll(parseLKQLRuleFile(this.rulesFromLKQL));
         }
+        contextBuilder.option("lkql.ruleInstances", JsonUtils.serializeInstances(instances));
 
         if (this.ignore != null && !this.ignore.isEmpty() && !this.ignore.isBlank()) {
             contextBuilder.option("lkql.ignores", this.ignore);
@@ -302,9 +310,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         ListIterator<String> iterator = arguments.listIterator();
         String currentArg = iterator.next();
 
-        // First argument should be "--subprocess"
-
-        assert currentArg.equals("--subprocess");
+        // Test the first argument value
+        if (currentArg.equals("--parse-lkql-config")) {
+            this.lkqlConfigToParse = iterator.next();
+            return List.of();
+        }
         currentArg = iterator.next();
 
         // Optional argument: project file
@@ -390,8 +400,6 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             currentArg = iterator.next();
             if (currentArg.startsWith("-from=")) {
                 this.rulesFrom = currentArg.substring(6);
-            } else if (currentArg.startsWith("-from-lkql=")) {
-                this.rulesFromLKQL = currentArg.substring(11);
             }
         }
 
@@ -404,51 +412,145 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         return unrecognizedArgs;
     }
 
+    // ----- Option parsing helpers -----
+
     /**
-     * Parse the given GNATcheck rule specification file and fill in the list of rules and rule arguments
-     * accordingly.
-     * <p>
-     * The file is expected to have one rule specification per line.
-     *
-     * @param filename The filename containing the rule specifications for this run.
-     * @param allRules The list in which to add all parsed rules.
-     * @param allArgs  The list in which to add all parsed rule arguments.
+     * Open the given GNATcheck rule file and parse it to extract all user defined rule instances.
      */
-    private static void processRuleSpecificationFile(
-        String filename,
-        List<String> allRules,
-        List<String> allArgs
-    ) {
+    private static Map<String, RuleInstance> parseGNATcheckRuleFile(
+        final String gnatcheckRuleFile) {
+        String currentInstanceId = null;
+        final Map<String, RuleInstance> res = new HashMap<>();
         try {
-            for (String ruleSpec : Files.readAllLines(Paths.get(filename))) {
-                processRuleSpecification(ruleSpec, allRules, allArgs);
+            for (String ruleSpec :
+                Files.readAllLines(Paths.get(gnatcheckRuleFile)).stream()
+                    .filter(s -> !s.isBlank())
+                    .toList()) {
+                if (ruleSpec.startsWith("-")) {
+                    final String[] argSplit = ruleSpec.substring(1).split("=");
+                    res.get(currentInstanceId).arguments().put(argSplit[0], argSplit[1]);
+                } else {
+                    final String[] ruleSplit = ruleSpec.split("\\|");
+                    final RuleInstance.SourceMode sourceMode =
+                        RuleInstance.SourceMode.valueOf(ruleSplit[1]);
+                    currentInstanceId = ruleSplit[0].toLowerCase();
+                    res.put(
+                        currentInstanceId,
+                        new RuleInstance(
+                            currentInstanceId,
+                            Optional.empty(),
+                            sourceMode,
+                            new HashMap<>()));
+                }
             }
         } catch (IOException e) {
-            System.err.println("Could not read file: " + filename);
+            System.err.println("WORKER_FATAL_ERROR: Could not read file: " + gnatcheckRuleFile);
         }
+        return res;
     }
 
     /**
-     * Parse the given GNATcheck rule specification and add it to the list of rules to run.
-     * <p>
-     * A GNATcheck rule specification can also specify arguments for that rule, so these are parsed as well
-     * and added to the list of rule arguments.
-     *
-     * @param ruleSpec The rule specification to parse.
-     * @param allRules The list of all currently parsed rules, in which we'll add this one.
-     * @param allArgs  The list of all currently specified rule arguments, which might be expanded here.
+     * Read the given LKQL file and parse it as a rule configuration file to return the extracted
+     * instances.
      */
-    private static void processRuleSpecification(
-        String ruleSpec,
-        List<String> allRules,
-        List<String> allArgs
-    ) {
-        if (ruleSpec.startsWith("-")) {
-            String ruleName = allRules.get(allRules.size() - 1);
-            String arg = ruleSpec.substring(1);
-            allArgs.add(ruleName + "." + arg);
-        } else {
-            allRules.add(ruleSpec);
+    private static Map<String, RuleInstance> parseLKQLRuleFile(final String lkqlRuleFile) {
+        final Map<String, RuleInstance> res = new HashMap<>();
+        try (Context context =
+                 Context.newBuilder()
+                     .option("lkql.diagnosticOutputMode", "GNATCHECK")
+                     .allowIO(true)
+                     .build()) {
+            // Parse the LKQL rule configuration file with a polyglot context
+            final Source source = Source.newBuilder("lkql", new File(lkqlRuleFile)).build();
+            final Value executable = context.parse(source);
+            final Value topLevel = executable.execute(false);
+
+            // Get the mandatory general instances object and populate the result with it
+            if (topLevel.hasMember("rules")) {
+                processInstancesObject(
+                    topLevel.getMember("rules"), RuleInstance.SourceMode.GENERAL, res);
+
+                // Then get the optional Ada and SPARK instances
+                if (topLevel.hasMember("ada_rules")) {
+                    processInstancesObject(
+                        topLevel.getMember("ada_rules"), RuleInstance.SourceMode.ADA, res);
+                }
+                if (topLevel.hasMember("spark_rules")) {
+                    processInstancesObject(
+                        topLevel.getMember("spark_rules"), RuleInstance.SourceMode.SPARK, res);
+                }
+            } else {
+                System.err.println(
+                    "WORKER_FATAL_ERROR: LKQL config file must define a 'rules' "
+                        + "top level object value");
+            }
+        } catch (IOException e) {
+            System.err.println("WORKER_FATAL_ERROR: Could not read file: " + lkqlRuleFile);
+        } catch (Exception e) {
+            System.err.println(
+                "WORKER_FATAL_ERROR: during processing of rule file: "
+                    + lkqlRuleFile
+                    + ": "
+                    + e.getMessage());
+        }
+        return res;
+    }
+
+    /**
+     * Internal method to process an instance object, extracted from the LKQL rule config file
+     * top-level.
+     */
+    private static void processInstancesObject(
+        final Value instancesObject,
+        final RuleInstance.SourceMode sourceMode,
+        final Map<String, RuleInstance> toPopulate) {
+        // Iterate on all instance object keys
+        for (String ruleName : instancesObject.getMemberKeys()) {
+            final String lowerRuleName = ruleName.toLowerCase();
+            final Value argList = instancesObject.getMember(ruleName);
+
+            // Check that the value associated to the rule name is an array like value
+            if (!argList.hasArrayElements()) {
+                System.err.println("WORKER_FATAL_ERROR: Rule arguments must be an indexable value");
+                continue;
+            }
+
+            // If there is no element in the argument list, just create an instance with no argument
+            // and no alias.
+            final long argListSize = argList.getArraySize();
+            if (argListSize == 0) {
+                toPopulate.put(
+                    lowerRuleName,
+                    new RuleInstance(
+                        lowerRuleName, Optional.empty(), sourceMode, new HashMap<>()));
+            }
+
+            // Else iterate over each argument object and create one instance for each
+            else {
+                for (long i = 0; i < argListSize; i++) {
+                    String instanceId = lowerRuleName;
+                    Optional<String> instanceName = Optional.empty();
+                    final Map<String, String> arguments = new HashMap<>();
+                    final Value argObject = argList.getArrayElement(i);
+                    for (String argName : argObject.getMemberKeys()) {
+                        if (argName.equals("alias_name")) {
+                            final String aliasName = argObject.getMember("alias_name").asString();
+                            instanceId = aliasName.toLowerCase();
+                            instanceName = Optional.of(aliasName);
+                        } else {
+                            Value argValue = argObject.getMember(argName);
+                            arguments.put(
+                                argName,
+                                argValue.isString()
+                                    ? "\"" + argValue + "\""
+                                    : argValue.toString());
+                        }
+                    }
+                    toPopulate.put(
+                        instanceId,
+                        new RuleInstance(lowerRuleName, instanceName, sourceMode, arguments));
+                }
+            }
         }
     }
 

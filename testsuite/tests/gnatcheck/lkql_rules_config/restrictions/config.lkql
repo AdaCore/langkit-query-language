@@ -1,0 +1,3 @@
+val rules = @{
+    restrictions: [{arg: ["Max_Task_Entries=>2", "No_Access_Subprograms"]}]
+}
