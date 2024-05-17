@@ -68,7 +68,7 @@ public abstract class DotAccess extends Expr {
             final LKQLObject receiver,
             @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary) {
         // Try to get the built in
-        Object builtIn = this.tryBuildIn(receiver);
+        Object builtIn = this.tryBuiltIn(receiver);
         if (builtIn != null) {
             return builtIn;
         }
@@ -94,7 +94,7 @@ public abstract class DotAccess extends Expr {
             final LKQLNamespace receiver,
             @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary) {
         // Try to get the built in
-        Object builtIn = this.tryBuildIn(receiver);
+        Object builtIn = this.tryBuiltIn(receiver);
         if (builtIn != null) {
             return builtIn;
         }
@@ -149,7 +149,7 @@ public abstract class DotAccess extends Expr {
     @Specialization(replaces = "onNodeCached")
     protected Object onNodeUncached(Libadalang.AdaNode receiver) {
         // Try the built_in
-        Object builtIn = this.tryBuildIn(receiver);
+        Object builtIn = this.tryBuiltIn(receiver);
         if (builtIn != null) {
             return builtIn;
         }
@@ -170,20 +170,21 @@ public abstract class DotAccess extends Expr {
     }
 
     /**
-     * Fallback when the receiver is a generic object.
+     * Fallback when the receiver is none of the case identified by the specializations.
      *
-     * @param receiver The receiver generic value.
+     * @param receiver The receiver value.
      * @return The execution of the dot access.
      */
     @Fallback
-    protected Object onGeneric(Object receiver) {
-        // Try to get the built in
-        Object builtIn = this.tryBuildIn(receiver);
+    protected Object onOthers(Object receiver) {
+
+        // In the fallback case, only built-in methods are candidates. Try to get a built-in.
+        Object builtIn = this.tryBuiltIn(receiver);
+
         if (builtIn != null) {
             return builtIn;
         }
 
-        // Throw an exception
         throw LKQLRuntimeException.wrongMember(
                 this.member.getName(), LKQLTypesHelper.fromJava(receiver), this.member);
     }
@@ -196,7 +197,7 @@ public abstract class DotAccess extends Expr {
      * @param receiver The receiver object.
      * @return The built-in result, null if the built-in method doesn't exist.
      */
-    protected Object tryBuildIn(Object receiver) {
+    protected Object tryBuiltIn(Object receiver) {
         // Get the built in
         BuiltInFunctionValue builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
