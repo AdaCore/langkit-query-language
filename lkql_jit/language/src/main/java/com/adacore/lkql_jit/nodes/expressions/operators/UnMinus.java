@@ -8,10 +8,9 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
 /**
@@ -27,10 +26,9 @@ public abstract class UnMinus extends UnOp {
      * Create an arithmetic unary negation node.
      *
      * @param location The location of the node in the source.
-     * @param argLocation The location of the argument node.
      */
-    protected UnMinus(SourceLocation location, DummyLocation argLocation) {
-        super(location, argLocation);
+    protected UnMinus(SourceSection location) {
+        super(location);
     }
 
     // ----- Execution methods -----
@@ -65,7 +63,7 @@ public abstract class UnMinus extends UnOp {
     @Fallback
     protected void notNumber(Object arg) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(arg), this.argLocation);
+                LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(arg), this.getArg());
     }
 
     // ----- Override methods -----

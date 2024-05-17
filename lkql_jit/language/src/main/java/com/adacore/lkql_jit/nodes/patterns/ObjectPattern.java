@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.nodes.patterns;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -16,6 +15,7 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class ObjectPattern extends ValuePattern {
 
@@ -27,7 +27,7 @@ public abstract class ObjectPattern extends ValuePattern {
     private final String[] keys;
 
     protected ObjectPattern(
-            SourceLocation location, BasePattern[] patterns, String[] keys, SplatPattern splat) {
+            SourceSection location, BasePattern[] patterns, String[] keys, SplatPattern splat) {
         super(location);
         assert patterns.length == keys.length;
         this.patterns = patterns;

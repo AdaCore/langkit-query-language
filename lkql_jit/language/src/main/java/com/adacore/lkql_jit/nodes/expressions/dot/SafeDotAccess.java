@@ -15,7 +15,6 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -25,6 +24,7 @@ import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.Map;
 
 /**
@@ -48,10 +48,12 @@ public abstract class SafeDotAccess extends Expr {
      * @param location The location of the dot access.
      * @param member The member to access.
      */
-    protected SafeDotAccess(SourceLocation location, Identifier member) {
+    protected SafeDotAccess(SourceSection location, Identifier member) {
         super(location);
         this.member = member;
     }
+
+    public abstract Expr getReceiver();
 
     // ----- Execution methods -----
 
@@ -108,7 +110,7 @@ public abstract class SafeDotAccess extends Expr {
         // Create the property reference
         LKQLProperty propertyRef = new LKQLProperty(this.member.getName(), receiver);
         if (propertyRef.getDescription() == null) {
-            throw LKQLRuntimeException.noSuchField(this.member);
+            throw LKQLRuntimeException.noSuchField(this.getReceiver());
         }
 
         // Return the result
@@ -147,7 +149,7 @@ public abstract class SafeDotAccess extends Expr {
                         | UnsupportedMessageException e) {
                     // TODO: Implement runtime checks in the LKQLFunction class and base computing
                     // on them (#138)
-                    throw LKQLRuntimeException.fromJavaException(e, this.member);
+                    throw LKQLRuntimeException.fromJavaException(e, this.getReceiver());
                 }
             } else {
                 builtIn.setThisValue(receiver);

@@ -7,9 +7,9 @@ package com.adacore.lkql_jit.nodes.expressions.value_read;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * A dynamic read from the global interactive scope. Such reads are not optimized by the compiler.
@@ -19,7 +19,7 @@ public class ReadDynamic extends Expr {
 
     private final String name;
 
-    public ReadDynamic(final SourceLocation location, String name) {
+    public ReadDynamic(final SourceSection location, String name) {
         super(location);
         this.name = name;
     }

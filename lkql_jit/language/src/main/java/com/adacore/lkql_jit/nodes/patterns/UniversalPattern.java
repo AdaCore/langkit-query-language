@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the universal pattern in the LKQL language.
@@ -22,7 +22,7 @@ public final class UniversalPattern extends ValuePattern {
      *
      * @param location The location of the node in the source.
      */
-    public UniversalPattern(SourceLocation location) {
+    public UniversalPattern(SourceSection location) {
         super(location);
     }
 

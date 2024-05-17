@@ -336,18 +336,23 @@ package body Gnatcheck.Compiler is
                                     Msg (File_Idx .. Idx - 1) &
                                     Msg (Idx + 7 .. Last - 2) &
                                     Annotate_Rule (All_Rules.Table (Id).all),
-                  Diagnosis_Kind =>
-                    (if Last - Idx > 21
-                       and then Msg (Idx + 7 .. Idx + 20) = "internal error"
-                     then Internal_Error else Rule_Violation),
+                  Diagnosis_Kind => Rule_Violation,
                   SF             => SF,
                   Rule           => Id);
                return;
             end;
          elsif Msg (Idx .. Idx + 6) = "error: " then
             Message_Kind := Error;
+
+            if Msg'Last - Idx > 21
+               and then Msg (Idx + 7 .. Idx + 20) = "internal error"
+            then
+               Kind := Internal_Error;
+            else
+               Kind := Compiler_Error;
+            end if;
+
             Errors := True;
-            Kind   := Compiler_Error;
 
          elsif Msg (Idx .. Idx + 8) = "warning: " then
             if Index (Msg (Idx .. Msg'Last), ": violation of restriction") /= 0

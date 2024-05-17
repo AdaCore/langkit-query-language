@@ -12,13 +12,13 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
-import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents a Libadalang property access in LKQL. */
@@ -73,7 +73,7 @@ public class LKQLProperty extends BasicLKQLValue {
      * @param caller The locatable which called the execution.
      * @param arguments The argument for the property call.
      */
-    public Object executeAsProperty(Locatable caller, ArgList argList, Object... arguments) {
+    public Object executeAsProperty(Node caller, ArgList argList, Object... arguments) {
         try {
             return ReflectionUtils.callProperty(
                     this.node, this.description, caller, argList, arguments);
@@ -88,7 +88,7 @@ public class LKQLProperty extends BasicLKQLValue {
      *
      * @param caller The locatable which called the execution.
      */
-    public Object executeAsField(Locatable caller) {
+    public Object executeAsField(Node caller) {
         try {
             return ReflectionUtils.callProperty(this.node, this.description, caller, null);
         } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {

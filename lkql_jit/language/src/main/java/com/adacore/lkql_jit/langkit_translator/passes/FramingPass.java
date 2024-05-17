@@ -6,14 +6,15 @@
 package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltInsHolder;
+import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.TranslatorException;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.source.Source;
 
 /** This class represents the framing pass for the Langkit AST translation process. */
@@ -47,14 +48,15 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     // ----- Instance methods -----
 
-    /**
-     * Util method to create a source location for the given Langkit node.
-     *
-     * @param node The node to create a source location for.
-     * @return A source location for the given node.
-     */
-    private DummyLocation loc(final Liblkqllang.LkqlNode node) {
-        return new DummyLocation(new SourceLocation(this.source, node.getSourceLocationRange()));
+    private RuntimeException framingError(Liblkqllang.LkqlNode node, String message) {
+        var ctx = LKQLLanguage.getContext(null);
+        ctx.getDiagnosticEmitter()
+                .emitDiagnostic(
+                        CheckerUtils.MessageKind.ERROR,
+                        message,
+                        null,
+                        SourceSectionWrapper.create(node.getSourceLocationRange(), source));
+        return LKQLRuntimeException.fromMessage("Errors during framing pass");
     }
 
     /**
@@ -68,7 +70,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     private void checkDuplicateBindings(final String symbol, final Liblkqllang.LkqlNode node)
             throws LKQLRuntimeException {
         if (this.scriptFramesBuilder.bindingExists(symbol)) {
-            throw LKQLRuntimeException.existingSymbol(symbol, loc(node));
+            throw framingError(node, "Already existing symbol: " + symbol);
         }
     }
 
@@ -83,7 +85,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     private void checkDuplicateParameters(final String symbol, final Liblkqllang.LkqlNode node)
             throws LKQLRuntimeException {
         if (this.scriptFramesBuilder.parameterExists(symbol)) {
-            throw LKQLRuntimeException.existingParameter(symbol, loc(node));
+            throw framingError(node, "Already existing parameter: " + symbol);
         }
     }
 

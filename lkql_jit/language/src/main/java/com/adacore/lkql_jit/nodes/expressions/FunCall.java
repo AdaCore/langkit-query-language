@@ -15,8 +15,6 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -26,6 +24,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a function call node in the LKQL language.
@@ -39,9 +38,6 @@ public abstract class FunCall extends Expr {
 
     /** Whether the function call is safe access. */
     protected final boolean isSafe;
-
-    /** The location of the callee token. */
-    protected final DummyLocation calleeLocation;
 
     // ----- Children -----
 
@@ -57,17 +53,11 @@ public abstract class FunCall extends Expr {
      *
      * @param location The location of the node in the source.
      * @param isSafe Whether the function call is protected with a safe operator.
-     * @param calleeLocation The location of the callee expression.
      * @param argList The arguments of the function call.
      */
-    protected FunCall(
-            SourceLocation location,
-            boolean isSafe,
-            DummyLocation calleeLocation,
-            ArgList argList) {
+    protected FunCall(SourceSection location, boolean isSafe, ArgList argList) {
         super(location);
         this.isSafe = isSafe;
-        this.calleeLocation = calleeLocation;
         this.argList = argList;
     }
 
@@ -76,6 +66,8 @@ public abstract class FunCall extends Expr {
     public ArgList getArgList() {
         return argList;
     }
+
+    public abstract Expr getCallee();
 
     // ----- Execute methods -----
 
@@ -110,7 +102,7 @@ public abstract class FunCall extends Expr {
             realArgs[0] = builtIn.getThisValue();
         }
 
-        // Verify that there is all arguments
+        // Verify that all arguments are present
         for (int i = 0; i < realArgs.length; i++) {
             if (realArgs[i] == null) {
                 if (defaultValues[i] != null) {
@@ -128,7 +120,7 @@ public abstract class FunCall extends Expr {
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
             // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
             // (#138)
-            throw LKQLRuntimeException.fromJavaException(e, this.calleeLocation);
+            throw LKQLRuntimeException.fromJavaException(e, this.getCallee());
         }
     }
 
@@ -173,7 +165,7 @@ public abstract class FunCall extends Expr {
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
             // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
             // (#138)
-            throw LKQLRuntimeException.fromJavaException(e, this.calleeLocation);
+            throw LKQLRuntimeException.fromJavaException(e, this);
         }
     }
 
@@ -233,9 +225,7 @@ public abstract class FunCall extends Expr {
     @Fallback
     protected void nonExecutable(Object nonExec) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_FUNCTION,
-                LKQLTypesHelper.fromJava(nonExec),
-                this.calleeLocation);
+                LKQLTypesHelper.LKQL_FUNCTION, LKQLTypesHelper.fromJava(nonExec), this);
     }
 
     // ----- Override methods -----

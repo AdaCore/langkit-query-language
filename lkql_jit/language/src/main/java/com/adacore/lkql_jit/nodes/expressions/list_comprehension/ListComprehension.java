@@ -14,9 +14,9 @@ import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Iterator;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a list comprehension in the LKQL language.
@@ -69,7 +69,7 @@ public final class ListComprehension extends Expr {
      * @param guard The guard of the list comprehension.
      */
     public ListComprehension(
-            final SourceLocation location,
+            final SourceSection location,
             final FrameDescriptor frameDescriptor,
             final ClosureDescriptor closureDescriptor,
             final ComprehensionAssocList generators,

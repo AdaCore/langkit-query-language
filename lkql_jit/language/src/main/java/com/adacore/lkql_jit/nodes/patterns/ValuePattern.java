@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the pattern that filters value in the LKQL language.
@@ -19,7 +19,7 @@ public abstract class ValuePattern extends UnfilteredPattern {
      *
      * @param location The token location in the source.
      */
-    protected ValuePattern(SourceLocation location) {
+    protected ValuePattern(SourceSection location) {
         super(location);
     }
 }

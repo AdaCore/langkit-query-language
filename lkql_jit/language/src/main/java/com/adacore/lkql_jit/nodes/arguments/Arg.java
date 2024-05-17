@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.arguments;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents all type of arguments in the LKQL language.
@@ -39,7 +39,7 @@ public abstract class Arg extends LKQLNode {
      * @param argName The name of the argument.
      * @param argExpr The expression of the argument.
      */
-    protected Arg(SourceLocation location, Identifier argName, Expr argExpr) {
+    protected Arg(SourceSection location, Identifier argName, Expr argExpr) {
         super(location);
         this.argName = argName;
         this.argExpr = argExpr;

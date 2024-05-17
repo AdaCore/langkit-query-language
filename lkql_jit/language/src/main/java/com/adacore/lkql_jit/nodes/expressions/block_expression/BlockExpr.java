@@ -6,9 +6,9 @@
 package com.adacore.lkql_jit.nodes.expressions.block_expression;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a block expression in the LKQL language
@@ -36,7 +36,7 @@ public final class BlockExpr extends Expr {
      * @param bodyParts The block body parts.
      * @param expr The expression to return.
      */
-    public BlockExpr(SourceLocation location, BlockBody[] bodyParts, Expr expr) {
+    public BlockExpr(SourceSection location, BlockBody[] bodyParts, Expr expr) {
         super(location);
         this.body = bodyParts;
         this.expr = expr;

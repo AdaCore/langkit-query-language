@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the pattern that filters by node kind in the LKQL language.
@@ -31,7 +31,7 @@ public final class NodeKindPattern extends NodePattern {
      * @param location The location of the node in the source.
      * @param kindName The node kind name.
      */
-    public NodeKindPattern(SourceLocation location, String kindName) {
+    public NodeKindPattern(SourceSection location, String kindName) {
         super(location);
         final var description = Libadalang.NODE_DESCRIPTION_MAP.get(kindName);
         if (description == null) {

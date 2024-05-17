@@ -6,9 +6,8 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node is the base of all binary operations in the LKQL language.
@@ -19,27 +18,16 @@ import com.oracle.truffle.api.dsl.NodeChild;
 @NodeChild(value = "right", type = Expr.class)
 public abstract class BinOp extends Expr {
 
-    // ----- Attributes -----
-
-    /** The location of the left node. */
-    protected final DummyLocation leftLocation;
-
-    /** The location of the right node. */
-    protected final DummyLocation rightLocation;
-
-    // ----- Constructors -----
-
     /**
      * Create a binary operation node.
      *
      * @param location The location of the node in the source.
-     * @param leftLocation The location of the left node.
-     * @param rightLocation The location of the right node.
      */
-    protected BinOp(
-            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
+    protected BinOp(SourceSection location) {
         super(location);
-        this.leftLocation = leftLocation;
-        this.rightLocation = rightLocation;
     }
+
+    public abstract Expr getRight();
+
+    public abstract Expr getLeft();
 }

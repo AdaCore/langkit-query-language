@@ -10,12 +10,11 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the is clause in the LKQL language.
@@ -24,11 +23,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 @NodeChild(value = "nodeExpr", type = Expr.class)
 public abstract class IsClause extends Expr {
-
-    // ----- Attributes -----
-
-    /** The location of the node expression. */
-    private final DummyLocation nodeLocation;
 
     // ----- Children -----
 
@@ -43,12 +37,10 @@ public abstract class IsClause extends Expr {
      * Create a new "is" clause with the parameters.
      *
      * @param location The token location in the source.
-     * @param nodeLocation The location of the node expression node.
      * @param pattern The pattern to execute the is clause.
      */
-    protected IsClause(SourceLocation location, DummyLocation nodeLocation, BasePattern pattern) {
+    protected IsClause(SourceSection location, BasePattern pattern) {
         super(location);
-        this.nodeLocation = nodeLocation;
         this.pattern = pattern;
     }
 
@@ -74,7 +66,7 @@ public abstract class IsClause extends Expr {
     @Fallback
     protected void notNode(Object notNode) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(notNode), this.nodeLocation);
+                LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(notNode), this.getNodeExpr());
     }
 
     // ----- Override methods -----
@@ -86,4 +78,6 @@ public abstract class IsClause extends Expr {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
+
+    public abstract Expr getNodeExpr();
 }

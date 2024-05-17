@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.block_expression;
 
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This class represents a body part of a block expression.
@@ -22,7 +22,7 @@ public abstract class BlockBody extends LKQLNode {
      *
      * @param location The location of the node in the source.
      */
-    protected BlockBody(SourceLocation location) {
+    protected BlockBody(SourceSection location) {
         super(location);
     }
 }

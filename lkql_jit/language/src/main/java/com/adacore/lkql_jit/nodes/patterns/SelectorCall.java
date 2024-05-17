@@ -20,9 +20,9 @@ import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +65,7 @@ public final class SelectorCall extends LKQLNode {
      * @param args The arguments for the call.
      */
     public SelectorCall(
-            SourceLocation location,
+            SourceSection location,
             Quantifier quantifier,
             int bindingSlot,
             Expr selectorExpr,

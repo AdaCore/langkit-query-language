@@ -5,15 +5,13 @@
 
 package com.adacore.lkql_jit.exception;
 
-import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.Locatable;
+import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.nodes.Node;
 import java.io.Serial;
 
 /**
@@ -29,11 +27,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
 
     // ----- Constructors -----
 
-    /**
-     * @see AbstractTruffleException#AbstractTruffleException(String)
-     */
-    private LKQLRuntimeException(String message) {
-        super(message);
+    private LKQLRuntimeException(String message, Node location) {
+        super(message, location);
     }
 
     // ----- Exception creation methods -----
@@ -42,14 +37,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
 
     /** Create a new exception with an arbitrary message and a location. */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException fromMessage(String message, SourceLocation location) {
-        return new LKQLRuntimeException(fullErrorText(message, location));
-    }
-
-    /** Create a new exception with an arbitrary message and a location. */
-    @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException fromMessage(String message, Locatable location) {
-        return new LKQLRuntimeException(fullErrorText(message, location));
+    public static LKQLRuntimeException fromMessage(String message, Node location) {
+        return new LKQLRuntimeException(message, location);
     }
 
     /**
@@ -60,7 +49,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException fromMessage(String message) {
-        return new LKQLRuntimeException(message);
+        return new LKQLRuntimeException(message, null);
     }
 
     /**
@@ -71,26 +60,10 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException fromJavaException(Throwable e, SourceLocation location) {
+    public static LKQLRuntimeException fromJavaException(Throwable e, Node location) {
         LKQLRuntimeException res =
-                new LKQLRuntimeException(
-                        fullErrorText("Error from Java bindings: " + e.getMessage(), location));
-        res.setStackTrace(e.getStackTrace());
-        return res;
-    }
-
-    /**
-     * Create an exception from a Java exception with the location.
-     *
-     * @param e The Java exception.
-     * @param location The location of the LKQL call.
-     * @return The exception.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException fromJavaException(Throwable e, Locatable location) {
-        LKQLRuntimeException res =
-                new LKQLRuntimeException(
-                        fullErrorText("Error from Java bindings: " + e.getMessage(), location));
+                LKQLRuntimeException.fromMessage(
+                        "Error from Java bindings: " + e.getMessage(), location);
         res.setStackTrace(e.getStackTrace());
         return res;
     }
@@ -102,8 +75,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException shouldNotExecute(Locatable location) {
-        return new LKQLRuntimeException(fullErrorText("Should not execute", location));
+    public static LKQLRuntimeException shouldNotExecute(Node location) {
+        return LKQLRuntimeException.fromMessage("Should not execute", location);
     }
 
     /**
@@ -113,33 +86,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException shouldNotHappen(String message) {
-        return new LKQLRuntimeException("This exception should not happen: " + message);
-    }
-
-    /**
-     * Create a new exception for a parsing exception in the LKQL sources.
-     *
-     * @param diagnostics The diagnostics of the LKQL parsing.
-     * @return The exception.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException parsingException(
-            Liblkqllang.Diagnostic[] diagnostics, Source source) {
-        // Prepare the error message builder
-        StringBuilder builder = new StringBuilder();
-
-        // Iterate over diagnostics
-        for (Liblkqllang.Diagnostic diagnostic : diagnostics) {
-            builder.append(
-                    fullErrorText(
-                            diagnostic.message.toString(),
-                            new DummyLocation(
-                                    new SourceLocation(source, diagnostic.sourceLocationRange))));
-            builder.append('\n');
-        }
-
-        // Return the created exception
-        return new LKQLRuntimeException(builder.toString());
+        return new LKQLRuntimeException("This exception should not happen: " + message, null);
     }
 
     /**
@@ -150,9 +97,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException regexSyntaxError(String regex, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Failed to compile regular expression: " + regex, location));
+    public static LKQLRuntimeException regexSyntaxError(String regex, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Failed to compile regular expression: " + regex, location);
     }
 
     /**
@@ -162,18 +109,15 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException ignoredExpressionReturn(Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText(
-                        "Can't ignore the return value of an expr in a block expr", location));
+    public static LKQLRuntimeException ignoredExpressionReturn(Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Can't ignore the return value of an expr in a block expr", location);
     }
 
     /** Create a new exception when a key appears many times in the same object literal. */
-    public static LKQLRuntimeException multipleSameNameKeys(String key, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText(
-                        "Multiple keys with the same name in the object: \"" + key + "\"",
-                        location));
+    public static LKQLRuntimeException multipleSameNameKeys(String key, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Multiple keys with the same name in the object: \"" + key + "\"", location);
     }
 
     // --- Symbol exception
@@ -186,34 +130,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException unknownSymbol(String symbol, Locatable location) {
-        return new LKQLRuntimeException(fullErrorText("Unknown symbol: " + symbol, location));
-    }
-
-    /**
-     * Create a new exception for an already existing symbol.
-     *
-     * @param symbol The symbol that already exists.
-     * @param location The node that try to create an already existing symbol.
-     * @return The exception.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException existingSymbol(String symbol, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Already existing symbol: " + symbol, location));
-    }
-
-    /**
-     * Create a new exception for an already existing parameter.
-     *
-     * @param symbol The symbol that already exists in the parameters.
-     * @param location The node that try to create an already existing parameter.
-     * @return The exception.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException existingParameter(String symbol, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Already existing parameter: " + symbol, location));
+    public static LKQLRuntimeException unknownSymbol(String symbol, Node location) {
+        return LKQLRuntimeException.fromMessage("Unknown symbol: " + symbol, location);
     }
 
     /**
@@ -223,8 +141,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException invalidKindName(Locatable location) {
-        return new LKQLRuntimeException(fullErrorText("Invalid kind name", location));
+    public static LKQLRuntimeException invalidKindName(Node location) {
+        return LKQLRuntimeException.fromMessage("Invalid kind name", location);
     }
 
     /**
@@ -235,9 +153,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException moduleNotFound(String moduleName, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Cannot import, module not found \"" + moduleName + "\"", location));
+    public static LKQLRuntimeException moduleNotFound(String moduleName, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Cannot import, module not found \"" + moduleName + "\"", location);
     }
 
     // --- Typing exception
@@ -251,10 +169,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException wrongType(
-            String expected, String actual, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Type error: expected " + expected + " but got " + actual, location));
+    public static LKQLRuntimeException wrongType(String expected, String actual, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Type error: expected " + expected + " but got " + actual, location);
     }
 
     /**
@@ -266,9 +183,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     public static LKQLRuntimeException conversionError(
-            String source, String target, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Cannot convert a " + source + " to a " + target, location));
+            String source, String target, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Cannot convert a " + source + " to a " + target, location);
     }
 
     /**
@@ -278,9 +195,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException wrongFrom(Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Wrong kind of element in `from clause`", location));
+    public static LKQLRuntimeException wrongFrom(Node location) {
+        return LKQLRuntimeException.fromMessage("Wrong kind of element in `from clause`", location);
     }
 
     /**
@@ -290,36 +206,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException wrongFromList(Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Wrong kind of element in list for `from clause`", location));
-    }
-
-    /**
-     * Create an exception from a wrong use of type in a selector.
-     *
-     * @param wrongType The used type in the selector.
-     * @param location The location of the type.
-     * @return The exception.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException wrongSelectorType(String wrongType, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText(
-                        "Cannot use values of kind " + wrongType + " in a selector", location));
-    }
-
-    /**
-     * Create an exception for a wrong pattern type.
-     *
-     * @param wrongType The wrong pattern type in a string.
-     * @param location The location of the exception.
-     * @return The exception.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException wrongPatternType(String wrongType, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Invalid pattern kind: " + wrongType, location));
+    public static LKQLRuntimeException wrongFromList(Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Wrong kind of element in list for `from clause`", location);
     }
 
     /**
@@ -330,10 +219,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException unsupportedType(String type, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText(
-                        "Unsupported value type from the introspection API: " + type, location));
+    public static LKQLRuntimeException unsupportedType(String type, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Unsupported value type from the introspection API: " + type, location);
     }
 
     // --- Operator exception
@@ -349,11 +237,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException unsupportedOperation(
-            String leftType, String op, String rightType, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText(
-                        "Unsupported operation: " + leftType + " " + op + " " + rightType,
-                        location));
+            String leftType, String op, String rightType, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Unsupported operation: " + leftType + " " + op + " " + rightType, location);
     }
 
     /**
@@ -363,8 +249,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException divByZero(Locatable location) {
-        return new LKQLRuntimeException(fullErrorText("Zero division", location));
+    public static LKQLRuntimeException divByZero(Node location) {
+        return LKQLRuntimeException.fromMessage("Zero division", location);
     }
 
     /**
@@ -375,8 +261,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException invalidIndex(int index, Locatable location) {
-        return new LKQLRuntimeException(fullErrorText("Invalid index: " + index, location));
+    public static LKQLRuntimeException invalidIndex(int index, Node location) {
+        return LKQLRuntimeException.fromMessage("Invalid index: " + index, location);
     }
 
     /**
@@ -386,8 +272,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException noSuchMember(Locatable location) {
-        return new LKQLRuntimeException(fullErrorText("No such member", location));
+    public static LKQLRuntimeException noSuchMember(Node location) {
+        return LKQLRuntimeException.fromMessage("No such member", location);
     }
 
     /**
@@ -397,8 +283,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException noSuchField(Locatable location) {
-        return new LKQLRuntimeException(fullErrorText("No such field", location));
+    public static LKQLRuntimeException noSuchField(Node location) {
+        return LKQLRuntimeException.fromMessage("No such field", location);
     }
 
     /**
@@ -410,9 +296,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException wrongMember(String member, String type, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Cannot get member " + member + " for " + type + " value", location));
+    public static LKQLRuntimeException wrongMember(String member, String type, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Cannot get member `%s` for %s value".formatted(member, type), location);
     }
 
     /**
@@ -422,8 +308,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException nullReceiver(Locatable location) {
-        return new LKQLRuntimeException(fullErrorText("Null receiver in dot access", location));
+    public static LKQLRuntimeException nullReceiver(Node location) {
+        return LKQLRuntimeException.fromMessage("Null receiver in dot access", location);
     }
 
     // --- Argument exception
@@ -437,9 +323,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException wrongArity(int expected, int actual, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Expected " + expected + " arguments but got " + actual, location));
+    public static LKQLRuntimeException wrongArity(int expected, int actual, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Expected " + expected + " arguments but got " + actual, location);
     }
 
     /**
@@ -450,9 +336,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException unknownArgument(String unknown, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Unknown argument name: " + unknown, location));
+    public static LKQLRuntimeException unknownArgument(String unknown, Node location) {
+        return LKQLRuntimeException.fromMessage("Unknown argument name: " + unknown, location);
     }
 
     /**
@@ -463,9 +348,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException missingArgument(int missingIndex, Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Missing value for param # " + missingIndex + " in call", location));
+    public static LKQLRuntimeException missingArgument(int missingIndex, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Missing value for param # " + missingIndex + " in call", location);
     }
 
     /**
@@ -475,9 +360,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException selectorWithoutNode(Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Selector call should have a node argument", location));
+    public static LKQLRuntimeException selectorWithoutNode(Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Selector call should have a node argument", location);
     }
 
     /**
@@ -487,9 +372,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException multipleSameNameArgument(Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("Multiple arguments with the same name", location));
+    public static LKQLRuntimeException multipleSameNameArgument(Node location) {
+        return LKQLRuntimeException.fromMessage("Multiple arguments with the same name", location);
     }
 
     /**
@@ -499,96 +383,38 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException positionAfterNamedArgument(Locatable location) {
-        return new LKQLRuntimeException(
-                fullErrorText("positional argument after named argument", location));
+    public static LKQLRuntimeException positionAfterNamedArgument(Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "positional argument after named argument", location);
     }
 
-    // ----- Class methods -----
-
-    /**
-     * Get the base exception text : "filename:start_line:start_col: error:".
-     *
-     * @param location The location of the error.
-     * @return The base exception text for all exception.
-     */
-    private static String baseErrorText(SourceLocation location) {
-        if (LKQLLanguage.SUPPORT_COLOR) {
-            return StringUtils.ANSI_BOLD
-                    + location.toString()
-                    + ":"
-                    + StringUtils.ANSI_RED
-                    + " error: "
-                    + StringUtils.ANSI_RESET;
-        } else {
-            return location.toString() + ": error: ";
-        }
+    public SourceLocation getSourceLoc() {
+        var loc = getLocation();
+        return loc != null ? new SourceSectionWrapper(getLocation().getSourceSection()) : null;
     }
 
     /**
-     * Get a string representing the LKQL source with the underlined location.
-     *
-     * @param location The location to generate source representation for.
-     * @return The string representing the LKQL source.
-     */
-    private static String sourceText(SourceLocation location) {
-        // Get the positional information
-        int startLine = location.getStartLine();
-        int endLine = location.getEndLine();
-        int startCol = location.getStartColumn();
-        int endCol = location.getEndColumn();
-
-        String[] lines = location.getLines(startLine - 1, endLine);
-        return StringUtils.underlineSource(
-                lines, startLine, startCol, endLine, endCol, StringUtils.ANSI_RED);
-    }
-
-    /**
-     * Wrap an error message with the full error text (base text + position text).
-     *
-     * @param errorMessage The error message.
-     * @param location The location where there was an exception.
-     * @return The full error text.
-     */
-    private static String fullErrorText(String errorMessage, Locatable location) {
-        return baseErrorText(location.getLocation())
-                + errorMessage
-                + "\n"
-                + sourceText(location.getLocation())
-                + "\n";
-    }
-
-    private static String fullErrorText(String errorMessage, SourceLocation location) {
-        return baseErrorText(location) + errorMessage + "\n" + sourceText(location) + "\n";
-    }
-
-    // ----- Instance methods -----
-
-    /**
-     * Get the raw message of the exception; just the exception message without the LKQL file name,
-     * location and source listing. TODO: Remove this hackish method when
-     * https://gitlab.adacore-it.com/eng/libadalang/langkit-query-language/-/merge_requests/89 is
-     * merged
+     * Get the raw message for the diagnostic associated with this exception.
      *
      * @return The raw message without filename and source listing.
      */
     @CompilerDirectives.TruffleBoundary
-    public String getRawMessage() {
-        final String[] splitHeader = this.getMessage().split("\n")[0].split(":");
-        return splitHeader[splitHeader.length - 1].strip();
+    public String getErrorMessage() {
+        return super.getMessage();
     }
 
     /**
-     * Get the source location of the exception as a string: "my_file.lkql:15:13". TODO: Remove this
-     * hackish method when
-     * https://gitlab.adacore-it.com/eng/libadalang/langkit-query-language/-/merge_requests/89 is
-     * merged
-     *
-     * @return The error source location as a string.
+     * Get the message for this exception, formatted as a diagnostic. This is necessary because when
+     * catching LKQL runtime exceptions from the outside of Truffle, we still want to be able to
+     * format them correctly, even though we know nothing about LKQLRuntimeException, which is an
+     * internal exception from there.
      */
     @CompilerDirectives.TruffleBoundary
-    public String getLocationString() {
-        final String[] splitHeader = this.getMessage().split("\n")[0].split(" ");
-        return splitHeader[0].substring(0, splitHeader[0].length() - 1);
+    @Override
+    public String getMessage() {
+        var loc = getSourceLoc();
+        return LKQLLanguage.getContext(null)
+                .getDiagnosticEmitter()
+                .diagnostic(CheckerUtils.MessageKind.ERROR, this.getErrorMessage(), null, loc, "");
     }
 }

@@ -9,10 +9,9 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
 /**
@@ -28,12 +27,9 @@ public abstract class BinPlus extends BinOp {
      * Create a binary addition node.
      *
      * @param location The location of the node in the source.
-     * @param leftLocation The location of the left node.
-     * @param rightLocation The location of the right node.
      */
-    protected BinPlus(
-            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
-        super(location, leftLocation, rightLocation);
+    protected BinPlus(SourceSection location) {
+        super(location);
     }
 
     // ----- Execution methods -----
@@ -72,14 +68,10 @@ public abstract class BinPlus extends BinOp {
     protected void notNumbers(Object left, Object right) {
         if (!LKQLTypeSystemGen.isLong(left) && !LKQLTypeSystemGen.isBigInteger(left)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_INTEGER,
-                    LKQLTypesHelper.fromJava(left),
-                    this.leftLocation);
+                    LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(left), this.getLeft());
         } else {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_INTEGER,
-                    LKQLTypesHelper.fromJava(right),
-                    this.rightLocation);
+                    LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(right), this.getRight());
         }
     }
 

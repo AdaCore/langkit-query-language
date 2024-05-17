@@ -7,8 +7,8 @@ package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the base for all patterns in the LKQL language.
@@ -22,7 +22,7 @@ public abstract class BasePattern extends LKQLNode {
      *
      * @param location The location of the node in the source.
      */
-    protected BasePattern(SourceLocation location) {
+    protected BasePattern(SourceSection location) {
         super(location);
     }
 

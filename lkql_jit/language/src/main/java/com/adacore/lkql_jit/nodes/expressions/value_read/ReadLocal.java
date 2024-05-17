@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a local variable reading in the LKQL language.
@@ -24,7 +24,7 @@ public final class ReadLocal extends BaseRead {
      * @param location The location of the node in the source.
      * @param slot The slot index to read in the frame.
      */
-    public ReadLocal(final SourceLocation location, final int slot) {
+    public ReadLocal(final SourceSection location, final int slot) {
         super(location, slot);
     }
 

@@ -5,16 +5,16 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class IntegerPattern extends ValuePattern {
 
     private final long toMatch;
 
-    public IntegerPattern(SourceLocation loc, long toMatch) {
+    public IntegerPattern(SourceSection loc, long toMatch) {
         super(loc);
         this.toMatch = toMatch;
     }

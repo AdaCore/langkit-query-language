@@ -13,8 +13,8 @@ import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents an arm for a selector declaration in the LKQL language.
@@ -44,7 +44,7 @@ public final class SelectorArm extends LKQLNode {
      * @param pattern The pattern for the arm.
      * @param expr The expression to return.
      */
-    public SelectorArm(SourceLocation location, BasePattern pattern, Expr expr) {
+    public SelectorArm(SourceSection location, BasePattern pattern, Expr expr) {
         super(location);
         this.pattern = pattern;
         this.expr = expr;

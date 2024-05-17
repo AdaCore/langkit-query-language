@@ -7,6 +7,7 @@ package com.adacore.lkql_jit;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
+import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.langkit_translator.passes.FramingPass;
 import com.adacore.lkql_jit.langkit_translator.passes.TranslationPass;
@@ -17,6 +18,7 @@ import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.enums.DiagnosticOutputMode;
+import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Option;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -323,9 +325,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         return new LKQLLanguageOptionDescriptors();
     }
 
-    /**
-     * @see com.oracle.truffle.api.TruffleLanguage#parse(ParsingRequest)
-     */
     @Override
     protected CallTarget parse(ParsingRequest request) {
         final Liblkqllang.AnalysisUnit unit;
@@ -341,9 +340,22 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             }
 
             // Verify the parsing result
-            final Liblkqllang.Diagnostic[] diagnostics = unit.getDiagnostics();
+            final var diagnostics = unit.getDiagnostics();
             if (diagnostics.length > 0) {
-                throw LKQLRuntimeException.parsingException(diagnostics, request.getSource());
+                var ctx = LKQLLanguage.getContext(null);
+
+                // Iterate over diagnostics
+                for (Liblkqllang.Diagnostic diagnostic : diagnostics) {
+                    ctx.getDiagnosticEmitter()
+                            .emitDiagnostic(
+                                    CheckerUtils.MessageKind.ERROR,
+                                    diagnostic.message.toString(),
+                                    null,
+                                    SourceSectionWrapper.create(
+                                            diagnostic.sourceLocationRange, request.getSource()));
+                }
+                throw LKQLRuntimeException.fromMessage(
+                        "Syntax errors in " + unit.getFileName(false) + ": stopping interpreter");
             }
 
             // Get the LKQL langkit AST
@@ -357,7 +369,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Print the Truffle AST if the JIT is in debug mode
         if (getContext(result).isVerbose()) {
             System.out.println(
-                    "=== Truffle AST <" + result.getLocation().getFileName() + "> :\n" + result);
+                    "=== Truffle AST <"
+                            + result.getSourceSection().getSource().getPath()
+                            + "> :\n"
+                            + result);
         }
 
         // Return the call target

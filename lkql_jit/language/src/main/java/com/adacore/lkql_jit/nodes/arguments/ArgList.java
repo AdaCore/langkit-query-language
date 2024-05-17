@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.arguments;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a list of arguments in a function call.
@@ -31,7 +31,7 @@ public final class ArgList extends LKQLNode {
      * @param location The location of the argument list in the source.
      * @param args The arguments in the list.
      */
-    public ArgList(SourceLocation location, Arg[] args) {
+    public ArgList(SourceSection location, Arg[] args) {
         super(location);
         this.args = args;
     }
@@ -106,6 +106,7 @@ public final class ArgList extends LKQLNode {
                 index = ArrayUtils.indexOf(paramNames, namedArg.getArgName().getName());
             }
 
+            //  There is no corresponding parameter
             if (index > -1) {
                 res[index] = arg.executeGeneric(frame);
             } else {

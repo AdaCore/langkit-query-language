@@ -14,11 +14,11 @@ import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -53,7 +53,7 @@ public final class Import extends LKQLNode {
      * @param name The name of the module to import.
      * @param slot The slot to put the namespace in.
      */
-    public Import(SourceLocation location, String name, int slot) {
+    public Import(SourceSection location, String name, int slot) {
         super(location);
         this.name = name;
         this.slot = slot;
@@ -133,7 +133,7 @@ public final class Import extends LKQLNode {
 
         // Search in the current directory if the location is not null
         if (this.location != null) {
-            File currentModuleTry = new File(this.location.getCurrentDir(), moduleFileName);
+            File currentModuleTry = new File(this.getLocation().getDir(), moduleFileName);
             if (currentModuleTry.isFile() && currentModuleTry.canRead()) {
                 return currentModuleTry;
             }

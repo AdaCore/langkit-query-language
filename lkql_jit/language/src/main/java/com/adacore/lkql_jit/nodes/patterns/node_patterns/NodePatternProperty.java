@@ -10,10 +10,10 @@ import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a pattern detail on a property in the LKQL language.
@@ -50,7 +50,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      * @param expected The expected value of the property call.
      */
     public NodePatternProperty(
-            SourceLocation location, String propertyName, ArgList argList, BasePattern expected) {
+            SourceSection location, String propertyName, ArgList argList, BasePattern expected) {
         super(location);
         this.propertyName = propertyName;
         this.argList = argList;

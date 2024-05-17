@@ -9,8 +9,8 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents an arm from a match expression in the LKQL language.
@@ -40,7 +40,7 @@ public class MatchArm extends LKQLNode {
      * @param pattern The pattern of the match arm.
      * @param expr The result of the match arm.
      */
-    public MatchArm(SourceLocation location, BasePattern pattern, Expr expr) {
+    public MatchArm(SourceSection location, BasePattern pattern, Expr expr) {
         super(location);
         this.pattern = pattern;
         this.expr = expr;

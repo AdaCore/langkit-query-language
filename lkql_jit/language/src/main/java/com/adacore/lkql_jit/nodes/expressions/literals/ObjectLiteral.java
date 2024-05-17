@@ -7,11 +7,11 @@ package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the literal node for an LKQL object.
@@ -48,7 +48,7 @@ public final class ObjectLiteral extends Expr {
      * @param keys Ordered keys of the object.
      * @param values Ordered values of the object.
      */
-    public ObjectLiteral(final SourceLocation location, final String[] keys, final Expr[] values) {
+    public ObjectLiteral(final SourceSection location, final String[] keys, final Expr[] values) {
         super(location);
         this.keys = keys;
         this.shape = Shape.newBuilder().build();

@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.expressions.block_expression;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents an expression part in a block expression.
@@ -33,7 +33,7 @@ public final class BlockBodyExpr extends BlockBody {
      * @param location The location of the node in the source.
      * @param expr The expression of the block body part.
      */
-    public BlockBodyExpr(SourceLocation location, Expr expr) {
+    public BlockBodyExpr(SourceSection location, Expr expr) {
         super(location);
         this.expr = expr;
     }

@@ -5,6 +5,6 @@ import stdlib
 @check(message="possible occurrence of KP T420-033", impact="18.*,19.*,20.1")
 fun kp_t420_033(node) =
     node is ComponentDecl
-    when node.p_semantic_parent().p_is_tagged_type()
+    when node.p_semantic_parent() is BaseTypeDecl(p_is_tagged_type(): true)
      and node.f_component_def.f_type_expr is s@SubtypeIndication
      when stdlib.has_non_default_sso(s.f_name.p_referenced_decl())

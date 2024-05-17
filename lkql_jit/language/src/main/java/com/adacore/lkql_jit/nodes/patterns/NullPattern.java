@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the null pattern in the LKQL language.
@@ -23,7 +23,7 @@ public final class NullPattern extends ValuePattern {
      *
      * @param location The location of the node in the source.
      */
-    public NullPattern(SourceLocation location) {
+    public NullPattern(SourceSection location) {
         super(location);
     }
 

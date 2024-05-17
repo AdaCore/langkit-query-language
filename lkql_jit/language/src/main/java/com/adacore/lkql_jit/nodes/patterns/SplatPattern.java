@@ -6,18 +6,18 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 public class SplatPattern extends ValuePattern {
     private final int slot;
 
-    public SplatPattern(SourceLocation location) {
+    public SplatPattern(SourceSection location) {
         super(location);
         this.slot = -1;
     }
 
-    public SplatPattern(SourceLocation location, int slot) {
+    public SplatPattern(SourceSection location, int slot) {
         super(location);
         this.slot = slot;
     }

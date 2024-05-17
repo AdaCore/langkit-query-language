@@ -6,12 +6,12 @@
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 public class ReadPrelude extends BaseRead {
 
-    public ReadPrelude(final SourceLocation location, final int slot) {
+    public ReadPrelude(final SourceSection location, final int slot) {
         super(location, slot);
     }
 

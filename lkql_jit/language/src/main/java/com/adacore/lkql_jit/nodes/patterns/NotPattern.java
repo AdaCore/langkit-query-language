@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the negation of a given pattern in the LKQL language.
@@ -30,7 +30,7 @@ public final class NotPattern extends ValuePattern {
      * @param location The location of the node in the source.
      * @param pattern The pattern to negate.
      */
-    public NotPattern(SourceLocation location, ValuePattern pattern) {
+    public NotPattern(SourceSection location, ValuePattern pattern) {
         super(location);
         this.pattern = pattern;
     }

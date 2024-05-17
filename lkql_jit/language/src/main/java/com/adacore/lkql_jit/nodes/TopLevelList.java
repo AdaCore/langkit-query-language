@@ -10,10 +10,10 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.nodes.declarations.Import;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +55,7 @@ public final class TopLevelList extends LKQLNode {
      * @param nodes The nodes to execute in the top level.
      */
     public TopLevelList(
-            SourceLocation location,
+            SourceSection location,
             FrameDescriptor frameDescriptor,
             LKQLNode[] nodes,
             boolean isInteractive,

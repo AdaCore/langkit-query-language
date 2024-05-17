@@ -15,8 +15,8 @@ import com.adacore.lkql_jit.nodes.expressions.FunExpr;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a function declaration in the LKQL language.
@@ -56,7 +56,7 @@ public final class FunctionDeclaration extends Declaration {
      * @param functionExpression The expression which returns the function value.
      */
     public FunctionDeclaration(
-            final SourceLocation location,
+            final SourceSection location,
             final Annotation annotation,
             final String name,
             final int slot,

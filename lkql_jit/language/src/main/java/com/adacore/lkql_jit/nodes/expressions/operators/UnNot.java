@@ -7,17 +7,17 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.built_ins.values.interfaces.Truthy;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the logic unary negation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
+@NodeChild(value = "arg", type = Expr.class)
 public abstract class UnNot extends UnOp {
 
     // ----- Constructors -----
@@ -26,10 +26,9 @@ public abstract class UnNot extends UnOp {
      * Create a logic unary negation node.
      *
      * @param location The location of the node in the source.
-     * @param argLocation The location of the argument node.
      */
-    protected UnNot(SourceLocation location, DummyLocation argLocation) {
-        super(location, argLocation);
+    protected UnNot(SourceSection location) {
+        super(location);
     }
 
     // ----- Execution methods -----
@@ -56,15 +55,11 @@ public abstract class UnNot extends UnOp {
         return !arg.isTruthy();
     }
 
-    /**
-     * Fallback error method when the argument is a non-truthy value.
-     *
-     * @param arg The non-truthy argument.
-     */
+    /** Fallback error method when the argument is a non-truthy value. */
     @Fallback
     protected void notBoolean(Object arg) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_BOOLEAN, LKQLTypesHelper.fromJava(arg), this.argLocation);
+                LKQLTypesHelper.LKQL_BOOLEAN, LKQLTypesHelper.fromJava(arg), this);
     }
 
     // ----- Override methods -----

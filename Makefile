@@ -28,11 +28,11 @@ endif
 ADDITIONAL_MANAGE_ARGS=
 
 # WARNING: Note that for some reason parallelizing the build still doesn't work
-all: lkql gnatcheck lkql_native_jit doc
+all: lkql gnatcheck build_lkql_native_jit doc
 
 lkql: build/bin/liblkqllang_parse
 
-doc: lkql_native_jit
+doc: build_lkql_native_jit
 	cd user_manual && make clean html
 
 gnatcheck: lkql
@@ -52,11 +52,11 @@ clean_lkql:
 clean_lkql_jit:
 	cd lkql_jit && $(MAVEN) clean
 
-lkql_jit: lkql
+build_lkql_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
 	$(MAVEN) -f lkql_jit/ clean install
 
-lkql_native_jit: lkql
+build_lkql_native_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
 	$(MAVEN) -f lkql_jit/ clean install -P native,$(BUILD_MODE)
 

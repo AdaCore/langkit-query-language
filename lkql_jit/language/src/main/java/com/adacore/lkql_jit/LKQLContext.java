@@ -17,6 +17,7 @@ import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
@@ -44,6 +45,8 @@ public final class LKQLContext {
     /** The global values of the LKQL execution. */
     private final GlobalScope global;
 
+    public final CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
+
     // ----- Ada project attributes -----
 
     /** The analysis context for the ada files. */
@@ -55,10 +58,14 @@ public final class LKQLContext {
     /** Event handler for the project manager. */
     private final Libadalang.EventHandler eventHandler =
             Libadalang.EventHandler.create(
-                    (ctx, name, from, found, not_found_is_error) -> {
-                        if (!found && not_found_is_error) {
+                    (ctx, name, from, found, notFoundIsError) -> {
+                        if (!found && notFoundIsError) {
                             boolean isFatal = !this.keepGoingOnMissingFile();
-                            this.getDiagnosticEmitter().emitMissingFile(from, name, isFatal, this);
+                            this.getDiagnosticEmitter()
+                                    .emitFileNotFound(
+                                            new LalLocationWrapper(from.getRoot(), this.linesCache),
+                                            name,
+                                            notFoundIsError);
                             if (isFatal) {
                                 this.env.getContext().closeExited(null, 1);
                             }
@@ -508,7 +515,7 @@ public final class LKQLContext {
                     this.specifiedSourceFiles.add(sourceFile.getAbsolutePath());
                 } else {
                     this.getDiagnosticEmitter()
-                            .emitMissingFile(null, file, !this.keepGoingOnMissingFile(), this);
+                            .emitFileNotFound(null, file, this.keepGoingOnMissingFile());
                 }
             }
         }

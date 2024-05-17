@@ -8,13 +8,13 @@ fun kp_s621_051(node) =
     node is ParamAssoc(
       parent: AssocList(parent: c@CallExpr(
           p_is_call(): true
-        ) when c.f_name.p_referenced_decl() is decl@BasicDecl(
+      ) when c.f_name.p_referenced_decl() is decl@BasicDecl(
             p_has_aspect("Import"): false
-          ) when stdlib.enclosing_body(decl) == stdlib.enclosing_body(node)
+        ) when stdlib.enclosing_body(decl) == stdlib.enclosing_body(node)
       ),
-      
+
       f_r_expr: Name(
-        p_referenced_decl(): ParamSpec,
-	p_expression_type(): AnonymousTypeDecl(p_is_access_type(): true)
+          p_referenced_decl(): ParamSpec,
+          p_expression_type(): AnonymousTypeDecl(p_is_access_type(): true)
       )
     )

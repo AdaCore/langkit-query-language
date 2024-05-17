@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.arguments;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents an unnamed argument in the LKQL language.
@@ -23,7 +23,7 @@ public final class ExprArg extends Arg {
      * @param location The location of the node in the sources.
      * @param expr The expression of the argument.
      */
-    public ExprArg(SourceLocation location, Expr expr) {
+    public ExprArg(SourceSection location, Expr expr) {
         super(location, null, expr);
     }
 

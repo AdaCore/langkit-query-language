@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a boolean literal in the LKQL language.
@@ -29,7 +29,7 @@ public final class BooleanLiteral extends Expr {
      * @param location The location of the node in the source.
      * @param value The value of the boolean.
      */
-    public BooleanLiteral(SourceLocation location, boolean value) {
+    public BooleanLiteral(SourceSection location, boolean value) {
         super(location);
         this.value = value;
     }

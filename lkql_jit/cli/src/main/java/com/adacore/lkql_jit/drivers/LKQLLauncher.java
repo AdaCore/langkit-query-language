@@ -226,10 +226,9 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             System.err.println("File not found : " + this.args.script);
             return 2;
         } catch (Exception e) {
+            System.err.println(e.getMessage());
             if (this.args.verbose) {
                 e.printStackTrace();
-            } else {
-                System.err.println(e.getMessage());
             }
             return 0;
         }

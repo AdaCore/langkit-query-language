@@ -20,6 +20,8 @@ import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
+import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
@@ -86,9 +88,6 @@ public final class NodeCheckerFunction {
                         this.callNode.getArgList().getArgs()[0]);
             }
 
-            // Initialize the cache that will contain decoded source lines of all needed units
-            CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
-
             // Traverse the tree
             // Create the list of node to explore with the generic instantiation info
             final LinkedList<VisitStep> visitList = new LinkedList<>();
@@ -130,21 +129,14 @@ public final class NodeCheckerFunction {
                 }
 
                 // Apply the "both" checkers
-                this.executeCheckers(
-                        frame, currentStep, currentNode, allNodeCheckers, context, linesCache);
+                this.executeCheckers(frame, currentStep, currentNode, allNodeCheckers, context);
 
                 // If we're in Ada code execute the Ada checkers else execute the SPARK checkers
                 if (inSparkCode) {
                     this.executeCheckers(
-                            frame,
-                            currentStep,
-                            currentNode,
-                            sparkNodeCheckers,
-                            context,
-                            linesCache);
+                            frame, currentStep, currentNode, sparkNodeCheckers, context);
                 } else {
-                    this.executeCheckers(
-                            frame, currentStep, currentNode, adaNodeCheckers, context, linesCache);
+                    this.executeCheckers(frame, currentStep, currentNode, adaNodeCheckers, context);
                 }
 
                 // Add the children to the visit list
@@ -181,46 +173,38 @@ public final class NodeCheckerFunction {
          * @param currentNode The node to execute the checkers on.
          * @param checkers The checekrs to execute.
          * @param context The LKQL context.
-         * @param linesCache The cache for Ada lines.
          */
         private void executeCheckers(
                 VirtualFrame frame,
                 VisitStep currentStep,
                 Libadalang.AdaNode currentNode,
                 NodeChecker[] checkers,
-                LKQLContext context,
-                CheckerUtils.SourceLinesCache linesCache) {
+                LKQLContext context) {
             // For each checker apply it on the current node if needed
             for (NodeChecker checker : checkers) {
                 if (!currentStep.inGenericInstantiation()
                         || checker.isFollowGenericInstantiations()) {
                     try {
-                        this.applyNodeRule(frame, checker, currentNode, context, linesCache);
+                        this.applyNodeRule(frame, checker, currentNode, context);
                     } catch (LangkitException e) {
-                        // TODO: Remove those clunky hardcoded names when getting rid of Ada
-                        // implementation
                         // Report LAL exception only in debug mode
                         if (context.isCheckerDebug()) {
                             context.getDiagnosticEmitter()
-                                    .emitInternalError(
-                                            checker.getName(),
-                                            currentNode.getUnit(),
-                                            currentNode.getSourceLocationRange().start,
-                                            e.getLoc().toString(),
+                                    .emitDiagnostic(
+                                            CheckerUtils.MessageKind.ERROR,
                                             e.getMsg(),
-                                            context);
+                                            new LalLocationWrapper(currentNode, context.linesCache),
+                                            new SourceSectionWrapper(e.getLoc()),
+                                            checker.getName());
                         }
                     } catch (LKQLRuntimeException e) {
-                        // TODO: Remove those clunky hardcoded names when getting rid of Ada
-                        // implementation
                         context.getDiagnosticEmitter()
-                                .emitInternalError(
-                                        checker.getName(),
-                                        currentNode.getUnit(),
-                                        currentNode.getSourceLocationRange().start,
-                                        e.getLocationString(),
-                                        e.getRawMessage(),
-                                        context);
+                                .emitDiagnostic(
+                                        CheckerUtils.MessageKind.ERROR,
+                                        e.getErrorMessage(),
+                                        new LalLocationWrapper(currentNode, context.linesCache),
+                                        e.getSourceLoc(),
+                                        checker.getName());
                     }
                 }
             }
@@ -233,14 +217,12 @@ public final class NodeCheckerFunction {
          * @param checker The checker to apply.
          * @param node The node to apply the checker on.
          * @param context The LKQL context.
-         * @param linesCache The cache of all units' source text lines.
          */
         private void applyNodeRule(
                 VirtualFrame frame,
                 NodeChecker checker,
                 Libadalang.AdaNode node,
-                LKQLContext context,
-                CheckerUtils.SourceLinesCache linesCache) {
+                LKQLContext context) {
             // Get the function for the checker
             LKQLFunction functionValue = checker.getFunction();
             String aliasName = checker.getAlias();
@@ -283,7 +265,7 @@ public final class NodeCheckerFunction {
             }
 
             if (ruleResult) {
-                reportViolation(context, checker, node, linesCache);
+                reportViolation(context, checker, node);
             }
         }
 
@@ -293,14 +275,10 @@ public final class NodeCheckerFunction {
          * @param context The context to output the message.
          * @param checker The checker corresponding to the violated rule.
          * @param node The node that violated the checker.
-         * @param linesCache The cache of all units' source text lines.
          */
         @CompilerDirectives.TruffleBoundary
         private static void reportViolation(
-                LKQLContext context,
-                NodeChecker checker,
-                Libadalang.AdaNode node,
-                CheckerUtils.SourceLinesCache linesCache) {
+                LKQLContext context, NodeChecker checker, Libadalang.AdaNode node) {
             if (node instanceof Libadalang.BasicDecl basicDecl) {
                 Libadalang.AdaNode definingName = basicDecl.pDefiningName();
                 node = definingName.isNone() ? node : definingName;
@@ -309,10 +287,8 @@ public final class NodeCheckerFunction {
                     .emitRuleViolation(
                             checker.getName(),
                             checker.getMessage(),
-                            node.getSourceLocationRange(),
-                            node.getUnit(),
+                            new LalLocationWrapper(node, context.linesCache),
                             node.pGenericInstantiations(),
-                            linesCache,
                             context);
         }
 

@@ -7,9 +7,9 @@ package com.adacore.lkql_jit.nodes.expressions.match;
 
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a pattern matching expression in the LKQL language.
@@ -37,7 +37,7 @@ public final class Match extends Expr {
      * @param expr The expression to match.
      * @param arms The matching arms.
      */
-    public Match(SourceLocation location, Expr expr, MatchArm[] arms) {
+    public Match(SourceSection location, Expr expr, MatchArm[] arms) {
         super(location);
         this.expr = expr;
         this.arms = arms;

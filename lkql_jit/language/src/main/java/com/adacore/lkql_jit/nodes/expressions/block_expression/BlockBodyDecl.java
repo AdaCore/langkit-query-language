@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.nodes.expressions.block_expression;
 
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a declaration part of a block expression.
@@ -31,7 +31,7 @@ public final class BlockBodyDecl extends BlockBody {
      * @param location The location of the node in the source.
      * @param decl The declaration of the body part.
      */
-    public BlockBodyDecl(SourceLocation location, Declaration decl) {
+    public BlockBodyDecl(SourceSection location, Declaration decl) {
         super(location);
         this.decl = decl;
     }

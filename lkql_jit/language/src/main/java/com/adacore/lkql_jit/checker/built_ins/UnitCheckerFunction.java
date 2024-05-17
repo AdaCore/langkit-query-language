@@ -23,6 +23,8 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
+import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -78,34 +80,30 @@ public final class UnitCheckerFunction {
                         this.callNode.getArgList().getArgs()[0]);
             }
 
-            // Initialize the cache that will contain decoded source lines of all needed units
-            CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
-
             // Iterate over all checker
             for (UnitChecker checker : checkers) {
                 try {
-                    this.applyUnitRule(frame, checker, unit, context, linesCache);
+                    this.applyUnitRule(frame, checker, unit, context);
                 } catch (LangkitException e) {
                     // Report LAL exception only in debug mode
                     if (context.isCheckerDebug()) {
                         context.getDiagnosticEmitter()
-                                .emitInternalError(
-                                        checker.getName(),
-                                        unit,
-                                        Libadalang.SourceLocation.create(1, (short) 1),
-                                        e.getLoc().toString(),
+                                .emitDiagnostic(
+                                        CheckerUtils.MessageKind.ERROR,
                                         e.getMsg(),
-                                        context);
+                                        new LalLocationWrapper(unit.getRoot(), context.linesCache),
+                                        new SourceSectionWrapper(
+                                                e.getLocation().getSourceSection()),
+                                        checker.getName());
                     }
                 } catch (LKQLRuntimeException e) {
                     context.getDiagnosticEmitter()
-                            .emitInternalError(
-                                    checker.getName(),
-                                    unit,
-                                    Libadalang.SourceLocation.create(1, (short) 1),
-                                    e.getLocationString(),
-                                    e.getRawMessage(),
-                                    context);
+                            .emitDiagnostic(
+                                    CheckerUtils.MessageKind.ERROR,
+                                    e.getErrorMessage(),
+                                    new LalLocationWrapper(unit.getRoot(), context.linesCache),
+                                    new SourceSectionWrapper(e.getLocation().getSourceSection()),
+                                    checker.getName());
                 }
             }
 
@@ -120,14 +118,12 @@ public final class UnitCheckerFunction {
          * @param checker The checker to execute.
          * @param unit The unit to execute the checker on.
          * @param context The context for the execution.
-         * @param linesCache The cache of all units' source text lines.
          */
         private void applyUnitRule(
                 VirtualFrame frame,
                 UnitChecker checker,
                 Libadalang.AnalysisUnit unit,
-                LKQLContext context,
-                CheckerUtils.SourceLinesCache linesCache) {
+                LKQLContext context) {
             // Get the function for the checker
             final LKQLFunction functionValue = checker.getFunction();
 
@@ -214,10 +210,8 @@ public final class UnitCheckerFunction {
                         .emitRuleViolation(
                                 lowerRuleName,
                                 message,
-                                slocRange,
-                                locUnit,
+                                new LalLocationWrapper(slocRange, locUnit, context.linesCache),
                                 genericInstantiations,
-                                linesCache,
                                 context);
             }
         }
