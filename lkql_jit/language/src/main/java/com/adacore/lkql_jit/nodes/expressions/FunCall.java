@@ -102,7 +102,7 @@ public abstract class FunCall extends Expr {
             realArgs[0] = builtIn.getThisValue();
         }
 
-        // Verify that there is all arguments
+        // Verify that all arguments are present
         for (int i = 0; i < realArgs.length; i++) {
             if (realArgs[i] == null) {
                 if (defaultValues[i] != null) {
