@@ -16,6 +16,7 @@ import java.util.concurrent.Callable;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 import picocli.CommandLine;
@@ -256,6 +257,12 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             }
         }
         contextBuilder.option("lkql.ruleInstances", JsonUtils.serializeInstances(instances));
+
+        contextBuilder.engine(
+                Engine.newBuilder()
+                        .allowExperimentalOptions(true)
+                        .option("engine.Compilation", "false")
+                        .build());
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
