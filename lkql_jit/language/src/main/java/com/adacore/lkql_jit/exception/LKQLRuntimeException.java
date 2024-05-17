@@ -298,7 +298,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException wrongMember(String member, String type, Node location) {
         return LKQLRuntimeException.fromMessage(
-                "Cannot get member " + member + " for " + type + " value", location);
+                "Cannot get member `%s` for %s value".formatted(member, type), location);
     }
 
     /**
