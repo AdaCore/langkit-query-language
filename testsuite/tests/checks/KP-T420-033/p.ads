@@ -8,4 +8,9 @@ package P is
       Field1 : T;          --  FLAG
       Field2 : Integer;
    end record;
+
+   protected type PT is
+   private
+      Field : Integer;  --  NOFLAG (and also shouldn't crash the kp detector)
+   end PT;
 end;
