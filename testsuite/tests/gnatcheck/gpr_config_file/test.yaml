@@ -1,0 +1,12 @@
+driver: gnatcheck
+description: Test the "--config" flag of GNATcheck by providing a custom naming
+  scheme in the "config.cgpr" file.
+format: brief
+project: prj.gpr
+rules:
+ - +Rgoto_statements
+
+tests:
+ - label: Without config file
+ - label: With config file
+   gpr_config_file: config.cgpr

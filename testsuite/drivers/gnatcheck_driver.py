@@ -139,6 +139,8 @@ class GnatcheckDriver(BaseDriver):
           provided file.
         - ``output_file`` (str): The file to pass to GNATcheck with the `-o` or
           `-ox` option then to read the output in.
+        - ``gpr_config_file`` (str): A GPR configuration file to pass through
+          the '--config' option.
         - ``scenario_variables`` (dict[str, str]): Dict containing key to value
           associations to pass as scenario variables to GNATcheck.
         - ``extra_args`` (list[str]): Extra arguments to pass to GNATcheck.
@@ -276,6 +278,9 @@ class GnatcheckDriver(BaseDriver):
             # Use the test's project, if any
             if test_data.get('project', None):
                 args += ['-P', test_data['project']]
+
+            if test_data.get('gpr_config_file', None):
+                args += [f'--config={test_data["gpr_config_file"]}']
 
             # Forward the subdirs option
             if test_data.get('subdirs', None):

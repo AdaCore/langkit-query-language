@@ -140,6 +140,8 @@ public final class LKQLContext {
 
     @CompilerDirectives.CompilationFinal private String runtime = null;
 
+    @CompilerDirectives.CompilationFinal private String configFile = null;
+
     /** The project's scenario variables. */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private Libadalang.ScenarioVariable[] scenarioVars = null;
@@ -280,6 +282,13 @@ public final class LKQLContext {
             this.runtime = this.env.getOptions().get(LKQLLanguage.runtime);
         }
         return this.runtime;
+    }
+
+    public String getConfigFile() {
+        if (this.configFile == null) {
+            this.configFile = this.env.getOptions().get(LKQLLanguage.configFile);
+        }
+        return this.configFile;
     }
 
     /** Return the list of scenario variables to specify when loading the GPR project file. */
@@ -528,7 +537,8 @@ public final class LKQLContext {
                             projectFileName,
                             this.getScenarioVars(),
                             this.getTarget(),
-                            this.getRuntime());
+                            this.getRuntime(),
+                            this.getConfigFile());
 
             // Forward the project diagnostics if there are some
             if (!this.projectManager.getDiagnostics().isEmpty()) {
@@ -592,7 +602,7 @@ public final class LKQLContext {
             } else {
                 this.projectManager =
                         Libadalang.ProjectManager.createImplicit(
-                                this.getTarget(), this.getRuntime());
+                                this.getTarget(), this.getRuntime(), this.getConfigFile());
                 this.allSourceFiles.addAll(
                         Arrays.stream(
                                         this.projectManager.getFiles(
