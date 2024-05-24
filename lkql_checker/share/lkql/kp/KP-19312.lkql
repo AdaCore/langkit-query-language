@@ -1,0 +1,7 @@
+@check(help="possible occurrence of KP 19312",
+       message="possible occurrence of KP 19312",
+       impact="24.*")
+fun kp_19312(node) =
+    node is ForLoopSpec
+    when node.f_iter_expr.p_expression_type()?.p_has_aspect?("iterable")
+     and node.f_iter_filter is not null
