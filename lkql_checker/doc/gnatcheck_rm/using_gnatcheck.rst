@@ -293,6 +293,11 @@ The following switches control the general ``gnatcheck`` behavior
 ``-ox report_file``
   Set name of the XML report file to `report_file`. Enforces  ``-xml``.
 
+``-rules rules_options``
+  Provide rule options for the current GNATcheck run through the command-line.
+  All switches and options provided after this flag will be parse as
+  :ref:`rule options<gnatcheck_Rule_Options>`.
+
 If a project file is specified and no argument source is explicitly
 specified (either directly or by means of ``-files`` option), and no
 ``-U`` or ``--no-subprojects`` is specified, then the set of processed
@@ -320,7 +325,8 @@ case of non-aggregate argument project file.
 GNATcheck Rule Options
 ======================
 
-The following options control the processing performed by ``gnatcheck``.
+The following options control the processing performed by ``gnatcheck``. You
+can provide as many rule options as you want after the ``-rules`` switch.
 
 
   .. index:: +R (gnatcheck)
