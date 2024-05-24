@@ -7,7 +7,7 @@ fun calls_in_exception_handlers(node, subprograms=[]) =
     node is ExceptionHandler
     when (from node.f_stmts select first id@BaseId(p_is_call(): true)
           when {
-              val name = id.p_referenced_defining_name()?.
-                         p_canonical_fully_qualified_name?();
+              val name = id.p_referenced_defining_name()
+                           ?.p_canonical_fully_qualified_name?();
               [e for e in subprograms
                if name == e.to_lower_case]}) != null

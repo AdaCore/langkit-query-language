@@ -27,8 +27,8 @@ fun check_actual(name, expected) =
     |" If name is null, return false.
     if name == null then false
     else if expected.starts_with("|")
-    then name.p_canonical_fully_qualified_name().
-         contains(pattern(expected.substring(2, expected.length),
+    then name.p_canonical_fully_qualified_name()
+             .contains(pattern(expected.substring(2, expected.length),
                           case_sensitive=false))
     else name.p_canonical_fully_qualified_name() == expected
 
@@ -37,8 +37,8 @@ fun check_actual(name, expected) =
 fun actual_parameters(node, forbidden=[]) =
     node is AssocList(parent: call@CallExpr(p_is_call(): true))
     when {
-        val n = call.f_name.p_referenced_decl()?.
-                p_canonical_fully_qualified_name?();
+        val n = call.f_name.p_referenced_decl()
+                ?.p_canonical_fully_qualified_name?();
         val params = call.p_call_params();
         [item for item in forbidden if
              item[1] == n and

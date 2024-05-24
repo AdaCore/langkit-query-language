@@ -11,11 +11,11 @@ fun is_operator(s) =
 fun decls_not_only_operator(pkg) =
     [s for s in match pkg.p_referenced_decl()
        | p@BasePackageDecl     => p.f_public_part.f_decls.children
-       | p@PackageRenamingDecl => p.p_final_renamed_package().
-                                  f_public_part.f_decls.children
-       | p@GenericPackageInstantiation => p.p_designated_generic_decl().
-                                        f_package_decl.f_public_part.
-                                        f_decls.children
+       | p@PackageRenamingDecl => p.p_final_renamed_package()
+                                   .f_public_part.f_decls.children
+       | p@GenericPackageInstantiation => p.p_designated_generic_decl()
+                                           .f_package_decl.f_public_part
+                                           .f_decls.children
        | *                     => []
      if not is_operator(s)]
 

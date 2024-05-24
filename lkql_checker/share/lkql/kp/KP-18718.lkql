@@ -31,6 +31,6 @@ fun kp_18718(node) =
                 and [d for d in type.f_discriminants.f_discr_specs.children
                                 if d.f_default_expr != null]
             # and a variant part
-                and type.f_type_def.f_record_def.f_components.
-                    f_variant_part is VariantPart
+                and type.f_type_def.f_record_def.f_components
+                        .f_variant_part is VariantPart
         })

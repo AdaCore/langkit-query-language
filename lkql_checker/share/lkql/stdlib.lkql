@@ -129,8 +129,8 @@ fun ultimate_exception_alias(name) =
 fun ultimate_subprogram_alias(name) =
     |" Return the ultimately designated ``BasicSubpDecl``, going through renamings
     if name is SubpRenamingDecl
-    then ultimate_subprogram_alias(name.f_renames.f_renamed_object.
-                                   p_referenced_decl())
+    then ultimate_subprogram_alias(name.f_renames.f_renamed_object
+                                       .p_referenced_decl())
     else name
 
 @memoized
@@ -233,8 +233,8 @@ fun is_predefined_type(n) =
 {
     # Retrieve the root enclosing package
     val packages = [
-        p for p in full_root_type(n.p_referenced_decl()).
-                                  parents(include_self=false)
+        p for p in full_root_type(n.p_referenced_decl())
+                                   .parents(include_self=false)
         if p is BasePackageDecl
     ].to_list;
 
@@ -542,8 +542,8 @@ fun propagate_exceptions(body) =
           (from body.f_stmts.f_exceptions.children
            select first (RaiseStmt |
                CallStmt(f_call: c@CallExpr) when {
-                   val name = c.f_name.p_referenced_decl()?.
-                              p_fully_qualified_name?();
+                   val name = c.f_name.p_referenced_decl()
+                               ?.p_fully_qualified_name?();
                    name == "Ada.Exceptions.Raise_Exception" or
                    name == "Ada.Exceptions.Reraise_Occurrence" })) == null)
 

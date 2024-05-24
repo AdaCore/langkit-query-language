@@ -5,5 +5,5 @@
 fun kp_s724_042(node) =
     node is ExtendedReturnStmt
     when node.f_decl.f_default_expr is Expr
-     and node.f_decl.f_type_expr.p_designated_type_decl().
-         p_has_aspect("Default_Initial_Condition")
+     and node.f_decl.f_type_expr.p_designated_type_decl()
+             .p_has_aspect("Default_Initial_Condition")

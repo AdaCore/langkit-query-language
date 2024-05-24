@@ -22,8 +22,8 @@ fun non_visible_exceptions(unit) = [
               else "propagates local exception" &
                    (if n.f_exception_name
                     then " declared at line " &
-                         img(n.f_exception_name.p_referenced_decl().
-                             token_start().start_line)
+                         img(n.f_exception_name.p_referenced_decl()
+                              .token_start().start_line)
                     else "") & " outside its visibility",
      loc: n}
     for n in from unit.root select

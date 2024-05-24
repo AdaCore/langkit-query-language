@@ -29,8 +29,8 @@ fun check_references(list, subp) = {
             category="Style", subcategory="Programming Practice")
 fun variable_scoping(unit) = [
     {message: n.text & " can be moved to inner block at line " &
-              img(get_block(n.p_find_refs(stdlib.enclosing_body(n)))?.
-                  token_start().start_line + 1),
+              img(get_block(n.p_find_refs(stdlib.enclosing_body(n)))
+                              ?.token_start().start_line + 1),
      loc: n}
 
     # Look for defining names part of an object declaration with no default

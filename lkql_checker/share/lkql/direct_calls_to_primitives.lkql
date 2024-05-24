@@ -14,9 +14,9 @@ import stdlib
 fun is_parent_primitive(body, decl, parent_type) =
     |" Return true if ``decl`` is the ``parent_type`` primitive of ``body``
     body is BaseSubpBody
-    when decl?.p_defining_name()?.f_name?.
-         p_name_matches(body.p_defining_name()?.f_name) and
-         body.p_subp_spec_or_null()?.p_primitive_subp_tagged_type() is
+    when decl?.p_defining_name()?.f_name
+             ?.p_name_matches(body.p_defining_name()?.f_name)
+     and body.p_subp_spec_or_null()?.p_primitive_subp_tagged_type() is
              t@BaseTypeDecl
              when [b for b in t.p_base_types()
                    if b.p_full_view() == parent_type.p_full_view()]

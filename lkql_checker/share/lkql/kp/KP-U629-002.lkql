@@ -20,5 +20,5 @@ fun kp_u629_002(node) =
                     p_is_tagged_type(): true,
                     p_root_type(): BaseTypeDecl(p_is_interface_type(): true)))))))
     # and the type of node is a class wide access
-    when node.f_prefix.p_referenced_decl()?.p_type_expression?()?.
-         p_designated_type_decl?()?.p_accessed_type?() is ClasswideTypeDecl
+    when node.f_prefix.p_referenced_decl()?.p_type_expression?()
+             ?.p_designated_type_decl?()?.p_accessed_type?() is ClasswideTypeDecl

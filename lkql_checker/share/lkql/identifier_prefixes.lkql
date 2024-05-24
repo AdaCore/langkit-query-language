@@ -76,8 +76,8 @@ import stdlib
 
 fun get_derived(t, derived) = {
    |" Return the element from derived corresponding to t, if any, or ""
-   val name = t.p_canonical_type().
-              p_canonical_fully_qualified_name();
+   val name = t.p_canonical_type()
+               .p_canonical_fully_qualified_name();
    val res = [n for n in derived if name == n.split(":")[1]].to_list;
    if not res then "" else res[res.length]
 }

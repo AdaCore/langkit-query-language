@@ -6,8 +6,8 @@ import stdlib
 @check(message="possible occurrence of KP V206-001", impact="22.1")
 fun kp_v206_001(node) =
     node is GenericPackageInstantiation
-    when node.f_generic_pkg_name.p_referenced_decl().
-         p_fully_qualified_name() == "System.Address_To_Access_Conversions"
-     and node.f_params[1].f_r_expr.p_referenced_decl().
-         p_full_view() is t@BaseTypeDecl
+    when node.f_generic_pkg_name.p_referenced_decl()
+             .p_fully_qualified_name() == "System.Address_To_Access_Conversions"
+     and node.f_params[1].f_r_expr.p_referenced_decl()
+             .p_full_view() is t@BaseTypeDecl
      when t.p_is_interface_type() and stdlib.is_classwide_type(t)
