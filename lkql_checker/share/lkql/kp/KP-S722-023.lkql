@@ -10,8 +10,8 @@ fun is_array_slice(expr) =
     | a@AnonymousExprDecl =>
         # This node means we have a reference to a generic formal object.
         # Exclude "in" objects since the bug cannot occur there.
-        expr.p_get_uninstantiated_node().
-        p_referenced_decl() is ObjectDecl(f_mode: ModeOut | ModeInOut) and
+        expr.p_get_uninstantiated_node()
+            .p_referenced_decl() is ObjectDecl(f_mode: ModeOut | ModeInOut) and
         is_array_slice(a.f_expr)
     | o          => false
 

@@ -9,5 +9,5 @@ fun kp_s814_034(node) =
       and t.p_comp_type().p_is_record_type()
       and (from node select first OthersDesignator) != null
       and [a for a in (from node select AggregateAssoc)
-           if a.f_r_expr.p_expression_type().p_root_type().
-              p_canonical_fully_qualified_name() == "standard.string"]
+           if a.f_r_expr.p_expression_type().p_root_type()
+               .p_canonical_fully_qualified_name() == "standard.string"]

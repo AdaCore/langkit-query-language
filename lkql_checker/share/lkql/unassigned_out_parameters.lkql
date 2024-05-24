@@ -47,8 +47,8 @@ fun check_stmts(param, name, s, ignore_comp) =
 fun check_exception_handler(param, name, h, ignore_comp) =
     (h.f_stmts is *(any children: RaiseStmt |
                     c@CallStmt when c.f_call.p_is_call()
-                                and c.f_call.p_referenced_decl().
-                                    p_has_aspect("No_Return"))) or
+                                and c.f_call.p_referenced_decl()
+                                     .p_has_aspect("No_Return"))) or
     check_stmts(param, name, h, ignore_comp)
 
 @unit_check(help="OUT parameters do not get values in subprogram bodies",
