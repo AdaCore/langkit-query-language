@@ -1,0 +1,36 @@
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 0
+   unverified sources                    : 1
+   total sources                         : 1
+   ignored sources                       : 0
+
+   non-exempted violations               : 0
+   rule exemption warnings               : 0
+   compilation errors                    : 2
+   exempted violations                   : 0
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+   no non-exempted violations detected
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+main.adb:1:01: error: File /a-calend.ads not found
+main.adb:1:01: error: File /a-calfor.ads not found
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+

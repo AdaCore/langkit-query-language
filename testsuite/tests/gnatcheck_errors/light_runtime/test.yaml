@@ -1,0 +1,10 @@
+# Testing that using the "light" runtime works. Expected behavior here is that
+# runtime files for Ada.Calendar are not found, because they're not part of the
+# "light" runtime
+
+driver: gnatcheck
+project: prj.gpr
+rules:
+  - +Rrecursive_subprograms
+extra_args:
+  - --RTS=light
