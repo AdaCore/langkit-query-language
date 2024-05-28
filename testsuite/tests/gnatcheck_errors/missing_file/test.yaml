@@ -1,0 +1,4 @@
+driver: gnatcheck
+project: prj.gpr
+rules:
+  - +Rrecursive_subprograms
