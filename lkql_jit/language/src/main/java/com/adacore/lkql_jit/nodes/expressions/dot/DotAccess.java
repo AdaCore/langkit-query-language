@@ -8,7 +8,8 @@ package com.adacore.lkql_jit.nodes.expressions.dot;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodValue;
 import com.adacore.lkql_jit.built_ins.values.*;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
@@ -199,22 +200,19 @@ public abstract class DotAccess extends Expr {
      */
     protected Object tryBuiltIn(Object receiver) {
         // Get the built in
-        BuiltInFunctionValue builtIn = this.getBuiltIn(receiver);
-        if (builtIn != null) {
-            InteropLibrary builtInLibrary = InteropLibrary.getUncached(builtIn);
-            if (builtIn.parameterNames.length <= 1) {
+        BuiltInMethodValue builtinMethod = this.getBuiltIn(receiver);
+        if (builtinMethod != null) {
+            if (builtinMethod.parameterNames.length <= 1) {
+                InteropLibrary builtInLibrary = InteropLibrary.getUncached(builtinMethod);
                 try {
-                    return builtInLibrary.execute(builtIn, receiver);
+                    return builtInLibrary.execute(builtinMethod, builtinMethod.thisValue);
                 } catch (ArityException
                         | UnsupportedTypeException
                         | UnsupportedMessageException e) {
-                    // TODO: Implement runtime checks in the LKQLFunction class and base computing
-                    // on them (#138)
                     throw LKQLRuntimeException.fromJavaException(e, this);
                 }
             } else {
-                builtIn.setThisValue(receiver);
-                return builtIn;
+                return builtinMethod;
             }
         }
 
@@ -229,14 +227,18 @@ public abstract class DotAccess extends Expr {
      * @return The member if it exists, null else.
      */
     @CompilerDirectives.TruffleBoundary
-    protected BuiltInFunctionValue getBuiltIn(Object receiver) {
+    protected BuiltInMethodValue getBuiltIn(Object receiver) {
         // Get the LKQL context
         LKQLContext context = LKQLLanguage.getContext(this);
-        Map<String, BuiltInFunctionValue> metaTable =
+        Map<String, BuiltInMethodFactory> metaTable =
                 context.getMetaTable(LKQLTypesHelper.fromJava(receiver));
 
         // Return the built-in method or null
-        return metaTable.getOrDefault(this.member.getName(), null);
+        if (metaTable.containsKey(this.member.getName())) {
+            return metaTable.get(this.member.getName()).instantiate(receiver);
+        } else {
+            return null;
+        }
     }
 
     // ----- Override methods -----

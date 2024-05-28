@@ -77,7 +77,7 @@ public class DocumentBuiltins {
                 for (var method : methods) {
                     writer.write(".. method:: ");
                     writer.write(typeName + "." + method.getKey());
-                    writer.write("(" + String.join(", ", method.getValue().parameterNames) + ")");
+                    writer.write("(" + String.join(", ", method.getValue().paramNames) + ")");
                     writer.write("\n\n");
                     writer.withIndent(
                             () -> {
