@@ -5,13 +5,13 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.create;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public final class NodeMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
+    public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
                     create(
                             "children_count",
@@ -97,7 +97,7 @@ public final class NodeMethods {
                             new SameTokensExpr()));
 
     /** Expression of the "children" method. */
-    public static final class ChildrenExpr extends BuiltinFunctionBody {
+    public static final class ChildrenExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the node
@@ -117,7 +117,7 @@ public final class NodeMethods {
     }
 
     /** Expression of the "parent" method. */
-    public static final class ParentExpr extends BuiltinFunctionBody {
+    public static final class ParentExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode parent =
@@ -127,7 +127,7 @@ public final class NodeMethods {
     }
 
     /** Expression of the "children_count" method. */
-    public static final class ChildrenCountExpr extends BuiltinFunctionBody {
+    public static final class ChildrenCountExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long) LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getChildrenCount();
@@ -135,7 +135,7 @@ public final class NodeMethods {
     }
 
     /** Expression of the "dump" method. */
-    public static final class DumpExpr extends BuiltinFunctionBody {
+    public static final class DumpExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             LKQLLanguage.getContext(this)
@@ -145,7 +145,7 @@ public final class NodeMethods {
     }
 
     /** Expression of the "text" method. */
-    public static final class TextExpr extends BuiltinFunctionBody {
+    public static final class TextExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getText();
@@ -153,7 +153,7 @@ public final class NodeMethods {
     }
 
     /** Expression of the "image" method. */
-    public static final class ImageExpr extends BuiltinFunctionBody {
+    public static final class ImageExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getImage();
@@ -161,7 +161,7 @@ public final class NodeMethods {
     }
 
     /** Expression of the "unit" method. */
-    public static final class UnitExpr extends BuiltinFunctionBody {
+    public static final class UnitExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getUnit();
@@ -169,7 +169,7 @@ public final class NodeMethods {
     }
 
     /** Expression of the "kind" method. */
-    public static final class KindExpr extends BuiltinFunctionBody {
+    public static final class KindExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return ReflectionUtils.getClassSimpleName(frame.getArguments()[0]);
@@ -177,7 +177,7 @@ public final class NodeMethods {
     }
 
     /** Expression of the "tokens" method. */
-    public static final class TokensExpr extends BuiltinFunctionBody {
+    public static final class TokensExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the node
@@ -199,7 +199,7 @@ public final class NodeMethods {
     }
 
     /** Expression of the "same_tokens" method. */
-    public static final class SameTokensExpr extends BuiltinFunctionBody {
+    public static final class SameTokensExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the nodes to compare

@@ -5,11 +5,11 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.create;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.functions.ReduceFunction;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
@@ -27,9 +27,11 @@ import java.util.Map;
  */
 public class IterableMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
+    public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
-                    Map.entry(ReduceFunction.NAME, ReduceFunction.getValue()),
+                    Map.entry(
+                            ReduceFunction.NAME,
+                            BuiltInMethodFactory.fromFunctionValue(ReduceFunction.getValue())),
                     create(
                             "to_list",
                             "Transform an iterator into a list",
@@ -46,7 +48,7 @@ public class IterableMethods {
     // ----- Inner classes -----
 
     /** Expression of the "to_list" method. */
-    public static class ToListExpr extends BuiltinFunctionBody {
+    public static class ToListExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the iterable receiver
@@ -65,7 +67,7 @@ public class IterableMethods {
     }
 
     /** Expression of the "length" method. */
-    public static class LengthExpr extends BuiltinFunctionBody {
+    public static class LengthExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the iterable receiver

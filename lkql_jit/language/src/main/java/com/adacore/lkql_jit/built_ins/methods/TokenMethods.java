@@ -5,12 +5,12 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.create;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public final class TokenMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
+    public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
                     create(
                             "start_column",
@@ -100,7 +100,7 @@ public final class TokenMethods {
     // ----- Inner classes -----
 
     /** Expression of the "start_column" method. */
-    public static final class StartColExpr extends BuiltinFunctionBody {
+    public static final class StartColExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long)
@@ -112,7 +112,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "end_column" method. */
-    public static final class EndColExpr extends BuiltinFunctionBody {
+    public static final class EndColExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long)
@@ -124,7 +124,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "start_line" method. */
-    public static final class StartLineExpr extends BuiltinFunctionBody {
+    public static final class StartLineExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long)
@@ -136,7 +136,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "end_line" method. */
-    public static final class EndLineExpr extends BuiltinFunctionBody {
+    public static final class EndLineExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long)
@@ -145,7 +145,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "is_equivalent" method. */
-    public static final class IsEquivalentExpr extends BuiltinFunctionBody {
+    public static final class IsEquivalentExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the other token to compare
@@ -165,7 +165,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "is_trivia" method. */
-    public static final class IsTriviaExpr extends BuiltinFunctionBody {
+    public static final class IsTriviaExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).triviaIndex != 0;
@@ -173,7 +173,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "next" method. */
-    public static final class NextExpr extends BuiltinFunctionBody {
+    public static final class NextExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get if the trivia tokens should be ignored
@@ -199,7 +199,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "previous" method. */
-    public static final class PrevExpr extends BuiltinFunctionBody {
+    public static final class PrevExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get if the trivia tokens should be ignored
@@ -225,7 +225,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "unit" method. */
-    public static final class UnitExpr extends BuiltinFunctionBody {
+    public static final class UnitExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).unit;
@@ -233,7 +233,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "text" method. */
-    public static final class TextExpr extends BuiltinFunctionBody {
+    public static final class TextExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).getText();
@@ -241,7 +241,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "kind" method. */
-    public static final class KindExpr extends BuiltinFunctionBody {
+    public static final class KindExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.Token token = LKQLTypeSystemGen.asToken(frame.getArguments()[0]);

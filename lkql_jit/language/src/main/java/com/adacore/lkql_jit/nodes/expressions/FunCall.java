@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodValue;
 import com.adacore.lkql_jit.built_ins.values.*;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Nullish;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
@@ -69,59 +70,53 @@ public abstract class FunCall extends Expr {
 
     public abstract Expr getCallee();
 
-    // ----- Execute methods -----
+    // ----- Execution methods -----
+
+    /**
+     * Execute the function call node when the callee is a built-in method value.
+     *
+     * @return The result of the method call.
+     */
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected Object onBuiltinMethod(
+            VirtualFrame frame,
+            BuiltInMethodValue method,
+            @CachedLibrary("method") InteropLibrary methodLibrary) {
+        method.setCallNode(this);
+
+        // Execute the argument list with the "this" value
+        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
+        // compilation error
+        String[] actualParam = method.parameterNames;
+        Object[] args = this.argList.executeArgList(frame.materialize(), actualParam, 1);
+        args[0] = method.thisValue;
+
+        // Return the result of the method call
+        return this.executeLKQLFunction(frame, method, methodLibrary, args, false);
+    }
 
     /**
      * Execute the function call on a built-in function.
      *
      * @param frame The frame to execute the built-in in.
-     * @param builtIn The built-in function.
+     * @param function The built-in function.
      * @return The result of the built-in call.
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
-    protected Object onBuiltIn(
+    protected Object onBuiltinFunction(
             VirtualFrame frame,
-            BuiltInFunctionValue builtIn,
-            @CachedLibrary("builtIn") InteropLibrary builtInLibrary) {
-        // Set the call node in the built-in function
-        builtIn.setCallNode(this);
-
-        // Get the real argument names and default values
-        String[] actualParam = builtIn.parameterNames;
-        Expr[] defaultValues = builtIn.parameterDefaultValues;
+            BuiltInFunctionValue function,
+            @CachedLibrary("function") InteropLibrary functionLibrary) {
+        function.setCallNode(this);
 
         // Execute the argument list
         // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
         // compilation error
-        Object[] realArgs =
-                this.argList.executeArgList(
-                        frame.materialize(), actualParam, builtIn.getThisValue() == null ? 0 : 1);
+        String[] actualParam = function.parameterNames;
+        Object[] args = this.argList.executeArgList(frame.materialize(), actualParam);
 
-        // Add the "this" value to the arguments
-        if (builtIn.getThisValue() != null) {
-            realArgs[0] = builtIn.getThisValue();
-        }
-
-        // Verify that all arguments are present
-        for (int i = 0; i < realArgs.length; i++) {
-            if (realArgs[i] == null) {
-                if (defaultValues[i] != null) {
-                    realArgs[i] = defaultValues[i].executeGeneric(frame);
-                } else {
-                    throw LKQLRuntimeException.missingArgument(i + 1, this);
-                }
-            }
-        }
-
-        // We don't place the closure in the arguments because built-ins don't have any.
-        // Just execute the function.
-        try {
-            return builtInLibrary.execute(builtIn, realArgs);
-        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
-            // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
-            // (#138)
-            throw LKQLRuntimeException.fromJavaException(e, this.getCallee());
-        }
+        // Execute the built-in function value
+        return this.executeLKQLFunction(frame, function, functionLibrary, args, false);
     }
 
     /**
@@ -136,37 +131,14 @@ public abstract class FunCall extends Expr {
             final VirtualFrame frame,
             final LKQLFunction function,
             @CachedLibrary("function") InteropLibrary functionLibrary) {
-        // Get the real argument names and default values
-        String[] names = function.parameterNames;
-        Expr[] defaultValues = function.parameterDefaultValues;
-
-        // Prepare the argument array and the working var
+        // Execute the argument list with the mandatory space for the function closure
         // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
         // compilation error
-        Object[] realArgs = this.argList.executeArgList(frame.materialize(), names);
+        String[] actualParam = function.parameterNames;
+        Object[] args = this.argList.executeArgList(frame.materialize(), actualParam);
 
-        // Verify if there is no missing argument and evaluate the default values
-        for (int i = 0; i < realArgs.length; i++) {
-            if (realArgs[i] == null) {
-                if (defaultValues[i] != null) {
-                    realArgs[i] = defaultValues[i].executeGeneric(frame);
-                } else {
-                    throw LKQLRuntimeException.missingArgument(i + 1, this);
-                }
-            }
-        }
-
-        // Place the closure in the arguments
-        realArgs = ArrayUtils.concat(new Object[] {function.closure.getContent()}, realArgs);
-
-        // Return the result of the function call
-        try {
-            return functionLibrary.execute(function, realArgs);
-        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
-            // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
-            // (#138)
-            throw LKQLRuntimeException.fromJavaException(e, this);
-        }
+        // Return the result of the function execution
+        return executeLKQLFunction(frame, function, functionLibrary, args, true);
     }
 
     /**
@@ -226,6 +198,43 @@ public abstract class FunCall extends Expr {
     protected void nonExecutable(Object nonExec) {
         throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_FUNCTION, LKQLTypesHelper.fromJava(nonExec), this);
+    }
+
+    // ----- Instance methods -----
+
+    /** Util function to call an LKQL function with its precomputed arguments. */
+    private Object executeLKQLFunction(
+            VirtualFrame frame,
+            LKQLFunction function,
+            InteropLibrary functionLibrary,
+            Object[] args,
+            boolean includeClosure) {
+        // Verify that all arguments are present
+        Expr[] defaultValues = function.parameterDefaultValues;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] == null) {
+                if (defaultValues[i] != null) {
+                    args[i] = defaultValues[i].executeGeneric(frame);
+                } else {
+                    throw LKQLRuntimeException.missingArgument(i + 1, this);
+                }
+            }
+        }
+
+        // Include the closure in arguments if required
+        if (includeClosure) {
+            args = ArrayUtils.concat(new Object[] {function.closure.getContent()}, args);
+        }
+
+        // We don't place the closure in the arguments because built-ins don't have any.
+        // Just execute the function.
+        try {
+            return functionLibrary.execute(function, args);
+        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
+            // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
+            // (#138)
+            throw LKQLRuntimeException.fromJavaException(e, this.getCallee());
+        }
     }
 
     // ----- Override methods -----

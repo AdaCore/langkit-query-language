@@ -5,12 +5,12 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.create;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public final class AnalysisUnitMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
+    public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
                     create(
                             "root",
@@ -55,7 +55,7 @@ public final class AnalysisUnitMethods {
     // ----- Inner classes -----
 
     /** Expression of the "root" method. */
-    public static final class RootExpr extends BuiltinFunctionBody {
+    public static final class RootExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode res =
@@ -65,7 +65,7 @@ public final class AnalysisUnitMethods {
     }
 
     /** Expression of the "name" method. */
-    public static final class NameExpr extends BuiltinFunctionBody {
+    public static final class NameExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getFileName();
@@ -73,7 +73,7 @@ public final class AnalysisUnitMethods {
     }
 
     /** Expression of the "tokens" method. */
-    public static final class TokensExpr extends BuiltinFunctionBody {
+    public static final class TokensExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AnalysisUnit unit =
@@ -90,7 +90,7 @@ public final class AnalysisUnitMethods {
     }
 
     /** Expression of the "text" method. */
-    public static final class TextExpr extends BuiltinFunctionBody {
+    public static final class TextExpr extends BuiltInBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getText();
