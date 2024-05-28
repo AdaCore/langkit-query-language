@@ -15,5 +15,7 @@ begin
       null;
    elsif X in Integer then                       --  NOFLAG
       null;
+   elsif Y in Integer'Range then                 --  FLAG
+      null;
    end if;
 end Valid;

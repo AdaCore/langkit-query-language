@@ -1,5 +1,6 @@
 # Flag each occurrence of a membership test of the form:
 #   X in Subtype_Of_X
+#   X in Subtype_Of_X'Range
 #   X in Subtype_Of_X'First .. Subtype_Of_X'Last
 
 fun valid_attr(node) =
@@ -22,6 +23,7 @@ fun membership_for_validity(node) =
     |" Two forms of membership tests are flagged:
     |"
     |" * X in Subtype_Of_X
+    |" * X in Subtype_Of_Y'Range
     |" * X in Subtype_Of_X'First .. Subtype_Of_X'Last
     |"
     |" where X is a data object except for a loop parameter, and ``Subtype_Of_X``
@@ -38,17 +40,31 @@ fun membership_for_validity(node) =
     |"    begin
     |"       if X in My_Int then                           --  FLAG
     node is MembershipExpr(f_expr: var@Name)
-    when not node.f_membership_exprs[2]
-     and match node.f_membership_exprs[1]
-        | n@Name => type_of(var) == n.p_referenced_decl()
-        | b@BinOp(f_op: OpDoubleDot,
-                  f_left: at1@AttributeRef(f_prefix: typ1@Name)
-                          when at1.f_attribute.p_name_is("First"),
-                  f_right: at2@AttributeRef(f_prefix: typ2@Name)
-                           when at2.f_attribute.p_name_is("Last")) =>
-            {
-                val var_type = type_of(var);
-                var_type == typ1.p_referenced_decl() and
-                var_type == typ2.p_referenced_decl()
-            }
-        | * => false
+    when {
+        val type = type_of(var);
+
+        fun is_of_type(ref) =
+            # Return whether ref is of the type of this MembershipExpr's expr type
+            ref is Name(p_referenced_decl(): typ@BaseTypeDecl when typ == type);
+
+        type != null
+        and not node.f_membership_exprs[2]
+        and node.f_membership_exprs[1] is (
+            n@Name when is_of_type(n)
+
+            | bin_op@BinOp(f_op: OpDoubleDot,
+                   f_left: at1@AttributeRef(f_prefix: typ1)
+                             when at1.f_attribute.p_name_is("First")
+                              and at1.f_prefix is Name,
+                   f_right: at2@AttributeRef(f_prefix: typ2)
+                              when at2.f_attribute.p_name_is("Last")
+                               and at2.f_prefix is Name)
+             when (
+                 typ1.p_referenced_decl() == typ2.p_referenced_decl()
+                 and type == typ1.p_referenced_decl()
+             )
+
+            | attr_ref@AttributeRef(f_prefix: pfx when is_of_type(pfx),
+                                    f_attribute: "Range")
+        )
+    }
