@@ -11,17 +11,30 @@ fun type_of(name) =
        category="Style", subcategory="Portability")
 fun membership_for_validity(node) =
     node is MembershipExpr(f_expr: var@Name)
-    when not node.f_membership_exprs[2]
-     and node.f_membership_exprs[1] is
-         ((typ@Name when type_of(var) == typ.p_referenced_decl()) |
-         bin_op@BinOp(f_op: OpDoubleDot,
-               f_left: at1@AttributeRef(f_prefix: typ1)
-                         when at1.f_attribute.p_name_is("First")
-                          and at1.f_prefix is Name,
-               f_right: at2@AttributeRef(f_prefix: typ2)
-                          when at2.f_attribute.p_name_is("Last")
-                           and at2.f_prefix is Name)
-         when (
-             typ1.p_referenced_decl() == typ2.p_referenced_decl()
-             and type_of(var) == typ1.p_referenced_decl()
-         ))
+    when {
+        val typ = type_of(var);
+
+        fun is_of_typ(ref) =
+            ref is Name(p_referenced_decl(): typ@BaseTypeDecl when typ == type_of(var));
+
+        typ != null
+        and not node.f_membership_exprs[2]
+        and node.f_membership_exprs[1] is (
+            n@Name when is_of_typ(n)
+
+            | bin_op@BinOp(f_op: OpDoubleDot,
+                   f_left: at1@AttributeRef(f_prefix: typ1)
+                             when at1.f_attribute.p_name_is("First")
+                              and at1.f_prefix is Name,
+                   f_right: at2@AttributeRef(f_prefix: typ2)
+                              when at2.f_attribute.p_name_is("Last")
+                               and at2.f_prefix is Name)
+             when (
+                 typ1.p_referenced_decl() == typ2.p_referenced_decl()
+                 and type_of(var) == typ1.p_referenced_decl()
+             )
+
+            | attr_ref@AttributeRef(f_prefix: pfx when is_of_typ(pfx),
+                                    f_attribute: "Range")
+        )
+    }

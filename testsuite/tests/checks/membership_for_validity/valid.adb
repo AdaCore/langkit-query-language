@@ -15,5 +15,12 @@ begin
       null;
    elsif X in Integer then                       --  NOFLAG
       null;
+
+   elsif Y in Integer'Range then                 --  FLAG
+      null;
+
+   --  We shouldn't flag wrong code (here A & B don't exist)
+   elsif A in B then                             --  NOFLAG
+      null;
    end if;
 end Valid;
