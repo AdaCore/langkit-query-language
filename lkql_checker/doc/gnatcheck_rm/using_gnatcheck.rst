@@ -322,6 +322,18 @@ GNATcheck Rule Options
 
 The following options control the processing performed by ``gnatcheck``.
 
+``-from-lkql=filename``
+
+  Read the rule options from the LKQL file `filename`. See :ref:`LKQL_options_file`
+  for more information about configuring rules with an LKQL file.
+
+  .. attention:: This is the prefered way to configure GNATcheck's rules.
+
+``-rules``
+
+  Start the "rules configuration" section of the GNATCheck command line.
+
+  .. warning:: This is a deprecated way to configure GNATcheck's rules.
 
   .. index:: +R (gnatcheck)
 
@@ -345,33 +357,28 @@ The following options control the processing performed by ``gnatcheck``.
 
   .. index:: -from (gnatcheck)
 
-
 ``-from=rule_option_filename``
   Read the rule options from the text file `rule_option_filename`, referred
   to as a 'coding standard file' below.
 
-``-from-lkql=filename``
-  Read the rule options from the LKQL file `filename`. See :ref:`LKQL_options_file`
-  for more information about configuring rules with an LKQL file.
+The default behavior is that all the rule checks are disabled.
 
+If a rule option is given in a rule file, it can contain spaces and line
+breaks. Otherwise there should be no spaces between the components of a rule
+option.
+
+If more than one rule option is specified for the same rule, these options are
+summed together. If a new option contradicts the rule settings specified by
+previous options for this rule, the new option overrides the previous settings.
+
+A coding standard file is a text file that contains a set of rule options
+described above.
 
 .. note::
 
   You can provide ``-from-lkql`` and ``-from`` to the same GNATcheck run. This will
   combine specified rules in both files.
 
-The default behavior is that all the rule checks are disabled.
-
-If a rule option is given in a rule file, it can contain spaces and line breaks.
-Otherwise there should be no spaces between the components of a rule option.
-
-If more than one rule option
-is specified for the same rule, these options are summed together. If a new option contradicts
-the rule settings specified by previous options for this rule, the new option overrides
-the previous settings.
-
-A coding standard file is a text file that contains a set of rule options
-described above.
 
 .. index:: Coding standard file (for gnatcheck)
 

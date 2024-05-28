@@ -23,21 +23,37 @@ Invoking ``gnatcheck`` on the command line has the form::
 
   $ gnatcheck [switches] {filename}
         [-files=arg_list_filename]
-        -rules rule_options [-cargs gcc_switches]
+        --from-lkql lkql_rule_file
+        [-cargs gcc_switches]
+
+or::
+
+  $ gnatcheck [switches] {filename}
+        [-files=arg_list_filename]
+        -rules rule_options
+        [-cargs gcc_switches]
 
 where
 
-* `switches` specify the :ref:`General_gnatcheck_Switches` such as ``-P project``
+* ``switches`` specify the :ref:`General_gnatcheck_Switches` such as ``-P
+  project``
 
-* Each `filename` is the name (including the extension) of a source
-  file to process, the file name may contain path information.
+* Each ``filename`` is the name (including the extension) of a source file to
+  process, the file name may contain path information.
 
-* `arg_list_filename` is the name (including the extension) of a text
-  file containing the names of the source files to process, separated by spaces
-  or line breaks.
+* ``arg_list_filename`` is the name (including the extension) of a text file
+  containing the names of the source files to process, separated by spaces or
+  line breaks.
 
-* `rule_options` is a list of options for controlling a set of
-  rules to be checked by ``gnatcheck`` (:ref:`gnatcheck_Rule_Options`).
+* ``lkql_rule_file`` is a file where rules and their arguments are specified.
+  This is the default way to configure GNATcheck rules, and is explained in
+  more details here (:ref:`LKQL_options_file`)
+
+* ``rule_options`` is a list of options for controlling a set of rules to be
+  checked by ``gnatcheck`` (:ref:`gnatcheck_Rule_Options`).
+
+.. warning:: The ``-rules`` flag is deprecated, and the use of the lkql rule
+   file should be the prefered way of configuring GNATcheck rules
 
 * `gcc_switches` is a list of switches for
   ``gcc``. They will be passed on to a compiler invocation made by
