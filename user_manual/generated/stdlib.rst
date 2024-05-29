@@ -131,6 +131,13 @@ Functions
 
     Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
 
+.. function:: is_mutable_discriminant_dependant(component_decl)
+
+    Given a `ComponentDecl`, return whether it depends of a mutable
+    discriminant value coming from its parent record declaration.
+    The component declaration can be dependant from a discriminant if it
+    uses it in its subtype constraint or if it is a variant.
+
 .. function:: is_predefined_op(op, follow_renamings=false)
 
     Return true if ``op`` is a predefined operator
