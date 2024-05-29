@@ -13,6 +13,7 @@ with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
+with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.Directory_Operations;
 with GNAT.Regexp;       use GNAT.Regexp;
 with GNAT.String_Split; use GNAT.String_Split;
@@ -52,6 +53,9 @@ with GPR2.Project.Registry.Attribute.Description;
 with GPR2.Project.Registry.Pack;
 with GPR2.Project.Registry.Pack.Description;
 with GPR2.Project.View;
+
+with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
+with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
 with Rule_Commands; use Rule_Commands;
 
@@ -170,7 +174,6 @@ package body Gnatcheck.Projects is
       use GPR2;
       use GPR2.Project.Registry.Attribute;
 
-      Proj_Args_Parser : Opt_Parser;
       Ada_Idx          : constant GPR2.Project.Attribute_Index.Object :=
         GPR2.Project.Attribute_Index.Create (Ada_Language);
       Attr             : GPR2.Project.Attribute.Object;
@@ -193,16 +196,9 @@ package body Gnatcheck.Projects is
             Command_Line (J) := new String'(Attr.Values.Element (J).Text);
          end loop;
 
-         Initialize_Option_Scan
-           (Parser                   => Proj_Args_Parser,
-            Command_Line             => Command_Line,
-            Switch_Char              => '-',
-            Stop_At_First_Non_Switch => False,
-            Section_Delimiters       => "cargs rules");
          Scan_Arguments
-           (My_Project  => My_Project,
-            Parser      => Proj_Args_Parser,
-            In_Switches => False);
+           (My_Project => My_Project,
+            Args       => Command_Line);
 
          Free (Command_Line);
       end if;
@@ -961,11 +957,41 @@ package body Gnatcheck.Projects is
    --------------------
 
    procedure Scan_Arguments
-     (My_Project  : in out Arg_Project_Type;
-      First_Pass  : Boolean    := False;
-      Parser      : Opt_Parser := Command_Line_Parser;
-      In_Switches : Boolean    := False)
+     (My_Project : in out Arg_Project_Type;
+      First_Pass : Boolean    := False;
+      Args       : GNAT.OS_Lib.Argument_List_Access := null)
    is
+
+      Unknown_Opt_Parse_Args : XString_Vector;
+      Args_After_Opt_Parse : Argument_List_Access;
+      Parser : Opt_Parser;
+
+      function To_Arg_List (Args : XString_Vector) return Argument_List_Access;
+      function To_XString_Array
+        (Args : Argument_List_Access) return XString_Array;
+
+      function To_Arg_List (Args : XString_Vector) return Argument_List_Access
+      is
+         Ret : constant Argument_List_Access
+           := new String_List (1 .. Args.Last_Index);
+      begin
+         for I in Ret'Range loop
+            Ret (I) := new String'(Args (I).To_String);
+         end loop;
+         return Ret;
+      end To_Arg_List;
+
+      function To_XString_Array
+        (Args : Argument_List_Access) return XString_Array
+      is
+         Ret : XString_Array (Args'Range);
+      begin
+         for I in Args'Range loop
+            Ret (I) := To_XString (Args (I).all);
+         end loop;
+         return Ret;
+      end To_XString_Array;
+
       procedure Process_Sections;
       --  Processes the 'rules' section.
 
@@ -1037,9 +1063,9 @@ package body Gnatcheck.Projects is
       Lkql       : constant String :=
         Compose (Compose (Prefix, "share"), "lkql");
 
-      In_Project_File : constant Boolean := Parser /= Command_Line_Parser;
-      Initial_Char    : Character;
-      Success         : Boolean;
+      Args_From_Project : constant Boolean := Args /= null;
+      Initial_Char      : Character;
+      Success           : Boolean;
 
       Print_Registry_Option : constant String :=
         GPR2.Options.Print_GPR_Registry_Option
@@ -1060,6 +1086,17 @@ package body Gnatcheck.Projects is
 
       Free (Executable);
 
+      if Arg.Parser.Parse
+         ((if Args /= null then To_XString_Array (Args) else No_Arguments),
+          Unknown_Arguments => Unknown_Opt_Parse_Args)
+      then
+         Args_After_Opt_Parse := To_Arg_List (Unknown_Opt_Parse_Args);
+         Initialize_Option_Scan
+           (Parser, Args_After_Opt_Parse, Section_Delimiters => "cargs rules");
+      else
+         raise Parameter_Error;
+      end if;
+
       loop
          Initial_Char :=
            GNAT.Command_Line.Getopt
@@ -1068,8 +1105,6 @@ package body Gnatcheck.Projects is
               "P: U X! vP! eL A: -config! " &   --  project-specific options
               "-no-subprojects "            &
               "-brief "                     &
-              "-charset= "                  &
-              "-check-semantic "            &
               "-check-redefinition "        &
               "-no_objects_dir "            &
               "-subdirs= "                  &
@@ -1082,7 +1117,6 @@ package body Gnatcheck.Projects is
               "-RTS= "                      &
               "l log "                      &
               "-include-file= "             &
-              "-rules-dir= "                &
               "-show-rule "                 &
               "-subprocess "                &
               "-version -help "             &
@@ -1100,26 +1134,20 @@ package body Gnatcheck.Projects is
                   declare
                      Arg    : constant String := Get_Argument
                        (Do_Expansion => True,
-                        Parser       => Command_Line_Parser);
+                        Parser       => Parser);
 
                   begin
                      exit when Arg = "";
                      Success := True;
 
-                     if In_Switches then
-                        Error ("Switches attribute cannot contain argument " &
-                               "sources");
-                        raise Parameter_Error;
-                     end if;
-
                      if Gnatcheck.Projects.U_Option_Set then
                         Gnatcheck.Projects.Store_Main_Unit
-                          (Arg, In_Project_File or First_Pass);
+                          (Arg, Args_From_Project or First_Pass);
                      else
                         Store_Sources_To_Process
-                          (Arg, In_Project_File or First_Pass);
+                          (Arg, Args_From_Project or First_Pass);
 
-                        if not In_Project_File then
+                        if not Args_From_Project then
                            Argument_File_Specified := True;
                         end if;
                      end if;
@@ -1133,8 +1161,8 @@ package body Gnatcheck.Projects is
                   if First_Pass then
                      Aggregated_Project := True;
                      Gnatcheck.Projects.Aggregate.Store_Aggregated_Project
-                       (Parameter);
-                  elsif In_Project_File then
+                       (Parameter (Parser => Parser));
+                  elsif Args_From_Project then
                      Error ("project file should not be specified inside " &
                             "another project file");
                      raise Parameter_Error;
@@ -1163,7 +1191,7 @@ package body Gnatcheck.Projects is
                if Full_Switch (Parser => Parser) = "eL" then
                   if First_Pass then
                      Gnatcheck.Projects.Follow_Symbolic_Links := True;
-                  elsif In_Project_File then
+                  elsif Args_From_Project then
                      Error ("-eL option cannot be set in a project file");
                      raise Parameter_Error;
                   end if;
@@ -1177,14 +1205,8 @@ package body Gnatcheck.Projects is
                      Files_Switch_Used := True;
                      Read_Args_From_File (Parameter (Parser => Parser));
 
-                  elsif In_Project_File then
-                     if In_Switches then
-                        Error ("-files option is not allowed " &
-                               "for Switches attribute");
-                        raise Parameter_Error;
-                     else
-                        Read_Args_From_File (Parameter (Parser => Parser));
-                     end if;
+                  elsif Args_From_Project then
+                     Read_Args_From_File (Parameter (Parser => Parser));
                   end if;
                end if;
 
@@ -1271,8 +1293,8 @@ package body Gnatcheck.Projects is
             when 'P' =>
                if Full_Switch (Parser => Parser) = "P" then
                   if First_Pass then
-                     My_Project.Store_Project_Source (Parameter);
-                  elsif In_Project_File then
+                     My_Project.Store_Project_Source (Parameter (Parser));
+                  elsif Args_From_Project then
                      Error ("project file should not be specified inside " &
                             "another project file");
                      raise Parameter_Error;
@@ -1304,7 +1326,7 @@ package body Gnatcheck.Projects is
 
                      Gnatcheck.Projects.U_Option_Set := True;
                      Gnatcheck.Projects.Recursive_Sources := True;
-                  elsif In_Project_File then
+                  elsif Args_From_Project then
                      Error ("-U option is not allowed in a project file");
                      raise Parameter_Error;
                   end if;
@@ -1324,7 +1346,7 @@ package body Gnatcheck.Projects is
                                   Parameter & " for -vP");
                            raise Parameter_Error;
                      end;
-                  elsif In_Project_File then
+                  elsif Args_From_Project then
                      Error ("-vP option is not allowed in a project file");
                      raise Parameter_Error;
                   end if;
@@ -1341,8 +1363,8 @@ package body Gnatcheck.Projects is
                if Full_Switch (Parser => Parser) = "X" then
                   if First_Pass then
                      Gnatcheck.Projects.Store_External_Variable
-                       (Var => Parameter);
-                  elsif In_Project_File then
+                       (Var => Parameter (Parser => Parser));
+                  elsif Args_From_Project then
                      Error ("external references cannot be set in " &
                             "a project file");
                      raise Parameter_Error;
@@ -1356,16 +1378,9 @@ package body Gnatcheck.Projects is
                      Short_Report := True;
                      Brief_Mode   := True;
 
-                  elsif Full_Switch (Parser => Parser) = "-charset" then
-                     Free (Charset);
-                     Charset := new String'(Parameter (Parser => Parser));
-
                   elsif Full_Switch (Parser => Parser) = "-check-redefinition"
                   then
                      Check_Param_Redefinition := True;
-                  elsif Full_Switch (Parser => Parser) = "-check-semantic" then
-                     Check_Semantic := True;
-
                   elsif Full_Switch (Parser => Parser) = "-ignore" then
                      if Is_Regular_File (Parameter (Parser => Parser)) then
                         Exempted_Units :=
@@ -1392,16 +1407,10 @@ package body Gnatcheck.Projects is
                      --  to resolve its parameter to the full path, and we
                      --  can do this only when target is fully detected.
                      null;
-
-                  elsif Full_Switch (Parser => Parser) = "-rules-dir"
-                    and then not Legacy
-                  then
-                     Additional_Rules_Dirs.Append
-                       (Parameter (Parser => Parser));
                   end if;
                else
                   if Full_Switch (Parser => Parser) = "-help" then
-                     if In_Project_File then
+                     if Args_From_Project then
                         Error
                           ("project file should not contain '--help' option");
                         raise Parameter_Error;
@@ -1411,7 +1420,7 @@ package body Gnatcheck.Projects is
                      return;
 
                   elsif Full_Switch (Parser => Parser) = "-version" then
-                     if In_Project_File then
+                     if Args_From_Project then
                         Error
                           ("project file should not contain '--version' " &
                            "option");
@@ -1434,7 +1443,7 @@ package body Gnatcheck.Projects is
                      RTS_Path := new String'(Parameter (Parser => Parser));
 
                   elsif Full_Switch (Parser => Parser) = "-config" then
-                     if In_Project_File then
+                     if Args_From_Project then
                         Error ("configuration project cannot be set in " &
                                  "a project file");
                         raise Parameter_Error;
@@ -1471,7 +1480,7 @@ package body Gnatcheck.Projects is
                      Print_Gpr_Registry := True;
 
                   elsif Full_Switch (Parser => Parser) = "-no-subprojects" then
-                     if not In_Project_File or else not U_Option_Set then
+                     if not Args_From_Project or else not U_Option_Set then
                         Recursive_Sources := False;
                      end if;
                   end if;
@@ -1579,7 +1588,7 @@ package body Gnatcheck.Projects is
 
       Analyze_Compiler_Output :=
         Use_gnaty_Option or Use_gnatw_Option or
-        Check_Restrictions or Check_Semantic;
+        Check_Restrictions or Arg.Check_Semantic.Get;
 
       if Analyze_Compiler_Output then
          Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);

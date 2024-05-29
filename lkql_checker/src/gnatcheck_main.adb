@@ -11,7 +11,6 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with Checker_App;
 
-with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
@@ -128,8 +127,8 @@ procedure Gnatcheck_Main is
    procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes) is
       Mode_String : constant String :=
         (case Mode is
-            when General => "rules",
-            when Ada_Only => "ada_rules",
+            when General    => "rules",
+            when Ada_Only   => "ada_rules",
             when Spark_Only => "spark_rules");
 
       First : Boolean := True;
@@ -347,9 +346,6 @@ procedure Gnatcheck_Main is
 begin
    Initialize_Environment;
 
-   Initialize_Option_Scan
-     (Stop_At_First_Non_Switch => False,
-      Section_Delimiters       => "cargs rules");
    Gnatcheck_Prj.Scan_Arguments (First_Pass => True);
 
    if Print_Version then
@@ -417,9 +413,6 @@ begin
 
    --  Then analyze the command-line parameters
 
-   Initialize_Option_Scan
-     (Stop_At_First_Non_Switch => False,
-      Section_Delimiters       => "cargs rules");
    Gnatcheck_Prj.Scan_Arguments;
 
    --  Setup LKQL_RULES_PATH to point on built-in rules

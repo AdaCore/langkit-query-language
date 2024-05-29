@@ -7,14 +7,16 @@
 --  for all the tools.
 
 with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Directories;  use Ada.Directories;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+
+with Ada.Directories; use Ada.Directories;
 with Ada.Environment_Variables;
 
 with GNAT.OS_Lib;
 
 with Gnatcheck.Projects;
 
-with Rules_Factory; use Rules_Factory;
+with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 
 package Gnatcheck.Options is
 
@@ -50,14 +52,8 @@ package Gnatcheck.Options is
    --  Target as it is specified by the command-line '--target=...' option, or
    --  by the 'Target attribute in the argument project file.
 
-   Charset : GNAT.OS_Lib.String_Access := new String'("iso-8859-1");
-   --  Charset to use for parsing source files
-
    Global_Report_Dir : GNAT.OS_Lib.String_Access := new String'("./");
    --  The name of the directory to place the global results into
-
-   Additional_Rules_Dirs : Path_Vector;
-   --  Additional rules directories specified via --rules-dir
 
    Fatal_Error : exception;
    --  This exception should be raised when there is no sense any more to do
@@ -111,10 +107,6 @@ package Gnatcheck.Options is
    --  If this flag is ON, the total execution time (wall clock) of the tool
    --  is computed and printed out.
    --  '-t'
-
-   Check_Semantic : Boolean := False;
-   --  If True, run the compiler to check the semantic of each source file.
-   --  --check-semantic
 
    Legacy : Boolean := False;
    --  If True, run in legacy mode, with no support for additional rule files.
@@ -294,5 +286,34 @@ package Gnatcheck.Options is
    ---------------------
 
    Gnatcheck_Prj : aliased Gnatcheck.Projects.Arg_Project_Type;
+
+   package Arg is
+      Parser : Argument_Parser := Create_Argument_Parser
+        (Help               => "GNATcheck help",
+         Incremental        => True,
+         Generate_Help_Flag => False);
+
+      package Check_Semantic is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--check-semantic",
+         Help   => "check semantic validity of the source files");
+
+      package Charset is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--charset",
+         Arg_Type    => Unbounded_String,
+         Default_Val => To_Unbounded_String ("iso-8859-1"),
+         Help        => "specify the charset of the source files (default is "
+                        & "latin-1)");
+
+      package Rules_Dirs is new Parse_Option_List
+        (Parser     => Parser,
+         Long       => "--rules-dir",
+         Arg_Type   => Unbounded_String,
+         Accumulate => True,
+         Enabled    => not Legacy,
+         Help       => "specify an alternate directory containing rule files");
+
+   end Arg;
 
 end Gnatcheck.Options;

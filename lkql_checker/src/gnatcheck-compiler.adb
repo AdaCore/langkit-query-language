@@ -1646,9 +1646,11 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-eL");
       end if;
 
-      for Dir of Additional_Rules_Dirs loop
+      for Dir of Arg.Rules_Dirs.Get loop
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--rules-dir=" & Dir);
+         Args (Num_Args)
+           := new String'
+             ("--rules-dir=" & Ada.Strings.Unbounded.To_String (Dir));
       end loop;
 
       Num_Args := @ + 1;

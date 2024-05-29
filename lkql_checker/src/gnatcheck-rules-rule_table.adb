@@ -1615,7 +1615,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
       Ctx.All_Rules :=
         Rules_Factory.All_Rules
-          (Ctx.LKQL_Analysis_Context, Additional_Rules_Dirs);
+          (Ctx.LKQL_Analysis_Context, Path_Array (Arg.Rules_Dirs.Get));
 
       for R of Ctx.All_Rules loop
          declare

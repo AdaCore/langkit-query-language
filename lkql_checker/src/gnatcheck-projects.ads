@@ -89,7 +89,6 @@
 --  and 3 above. For step 2, see the procedure Process_Project_File
 --  that combines all the steps of loading and analyzing the project file.
 
-with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with GPR2.Containers;
@@ -269,10 +268,9 @@ package Gnatcheck.Projects is
    --  Process all the rule options found as part of scanning arguments
 
    procedure Scan_Arguments
-     (My_Project  : in out Arg_Project_Type;
-      First_Pass  : Boolean    := False;
-      Parser      : Opt_Parser := Command_Line_Parser;
-      In_Switches : Boolean    := False);
+     (My_Project : in out Arg_Project_Type;
+      First_Pass : Boolean    := False;
+      Args       : GNAT.OS_Lib.Argument_List_Access := null);
    --  This procedure should be redefined for each tool project type. It
    --  should be called immediately after the call to Initialize_Option_Scan
    --  that should create the Parser for it. The procedure defines the loop
