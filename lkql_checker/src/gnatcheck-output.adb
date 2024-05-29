@@ -684,8 +684,13 @@ package body Gnatcheck.Output is
          Info (" -l   - full pathname for file locations");
          Info ("");
          Info (" --brief                - brief mode, only report detections in Stderr");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --check-semantic       - check semantic validity of the source files");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --charset=<charset>    - specify the charset of the source files");
+
          Info (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
          Info ("");
 
@@ -738,10 +743,15 @@ package body Gnatcheck.Output is
 
       Info (" --brief              - brief mode, only report detections in Stderr");
       Info (" --check-redefinition - issue warning if a rule parameter is redefined");
+
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --check-semantic     - check semantic validity of the source files");
+
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --charset=<charset>  - specify the charset of the source files");
 
       if not Legacy then
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --rules-dir=<dir>    - specify an alternate directory containing rule files");
       end if;
 

@@ -4,11 +4,9 @@
 --
 
 with Ada.Containers.Indefinite_Hashed_Sets;
-with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
 with Ada.Strings.Hash;
-
-with GNATCOLL.VFS; use GNATCOLL.VFS;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Liblkqllang.Analysis;
 
@@ -26,21 +24,13 @@ package Rules_Factory is
      (String, Ada.Strings.Hash, "=", "=");
    subtype Rule_Set is Rule_Sets.Set;
 
-   package Path_Vectors is new
-     Ada.Containers.Indefinite_Vectors (Positive, String);
-   subtype Path_Vector is Path_Vectors.Vector;
+   type Path_Array is array (Positive range <>) of Unbounded_String;
+   No_Paths : Path_Array (1 .. 0) := [others => <>];
 
    function All_Rules
      (Ctx  : L.Analysis_Context;
-      Dirs : Path_Vector := Path_Vectors.Empty_Vector) return Rule_Vector;
+      Dirs : Path_Array := No_Paths) return Rule_Vector;
    --  Return a vector containing Rule_Command values for every implemented
    --  check.
-
-private
-   type Virtual_File_Array is array (Positive range <>) of Virtual_File;
-
-   function Get_Rules_Directories
-     (Dirs : Path_Vector) return Virtual_File_Array;
-   --  Return the absolute path of the directory containing the LKQL programs
 
 end Rules_Factory;
