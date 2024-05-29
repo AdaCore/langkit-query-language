@@ -1541,6 +1541,8 @@ package body Gnatcheck.Source_Table is
          end;
       end Add_Runtime_Files;
 
+      Charset : constant String := To_String (Arg.Charset.Get);
+
    begin
       --  If no project specified, create an auto provider with all the source
       --  files listed in the command line, stored in Temporary_File_Storage,
@@ -1571,9 +1573,9 @@ package body Gnatcheck.Source_Table is
             Temp_Storage_Iterate (Add_File'Access);
             Add_Runtime_Files;
             Ctx.Analysis_Ctx := Create_Context
-              (Charset       => Charset.all,
+              (Charset       => Charset,
                Unit_Provider => Create_Auto_Provider_Reference
-                                  (Files (1 .. Last), Charset.all),
+                                  (Files (1 .. Last), Charset),
                Event_Handler => EHR_Object);
             Unchecked_Free (Files);
          end;
@@ -1591,7 +1593,7 @@ package body Gnatcheck.Source_Table is
          --  aggregate projects, which are handled specially in lalcheck.adb
 
          Ctx.Analysis_Ctx := Create_Context
-           (Charset       => Charset.all,
+           (Charset       => Charset,
             Unit_Provider => Partition (Partition'First).Provider,
             Event_Handler => EHR_Object);
 
