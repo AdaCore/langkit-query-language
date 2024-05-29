@@ -1,0 +1,6 @@
+procedure Main is
+begin
+   goto Other;  --  FLAG
+
+   <<Other>>
+end Main;

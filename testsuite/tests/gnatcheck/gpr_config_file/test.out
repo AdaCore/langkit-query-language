@@ -1,0 +1,9 @@
+Without config file
+===================
+
+main.adb:3:04: goto statement
+
+With config file
+================
+
+main.body:3:04: goto statement

@@ -55,6 +55,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         @CommandLine.Option(names = "--target", description = "Target to pass to GPR")
         public String target = null;
 
+        @CommandLine.Option(names = "--config", description = "Config file for GPR loading")
+        public String configFile = null;
+
         @CommandLine.Option(
                 names = {"-v", "--verbose"},
                 description = "Enable the verbose mode")
@@ -225,6 +228,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         if (this.args.RTS != null) {
             contextBuilder.option("lkql.runtime", this.args.RTS);
+        }
+
+        if (this.args.configFile != null) {
+            contextBuilder.option("lkql.configFile", this.args.configFile);
         }
 
         // Set the files

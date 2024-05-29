@@ -133,6 +133,13 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             stability = OptionStability.STABLE)
     static final OptionKey<String> target = new OptionKey<>("");
 
+    /** The config GPR file to pass during project loading. */
+    @Option(
+            help = "The config file for GPR project loading",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<String> configFile = new OptionKey<>("");
+
     /**
      * The scenario variables to load the project file with, where "key=value" variable
      * specifications are encoded as Base64 and separated by semicolons.
