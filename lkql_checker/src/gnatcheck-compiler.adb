@@ -81,6 +81,12 @@ package body Gnatcheck.Compiler is
    function Get_Rule_Id (Check : Message_Kinds) return Rule_Id;
    --  Returns the Id corresponding to the given compiler check
 
+   function Path_Index (Source, Pattern : String) return Integer;
+   --  Returns the index of the first occurence of the path represented by
+   --  ``Pattern`` inside the ``Source`` string.
+   --  This function treats the provided path as case-insensitive on Windows
+   --  systems.
+
    ---------------------------------------------------------
    -- Data structures and routines for restriction checks --
    ---------------------------------------------------------
@@ -168,7 +174,7 @@ package body Gnatcheck.Compiler is
       Par_End   : Natural := 0;
 
    begin
-      Last_Idx := Index (Result, Gnatcheck_Config_File.all);
+      Last_Idx := Path_Index (Result, Gnatcheck_Config_File.all);
 
       if Last_Idx = 0 then
          Last_Idx := Result'Last;
@@ -375,7 +381,7 @@ package body Gnatcheck.Compiler is
          end if;
 
          if Message_Kind = Restriction
-           and then Index (Msg, Gnatcheck_Config_File.all) = 0
+           and then Path_Index (Msg, Gnatcheck_Config_File.all) = 0
          then
             --  This means that the diagnoses correspond to some pragma that
             --  is not from the configuration file created from rule
@@ -665,6 +671,31 @@ package body Gnatcheck.Compiler is
             return Restrictions_Id;
       end case;
    end Get_Rule_Id;
+
+   ----------------
+   -- Path_Index --
+   ----------------
+
+   function Path_Index (Source, Pattern : String) return Integer
+   is
+      Case_Sensitive : constant Boolean :=
+        GNAT.OS_Lib.Directory_Separator /= '\';
+   begin
+      if Case_Sensitive then
+         return Index (Source, Pattern);
+      else
+         declare
+            Offset : constant Integer :=
+              Index (To_Lower (Source), To_Lower (Pattern));
+         begin
+            if Offset /= 0 then
+               return Source'First + Offset - 1;
+            else
+               return 0;
+            end if;
+         end;
+      end if;
+   end Path_Index;
 
    ----------------------------------
    -- Get_Specified_Warning_Option --
