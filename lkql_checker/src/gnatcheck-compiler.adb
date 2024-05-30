@@ -13,19 +13,18 @@ with GNAT.Case_Util;
 with GNAT.Strings;
 with GNAT.String_Split;
 
-with GNATCOLL.VFS; use GNATCOLL.VFS;
-
+with Gnatcheck.Diagnoses;          use Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;                use Gnatcheck.Ids;
 with Gnatcheck.Options;            use Gnatcheck.Options;
 with Gnatcheck.Output;             use Gnatcheck.Output;
 with Gnatcheck.Projects;           use Gnatcheck.Projects;
 with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
-with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 with Gnatcheck.Rules;              use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
+with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
-with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;       use Gnatcheck.Ids;
+with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 package body Gnatcheck.Compiler is
 
@@ -95,13 +94,13 @@ package body Gnatcheck.Compiler is
 
    type Restriction_State is record
       Active : Boolean;
-      Param  : String_List_Access;
+      Param  : String_Vector;
    end record;
    --  We can not use Option_Parameter here, because some restrictions (e.g.
    --  Max_Task_Entries) may be active and may have zero parameter
 
    Restriction_Setting : array (All_Restrictions) of Restriction_State :=
-     [others => (False, null)];
+     [others => (False, String_Vectors.Empty_Vector)];
    --  This array represents only restrictions that are values of
    --  System.Rident.Restriction_Id. But we need to process restrictions that
    --  are not included in values of this type.
@@ -328,20 +327,39 @@ package body Gnatcheck.Compiler is
                  Index (Source  => Msg (Msg'First .. Msg'Last - 1),
                         Pattern => "[",
                         Going   => Backward);
-               Id    : Rule_Id;
+               Name_Split : constant Natural :=
+                 Index (Source  => Msg (Last + 1 .. Msg'Last - 1),
+                        Pattern => "|");
 
+               Rule_Name : constant String :=
+                 (if Name_Split /= 0 then
+                    Msg (Name_Split + 1 .. Msg'Last - 1)
+                  elsif Last /= 0 then
+                    Msg (Last + 1 .. Msg'Last - 1)
+                  else "");
+               Instance_Name : constant String :=
+                 (if Name_Split /= 0 then
+                    Msg (Last + 1 .. Name_Split - 1)
+                  else "");
+
+               Id : Rule_Id := No_Rule_Id;
             begin
                if Last = 0 then
                   Format_Error;
                   return;
                end if;
 
-               Id := Get_Rule (Msg (Last + 1 .. Msg'Last - 1));
+               --  Get the rule information and save the diagnosis about it.
+               --  Important: Here we don't use the instance map because of the
+               --  `-from-lkql` option which can define and enable rules
+               --  without the driver knowing.
+               Id := Get_Rule (Rule_Name);
                Store_Diagnosis
                  (Text           => Gnatcheck.Source_Table.File_Name (SF) &
                                     Msg (File_Idx .. Idx - 1) &
                                     Msg (Idx + 7 .. Last - 2) &
-                                    Annotate_Rule (All_Rules.Table (Id).all),
+                                    Annotate_Rule
+                                      (All_Rules (Id), Instance_Name),
                   Diagnosis_Kind => Rule_Violation,
                   SF             => SF,
                   Rule           => Id);
@@ -400,7 +418,7 @@ package body Gnatcheck.Compiler is
                                  Message_Kind),
             Diagnosis_Kind => Kind,
             SF             => SF,
-            Rule           => (if Message_Kind = Error then No_Rule
+            Rule           => (if Message_Kind = Error then No_Rule_Id
                                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
@@ -576,11 +594,11 @@ package body Gnatcheck.Compiler is
             if R in All_Boolean_Restrictions then
                Add_Line ("pragma Restriction_Warnings (" & R'Img & ");");
             else
-               for J in Restriction_Setting (R).Param'Range loop
+               for J in Restriction_Setting (R).Param.Iterate loop
                   Append (Contents, "pragma Restriction_Warnings (");
                   Append (Contents, R'Img);
                   Append (Contents,
-                          " =>"  & Restriction_Setting (R).Param (J).all);
+                          " =>"  & Restriction_Setting (R).Param (J));
                   Add_Line (");");
                end loop;
             end if;
@@ -662,7 +680,7 @@ package body Gnatcheck.Compiler is
       case Check is
          when Not_A_Message | Error =>
             pragma Assert (False);
-            return No_Rule;
+            return No_Rule_Id;
          when Warning =>
             return Warnings_Id;
          when Style =>
@@ -853,9 +871,9 @@ package body Gnatcheck.Compiler is
             if R in All_Boolean_Restrictions then
                Report (To_Mixed (R'Img), Ident_Level);
             else
-               for J in Restriction_Setting (R).Param'Range loop
+               for J in Restriction_Setting (R).Param.Iterate loop
                   Report_No_EOL (To_Mixed (R'Img), Ident_Level);
-                  Report (" =>"  & Restriction_Setting (R).Param (J).all);
+                  Report (" =>"  & Restriction_Setting (R).Param (J));
                end loop;
             end if;
          end if;
@@ -911,10 +929,10 @@ package body Gnatcheck.Compiler is
             if R in All_Boolean_Restrictions then
                Put_Line (Rule_File, "+RRestrictions : " & To_Mixed (R'Img));
             else
-               for J in Restriction_Setting (R).Param'Range loop
+               for J in Restriction_Setting (R).Param.Iterate loop
                   Put (Rule_File, "+RRestrictions : " & To_Mixed (R'Img));
                   Put_Line (Rule_File,
-                            " =>"  & Restriction_Setting (R).Param (J).all);
+                            " =>"  & Restriction_Setting (R).Param (J));
                end loop;
             end if;
          end if;
@@ -1038,35 +1056,6 @@ package body Gnatcheck.Compiler is
          end if;
       end loop;
 
-      if not Enable then
-         if R_Id in All_Restrictions then
-            Restriction_Setting (R_Id).Active := False;
-         else
-            Special_Restriction_Setting (Special_R_Id) := False;
-            --  We may need to correct stored parameters of some restrictions
-
-            if Arg_Present then
-               case Special_R_Id is
-                  when No_Dependence =>
-                     Forbidden_Units_Dictionary.Remove_From_Dictionary
-                       (Trim (Param (Last_Idx .. Param'Last), Both));
-
-                  when No_Use_Of_Entity =>
-                     Forbidden_Entities_Dictionary.Remove_From_Dictionary
-                       (Trim (Param (Last_Idx .. Param'Last), Both));
-
-                  when No_Specification_Of_Aspect =>
-                     Forbidden_Aspects_Dictionary.Remove_From_Dictionary
-                       (Trim (Param (Last_Idx .. Param'Last), Both));
-
-                  when Not_A_Special_Restriction_Id => null;
-               end case;
-            end if;
-         end if;
-
-         return;
-      end if;
-
       if R_Id in All_Boolean_Restrictions then
 
          if Arg_Present then
@@ -1092,11 +1081,10 @@ package body Gnatcheck.Compiler is
                     Option_Parameter'Value
                       (Trim (Param (Last_Idx .. Param'Last), Both));
 
-                  if Restriction_Setting (R_Id).Param /= null
-                    and then
-                     Gnatcheck.Options.Check_Param_Redefinition
+                  if not Restriction_Setting (R_Id).Param.Is_Empty
+                    and then Gnatcheck.Options.Check_Param_Redefinition
                   then
-                     Free (Restriction_Setting (R_Id).Param);
+                     Restriction_Setting (R_Id).Param.Clear;
                      Last_Idx := Index (Param, "=", Backward) - 1;
 
                      for J in reverse First_Idx .. Last_Idx loop
@@ -1112,8 +1100,7 @@ package body Gnatcheck.Compiler is
                      Rule_Option_Problem_Detected := True;
                   end if;
 
-                  Restriction_Setting (R_Id).Param  :=
-                    new String_List'(1 => new String'(R_Val'Img));
+                  Restriction_Setting (R_Id).Param.Append (R_Val'Img);
                exception
                   when Constraint_Error =>
                      Error ("wrong restriction parameter expression in " &
@@ -1126,22 +1113,8 @@ package body Gnatcheck.Compiler is
                --  No check is made for the moment for non-integer restriction
                --  parameters:
 
-               if Restriction_Setting (R_Id).Param = null then
-                  Restriction_Setting (R_Id).Param  :=
-                    new String_List'(1 => new String'
-                      (Trim (Param (Last_Idx .. Param'Last), Both)));
-
-               else
-                  declare
-                     Tmp : constant String_List :=
-                       Restriction_Setting (R_Id).Param.all &
-                       new String'(Trim
-                         (Param (Last_Idx .. Param'Last), Both));
-                  begin
-                     Restriction_Setting (R_Id).Param :=
-                       new String_List'(Tmp);
-                  end;
-               end if;
+               Restriction_Setting (R_Id).Param.Append
+                 (Trim (Param (Last_Idx .. Param'Last), Both));
             end if;
          end if;
 
@@ -1248,6 +1221,22 @@ package body Gnatcheck.Compiler is
       end if;
    end Process_Restriction_Param;
 
+   --------------------------
+   -- Disable_Restrictions --
+   --------------------------
+
+   procedure Disable_Restrictions is
+   begin
+      for J in Restriction_Setting'Range loop
+         Restriction_Setting (J).Active := False;
+         Restriction_Setting (J).Param.Clear;
+      end loop;
+
+      for J in Special_Restriction_Setting'Range loop
+         Special_Restriction_Setting (J) := False;
+      end loop;
+   end Disable_Restrictions;
+
    -------------------------------
    -- Process_Style_Check_Param --
    -------------------------------
@@ -1284,6 +1273,17 @@ package body Gnatcheck.Compiler is
       end if;
    end Process_Style_Options;
 
+   --------------------------
+   -- Disable_Style_Checks --
+   --------------------------
+
+   procedure Disable_Style_Checks is
+   begin
+      Use_gnaty_Option := False;
+      Free (Style_Options_String);
+      Style_Options_String := new String'("-gnaty");
+   end Disable_Style_Checks;
+
    ---------------------------
    -- Process_Warning_Param --
    ---------------------------
@@ -1310,6 +1310,17 @@ package body Gnatcheck.Compiler is
       Free (Warning_Options_String);
       Warning_Options_String := new String'(New_Options);
    end Process_Warning_Param;
+
+   ----------------------
+   -- Disable_Warnings --
+   ----------------------
+
+   procedure Disable_Warnings is
+   begin
+      Use_gnatw_Option := False;
+      Free (Warning_Options_String);
+      Warning_Options_String := new String'("-gnatw");
+   end Disable_Warnings;
 
    --------------------------------
    -- Restriction_Rule_parameter --
@@ -1454,7 +1465,7 @@ package body Gnatcheck.Compiler is
       use GNAT.String_Split;
 
       Pid           : Process_Id;
-      Split_Command : constant Slice_Set := Create (Worker_Command, " ");
+      Split_Command : constant Slice_Set := Create (Worker_Name, " ");
       Worker        : String_Access := null;
       Prj           : constant String := Gnatcheck_Prj.Source_Prj;
       CGPR          : constant String := Gnatcheck_Prj.Source_CGPR;
@@ -1479,7 +1490,7 @@ package body Gnatcheck.Compiler is
       --  Test if the worker executable exists
       if Worker = null then
          Error ("cannot locate the worker executable: "
-                & Base_Name (Worker_Command));
+                & Base_Name (Worker_Name));
          raise Fatal_Error;
       end if;
 
@@ -1583,7 +1594,7 @@ package body Gnatcheck.Compiler is
       use GNAT.String_Split;
 
       Pid           : Process_Id;
-      Split_Command : constant Slice_Set := Create (Worker_Command, " ");
+      Split_Command : constant Slice_Set := Create (Worker_Name, " ");
       Worker : String_Access := null;
       Args : Argument_List (1 .. 128);
       Num_Args : Integer := 0;
@@ -1601,7 +1612,7 @@ package body Gnatcheck.Compiler is
 
       if Worker = null then
          Error ("cannot locate the worker executable: "
-                & Base_Name (Worker_Command));
+                & Base_Name (Worker_Name));
          raise Fatal_Error;
       end if;
 
@@ -1806,10 +1817,10 @@ package body Gnatcheck.Compiler is
                  ("<parameter>" & To_Mixed (R'Img) & "</parameter>",
                   Indent_Level + 1);
             else
-               for J in Restriction_Setting (R).Param'Range loop
+               for J in Restriction_Setting (R).Param.Iterate loop
                   XML_Report
                     ("<parameter>" & To_Mixed (R'Img) &
-                     "=>"  & Restriction_Setting (R).Param (J).all &
+                     "=>"  & Restriction_Setting (R).Param (J) &
                      "</parameter>",
                      Indent_Level + 1);
                end loop;

@@ -7,14 +7,14 @@
 --  gnatcheck. For any rule the only means to get into this table is the
 --  call to the Register_Rule procedure
 
-with GNAT.Table;
-with Gnatcheck.Ids; use Gnatcheck.Ids;
-with Checker_App;   use Checker_App;
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
+
+with Checker_App; use Checker_App;
 
 package Gnatcheck.Rules.Rule_Table is
 
-   function No      (Id : Rule_Id) return Boolean;
-   function Present (Id : Rule_Id) return Boolean;
+   function Present (Rule : Rule_Id) return Boolean;
    --  Check if the argument represents an existing rule
 
    procedure Process_Rule_Option
@@ -100,29 +100,54 @@ package Gnatcheck.Rules.Rule_Table is
    --  Prints out the rule help (organized by categories) in XML format for
    --  GNAT Studio needs.
 
-   package All_Rules is new GNAT.Table (
-     Table_Component_Type => Rule_Access,
-     Table_Index_Type     => Rule_Id,
-     Table_Low_Bound      => First_Rule,
-     Table_Initial        => 100,
-     Table_Increment      => 100,
-     Table_Name           => "Rule table");
+   package Rule_Map is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => Rule_Id,
+      Element_Type    => Rule_Info,
+      Hash            => Hash,
+      Equivalent_Keys => "=");
+   All_Rules : Rule_Map.Map;
+   --  This map is used to store all parsed rules associated to their
+   --  identifiers.
+
+   package Rule_Instance_Map is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => String,
+      Element_Type    => Rule_Instance_Access,
+      Hash            => Ada.Strings.Hash,
+      Equivalent_Keys => "=");
+   All_Rule_Instances : Rule_Instance_Map.Map;
+   --  This global map contains all created instances, from their normalized
+   --  name to their address.
 
    function Get_Rule (Rule_Name : String) return Rule_Id;
-   --  Returns the Id for the rule registered under the name Rule_Name or
-   --  corresponding to the compiler check denoted by Rule_Name. If there is no
-   --  such rule, returns No_Rule. Rule names are not case-sensitive.
+   --  Returns the identifier for the provided rule name. This identifier is
+   --  associated to the rule information access in `All_Rules` map. This
+   --  function also looks into the `All_Rule_Instances` map for possible
+   --  aliases of the rule.
+   --  If there is no rule designated by `Rule_Name`, this function returns the
+   --  `No_Rule_Id` value.
+
+   function Get_Instance
+     (Instance_Name : String) return Rule_Instance_Access;
+   --  Return an access to the rule instance associated with the given instance
+   --  name. If there is no such instance, this function returns null.
+
+   procedure Turn_Instance_On (Instance : Rule_Instance_Access);
+   --  Insert the given rule instance in `All_Rule_Instances` to represents its
+   --  enabling.
+
+   procedure Turn_Instance_Off (Instance_Name : String);
+   --  Remove the instance associated with `Instance_Name` after its
+   --  normalization. If there is no instance assocaited to the provided name
+   --  this function does nothing.
 
    procedure Turn_All_Rules_Off;
    --  Turns OFF all the rules currently implemented in gnatcheck
 
    procedure Turn_All_Rules_On;
-   --  Turns ON all the rules currently implemented in gnatcheck
+   --  Turns ON all the rules currently implemented in gnatcheck. This function
+   --  will only turn on rules that are not enabled yet.
 
-   procedure Set_Rule_State (For_Rule : Rule_Id; To_State : Rule_States);
-   --  Sets the state of the argument rule. Requires Present (For_Rule)
-
-   function Rule_Name (R : Rule_Id) return String;
+   function Rule_Name (Rule : Rule_Id) return String;
    --  Returns the name of the rule.
 
    function Is_Enabled (Rule : Rule_Id) return Boolean;
@@ -133,8 +158,7 @@ package Gnatcheck.Rules.Rule_Table is
    --  Process input rules: Put the rules that have been requested by the user
    --  in internal data structures.
 
-   procedure Process_Requested_Rules (Ctx : in out Lkql_Context);
-   --  Process the rules enabled and set Ctx.Traverse_Instantiations
-   --  TODO: Useless? See #190
+   procedure Clean_Up;
+   --  Release all allocated ressources for rules and instances storage.
 
 end Gnatcheck.Rules.Rule_Table;

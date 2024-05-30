@@ -1,0 +1,17 @@
+Disable an instance with its name
+=================================
+
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Disable an instance with a previously given parameter
+=====================================================
+
+main.adb:3:04: goto statement [cond_goto|goto_statements]
+main.adb:8:07: goto statement [cond_goto|goto_statements]
+
+Disabling the wrong instance
+============================
+
+main.adb:3:04: goto statement [cond_goto|goto_statements]

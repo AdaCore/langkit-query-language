@@ -3,36 +3,35 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Characters.Conversions;  use Ada.Characters.Conversions;
-with Ada.Characters.Handling;     use Ada.Characters.Handling;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Directories;
-with Ada.Exceptions;              use Ada.Exceptions;
-with Ada.Strings;                 use Ada.Strings;
-with Ada.Strings.Fixed;           use Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;       use Ada.Strings.Unbounded;
-with Ada.Text_IO;                 use Ada.Text_IO;
+with Ada.Exceptions;          use Ada.Exceptions;
+with Ada.Strings;             use Ada.Strings;
+with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
+with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.String_Split;           use GNAT.String_Split;
-with GNAT.Directory_Operations;   use GNAT.Directory_Operations;
-with GNAT.Expect;                 use GNAT.Expect;
-with GNAT.OS_Lib;                 use GNAT.OS_Lib;
+with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
+with GNAT.Expect;                use GNAT.Expect;
+with GNAT.OS_Lib;                use GNAT.OS_Lib;
+with GNAT.String_Split;          use GNAT.String_Split;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
-with GNATCOLL.VFS;                use GNATCOLL.VFS;
+with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
+with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;              use Gnatcheck.Ids;
+with Gnatcheck.Output;           use Gnatcheck.Output;
+with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+
+with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 with GPR2.Path_Name;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
 with GPR2.Project.Source.Set;
 
-with Gnatcheck.Compiler;          use Gnatcheck.Compiler;
-with Gnatcheck.Diagnoses;         use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;               use Gnatcheck.Ids;
-with Gnatcheck.Output;            use Gnatcheck.Output;
-with Gnatcheck.String_Utilities;  use Gnatcheck.String_Utilities;
-
-with Langkit_Support.Text;        use Langkit_Support.Text;
+with Langkit_Support.Generic_API.Analysis;
 with Langkit_Support.Generic_API.Introspection;
 
 with Libadalang.Analysis;         use Libadalang.Analysis;
@@ -43,8 +42,6 @@ with Libadalang.Iterators;
 with Libadalang.Generic_API;      use Libadalang.Generic_API;
 with Libadalang.Common;
 with Libadalang.Config_Pragmas;
-
-with Langkit_Support.Generic_API.Analysis;
 
 with Liblkqllang.Analysis;
 
@@ -215,14 +212,6 @@ package body Gnatcheck.Source_Table is
    --  Return the next non processed source file id.
 
    type EHI is new Event_Handler_Interface with null record;
-
-   procedure Unit_Requested_Callback
-     (Self               : in out EHI;
-      Context            : Analysis_Context'Class;
-      Name               : Text_Type;
-      From               : Analysis_Unit'Class;
-      Found              : Boolean;
-      Is_Not_Found_Error : Boolean);
 
    procedure Release (Self : in out EHI) is null;
    --  No resources associated to Self to release, so just a stub
@@ -1453,15 +1442,11 @@ package body Gnatcheck.Source_Table is
                        File_Name (Next_SF) & ":1:01: internal error: " &
                        Strip_LF (Exception_Information (E));
                   begin
-                     if Subprocess_Mode then
-                        Put_Line (Msg);
-                     else
-                        Store_Diagnosis
-                          (Text           => Msg,
-                           Diagnosis_Kind => Internal_Error,
-                           SF             => Next_SF,
-                           Rule           => No_Rule);
-                     end if;
+                     Store_Diagnosis
+                       (Text           => Msg,
+                        Diagnosis_Kind => Internal_Error,
+                        SF             => Next_SF,
+                        Rule           => No_Rule_Id);
                   end;
                end if;
          end;
@@ -1660,29 +1645,5 @@ package body Gnatcheck.Source_Table is
       return Ctx;
 
    end Create_Context;
-
-   -----------------------------
-   -- Unit_Requested_Callback --
-   -----------------------------
-
-   procedure Unit_Requested_Callback
-     (Self               : in out EHI;
-      Context            : Analysis_Context'Class;
-      Name               : Text_Type;
-      From               : Analysis_Unit'Class;
-      Found              : Boolean;
-      Is_Not_Found_Error : Boolean)
-   is
-   begin
-      if not Found and then Is_Not_Found_Error then
-         if Subprocess_Mode then
-            Put_Line
-              (From.Get_Filename & ":1:1: warning: cannot find "
-               & To_String (Name));
-         else
-            Report_Missing_File (From.Get_Filename, To_String (Name));
-         end if;
-      end if;
-   end Unit_Requested_Callback;
 
 end Gnatcheck.Source_Table;

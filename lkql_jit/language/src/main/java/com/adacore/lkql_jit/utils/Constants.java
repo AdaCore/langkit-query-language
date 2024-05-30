@@ -66,7 +66,10 @@ public class Constants {
     public static final String MIN_DEPTH_SYMBOL = "min_depth";
 
     /** Special object key for LKQL config file to define rule alias. */
-    public static final String ALIAS_NAME_SYMBOL = "alias_name";
+    public static final String ALIAS_NAME_SYMBOL = "instance_name";
+
+    /** Special object key for LKQL config file to define the rule instance name. IOW rule alias. */
+    public static final String INSTANCE_NAME_SYMBOL = "instance_name";
 
     // ----- Special annotations -----
 

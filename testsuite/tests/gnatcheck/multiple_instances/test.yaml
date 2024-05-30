@@ -1,0 +1,9 @@
+driver: gnatcheck
+format: brief
+show_rule: True
+input_sources:
+  - main.adb
+rules:
+  - +R:type_suffixes:identifier_suffixes:Type_Suffix=_T
+  - +R:constant_suffixes:identifier_suffixes:Constant_Suffix=_C
+  - +R:both:identifier_suffixes:Type_Suffix=_T,Constant_Suffix=_C

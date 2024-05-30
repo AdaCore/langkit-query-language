@@ -7,6 +7,7 @@
 --  report from the check performed by the compiler.
 
 with Ada.Text_IO; use Ada.Text_IO;
+
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 package Gnatcheck.Compiler is
@@ -88,16 +89,27 @@ package Gnatcheck.Compiler is
    --  Depending on the value of Enable, the corresponding restriction is set
    --  ON or OFF.
 
+   procedure Disable_Restrictions;
+   --  Disable the "Restrictions" compiler-based rule by disabling all
+   --  activated restrictions.
+
    procedure Process_Style_Check_Param (Param : String);
    --  Processes a parameter of a style check (the style_check "rule") passed
    --  as an actual for Param. Only a single parameter should be passed, not a
    --  set of parameters separated by comma(s) from the rule option.
+
+   procedure Disable_Style_Checks;
+   --  Disable the "Style_Checks" rule and reset all registered style checking
+   --  options.
 
    procedure Process_Warning_Param (Param : String);
    --  Processes a parameter of a warning (the warning "rule") passed as an
    --  actual for Param. Only a single parameter should be passed, not a set of
    --  parameters separated by comma(s) from the rule option. Depending on the
    --  value of Enable, the corresponding warning(s) is (are) set ON or OFF
+
+   procedure Disable_Warnings;
+   --  Disable the "Warnings" rule and reset all registered warning options.
 
    procedure Create_Restriction_Pragmas_File;
    --  Creates in the temporary directory the configuration file containing

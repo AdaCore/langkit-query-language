@@ -48,7 +48,7 @@ try "gnatcheck --help" for more information.
 Missing mandatory parameter
 ===========================
 
-gnatcheck: missing parameter for rule headers: 'header' (missing_param.lkql)
+gnatcheck: missing parameter for instance headers: 'header' (missing_param.lkql)
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -56,5 +56,5 @@ try "gnatcheck --help" for more information.
 Extra parameter
 ===============
 
-gnatcheck: extra argument for rule goto_statements: 'extra' (extra_param.lkql)
+gnatcheck: extra argument for instance goto_statements: 'extra' (extra_param.lkql)
 >>>program returned status code 5

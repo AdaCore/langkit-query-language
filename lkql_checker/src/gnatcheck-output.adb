@@ -9,8 +9,9 @@ with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.Directory_Operations;   use GNAT.Directory_Operations;
-with GNAT.OS_Lib;                 use GNAT.OS_Lib;
+with GNAT.Directory_Operations; use GNAT.Directory_Operations;
+with GNAT.OS_Lib;               use GNAT.OS_Lib;
+with GNAT.Traceback.Symbolic;
 
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
@@ -410,7 +411,12 @@ package body Gnatcheck.Output is
 
    procedure Report_Unhandled_Exception (Ex : Exception_Occurrence) is
    begin
-      Error (Exception_Information (Ex));
+      Error (Exception_Message (Ex));
+      if not Debug_Mode then
+         Put_Line
+           (Standard_Error,
+            GNAT.Traceback.Symbolic.Symbolic_Traceback_No_Hex (Ex));
+      end if;
    end Report_Unhandled_Exception;
 
    -------------------------

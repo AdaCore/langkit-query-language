@@ -4,17 +4,32 @@
 --
 
 with Ada.Calendar;
-with Ada.Characters.Handling;    use Ada.Characters.Handling;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
-with Ada.Directories;            use Ada.Directories;
+with Ada.Directories;         use Ada.Directories;
 with Ada.Environment_Variables;
-with Ada.Strings;                use Ada.Strings;
-with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
+with Ada.Strings;             use Ada.Strings;
+with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
-with System.Multiprocessors;
+with GNAT.Directory_Operations;
+with GNAT.Regexp;       use GNAT.Regexp;
+with GNAT.Strings;
+with GNAT.String_Split; use GNAT.String_Split;
+with GNAT.Table;
+
+with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
+with Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;                use Gnatcheck.Ids;
+with Gnatcheck.Options;            use Gnatcheck.Options;
+with Gnatcheck.Output;             use Gnatcheck.Output;
+with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
+with Gnatcheck.Rules;              use Gnatcheck.Rules;
+with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
+with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
 with GNATCOLL.Traces;
 
@@ -35,26 +50,11 @@ with GPR2.Project.Source.Set;
 with GPR2.Project.View;
 with GPR2.Project.View.Set;
 
-with GNAT.Directory_Operations;
-with GNAT.Strings;
-with GNAT.Regexp;       use GNAT.Regexp;
-with GNAT.String_Split; use GNAT.String_Split;
-with GNAT.Table;
-
-with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
-with Gnatcheck.Diagnoses;
-with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Rules;              use Gnatcheck.Rules;
-with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
-
-with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
+with Libadalang.Auto_Provider; use Libadalang.Auto_Provider;
 
 with Rule_Commands; use Rule_Commands;
 
-with Libadalang.Auto_Provider; use Libadalang.Auto_Provider;
+with System.Multiprocessors;
 
 package body Gnatcheck.Projects is
 
@@ -123,7 +123,7 @@ package body Gnatcheck.Projects is
       Gprbuild : constant String := Global_Report_Dir.all & "gprbuild.err";
 
    begin
-      if not (Subprocess_Mode or Debug_Mode) then
+      if not Debug_Mode then
          Delete_File (Gprbuild, Success);
          Delete_File (Gprbuild & ".out", Success);
       end if;
@@ -1707,11 +1707,6 @@ package body Gnatcheck.Projects is
                   elsif Full_Switch (Parser => Parser) = "-show-rule" then
                      Mapping_Mode := True;
 
-                  elsif Full_Switch (Parser => Parser) = "-subprocess" then
-                     Subprocess_Mode := True;
-                     Quiet_Mode      := True;
-                     Brief_Mode      := True;
-
                   elsif Full_Switch (Parser => Parser) = "-RTS" then
                      --  We do not store --RTS option for gcc now - we have
                      --  to resolve its parameter to the full path, and we
@@ -1924,8 +1919,6 @@ package body Gnatcheck.Projects is
          return;
       end if;
 
-      Set_Compiler_Checks;
-
       Gnatcheck.Projects.Set_Global_Result_Dirs (Gnatcheck_Prj);
       Gnatcheck_Config_File :=
         new String'(Global_Report_Dir.all & Gnatcheck_Config_File.all);
@@ -1952,39 +1945,48 @@ package body Gnatcheck.Projects is
          end if;
       end if;
 
+      --  If GNATcheck is in KP mode and there is a command line specified KP
+      --  version, we have to iterate over all implemented rules to enable
+      --  those which match the version.
       if Gnatkp_Mode and then KP_Version /= null then
-         for Rule in All_Rules.First .. All_Rules.Last loop
-            if All_Rules.Table (Rule).Impact /= null
-              and then Match (KP_Version.all,
-                              All_Rules.Table (Rule).Impact.all)
-            then
-               if All_Rules.Table (Rule).Target /= null
-                 and then Target.all /= ""
-                 and then not Match (Target.all,
-                                     All_Rules.Table (Rule).Target.all)
+         for Rule_Cursor in All_Rules.Iterate loop
+            declare
+               Id       : constant Rule_Id := Rule_Map.Key (Rule_Cursor);
+               Rule     : constant Rule_Info := All_Rules (Rule_Cursor);
+               Instance : Rule_Instance_Access;
+            begin
+               if Rule.Impact /= null
+                 and then Match (KP_Version.all, Rule.Impact.all)
                then
-                  if not Quiet_Mode then
-                     Info ("info: " & All_Rules.Table (Rule).Name.all &
+                  if Rule.Target /= null
+                    and then Target.all /= ""
+                    and then not Match (Target.all, Rule.Target.all)
+                  then
+                     if not Quiet_Mode then
+                        Info
+                          ("info: " &
+                           Ada.Strings.Unbounded.To_String (Rule.Name) &
                            " disabled, target does not match");
-                  end if;
-               else
-                  if not Quiet_Mode then
-                     Info ("info: " & All_Rules.Table (Rule).Name.all &
+                     end if;
+                  else
+                     if not Quiet_Mode then
+                        Info
+                          ("info: " &
+                           Ada.Strings.Unbounded.To_String (Rule.Name) &
                            " enabled");
-                  end if;
+                     end if;
 
-                  Set_Rule_State (Rule, Enabled);
+                     Instance := Rule.Create_Instance (Is_Alias => False);
+                     Instance.Rule := Id;
+                     Instance.Source_Mode := General;
+                     Turn_Instance_On (Instance);
+                  end if;
                end if;
-            end if;
+            end;
          end loop;
       end if;
 
-      for Rule in All_Rules.First .. All_Rules.Last loop
-         if Is_Enabled (All_Rules.Table (Rule).all) then
-            Active_Rule_Present := True;
-            exit;
-         end if;
-      end loop;
+      Active_Rule_Present := not All_Rule_Instances.Is_Empty;
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
          if Gnatkp_Mode and then KP_Version /= null then
@@ -2020,10 +2022,8 @@ package body Gnatcheck.Projects is
 
       <<Processing_Aggregate_Project>>
 
-      if not Subprocess_Mode then
-         Ada.Directories.Create_Path (Global_Report_Dir.all);
-         Gnatcheck.Output.Set_Report_Files;
-      end if;
+      Ada.Directories.Create_Path (Global_Report_Dir.all);
+      Gnatcheck.Output.Set_Report_Files;
 
    end Check_Parameters;
 

@@ -9,11 +9,12 @@
 
 with Ada.Containers.Indefinite_Ordered_Sets;
 
-with GNATCOLL.Projects;    use GNATCOLL.Projects;
-
-with Gnatcheck.Options;    use Gnatcheck.Options;
-with Gnatcheck.Projects;   use Gnatcheck.Projects;
 with Checker_App;
+
+with Gnatcheck.Options;  use Gnatcheck.Options;
+with Gnatcheck.Projects; use Gnatcheck.Projects;
+
+with GNATCOLL.Projects; use GNATCOLL.Projects;
 
 package Gnatcheck.Source_Table is
 

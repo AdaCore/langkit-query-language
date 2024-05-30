@@ -92,7 +92,7 @@
 with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
-with GNATCOLL.VFS;      use GNATCOLL.VFS;
+with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 with GPR2.Path_Name.Set;
 with GPR2.Project.Tree;

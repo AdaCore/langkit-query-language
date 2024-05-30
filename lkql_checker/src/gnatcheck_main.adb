@@ -7,22 +7,23 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
-with Ada.Text_IO;       use Ada.Text_IO;
+with Ada.Text_IO; use Ada.Text_IO;
+
+with Checker_App;
+
 with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
-with Gnatcheck.Compiler;  use Gnatcheck.Compiler;
-with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
-with Gnatcheck.Options;   use Gnatcheck.Options;
-with Gnatcheck.Output;    use Gnatcheck.Output;
-with Gnatcheck.Projects;  use Gnatcheck.Projects;
+with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
+with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
+with Gnatcheck.Options;          use Gnatcheck.Options;
+with Gnatcheck.Output;           use Gnatcheck.Output;
+with Gnatcheck.Projects;         use Gnatcheck.Projects;
 with Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
-with Gnatcheck.Rules;     use Gnatcheck.Rules;
+with Gnatcheck.Rules;            use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
-
-with Checker_App;
 
 with GPR2.Project.Registry.Exchange;
 
@@ -58,6 +59,13 @@ procedure Gnatcheck_Main is
    --  $PREFIX/lib/libadalang, to allow worker processes that rely on dynamic
    --  libraries to find their dependencies without requiring users to
    --  explicitly set these paths.
+
+   procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes);
+   --  Print the rule configuration of the given source mode into the given
+   --  file using the LKQL rule config file format.
+
+   procedure Schedule_Files;
+   --  Schedule jobs per set of files
 
    ------------------------
    -- Setup_Search_Paths --
@@ -113,13 +121,6 @@ procedure Gnatcheck_Main is
       Free (Executable);
    end Setup_Search_Paths;
 
-   procedure Schedule_Files;
-   --  Schedule jobs per set of files
-
-   procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes);
-   --  Print the rule configuration of the given source mode into the given
-   --  file using the LKQL rule config file format.
-
    ----------------------
    -- Print_LKQL_Rules --
    ----------------------
@@ -134,17 +135,10 @@ procedure Gnatcheck_Main is
       First : Boolean := True;
    begin
       Put_Line (File, "val " & Mode_String & " = @{");
-      for Rule in All_Rules.First .. All_Rules.Last loop
-         if Is_Enabled (All_Rules.Table (Rule).all) then
-            if All_Rules.Table (Rule).all.Source_Mode = Mode then
-               if First then
-                  First := False;
-               else
-                  Put_Line (File, ",");
-               end if;
-               Put (File, "    ");
-               All_Rules.Table (Rule).Print_Rule_To_LKQL_File (File);
-            end if;
+      for Rule in All_Rules.Iterate loop
+         if Is_Enabled (All_Rules (Rule)) then
+            Print_Rule_Instances_To_LKQL_File
+              (All_Rules (Rule), File, Mode, First);
          end if;
       end loop;
       New_Line (File);
@@ -399,7 +393,6 @@ begin
    --  Analyze relevant project properties if needed
 
    if Gnatcheck_Prj.Is_Specified
-     and then not Subprocess_Mode
      and then not In_Aggregate_Project
      and then not Ignore_Project_Switches
    then
@@ -415,9 +408,7 @@ begin
 
    --  Setup LKQL_RULES_PATH to point on built-in rules
 
-   if not Subprocess_Mode then
-      Setup_Search_Paths;
-   end if;
+   Setup_Search_Paths;
 
    --  Load rule files after having parsed --rules-dir
 
@@ -438,15 +429,9 @@ begin
    Set_Log_File;
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
 
-   --  Exemptions are handled fully in the parent process
-
-   Gnatcheck.Diagnoses.Init_Exemptions;
-
    if Analyze_Compiler_Output then
       Create_Restriction_Pragmas_File;
    end if;
-
-   Process_Requested_Rules (Ctx);
 
    if No_Detectors_For_KP_Version then
       Gnatcheck.Projects.Clean_Up (Gnatcheck_Prj);
@@ -487,6 +472,7 @@ begin
             Duration'Image (Ada.Calendar.Clock - Time_Start));
    end if;
 
+   Gnatcheck.Rules.Rule_Table.Clean_Up;
    Close_Log_File;
 
    OS_Exit (if Tool_Failures /= 0

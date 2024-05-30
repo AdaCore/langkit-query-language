@@ -3,32 +3,29 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Characters.Conversions; use Ada.Characters.Conversions;
-with Ada.Characters.Handling;    use Ada.Characters.Handling;
+with Ada.Characters.Conversions;      use Ada.Characters.Conversions;
+with Ada.Characters.Handling;         use Ada.Characters.Handling;
 with Ada.Containers.Ordered_Sets;
-with Ada.Exceptions;             use Ada.Exceptions;
-with Ada.Strings;                use Ada.Strings;
-with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
-with Ada.Text_IO;                use Ada.Text_IO;
+with Ada.Exceptions;                  use Ada.Exceptions;
+with Ada.Strings;                     use Ada.Strings;
+with Ada.Strings.Fixed;               use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Text_IO;                     use Ada.Text_IO;
 
-with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
-with GNAT.OS_Lib;                use GNAT.OS_Lib;
-with GNAT.Regexp;                use GNAT.Regexp;
+with GNAT.Directory_Operations; use GNAT.Directory_Operations;
+with GNAT.OS_Lib;               use GNAT.OS_Lib;
+with GNAT.Regexp;               use GNAT.Regexp;
+with GNAT.Table;
 
+with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 
-with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
-
-with Rule_Commands;              use Rule_Commands;
-with Rules_Factory;              use Rules_Factory;
-
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
-
-with Langkit_Support.Text;        use Langkit_Support.Text;
+with Rule_Commands; use Rule_Commands;
+with Rules_Factory; use Rules_Factory;
 
 package body Gnatcheck.Rules.Rule_Table is
 
@@ -173,7 +170,8 @@ package body Gnatcheck.Rules.Rule_Table is
    --------------
 
    function Get_Rule (Rule_Name : String) return Rule_Id is
-      Normalized_Rule_Name : constant String := To_Lower (Rule_Name);
+      Try_Id : constant Rule_Id := Find_Rule_Id (Rule_Name);
+      Normalized_Rule_Name : constant String := Get_Id_Text (Try_Id);
 
       function Has_Element
         (Container : Synonym_Maps.Map; Element : String) return Boolean;
@@ -197,36 +195,94 @@ package body Gnatcheck.Rules.Rule_Table is
 
    begin
       --  First, check if we have a compiler check:
-
-      if Normalized_Rule_Name = "restrictions" then
+      if Try_Id = Restrictions_Id then
          return Restrictions_Id;
-      elsif Normalized_Rule_Name = "style_checks"
+
+      elsif Try_Id = Style_Checks_Id
         or else Has_Element (Style_Synonyms, Normalized_Rule_Name)
       then
          return Style_Checks_Id;
-      elsif Normalized_Rule_Name = "warnings"
+
+      elsif Try_Id = Warnings_Id
         or else Has_Element (Warning_Synonyms, Normalized_Rule_Name)
       then
          return Warnings_Id;
       end if;
 
-      --  This is a rather ineficient implementation. At some point we
-      --  should think about a hash table.
+      --  Try to get the rule from the rule map
+      if All_Rules.Contains (Try_Id) then
+         return Try_Id;
 
-      for J in First_Rule .. All_Rules.Last loop
-         --  Check the rule name as well as the user specified name, if any
+      --  Then try to get the rule from the instance map which contains all
+      --  defined aliases.
+      elsif All_Rule_Instances.Contains (Normalized_Rule_Name) then
+         return All_Rule_Instances (Normalized_Rule_Name).Rule;
 
-         if To_Lower (All_Rules.Table (J).Name.all) = Normalized_Rule_Name
-           or else (All_Rules.Table (J).User_Synonym /= null
-                    and then To_Lower (All_Rules.Table (J).User_Synonym.all) =
-                             Normalized_Rule_Name)
-         then
-            return J;
-         end if;
-      end loop;
-
-      return No_Rule;
+      --  If not found, return the No_Rule identifier
+      else
+         return No_Rule_Id;
+      end if;
    end Get_Rule;
+
+   ------------------
+   -- Get_Instance --
+   ------------------
+
+   function Get_Instance
+     (Instance_Name : String) return Rule_Instance_Access
+   is
+      Normalized_Instance_Name : constant String := To_Lower (Instance_Name);
+   begin
+      if All_Rule_Instances.Contains (Normalized_Instance_Name) then
+         return All_Rule_Instances (Normalized_Instance_Name);
+      else
+         return null;
+      end if;
+   end Get_Instance;
+
+   ----------------------
+   -- Turn_Instance_On --
+   ----------------------
+
+   procedure Turn_Instance_On (Instance : Rule_Instance_Access)
+   is
+      Normalized_Instance_Name : constant String :=
+        To_Lower (Instance_Name (Instance.all));
+      Other_Instance : constant Rule_Instance_Access :=
+        Get_Instance (Normalized_Instance_Name);
+   begin
+      --  Check if the instance with the same name is already in the global map
+      if Other_Instance /= null then
+         --  If the instance to insert is the same as the already inserted one,
+         --  do nothing. Else remove the already present instance.
+         if Instance = Other_Instance then
+            return;
+         else
+            Turn_Instance_Off (Normalized_Instance_Name);
+         end if;
+      end if;
+
+      --  Insert the instance in the global map and the rule instance
+      All_Rule_Instances.Insert (Normalized_Instance_Name, Instance);
+      All_Rules (Instance.Rule).Instances.Append (Instance);
+   end Turn_Instance_On;
+
+   -----------------------
+   -- Turn_Instance_Off --
+   -----------------------
+
+   procedure Turn_Instance_Off (Instance_Name : String)
+   is
+      Normalized_Instance_Name : constant String := To_Lower (Instance_Name);
+      Instance : Rule_Instance_Access := Get_Instance (Instance_Name);
+   begin
+      if Instance /= null then
+         All_Rules (Instance.Rule).Instances.Delete
+           (All_Rules (Instance.Rule).Instances.Find_Index (Instance));
+         Free (Instance);
+         All_Rule_Instances.Delete (Normalized_Instance_Name);
+      end if;
+   end Turn_Instance_Off;
 
    ------------------------
    -- Has_Name_Parameter --
@@ -254,8 +310,7 @@ package body Gnatcheck.Rules.Rule_Table is
    ---------------------------
 
    function Has_Natural_Parameter
-     (R    : Rident.All_Restrictions)
-      return Boolean
+     (R : Rident.All_Restrictions) return Boolean
    is
       Result : Boolean := False;
    begin
@@ -278,34 +333,19 @@ package body Gnatcheck.Rules.Rule_Table is
    ----------------
 
    function Is_Enabled (Rule : Rule_Id) return Boolean is
-      Result : Boolean := False;
    begin
-      if not Present (Rule) then
-         raise Fatal_Error;
+      pragma Assert (Present (Rule));
+
+      if Rule = Restrictions_Id then
+         return Check_Restrictions;
+      elsif Rule = Style_Checks_Id then
+         return Use_gnaty_Option;
+      elsif Rule = Warnings_Id then
+         return Use_gnatw_Option;
+      else
+         return Is_Enabled (All_Rules (Rule));
       end if;
-
-      case Rule is
-         when Restrictions_Id =>
-            Result := Check_Restrictions;
-         when Style_Checks_Id =>
-            Result := Use_gnaty_Option;
-         when Warnings_Id =>
-            Result := Use_gnatw_Option;
-         when others =>
-            Result := Is_Enabled (All_Rules.Table (Rule).all);
-      end case;
-
-      return Result;
    end Is_Enabled;
-
-   --------
-   -- No --
-   --------
-
-   function No (Id : Rule_Id) return Boolean is
-   begin
-      return Id not in All_Rules.First .. All_Rules.Last;
-   end No;
 
    -------------------
    -- Pop_Rule_File --
@@ -322,9 +362,9 @@ package body Gnatcheck.Rules.Rule_Table is
    -- Present --
    -------------
 
-   function Present (Id : Rule_Id) return Boolean is
+   function Present (Rule : Rule_Id) return Boolean is
    begin
-      return Id in Compiler_Checks | First_Rule .. All_Rules.Last;
+      return All_Rules.Contains (Rule) or else Is_Compiler_Check (Rule);
    end Present;
 
    -----------------------
@@ -848,11 +888,20 @@ package body Gnatcheck.Rules.Rule_Table is
       --  parameters are separated by ',', if this check fails, Word_Start is
       --  set to 0.
 
-      Rule    : Rule_Id;
-      Enable  : Boolean;
+      function Check_For_Compiler_Rule (Comp_Rule : Rule_Id) return Boolean;
+      --  Check that the current rule option is fulfilling all requirements for
+      --  compiler-based GNATcheck rules. Returns whether the rule option
+      --  processing should continue.
+
+      Rule          : Rule_Id;
+      Enable        : Boolean;
 
       Diag_Defined_At : constant String :=
         (if Defined_At = "" then "" else " (" & Defined_At & ")");
+
+      -------------------
+      -- Set_Parameter --
+      -------------------
 
       procedure Set_Parameter is
          Found : Boolean := False;
@@ -891,6 +940,40 @@ package body Gnatcheck.Rules.Rule_Table is
             end if;
          end loop;
       end Set_Parameter;
+
+      -----------------------------
+      -- Check_For_Compiler_Rule --
+      -----------------------------
+
+      function Check_For_Compiler_Rule (Comp_Rule : Rule_Id) return Boolean
+      is
+         Name : constant String := Rule_Name (Comp_Rule);
+      begin
+         --  Check if there is already a registered "instance"
+         if Is_Enabled (Comp_Rule) and then Enable then
+            Error
+              ("a " & Name & " instance already exists" & Diag_Defined_At);
+            Bad_Rule_Detected := True;
+            return False;
+         end if;
+
+         --  Then check that the parameters are valid
+         if Word_Start = 0 and then Enable then
+            Error
+              (Name & " rule option must have a parameter" &
+               Diag_Defined_At);
+            Bad_Rule_Detected := True;
+            return False;
+         elsif Word_Start /= 0 and then not Enable then
+            Error
+              ("(" & Name & ") no parameter allowed for -R" &
+               Diag_Defined_At);
+            Bad_Rule_Detected := True;
+            return False;
+         end if;
+
+         return True;
+      end Check_For_Compiler_Rule;
 
    begin
       if Lower_Option = "-all" then
@@ -941,48 +1024,35 @@ package body Gnatcheck.Rules.Rule_Table is
             end if;
          end loop;
 
-         --  Separate processing for restrictions, style_checks, warnings, and
-         --  ordinary rules.
-
+         --  We need to process compiler-based rules in a separate way:
          if Lower_Option (Word_Start .. Word_End) = "restrictions" then
             Set_Parameter;
-
-            if Word_Start = 0 then
-               Error ("restrictions rule option must have a parameter" &
-                      Diag_Defined_At);
-               Bad_Rule_Detected := True;
+            if not Check_For_Compiler_Rule (Restrictions_Id) then
                return;
             end if;
 
-            while Word_Start /= 0 loop
-               Process_Restriction_Param
-                 (Option (Word_Start .. Word_End), Enable);
-               Set_Parameter;
-            end loop;
+            if Enable then
+               while Word_Start /= 0 loop
+                  Process_Restriction_Param
+                    (Option (Word_Start .. Word_End), Enable);
+                  Set_Parameter;
+               end loop;
+            else
+               Disable_Restrictions;
+            end if;
+            Set_Compiler_Checks;
 
          elsif Lower_Option (Word_Start .. Word_End) = "style_checks" then
-            if not Enable then
-               Error ("there is no -R option for style checks, " &
-                      "use style options to turn checks OFF"     &
-                      Diag_Defined_At);
-               Bad_Rule_Detected := True;
-               return;
-            end if;
-
             Set_Parameter;
-
-            if Word_Start = 0 then
-               Error ("style_checks rule option must have a parameter" &
-                      Diag_Defined_At);
-               Bad_Rule_Detected := True;
+            if not Check_For_Compiler_Rule (Style_Checks_Id) then
                return;
             end if;
 
             if Rule_Synonym_Start > 0 then
                declare
-                  User_Synonym : String renames
-                    Option (Rule_Synonym_Start .. Rule_Synonym_End);
-                  J            : Natural;
+                  User_Synonym : String renames Option
+                    (Rule_Synonym_Start .. Rule_Synonym_End);
+                  J : Natural;
 
                begin
                   if Option (Word_Start .. Word_End) = "all_checks" then
@@ -1024,25 +1094,18 @@ package body Gnatcheck.Rules.Rule_Table is
                end;
             end if;
 
-            while Word_Start /= 0 loop
-               Process_Style_Check_Param (Option (Word_Start .. Word_End));
-               Set_Parameter;
-            end loop;
-         elsif To_Lower (Option (Word_Start .. Word_End)) = "warnings" then
-            if not Enable then
-               Error ("there is no -R option for warnings, "     &
-                      "use warning options to turn warnings OFF" &
-                       Diag_Defined_At);
-               Bad_Rule_Detected := True;
-               return;
+            if Enable then
+               while Word_Start /= 0 loop
+                  Process_Style_Check_Param (Option (Word_Start .. Word_End));
+                  Set_Parameter;
+               end loop;
+            else
+               Disable_Style_Checks;
             end if;
 
+         elsif To_Lower (Option (Word_Start .. Word_End)) = "warnings" then
             Set_Parameter;
-
-            if Word_Start = 0 then
-               Error ("warnings rule option must have a parameter" &
-                      Diag_Defined_At);
-               Bad_Rule_Detected := True;
+            if not Check_For_Compiler_Rule (Warnings_Id) then
                return;
             end if;
 
@@ -1070,40 +1133,65 @@ package body Gnatcheck.Rules.Rule_Table is
                end;
             end if;
 
-            while Word_Start /= 0 loop
-               Process_Warning_Param (Option (Word_Start .. Word_End));
-               Set_Parameter;
-            end loop;
+            if Enable then
+               while Word_Start /= 0 loop
+                  Process_Warning_Param (Option (Word_Start .. Word_End));
+                  Set_Parameter;
+               end loop;
+            else
+               Disable_Warnings;
+            end if;
+
+         --  If the rule is not compiler-based, we process it normally
          else
             Rule := Get_Rule (Option (Word_Start .. Word_End));
 
             if Present (Rule) then
-               Set_Parameter;
+               declare
+                  Instance_Name : constant String :=
+                    (if Rule_Synonym_Start > 0
+                     then Option (Rule_Synonym_Start .. Rule_Synonym_End)
+                     else To_String (All_Rules (Rule).Name));
+                  Instance : constant Rule_Instance_Access :=
+                    Get_Instance (Instance_Name);
+               begin
+                  Set_Parameter;
 
-               if Enable and then Rule_Synonym_Start > 0 then
-                  Free (All_Rules.Table (Rule).User_Synonym);
-                  All_Rules.Table (Rule).User_Synonym :=
-                    new String'(Option
-                      (Rule_Synonym_Start .. Rule_Synonym_End));
-               end if;
+                  --  Check that if there is another instance with the same
+                  --  name for a difference rule. If so emit an error message
+                  --  and raise an exception.
+                  if Instance /= null and Enable then
+                     Error
+                       ("rule instance with the same name already exists: """ &
+                        Instance_Name & """" & " previously instantiated at " &
+                        (if Instance.Defined_At /= ""
+                         then To_String (Instance.Defined_At)
+                         else "command line")                                 &
+                        Diag_Defined_At);
+                     Bad_Rule_Detected := True;
+                     return;
+                  end if;
 
-               if Word_Start = 0 then
-                  Process_Rule_Parameter
-                    (Rule       => All_Rules.Table (Rule).all,
-                     Param      => "",
-                     Enable     => Enable,
-                     Defined_At => Defined_At);
+                  if Word_Start = 0 then
+                     All_Rules (Rule).Process_Rule_Parameter
+                       (Rule          => Rule,
+                        Instance_Name => Instance_Name,
+                        Param         => "",
+                        Enable        => Enable,
+                        Defined_At    => Defined_At);
 
-               else
-                  while Word_Start /= 0 loop
-                     Process_Rule_Parameter
-                       (Rule       => All_Rules.Table (Rule).all,
-                        Param      => Option (Word_Start .. Word_End),
-                        Enable     => Enable,
-                        Defined_At => Defined_At);
-                     Set_Parameter;
-                  end loop;
-               end if;
+                  else
+                     while Word_Start /= 0 loop
+                        All_Rules (Rule).Process_Rule_Parameter
+                          (Rule          => Rule,
+                           Instance_Name => Instance_Name,
+                           Param         => Option (Word_Start .. Word_End),
+                           Enable        => Enable,
+                           Defined_At    => Defined_At);
+                        Set_Parameter;
+                     end loop;
+                  end if;
+               end;
             else
                Error ("unknown rule: " & Option (Word_Start .. Word_End) &
                       ", ignored" & Diag_Defined_At);
@@ -1133,11 +1221,18 @@ package body Gnatcheck.Rules.Rule_Table is
          then LKQL_Rule_File_Name
          else Base_Name (LKQL_Rule_File_Name));
       Rule_Name : constant String := Instance_Object.Get ("ruleName");
+      Instance_Name : constant String :=
+        (if Instance_Object.Has_Field ("instanceName")
+         then Instance_Object.Get ("instanceName")
+         else "");
       R_Id : constant Rule_Id := Get_Rule (Rule_Name);
-      Rule : Rule_Access;
+      Instance : Rule_Instance_Access;
       Source_Mode_String : constant String :=
         Expect (Instance_Object, "sourceMode");
       Params_Object : JSON_Value := Instance_Object.Get ("arguments");
+
+      function Real_Instance_Name return String is
+        (if Instance_Name /= "" then Instance_Name else Rule_Name);
 
       procedure Error_In_Rule_File (Msg : String);
       --  Emit a GNATcheck error when there is an error during the processing
@@ -1170,12 +1265,13 @@ package body Gnatcheck.Rules.Rule_Table is
          pragma Unreferenced (Arg_Value);
       begin
          Error_In_Rule_File
-           ("extra argument for rule " & Rule_Name & ": '" & Arg_Name & "'");
+           ("extra argument for instance " & Real_Instance_Name &
+            ": '" & Arg_Name & "'");
       end Report_Extra_Arg;
 
    begin
       --  If the rule is a compiler check then get the argument and process it
-      if R_Id in Compiler_Checks then
+      if Is_Compiler_Check (R_Id) then
          --  Restrictions rule expect a string list as argument
          if R_Id = Restrictions_Id then
             declare
@@ -1185,6 +1281,7 @@ package body Gnatcheck.Rules.Rule_Table is
                for S of Arg loop
                   Process_Restriction_Param (S, True);
                end loop;
+               Set_Compiler_Checks;
             end;
 
          --  Others expects a simple string
@@ -1192,14 +1289,11 @@ package body Gnatcheck.Rules.Rule_Table is
             declare
                Arg : constant String := Expect_Literal (Params_Object, "arg");
             begin
-               case R_Id is
-                  when Style_Checks_Id =>
-                     Process_Style_Check_Param (Arg);
-                  when Warnings_Id =>
-                     Process_Warning_Param (Arg);
-                  when others =>
-                     raise Constraint_Error;
-               end case;
+               if R_Id = Style_Checks_Id then
+                  Process_Style_Check_Param (Arg);
+               else
+                  Process_Warning_Param (Arg);
+               end if;
             end;
          end if;
          Params_Object.Unset_Field ("arg");
@@ -1207,31 +1301,27 @@ package body Gnatcheck.Rules.Rule_Table is
       --  Else the rule is an LKQL check, check its presence, get the rule
       --  template and call the processing function.
       elsif Present (R_Id) then
-         Rule := All_Rules.Table (R_Id);
-         Rule.Defined_At := new String'(Output_Rule_File);
+         Instance := All_Rules (R_Id).Create_Instance (Instance_Name /= "");
+         Instance.Rule := R_Id;
+         Instance.Defined_At := To_Unbounded_String (Output_Rule_File);
+         if Instance_Name /= "" then
+            Instance.Alias_Name := To_Unbounded_String (Instance_Name);
+         end if;
 
          --  Start by setting the rule's source mode
          if Source_Mode_String = "ADA" then
-            Rule.Source_Mode := Ada_Only;
+            Instance.Source_Mode := Ada_Only;
          elsif Source_Mode_String = "SPARK" then
-            Rule.Source_Mode := Spark_Only;
+            Instance.Source_Mode := Spark_Only;
          else
-            Rule.Source_Mode := General;
-         end if;
-
-         --  Then get the alias if there is any
-         if Instance_Object.Has_Field ("instanceName") then
-            Free (Rule.User_Synonym);
-            Rule.User_Synonym :=
-              new String'(Expect (Instance_Object, "instanceName"));
+            Instance.Source_Mode := General;
          end if;
 
          --  Process the arguments object with the rule template
-         Rule.Process_Rule_Params_Object (Params_Object);
+         Instance.Process_Instance_Params_Object (Params_Object);
 
-         --  Enable the rule if there is not error in the arguments object
-         --  processing.
-         Rule.Rule_State := Enabled;
+         --  Enable the newly created instance
+         Turn_Instance_On (Instance);
 
          --  Finally check that all arguments have been used, else emit an
          --  error for each.
@@ -1245,16 +1335,16 @@ package body Gnatcheck.Rules.Rule_Table is
    exception
       when E : Field_Not_Found =>
          Error_In_Rule_File
-           ("missing parameter for rule " & Rule_Name & ": '" &
+           ("missing parameter for instance " & Real_Instance_Name & ": '" &
             Exception_Message (E) & "'");
       when E : Invalid_Type =>
          Error_In_Rule_File
-           ("invalid parameter for rule " & Rule_Name & ": " &
+           ("invalid parameter for instance " & Real_Instance_Name & ": " &
             Exception_Message (E));
       when E : Invalid_Value =>
          Error_In_Rule_File
-           ("invalid parameter value for rule " & Rule_Name & ": " &
-            Exception_Message (E));
+           ("invalid parameter value for instance " & Real_Instance_Name &
+            ": " & Exception_Message (E));
    end Process_Rule_Object;
 
    ------------------------------
@@ -1274,20 +1364,19 @@ package body Gnatcheck.Rules.Rule_Table is
    -- Rule_Name --
    ---------------
 
-   function Rule_Name (R : Rule_Id) return String is
+   function Rule_Name (Rule : Rule_Id) return String is
    begin
-      pragma Assert (Present (R));
+      pragma Assert (Present (Rule));
 
-      case R is
-         when Restrictions_Id =>
-            return "restrictions";
-         when Style_Checks_Id =>
-            return "style_checks";
-         when Warnings_Id =>
-            return "warnings";
-         when others =>
-            return All_Rules.Table (R).Name.all;
-      end case;
+      if Rule = Restrictions_Id then
+         return "restrictions";
+      elsif Rule = Style_Checks_Id then
+         return "style_checks";
+      elsif Rule = Warnings_Id then
+         return "warnings";
+      else
+         return To_String (All_Rules (Rule).Name);
+      end if;
    end Rule_Name;
 
    ----------------
@@ -1295,14 +1384,14 @@ package body Gnatcheck.Rules.Rule_Table is
    ----------------
 
    procedure Rules_Help is
-      function "<" (Left, Right : Rule_Access) return Boolean is
-        (Left.Name.all < Right.Name.all);
+      function "<" (Left, Right : Rule_Info) return Boolean is
+        (Left.Name < Right.Name);
 
-      function Equal (Left, Right : Rule_Access) return Boolean is
-        (Left.Name.all = Right.Name.all);
+      function Equal (Left, Right : Rule_Info) return Boolean is
+        (Left.Name = Right.Name);
 
       package Rule_Sets is new
-        Ada.Containers.Ordered_Sets (Rule_Access, "=" => Equal);
+        Ada.Containers.Ordered_Sets (Rule_Info, "=" => Equal);
 
       Set : Rule_Sets.Set;
 
@@ -1311,22 +1400,22 @@ package body Gnatcheck.Rules.Rule_Table is
          Info ("gnatkp currently implements the following detectors:");
 
          if KP_Version /= null then
-            for Rule in All_Rules.First .. All_Rules.Last loop
-               if All_Rules.Table (Rule).Impact = null
+            for Rule in All_Rules.Iterate loop
+               if All_Rules (Rule).Impact = null
                  or else
-                   (Match (KP_Version.all, All_Rules.Table (Rule).Impact.all)
+                   (Match (KP_Version.all, All_Rules (Rule).Impact.all)
                     and then
-                      (All_Rules.Table (Rule).Target = null
+                      (All_Rules (Rule).Target = null
                        or else Target.all = ""
                        or else Match (Target.all,
-                                      All_Rules.Table (Rule).Target.all)))
+                                      All_Rules (Rule).Target.all)))
                then
-                  Set.Include (All_Rules.Table (Rule));
+                  Set.Include (All_Rules (Rule));
                end if;
             end loop;
          else
-            for J in First_Rule .. All_Rules.Last loop
-               Set.Include (All_Rules.Table (J));
+            for Rule in All_Rules.Iterate loop
+               Set.Include (All_Rules (Rule));
             end loop;
          end if;
 
@@ -1334,21 +1423,23 @@ package body Gnatcheck.Rules.Rule_Table is
             Info (" No relevant detector found");
          else
             for Rule of Set loop
-               Info (" " & Rule.Name.all  & " - " & Rule.Help_Info.all);
+               Info
+                 (" " & To_String (Rule.Name) & " - " &
+                  To_String (Rule.Help_Info));
             end loop;
          end if;
       else
          Info (Executable & " currently implements the following rules:");
 
-         for J in First_Rule .. All_Rules.Last loop
-            Set.Include (All_Rules.Table (J));
+         for Rule in All_Rules.Iterate loop
+            Set.Include (All_Rules (Rule));
          end loop;
 
          if Set.Is_Empty then
             Info (" No rule found");
          else
             for R of Set loop
-               Print_Rule_Help (R.all);
+               Print_Rule_Help (R);
             end loop;
          end if;
 
@@ -1418,72 +1509,74 @@ package body Gnatcheck.Rules.Rule_Table is
    -- XML_Help --
    --------------
 
-   function Name (R : Rule_Access) return String is
-     (R.Category.all & "/" & R.Subcategory.all);
+   function Name (R : Rule_Info) return String is
+     (To_String (R.Category & "/" & R.Subcategory));
 
-   function "<" (Left, Right : Rule_Access) return Boolean is
+   function "<" (Left, Right : Rule_Info) return Boolean is
      (Name (Left) < Name (Right));
 
-   function Equal (Left, Right : Rule_Access) return Boolean is
+   function Equal (Left, Right : Rule_Info) return Boolean is
      (Name (Left) = Name (Right));
 
    package Category_Sets is new
-     Ada.Containers.Ordered_Sets (Rule_Access, "=" => Equal);
+     Ada.Containers.Ordered_Sets (Rule_Info, "=" => Equal);
 
    procedure XML_Help is
-      Level    : Positive;
-      Set      : Category_Sets.Set;
-      Previous : Rule_Access;
-
+      Level        : Positive;
+      Set          : Category_Sets.Set;
+      Previous     : Rule_Info;
+      Has_Previous : Boolean := False;
    begin
       Info ("<?xml version=""1.0""?>");
       Info ("<gnatcheck>");
 
-      for J in First_Rule .. All_Rules.Last loop
-         Set.Include (All_Rules.Table (J));
+      for Rule in All_Rules.Iterate loop
+         Set.Include (All_Rules (Rule));
       end loop;
 
       for R of Set loop
          Level := 1;
 
-         if Previous /= null
-           and then Previous.Subcategory.all /= ""
-           and then Previous.Category.all /= R.Category.all
+         if Has_Previous
+           and then Previous.Subcategory /= ""
+           and then Previous.Category /= R.Category
          then
             Info (Indent_String & "</category>");
          end if;
 
-         if R.Subcategory.all = "" then
+         if R.Subcategory = "" then
             Info (Indent_String & "<category name=""" &
-                  R.Category.all & """>");
+                  To_String (R.Category) & """>");
          else
-            if Previous = null
-              or else Previous.Category.all /= R.Category.all
+            if Has_Previous
+              or else Previous.Category /= R.Category
             then
                Info (Indent_String & "<category name=""" &
-                     R.Category.all & """>");
+                     To_String (R.Category) & """>");
             end if;
 
             Level := 2;
             Info (2 * Indent_String & "<category name=""" &
-                  R.Subcategory.all & """>");
+                  To_String (R.Subcategory) & """>");
          end if;
 
          declare
             Category : constant String := Name (R);
          begin
-            for J in First_Rule .. All_Rules.Last loop
-               if Name (All_Rules.Table (J)) = Category then
-                  XML_Rule_Help (All_Rules.Table (J).all, Level + 1);
+            for Rule in All_Rules.Iterate loop
+               if Name (All_Rules (Rule)) = Category then
+                  All_Rules (Rule).XML_Rule_Help
+                    (All_Rules (Rule), Level + 1);
                end if;
             end loop;
          end;
 
          Info (Level * Indent_String & "</category>");
          Previous := R;
+         Has_Previous := True;
       end loop;
 
-      if Previous.Subcategory.all /= "" then
+      if Previous.Subcategory /= "" then
          Info (Indent_String & "</category>");
       end if;
 
@@ -1493,24 +1586,24 @@ package body Gnatcheck.Rules.Rule_Table is
       Info ("</gnatcheck>");
    end XML_Help;
 
-   --------------------
-   -- Set_Rule_State --
-   --------------------
-
-   procedure Set_Rule_State (For_Rule : Rule_Id; To_State : Rule_States) is
-   begin
-      pragma Assert (Present (For_Rule));
-      All_Rules.Table (For_Rule).Rule_State := To_State;
-   end Set_Rule_State;
-
    ------------------------
    -- Turn_All_Rules_Off --
    ------------------------
 
    procedure Turn_All_Rules_Off is
+      To_Turn_Off : String_Vector;
    begin
-      for J in All_Rules.First .. All_Rules.Last loop
-         All_Rules.Table (J).Rule_State := Disabled;
+      --  Disable all compiled-based rules
+      Disable_Restrictions;
+      Disable_Style_Checks;
+      Disable_Warnings;
+
+      --  Remove all standard rules instances
+      for Instance_Cursor in All_Rule_Instances.Iterate loop
+         To_Turn_Off.Append (Rule_Instance_Map.Key (Instance_Cursor));
+      end loop;
+      for Instance_Name in To_Turn_Off.Iterate loop
+         Turn_Instance_Off (To_Turn_Off (Instance_Name));
       end loop;
    end Turn_All_Rules_Off;
 
@@ -1520,8 +1613,19 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Turn_All_Rules_On is
    begin
-      for J in All_Rules.First .. All_Rules.Last loop
-         All_Rules.Table (J).Rule_State := Enabled;
+      for Rule_Cursor in All_Rules.Iterate loop
+         declare
+            Rule : constant Rule_Info := All_Rules (Rule_Cursor);
+            Instance_Name : constant String := To_Lower (Rule_Name (Rule));
+            Instance : Rule_Instance_Access;
+         begin
+            if not All_Rule_Instances.Contains (Instance_Name) then
+               Instance := Rule.Create_Instance (Is_Alias => False);
+               Instance.Rule := Rule_Map.Key (Rule_Cursor);
+               Instance.Source_Mode := General;
+               Turn_Instance_On (Instance);
+            end if;
+         end;
       end loop;
    end Turn_All_Rules_On;
 
@@ -1530,7 +1634,7 @@ package body Gnatcheck.Rules.Rule_Table is
    -------------------
 
    procedure Process_Rules (Ctx : in out Lkql_Context) is
-      Rule : Rule_Access;
+      Rule : Rule_Info;
    begin
       if not Ctx.All_Rules.Is_Empty then
          return;
@@ -1543,129 +1647,61 @@ package body Gnatcheck.Rules.Rule_Table is
       for R of Ctx.All_Rules loop
          declare
             Name : constant String := To_String (To_Wide_Wide_String (R.Name));
+            Id   : constant Rule_Id := Find_Rule_Id (Name);
          begin
-            case R.Param_Kind is
-               when No_Param =>
-                  Rule := new Rule_Template;
-                  Init_Rule (Rule_Template (Rule.all));
-               when One_Integer =>
-                  Rule := new One_Integer_Parameter_Rule;
-                  Init_Rule (One_Integer_Parameter_Rule (Rule.all));
-               when One_Boolean =>
-                  Rule := new One_Boolean_Parameter_Rule;
-                  Init_Rule (One_Boolean_Parameter_Rule (Rule.all));
-               when One_String =>
-                  Rule := new One_String_Parameter_Rule;
-                  Init_Rule (One_String_Parameter_Rule (Rule.all));
-               when One_Integer_Or_Booleans =>
-                  Rule := new One_Integer_Or_Booleans_Parameter_Rule;
-                  Init_Rule
-                    (One_Integer_Or_Booleans_Parameter_Rule (Rule.all));
-               when One_Array =>
-                  Rule := new One_Array_Parameter_Rule;
-                  Init_Rule (One_Array_Parameter_Rule (Rule.all));
-               when Custom =>
-                  if Name = "identifier_suffixes" then
-                     Rule := new Identifier_Suffixes_Rule;
-                     Init_Rule (Identifier_Suffixes_Rule (Rule.all));
+            --  Check that the current rule isn't already in the stored rules
+            if All_Rules.Contains (Id)
+              or else Id = Restrictions_Id
+              or else Id = Style_Checks_Id
+              or else Id = Warnings_Id
+            then
+               Error ("multiple rules with the same name: " & Name);
+               raise Gnatcheck.Options.Fatal_Error;
+            end if;
 
-                  elsif Name = "identifier_prefixes" then
-                     Rule := new Identifier_Prefixes_Rule;
-                     Init_Rule (Identifier_Prefixes_Rule (Rule.all));
-
-                  elsif Name = "identifier_casing" then
-                     Rule := new Identifier_Casing_Rule;
-                     Init_Rule (Identifier_Casing_Rule (Rule.all));
-
-                  elsif Name = "forbidden_attributes"
-                    or else Name = "forbidden_pragmas"
-                    or else Name = "forbidden_aspects"
-                  then
-                     --  all, forbidden [], allowed []
-                     Rule := new Forbidden_Rule;
-                     Init_Rule (Forbidden_Rule (Rule.all));
-
-                  elsif Name = "silent_exception_handlers" then
-                     Rule := new Silent_Exception_Handlers_Rule;
-                     Init_Rule (Silent_Exception_Handlers_Rule (Rule.all));
-
-                  else
-                     Rule := new Custom_Rule;
-                     Init_Rule (Custom_Rule (Rule.all));
-                  end if;
-            end case;
-
-            Rule.Name        := new String'(Name);
-            Rule.Help_Info   :=
-              new String'(To_String (To_Wide_Wide_String (R.Help)));
+            Rule           := Create_Rule (R.Param_Kind, To_Lower (Name));
+            Rule.Name      := To_Unbounded_String (Name);
+            Rule.Help_Info :=
+              To_Unbounded_String
+                (To_String (To_Wide_Wide_String (R.Help)));
 
             declare
                Category : constant String :=
                  To_String (To_Wide_Wide_String (R.Category));
             begin
                if Category = "Feature" then
-                  Rule.Category := new String'("Feature Usage Rules");
+                  Rule.Category := To_Unbounded_String ("Feature Usage Rules");
                elsif Category = "Style" then
-                  Rule.Category := new String'("Style-Related Rules");
+                  Rule.Category := To_Unbounded_String ("Style-Related Rules");
                else
-                  Rule.Category := new String'(Category);
+                  Rule.Category := To_Unbounded_String (Category);
                end if;
             end;
 
             Rule.Subcategory :=
-              new String'(To_String (To_Wide_Wide_String (R.Subcategory)));
+              To_Unbounded_String
+                (To_String (To_Wide_Wide_String (R.Subcategory)));
 
             Rule.Parameters                    := R.Parameters;
             Rule.Remediation_Level             := R.Remediation_Level;
             Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
             Rule.Impact                        := R.Impact;
             Rule.Target                        := R.Target;
-            All_Rules.Append (Rule);
+            All_Rules.Insert (Id, Rule);
          end;
       end loop;
    end Process_Rules;
 
-   -----------------------------
-   -- Process_Requested_Rules --
-   -----------------------------
+   --------------
+   -- Clean_Up --
+   --------------
 
-   procedure Process_Requested_Rules (Ctx : in out Lkql_Context) is
-
+   procedure Clean_Up is
    begin
-      --  Process potential arguments for rules
-
-      for Rule of Ctx.All_Rules loop
-         declare
-            Rule_Name : constant Unbounded_Text_Type := Rule.Name;
-         begin
-            --  Modify the rule command in place, by appending an argument to
-            --  the Rule_Command's arg vector.
-
-            if Rule.Is_Unit_Check then
-               Rule.Rule_Args.Append
-                 (Rule_Argument'(Name  => To_Unbounded_Text ("unit"),
-                                 Value => To_Unbounded_Text ("unit")));
-            else
-               Rule.Rule_Args.Append
-                 (Rule_Argument'(Name  => To_Unbounded_Text ("node"),
-                                 Value => To_Unbounded_Text ("node")));
-            end if;
-
-            --  Compute the map of argument names to values.
-
-            for R in All_Rules.First .. All_Rules.Last loop
-               if To_Text (All_Rules.Table (R).Name.all) = To_Text (Rule_Name)
-               then
-                  if Is_Enabled (All_Rules.Table (R).all) then
-                     Map_Parameters (All_Rules.Table (R).all, Rule.Rule_Args);
-                  end if;
-
-                  exit;
-               end if;
-            end loop;
-         end;
+      --  Free all rule instances
+      for Instance_Cursor in All_Rule_Instances.Iterate loop
+         Free (All_Rule_Instances (Instance_Cursor));
       end loop;
-
-   end Process_Requested_Rules;
+   end Clean_Up;
 
 end Gnatcheck.Rules.Rule_Table;

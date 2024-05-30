@@ -8,14 +8,15 @@
 --  supports rule exemption mechanism. Note, that most of the rule exemption
 --  mechanism is hidden in the body of the package.
 
-with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Langkit_Support.Slocs;  use Langkit_Support.Slocs;
+with Gnatcheck.Ids;          use Gnatcheck.Ids;
+with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
+
+with Langkit_Support.Slocs; use Langkit_Support.Slocs;
+
 with Libadalang.Analysis;
 with Libadalang.Common;
-
-with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
-with Gnatcheck.Ids;          use Gnatcheck.Ids;
 
 package Gnatcheck.Diagnoses is
 
@@ -41,7 +42,7 @@ package Gnatcheck.Diagnoses is
      (Text           : String;
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
-      Rule           : Rule_Id       := No_Rule;
+      Rule           : Rule_Id       := No_Rule_Id;
       Justification  : Unbounded_String := Null_Unbounded_String);
    procedure Store_Diagnosis
      (Full_File_Name : String;
@@ -49,11 +50,11 @@ package Gnatcheck.Diagnoses is
       Sloc           : Source_Location;
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
-      Rule           : Rule_Id       := No_Rule;
+      Rule           : Rule_Id       := No_Rule_Id;
       Justification  : Unbounded_String := Null_Unbounded_String);
    --  Stores the diagnosis in the internal data structure. The same procedure
    --  is used for all diagnosis kinds, in case of Exemption_Warning,
-   --  Compiler_Error and Internal_Error, Rule should be set to No_Rule.
+   --  Compiler_Error and Internal_Error, Rule should be set to No_Rule_Id.
 
    function Sloc_Image (Line, Column : Natural) return String;
    function Sloc_Image (Sloc : Source_Location) return String;
@@ -98,10 +99,6 @@ package Gnatcheck.Diagnoses is
    -- Exemption mechanism --
    -------------------------
 
-   procedure Init_Exemptions;
-   --  Initializes all the internal data structures needed for exemption
-   --  mechanism
-
    function Is_Exemption_Pragma (El : LAL.Analysis.Pragma_Node) return Boolean;
    --  Checks if the argument Element is the Annotate or GNAT_Annotate pragma
    --  with the  first parameter equal to 'gnatcheck'.
@@ -133,9 +130,5 @@ package Gnatcheck.Diagnoses is
    --  such rule, a warning is issued and exemption is turned OFF. Unit
    --  parameter is used to compute the end of non-closed exemption sections
    --  for compiler checks, if any.
-
-   function Exemption_Justification (Rule : Rule_Id) return Unbounded_String;
-   --  Returns justification for the argument Rule as it is set by processed
-   --  Annotate pragmas.
 
 end Gnatcheck.Diagnoses;

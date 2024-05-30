@@ -7,10 +7,13 @@
 --  for all the tools.
 
 with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Directories; use Ada.Directories;
+with Ada.Directories;  use Ada.Directories;
 with Ada.Environment_Variables;
+
 with GNAT.OS_Lib;
+
 with Gnatcheck.Projects;
+
 with Rules_Factory; use Rules_Factory;
 
 package Gnatcheck.Options is
@@ -39,13 +42,6 @@ package Gnatcheck.Options is
       then Ada.Environment_Variables.Value (Custom_Worker_Var)
       else Default_Worker);
    --  The name of the worker to use.
-
-   Use_External_Worker : constant Boolean := Worker_Name /= "gnatcheck";
-   --  Whether a custom GNATcheck worker executable should be used
-
-   Worker_Command : constant String :=
-     (if Use_External_Worker then Worker_Name else Command_Name);
-   --  The executable to use as GNATcheck worker
 
    RTS_Path : GNAT.OS_Lib.String_Access := new String'("");
    --  Runtime as specified via --RTS= or Runtime attribute
@@ -270,10 +266,6 @@ package Gnatcheck.Options is
 
    Mapping_Mode : Boolean := False;
    --  If this flag is ON, a rule name is added to the text of each diagnosis.
-
-   Subprocess_Mode : Boolean := False;
-   --  If this flag is ON, output messages directly and no other output.
-   --  This flag implies -q and no report file is generated.
 
    User_Info_File           : GNAT.OS_Lib.String_Access;
    User_Info_File_Full_Path : GNAT.OS_Lib.String_Access;
