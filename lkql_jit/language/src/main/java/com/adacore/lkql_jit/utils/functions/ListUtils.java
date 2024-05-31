@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.utils.functions;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,5 +27,11 @@ public final class ListUtils {
     @CompilerDirectives.TruffleBoundary
     public static <T> boolean contains(List<T> list, T elem) {
         return list.contains(elem);
+    }
+
+    @SafeVarargs
+    @CompilerDirectives.TruffleBoundary
+    public static <T> void addAll(List<T> lst, T... elems) {
+        Collections.addAll(lst, elems);
     }
 }

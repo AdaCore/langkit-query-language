@@ -10,14 +10,15 @@ import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.functions.ListUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.source.SourceSection;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This node represents the concatenation operation in the LKQL language.
@@ -67,10 +68,11 @@ public abstract class BinConcat extends BinOp {
         try {
             final int leftSize = (int) leftLibrary.getArraySize(left);
             final int rightSize = (int) rightLibrary.getArraySize(right);
-            final Object[] resContent = Arrays.copyOf(left.content, leftSize + rightSize);
-            System.arraycopy(right.content, 0, resContent, leftSize, rightSize);
-            return new LKQLList(resContent);
-        } catch (UnsupportedMessageException e) {
+            List<Object> resContent = new ArrayList<>(leftSize + rightSize);
+            ListUtils.addAll(resContent, left.content);
+            ListUtils.addAll(resContent, right.content);
+            return new LKQLList(resContent.toArray(new Object[0]));
+        } catch (Exception e) {
             throw LKQLRuntimeException.fromJavaException(e, this);
         }
     }
