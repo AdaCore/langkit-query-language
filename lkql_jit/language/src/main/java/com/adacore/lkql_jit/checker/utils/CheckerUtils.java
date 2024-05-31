@@ -272,5 +272,18 @@ public class CheckerUtils {
                 case RULE_VIOLATION -> "check";
             };
         }
+
+        @Override
+        public void emitFileNotFound(SourceLocation from, String fileName, boolean isError) {
+
+            this.emitDiagnostic(
+                    isError ? MessageKind.ERROR : MessageKind.WARNING,
+                    "internal error: File "
+                            + (useFullFilePath() ? fileName : FileUtils.baseName(fileName))
+                            + " not found",
+                    from,
+                    null,
+                    "");
+        }
     }
 }
