@@ -460,20 +460,16 @@ package body Gnatcheck.Projects is
      (My_Project : Arg_Project_Type'Class) return Boolean
    is
       use GPR2;
-      use GPR2.Path_Name;
       Tmp_Tree : Project.Tree.Object;
    begin
       Tmp_Tree.Load
-        (Filename      =>
-           Create_File
-             (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+        (Filename      => My_Project.Project_Path_Object,
          Context       => Project_Context,
          Pre_Conf_Mode => True);
 
       return Tmp_Tree.Root_Project.Has_Attribute
         (Project.Registry.Attribute.Runtime,
          Project.Attribute_Index.Create (Ada_Language));
-
    end Has_Explicit_Runtime_Attribute;
 
    ----------------------------
@@ -493,6 +489,22 @@ package body Gnatcheck.Projects is
    begin
       return My_Project.Source_Prj /= null;
    end Is_Specified;
+
+   -------------------------
+   -- Project_Path_Object --
+   -------------------------
+
+   function Project_Path_Object (My_Project : Arg_Project_Type)
+     return GPR2.Path_Name.Object
+   is
+      use GPR2;
+      use GPR2.Path_Name;
+   begin
+      return (if My_Project.Is_Specified
+              then Create_File
+                (Filename_Type (My_Project.Source_Prj.all), No_Resolution)
+              else Create_Directory ("./"));
+   end Project_Path_Object;
 
    -----------
    -- Files --
@@ -533,9 +545,7 @@ package body Gnatcheck.Projects is
            (Path_Name.Create_File
               (Filename_Type (My_Project.Source_CGPR.all)));
          My_Project.Tree.Load
-           (Filename         =>
-              Create_File
-                (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+           (Filename         => My_Project.Project_Path_Object,
             Context          => Project_Context,
             Config           => Conf_Obj,
             Subdirs          =>
@@ -558,9 +568,7 @@ package body Gnatcheck.Projects is
            (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
 
          My_Project.Tree.Load_Autoconf
-           (Filename          =>
-              Create_File
-                (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+           (Filename          => My_Project.Project_Path_Object,
             Context           => Project_Context,
             Subdirs           =>
               (if Subdir_Name = null then
@@ -658,10 +666,8 @@ package body Gnatcheck.Projects is
       KB : constant GPR2.KB.Object :=
         GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
 
-      Prj_File : constant Path_Name.Object :=
-        Create_File (Filename_Type (My_Project.Source_Prj.all), No_Resolution);
+      Prj_File : constant Path_Name.Object := My_Project.Project_Path_Object;
    begin
-
       if CGPR_File_Set then
          if RTS_Path.all /= "" then
             Warning
@@ -676,8 +682,8 @@ package body Gnatcheck.Projects is
             Context          => Project_Context,
             Config           => Conf_Obj,
             Subdirs          =>
-              (if Subdir_Name = null then
-                    No_Name
+              (if Subdir_Name = null
+               then No_Name
                else Name_Type (Subdir_Name.all)),
             Check_Shared_Lib => False);
 
@@ -755,16 +761,16 @@ package body Gnatcheck.Projects is
                    (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
                Conf_Obj := My_Project.Tree.Configuration;
-                  My_Project.Tree.Unload;
+               My_Project.Tree.Unload;
 
-                  My_Project.Tree.Load
-                    (Filename          => Aggregated_Prj_Name,
-                     Context           => Agg_Context,
-                     Config            => Conf_Obj,
-                     Subdirs           =>
-                       (if Subdir_Name = null then
-                             No_Name
-                        else Name_Type (Subdir_Name.all)));
+               My_Project.Tree.Load
+                 (Filename          => Aggregated_Prj_Name,
+                  Context           => Agg_Context,
+                  Config            => Conf_Obj,
+                  Subdirs           =>
+                    (if Subdir_Name = null
+                     then No_Name
+                     else Name_Type (Subdir_Name.all)));
 
                if not My_Project.Tree.Has_Runtime_Project then
                   for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
@@ -830,12 +836,7 @@ package body Gnatcheck.Projects is
    procedure Process_Project_File
      (My_Project : in out Arg_Project_Type'Class) is
    begin
-      if not My_Project.Is_Specified then
-         return;
-      end if;
-
       Set_External_Values (My_Project);
-
       if Aggregated_Project then
          Load_Aggregated_Project (My_Project);
       else

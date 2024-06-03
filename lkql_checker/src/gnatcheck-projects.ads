@@ -233,6 +233,12 @@ package Gnatcheck.Projects is
    --  Checks if the argument represents a project that corresponds to some
    --  project file specified as a tool parameter.
 
+   function Project_Path_Object (My_Project : Arg_Project_Type)
+     return GPR2.Path_Name.Object;
+   --  Get the GPR2 path object required to load the project for the current
+   --  GNATcheck run. It can be the specified GPR file if any, or the current
+   --  working directory if there is none.
+
    function Files (My_Project : Arg_Project_Type) return File_Array_Access;
    --  Return the files associated with My_Project if any, null otherwise
 

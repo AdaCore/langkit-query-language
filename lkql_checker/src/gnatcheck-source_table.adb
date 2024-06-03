@@ -301,14 +301,13 @@ package body Gnatcheck.Source_Table is
       Free (Full_Source_Name_String);
       Free (Short_Source_Name_String);
 
-      if Is_Regular_File (Fname) then
+      if Simple_Project and then Is_Regular_File (Fname) then
          Short_Source_Name_String := new String'(Fname);
-      elsif Is_Specified (Arg_Project) then
+      elsif Arg_Project.Tree.Is_Defined then
          declare
             Res : constant GPR2.Path_Name.Object :=
-              Get_File
-                (Tree (Arg_Project).all,
-                 Filename_Optional (Base_Name (Fname)));
+              Arg_Project.Tree.Get_File
+                (Filename_Optional (Base_Name (Fname)));
          begin
             if not Res.Is_Defined then
                Free (Short_Source_Name_String);
