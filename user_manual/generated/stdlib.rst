@@ -21,6 +21,13 @@ Functions
     Return the value of ``System.Default_Bit_Order`` if any ``with System``
     clause is found, null otherwise.
 
+.. function:: depends_on_mutable_discriminant(component_decl)
+
+    Given a `ComponentDecl`, return whether it depends on a mutable
+    discriminant value coming from its parent record declaration.
+    The component depends on a discriminant if it uses it in its subtype
+    constraint or if it is a variant.
+
 .. function:: enclosing_block(n)
 
     Return the first ``DeclBlock`` enclosing ``n`` if any, ``null``
@@ -135,13 +142,6 @@ Functions
 .. function:: is_local_object(o)
 
     Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
-
-.. function:: is_mutable_discriminant_dependant(component_decl)
-
-    Given a `ComponentDecl`, return whether it depends of a mutable
-    discriminant value coming from its parent record declaration.
-    The component declaration can be dependant from a discriminant if it
-    uses it in its subtype constraint or if it is a variant.
 
 .. function:: is_predefined_op(op, follow_renamings=false)
 
@@ -260,6 +260,13 @@ Selectors
     Return all children nodes starting from a base subprogram body, but not
     entering in nested bodies.
 
+.. function:: complete_super_types()
+
+    Yields the chain of super types of the given type in their most complete
+    view. Hence, for a type T which public view derives from a type A but
+    private view derives from a type B (which itself derives from A),
+    invoking this selector on the public view of T will yield B and then A.
+
 .. function:: component_types()
 
     Return all the ``BaseTypeDecl`` corresponding to all fields of a given
@@ -283,5 +290,8 @@ Selectors
 
 .. function:: super_types()
 
-    Yields the chain of super types for the given type
+    Yields the chain of super types of the given type, as viewed from that
+    type. Hence, for a type T which public view derives from a type A but
+    private view derives from a type B (which itself derives from A),
+    invoking this selector on the public view of T will yield A.
 
