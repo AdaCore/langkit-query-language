@@ -422,7 +422,6 @@ begin
 
    if Gnatkp_Mode then
       Max_Diagnoses  := 0;
-      Simple_Project := False;
       Log_Mode       := False;
    end if;
 

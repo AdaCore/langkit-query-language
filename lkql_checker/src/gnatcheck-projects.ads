@@ -92,8 +92,6 @@
 with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
-with GNATCOLL.VFS; use GNATCOLL.VFS;
-
 with GPR2.Path_Name.Set;
 with GPR2.Project.Tree;
 with GPR2.Project.Source;
@@ -239,9 +237,6 @@ package Gnatcheck.Projects is
    --  GNATcheck run. It can be the specified GPR file if any, or the current
    --  working directory if there is none.
 
-   function Files (My_Project : Arg_Project_Type) return File_Array_Access;
-   --  Return the files associated with My_Project if any, null otherwise
-
    procedure Clean_Up (My_Project : Arg_Project_Type);
    --  Removes all the temporary files created when loading a project. Does
    --  nothing of Debug_Flag_N is ON.
@@ -373,9 +368,6 @@ private
       Tree        : aliased GPR2.Project.Tree.Object;
       Source_Prj  : String_Access;
       Source_CGPR : String_Access;
-
-      Files : File_Array_Access;
-      --  Files associated with this project, when using --simple-project
    end record;
 
    function Tree

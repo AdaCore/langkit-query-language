@@ -21,10 +21,7 @@ import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -321,14 +318,6 @@ public final class LKQLContext {
         return this.scenarioVars;
     }
 
-    /** Get whether to use the Libadalang's auto provider. */
-    public boolean useAutoProvider() {
-        if (this.useAutoProvider == null) {
-            this.useAutoProvider = this.env.getOptions().get(LKQLLanguage.useAutoProvider);
-        }
-        return this.useAutoProvider;
-    }
-
     /**
      * Get the files to analyse.
      *
@@ -465,11 +454,6 @@ public final class LKQLContext {
 
     // ----- Project analysis methods -----
 
-    /** Returns the executable name to call to spawn a gnatls process */
-    public String getGnatLs() {
-        return this.getTarget().isEmpty() ? "gnatls" : this.getTarget() + "-gnatls";
-    }
-
     /** Parse the ada source files and store analysis units and root nodes. */
     @CompilerDirectives.TruffleBoundary
     public void parseSources() {
@@ -578,8 +562,7 @@ public final class LKQLContext {
                             8);
         }
 
-        // Else, either load the implicit project or the Libadalang's auto-provider if required
-        // by the user.
+        // Else, either load the implicit project.
         else {
             // We should not get any scenario variable if we are being run without a project file.
             if (this.getScenarioVars().length != 0) {
@@ -588,28 +571,19 @@ public final class LKQLContext {
             }
 
             // If the option is the empty string, the language implementation will end up setting it
-            // to
-            // the default value for its language (e.g. iso-8859-1 for Ada).
+            // to the default value for its language (e.g. iso-8859-1 for Ada).
             String charset = this.env.getOptions().get(LKQLLanguage.charset);
 
-            // Create the required unit provider to initialize the analysis context
-            final Libadalang.UnitProvider provider;
-            if (this.useAutoProvider()) {
-                this.allSourceFiles.addAll(this.specifiedSourceFiles);
-                final List<String> allFiles = this.fetchAdaRuntimeFiles();
-                allFiles.addAll(this.allSourceFiles);
-                provider = Libadalang.createAutoProvider(allFiles.toArray(new String[0]), charset);
-            } else {
-                this.projectManager =
-                        Libadalang.ProjectManager.createImplicit(
-                                this.getTarget(), this.getRuntime(), this.getConfigFile());
-                this.allSourceFiles.addAll(
-                        Arrays.stream(
-                                        this.projectManager.getFiles(
-                                                Libadalang.SourceFileMode.WHOLE_PROJECT))
-                                .toList());
-                provider = this.projectManager.getProvider();
-            }
+            // Load the implicit project
+            this.projectManager =
+                    Libadalang.ProjectManager.createImplicit(
+                            this.getTarget(), this.getRuntime(), this.getConfigFile());
+            this.allSourceFiles.addAll(
+                    Arrays.stream(
+                                    this.projectManager.getFiles(
+                                            Libadalang.SourceFileMode.WHOLE_PROJECT))
+                            .toList());
+            final Libadalang.UnitProvider provider = this.projectManager.getProvider();
 
             // Create the ada context and store it in the LKQL context
             this.adaContext =
@@ -620,45 +594,6 @@ public final class LKQLContext {
             // pragmas.
             this.adaContext.setConfigPragmasMapping(null, null);
         }
-    }
-
-    /**
-     * Return the list of files that belong to the available runtime. We only return specification
-     * files, as implementation are not useful for resolving names and types in the actual user
-     * sources. If a GNAT installation is not available in the PATH, this returns an empty list
-     * without error.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public List<String> fetchAdaRuntimeFiles() {
-        final List<String> runtimeFiles = new ArrayList<>();
-        try {
-            final Process gnatls =
-                    new ProcessBuilder(
-                                    this.getGnatLs(),
-                                    "-v",
-                                    this.getTarget().isEmpty()
-                                            ? ""
-                                            : "--target=" + this.getTarget(),
-                                    this.getRuntime().isEmpty() ? "" : "--RTS=" + this.getRuntime())
-                            .start();
-            final BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(gnatls.getInputStream()));
-            final Optional<String> adaIncludePath =
-                    reader.lines().filter(line -> line.contains("adainclude")).findFirst();
-            adaIncludePath.ifPresent(
-                    path -> {
-                        final Path adaIncludeDir = Paths.get(path.trim());
-                        try (DirectoryStream<Path> stream =
-                                Files.newDirectoryStream(adaIncludeDir, "*.ads")) {
-                            stream.forEach(file -> runtimeFiles.add(file.toString()));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        } catch (IOException ignored) {
-            // No runtime available, not a problem
-        }
-        return runtimeFiles;
     }
 
     // ----- Checker methods -----

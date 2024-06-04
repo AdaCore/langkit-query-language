@@ -81,9 +81,6 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         @CommandLine.Option(names = "-X", description = "Scenario variable")
         public Map<String, String> scenarioVariables = new HashMap<>();
 
-        @CommandLine.Option(names = "--simple-project", description = "Enable simple project mode")
-        public boolean isSimpleProject;
-
         @CommandLine.Option(
                 names = "--rules-dir",
                 description = "Additional directory in which to check for rules")
@@ -192,18 +189,12 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         }
 
         // Set the project file
-        if (this.args.isSimpleProject) {
-            contextBuilder.option("lkql.useAutoProvider", "true");
-            // TODO: Add warning message since auto provider and project file are apparently
-            //  mutually exclusive
-        } else {
-            if (this.args.project != null) {
-                contextBuilder.option("lkql.projectFile", this.args.project);
-            }
+        if (this.args.project != null) {
+            contextBuilder.option("lkql.projectFile", this.args.project);
+        }
 
-            if (this.args.subProject != null) {
-                contextBuilder.option("lkql.subprojectFile", this.args.subProject);
-            }
+        if (this.args.subProject != null) {
+            contextBuilder.option("lkql.subprojectFile", this.args.subProject);
         }
 
         if (this.args.debug) {
