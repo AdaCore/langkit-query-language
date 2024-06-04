@@ -1,0 +1,17 @@
+import stdlib
+
+@check(help="possible occurrence of KP 19341",
+       message="possible occurrence of KP 19341",
+       impact="24.*")
+fun kp_19341(node) =
+    |" Flag all array type declarations that define the 'pack' or
+    |" the 'component_size' aspect, and which have aliased composite
+    |" components.
+    node is BaseTypeDecl(p_root_type(): decl@TypeDecl(
+                             p_is_array_type(): true,
+                             f_type_def: def@ArrayTypeDef
+                         ))
+    when node.p_has_aspect("pack") or node.p_has_aspect("component_size")
+     and def.f_component_type.f_has_aliased is AliasedPresent
+     and def.f_component_type.f_type_expr.p_designated_type_decl() is comp_decl@BaseTypeDecl
+         when stdlib.is_composite_type(comp_decl)

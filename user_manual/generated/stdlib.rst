@@ -100,6 +100,11 @@ Functions
 
     Return true if t is a classwide TypeDecl.
 
+.. function:: is_composite_type(decl)
+
+    Given a BaseTypeDecl, returns whether the declared type is a composite
+    Ada type (record, array, task or protected).
+
 .. function:: is_constant_object(node)
 
     Return true is node represents a constant object, false otherwise
