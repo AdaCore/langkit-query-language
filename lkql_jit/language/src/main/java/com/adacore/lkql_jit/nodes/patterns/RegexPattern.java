@@ -39,17 +39,20 @@ public abstract class RegexPattern extends ValuePattern {
     }
 
     @Specialization
-    public boolean onAdaNode(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean onAdaNode(
+            @SuppressWarnings("unused") VirtualFrame frame, Libadalang.AdaNode node) {
         return node != LKQLNull.INSTANCE && this.pattern.contains(node.getText());
     }
 
     @Specialization
-    public boolean onString(VirtualFrame frame, String value) {
+    public boolean onString(@SuppressWarnings("unused") VirtualFrame frame, String value) {
         return pattern.contains(value);
     }
 
     @Fallback
-    public boolean onOther(VirtualFrame frame, Object other) {
+    public boolean onOther(
+            @SuppressWarnings("unused") VirtualFrame frame,
+            @SuppressWarnings("unused") Object other) {
         return false;
     }
 

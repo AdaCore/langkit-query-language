@@ -20,7 +20,9 @@ public class DocumentBuiltins {
     public static final String NAME = "document_builtins";
 
     @CompilerDirectives.TruffleBoundary
-    public static String documentBuiltinsImpl(MaterializedFrame frame, FunCall call) {
+    public static String documentBuiltinsImpl(
+            @SuppressWarnings("unused") MaterializedFrame frame,
+            @SuppressWarnings("unused") FunCall call) {
         var sw = new StringWriter();
         try (TextWriter writer = new TextWriter(sw)) {
             writer.write("Standard library\n");

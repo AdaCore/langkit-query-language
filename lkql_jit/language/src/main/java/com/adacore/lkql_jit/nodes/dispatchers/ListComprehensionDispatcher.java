@@ -40,7 +40,7 @@ public abstract class ListComprehensionDispatcher extends Node {
      */
     @Specialization(guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()")
     protected static Object executeCached(
-            ListComprehensionRootNode rootNode,
+            @SuppressWarnings("unused") ListComprehensionRootNode rootNode,
             Object[] arguments,
             @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode) {
         return directCallNode.call(arguments);

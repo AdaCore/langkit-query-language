@@ -118,7 +118,7 @@ public class LKQLSelector extends BasicLKQLValue {
 
     /** Placeholder function for the Truffle DSL. */
     @ExportMessage
-    public Object execute(Object[] arguments)
+    public Object execute(@SuppressWarnings("unused") Object[] arguments)
             throws UnsupportedTypeException, ArityException, UnsupportedMessageException {
         // TODO (issue #143): implement this method to execute the selector as a simple function
         // returning a selector list

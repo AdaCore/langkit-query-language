@@ -20,12 +20,14 @@ public abstract class IntegerPattern extends ValuePattern {
     }
 
     @Specialization
-    public boolean onInt(VirtualFrame frame, long val) {
+    public boolean onInt(@SuppressWarnings("unused") VirtualFrame frame, long val) {
         return val == toMatch;
     }
 
     @Fallback
-    public boolean onOther(VirtualFrame frame, Object other) {
+    public boolean onOther(
+            @SuppressWarnings("unused") VirtualFrame frame,
+            @SuppressWarnings("unused") Object other) {
         return false;
     }
 

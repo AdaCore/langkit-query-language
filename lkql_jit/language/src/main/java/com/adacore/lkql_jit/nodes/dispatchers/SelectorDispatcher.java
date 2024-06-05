@@ -36,7 +36,7 @@ public abstract class SelectorDispatcher extends Node {
      */
     @Specialization(guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()")
     protected static LKQLRecValue executeCached(
-            SelectorRootNode rootNode,
+            @SuppressWarnings("unused") SelectorRootNode rootNode,
             Cell[] closure,
             LKQLDepthValue node,
             @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode) {

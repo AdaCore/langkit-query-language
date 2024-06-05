@@ -74,7 +74,7 @@ public abstract class SafeDotAccess extends Expr {
             },
             limit = "1")
     protected Object onNodeCached(
-            Libadalang.AdaNode receiver,
+            @SuppressWarnings("unused") Libadalang.AdaNode receiver,
             @Cached("create(member.getName(), receiver)") LKQLProperty property,
             @Cached("property.isField()") boolean isField) {
         // If the method is a field

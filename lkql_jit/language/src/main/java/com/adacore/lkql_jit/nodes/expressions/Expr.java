@@ -47,6 +47,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as unit.
      * @throws UnexpectedResultException If the node cannot be evaluated as a unit value.
      */
+    @SuppressWarnings("unused")
     public LKQLUnit executeUnit(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLUnit(executeGeneric(frame));
     }
@@ -58,6 +59,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as nullish.
      * @throws UnexpectedResultException If the node cannot be evaluated as a nullish value.
      */
+    @SuppressWarnings("unused")
     public Nullish executeNullish(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectNullish(executeGeneric(frame));
     }
@@ -69,6 +71,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a boolean.
      * @throws UnexpectedResultException If the node cannot be evaluated as a boolean.
      */
+    @SuppressWarnings("unused")
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectBoolean(executeGeneric(frame));
     }
@@ -80,6 +83,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a long.
      * @throws UnexpectedResultException If the node cannot be evaluated as a long.
      */
+    @SuppressWarnings("unused")
     public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLong(executeGeneric(frame));
     }
@@ -91,6 +95,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a big integer.
      * @throws UnexpectedResultException If the node cannot be evaluated as a big integer.
      */
+    @SuppressWarnings("unused")
     public BigInteger executeBigInteger(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectBigInteger(executeGeneric(frame));
     }
@@ -102,6 +107,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a string.
      * @throws UnexpectedResultException If the node cannot be evaluated as a string.
      */
+    @SuppressWarnings("unused")
     public String executeString(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectString(executeGeneric(frame));
     }
@@ -113,6 +119,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a function value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a function.
      */
+    @SuppressWarnings("unused")
     public LKQLFunction executeFunction(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLFunction(executeGeneric(frame));
     }
@@ -124,6 +131,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a property reference value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a property reference.
      */
+    @SuppressWarnings("unused")
     public LKQLProperty executeProperty(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLProperty(executeGeneric(frame));
     }
@@ -135,6 +143,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a selector value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a selector.
      */
+    @SuppressWarnings("unused")
     public LKQLSelector executeSelector(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLSelector(executeGeneric(frame));
     }
@@ -146,6 +155,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a tuple value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a tuple.
      */
+    @SuppressWarnings("unused")
     public LKQLTuple executeTuple(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLTuple(executeGeneric(frame));
     }
@@ -157,6 +167,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a list value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a list.
      */
+    @SuppressWarnings("unused")
     public LKQLList executeList(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLList(executeGeneric(frame));
     }
@@ -168,6 +179,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a lazy list value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a lazy list.
      */
+    @SuppressWarnings("unused")
     public LKQLLazyList executeLazyList(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLLazyList(executeGeneric(frame));
     }
@@ -179,6 +191,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as an indexable value.
      * @throws UnexpectedResultException If the node cannot be evaluated as an indexable.
      */
+    @SuppressWarnings("unused")
     public Indexable executeIndexable(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectIndexable(executeGeneric(frame));
     }
@@ -190,6 +203,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as an iterable value.
      * @throws UnexpectedResultException If the node cannot be evaluated as an iterable.
      */
+    @SuppressWarnings("unused")
     public Iterable executeIterable(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectIterable(executeGeneric(frame));
     }
@@ -201,6 +215,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as an object value.
      * @throws UnexpectedResultException If the node cannot be evaluated as an object.
      */
+    @SuppressWarnings("unused")
     public LKQLObject executeObject(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLObject(executeGeneric(frame));
     }
@@ -212,6 +227,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a namespace value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a namespace.
      */
+    @SuppressWarnings("unused")
     public LKQLNamespace executeNamespace(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLNamespace(executeGeneric(frame));
     }
@@ -223,6 +239,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a lkql value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a lkql value.
      */
+    @SuppressWarnings("unused")
     public LKQLValue executeValue(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLValue(executeGeneric(frame));
     }
@@ -234,6 +251,7 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as an ada node.
      * @throws UnexpectedResultException If the node cannot be evaluated as an ada node.
      */
+    @SuppressWarnings("unused")
     public Libadalang.AdaNode executeNode(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectAdaNode(executeGeneric(frame));
     }

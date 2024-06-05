@@ -148,9 +148,10 @@ public class LKQLFunction extends BasicLKQLValue {
         /** Execute the function with the cached strategy. */
         @Specialization(guards = "callTarget == directCallNode.getCallTarget()")
         protected static Object doCached(
-                final LKQLFunction function,
+                @SuppressWarnings("unused") final LKQLFunction function,
                 final Object[] arguments,
-                @Cached("function.getCallTarget()") CallTarget callTarget,
+                @SuppressWarnings("unused") @Cached("function.getCallTarget()")
+                        CallTarget callTarget,
                 @Cached("create(callTarget)") DirectCallNode directCallNode) {
             return directCallNode.call(arguments);
         }
