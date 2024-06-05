@@ -102,40 +102,8 @@ public abstract class BaseChecker {
         return message;
     }
 
-    public String getHelp() {
-        return help;
-    }
-
     public boolean isFollowGenericInstantiations() {
         return followGenericInstantiations;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public String getSubcategory() {
-        return subcategory;
-    }
-
-    public Remediation getRemediation() {
-        return remediation;
-    }
-
-    public long getExecutionCost() {
-        return executionCost;
-    }
-
-    public boolean isParametricExemption() {
-        return parametricExemption;
-    }
-
-    public String getImpact() {
-        return impact;
-    }
-
-    public String getTarget() {
-        return target;
     }
 
     // ----- Setters -----

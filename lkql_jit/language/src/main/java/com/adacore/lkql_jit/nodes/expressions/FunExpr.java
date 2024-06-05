@@ -41,13 +41,6 @@ public final class FunExpr extends Expr {
     /** The default values of the parameters. */
     private final Expr[] parameterValues;
 
-    // ----- Children -----
-
-    /** The body of the function. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private Expr body;
-
     // ----- Constructors -----
 
     /**
@@ -72,7 +65,6 @@ public final class FunExpr extends Expr {
                 new FunctionRootNode(LKQLLanguage.getLanguage(this), frameDescriptor, false, body);
         this.parameterNames = new String[parameters.length];
         this.parameterValues = new Expr[parameters.length];
-        this.body = body;
         this.documentation = documentation;
 
         this.initParams(parameters);

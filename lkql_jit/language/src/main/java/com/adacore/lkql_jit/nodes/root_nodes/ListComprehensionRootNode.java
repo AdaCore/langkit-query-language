@@ -51,12 +51,6 @@ public final class ListComprehensionRootNode extends BaseRootNode {
         this.result = result;
     }
 
-    // ----- Getters -----
-
-    public Expr getResult() {
-        return result;
-    }
-
     // ----- Execution methods -----
 
     /**

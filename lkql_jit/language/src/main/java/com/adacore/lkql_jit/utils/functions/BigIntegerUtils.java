@@ -16,28 +16,6 @@ import java.math.BigInteger;
 public final class BigIntegerUtils {
 
     /**
-     * Get a big integer from a long value.
-     *
-     * @param l The long value.
-     * @return The big integer.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static BigInteger valueOf(long l) {
-        return BigInteger.valueOf(l);
-    }
-
-    /**
-     * Get a big integer from an int.
-     *
-     * @param i The int value.
-     * @return The big integer.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static BigInteger valueOf(int i) {
-        return BigInteger.valueOf(i);
-    }
-
-    /**
      * Get the negative value of the given big integer.
      *
      * @param arg The big integer to negate.

@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.nodes.root_nodes;
 import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
 import com.adacore.lkql_jit.built_ins.values.LKQLRecValue;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
-import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -112,14 +111,4 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
         // Return the result
         return res;
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * This record represents a result of a call to the selector on a node.
-     *
-     * @param mode The mode of the result.
-     * @param result The result value.
-     */
-    public record SelectorCallResult(SelectorExpr.Mode mode, Object result) {}
 }

@@ -12,11 +12,6 @@ import com.oracle.truffle.api.source.SourceSection;
 public class SplatPattern extends ValuePattern {
     private final int slot;
 
-    public SplatPattern(SourceSection location) {
-        super(location);
-        this.slot = -1;
-    }
-
     public SplatPattern(SourceSection location, int slot) {
         super(location);
         this.slot = slot;

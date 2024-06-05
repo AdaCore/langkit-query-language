@@ -48,9 +48,6 @@ public class Constants {
     /** Default name of a function. */
     public static final String FUNCTION_DEFAULT_NAME = "lambda";
 
-    /** Default documentation of a function. */
-    public static final String FUNCTION_DEFAULT_DOC = "";
-
     // ----- Built-in symbols -----
 
     /** Symbol which contains the "this" value in selectors. */
@@ -64,12 +61,6 @@ public class Constants {
 
     /** Symbol which contains the minimal depth value in selector calls. */
     public static final String MIN_DEPTH_SYMBOL = "min_depth";
-
-    /** Special object key for LKQL config file to define rule alias. */
-    public static final String ALIAS_NAME_SYMBOL = "instance_name";
-
-    /** Special object key for LKQL config file to define the rule instance name. IOW rule alias. */
-    public static final String INSTANCE_NAME_SYMBOL = "instance_name";
 
     // ----- Special annotations -----
 

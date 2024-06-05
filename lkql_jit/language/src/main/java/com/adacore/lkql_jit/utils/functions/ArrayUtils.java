@@ -9,7 +9,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Util functions to manipulate the arrays in the JIT implementation.
@@ -31,28 +30,6 @@ public final class ArrayUtils {
             if (val.equals(arr[i])) return i;
         }
         return -1;
-    }
-
-    /**
-     * Compare the two array.
-     *
-     * @param left The left array.
-     * @param right The right array.
-     * @param <T> The type of the array elements.
-     * @return The result of the comparison.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static <T> boolean equals(T[] left, T[] right) {
-        // Compare the length
-        if (left.length != right.length) return false;
-
-        // Compare the elements
-        for (int i = 0; i < left.length; i++) {
-            if (!Objects.equals(left[i], right[i])) return false;
-        }
-
-        // Return the success
-        return true;
     }
 
     /**
@@ -85,17 +62,5 @@ public final class ArrayUtils {
             }
         }
         return resList;
-    }
-
-    /**
-     * Get the string representation of a given array.
-     *
-     * @param array The array to get the representation from.
-     * @param <T> The type of the array elements.
-     * @return The string representation of the array.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static <T> String toString(T[] array) {
-        return Arrays.toString(array);
     }
 }
