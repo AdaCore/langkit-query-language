@@ -32,6 +32,6 @@ Total gnatcheck failures: 1
 
 6. Gnatcheck internal errors
 
-main.adb:1:01: error: internal error: File /pouet.ads not found
+main.adb:1:01: error: internal error: File pouet.ads not found
 
 >>>program returned status code 2
