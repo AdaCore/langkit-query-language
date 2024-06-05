@@ -55,16 +55,8 @@ public final class ComprehensionAssoc extends LKQLNode {
 
     // ----- Getters -----
 
-    public String getName() {
-        return name;
-    }
-
     public int getSlot() {
         return slot;
-    }
-
-    public Expr getCollection() {
-        return collection;
     }
 
     // ----- Execution methods -----

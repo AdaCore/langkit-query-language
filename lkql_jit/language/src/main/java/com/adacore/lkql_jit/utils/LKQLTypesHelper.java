@@ -23,9 +23,6 @@ public final class LKQLTypesHelper {
 
     // ----- Static values -----
 
-    /** The string representing the LKQL indexable interface. */
-    public static final String LKQL_INDEXABLE = "Indexable";
-
     /** The string representing the LKQL iterable interface. */
     public static final String LKQL_ITERABLE = "Iterable";
 

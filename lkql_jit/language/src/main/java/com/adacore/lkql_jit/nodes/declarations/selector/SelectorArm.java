@@ -50,16 +50,6 @@ public final class SelectorArm extends LKQLNode {
         this.expr = expr;
     }
 
-    // ----- Getters -----
-
-    public BasePattern getPattern() {
-        return pattern;
-    }
-
-    public Expr getExpr() {
-        return expr;
-    }
-
     // ----- Execution methods -----
 
     /**

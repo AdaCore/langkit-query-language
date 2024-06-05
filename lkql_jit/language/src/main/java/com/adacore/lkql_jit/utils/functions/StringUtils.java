@@ -25,10 +25,8 @@ public final class StringUtils {
 
     // --- The color constants
     public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_GREY = "\u001B[38;5;246m";
     public static final String ANSI_BOLD = "\u001B[1m";
 
     // ----- Class methods -----
@@ -46,18 +44,6 @@ public final class StringUtils {
             builder.append(s);
         }
         return builder.toString();
-    }
-
-    /**
-     * Compare the given strings ignoring the casing of them.
-     *
-     * @param left The left string.
-     * @param right The right string.
-     * @return True if the strings are equals, false else.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static boolean equalsIgnoreCase(String left, String right) {
-        return left.equalsIgnoreCase(right);
     }
 
     /**
@@ -141,48 +127,6 @@ public final class StringUtils {
     @CompilerDirectives.TruffleBoundary
     public static String toUpperCase(String toUpper) {
         return toUpper.toUpperCase(Locale.ROOT);
-    }
-
-    /**
-     * Translate a string to a snake_case one.
-     *
-     * @param source The source string.
-     * @return The transformed string.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static String toSnakeCase(String source) {
-        StringBuilder res = new StringBuilder();
-        for (int i = 0; i < source.length(); i++) {
-            char curChar = source.charAt(i);
-            if (Character.isUpperCase(curChar)) {
-                res.append('_');
-                curChar = Character.toLowerCase(curChar);
-            }
-            res.append(curChar);
-        }
-        return res.toString();
-    }
-
-    /**
-     * Get a camel case formatted string from a snake case source.
-     *
-     * @param source The source string.
-     * @return The camel case.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static String toCamelCase(String source) {
-        StringBuilder res = new StringBuilder();
-        int i = 0;
-        while (i < source.length()) {
-            char curChar = source.charAt(i);
-            if (curChar == '_') {
-                i++;
-                curChar = Character.toUpperCase(source.charAt(i));
-            }
-            res.append(curChar);
-            i++;
-        }
-        return res.toString();
     }
 
     /**
