@@ -9,6 +9,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.BaseChecker;
+import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -86,6 +87,23 @@ public class CheckerUtils {
                 SourceLocation adaErrorLocation,
                 SourceLocation lkqlErrorLocation,
                 String ruleName);
+
+        /** Given a call stack, returns a formatted representation of this stack. */
+        default String callStack(CallStack callStack) {
+            StringBuilder res = new StringBuilder();
+            for (int i = 0; i < callStack.calls.size(); i++) {
+                var call = callStack.calls.get(i);
+
+                // Add a newline of we're not on the first call
+                if (i > 0) {
+                    res.append('\n');
+                }
+
+                // Format the current call and add it to the result
+                res.append(" in ").append(call.display());
+            }
+            return res.toString();
+        }
 
         /**
          * Emit a diagnostic. Location parameters can be null. If both are null, then a non located

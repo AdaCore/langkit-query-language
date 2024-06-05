@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.values.*;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Nullish;
@@ -116,11 +117,14 @@ public abstract class FunCall extends Expr {
         // We don't place the closure in the arguments because built-ins don't have any.
         // Just execute the function.
         try {
+            pushCallStack(builtIn);
             return builtInLibrary.execute(builtIn, realArgs);
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
             // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
             // (#138)
             throw LKQLRuntimeException.fromJavaException(e, this.getCallee());
+        } finally {
+            popCallStack();
         }
     }
 
@@ -161,11 +165,14 @@ public abstract class FunCall extends Expr {
 
         // Return the result of the function call
         try {
+            pushCallStack(function);
             return functionLibrary.execute(function, realArgs);
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
             // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
             // (#138)
             throw LKQLRuntimeException.fromJavaException(e, this);
+        } finally {
+            popCallStack();
         }
     }
 
@@ -226,6 +233,18 @@ public abstract class FunCall extends Expr {
     protected void nonExecutable(Object nonExec) {
         throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_FUNCTION, LKQLTypesHelper.fromJava(nonExec), this);
+    }
+
+    // ----- Instance methods -----
+
+    /** Push this call node to the call stack. */
+    private void pushCallStack(LKQLFunction function) {
+        LKQLLanguage.getContext(this).callStack.pushCall(function, this);
+    }
+
+    /** Remove this call node from the call stack. */
+    private void popCallStack() {
+        LKQLLanguage.getContext(this).callStack.popCall();
     }
 
     // ----- Override methods -----

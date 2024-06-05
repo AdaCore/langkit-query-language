@@ -1,0 +1,4 @@
+fun error() = null.not_a_field()
+fun call_error() = error()
+fun call_call_error() = call_error()
+call_call_error()
