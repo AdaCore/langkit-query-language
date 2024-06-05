@@ -50,3 +50,10 @@ out/
 tmp/
 .clang-format
 asis/
+
+# Editor specific files
+.vscode/
+
+# Documentation build artifacts
+user_manual/build/
+lkql_checker/doc/build/
