@@ -102,7 +102,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     private RuntimeException multipleSameNameKeys(Liblkqllang.LkqlNode node, String key) {
         throw translationError(
-                node, "Multiple keys with the same name in the " + "object: \"" + key + "\"");
+                node, "Multiple keys with the same name in the object: \"" + key + "\"");
     }
 
     /**
