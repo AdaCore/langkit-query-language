@@ -242,10 +242,9 @@ package body Gnatcheck.Source_Table is
       Units : Unit_Vectors.Vector;
 
    begin
-      --  If no project specified or Simple_Project, register all files listed
-      --  explicitly.
+      --  If no project specified, register all files listed explicitly.
 
-      if not Project.Tree.Is_Defined or else Simple_Project then
+      if not Project.Tree.Is_Defined then
          for J in First_SF_Id .. Last_Argument_Source loop
             Units.Append (Ctx.Analysis_Ctx.Get_From_File (Source_Name (J)));
          end loop;
@@ -301,14 +300,11 @@ package body Gnatcheck.Source_Table is
       Free (Full_Source_Name_String);
       Free (Short_Source_Name_String);
 
-      if Is_Regular_File (Fname) then
-         Short_Source_Name_String := new String'(Fname);
-      elsif Is_Specified (Arg_Project) then
+      if Arg_Project.Tree.Is_Defined then
          declare
             Res : constant GPR2.Path_Name.Object :=
-              Get_File
-                (Tree (Arg_Project).all,
-                 Filename_Optional (Base_Name (Fname)));
+              Arg_Project.Tree.Get_File
+                (Filename_Optional (Base_Name (Fname)));
          begin
             if not Res.Is_Defined then
                Free (Short_Source_Name_String);
@@ -1581,22 +1577,6 @@ package body Gnatcheck.Source_Table is
                Event_Handler => EHR_Object);
             Unchecked_Free (Files);
          end;
-
-      --  Simple_Project maps to an auto provider
-
-      elsif Simple_Project and then not In_Aggregate_Project then
-         --  As for the case above, add all runtime files for name resolution
-
-         Files := new File_Array (1 .. Gnatcheck_Prj.Files'Length + 4096);
-         Files (1 .. Gnatcheck_Prj.Files'Length) := Gnatcheck_Prj.Files.all;
-         Last := Gnatcheck_Prj.Files'Length;
-         Add_Runtime_Files;
-         Ctx.Analysis_Ctx := Create_Context
-           (Charset       => Charset.all,
-            Unit_Provider => Create_Auto_Provider_Reference
-                                  (Files (1 .. Last), Charset.all),
-            Event_Handler => EHR_Object);
-         Unchecked_Free (Files);
 
       --  Otherwise use a project unit provider
 

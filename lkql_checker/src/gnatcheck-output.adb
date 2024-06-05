@@ -711,7 +711,6 @@ package body Gnatcheck.Output is
       Info (" --no-subprojects - process only sources of root project");
       Info (" -Xname=value     - specify an external reference for argument project file");
       Info (" --subdirs=dir    - specify subdirectory to place the result files into");
-      Info (" --simple-project - simple project set up");
       Info (" --no_objects_dir - place results into current dir instead of project dir");
       Info (" -eL              - follow all symbolic links when processing project files");
       Info ("");

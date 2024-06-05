@@ -1,0 +1,4 @@
+driver: gnatcheck
+format: brief
+rules:
+ - +RGoto_Statements
