@@ -21,4 +21,3 @@ tests:
       - -r
       - goto_statements
     rule_file: rules.txt
-canonicalize_backslashes: True

@@ -51,6 +51,10 @@ procedure Gnatcheck_Main is
      (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
    --  Return the full path for a temp file with a given Id
 
+   function Default_LKQL_Rule_Options_File return String is
+     (Gnatcheck_Prj.Get_Project_Relative_File ("rules.lkql"));
+   --  Get the default LKQL rule options file name.
+
    procedure Setup_Search_Paths;
    --  Initialize LKQL_RULES_PATH to include path to built-in rules. Assuming
    --  this executable is in $PREFIX/bin, this includes the $PREFIX/share/lkql
@@ -498,6 +502,17 @@ begin
    --  Add the command-line LKQL rule file to the rule options
    if Arg.Rule_File.Get /= Null_Unbounded_String then
       Set_LKQL_Rule_File (To_String (Arg.Rule_File.Get));
+   end if;
+
+   --  Get the default LKQL rule file if none has been specified
+   if Is_Rule_Options_Empty then
+      declare
+         Def_LKQL : constant String := Default_LKQL_Rule_Options_File;
+      begin
+         if Is_Regular_File (Def_LKQL) then
+            Set_LKQL_Rule_File (Def_LKQL);
+         end if;
+      end;
    end if;
 
    --  Setup LKQL_RULES_PATH to point on built-in rules

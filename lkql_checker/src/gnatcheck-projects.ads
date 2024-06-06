@@ -196,6 +196,13 @@ package Gnatcheck.Projects is
    --  Checks if the argument represents a project that corresponds to some
    --  project file specified as a tool parameter.
 
+   function Get_Project_Relative_File
+     (My_Project : Arg_Project_Type;
+      Filename   : String) return String;
+   --  From the given ``Filename``, get the absolute path leading to it
+   --  realtively to the current project file. If there is no specified
+   --  project file, then get the file from the current directory.
+
    procedure Clean_Up (My_Project : Arg_Project_Type);
    --  Removes all the temporary files created when loading a project. Does
    --  nothing of Debug_Flag_N is ON.
@@ -245,6 +252,9 @@ package Gnatcheck.Projects is
    procedure Set_LKQL_Rule_File (File : String);
    --  Set the given ``File`` as the LKQL rule file to process during the
    --  execution of ``Process_Rule_Options``.
+
+   function Is_Rule_Options_Empty return Boolean;
+   --  Get whether the rule options are empty.
 
    procedure Scan_Arguments
      (My_Project : in out Arg_Project_Type;

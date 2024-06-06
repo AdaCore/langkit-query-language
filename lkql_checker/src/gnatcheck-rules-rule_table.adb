@@ -19,10 +19,10 @@ with GNAT.Regexp;               use GNAT.Regexp;
 with GNAT.Table;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
+with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
-with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 
 with Rule_Commands; use Rule_Commands;
 with Rules_Factory; use Rules_Factory;
@@ -57,10 +57,8 @@ package body Gnatcheck.Rules.Rule_Table is
 
    function Get_Rule_File_Name (RF : String) return String is
         (if Is_Absolute_Path (RF)
-           or else not Gnatcheck.Options.Gnatcheck_Prj.Is_Specified
          then RF
-         else Normalize_Pathname
-                (Dir_Name (Gnatcheck.Options.Gnatcheck_Prj.Source_Prj) & RF));
+         else Gnatcheck_Prj.Get_Project_Relative_File (RF));
       --  If gnatcheck is called with a project file, all the (relative) names
       --  of the rule files are considered as related to the project file
       --  directory, otherwise - as related to the current directory
@@ -420,6 +418,7 @@ package body Gnatcheck.Rules.Rule_Table is
       Success : Boolean := True;
 
       Rule_File_Name : constant String := Get_Rule_File_Name (RF_Name);
+      Rule_File_Base : constant String := Base_Name (Rule_File_Name);
 
       Include_RF_Name : String_Access;
 
@@ -550,7 +549,7 @@ package body Gnatcheck.Rules.Rule_Table is
                         when In_Rule_Option =>
                            Process_Rule_Option
                              (Rule_Buf (1 .. Rule_Len),
-                              Rule_File_Name & ":" &
+                              Rule_File_Base & ":" &
                               Image (Last_Rule_Opt_Start_Line_Old) & ":" &
                               Image (Last_Rule_Opt_Start_Col_Old));
 
@@ -731,7 +730,7 @@ package body Gnatcheck.Rules.Rule_Table is
             when In_Rule_Option =>
                Process_Rule_Option
                  (Rule_Buf (1 .. Rule_Len),
-                  Rule_File_Name & ":" & Image (Last_Rule_Opt_Start_Line) &
+                  Rule_File_Base & ":" & Image (Last_Rule_Opt_Start_Line) &
                   ":" & Image (Last_Rule_Opt_Start_Col));
             when In_From_Option =>
                Set_File_Name (Success);
@@ -739,7 +738,7 @@ package body Gnatcheck.Rules.Rule_Table is
                if not Success then
                   Error
                      ("bad format of rule file "          &
-                      Rule_File_Name & ", part of lines " &
+                      Rule_File_Base & ", part of lines " &
                       Image (Rule_Start_Line)             &
                       ":"                                 &
                       Image (Current_Line)                &
@@ -766,7 +765,7 @@ package body Gnatcheck.Rules.Rule_Table is
             when Indefinite =>
                Error
                  ("bad format of rule file "          &
-                  Rule_File_Name & ", lines "         &
+                  Rule_File_Base & ", lines "         &
                   Image (Rule_Start_Line)             &
                   ":"                                 &
                   Image (if New_State = Indefinite then
@@ -800,7 +799,8 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Process_LKQL_Rule_File (LKQL_RF_Name : String)
    is
-      Rule_File_Name : constant String := Get_Rule_File_Name (LKQL_RF_Name);
+      Rule_File_Absolute_Path : constant String :=
+        Get_Rule_File_Name (LKQL_RF_Name);
       JSON_Config_File_Name : constant String :=
         Global_Report_Dir.all & "gnatcheck-rules.json.out";
       Error_File_Name : constant String :=
@@ -820,13 +820,13 @@ package body Gnatcheck.Rules.Rule_Table is
          Instance_Object : JSON_Value) is
       begin
          Process_Rule_Object
-           (Rule_File_Name, String (Instance_Id), Instance_Object);
+           (Rule_File_Absolute_Path, String (Instance_Id), Instance_Object);
       end Rule_Object_Mapper;
 
    begin
       --  Ensure that the provided rule file exists
-      if not Is_Regular_File (Rule_File_Name) then
-         Error ("can not locate LKQL rule file " & Rule_File_Name);
+      if not Is_Regular_File (Rule_File_Absolute_Path) then
+         Error ("can not locate LKQL rule file " & LKQL_RF_Name);
          Missing_Rule_File_Detected := True;
          return;
       end if;
@@ -834,7 +834,7 @@ package body Gnatcheck.Rules.Rule_Table is
       --  Call the LKQL rule config file parser and parse its result
       Parser_Pid :=
         Spawn_LKQL_Rule_File_Parser
-          (Rule_File_Name, JSON_Config_File_Name, Error_File_Name);
+          (Rule_File_Absolute_Path, JSON_Config_File_Name, Error_File_Name);
       Wait_Process (Waited_Pid, Success);
 
       if Parser_Pid /= Waited_Pid or else not Success then
