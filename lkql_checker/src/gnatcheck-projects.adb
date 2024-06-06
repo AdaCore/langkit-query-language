@@ -394,6 +394,23 @@ package body Gnatcheck.Projects is
               else Create_Directory ("./"));
    end Project_Path_Object;
 
+   -------------------------------
+   -- Get_Project_Relative_File --
+   -------------------------------
+
+   function Get_Project_Relative_File
+     (My_Project : Arg_Project_Type;
+      Filename : String) return String is
+   begin
+      if not Gnatcheck.Options.Gnatcheck_Prj.Is_Specified then
+         return Normalize_Pathname (Filename);
+      else
+         return Normalize_Pathname
+           (GNAT.Directory_Operations.Dir_Name
+              (Gnatcheck.Options.Gnatcheck_Prj.Source_Prj.all) & Filename);
+      end if;
+   end Get_Project_Relative_File;
+
    -----------------------------
    -- Load_Aggregated_Project --
    -----------------------------
@@ -1147,7 +1164,7 @@ package body Gnatcheck.Projects is
             when File =>
                Process_Rule_File (To_String (O.Value));
             when LKQL_File =>
-               Process_LKQL_Rule_File (To_String (O.Value));
+               Rules_From_LKQL := O.Value;
             when Option =>
                Process_Rule_Option (To_String (O.Value), Defined_At => "");
          end case;

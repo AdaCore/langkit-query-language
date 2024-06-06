@@ -1,0 +1,6 @@
+driver: gnatcheck
+input_sources:
+ - main.adb
+extra_rule_options:
+ - "-from-lkql=r1.lkql"
+ - "-from-lkql=r2.lkql"

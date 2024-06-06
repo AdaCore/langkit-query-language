@@ -6,9 +6,10 @@
 --  This package defines options that are supposed to be of a common interest
 --  for all the tools.
 
-with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Directories;  use Ada.Directories;
+with Ada.Command_Line;      use Ada.Command_Line;
+with Ada.Directories;       use Ada.Directories;
 with Ada.Environment_Variables;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib;
 
@@ -170,6 +171,10 @@ package Gnatcheck.Options is
    Ignore_Project_Switches : Boolean := False;
    --  True if --ignore-project-switches was used.
    --  Ignore gnatcheck switches from the project file if set.
+
+   Rules_From_LKQL : Unbounded_String := Null_Unbounded_String;
+   --  LKQL rule options file passed through the command-line option
+   --  -from-lkql.
 
    ----------------------------------------
    -- Flags computed from other settings --

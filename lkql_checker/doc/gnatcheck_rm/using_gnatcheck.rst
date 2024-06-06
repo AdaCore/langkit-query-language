@@ -362,7 +362,12 @@ can provide as many rule options as you want after the ``-rules`` switch.
 .. note::
 
   You can provide ``-from-lkql`` and ``-from`` to the same GNATcheck run. This will
-  combine specified rules in both files.
+  combine specified rules in both files. However, you can only provide one LKQL
+  rule options file.
+
+  By default, GNATcheck will look for a ``rules.lkql`` file in the current working
+  directory or besides the specified project file. If there is one and none has
+  been explicitly provided, GNATcheck will load it as the rule options file.
 
 The default behavior is that all the rule checks are disabled.
 

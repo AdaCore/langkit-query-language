@@ -7,7 +7,8 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
-with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Strings.Unbounded;
+with Ada.Text_IO;           use Ada.Text_IO;
 
 with Checker_App;
 
@@ -49,6 +50,11 @@ procedure Gnatcheck_Main is
      (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
    --  Return the full path for a temp file with a given Id
 
+   function Default_LKQL_Rule_Options_File
+     return Ada.Strings.Unbounded.Unbounded_String;
+   --  Get the default LKQL rule options file name if it exists, else return
+   --  the null string.
+
    procedure Setup_Search_Paths;
    --  Initialize LKQL_RULES_PATH to include path to built-in rules. Assuming
    --  this executable is in $PREFIX/bin, this includes the $PREFIX/share/lkql
@@ -66,6 +72,24 @@ procedure Gnatcheck_Main is
 
    procedure Schedule_Files;
    --  Schedule jobs per set of files
+
+   ------------------------------------
+   -- Default_LKQL_Rule_Options_File --
+   ------------------------------------
+
+   function Default_LKQL_Rule_Options_File
+     return Ada.Strings.Unbounded.Unbounded_String
+   is
+      use Ada.Strings.Unbounded;
+
+      Rule_File_Name : constant String :=
+        Gnatcheck_Prj.Get_Project_Relative_File ("rules.lkql");
+   begin
+      return
+        (if Is_Regular_File (Rule_File_Name)
+         then To_Unbounded_String (Rule_File_Name)
+         else Null_Unbounded_String);
+   end Default_LKQL_Rule_Options_File;
 
    ------------------------
    -- Setup_Search_Paths --
@@ -417,6 +441,17 @@ begin
    --  And process all rule options after rule files have been loaded
 
    Process_Rule_Options;
+   if Ada.Strings.Unbounded."="
+     (Rules_From_LKQL, Ada.Strings.Unbounded.Null_Unbounded_String)
+   then
+      Rules_From_LKQL := Default_LKQL_Rule_Options_File;
+   end if;
+   if Ada.Strings.Unbounded."/="
+     (Rules_From_LKQL, Ada.Strings.Unbounded.Null_Unbounded_String)
+   then
+      Process_LKQL_Rule_File
+        (Ada.Strings.Unbounded.To_String (Rules_From_LKQL));
+   end if;
 
    --  Force some switches for gnatkp
 

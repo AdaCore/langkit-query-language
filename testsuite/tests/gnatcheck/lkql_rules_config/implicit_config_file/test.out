@@ -1,0 +1,9 @@
+Without project file
+====================
+
+main.adb:3:04: goto statement
+
+With project file
+=================
+
+s.adb:3:04: goto statement

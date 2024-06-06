@@ -156,6 +156,7 @@ class GnatcheckDriver(BaseDriver):
           as rule containing directories.
         - ``rule_list_file``: If provided, read the given rule file and add its
           sorted content to the test output.
+        - ``extra_rule_options`` (list[str]): Extra rule options to append.
 
         - ``pre_python``/``post_python`` (str): Python code to be executed
           before/after the test.
@@ -342,6 +343,9 @@ class GnatcheckDriver(BaseDriver):
             elif test_data.get('rules', None):
                 for r in test_data.get('rules', []):
                     args.append(r)
+
+            for extra_rule_opt in test_data.get('extra_rule_options', []):
+                args.append(extra_rule_opt)
 
             # Run the interpreter
             # TODO: For the moment, not trying to do anything with the error code,
