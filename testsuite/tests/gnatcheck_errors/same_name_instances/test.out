@@ -15,5 +15,5 @@ gnatcheck: rule instance with the same name already exists: "goto_statements" pr
 In command-line and rule options
 ================================
 
-gnatcheck: rule instance with the same name already exists: "goto_statements" previously instantiated at command line (/rules.txt:1:1)
+gnatcheck: rule instance with the same name already exists: "goto_statements" previously instantiated at command line (rules.txt:1:1)
 >>>program returned status code 5
