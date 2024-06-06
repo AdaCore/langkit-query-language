@@ -290,6 +290,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * instances.
      */
     private static Map<String, RuleInstance> parseLKQLRuleFile(final String lkqlRuleFile) {
+        final File lkqlFile = new File(lkqlRuleFile);
         final Map<String, RuleInstance> res = new HashMap<>();
         try (Context context =
                 Context.newBuilder()
@@ -297,7 +298,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                         .allowIO(true)
                         .build()) {
             // Parse the LKQL rule configuration file with a polyglot context
-            final Source source = Source.newBuilder("lkql", new File(lkqlRuleFile)).build();
+            final Source source = Source.newBuilder("lkql", lkqlFile).build();
             final Value executable = context.parse(source);
             final Value topLevel = executable.execute(false);
 
@@ -321,11 +322,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                                 + "top level object value");
             }
         } catch (IOException e) {
-            System.err.println("WORKER_FATAL_ERROR: Could not read file: " + lkqlRuleFile);
+            System.err.println("WORKER_FATAL_ERROR: Could not read file: " + lkqlFile.getName());
         } catch (Exception e) {
             System.err.println(
                     "WORKER_FATAL_ERROR: during processing of rule file: "
-                            + lkqlRuleFile
+                            + lkqlFile.getName()
                             + ": "
                             + e.getMessage());
         }

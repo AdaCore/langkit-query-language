@@ -386,6 +386,23 @@ package body Gnatcheck.Projects is
               else Create_Directory ("./"));
    end Project_Path_Object;
 
+   -------------------------------
+   -- Get_Project_Relative_File --
+   -------------------------------
+
+   function Get_Project_Relative_File
+     (My_Project : Arg_Project_Type;
+      Filename   : String) return String is
+   begin
+      if Gnatcheck.Options.Gnatcheck_Prj.Is_Specified then
+         return Normalize_Pathname
+           (GNAT.Directory_Operations.Dir_Name
+              (Gnatcheck.Options.Gnatcheck_Prj.Source_Prj.all) & Filename);
+      else
+         return Normalize_Pathname (Filename);
+      end if;
+   end Get_Project_Relative_File;
+
    -----------------------------
    -- Load_Aggregated_Project --
    -----------------------------
@@ -1172,6 +1189,13 @@ package body Gnatcheck.Projects is
          Rule_Options.Append (Opt_Rec);
       end if;
    end Add_LKQL_Rule_File;
+
+   ---------------------------
+   -- Is_Rule_Options_Empty --
+   ---------------------------
+
+   function Is_Rule_Options_Empty return Boolean is
+     (Rule_Options.Is_Empty);
 
    --------------------
    -- Scan_Arguments --

@@ -420,8 +420,16 @@ LKQL rule options file
 
 You can configure GNATcheck rules using an LKQL file, provided through the
 ``--rules`` command-line option, or with the ``-from-lkql`` rule option
-(see :ref:`gnatcheck_Rule_Options`). Please note that you can only provide
-one LKQL rule file for a GNATcheck run.
+(see :ref:`gnatcheck_Rule_Options`).
+
+By default, GNATcheck will look for a ``rules.lkql`` file in the current working
+directory or besides the specified project file if any. If there is one and
+no other rule configuration has been provided, GNATcheck will load it as the
+LKQL rule options file, as if it was provided through the ``--rules`` option.
+
+.. attention::
+
+  Please note that you can only provide one LKQL rule file for a GNATcheck run.
 
 This file must be a valid LKQL file that exports at least a ``rules`` top-level
 symbol. This symbol must refer to an object value containing rules configuration;
