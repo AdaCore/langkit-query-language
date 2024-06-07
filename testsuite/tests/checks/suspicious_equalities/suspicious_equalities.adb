@@ -4,6 +4,7 @@ procedure Suspicious_Equalities is
    B : Boolean := True;
    E : Enum := E1;
    X : Integer := 0;
+   Y : Integer := 0;
 begin
    if B = True and B = False then        --  FLAG
       null;
@@ -34,6 +35,24 @@ begin
       null;
    end if;
    if X /= 1 or else x/= 2 then          --  FLAG
+      null;
+   end if;
+
+   if X = 1 and Y = 5 and X = 2 then     --  FLAG
+      null;
+   end if;
+   if X = 1 and (Y = 5 and X = 2) then   --  FLAG
+      null;
+   end if:
+   if (X = 1 and Y = 5) and (X = 2 and Y = 3)  --  FLAG
+   then
+      null;
+   end if;
+   if X = 1 and Y = 5 or X /= 2 then     --  NOFLAG
+      null;
+   end if;
+   if X = 1 and Y = 5 or X /= 2 or X /= 2  --  FLAG
+   then
       null;
    end if;
 end;

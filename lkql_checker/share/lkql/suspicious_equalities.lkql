@@ -2,38 +2,59 @@
 # a same variable against two literals and 'and' expressions whose two operands
 # are equality expressions comparing a same variable against two literals.
 
-fun name_of(node) =
-    match node
-    | BinOp(f_left: n@Name) => n
-    | BinOp(f_right: r) => r
+import stdlib
+
+fun name_of(bin_op) =
+    |" Returns the Name node used in `bin_op`. This function assumes that on of
+    |" the `bin_op` operands is a Name node.
+    if bin_op.f_left is Name
+    then bin_op.f_left
+    else bin_op.f_right
 
 fun is_literal(node) =
+    |" Returns whether `node` should be considered as a literal expression.
     node is (CharLiteral | NumLiteral | StringLiteral) or
     node.p_referenced_decl() is EnumLiteralDecl
 
-fun is_name_binop_literal(node) =
-    (node.f_left is Name and is_literal(node.f_right)) or
-    (is_literal(node.f_left) and node.f_right is Name)
+fun is_sus_eq(bin_op, logic_op_predicate, comp_op_predicate) =
+    |" Returns whether a logic BinOp should be considered as a suspicious
+    |" equality composition regarding the given predicates.
+    |" A BinOp is considered as suspicious when there are matches between names
+    |" used in the left part, as operand of comparison operations that validates
+    |" the `comp_op_predicate`, and names used in the right part which have the
+    |" same properties.
+    {
+        fun is_name_comp_literal(bin_op) =
+            |" Returns whether `bin_op` is between a literal and a name that
+            |" also validates `comp_op_predicate`.
+            comp_op_predicate(bin_op.f_op) and
+            ((bin_op.f_left is Name and is_literal(bin_op.f_right))
+             or (is_literal(bin_op.f_left) and bin_op.f_right is Name));
 
-fun is_name_neq_literal(node) =
-    node is BinOp(f_op: OpNeq) and is_name_binop_literal(node)
+        selector names
+        |" Returns all used names in comparison BinOp which validates
+        |" `comp_op_predicate`, going down recursively from the current node if
+        |" it is a logic BinOp that validates the `logic_op_predicate`.
+        | ParenExpr                                     => rec(this.f_expr, ())
+        | BinOp when is_name_comp_literal(this)         => rec((), name_of(this))
+        | BinOp(f_op: op@* when logic_op_predicate(op)) => rec(*[this.f_left, this.f_right], ());
 
-fun is_or_neq(node) =
-    node is BinOp(f_op: OpOr | OpOrElse)
-    when is_name_neq_literal(node.f_left)
-     and is_name_neq_literal(node.f_right)
-     and name_of(node.f_left).p_name_matches(name_of(node.f_right))
-
-fun is_name_eq_literal(node) =
-    node is BinOp(f_op: OpEq) and is_name_binop_literal(node)
-
-fun is_and_eq(node) =
-    node is BinOp(f_op: OpAnd | OpAndThen)
-    when is_name_eq_literal(node.f_left)
-     and is_name_eq_literal(node.f_right)
-     and name_of(node.f_left).p_name_matches(name_of(node.f_right))
+        # From the given `bin_op` get all names used in comparison operations
+        # to left and right operands, then look for name matches in those
+        # lists.
+        # For example, in: `A = 5 and then B = 5 and then A = 1`
+        # considering the second "and then", left names would be ["A", "B"] and
+        # right names ["A"], there is a match so this "and then" construction
+        # seems like a suspicious equalities combining.
+        stdlib.any(
+            [ln.p_name_matches(rn)
+             for ln in names(bin_op.f_left), rn in names(bin_op.f_right)]
+        )
+    }
 
 @check(message="suspicious equality",
        category="Style", subcategory="Programming Practice")
 fun suspicious_equalities(node) =
-    is_and_eq(node) or is_or_neq(node)
+    node is BinOp
+    when is_sus_eq(node, (op) => op is (OpAnd | OpAndThen), (op) => op is OpEq)
+      or is_sus_eq(node, (op) => op is (OpOr | OpOrElse), (op) => op is OpNeq)
