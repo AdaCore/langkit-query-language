@@ -1,16 +1,40 @@
-suspicious_equalities.adb:4:7: rule violation: suspicious equality
-4 |    if X = 1 and x = 2 then       --  FLAG
-  |       ^^^^^^^^^^^^^^^
+suspicious_equalities.adb:8:7: rule violation: suspicious equality
+8 |    if B = True and B = False then        --  FLAG
+  |       ^^^^^^^^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:7:7: rule violation: suspicious equality
-7 |    if X = 1 and then x = 2 then  --  FLAG
-  |       ^^^^^^^^^^^^^^^^^^^^
+suspicious_equalities.adb:11:7: rule violation: suspicious equality
+11 |    if B = True and then B = False then   --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:10:7: rule violation: suspicious equality
-10 |    if X /= 1 or x /= 2 then      --  FLAG
+suspicious_equalities.adb:14:7: rule violation: suspicious equality
+14 |    if B /= True or B /= False then       --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:17:7: rule violation: suspicious equality
+17 |    if B /= True or else B /= False then  --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:20:7: rule violation: suspicious equality
+20 |    if E = E1 and then E = E2 then        --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:23:7: rule violation: suspicious equality
+23 |    if E /= E1 or else E /= E2 then         --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:27:7: rule violation: suspicious equality
+27 |    if X = 1 and x = 2 then               --  FLAG
+   |       ^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:30:7: rule violation: suspicious equality
+30 |    if X = 1 and then x = 2 then          --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:33:7: rule violation: suspicious equality
+33 |    if X /= 1 or x /= 2 then              --  FLAG
    |       ^^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:13:7: rule violation: suspicious equality
-13 |    if X /= 1 or else x/= 2 then  --  FLAG
+suspicious_equalities.adb:36:7: rule violation: suspicious equality
+36 |    if X /= 1 or else x/= 2 then          --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^
 

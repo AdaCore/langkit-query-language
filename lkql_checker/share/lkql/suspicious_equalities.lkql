@@ -8,7 +8,8 @@ fun name_of(node) =
     | BinOp(f_right: r) => r
 
 fun is_literal(node) =
-    node is (CharLiteral | NumLiteral | StringLiteral)
+    node is (CharLiteral | NumLiteral | StringLiteral) or
+    node.p_referenced_decl() is EnumLiteralDecl
 
 fun is_name_binop_literal(node) =
     (node.f_left is Name and is_literal(node.f_right)) or
