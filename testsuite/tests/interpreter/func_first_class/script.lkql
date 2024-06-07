@@ -7,3 +7,9 @@ fun make_adder(to_add) = (x) => x + to_add
 val a = make_adder(12)
 print(a(15))
 print(a(2))
+
+fun call(f) = f()
+fun clb_1() = print("CALLBACK 1")
+fun clb_2() = print("CALLBACK 2")
+call(clb_1)
+call(clb_2)
