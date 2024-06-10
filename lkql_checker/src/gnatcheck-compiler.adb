@@ -979,9 +979,7 @@ package body Gnatcheck.Compiler is
    -- Process_Restriction_Param --
    -------------------------------
 
-   procedure Process_Restriction_Param
-     (Parameter : String;
-      Enable    : Boolean)
+   procedure Process_Restriction_Param (Parameter : String)
    is
       Param        : constant String  := Trim (Parameter, Both);
       First_Idx    : constant Natural := Param'First;
@@ -990,7 +988,6 @@ package body Gnatcheck.Compiler is
       R_Id         :          Restriction_Id;
       Special_R_Id :          Special_Restriction_Id;
       R_Val        :          Option_Parameter;
-
    begin
       --  Param should have the format
       --
@@ -1063,7 +1060,7 @@ package body Gnatcheck.Compiler is
                    " can not contain expression, ignored");
             Bad_Rule_Detected := True;
          else
-            Restriction_Setting (R_Id).Active := Enable;
+            Restriction_Setting (R_Id).Active := True;
          end if;
 
       elsif R_Id /= Not_A_Restriction_Id then
@@ -1118,7 +1115,7 @@ package body Gnatcheck.Compiler is
             end if;
          end if;
 
-         Restriction_Setting (R_Id).Active := Enable;
+         Restriction_Setting (R_Id).Active := True;
 
       else
          --  If we are here, R_Id = Not_A_Restriction_Id, therefore

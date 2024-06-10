@@ -1034,7 +1034,7 @@ package body Gnatcheck.Rules.Rule_Table is
             if Enable then
                while Word_Start /= 0 loop
                   Process_Restriction_Param
-                    (Option (Word_Start .. Word_End), Enable);
+                    (Option (Word_Start .. Word_End));
                   Set_Parameter;
                end loop;
             else
@@ -1279,7 +1279,7 @@ package body Gnatcheck.Rules.Rule_Table is
                  Expect_Literal (Params_Object, "arg");
             begin
                for S of Arg loop
-                  Process_Restriction_Param (S, True);
+                  Process_Restriction_Param (S);
                end loop;
                Set_Compiler_Checks;
             end;
