@@ -123,10 +123,6 @@ package Gnatcheck.Projects is
    --  getting the list of files from the project - '-U' should be  ignored if
    --  '-files=...' is specified.
 
-   Recursive_Sources : Boolean := True;
-   --  Indicates that all sources of all projects should be processed
-   --  as opposed to sources of the root project only.
-
    U_Option_Set : Boolean := False;
    --  Indicates if -U option is specified for the project (to process all the
    --  units of the closure of the argument project or to process the closure

@@ -668,7 +668,10 @@ package body Gnatcheck.Output is
          Info (" -Pproject        - Use project file project. Only one such switch can be used");
          Info (" -U               - check all sources of the argument project");
          Info (" -U main          - check the closure of units rooted at unit main");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --no-subprojects - process only sources of root project");
+
          Info (" -Xname=value     - specify an external reference for argument project file");
          Info (" --subdirs=dir    - specify subdirectory to place the result files into");
          Info (" -eL              - follow all symbolic links when processing project files");
@@ -713,7 +716,10 @@ package body Gnatcheck.Output is
       Info (" -Pproject        - Use project file project. Only one such switch can be used");
       Info (" -U               - check all sources of the argument project");
       Info (" -U main          - check the closure of units rooted at unit main");
+
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --no-subprojects - process only sources of root project");
+
       Info (" -Xname=value     - specify an external reference for argument project file");
       Info (" --subdirs=dir    - specify subdirectory to place the result files into");
       Info (" --no_objects_dir - place results into current dir instead of project dir");

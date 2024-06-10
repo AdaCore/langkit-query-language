@@ -298,6 +298,11 @@ package Gnatcheck.Options is
          Long   => "--check-semantic",
          Help   => "check semantic validity of the source files");
 
+      package No_Subprojects is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--no-subprojects",
+         Help   => "process only sources of root project");
+
       package Charset is new Parse_Option
         (Parser      => Parser,
          Long        => "--charset",
