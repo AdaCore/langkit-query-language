@@ -364,7 +364,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
    function Present (Rule : Rule_Id) return Boolean is
    begin
-      return All_Rules.Contains (Rule) or else Is_Compiler_Check (Rule);
+      return All_Rules.Contains (Rule) or else Is_Compiler_Rule (Rule);
    end Present;
 
    -----------------------
@@ -1271,7 +1271,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
    begin
       --  If the rule is a compiler check then get the argument and process it
-      if Is_Compiler_Check (R_Id) then
+      if Is_Compiler_Rule (R_Id) then
          --  Restrictions rule expect a string list as argument
          if R_Id = Restrictions_Id then
             declare

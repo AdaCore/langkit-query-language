@@ -48,8 +48,8 @@ package Gnatcheck.Ids is
    --  Get the text associated with the given `Rule_Id`, this text represents
    --  the normalized name of the rule identified by `Id`.
 
-   function Is_Compiler_Check (Id : Rule_Id) return Boolean;
-   --  Get whether the given rule identifier represents a compiler check
+   function Is_Compiler_Rule (Id : Rule_Id) return Boolean;
+   --  Get whether the given rule identifier represents a compiler-based check
 
    function Hash (Id : Rule_Id) return Ada.Containers.Hash_Type is
      (Hash (To_Symbol (All_Rule_Ids, Thin_Symbol (Id))));
