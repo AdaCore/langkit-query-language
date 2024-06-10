@@ -7,16 +7,15 @@
 --  table and rule checking process. It contains some basic type declarations
 
 with Ada.Characters.Handling;         use Ada.Characters.Handling;
-with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Vectors;
-with Ada.Strings.Hash;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
 with Ada.Text_IO;                     use Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with Gnatcheck.Ids; use Gnatcheck.Ids;
+with Gnatcheck.Ids;              use Gnatcheck.Ids;
+with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 
@@ -599,12 +598,7 @@ package Gnatcheck.Rules is
    --  character string representing the warning or style tags (after -gnatw
    --  or -gnaty).
 
-   package Synonym_Maps is new Ada.Containers.Indefinite_Hashed_Maps
-     (Key_Type        => String,
-      Element_Type    => String,
-      Hash            => Ada.Strings.Hash,
-      Equivalent_Keys => "=");
-   Warning_Synonyms     : Synonym_Maps.Map;
-   Style_Synonyms       : Synonym_Maps.Map;
+   Warning_Synonyms     : String_Maps.Map;
+   Style_Synonyms       : String_Maps.Map;
 
 end Gnatcheck.Rules;

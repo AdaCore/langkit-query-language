@@ -21,7 +21,7 @@ package body Rules_Factory is
    is
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
       Rules      : Rule_Vector := Rule_Vectors.Empty_Vector;
-      Seen       : Rule_Set := Rule_Sets.Empty_Set;
+      Seen       : String_Sets.Set := String_Sets.Empty_Set;
 
    begin
       --  We search (non recursively) for all .lkql files in the Rules_Dir.
