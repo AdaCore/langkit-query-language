@@ -301,7 +301,7 @@ package body Gnatcheck.Projects is
             end loop;
          end if;
       else
-         if Recursive_Sources then
+         if not Arg.No_Subprojects.Get then
             if My_Project.Tree.Root_Project.Has_Mains and then
               Only_Ada_Mains (My_Project.Tree.Root_Project)
             then
@@ -1301,7 +1301,6 @@ package body Gnatcheck.Projects is
              ("v q t h hx s "               &
               "m? files= a "                &
               "P: U X! vP! eL A: -config! " &   --  project-specific options
-              "-no-subprojects "            &
               "-brief "                     &
               "-check-redefinition "        &
               "-no_objects_dir "            &
@@ -1523,7 +1522,6 @@ package body Gnatcheck.Projects is
                      end if;
 
                      Gnatcheck.Projects.U_Option_Set := True;
-                     Gnatcheck.Projects.Recursive_Sources := True;
                   elsif Args_From_Project then
                      Error ("-U option is not allowed in a project file");
                      raise Parameter_Error;
@@ -1677,10 +1675,6 @@ package body Gnatcheck.Projects is
                   then
                      Print_Gpr_Registry := True;
 
-                  elsif Full_Switch (Parser => Parser) = "-no-subprojects" then
-                     if not Args_From_Project or else not U_Option_Set then
-                        Recursive_Sources := False;
-                     end if;
                   end if;
                end if;
 
