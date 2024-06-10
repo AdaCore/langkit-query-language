@@ -16,7 +16,6 @@ with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with Langkit_Support.Text;       use Langkit_Support.Text;
 

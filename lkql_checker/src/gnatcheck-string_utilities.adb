@@ -4,9 +4,7 @@
 --
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
-with Ada.Containers.Indefinite_Hashed_Sets;
 with Ada.Strings.Unbounded;
-with Ada.Strings.Hash;
 with Ada.Text_IO;
 
 package body Gnatcheck.String_Utilities is

@@ -3,10 +3,10 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Containers.Indefinite_Hashed_Sets;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
-with Ada.Strings.Hash;
+
+with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
@@ -22,9 +22,7 @@ package Rules_Factory is
    subtype Rule_Vector is Rule_Vectors.Vector;
    --  Vector of Rule_Command values
 
-   package Rule_Sets is new Ada.Containers.Indefinite_Hashed_Sets
-     (String, Ada.Strings.Hash, "=", "=");
-   subtype Rule_Set is Rule_Sets.Set;
+   subtype Rule_Set is String_Sets.Set;
 
    package Path_Vectors is new
      Ada.Containers.Indefinite_Vectors (Positive, String);
