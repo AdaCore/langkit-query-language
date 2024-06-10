@@ -48,15 +48,15 @@ package body Gnatcheck.Ids is
       return To_String (Wide_Wide_String (Rule_Id_Text));
    end Get_Id_Text;
 
-   -----------------------
-   -- Is_Compiler_Check --
-   -----------------------
+   ----------------------
+   -- Is_Compiler_Rule --
+   ----------------------
 
-   function Is_Compiler_Check (Id : Rule_Id) return Boolean is
+   function Is_Compiler_Rule (Id : Rule_Id) return Boolean is
    begin
       return Id = Restrictions_Id
         or else Id = Warnings_Id
         or else Id = Style_Checks_Id;
-   end Is_Compiler_Check;
+   end Is_Compiler_Rule;
 
 end Gnatcheck.Ids;
