@@ -3,7 +3,10 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Indefinite_Hashed_Sets;
 with Ada.Containers.Indefinite_Vectors;
+with Ada.Strings.Hash;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
@@ -97,5 +100,25 @@ package Gnatcheck.String_Utilities is
       --  used for debugging purposes).
 
    end Simple_String_Dictionary;
+
+   ---------------------------------
+   -- Simple String to String map --
+   ---------------------------------
+
+   package String_Maps is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => String,
+      Element_Type    => String,
+      Hash            => Ada.Strings.Hash,
+      Equivalent_Keys => "=");
+
+   -----------------------
+   -- Simple String set --
+   -----------------------
+
+   package String_Sets is new Ada.Containers.Indefinite_Hashed_Sets
+     (Element_Type        => String,
+      Hash                => Ada.Strings.Hash,
+      Equivalent_Elements => "=",
+      "="                 => "=");
 
 end Gnatcheck.String_Utilities;

@@ -174,7 +174,7 @@ package body Gnatcheck.Rules.Rule_Table is
       Normalized_Rule_Name : constant String := Get_Id_Text (Try_Id);
 
       function Has_Element
-        (Container : Synonym_Maps.Map; Element : String) return Boolean;
+        (Container : String_Maps.Map; Element : String) return Boolean;
       --  Return whether Element (assumed lower case) is present in Container
 
       -----------------
@@ -182,7 +182,7 @@ package body Gnatcheck.Rules.Rule_Table is
       -----------------
 
       function Has_Element
-        (Container : Synonym_Maps.Map; Element : String) return Boolean is
+        (Container : String_Maps.Map; Element : String) return Boolean is
       begin
          for E of Container loop
             if To_Lower (E) = Element then
