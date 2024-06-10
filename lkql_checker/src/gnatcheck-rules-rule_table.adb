@@ -1201,7 +1201,7 @@ package body Gnatcheck.Rules.Rule_Table is
       else
          Error ("unknown rule option: " & Option & ", ignored" &
                  Diag_Defined_At);
-         Bad_Rule_Detected := True;
+         Rule_Option_Problem_Detected := True;
       end if;
    end Process_Rule_Option;
 
