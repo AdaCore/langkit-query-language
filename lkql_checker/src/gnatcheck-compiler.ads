@@ -80,14 +80,10 @@ package Gnatcheck.Compiler is
    --  and store all the relevant messages.
    --  If some compiler errors are detected, set Errors to True.
 
-   procedure Process_Restriction_Param
-     (Parameter : String;
-      Enable    : Boolean);
+   procedure Process_Restriction_Param (Parameter : String);
    --  Processes a parameter of a restriction (the restriction "rule") passed
    --  as an actual for Parameter. Only a single parameter should be passed,
    --  not a set of parameters separated by commas from the rule option.
-   --  Depending on the value of Enable, the corresponding restriction is set
-   --  ON or OFF.
 
    procedure Disable_Restrictions;
    --  Disable the "Restrictions" compiler-based rule by disabling all
