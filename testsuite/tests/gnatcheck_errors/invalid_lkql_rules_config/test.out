@@ -1,7 +1,7 @@
 Invalid LKQL semantic
 =====================
 
-gnatcheck: error raised by the worker: during processing of rule file: invalid_semantic.lkql: error: internal error at invalid_semantic.lkql:1:25: Type error: expected Int but got Bool
+gnatcheck: error raised by the worker: Error during file processing: error: internal error at invalid_semantic.lkql:1:25: Type error: expected Int but got Bool (invalid_semantic.lkql)
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -9,7 +9,7 @@ try "gnatcheck --help" for more information.
 No 'rules' object
 =================
 
-gnatcheck: error raised by the worker: LKQL config file must define a 'rules' top level object value
+gnatcheck: error raised by the worker: LKQL config file must define a 'rules' top level object value (no_rules_object.lkql)
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -32,7 +32,7 @@ try "gnatcheck --help" for more information.
 Not indexable arguments
 =======================
 
-gnatcheck: error raised by the worker: Rule arguments must be an indexable value
+gnatcheck: error raised by the worker: Rule arguments must be an indexable value (not_indexable_args.lkql)
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -58,3 +58,8 @@ Extra parameter
 
 gnatcheck: extra argument for instance goto_statements: 'extra' (extra_param.lkql)
 >>>program returned status code 5
+
+Multiple instance with the same name
+====================================
+
+gnatcheck: error raised by the worker: Multiple instances with the same name: an_instance (instance_names.lkql)

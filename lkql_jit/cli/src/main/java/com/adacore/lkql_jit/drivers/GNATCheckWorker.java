@@ -285,6 +285,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     // ----- Option parsing helpers -----
 
+    /** Emit a formatted error when there is an invalid LKQL rule file. */
+    private static void errorInLKQLRuleFile(final String lkqlRuleFile, final String message) {
+        System.err.println("WORKER_FATAL_ERROR: " + message + " (" + lkqlRuleFile + ")");
+    }
+
     /**
      * Read the given LKQL file and parse it as a rule configuration file to return the extracted
      * instances.
@@ -304,30 +309,35 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             // Get the mandatory general instances object and populate the result with it
             if (topLevel.hasMember("rules")) {
                 processInstancesObject(
-                        topLevel.getMember("rules"), RuleInstance.SourceMode.GENERAL, res);
+                        lkqlRuleFile,
+                        topLevel.getMember("rules"),
+                        RuleInstance.SourceMode.GENERAL,
+                        res);
 
                 // Then get the optional Ada and SPARK instances
                 if (topLevel.hasMember("ada_rules")) {
                     processInstancesObject(
-                            topLevel.getMember("ada_rules"), RuleInstance.SourceMode.ADA, res);
+                            lkqlRuleFile,
+                            topLevel.getMember("ada_rules"),
+                            RuleInstance.SourceMode.ADA,
+                            res);
                 }
                 if (topLevel.hasMember("spark_rules")) {
                     processInstancesObject(
-                            topLevel.getMember("spark_rules"), RuleInstance.SourceMode.SPARK, res);
+                            lkqlRuleFile,
+                            topLevel.getMember("spark_rules"),
+                            RuleInstance.SourceMode.SPARK,
+                            res);
                 }
             } else {
-                System.err.println(
-                        "WORKER_FATAL_ERROR: LKQL config file must define a 'rules' "
-                                + "top level object value");
+                errorInLKQLRuleFile(
+                        lkqlRuleFile,
+                        "LKQL config file must define a 'rules' top level object value");
             }
         } catch (IOException e) {
-            System.err.println("WORKER_FATAL_ERROR: Could not read file: " + lkqlRuleFile);
+            errorInLKQLRuleFile(lkqlRuleFile, "Could not read file");
         } catch (Exception e) {
-            System.err.println(
-                    "WORKER_FATAL_ERROR: during processing of rule file: "
-                            + lkqlRuleFile
-                            + ": "
-                            + e.getMessage());
+            errorInLKQLRuleFile(lkqlRuleFile, "Error during file processing: " + e.getMessage());
         }
         return res;
     }
@@ -337,6 +347,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * top-level.
      */
     private static void processInstancesObject(
+            final String lkqlRuleFile,
             final Value instancesObject,
             final RuleInstance.SourceMode sourceMode,
             final Map<String, RuleInstance> toPopulate) {
@@ -347,18 +358,23 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
             // Check that the value associated to the rule name is an array like value
             if (!argList.hasArrayElements()) {
-                System.err.println("WORKER_FATAL_ERROR: Rule arguments must be an indexable value");
+                errorInLKQLRuleFile(lkqlRuleFile, "Rule arguments must be an indexable value");
                 continue;
             }
 
-            // If there is no element in the argument list, just create an instance with no argument
-            // and no alias.
+            // If there is elements in the argument list, process it.
             final long argListSize = argList.getArraySize();
             if (argListSize == 0) {
-                toPopulate.put(
-                        lowerRuleName,
-                        new RuleInstance(
-                                lowerRuleName, Optional.empty(), sourceMode, new HashMap<>()));
+                if (toPopulate.containsKey(lowerRuleName)) {
+                    errorInLKQLRuleFile(
+                            lkqlRuleFile,
+                            "Multiple instances with the same name: " + lowerRuleName);
+                } else {
+                    toPopulate.put(
+                            lowerRuleName,
+                            new RuleInstance(
+                                    lowerRuleName, Optional.empty(), sourceMode, new HashMap<>()));
+                }
             }
 
             // Else iterate over each argument object and create one instance for each
@@ -383,9 +399,16 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                                             : argValue.toString());
                         }
                     }
-                    toPopulate.put(
-                            instanceId,
-                            new RuleInstance(lowerRuleName, instanceName, sourceMode, arguments));
+                    if (toPopulate.containsKey(instanceId)) {
+                        errorInLKQLRuleFile(
+                                lkqlRuleFile,
+                                "Multiple instances with the same name: " + instanceId);
+                    } else {
+                        toPopulate.put(
+                                instanceId,
+                                new RuleInstance(
+                                        lowerRuleName, instanceName, sourceMode, arguments));
+                    }
                 }
             }
         }

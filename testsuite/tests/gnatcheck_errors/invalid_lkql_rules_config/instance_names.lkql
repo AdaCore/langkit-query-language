@@ -1,0 +1,4 @@
+val rules = @{
+    goto_statements: [{instance_name: "an_instance", only_unconditional: true}],
+    null_statements: [{instance_name: "an_instance"}]
+}
