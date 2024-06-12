@@ -117,6 +117,13 @@ package body Gnatcheck.Compiler is
      No_Dependence .. No_Use_Of_Entity;
    --  All special restrictions that have a parameter
 
+   procedure Get_Restriction_Id
+     (Restriction_Name : String;
+      R_Id : in out Restriction_Id;
+      Special_R_Id : in out Special_Restriction_Id);
+   --  Get the identifier of the restriction correspinding to the given
+   --  ``Restriction_Name``. This restriction may be a "special" restriction.
+
    function Needs_Parameter_In_Exemption
      (R    : Restriction_Id;
       SR   : Special_Restriction_Id) return Boolean;
@@ -742,6 +749,33 @@ package body Gnatcheck.Compiler is
       return Warning_Options_String.all;
    end Get_Warning_Option;
 
+   ------------------------
+   -- Get_Restriction_Id --
+   ------------------------
+
+   procedure Get_Restriction_Id
+     (Restriction_Name : String;
+      R_Id : in out Restriction_Id;
+      Special_R_Id : in out Special_Restriction_Id) is
+   begin
+      begin
+         R_Id := Restriction_Id'Value (Restriction_Name);
+      exception
+         when Constraint_Error =>
+            R_Id := Not_A_Restriction_Id;
+      end;
+
+      if R_Id = Not_A_Restriction_Id then
+         begin
+            Special_R_Id :=
+              Special_Restriction_Id'Value (Restriction_Name);
+         exception
+            when Constraint_Error =>
+               Special_R_Id := Not_A_Special_Restriction_Id;
+         end;
+      end if;
+   end Get_Restriction_Id;
+
    ----------------------------------
    -- Needs_Parameter_In_Exemption --
    ----------------------------------
@@ -782,23 +816,8 @@ package body Gnatcheck.Compiler is
          Rest_Name_End := Arrow_Idx - 1;
       end if;
 
-      begin
-         R_Id := Restriction_Id'Value (Par (Par_Start .. Rest_Name_End));
-      exception
-         when Constraint_Error =>
-            R_Id := Not_A_Restriction_Id;
-      end;
-
-      if R_Id = Not_A_Restriction_Id then
-         begin
-            Special_R_Id :=
-              Special_Restriction_Id'Value (Par (Par_Start .. Rest_Name_End));
-         exception
-            when Constraint_Error =>
-               Special_R_Id := Not_A_Special_Restriction_Id;
-         end;
-
-      end if;
+      Get_Restriction_Id
+        (Par (Par_Start .. Rest_Name_End), R_Id, Special_R_Id);
 
       if R_Id /= Not_A_Restriction_Id
         or else Special_R_Id /= Not_A_Special_Restriction_Id
@@ -985,8 +1004,9 @@ package body Gnatcheck.Compiler is
       First_Idx    : constant Natural := Param'First;
       Last_Idx     :          Natural := Param'Last;
       Arg_Present  :          Boolean := False;
-      R_Id         :          Restriction_Id;
-      Special_R_Id :          Special_Restriction_Id;
+      R_Id         :          Restriction_Id := Not_A_Restriction_Id;
+      Special_R_Id :          Special_Restriction_Id :=
+        Not_A_Special_Restriction_Id;
       R_Val        :          Option_Parameter;
    begin
       --  Param should have the format
@@ -1004,23 +1024,7 @@ package body Gnatcheck.Compiler is
          end if;
       end loop;
 
-      begin
-         R_Id := Restriction_Id'Value (Param (First_Idx .. Last_Idx));
-      exception
-         when Constraint_Error =>
-            R_Id := Not_A_Restriction_Id;
-      end;
-
-      if R_Id = Not_A_Restriction_Id then
-         begin
-            Special_R_Id :=
-              Special_Restriction_Id'Value (Param (First_Idx .. Last_Idx));
-         exception
-            when Constraint_Error =>
-               Special_R_Id := Not_A_Special_Restriction_Id;
-         end;
-
-      end if;
+      Get_Restriction_Id (Param (First_Idx .. Last_Idx), R_Id, Special_R_Id);
 
       if R_Id = Not_A_Restriction_Id
         and then
@@ -1329,8 +1333,8 @@ package body Gnatcheck.Compiler is
       Par_End      :          Natural;
       Sep_Idx      :          Natural;
       Diag_End     : constant Positive := Diag'Last;
-      R_Id          :          Restriction_Id         := Not_A_Restriction_Id;
-      Special_R_Id  :          Special_Restriction_Id :=
+      R_Id         :          Restriction_Id         := Not_A_Restriction_Id;
+      Special_R_Id :          Special_Restriction_Id :=
         Not_A_Special_Restriction_Id;
 
    begin
@@ -1353,23 +1357,8 @@ package body Gnatcheck.Compiler is
          R_Name_End := Index (Diag (R_Name_Start .. Diag_End), """") - 1;
       end if;
 
-      begin
-         R_Id := Restriction_Id'Value (Diag (R_Name_Start .. R_Name_End));
-      exception
-         when Constraint_Error =>
-            R_Id := Not_A_Restriction_Id;
-      end;
-
-      if R_Id = Not_A_Restriction_Id then
-         begin
-            Special_R_Id :=
-              Special_Restriction_Id'Value
-                (Diag (R_Name_Start .. R_Name_End));
-         exception
-            when Constraint_Error =>
-               Special_R_Id := Not_A_Special_Restriction_Id;
-         end;
-      end if;
+      Get_Restriction_Id
+        (Diag (R_Name_Start .. R_Name_End), R_Id, Special_R_Id);
 
       if Sep_Idx /= 0
         and then Needs_Parameter_In_Exemption (R_Id, Special_R_Id)
