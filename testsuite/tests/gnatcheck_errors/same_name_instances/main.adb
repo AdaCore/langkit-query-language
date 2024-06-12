@@ -1,3 +1,4 @@
-package Main is
+procedure Main is
+begin
    null;
 end Main;

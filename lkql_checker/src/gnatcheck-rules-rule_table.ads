@@ -86,6 +86,11 @@ package Gnatcheck.Rules.Rule_Table is
    --  This procedure calls the GNATcheck worker with the `--parse-lkql-config`
    --  option to extract all information from the LKQL file.
 
+   procedure Process_Compiler_Instances;
+   --  Procedure to process instantiated compiler-based rules and prepare all
+   --  related information (tag maps, compiler options...).
+   --  This should be called after rule options processing.
+
    function Processed_Rule_File_Name return String;
    --  Returns the full path to the rule file currently being processed.
    --  Returns an empty string if no rule file is processed at the moment of
@@ -116,7 +121,14 @@ package Gnatcheck.Rules.Rule_Table is
       Equivalent_Keys => "=");
    All_Rule_Instances : Rule_Instance_Map.Map;
    --  This global map contains all created instances, from their normalized
-   --  name to their address.
+   --  name to their address. This map also contains instances for
+   --  compiler-based rules.
+
+   Restriction_Tags_Map : String_Maps.Map;
+   Warning_Tags_Map     : String_Maps.Map;
+   Style_Tags_Map       : String_Maps.Map;
+   --  To associate each compiler-based rules "parameter" to its corresponding
+   --  instance, we create maps going from tags to their instance identifier.
 
    function Get_Rule (Rule_Name : String) return Rule_Id;
    --  Returns the identifier for the provided rule name. This identifier is

@@ -1,0 +1,9 @@
+driver: gnatcheck
+format: brief
+show_rule: True
+input_sources:
+  - main.adb
+rules:
+  - +R:hiding:Warnings:h
+  - +R:unreferenced_formal:Warnings:f
+  - +RWarnings:m

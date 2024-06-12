@@ -1,0 +1,3 @@
+main.adb:4:19: formal parameter "I" is not referenced [unreferenced_formal|warnings:f]
+main.adb:5:07: declaration hides "Value" at line 2 [hiding|warnings:h]
+main.adb:5:07: variable "Value" is assigned but never read [warnings:m]

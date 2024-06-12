@@ -592,13 +592,12 @@ package Gnatcheck.Rules is
      (Instance     : Custom_Instance;
       Indent_Level : Natural := 0);
 
-   --  Handling of User_Synonym and compiler related messages
+   ------------------------------
+   -- Compiler-based instances --
+   ------------------------------
 
-   --  We build a map of tag -> user synonym where tag is a one or two
-   --  character string representing the warning or style tags (after -gnatw
-   --  or -gnaty).
-
-   Warning_Synonyms     : String_Maps.Map;
-   Style_Synonyms       : String_Maps.Map;
+   type Compiler_Instance is new Rule_Instance with record
+      Arguments : String_Vector;
+   end record;
 
 end Gnatcheck.Rules;

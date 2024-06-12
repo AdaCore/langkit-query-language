@@ -1,0 +1,4 @@
+main.adb:2:06: violation of restriction "No_Calendar" [restrictions]
+main.adb:6:07: violation of restriction "Max_Task_Entries = 2" [maximum_entry_num|restrictions]
+main.adb:17:15: violation of restriction "No_Access_Subprograms" [subprogram_access|restrictions]
+main.adb:19:04: reference to "Put_Line" violates restriction No_Use_Of_Entity [no_use_of|restrictions]

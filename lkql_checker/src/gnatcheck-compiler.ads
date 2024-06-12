@@ -10,6 +10,8 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
+with Gnatcheck.Rules;              use Gnatcheck.Rules;
+
 package Gnatcheck.Compiler is
 
    ---------------------
@@ -80,29 +82,40 @@ package Gnatcheck.Compiler is
    --  and store all the relevant messages.
    --  If some compiler errors are detected, set Errors to True.
 
-   procedure Process_Restriction_Param (Parameter : String);
+   procedure Process_Restriction_Param
+     (Parameter : String;
+      Instance  : Rule_Instance_Access);
    --  Processes a parameter of a restriction (the restriction "rule") passed
    --  as an actual for Parameter. Only a single parameter should be passed,
    --  not a set of parameters separated by commas from the rule option.
+   --  This procedure also populates the restriction tags map according to the
+   --  given ``Instance``'s name.
 
    procedure Disable_Restrictions;
    --  Disable the "Restrictions" compiler-based rule by disabling all
    --  activated restrictions.
 
-   procedure Process_Style_Check_Param (Param : String);
+   procedure Process_Style_Check_Param
+     (Param    : String;
+      Instance : Rule_Instance_Access);
    --  Processes a parameter of a style check (the style_check "rule") passed
    --  as an actual for Param. Only a single parameter should be passed, not a
    --  set of parameters separated by comma(s) from the rule option.
+   --  This procedure also populates the style checks tags map according to
+   --  the given ``Instance``'s name.
 
    procedure Disable_Style_Checks;
    --  Disable the "Style_Checks" rule and reset all registered style checking
    --  options.
 
-   procedure Process_Warning_Param (Param : String);
+   procedure Process_Warning_Param
+     (Param    : String;
+      Instance : Rule_Instance_Access);
    --  Processes a parameter of a warning (the warning "rule") passed as an
    --  actual for Param. Only a single parameter should be passed, not a set of
-   --  parameters separated by comma(s) from the rule option. Depending on the
-   --  value of Enable, the corresponding warning(s) is (are) set ON or OFF
+   --  parameters separated by comma(s) from the rule option.
+   --  This procedure also populates the warnings tags map according to the
+   --  given ``Instance``'s name.
 
    procedure Disable_Warnings;
    --  Disable the "Warnings" rule and reset all registered warning options.
