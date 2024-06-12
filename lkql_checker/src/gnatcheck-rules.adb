@@ -2888,7 +2888,7 @@ package body Gnatcheck.Rules is
 
    function Rule_Name (Instance : Rule_Instance'Class) return String is
    begin
-      return Rule_Name (All_Rules (Instance.Rule));
+      return Rule_Name (Instance.Rule);
    end Rule_Name;
 
    -------------------

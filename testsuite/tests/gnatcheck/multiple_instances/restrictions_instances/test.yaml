@@ -1,0 +1,10 @@
+driver: gnatcheck
+format: brief
+show_rule: True
+input_sources:
+  - main.adb
+rules:
+  - +R:subprogram_access:Restrictions:No_Access_Subprograms
+  - +R:no_use_of:Restrictions:No_Use_Of_Entity => Ada.Text_IO.Put_Line
+  - +R:maximum_entry_num:Restrictions:Max_Task_Entries => 2
+  - +RRestrictions:No_Calendar

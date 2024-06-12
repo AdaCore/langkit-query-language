@@ -19,7 +19,6 @@ with Gnatcheck.Options;            use Gnatcheck.Options;
 with Gnatcheck.Output;             use Gnatcheck.Output;
 with Gnatcheck.Projects;           use Gnatcheck.Projects;
 with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Rules;              use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
@@ -178,6 +177,7 @@ package body Gnatcheck.Compiler is
       Diag_End  : Natural;
       Par_Start : Natural := Result'First;
       Par_End   : Natural := 0;
+      Sep_Idx   : Natural := 0;
 
    begin
       Last_Idx := Path_Index (Result, Gnatcheck_Config_File.all);
@@ -207,12 +207,33 @@ package body Gnatcheck.Compiler is
 
                Diag_End := Diag_End - 2;
             end if;
+
+            return Result (Result'First .. Diag_End) &
+                   Annotation (Message_Kind, Result (Par_Start .. Par_End));
          else
             Diag_End := Last_Idx;
-         end if;
+            if Index (Result, "of restriction ") /= 0 then
+               Par_Start := Index (Result, "of restriction ") + 16;
+               Par_End := Index (Result (Par_Start .. Diag_End), """") - 1;
+               Sep_Idx := Index (Result (Par_Start .. Diag_End), "=");
 
-         return Result (Result'First .. Diag_End) &
-                Annotation (Message_Kind, Result (Par_Start .. Par_End));
+               if Sep_Idx /= 0 then
+                  Par_End := Sep_Idx - 1;
+                  while Par_End > Par_Start and then Result (Par_End) = ' '
+                  loop
+                     Par_End := @ - 1;
+                  end loop;
+               end if;
+
+            elsif Index (Result, "violates restriction ") /= 0 then
+               Par_Start := Index (Result, "violates restriction ") + 21;
+               Par_End := Index (Result (Par_Start .. Result'Last), " at") - 1;
+            end if;
+
+            return Result (Result'First .. Diag_End) &
+                   Annotation
+                     (Message_Kind, To_Lower (Result (Par_Start .. Par_End)));
+         end if;
       else
          return Result (Result'First .. Last_Idx);
       end if;
@@ -387,6 +408,8 @@ package body Gnatcheck.Compiler is
 
          elsif Msg (Idx .. Idx + 8) = "warning: " then
             if Index (Msg (Idx .. Msg'Last), ": violation of restriction") /= 0
+              or else Index
+                (Msg (Idx .. Msg'Last), "violates restriction") /= 0
             then
                Message_Kind := Restriction;
             elsif Msg (Idx + 9 .. Idx + 19) = "cannot find" then
@@ -540,9 +563,8 @@ package body Gnatcheck.Compiler is
          when Warning =>
             if Parameter = "" then
                return " [warnings]";
-            elsif Warning_Synonyms.Contains (Parameter) then
-               return " [" &
-                      Warning_Synonyms.Element (Parameter) &
+            elsif Warning_Tags_Map.Contains (Parameter) then
+               return " [" & Warning_Tags_Map.Element (Parameter) &
                       "|warnings:" & Parameter & "]";
             else
                return " [warnings:" & Parameter & "]";
@@ -551,16 +573,20 @@ package body Gnatcheck.Compiler is
          when Style =>
             if Parameter = "" then
                return " [style_checks]";
-            elsif Style_Synonyms.Contains (Parameter) then
-               return " [" &
-                      Style_Synonyms.Element (Parameter) &
+            elsif Style_Tags_Map.Contains (Parameter) then
+               return " [" & Style_Tags_Map.Element (Parameter) &
                       "|style_checks:" & Parameter & "]";
             else
                return " [style_checks:" & Parameter & "]";
             end if;
 
          when Restriction =>
-            return " [restrictions]";
+            if Restriction_Tags_Map.Contains (Parameter) then
+               return " [" & Restriction_Tags_Map (Parameter) &
+                      "|restrictions]";
+            else
+               return " [restrictions]";
+            end if;
          when Error =>
             return " [errors]";
       end case;
@@ -997,8 +1023,9 @@ package body Gnatcheck.Compiler is
    -------------------------------
    -- Process_Restriction_Param --
    -------------------------------
-
-   procedure Process_Restriction_Param (Parameter : String)
+   procedure Process_Restriction_Param
+     (Parameter : String;
+      Instance  : Rule_Instance_Access)
    is
       Param        : constant String  := Trim (Parameter, Both);
       First_Idx    : constant Natural := Param'First;
@@ -1033,13 +1060,19 @@ package body Gnatcheck.Compiler is
          Error ("wrong restriction identifier : " &
                  Param (First_Idx .. Last_Idx) & ", ignored");
          Bad_Rule_Detected := True;
-
          return;
+      end if;
+
+      --  Add the restriction lowered name as a tag associated to the current
+      --  instance, if it is an alias.
+      if Instance.Is_Alias then
+         Restriction_Tags_Map.Insert
+           (To_Lower (Param (First_Idx .. Last_Idx)),
+            Ada.Strings.Unbounded.To_String (Instance.Alias_Name));
       end if;
 
       --  Check if we have a restriction_parameter_argument, and if we do,
       --  set First_Idx to the first character after '=>'
-
       for J in Last_Idx + 1 .. Param'Last - 2 loop
          if Param (J) = '=' then
             if J <= Param'Last - 2 and then Param (J + 1) = '>' then
@@ -1242,12 +1275,52 @@ package body Gnatcheck.Compiler is
    -- Process_Style_Check_Param --
    -------------------------------
 
-   procedure Process_Style_Check_Param (Param : String) is
+   procedure Process_Style_Check_Param
+     (Param : String; Instance : Rule_Instance_Access)
+   is
+      Name : constant String := Instance_Name (Instance.all);
+      C : Character;
+      I : Integer;
    begin
       if To_Lower (Param) = "all_checks" then
          Process_Style_Options ("y");
       else
          Process_Style_Options (Param);
+      end if;
+
+      --  If the associated instance has an alias, add it in the tags map
+      if Instance.Is_Alias then
+         --  Special arguments "all_checks" enables all style checks
+         if Param = "all_checks" then
+            for C of String'("0aAbcefhiklmnprst") loop
+               Style_Tags_Map.Include ([C], Name);
+            end loop;
+
+         --  Else, process the argument as a sequence of "gnaty" parameters.
+         else
+            I := Param'First;
+            while I <= Param'Last loop
+               C := Param (I);
+               case C is
+                  --  -gnaty[1-9] is represented by "0"
+                  when '1' .. '9' =>
+                     Style_Tags_Map.Include ("0", Name);
+
+                  --  -gnatyLxx and -gnatyMxxx are represented respectively by
+                  --  "L" and "M". Skip all digits directly after the flag.
+                  when 'L' | 'M' =>
+                     Style_Tags_Map.Include ([C], Name);
+                     while I < Param'Last and then Param (I + 1) in '0' .. '9'
+                     loop
+                        I := I + 1;
+                     end loop;
+
+                  when others =>
+                     Style_Tags_Map.Include ([C], Name);
+               end case;
+               I := I + 1;
+            end loop;
+         end if;
       end if;
    end Process_Style_Check_Param;
 
@@ -1289,8 +1362,14 @@ package body Gnatcheck.Compiler is
    -- Process_Warning_Param --
    ---------------------------
 
-   procedure Process_Warning_Param (Param : String) is
+   procedure Process_Warning_Param
+     (Param : String;
+      Instance : Rule_Instance_Access)
+   is
       New_Options : constant String := Warning_Options_String.all & Param;
+      Name : constant String := Instance_Name (Instance.all);
+      C : Character;
+      I : Integer;
    begin
       --  Checking for 'e' and 's' that should not be supplied for gnatcheck
       --  Warnings rule.
@@ -1310,6 +1389,25 @@ package body Gnatcheck.Compiler is
       Use_gnatw_Option := True;
       Free (Warning_Options_String);
       Warning_Options_String := new String'(New_Options);
+
+      --  If the current instance has an alias name, add it to the tags map
+      if Instance.Is_Alias then
+         I := Param'First;
+         while I <= Param'Last loop
+            C := Param (I);
+
+            --  If the parameter starts by "_" or ".", it has two characters
+            if C in '.' | '_' then
+               Warning_Tags_Map.Include (Param (I .. I + 1), Name);
+               I := I + 1;
+
+            --  All other parameters are single characters
+            else
+               Warning_Tags_Map.Include ([C], Name);
+            end if;
+            I := I + 1;
+         end loop;
+      end if;
    end Process_Warning_Param;
 
    ----------------------
@@ -1328,7 +1426,7 @@ package body Gnatcheck.Compiler is
    ---------------------------------
 
    function Restriction_Rule_Parameter (Diag : String) return String is
-      R_Name_Start :          Natural;
+      R_Name_Start :          Natural := 0;
       R_Name_End   :          Natural;
       Par_End      :          Natural;
       Sep_Idx      :          Natural;
@@ -1338,24 +1436,29 @@ package body Gnatcheck.Compiler is
         Not_A_Special_Restriction_Id;
 
    begin
-      R_Name_Start := Index (Diag, "of restriction ");
-      pragma Assert (R_Name_Start /= 0);
-
-      R_Name_Start := R_Name_Start + 16;
-
-      --  Get the restriction name and parameter separator index. This
-      --  separator may be an arrow `=>` or an equal symbol.
-      Sep_Idx := Index (Diag (R_Name_Start .. Diag_End), "=");
-
-      if Sep_Idx /= 0 then
-         R_Name_End := Sep_Idx - 1;
-
-         while R_Name_End > R_Name_Start and then Diag (R_Name_End) = ' ' loop
-            R_Name_End := @ - 1;
-         end loop;
-      else
+      --  Get the position of the restriction name in the diagnostic
+      if Index (Diag, "of restriction ") /= 0 then
+         R_Name_Start := Index (Diag, "of restriction ") + 16;
          R_Name_End := Index (Diag (R_Name_Start .. Diag_End), """") - 1;
+         Sep_Idx := Index (Diag (R_Name_Start .. Diag_End), "=");
+
+         if Sep_Idx /= 0 then
+            Par_End := R_Name_End;
+            R_Name_End := Sep_Idx - 1;
+            while R_Name_End > R_Name_Start and then Diag (R_Name_End) = ' '
+            loop
+               R_Name_End := @ - 1;
+            end loop;
+         end if;
+
+      elsif Index (Diag, "violates restriction ") /= 0 then
+         R_Name_Start := Index (Diag, "violates restriction ") + 21;
+         R_Name_End := Index (Diag (R_Name_Start .. Diag'Last), " at") - 1;
+         Par_End := R_Name_End;
+
       end if;
+      pragma Assert (R_Name_Start /= 0);
+      pragma Assert (R_Name_End > R_Name_Start);
 
       Get_Restriction_Id
         (Diag (R_Name_Start .. R_Name_End), R_Id, Special_R_Id);
@@ -1363,7 +1466,6 @@ package body Gnatcheck.Compiler is
       if Sep_Idx /= 0
         and then Needs_Parameter_In_Exemption (R_Id, Special_R_Id)
       then
-         Par_End := Index (Diag (R_Name_Start .. Diag_End), """") - 1;
          return To_Lower (Remove_Spaces (Diag (R_Name_Start .. Par_End)));
       else
          return To_Lower (Diag (R_Name_Start .. R_Name_End));

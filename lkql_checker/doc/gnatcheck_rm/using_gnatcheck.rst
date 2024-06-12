@@ -502,27 +502,21 @@ follows a given coding standard, you can use the following approach
 to simplify mapping your coding standard requirements onto
 ``GNATcheck`` rules:
 
-*
-   when specifying rule options, use instance names for the rule
-   that are relevant to your coding standard::
+* when specifying rule options, use instance names for the rule
+  that are relevant to your coding standard::
 
-     +R:My_Coding_Rule_1:Gnatcheck_Rule_1:param1
-     ...
-     +R:My_Coding_Rule_N:Gnatcheck_Rule_N
+    +R:My_Coding_Rule_1:Gnatcheck_Rule_1:param1
+    ...
+    +R:My_Coding_Rule_N:Gnatcheck_Rule_N
 
-*
-   call ``gnatcheck`` with the ``--show-rule`` option that adds the rule names
-   to the generated diagnoses. If a synonym is used in the rule option that
-   enables the rule, then this synonym will be used to annotate the diagnosis
-   instead of the rule name::
+* call ``gnatcheck`` with the ``--show-rule`` option that adds the rule names
+  to the generated diagnoses. If a synonym is used in the rule option that
+  enables the rule, then this synonym will be used to annotate the diagnosis
+  instead of the rule name::
 
-     foo.adb:2:28: something is wrong here [My_Coding_Rule_1|Gnatcheck_Rule_1]
-     ...
-     bar.ads:17:3: this is not good [My_Coding_Rule_N|Gnatcheck_Rule_N]
-
-Note that this approach currently does not work for compiler-based checks
-integrated in ``gnatcheck`` (implemented by ``Restrictions``, ``Style_Checks``
-and ``Warnings`` rules).
+    foo.adb:2:28: something is wrong here [My_Coding_Rule_1|Gnatcheck_Rule_1]
+    ...
+    bar.ads:17:3: this is not good [My_Coding_Rule_N|Gnatcheck_Rule_N]
 
 .. _gnatcheck_Exit_Codes:
 
