@@ -5,3 +5,6 @@ input_sources:
 rules:
   - +R:same_alias:goto_statements
   - +R:same_alias:integer_types_as_enum
+  - +R:comp_check:Style_Checks:xz
+  - +R:comp_check:Warnings:u
+  - +R:comp_check:Restrictions:No_Access_Subprograms

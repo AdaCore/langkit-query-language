@@ -1,2 +1,4 @@
 gnatcheck: rule instance with the same name already exists: "same_alias" previously instantiated at command line
+gnatcheck: rule instance with the same name already exists: "comp_check" previously instantiated at command line
+gnatcheck: rule instance with the same name already exists: "comp_check" previously instantiated at command line
 >>>program returned status code 5
