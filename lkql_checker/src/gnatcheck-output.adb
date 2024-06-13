@@ -666,6 +666,8 @@ package body Gnatcheck.Output is
          Info (" --help    - Display usage and exit");
          Info ("");
          Info (" -Pproject        - Use project file project. Only one such switch can be used");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" -U               - check all sources of the argument project");
          Info (" -U main          - check the closure of units rooted at unit main");
 
@@ -714,6 +716,8 @@ package body Gnatcheck.Output is
       Info (" --help    - Display usage and exit");
       Info ("");
       Info (" -Pproject        - Use project file project. Only one such switch can be used");
+
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" -U               - check all sources of the argument project");
       Info (" -U main          - check the closure of units rooted at unit main");
 

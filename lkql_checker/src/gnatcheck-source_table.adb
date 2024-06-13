@@ -1087,7 +1087,8 @@ package body Gnatcheck.Source_Table is
       --  Only warn if no sources are specified explicitly
 
       elsif not (File_List_Specified
-                 or else (Argument_File_Specified and then not U_Option_Set))
+                 or else (Argument_File_Specified
+                          and then not Arg.Transitive_Closure.Get))
       then
          Gnatcheck.Output.Warning
            ("exemption: source " & Fname & " not found");

@@ -123,11 +123,6 @@ package Gnatcheck.Projects is
    --  getting the list of files from the project - '-U' should be  ignored if
    --  '-files=...' is specified.
 
-   U_Option_Set : Boolean := False;
-   --  Indicates if -U option is specified for the project (to process all the
-   --  units of the closure of the argument project or to process the closure
-   --  of the main unit if the main unit is set)
-
    Main_Unit : GPR2.Containers.Filename_Set;
    --  If the tool is called with "... Pproj -U main_unit1 main_unit2 ...",
    --  main units are stored here.

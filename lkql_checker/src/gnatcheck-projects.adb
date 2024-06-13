@@ -275,13 +275,13 @@ package body Gnatcheck.Projects is
                My_Project.Tree.Namespace_Root_Projects.First_Element;
 
    begin
-      if (Argument_File_Specified and then not U_Option_Set)
+      if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
         or else File_List_Specified
       then
          return;
       end if;
 
-      if U_Option_Set then
+      if Arg.Transitive_Closure.Get then
          if Main_Unit.Is_Empty then
             --  No argument sources, -U specified. Process recursively
             --  all sources.
@@ -1086,6 +1086,14 @@ package body Gnatcheck.Projects is
 
       Free (Executable);
 
+      --  Disallow arguments that are not allowed to be specified in project
+      --  files
+      --  TODO: It might be possible to have a list of subparsers and do a for
+      --  loop
+      if Args_From_Project then
+         Disallow (Arg.Transitive_Closure.This, "forbidden in project file");
+      end if;
+
       if Arg.Parser.Parse
          ((if Args /= null then To_XString_Array (Args) else No_Arguments),
           Unknown_Arguments => Unknown_Opt_Parse_Args)
@@ -1097,12 +1105,17 @@ package body Gnatcheck.Projects is
          raise Parameter_Error;
       end if;
 
+      --  Reallow arguments that were disallowed
+      if Args_From_Project then
+         Allow (Arg.Transitive_Closure.This);
+      end if;
+
       loop
          Initial_Char :=
            GNAT.Command_Line.Getopt
              ("v q t h hx s "               &
               "m? files= a "                &
-              "P: U X! vP! eL A: -config! " &   --  project-specific options
+              "P: X! vP! eL A: -config! "   &   --  project-specific options
               "-brief "                     &
               "-check-redefinition "        &
               "-no_objects_dir "            &
@@ -1139,7 +1152,7 @@ package body Gnatcheck.Projects is
                      exit when Arg = "";
                      Success := True;
 
-                     if Gnatcheck.Projects.U_Option_Set then
+                     if Options.Arg.Transitive_Closure.Get then
                         Gnatcheck.Projects.Store_Main_Unit
                           (Arg, Args_From_Project or First_Pass);
                      else
@@ -1313,21 +1326,6 @@ package body Gnatcheck.Projects is
             when 't' =>
                if not First_Pass then
                   Compute_Timing := True;
-               end if;
-
-            when 'U' =>
-               if Full_Switch (Parser => Parser) = "U" then
-                  if First_Pass then
-                     if Gnatcheck.Projects.U_Option_Set then
-                        Error ("-U can be specified only once");
-                        raise Parameter_Error;
-                     end if;
-
-                     Gnatcheck.Projects.U_Option_Set := True;
-                  elsif Args_From_Project then
-                     Error ("-U option is not allowed in a project file");
-                     raise Parameter_Error;
-                  end if;
                end if;
 
             when 'v' =>

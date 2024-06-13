@@ -1796,7 +1796,7 @@ package body Gnatcheck.Compiler is
 
       --  If files are specified explicitly, only compile these files
 
-      if (Argument_File_Specified and then not U_Option_Set)
+      if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
         or else File_List_Specified
       then
          Num_Args := @ + 1;
@@ -1807,7 +1807,7 @@ package body Gnatcheck.Compiler is
             Args (Num_Args) := new String'(Short_Source_Name (SF));
          end loop;
       else
-         if U_Option_Set then
+         if Arg.Transitive_Closure.Get then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("-U");
          end if;

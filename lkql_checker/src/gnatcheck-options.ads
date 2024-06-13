@@ -303,6 +303,14 @@ package Gnatcheck.Options is
          Long   => "--no-subprojects",
          Help   => "process only sources of root project");
 
+      package Transitive_Closure is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-U",
+         Name   => "Closure",
+         Help   => "process all units of the closure rooted in the mains "
+                   & "passed as arguments (or mains of the project if list "
+                   & "is empty)");
+
       package Charset is new Parse_Option
         (Parser      => Parser,
          Long        => "--charset",
