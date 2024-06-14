@@ -1537,7 +1537,7 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-d");
       end if;
 
-      if Follow_Symbolic_Links then
+      if Arg.Follow_Symbolic_Links.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-eL");
       end if;
@@ -1685,7 +1685,7 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-P" & Prj);
       end if;
 
-      if Follow_Symbolic_Links then
+      if Arg.Follow_Symbolic_Links.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-eL");
       end if;
