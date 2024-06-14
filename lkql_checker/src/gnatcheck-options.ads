@@ -45,7 +45,7 @@ package Gnatcheck.Options is
       else Default_Worker);
    --  The name of the worker to use.
 
-   RTS_Path : GNAT.OS_Lib.String_Access := new String'("");
+   RTS_Path : Unbounded_String := Null_Unbounded_String;
    --  Runtime as specified via --RTS= or Runtime attribute
 
    Target : Unbounded_String := Null_Unbounded_String;
@@ -352,6 +352,14 @@ package Gnatcheck.Options is
          Arg_Type    => Unbounded_String,
          Default_Val => Null_Unbounded_String,
          Help        => "name of the target to use when loading the project");
+
+      package RTS is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--RTS",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "name of the runtime (RTS) to use when loading the "
+                        & "project");
 
       package Debug_Mode is new Parse_Flag
         (Parser => Parser,

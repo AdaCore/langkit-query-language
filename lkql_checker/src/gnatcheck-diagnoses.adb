@@ -1952,11 +1952,11 @@ package body Gnatcheck.Diagnoses is
 
    procedure Print_Runtime (XML : Boolean := False) is
    begin
-      if RTS_Path.all /= "" then
+      if RTS_Path /= Null_Unbounded_String then
          if XML then
-            XML_Report (RTS_Path.all);
+            XML_Report (To_String (RTS_Path));
          else
-            Report (RTS_Path.all);
+            Report (To_String (RTS_Path));
          end if;
       else
          if XML then

@@ -1620,9 +1620,9 @@ package body Gnatcheck.Compiler is
       end if;
 
       if CGPR = "" then
-         if RTS_Path.all /= "" then
+         if RTS_Path /= Null_Unbounded_String then
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--RTS=" & RTS_Path.all);
+            Args (Num_Args) := new String'("--RTS=" & To_String (RTS_Path));
          end if;
 
          if Target /= Null_Unbounded_String then

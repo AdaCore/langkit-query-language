@@ -686,8 +686,8 @@ package body Gnatcheck.Output is
 
          --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --target=targetname - specify a target for cross platforms");
-
          Info (" --RTS=<runtime>     - use runtime <runtime>");
+
          Info ("");
          Info (" -h   - print out the list of the available kp detectors");
          Info (" -jn  - n is the maximal number of processes");
@@ -744,10 +744,7 @@ package body Gnatcheck.Output is
 
       --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --target=targetname       - specify a target for cross platforms");
-
       Info (" --RTS=<runtime>           - use runtime <runtime>");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --config=<cgpr>           - use configuration project <cgpr>");
 
       Info ("");

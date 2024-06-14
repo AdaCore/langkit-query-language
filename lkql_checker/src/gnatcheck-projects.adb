@@ -458,11 +458,11 @@ package body Gnatcheck.Projects is
          Project_Options.Add_Switch (GPR2.Options.Subdirs, Subdir_Name.all);
       end if;
 
-      if RTS_Path.all /= "" then
-         Project_Options.Add_Switch (GPR2.Options.RTS, RTS_Path.all);
+      if RTS_Path /= Null_Unbounded_String then
+         Project_Options.Add_Switch (GPR2.Options.RTS, To_String (RTS_Path));
       end if;
 
-      if Target /= "" then
+      if Target /= Null_Unbounded_String then
          Project_Options.Add_Switch (GPR2.Options.Target, To_String (Target));
       end if;
 
@@ -484,12 +484,12 @@ package body Gnatcheck.Projects is
          raise Parameter_Error;
       end if;
 
-      if RTS_Path.all = ""
+      if RTS_Path = Null_Unbounded_String
         and then My_Project.Tree.Runtime (Ada_Language) /= ""
       then
-         Free (RTS_Path);
          RTS_Path :=
-           new String'(String (My_Project.Tree.Runtime (Ada_Language)));
+           To_Unbounded_String
+             (String (My_Project.Tree.Runtime (Ada_Language)));
       end if;
 
       if Load_Sources then
@@ -1128,7 +1128,6 @@ package body Gnatcheck.Projects is
               "j! "                         &
               "o= "                         &
               "ox= "                        &
-              "-RTS= "                      &
               "l log "                      &
               "-include-file= "             &
               "-show-rule "                 &
@@ -1382,10 +1381,6 @@ package body Gnatcheck.Projects is
                         "-ignore-project-switches"
                   then
                      Ignore_Project_Switches := True;
-
-                  elsif Full_Switch (Parser => Parser) = "-RTS" then
-                     Free (RTS_Path);
-                     RTS_Path := new String'(Parameter (Parser => Parser));
 
                   elsif Full_Switch (Parser => Parser) = "-subdirs" then
                      Set_Subdir_Name (Parameter (Parser => Parser));
