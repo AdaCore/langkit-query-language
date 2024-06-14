@@ -370,6 +370,11 @@ begin
         (To_String (Arg.Aggregate_Subproject.Get));
    end if;
 
+   --  Store scenario variables
+   for Var of Arg.Scenario_Vars.Get loop
+      Store_External_Variable (To_String (Var));
+   end loop;
+
    --  Register GNATcheck GPR attributes
 
    Register_Tool_Attributes (Gnatcheck_Prj);

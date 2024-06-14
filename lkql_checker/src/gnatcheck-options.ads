@@ -321,6 +321,14 @@ package Gnatcheck.Options is
          Default_Val => Null_Unbounded_String,
          Help        => "project file to use");
 
+      package Scenario_Vars is new Parse_Option_List
+        (Parser     => Parser,
+         Short      => "-X",
+         Name       => "Scenario variable",
+         Arg_Type   => Unbounded_String,
+         Accumulate => True,
+         Help       => "scenario variables to pass to the project file");
+
       package Debug_Mode is new Parse_Flag
         (Parser => Parser,
          Short  => "-d",

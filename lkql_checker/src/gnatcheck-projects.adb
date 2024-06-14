@@ -1096,6 +1096,7 @@ package body Gnatcheck.Projects is
          begin
             Disallow (Arg.Project_File.This, In_Project_Msg);
             Disallow (Arg.Transitive_Closure.This, In_Project_Msg);
+            Disallow (Arg.Scenario_Vars.This, In_Project_Msg);
          end;
       end if;
 
@@ -1114,6 +1115,7 @@ package body Gnatcheck.Projects is
       if Args_From_Project then
          Allow (Arg.Transitive_Closure.This);
          Allow (Arg.Project_File.This);
+         Allow (Arg.Scenario_Vars.This);
       end if;
 
       loop
@@ -1121,7 +1123,7 @@ package body Gnatcheck.Projects is
            GNAT.Command_Line.Getopt
              ("v q t h hx s "               &
               "m? files= a "                &
-              "X! vP! eL -config! "         &   --  project-specific options
+              "vP! eL -config! "            &   --  project-specific options
               "-brief "                     &
               "-check-redefinition "        &
               "-no_objects_dir "            &
@@ -1320,18 +1322,6 @@ package body Gnatcheck.Projects is
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "xml" then
                      XML_Report_ON  := True;
-                  end if;
-               end if;
-
-            when 'X' =>
-               if Full_Switch (Parser => Parser) = "X" then
-                  if First_Pass then
-                     Gnatcheck.Projects.Store_External_Variable
-                       (Var => Parameter (Parser => Parser));
-                  elsif Args_From_Project then
-                     Error ("external references cannot be set in " &
-                            "a project file");
-                     raise Parameter_Error;
                   end if;
                end if;
 
