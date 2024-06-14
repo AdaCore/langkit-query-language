@@ -19,13 +19,9 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 public final class DocFunction {
 
-    // ----- Attributes -----
-
-    /** The name of the function. */
     public static final String NAME = "doc";
 
-    // ----- Class methods -----
-
+    /** Get a brand new "doc" function value. */
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,

@@ -19,19 +19,16 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 public final class SpecifiedUnitsFunction {
 
-    // ----- Attributes -----
-
-    /** The name of the built-in. */
     public static final String NAME = "specified_units";
 
+    /** Get a brand new "specified_units" function value. */
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,
                 "Return an iterator on units specified by the user",
                 new String[] {},
                 new Expr[] {},
-                (VirtualFrame frame, FunCall call) -> {
-                    return new LKQLList(LKQLLanguage.getContext(call).getSpecifiedUnits());
-                });
+                (VirtualFrame frame, FunCall call) ->
+                        new LKQLList(LKQLLanguage.getContext(call).getSpecifiedUnits()));
     }
 }

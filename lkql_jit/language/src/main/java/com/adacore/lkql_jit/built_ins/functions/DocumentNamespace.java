@@ -25,6 +25,7 @@ import java.util.Comparator;
 public class DocumentNamespace {
     public static final String NAME = "document_namespace";
 
+    /** Get a brand new "document_namespace" function value. */
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,
@@ -34,6 +35,7 @@ public class DocumentNamespace {
                 (VirtualFrame frame, FunCall call) -> impl(frame.materialize(), call));
     }
 
+    /** Function for the "document_namespace" execution. */
     @CompilerDirectives.TruffleBoundary
     private static Object impl(MaterializedFrame frame, FunCall call) {
         Object nsObj = frame.getArguments()[0];

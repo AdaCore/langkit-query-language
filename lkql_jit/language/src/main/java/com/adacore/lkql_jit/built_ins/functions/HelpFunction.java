@@ -22,13 +22,9 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 public final class HelpFunction {
 
-    // ----- Attributes -----
-
-    /** The name of the function. */
     public static final String NAME = "help";
 
-    // ----- Class methods -----
-
+    /** Get a brand new "help" function value. */
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,

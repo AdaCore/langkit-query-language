@@ -19,6 +19,18 @@ import java.util.Map;
 public class DocumentBuiltins {
     public static final String NAME = "document_builtins";
 
+    /** Get a brand new "document_builtins" function value. */
+    public static BuiltInFunctionValue getValue() {
+        return new BuiltInFunctionValue(
+                NAME,
+                "Return a string in the RsT format containing documentation for all built-ins",
+                new String[] {},
+                new Expr[] {},
+                (VirtualFrame frame, FunCall call) ->
+                        documentBuiltinsImpl(frame.materialize(), call));
+    }
+
+    /** Function for the "document_builtins" execution. */
     @CompilerDirectives.TruffleBoundary
     public static String documentBuiltinsImpl(
             @SuppressWarnings("unused") MaterializedFrame frame,
@@ -92,15 +104,5 @@ public class DocumentBuiltins {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static BuiltInFunctionValue getValue() {
-        return new BuiltInFunctionValue(
-                NAME,
-                "Return a string in the RsT format containing documentation for all built-ins",
-                new String[] {},
-                new Expr[] {},
-                (VirtualFrame frame, FunCall call) ->
-                        documentBuiltinsImpl(frame.materialize(), call));
     }
 }
