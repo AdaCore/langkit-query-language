@@ -363,6 +363,12 @@ begin
         (To_String (Arg.Project_File.Get));
    end if;
 
+   --  Store aggregate subproject file
+   if Arg.Aggregate_Subproject.Get /= Null_Unbounded_String then
+      Gnatcheck.Projects.Aggregate.Store_Aggregated_Project
+        (To_String (Arg.Aggregate_Subproject.Get));
+   end if;
+
    --  Register GNATcheck GPR attributes
 
    Register_Tool_Attributes (Gnatcheck_Prj);

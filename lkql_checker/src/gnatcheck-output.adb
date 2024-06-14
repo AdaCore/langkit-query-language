@@ -142,7 +142,7 @@ package body Gnatcheck.Output is
 
       Idx_1, Idx_2 : Natural;
    begin
-      if not Aggregated_Project then
+      if not Arg.Aggregated_Project then
          return "";
       end if;
 
@@ -477,7 +477,7 @@ package body Gnatcheck.Output is
       Mode    : constant File_Mode := Out_File;
       Ignored : Boolean;
    begin
-      if not Aggregated_Project then
+      if not Arg.Aggregated_Project then
          if Report_File_Name /= null
            and then
             Is_Absolute_Path (Report_File_Name.all)
@@ -521,7 +521,7 @@ package body Gnatcheck.Output is
       Mode    : constant File_Mode := Out_File;
       Ignored : Boolean;
    begin
-      if not Aggregated_Project then
+      if not Arg.Aggregated_Project then
          if XML_Report_File_Name /= null
            and then Is_Absolute_Path (XML_Report_File_Name.all)
          then
