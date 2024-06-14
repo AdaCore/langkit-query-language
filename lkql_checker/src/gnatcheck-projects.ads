@@ -100,12 +100,6 @@ package Gnatcheck.Projects is
    -- Project-specific options --
    ------------------------------
 
-   ---------------------------------------------------------------------
-   -- -eL  : Follow all symbolic links when processing project files. --
-   ---------------------------------------------------------------------
-
-   Follow_Symbolic_Links : Boolean := False;
-
    ------------------------------------------------------
    -- -vPn  : verbosity level on project file analysis --
    ------------------------------------------------------

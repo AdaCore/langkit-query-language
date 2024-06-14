@@ -680,7 +680,10 @@ package body Gnatcheck.Output is
          Info (" -Xname=value     - specify an external reference for argument project file");
 
          Info (" --subdirs=dir    - specify subdirectory to place the result files into");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" -eL              - follow all symbolic links when processing project files");
+
          Info (" -o filename      - specify the name of the report file");
          Info ("");
 
@@ -738,7 +741,10 @@ package body Gnatcheck.Output is
 
       Info (" --subdirs=dir    - specify subdirectory to place the result files into");
       Info (" --no_objects_dir - place results into current dir instead of project dir");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" -eL              - follow all symbolic links when processing project files");
+
       Info ("");
       Info (" --ignore-project-switches - ignore switches specified in the project file");
 

@@ -383,6 +383,12 @@ package Gnatcheck.Options is
          Help        => "private flag - used when processing a subproject of "
                         & "a root aggregate project");
 
+      package Follow_Symbolic_Links is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-eL",
+         Name   => "Follow symbolic links",
+         Help   => "follow all symbolic links when processing project files");
+
       function Aggregated_Project return Boolean
       is (Aggregate_Subproject.Get /= Null_Unbounded_String);
 

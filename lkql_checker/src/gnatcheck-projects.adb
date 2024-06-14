@@ -1092,6 +1092,7 @@ package body Gnatcheck.Projects is
             Disallow (Arg.Project_File.This, In_Project_Msg);
             Disallow (Arg.Transitive_Closure.This, In_Project_Msg);
             Disallow (Arg.Scenario_Vars.This, In_Project_Msg);
+            Disallow (Arg.Follow_Symbolic_Links.This, In_Project_Msg);
          end;
       end if;
 
@@ -1112,6 +1113,7 @@ package body Gnatcheck.Projects is
          Allow (Arg.Scenario_Vars.This);
          Allow (Arg.Aggregate_Subproject.This);
          Allow (Arg.Project_File.This);
+         Allow (Arg.Follow_Symbolic_Links.This);
       end if;
 
       loop
@@ -1119,7 +1121,7 @@ package body Gnatcheck.Projects is
            GNAT.Command_Line.Getopt
              ("v q t h hx s "               &
               "m? files= a "                &
-              "vP! eL "            &   --  project-specific options
+              "vP!"            &   --  project-specific options
               "-brief "                     &
               "-check-redefinition "        &
               "-no_objects_dir "            &
@@ -1173,16 +1175,6 @@ package body Gnatcheck.Projects is
                --  Ignore -a for compatibility
 
                null;
-
-            when 'e' =>
-               if Full_Switch (Parser => Parser) = "eL" then
-                  if First_Pass then
-                     Gnatcheck.Projects.Follow_Symbolic_Links := True;
-                  elsif Args_From_Project then
-                     Error ("-eL option cannot be set in a project file");
-                     raise Parameter_Error;
-                  end if;
-               end if;
 
             when 'f' =>
                if Full_Switch (Parser => Parser) = "files" then
