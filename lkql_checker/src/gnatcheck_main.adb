@@ -195,7 +195,7 @@ procedure Gnatcheck_Main is
       Total_Jobs := Num_Jobs +
                       (if Analyze_Compiler_Output then 1 else 0);
 
-      if not Quiet_Mode and not Progress_Indicator_Mode then
+      if not Quiet_Mode and not Arg.Progress_Indicator_Mode.Get then
          Info_No_EOL ("Jobs remaining:");
          Info_No_EOL (Integer'Image (Total_Jobs) & ASCII.CR);
       end if;
@@ -236,7 +236,7 @@ procedure Gnatcheck_Main is
 
                Current := @ + 1;
 
-               if Progress_Indicator_Mode then
+               if Arg.Progress_Indicator_Mode.Get then
                   declare
                      Percent : String :=
                        Integer'Image ((Current * 100) / Total_Jobs);
@@ -263,7 +263,7 @@ procedure Gnatcheck_Main is
                         Analyze_Output (File_Name ("out", Job), Status);
                         Process_Found := True;
 
-                        if not Debug_Mode then
+                        if not Arg.Debug_Mode.Get then
                            Delete_File (File_Name ("out", Job), Status);
                            Delete_File (File_Name ("files", Job), Status);
                         end if;
@@ -338,7 +338,7 @@ procedure Gnatcheck_Main is
             Wait_Gnatcheck;
          end loop;
 
-         if not Debug_Mode then
+         if not Arg.Debug_Mode.Get then
             Delete_File (File_Name ("rules", 0), Status);
          end if;
       end;

@@ -90,14 +90,6 @@ package Gnatcheck.Options is
    --  Brief mode: like quiet mode except that messages are emitted on stderr
    --  '--brief'
 
-   Debug_Mode       : Boolean := False;
-   --  Internal debug mode
-   --  '-d'
-
-   Progress_Indicator_Mode : Boolean := False;
-   --  Generate the output to be used for GPS progress indicator.
-   --  '-dd'
-
    Generate_XML_Help : Boolean := False;
    --  If this file is ON, the tool generates the XML description of the tool
    --  parameters to be used for creating the GUI in GPS.
@@ -328,6 +320,18 @@ package Gnatcheck.Options is
          Arg_Type    => Unbounded_String,
          Default_Val => Null_Unbounded_String,
          Help        => "project file to use");
+
+      package Debug_Mode is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-d",
+         Name   => "Debug mode",
+         Help   => "activate debug mode");
+
+      package Progress_Indicator_Mode is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-dd",
+         Name   => "Progress indicator mode",
+         Help   => "activate progress indicator mode");
 
       --  TODO: This needs to be private (undocumented)
       package Aggregate_Subproject is new Parse_Option

@@ -1636,7 +1636,7 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("--config=" & CGPR);
       end if;
 
-      if Debug_Mode then
+      if Arg.Debug_Mode.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-d");
       end if;
@@ -1661,7 +1661,7 @@ package body Gnatcheck.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("--rules-from=" & Rule_File);
 
-      if Debug_Mode then
+      if Arg.Debug_Mode.Get then
          --  For debug purposes, we don't want to put the full path to the
          --  worker command, if it is a full path. We just want the base name
          Put (Base_Name (Worker.all));
@@ -1725,7 +1725,7 @@ package body Gnatcheck.Compiler is
       Args (Num_Args) := new String'(LKQL_RF_Name);
 
       --  Output the called command if in debug mode
-      if Debug_Mode then
+      if Arg.Debug_Mode.Get then
          Put (Base_Name (Worker.all));
          for J in 1 .. Num_Args loop
             Put (" " & Args (J).all);
@@ -1822,7 +1822,7 @@ package body Gnatcheck.Compiler is
 
       Append_Variables (Args, Num_Args);
 
-      if Debug_Mode then
+      if Arg.Debug_Mode.Get then
          Put (GPRbuild_Exec);
 
          for J in 1 .. Num_Args loop

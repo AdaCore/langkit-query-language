@@ -855,7 +855,7 @@ package body Gnatcheck.Rules.Rule_Table is
       Map_JSON_Object (Config_JSON.Value, Rule_Object_Mapper'Access);
 
       --  Delete the temporary JSON files if not it debug mode
-      if not Debug_Mode then
+      if not Arg.Debug_Mode.Get then
          Delete_File (JSON_Config_File_Name, Success);
          Delete_File (Error_File_Name, Success);
       end if;

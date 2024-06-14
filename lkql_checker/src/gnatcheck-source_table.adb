@@ -796,7 +796,7 @@ package body Gnatcheck.Source_Table is
    procedure Output_Source (SF : SF_Id) is
       N : constant String := Natural'Image (Sources_Left);
    begin
-      if Progress_Indicator_Mode then
+      if Arg.Progress_Indicator_Mode.Get then
          declare
             Current : constant Integer := Total_Sources - Sources_Left + 1;
             Percent : String :=
@@ -813,7 +813,7 @@ package body Gnatcheck.Source_Table is
          Info_No_EOL ("[" & N (2 .. N'Last) & "] ");
          Info (Short_Source_Name (SF));
 
-      elsif not (Quiet_Mode or Progress_Indicator_Mode) then
+      elsif not (Quiet_Mode or Arg.Progress_Indicator_Mode.Get) then
          Info_No_EOL ("Units remaining:");
          Info_No_EOL (N);
          Info_No_EOL ("     " & ASCII.CR);
@@ -1384,7 +1384,7 @@ package body Gnatcheck.Source_Table is
             Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
          exception
             when E : others =>
-               if Debug_Mode then
+               if Arg.Debug_Mode.Get then
                   declare
                      Msg : constant String :=
                        File_Name (Next_SF) & ":1:01: internal error: " &
