@@ -327,6 +327,14 @@ package Gnatcheck.Options is
          Enabled    => not Legacy,
          Help       => "specify an alternate directory containing rule files");
 
+      package Project_File is new Parse_Option
+        (Parser      => Parser,
+         Short       => "-P",
+         Long        => "--project",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "project file to use");
+
    end Arg;
 
 end Gnatcheck.Options;

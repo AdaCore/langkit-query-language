@@ -1091,7 +1091,12 @@ package body Gnatcheck.Projects is
       --  TODO: It might be possible to have a list of subparsers and do a for
       --  loop
       if Args_From_Project then
-         Disallow (Arg.Transitive_Closure.This, "forbidden in project file");
+         declare
+            In_Project_Msg : constant String := "forbidden in project file";
+         begin
+            Disallow (Arg.Project_File.This, In_Project_Msg);
+            Disallow (Arg.Transitive_Closure.This, In_Project_Msg);
+         end;
       end if;
 
       if Arg.Parser.Parse
@@ -1108,6 +1113,7 @@ package body Gnatcheck.Projects is
       --  Reallow arguments that were disallowed
       if Args_From_Project then
          Allow (Arg.Transitive_Closure.This);
+         Allow (Arg.Project_File.This);
       end if;
 
       loop
@@ -1115,7 +1121,7 @@ package body Gnatcheck.Projects is
            GNAT.Command_Line.Getopt
              ("v q t h hx s "               &
               "m? files= a "                &
-              "P: X! vP! eL A: -config! "   &   --  project-specific options
+              "X! vP! eL A: -config! "      &   --  project-specific options
               "-brief "                     &
               "-check-redefinition "        &
               "-no_objects_dir "            &
@@ -1299,17 +1305,6 @@ package body Gnatcheck.Projects is
                      Set_XML_Report_File_Name (Parameter (Parser => Parser));
                      XML_Report_ON          := True;
                      Custom_XML_Report_File := True;
-                  end if;
-               end if;
-
-            when 'P' =>
-               if Full_Switch (Parser => Parser) = "P" then
-                  if First_Pass then
-                     My_Project.Store_Project_Source (Parameter (Parser));
-                  elsif Args_From_Project then
-                     Error ("project file should not be specified inside " &
-                            "another project file");
-                     raise Parameter_Error;
                   end if;
                end if;
 

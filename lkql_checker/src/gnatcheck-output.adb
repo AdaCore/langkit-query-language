@@ -665,6 +665,8 @@ package body Gnatcheck.Output is
          Info (" --version - Display version and exit");
          Info (" --help    - Display usage and exit");
          Info ("");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" -Pproject        - Use project file project. Only one such switch can be used");
 
          --  TODO: Remove when we switch to Opt_Parse's help message
@@ -715,6 +717,8 @@ package body Gnatcheck.Output is
       Info (" --version - Display version and exit");
       Info (" --help    - Display usage and exit");
       Info ("");
+
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" -Pproject        - Use project file project. Only one such switch can be used");
 
       --  TODO: Remove when we switch to Opt_Parse's help message
