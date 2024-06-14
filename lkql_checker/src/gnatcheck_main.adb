@@ -384,6 +384,9 @@ begin
    --  Store target from project file
    Gnatcheck.Options.Target := Arg.Target.Get;
 
+   --  Store target from project file
+   Gnatcheck.Options.RTS_Path := Arg.RTS.Get;
+
    --  Register GNATcheck GPR attributes
 
    Register_Tool_Attributes (Gnatcheck_Prj);

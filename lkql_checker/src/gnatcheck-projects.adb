@@ -413,7 +413,7 @@ package body Gnatcheck.Projects is
       use Ada.Strings.Unbounded;
    begin
       if CGPR_File_Set then
-         if RTS_Path.all /= "" then
+         if RTS_Path /= Null_Unbounded_String then
             Warning
               ("runtimes are taken into account only in auto-configuration");
          end if;
@@ -432,13 +432,12 @@ package body Gnatcheck.Projects is
             Check_Shared_Lib => False);
 
          if My_Project.Tree.Has_Runtime_Project then
-            Free (RTS_Path);
-            RTS_Path := new String'
+            RTS_Path := To_Unbounded_String
               (My_Project.Tree.Runtime_Project.Path_Name.Value);
          end if;
       else
-         if RTS_Path.all /= "" then
-            RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
+         if RTS_Path /= Null_Unbounded_String then
+            RTS.Insert (GPR2.Ada_Language, To_String (RTS_Path));
          end if;
 
          My_Project.Tree.Restrict_Autoconf_To_Languages
@@ -467,13 +466,13 @@ package body Gnatcheck.Projects is
         GPR2.Project.View.Set.Set.Element
           (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
-      if RTS_Path.all = "" and then Has_Explicit_Runtime_Attribute (My_Project)
+      if RTS_Path = Null_Unbounded_String
+        and then Has_Explicit_Runtime_Attribute (My_Project)
       then
          --  Capturing the explicitly specified in the root aggregate project
          --  runtime value so that it appears in reports for aggregated ones.
-         Free (RTS_Path);
-         RTS_Path :=
-           new String'(String (My_Project.Tree.Runtime (Ada_Language)));
+         RTS_Path := To_Unbounded_String
+           (String (My_Project.Tree.Runtime (Ada_Language)));
       end if;
 
       Conf_Obj := My_Project.Tree.Configuration;
@@ -549,7 +548,7 @@ package body Gnatcheck.Projects is
       use Ada.Strings.Unbounded;
    begin
       if CGPR_File_Set then
-         if RTS_Path.all /= "" then
+         if RTS_Path /= Null_Unbounded_String then
             Warning
               ("runtimes are taken into account only in auto-configuration");
          end if;
@@ -568,13 +567,12 @@ package body Gnatcheck.Projects is
             Check_Shared_Lib => False);
 
          if My_Project.Tree.Has_Runtime_Project then
-            Free (RTS_Path);
-            RTS_Path := new String'
+            RTS_Path := To_Unbounded_String
               (My_Project.Tree.Runtime_Project.Path_Name.Value);
          end if;
       else
-         if RTS_Path.all /= "" then
-            RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
+         if RTS_Path /= Null_Unbounded_String then
+            RTS.Insert (GPR2.Ada_Language, To_String (RTS_Path));
          end if;
 
          My_Project.Tree.Restrict_Autoconf_To_Languages
@@ -607,11 +605,12 @@ package body Gnatcheck.Projects is
          raise Parameter_Error;
       end if;
 
-      if RTS_Path.all = "" and then Has_Explicit_Runtime_Attribute (My_Project)
+      if RTS_Path = Null_Unbounded_String
+        and then Has_Explicit_Runtime_Attribute (My_Project)
       then
-         Free (RTS_Path);
          RTS_Path :=
-           new String'(String (My_Project.Tree.Runtime (Ada_Language)));
+           To_Unbounded_String
+             (String (My_Project.Tree.Runtime (Ada_Language)));
       end if;
 
       if My_Project.Tree.Root_Project.Kind in Aggregate_Kind then
@@ -1336,7 +1335,6 @@ package body Gnatcheck.Projects is
               "j! "                         &
               "o= "                         &
               "ox= "                        &
-              "-RTS= "                      &
               "l log "                      &
               "-include-file= "             &
               "-show-rule "                 &
@@ -1590,10 +1588,6 @@ package body Gnatcheck.Projects is
                         "-ignore-project-switches"
                   then
                      Ignore_Project_Switches := True;
-
-                  elsif Full_Switch (Parser => Parser) = "-RTS" then
-                     Free (RTS_Path);
-                     RTS_Path := new String'(Parameter (Parser => Parser));
 
                   elsif Full_Switch (Parser => Parser) = "-subdirs" then
                      Set_Subdir_Name (Parameter (Parser => Parser));
