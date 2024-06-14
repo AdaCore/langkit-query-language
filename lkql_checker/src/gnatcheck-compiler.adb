@@ -1504,7 +1504,7 @@ package body Gnatcheck.Compiler is
          end if;
       end if;
 
-      if Aggregated_Project then
+      if Arg.Aggregated_Project then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-A");
          Num_Args := @ + 1;
