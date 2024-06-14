@@ -135,12 +135,6 @@ package Gnatcheck.Options is
    --  such units either are not processed or the tool does not generate
    --  results for them).
 
-   Aggregated_Project : Boolean := False;
-   --  '-A <project_file>
-   --  True if this is a tool call spawned from an original tool call with
-   --  aggregated project as a parameter. In this mode the tool processes only
-   --  one (non-aggregate) project from the projects being aggregated.
-
    In_Aggregate_Project : Boolean := False;
    --  True if the tool is called for an aggregate project that aggregates more
    --  than one (non-aggregate) project/
@@ -334,6 +328,19 @@ package Gnatcheck.Options is
          Arg_Type    => Unbounded_String,
          Default_Val => Null_Unbounded_String,
          Help        => "project file to use");
+
+      --  TODO: This needs to be private (undocumented)
+      package Aggregate_Subproject is new Parse_Option
+        (Parser      => Parser,
+         Short       => "-A",
+         Name        => "Aggregate project",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "private flag - used when processing a subproject of "
+                        & "a root aggregate project");
+
+      function Aggregated_Project return Boolean
+      is (Aggregate_Subproject.Get /= Null_Unbounded_String);
 
    end Arg;
 

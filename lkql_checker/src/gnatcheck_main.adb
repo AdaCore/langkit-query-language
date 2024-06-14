@@ -7,6 +7,7 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Checker_App;
@@ -343,6 +344,7 @@ procedure Gnatcheck_Main is
       end;
    end Schedule_Files;
 
+   use Ada.Strings.Unbounded;
 begin
    Initialize_Environment;
 
@@ -359,8 +361,13 @@ begin
 
    --  Store project file
    if Arg.Project_File.Get /= Null_Unbounded_String then
-      Gnatcheck_Prj.Store_Project_Source
-        (To_String (Arg.Project_File.Get));
+      Gnatcheck_Prj.Store_Project_Source (To_String (Arg.Project_File.Get));
+   end if;
+
+   --  Store aggregate subproject file
+   if Arg.Aggregate_Subproject.Get /= Null_Unbounded_String then
+      Gnatcheck.Projects.Aggregate.Store_Aggregated_Project
+        (To_String (Arg.Aggregate_Subproject.Get));
    end if;
 
    --  Register GNATcheck GPR attributes

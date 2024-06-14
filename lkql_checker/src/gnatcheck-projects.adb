@@ -136,7 +136,7 @@ package body Gnatcheck.Projects is
 
    procedure Load_Aggregated_Project
      (My_Project : in out Arg_Project_Type'Class)
-   with Pre => Aggregated_Project;
+   with Pre => Arg.Aggregated_Project;
    --  Loads My_Project (that is supposed to be an aggregate project), then
    --  unloads it and loads in the same environment the project passes as a
    --  parameter of '-A option' (which is supposed to be a (non-aggregate)
@@ -549,7 +549,7 @@ package body Gnatcheck.Projects is
    begin
       Set_External_Values (My_Project);
 
-      if Aggregated_Project then
+      if Arg.Aggregated_Project then
          Load_Aggregated_Project (My_Project);
       else
          Load_Tool_Project (My_Project);
@@ -1121,7 +1121,7 @@ package body Gnatcheck.Projects is
            GNAT.Command_Line.Getopt
              ("v q t h hx s "               &
               "m? files= a "                &
-              "X! vP! eL A: -config! "      &   --  project-specific options
+              "X! vP! eL -config! "         &   --  project-specific options
               "-brief "                     &
               "-check-redefinition "        &
               "-no_objects_dir "            &
@@ -1173,19 +1173,6 @@ package body Gnatcheck.Projects is
                end loop;
 
                exit when not Success;
-
-            when 'A' =>
-               if Full_Switch (Parser => Parser) = "A" then
-                  if First_Pass then
-                     Aggregated_Project := True;
-                     Gnatcheck.Projects.Aggregate.Store_Aggregated_Project
-                       (Parameter (Parser => Parser));
-                  elsif Args_From_Project then
-                     Error ("project file should not be specified inside " &
-                            "another project file");
-                     raise Parameter_Error;
-                  end if;
-               end if;
 
             when 'a' =>
                --  Ignore -a for compatibility
@@ -1520,7 +1507,7 @@ package body Gnatcheck.Projects is
 
    procedure Check_Parameters is
    begin
-      if Verbose_Mode and then not Aggregated_Project then
+      if Verbose_Mode and then not Arg.Aggregated_Project then
          --  When procressing aggregated projects one by one, we want
          --  Verbose_Mode to print this only in the outer invocation.
          Print_Version_Info (2004);
@@ -1528,11 +1515,13 @@ package body Gnatcheck.Projects is
 
       --  We generate the rule help unconditionally
 
-      if Generate_Rules_Help then
+      if Generate_Rules_Help and then not Arg.Aggregated_Project then
          Rules_Help;
       end if;
 
-      if Gnatcheck.Options.Generate_XML_Help then
+      if Gnatcheck.Options.Generate_XML_Help
+        and then not Arg.Aggregated_Project
+      then
          XML_Help;
       end if;
 
