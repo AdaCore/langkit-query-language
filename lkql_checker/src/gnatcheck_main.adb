@@ -7,6 +7,7 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Checker_App;
@@ -343,6 +344,7 @@ procedure Gnatcheck_Main is
       end;
    end Schedule_Files;
 
+   use Ada.Strings.Unbounded;
 begin
    Initialize_Environment;
 
@@ -368,6 +370,11 @@ begin
       Gnatcheck.Projects.Aggregate.Store_Aggregated_Project
         (To_String (Arg.Aggregate_Subproject.Get));
    end if;
+
+   --  Store scenario variables
+   for Var of Arg.Scenario_Vars.Get loop
+      Store_External_Variable (To_String (Var));
+   end loop;
 
    --  Register GNATcheck GPR attributes
 
