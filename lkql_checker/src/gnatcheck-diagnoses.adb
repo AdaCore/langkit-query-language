@@ -1805,7 +1805,7 @@ package body Gnatcheck.Diagnoses is
 
       function Preprocess_Diag (Diag : String) return String is
       begin
-         if Progress_Indicator_Mode then
+         if Arg.Progress_Indicator_Mode.Get then
             declare
                Idx : constant Natural := Index (Diag, ": ");
             begin

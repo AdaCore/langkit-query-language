@@ -124,7 +124,7 @@ package body Gnatcheck.Projects is
       Gprbuild : constant String := Global_Report_Dir.all & "gprbuild.err";
 
    begin
-      if not Debug_Mode then
+      if not Arg.Debug_Mode.Get then
          Delete_File (Gprbuild, Success);
          Delete_File (Gprbuild & ".out", Success);
       end if;
@@ -1327,7 +1327,6 @@ package body Gnatcheck.Projects is
               "-target= "                   &
               "-kp-version= "               &
               "j! "                         &
-              "d dd dkp "                   &
               "o= "                         &
               "ox= "                        &
               "-RTS= "                      &
@@ -1376,19 +1375,6 @@ package body Gnatcheck.Projects is
                --  Ignore -a for compatibility
 
                null;
-
-            when 'd' =>
-               if First_Pass then
-                  if Full_Switch (Parser => Parser) = "dkp" then
-                     Gnatkp_Mode := True;
-                  end if;
-               else
-                  if Full_Switch (Parser => Parser) = "d" then
-                     Debug_Mode := True;
-                  elsif Full_Switch (Parser => Parser) = "dd" then
-                     Progress_Indicator_Mode := True;
-                  end if;
-               end if;
 
             when 'e' =>
                if Full_Switch (Parser => Parser) = "eL" then
