@@ -357,6 +357,12 @@ begin
       OS_Exit (E_Success);
    end if;
 
+   --  Store project file
+   if Arg.Project_File.Get /= Null_Unbounded_String then
+      Gnatcheck_Prj.Store_Project_Source
+        (To_String (Arg.Project_File.Get));
+   end if;
+
    --  Register GNATcheck GPR attributes
 
    Register_Tool_Attributes (Gnatcheck_Prj);
