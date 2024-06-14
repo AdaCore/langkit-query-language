@@ -195,7 +195,7 @@ procedure Gnatcheck_Main is
       Total_Jobs := Num_Jobs +
                       (if Analyze_Compiler_Output then 1 else 0);
 
-      if not Quiet_Mode and not Arg.Progress_Indicator_Mode.Get then
+      if not Arg.Quiet_Mode and not Arg.Progress_Indicator_Mode.Get then
          Info_No_EOL ("Jobs remaining:");
          Info_No_EOL (Integer'Image (Total_Jobs) & ASCII.CR);
       end if;
@@ -246,7 +246,7 @@ procedure Gnatcheck_Main is
                            & " out of" & Integer'Image (Total_Jobs) & " "
                            & Percent & "%)...");
                   end;
-               elsif not Quiet_Mode then
+               elsif not Arg.Quiet_Mode then
                   Info_No_EOL ("Jobs remaining:");
                   Info_No_EOL (Integer'Image (Total_Jobs - Current));
                   Info_No_EOL ("     " & ASCII.CR);
@@ -521,7 +521,7 @@ begin
 
             elsif (Detected_Non_Exempted_Violations > 0
                 or else Detected_Compiler_Error > 0)
-                 and then not Brief_Mode
+                 and then not Arg.Brief_Mode
             then E_Violation
             else E_Success);
 

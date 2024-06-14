@@ -813,7 +813,7 @@ package body Gnatcheck.Source_Table is
          Info_No_EOL ("[" & N (2 .. N'Last) & "] ");
          Info (Short_Source_Name (SF));
 
-      elsif not (Quiet_Mode or Arg.Progress_Indicator_Mode.Get) then
+      elsif not (Arg.Quiet_Mode or Arg.Progress_Indicator_Mode.Get) then
          Info_No_EOL ("Units remaining:");
          Info_No_EOL (N);
          Info_No_EOL ("     " & ASCII.CR);

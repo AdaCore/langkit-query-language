@@ -1119,10 +1119,9 @@ package body Gnatcheck.Projects is
       loop
          Initial_Char :=
            GNAT.Command_Line.Getopt
-             ("v q t h hx s "               &
+             ("v t h hx "                   &
               "m? files= a "                &
               "vP!"            &   --  project-specific options
-              "-brief "                     &
               "-check-redefinition "        &
               "-no_objects_dir "            &
               "-subdirs= "                  &
@@ -1269,16 +1268,6 @@ package body Gnatcheck.Projects is
                   end if;
                end if;
 
-            when 'q' =>
-               if not First_Pass then
-                  Quiet_Mode := True;
-               end if;
-
-            when 's' =>
-               if not First_Pass then
-                  Short_Report := True;
-               end if;
-
             when 't' =>
                if not First_Pass then
                   Compute_Timing := True;
@@ -1313,12 +1302,7 @@ package body Gnatcheck.Projects is
 
             when '-' =>
                if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "-brief" then
-                     Quiet_Mode   := True;
-                     Short_Report := True;
-                     Brief_Mode   := True;
-
-                  elsif Full_Switch (Parser => Parser) = "-check-redefinition"
+                  if Full_Switch (Parser => Parser) = "-check-redefinition"
                   then
                      Check_Param_Redefinition := True;
                   elsif Full_Switch (Parser => Parser) = "-ignore" then
@@ -1529,14 +1513,14 @@ package body Gnatcheck.Projects is
                     and then Target /= Null_Unbounded_String
                     and then not Match (To_String (Target), Rule.Target.all)
                   then
-                     if not Quiet_Mode then
+                     if not Arg.Quiet_Mode then
                         Info
                           ("info: " &
                            Ada.Strings.Unbounded.To_String (Rule.Name) &
                            " disabled, target does not match");
                      end if;
                   else
-                     if not Quiet_Mode then
+                     if not Arg.Quiet_Mode then
                         Info
                           ("info: " &
                            Ada.Strings.Unbounded.To_String (Rule.Name) &

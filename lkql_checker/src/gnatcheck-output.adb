@@ -694,10 +694,15 @@ package body Gnatcheck.Output is
          Info ("");
          Info (" -h   - print out the list of the available kp detectors");
          Info (" -jn  - n is the maximal number of processes");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" -q   - quiet mode (do not report detections in Stderr)");
+
          Info (" -v   - verbose mode");
          Info (" -l   - full pathname for file locations");
          Info ("");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --brief                - brief mode, only report detections in Stderr");
 
          --  TODO: Remove when we switch to Opt_Parse's help message
@@ -763,7 +768,10 @@ package body Gnatcheck.Output is
       Info (" -v   - verbose mode");
       Info (" -l   - full pathname for file locations");
       Info (" -log - duplicate all the messages sent to Stderr in gnatcheck.log");
+
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" -s   - short form of the report file");
+
       Info (" -xml - generate report in XML format");
       Info (" -nt  - do not generate text report (enforces '-xml')");
       Info ("");
@@ -771,7 +779,9 @@ package body Gnatcheck.Output is
       Info (" --show-rule - append rule names to diagnoses generated");
       Info ("");
 
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --brief              - brief mode, only report detections in Stderr");
+
       Info (" --check-redefinition - issue warning if a rule parameter is redefined");
 
       --  TODO: Remove when we switch to Opt_Parse's help message

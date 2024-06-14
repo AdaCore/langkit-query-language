@@ -82,14 +82,6 @@ package Gnatcheck.Options is
    --  The verbose mode.
    --  '-v'
 
-   Quiet_Mode       : Boolean := False;
-   --  Quiet mode, do not emit messages on stderr
-   --  '-q'
-
-   Brief_Mode       : Boolean := False;
-   --  Brief mode: like quiet mode except that messages are emitted on stderr
-   --  '--brief'
-
    Generate_XML_Help : Boolean := False;
    --  If this file is ON, the tool generates the XML description of the tool
    --  parameters to be used for creating the GUI in GPS.
@@ -222,11 +214,6 @@ package Gnatcheck.Options is
    --------------------------------------
    -- Controlling the gnatcheck report --
    --------------------------------------
-
-   Short_Report : Boolean := False;
-   --  '-s'
-   --  Print the short version of the report file.
-   --  Only diagnoses are included in the report file.
 
    Max_Diagnoses : Natural := 0;
    --  '-m'
@@ -392,6 +379,29 @@ package Gnatcheck.Options is
       function Aggregated_Project return Boolean
       is (Aggregate_Subproject.Get /= Null_Unbounded_String);
 
+      package Quiet is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-q",
+         Name   => "Quiet mode",
+         Help   => "quiet mode, do not emit messages on stderr");
+
+      package Brief is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--brief",
+         Help   => "brief mode: like quiet mode except that messages are "
+                   & "emitted on stderr");
+
+      package Short is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-s",
+         Name   => "Short report",
+         Help   => "print the short version of the report file");
+
+      function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
+
+      function Short_Report return Boolean is (Brief.Get or else Short.Get);
+
+      function Brief_Mode return Boolean is (Brief.Get);
    end Arg;
 
 end Gnatcheck.Options;
