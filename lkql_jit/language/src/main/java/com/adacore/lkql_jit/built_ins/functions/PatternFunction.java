@@ -5,16 +5,15 @@
 
 package com.adacore.lkql_jit.built_ins.functions;
 
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.SpecializedBuiltInBody;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
 import com.adacore.lkql_jit.runtime.values.LKQLPattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 
 /**
  * This class represents the "pattern" built-in function in the LKQL language.
@@ -23,44 +22,47 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
  */
 public final class PatternFunction {
 
-    // ----- Attributes -----
-
-    /** The name of the built-in. */
     public static final String NAME = "pattern";
 
-    // ----- Class methods -----
-
+    /** Get a brand new "pattern" function value. */
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,
                 "Given a regex pattern string, create a pattern object",
                 new String[] {"regex", "case_sensitive"},
                 new Expr[] {null, new BooleanLiteral(null, true)},
-                (VirtualFrame frame, FunCall call) -> {
-                    // Get the string parameter
-                    String regexString;
-                    try {
-                        regexString = LKQLTypeSystemGen.expectString(frame.getArguments()[0]);
-                    } catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_STRING,
-                                LKQLTypesHelper.fromJava(e.getResult()),
-                                call.getArgList().getArgs()[0]);
+                new SpecializedBuiltInBody<>(PatternFunctionFactory.PatternExprNodeGen.create()) {
+                    @Override
+                    protected Object dispatch(Object[] args) {
+                        return specializedNode.executePattern(args[0], args[1]);
                     }
-
-                    // Get the case sensitiveness parameter
-                    boolean caseSensitive;
-                    try {
-                        caseSensitive = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
-                    } catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_BOOLEAN,
-                                LKQLTypesHelper.fromJava(e.getResult()),
-                                call.getArgList().getArgs()[1]);
-                    }
-
-                    // Create the pattern and return it
-                    return new LKQLPattern(call, regexString, caseSensitive);
                 });
+    }
+
+    /** Expression of the "pattern" function. */
+    abstract static class PatternExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
+
+        public abstract LKQLPattern executePattern(Object regex, Object caseSensitive);
+
+        @Specialization
+        protected LKQLPattern onValidArgs(String regex, boolean caseSensitive) {
+            return new LKQLPattern(body.getCallNode(), regex, caseSensitive);
+        }
+
+        @Specialization
+        protected LKQLPattern invalidType(String regex, Object notValid) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(notValid),
+                    body.argNode(1));
+        }
+
+        @Fallback
+        protected LKQLPattern invalidType(Object notValid, Object caseSensitive) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_STRING,
+                    LKQLTypesHelper.fromJava(notValid),
+                    body.argNode(0));
+        }
     }
 }
