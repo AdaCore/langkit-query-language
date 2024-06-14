@@ -776,6 +776,7 @@ package body Gnatcheck.Output is
       Info (" -nt  - do not generate text report (enforces '-xml')");
       Info ("");
 
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --show-rule - append rule names to diagnoses generated");
       Info ("");
 

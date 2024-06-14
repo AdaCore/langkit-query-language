@@ -188,7 +188,7 @@ package body Gnatcheck.Compiler is
          Last_Idx := Last_Idx - 5;
       end if;
 
-      if Mapping_Mode then
+      if Arg.Show_Rule.Get then
          if Message_Kind in Warning | Style then
             Diag_End := Index (Source  => Result (Result'First .. Last_Idx),
                                Pattern => (if Message_Kind = Warning
@@ -1859,8 +1859,8 @@ package body Gnatcheck.Compiler is
    function Style_Rule_Parameter (Diag : String) return String is
       First_Idx        : Natural;
       String_To_Search : constant String :=
-        (if Gnatcheck.Options.Mapping_Mode then "[style_checks:"
-         else                                   "[-gnaty");
+        (if Arg.Show_Rule.Get then "[style_checks:"
+         else                      "[-gnaty");
 
    begin
       --  This function returns non-empty result only if .d parameter is
@@ -1884,8 +1884,8 @@ package body Gnatcheck.Compiler is
    function Warning_Rule_Parameter (Diag : String) return String is
       First_Idx, Last_Idx :          Natural;
       String_To_Search    : constant String :=
-        (if Gnatcheck.Options.Mapping_Mode then "[warnings:"
-         else                                   "[-gnatw");
+        (if Arg.Show_Rule.Get then "[warnings:"
+         else                      "[-gnatw");
 
    begin
       --  This function returns non-empty result only if .d parameter is

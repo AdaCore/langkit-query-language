@@ -87,11 +87,6 @@ package Gnatcheck.Options is
    --  parameters to be used for creating the GUI in GPS.
    --  '-hx'.
 
-   Compute_Timing : Boolean := False;
-   --  If this flag is ON, the total execution time (wall clock) of the tool
-   --  is computed and printed out.
-   --  '-t'
-
    Legacy : Boolean := False;
    --  If True, run in legacy mode, with no support for additional rule files.
 
@@ -220,9 +215,6 @@ package Gnatcheck.Options is
    --  Maximum number of diagnoses to print out into Stdout. Zero means that
    --  there is no limitation on the number of diagnoses to be printed out into
    --  Stderr.
-
-   Mapping_Mode : Boolean := False;
-   --  If this flag is ON, a rule name is added to the text of each diagnosis.
 
    User_Info_File           : GNAT.OS_Lib.String_Access;
    User_Info_File_Full_Path : GNAT.OS_Lib.String_Access;
@@ -396,6 +388,17 @@ package Gnatcheck.Options is
          Short  => "-s",
          Name   => "Short report",
          Help   => "print the short version of the report file");
+
+      package Time is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-t",
+         Name   => "Compute timing",
+         Help   => "print the total execution time (wall clock) on stderr");
+
+      package Show_Rule is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--show-rule",
+         Help   => "append rule names to diagnoses generated");
 
       function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
 

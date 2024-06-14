@@ -1058,7 +1058,7 @@ package body Gnatcheck.Rules is
       First_Idx :  Natural := Index (Diag, " ", Going => Backward) + 1;
       Last_Idx  :  Natural := Diag'Last;
    begin
-      if Mapping_Mode then
+      if Arg.Show_Rule.Get then
 
          --  The diagnosis has the following format:
          --     foo.adb:nn:mm: use of pragma Bar [Rule_Name]
@@ -2870,7 +2870,7 @@ package body Gnatcheck.Rules is
      (Rule : Rule_Info;
       Alias_Name : String) return String is
    begin
-      if not Mapping_Mode then
+      if not Arg.Show_Rule.Get then
          return "";
       else
          return

@@ -1119,9 +1119,9 @@ package body Gnatcheck.Projects is
       loop
          Initial_Char :=
            GNAT.Command_Line.Getopt
-             ("v t h hx "                   &
+             ("v h hx "                     &
               "m? files= a "                &
-              "vP!"            &   --  project-specific options
+              "vP! "                        &   --  project-specific options
               "-check-redefinition "        &
               "-no_objects_dir "            &
               "-subdirs= "                  &
@@ -1131,7 +1131,6 @@ package body Gnatcheck.Projects is
               "ox= "                        &
               "l log "                      &
               "-include-file= "             &
-              "-show-rule "                 &
               "-subprocess "                &
               "-version -help "             &
               "-ignore= "                   &
@@ -1268,11 +1267,6 @@ package body Gnatcheck.Projects is
                   end if;
                end if;
 
-            when 't' =>
-               if not First_Pass then
-                  Compute_Timing := True;
-               end if;
-
             when 'v' =>
                if Full_Switch (Parser => Parser) = "v" then
                   Verbose_Mode := True;
@@ -1322,15 +1316,6 @@ package body Gnatcheck.Projects is
                   elsif Full_Switch (Parser => Parser) = "-kp-version" then
                      Free (KP_Version);
                      KP_Version := new String'(Parameter (Parser => Parser));
-
-                  elsif Full_Switch (Parser => Parser) = "-show-rule" then
-                     Mapping_Mode := True;
-
-                  elsif Full_Switch (Parser => Parser) = "-RTS" then
-                     --  We do not store --RTS option for gcc now - we have
-                     --  to resolve its parameter to the full path, and we
-                     --  can do this only when target is fully detected.
-                     null;
                   end if;
                else
                   if Full_Switch (Parser => Parser) = "-help" then

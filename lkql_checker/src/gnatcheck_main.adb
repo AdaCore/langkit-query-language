@@ -498,7 +498,7 @@ begin
 
    Gnatcheck.Projects.Clean_Up (Gnatcheck.Options.Gnatcheck_Prj);
 
-   if Compute_Timing then
+   if Arg.Time.Get then
       Info ("Execution time:" &
             Duration'Image (Ada.Calendar.Clock - Time_Start));
    end if;
