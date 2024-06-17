@@ -824,6 +824,24 @@ package body Gnatcheck.Compiler is
       end if;
    end Needs_Parameter_In_Exemption;
 
+   ---------------------------
+   -- Is_Restriction_Active --
+   ---------------------------
+
+   function Is_Restriction_Active (Restriction_Name : String) return Boolean
+   is
+      R_Id         : Restriction_Id := Not_A_Restriction_Id;
+      Special_R_Id : Special_Restriction_Id := Not_A_Special_Restriction_Id;
+   begin
+      Get_Restriction_Id (Restriction_Name, R_Id, Special_R_Id);
+      if R_Id /= Not_A_Restriction_Id then
+         return Restriction_Setting (R_Id).Active;
+      elsif Special_R_Id /= Not_A_Special_Restriction_Id then
+         return Special_Restriction_Setting (Special_R_Id);
+      end if;
+      return False;
+   end Is_Restriction_Active;
+
    ----------------------------------
    -- Is_Restriction_Exemption_Par --
    ----------------------------------

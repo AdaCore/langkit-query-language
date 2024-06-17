@@ -2062,7 +2062,7 @@ package body Gnatcheck.Diagnoses is
          return;
       end if;
 
-      --  3.1 Check if we have an existing instance
+      --  3.1 Check if we have a rule corresponding to the provided name
       if not Present (Rule) then
          Store_Diagnosis
            (Full_File_Name     => Self.Unit.Get_Filename,
@@ -2128,6 +2128,31 @@ package body Gnatcheck.Diagnoses is
          --  We may get rid of this if and when we get a possibility to turn
          --  off all the warnings except related to restrictions only.
          return;
+
+      --  If the exempted rule is "Restrictions" and there are parameters, we
+      --  want to ensure that at least one of the specified restrictions is
+      --  enabled.
+      elsif Rule = Restrictions_Id and then Has_Params then
+         declare
+            Active_Found : Boolean := False;
+         begin
+            for Param of Action.Params loop
+               declare
+                  Sep_Idx : constant Natural := Index (Param, "=");
+                  Restriction_Name : constant String :=
+                    (if Sep_Idx = 0
+                     then Param
+                     else Param (Param'First .. Sep_Idx - 1));
+               begin
+                  if Is_Restriction_Active (Restriction_Name) then
+                     Active_Found := True;
+                  end if;
+               end;
+            end loop;
+            if not Active_Found then
+               return;
+            end if;
+         end;
       end if;
 
       --  Now - processing of the exemption pragma. If we are here, we are
