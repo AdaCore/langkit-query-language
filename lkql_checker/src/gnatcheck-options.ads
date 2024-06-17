@@ -6,11 +6,10 @@
 --  This package defines options that are supposed to be of a common interest
 --  for all the tools.
 
-with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-
-with Ada.Directories; use Ada.Directories;
+with Ada.Command_Line;      use Ada.Command_Line;
+with Ada.Directories;       use Ada.Directories;
 with Ada.Environment_Variables;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib;
 

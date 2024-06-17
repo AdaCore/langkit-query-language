@@ -30,8 +30,6 @@ with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
-with GNATCOLL.Traces;
-
 with GPR2;
 with GPR2.Build.Compilation_Unit;
 pragma Warnings (Off, ".* is not referenced");
@@ -56,6 +54,7 @@ with GPR2.Project.View;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
+with GNATCOLL.Traces;
 
 with Rule_Commands; use Rule_Commands;
 
