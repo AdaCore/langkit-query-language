@@ -375,6 +375,14 @@ begin
       Store_External_Variable (To_String (Var));
    end loop;
 
+   --  Store .cgpr
+   if Arg.Config_File.Get /= Null_Unbounded_String then
+      Gnatcheck_Prj.Store_CGPR_Source (To_String (Arg.Config_File.Get));
+   end if;
+
+   --  Store target from project file
+   Gnatcheck.Options.Target := Arg.Target.Get;
+
    --  Register GNATcheck GPR attributes
 
    Register_Tool_Attributes (Gnatcheck_Prj);

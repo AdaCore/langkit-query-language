@@ -1362,8 +1362,8 @@ package body Gnatcheck.Rules.Rule_Table is
                    (Match (KP_Version.all, All_Rules (Rule).Impact.all)
                     and then
                       (All_Rules (Rule).Target = null
-                       or else Target.all = ""
-                       or else Match (Target.all,
+                       or else To_String (Target) = ""
+                       or else Match (To_String (Target),
                                       All_Rules (Rule).Target.all)))
                then
                   Set.Include (All_Rules (Rule));

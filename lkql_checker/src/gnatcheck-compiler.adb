@@ -1524,11 +1524,12 @@ package body Gnatcheck.Compiler is
    ----------------
 
    function Gnatls_Exec return String is
+      use Ada.Strings.Unbounded;
    begin
       if Has_Access_To_Codepeer then
          return "codepeer-gnatls";
-      elsif Target.all /= "" then
-         return Target.all & "-gnatls";
+      elsif To_String (Target) /= "" then
+         return To_String (Target) & "-gnatls";
       else
          return "gnatls";
       end if;
@@ -1578,6 +1579,7 @@ package body Gnatcheck.Compiler is
       Args          : Argument_List (1 .. 128);
       Num_Args      : Integer := 0;
 
+      use Ada.Strings.Unbounded;
    begin
       --  Split the worker command into the name of the executable plus its
       --  arguments. We do that because the call to Non_Blocking_Spawn expects
@@ -1623,9 +1625,9 @@ package body Gnatcheck.Compiler is
             Args (Num_Args) := new String'("--RTS=" & RTS_Path.all);
          end if;
 
-         if Target.all /= "" then
+         if Target /= Null_Unbounded_String then
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--target=" & Target.all);
+            Args (Num_Args) := new String'("--target=" & To_String (Target));
          elsif Has_Access_To_Codepeer then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--target=codepeer");

@@ -48,7 +48,7 @@ package Gnatcheck.Options is
    RTS_Path : GNAT.OS_Lib.String_Access := new String'("");
    --  Runtime as specified via --RTS= or Runtime attribute
 
-   Target : GNAT.OS_Lib.String_Access := new String'("");
+   Target : Unbounded_String := Null_Unbounded_String;
    --  Target as it is specified by the command-line '--target=...' option, or
    --  by the 'Target attribute in the argument project file.
 
@@ -336,6 +336,22 @@ package Gnatcheck.Options is
          Arg_Type   => Unbounded_String,
          Accumulate => True,
          Help       => "scenario variables to pass to the project file");
+
+      package Config_File is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--config",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "name of the configuration project file. If passed, "
+                        & "this file must exist and neither --target nor --RTS"
+                        & "must be passed.");
+
+      package Target is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--target",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "name of the target to use when loading the project");
 
       package Debug_Mode is new Parse_Flag
         (Parser => Parser,
