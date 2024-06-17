@@ -7,9 +7,9 @@ with Ada.Environment_Variables;
 
 with GNAT.OS_Lib;
 
-with GNATCOLL.Utils;
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
+with GNATCOLL.Utils;
 with GNATCOLL.VFS;       use GNATCOLL.VFS;
 
 package body Rules_Factory is
