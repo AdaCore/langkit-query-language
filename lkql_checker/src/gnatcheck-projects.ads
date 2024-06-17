@@ -148,26 +148,8 @@ package Gnatcheck.Projects is
       Last : in out Natural);
    --  Append a "-XVAR=value" string for each stored external variable
 
-   --------------------------------------------------------------------------
-   -- --subdirs=<d>  : <d> is subdirectories to place the tool output into --
-   --------------------------------------------------------------------------
-
-   Subdir_Name : String_Access := new String'("gnatcheck");
-   --  If Subdir_Name is null, no special subdirectory is used for tool
-   --  results.
-
-   procedure Set_Subdir_Name (S : String);
-   --  Sets Subdir_Name to S (if Subdir_Name is not null, frees the old value).
-   --  We may have '--subdirs=<d>' option both in command line and in the list
-   --  of values of Default_Switches and Switches attributes in the tool
-   --  package in the project file.
-
-   ----------------------------------------------------------------
-   -- --no_object_dir : do not place the results into object dir --
-   ----------------------------------------------------------------
-
-   No_Object_Dir : Boolean := False;
-   --  If this flag is ON, the output files are placed in the current directory
+   function Subdir_Name return String;
+   --  Return the subdir name to use, if one was set explicitly.
 
    ----------------------------------------------------------------
    -- --print-gpr-registry : print gnatcheck attributes and exit --

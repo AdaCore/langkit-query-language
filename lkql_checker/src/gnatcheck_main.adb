@@ -387,12 +387,11 @@ begin
    Gnatcheck.Options.RTS_Path := Arg.RTS.Get;
 
    --  Register GNATcheck GPR attributes
-
    Register_Tool_Attributes (Gnatcheck_Prj);
 
    --  Print GPR registered and exit if requested
 
-   if Print_Gpr_Registry then
+   if Arg.Print_Gpr_Registry.Get then
       --  Print GPR registry
 
       GPR2.Project.Registry.Exchange.Export (Output => Put'Access);
@@ -425,17 +424,11 @@ begin
 
    Ctx := Gnatcheck.Source_Table.Create_Context;
 
-   --  Ignore project switches when running as gnatkp
-
-   if Gnatkp_Mode then
-      Ignore_Project_Switches := True;
-   end if;
-
    --  Analyze relevant project properties if needed
 
    if Gnatcheck_Prj.Is_Specified
      and then not In_Aggregate_Project
-     and then not Ignore_Project_Switches
+     and then not Arg.Ignore_Project_Switches
    then
       Extract_Tool_Options (Gnatcheck_Prj);
    end if;
@@ -443,6 +436,24 @@ begin
    --  Then analyze the command-line parameters
 
    Gnatcheck_Prj.Scan_Arguments;
+
+   --  Process the include file
+   if Arg.Include_File.Get /= Null_Unbounded_String then
+      Gnatcheck.Diagnoses.Process_User_Filename
+        (To_String (Arg.Include_File.Get));
+   end if;
+
+   --  Set up ignore list
+   if Arg.Ignore_Files.Get /= Null_Unbounded_String then
+      if Is_Regular_File (To_String (Arg.Ignore_Files.Get)) then
+         Exempted_Units :=
+           new String'(Normalize_Pathname
+                         (To_String (Arg.Ignore_Files.Get)));
+      else
+         Error (To_String (Arg.Ignore_Files.Get) & " not found");
+         raise Parameter_Error;
+      end if;
+   end if;
 
    --  Setup LKQL_RULES_PATH to point on built-in rules
 

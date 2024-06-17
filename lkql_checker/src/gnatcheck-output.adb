@@ -654,6 +654,7 @@ package body Gnatcheck.Output is
    -- Brief_Help --
    ----------------
 
+   --  TODO: Transition this help message to Opt_Parse's one
    procedure Brief_Help is
    begin
       pragma Style_Checks ("M200"); -- Allow long lines
@@ -665,55 +666,29 @@ package body Gnatcheck.Output is
          Info (" --version - Display version and exit");
          Info (" --help    - Display usage and exit");
          Info ("");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" -Pproject        - Use project file project. Only one such switch can be used");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" -U               - check all sources of the argument project");
          Info (" -U main          - check the closure of units rooted at unit main");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --no-subprojects - process only sources of root project");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" -Xname=value     - specify an external reference for argument project file");
-
          Info (" --subdirs=dir    - specify subdirectory to place the result files into");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" -eL              - follow all symbolic links when processing project files");
-
          Info (" -o filename      - specify the name of the report file");
          Info ("");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --target=targetname - specify a target for cross platforms");
          Info (" --RTS=<runtime>     - use runtime <runtime>");
-
          Info ("");
          Info (" -h   - print out the list of the available kp detectors");
          Info (" -jn  - n is the maximal number of processes");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" -q   - quiet mode (do not report detections in Stderr)");
-
          Info (" -v   - verbose mode");
          Info (" -l   - full pathname for file locations");
          Info ("");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --brief                - brief mode, only report detections in Stderr");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --check-semantic       - check semantic validity of the source files");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --charset=<charset>    - specify the charset of the source files");
-
          Info (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
          Info ("");
-
          Info (" -from=filename    - read kp options from filename");
          Info (" +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
          Info ("   where <kp_id>   - ID of one of the currently implemented");
@@ -730,34 +705,19 @@ package body Gnatcheck.Output is
       Info (" --version - Display version and exit");
       Info (" --help    - Display usage and exit");
       Info ("");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" -Pproject        - Use project file project. Only one such switch can be used");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" -U               - check all sources of the argument project");
       Info (" -U main          - check the closure of units rooted at unit main");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --no-subprojects - process only sources of root project");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" -Xname=value     - specify an external reference for argument project file");
-
       Info (" --subdirs=dir    - specify subdirectory to place the result files into");
       Info (" --no_objects_dir - place results into current dir instead of project dir");
-
-         --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" -eL              - follow all symbolic links when processing project files");
-
       Info ("");
       Info (" --ignore-project-switches - ignore switches specified in the project file");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --target=targetname       - specify a target for cross platforms");
       Info (" --RTS=<runtime>           - use runtime <runtime>");
       Info (" --config=<cgpr>           - use configuration project <cgpr>");
-
       Info ("");
       Info (" -h   - print out the list of the currently implemented rules");
       Info (" -mn  - n is the maximal number of diagnoses in Stderr");
@@ -768,50 +728,33 @@ package body Gnatcheck.Output is
       Info (" -v   - verbose mode");
       Info (" -l   - full pathname for file locations");
       Info (" -log - duplicate all the messages sent to Stderr in gnatcheck.log");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" -s   - short form of the report file");
-
       Info (" -xml - generate report in XML format");
       Info (" -nt  - do not generate text report (enforces '-xml')");
       Info ("");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --show-rule - append rule names to diagnoses generated");
       Info ("");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --brief              - brief mode, only report detections in Stderr");
-
       Info (" --check-redefinition - issue warning if a rule parameter is redefined");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --check-semantic     - check semantic validity of the source files");
-
-      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --charset=<charset>  - specify the charset of the source files");
 
       if not Legacy then
-         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --rules-dir=<dir>    - specify an alternate directory containing rule files");
       end if;
 
       Info ("");
       Info (" --include-file=filename - add the content of filename into generated report");
-
       Info ("");
-
       Info (" -o filename   - specify the name of the text report file");
       Info (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
       Info ("");
-
       Info ("filename                 - the name of the Ada source file to be analyzed.");
       Info ("                           Wildcards are allowed");
       Info ("-files=filename          - the name of the text file containing a list of Ada");
       Info ("                           source files to analyze");
       Info ("--ignore=filename        - do not process sources listed in filename");
       Info ("");
-
       Info ("rule_switches          - a list of the following switches");
       Info ("   -from=filename      - read rule options from filename");
       Info ("   -from-lkql=filename - read rule options from the given LKQL file");

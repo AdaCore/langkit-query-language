@@ -18,6 +18,8 @@ with Gnatcheck.Projects;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 
+with GPR2.Options;
+
 package Gnatcheck.Options is
 
    Gnatcheck_Version : constant String := "25.0w";
@@ -129,10 +131,6 @@ package Gnatcheck.Options is
    --  True if the -jN option was given. This is used to distinguish -j0 on a
    --  uniprocessor from no -j switch.
 
-   Ignore_Project_Switches : Boolean := False;
-   --  True if --ignore-project-switches was used.
-   --  Ignore gnatcheck switches from the project file if set.
-
    ----------------------------------------
    -- Flags computed from other settings --
    ----------------------------------------
@@ -174,12 +172,6 @@ package Gnatcheck.Options is
    --  '-h'
    --  Generate the rules help information (note, that we can do it only after
    --  registering the rules)
-
-   Check_Param_Redefinition : Boolean := False;
-   --  '--check-redefinition'
-   --  Check if for parametrized rule the rule parameter is defined more than
-   --  once (may happen if gnatcheck has several rule files as parameters, or
-   --  when a rule is activated both in the command line and in the rule file.
 
    Active_Rule_Present : Boolean := False;
    --  Flag indicating if the tool has an activated rule to check. It does not
@@ -256,7 +248,6 @@ package Gnatcheck.Options is
 
    procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String);
    procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String);
-   procedure On_Fail (Self : in out Gnatcheck_Error_Handler);
 
    package Arg is
       Parser : Argument_Parser := Create_Argument_Parser
@@ -264,7 +255,8 @@ package Gnatcheck.Options is
          Incremental          => True,
          Generate_Help_Flag   => False,
          Custom_Error_Handler =>
-           Create (Gnatcheck_Error_Handler'(null record)));
+           Create (Gnatcheck_Error_Handler'(null record)),
+         Print_Help_On_Error  => False);
 
       package Check_Semantic is new Parse_Flag
         (Parser => Parser,
@@ -400,11 +392,56 @@ package Gnatcheck.Options is
          Long   => "--show-rule",
          Help   => "append rule names to diagnoses generated");
 
+      package Check_Redefinition is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--check-redefinition",
+         Help   => "issue warning if a rule parameter is redefined");
+
+      package No_Object_Dir is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--no_objects_dir",
+         Help   => "issue warning if a rule parameter is redefined");
+
+      package Print_Gpr_Registry is new Parse_Flag
+        (Parser => Parser,
+         Long   => GPR2.Options.Print_GPR_Registry_Option,
+         Help   => "TODO");
+
+      package Ignore_Project_Switches_Opt is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--ignore-project-switches",
+         Help   => "ignore switches specified in the project file");
+
+      package Include_File is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--include-file",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "add the content of filename into generated report");
+
+      package Subdirs is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--subdirs",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "specify subdirectory to place the result files into");
+
+      package Ignore_Files is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--ignore",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "do not process sources listed in filename");
+
       function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
 
       function Short_Report return Boolean is (Brief.Get or else Short.Get);
 
       function Brief_Mode return Boolean is (Brief.Get);
+
+      function Ignore_Project_Switches return Boolean is
+        (Ignore_Project_Switches_Opt.Get or Gnatkp_Mode);
+
    end Arg;
 
 end Gnatcheck.Options;

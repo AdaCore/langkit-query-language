@@ -1372,7 +1372,7 @@ package body Gnatcheck.Rules is
       --  Else, the param has a value
       else
          if Enable then
-            if Check_Param_Redefinition and then
+            if Arg.Check_Redefinition.Get and then
               Tagged_Instance.Param /= Integer'First
             then
                Emit_Redefining (Instance, "", Defined_At);
@@ -1436,7 +1436,7 @@ package body Gnatcheck.Rules is
       --  Else, if the command line is enabling the rule, the parameter is not
       --  empty and is valid. Just set the instance parameter value.
       elsif Enable then
-         if Check_Param_Redefinition and then Tagged_Instance.Param /= Unset
+         if Arg.Check_Redefinition.Get and then Tagged_Instance.Param /= Unset
          then
             Emit_Redefining (Instance, Param, Defined_At);
          end if;
@@ -1479,7 +1479,7 @@ package body Gnatcheck.Rules is
       --  Else, the parameter is not empty, if the instance is enabled check
       --  the parameter value and enable the instance.
       elsif Enable then
-         if Check_Param_Redefinition and then
+         if Arg.Check_Redefinition.Get and then
            not Ada.Strings.Wide_Wide_Unbounded."="
              (Tagged_Instance.Param, Null_Unbounded_Wide_Wide_String)
          then
@@ -1535,7 +1535,7 @@ package body Gnatcheck.Rules is
       --  Else, the param is not empty, if the command line is enabling the
       --  instance process the parameter.
       elsif Enable then
-         if Check_Param_Redefinition and then
+         if Arg.Check_Redefinition.Get and then
            not Ada.Strings.Wide_Wide_Unbounded."="
              (Tagged_Instance.Param, Null_Unbounded_Wide_Wide_String)
          then
@@ -1628,7 +1628,7 @@ package body Gnatcheck.Rules is
             begin
                Int_Param_Value := Integer'Value (Param);
 
-               if Check_Param_Redefinition
+               if Arg.Check_Redefinition.Get
                  and then Tagged_Instance.Integer_Param /= Integer'First
                then
                   Emit_Redefining (Instance, "N", Defined_At);
@@ -1654,7 +1654,7 @@ package body Gnatcheck.Rules is
                loop
                   if Param_Name (All_Rules (Rule), J) = To_Lower (Param)
                   then
-                     if Check_Param_Redefinition
+                     if Arg.Check_Redefinition.Get
                        and then Tagged_Instance.Boolean_Params (J) = On
                      then
                         Emit_Redefining (Instance, Param, Defined_At);
@@ -1978,7 +1978,7 @@ package body Gnatcheck.Rules is
          Val   : String;
          Label : String) is
       begin
-         if Check_Param_Redefinition and then Length (S) /= 0 then
+         if Arg.Check_Redefinition.Get and then Length (S) /= 0 then
             Emit_Redefining (Instance, Label, Defined_At);
          end if;
 

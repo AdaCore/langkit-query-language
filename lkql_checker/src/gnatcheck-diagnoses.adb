@@ -2683,20 +2683,14 @@ package body Gnatcheck.Diagnoses is
    ---------------------------
 
    procedure Process_User_Filename (Fname : String) is
-      use all type GNAT.OS_Lib.String_Access;
    begin
       if GNAT.OS_Lib.Is_Regular_File (Fname) then
-         if User_Info_File /= null then
-            Error ("--include-file option can be given only once, " &
-                   "all but first ignored");
-         else
-            User_Info_File           := new String'(Fname);
-            User_Info_File_Full_Path := new String'
-              (GNAT.OS_Lib.Normalize_Pathname
-                 (Fname,
-                  Resolve_Links  => False,
-                  Case_Sensitive => False));
-         end if;
+         User_Info_File           := new String'(Fname);
+         User_Info_File_Full_Path := new String'
+           (GNAT.OS_Lib.Normalize_Pathname
+              (Fname,
+               Resolve_Links  => False,
+               Case_Sensitive => False));
       else
          Error (Fname & " not found, --include-file option ignored");
       end if;

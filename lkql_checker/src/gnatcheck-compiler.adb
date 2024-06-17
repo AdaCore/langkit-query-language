@@ -1134,7 +1134,7 @@ package body Gnatcheck.Compiler is
                       (Trim (Param (Last_Idx .. Param'Last), Both));
 
                   if not Restriction_Setting (R_Id).Param.Is_Empty
-                    and then Gnatcheck.Options.Check_Param_Redefinition
+                    and then Arg.Check_Redefinition.Get
                   then
                      Restriction_Setting (R_Id).Param.Clear;
                      Last_Idx := Index (Param, "=", Backward) - 1;
@@ -1606,7 +1606,7 @@ package body Gnatcheck.Compiler is
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);
 
-         if Ignore_Project_Switches then
+         if Arg.Ignore_Project_Switches then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--ignore-project-switches");
          end if;
@@ -1769,7 +1769,7 @@ package body Gnatcheck.Compiler is
       Args (2) := new String'("-s");
       Args (3) := new String'("-k");
       Args (4) := new String'("-q");
-      Args (5) := new String'("--subdirs=" & Subdir_Name.all);
+      Args (5) := new String'("--subdirs=" & Subdir_Name);
 
       Args (6) := new String'("--no-object-check");
       Args (7) := new String'("--complete-output");
