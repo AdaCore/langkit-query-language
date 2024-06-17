@@ -273,11 +273,19 @@ package Gnatcheck.Options is
 
    Gnatcheck_Prj : aliased Gnatcheck.Projects.Arg_Project_Type;
 
+   type Gnatcheck_Error_Handler is new Error_Handler with null record;
+
+   procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String);
+   procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String);
+   procedure On_Fail (Self : in out Gnatcheck_Error_Handler);
+
    package Arg is
       Parser : Argument_Parser := Create_Argument_Parser
-        (Help               => "GNATcheck help",
-         Incremental        => True,
-         Generate_Help_Flag => False);
+        (Help                 => "GNATcheck help",
+         Incremental          => True,
+         Generate_Help_Flag   => False,
+         Custom_Error_Handler =>
+           Create (Gnatcheck_Error_Handler'(null record)));
 
       package Check_Semantic is new Parse_Flag
         (Parser => Parser,
