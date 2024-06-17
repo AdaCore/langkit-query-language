@@ -409,6 +409,8 @@ package body Gnatcheck.Projects is
 
       KB : constant GPR2.KB.Object :=
         GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
+
+      use Ada.Strings.Unbounded;
    begin
       if CGPR_File_Set then
          if RTS_Path.all /= "" then
@@ -449,7 +451,8 @@ package body Gnatcheck.Projects is
               (if Subdir_Name = null then
                  No_Name
                else Name_Type (Subdir_Name.all)),
-            Target            => Optional_Name_Type (Target.all),
+            Target            =>
+              Optional_Name_Type (To_String (Target)),
             Language_Runtimes => RTS,
             Base => KB);
       end if;
@@ -542,6 +545,8 @@ package body Gnatcheck.Projects is
         GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
 
       Prj_File : constant Path_Name.Object := My_Project.Project_Path_Object;
+
+      use Ada.Strings.Unbounded;
    begin
       if CGPR_File_Set then
          if RTS_Path.all /= "" then
@@ -583,7 +588,7 @@ package body Gnatcheck.Projects is
                     No_Name
                else Name_Type (Subdir_Name.all)),
             Check_Shared_Lib  => False,
-            Target            => Optional_Name_Type (Target.all),
+            Target            => Optional_Name_Type (To_String (Target)),
             Language_Runtimes => RTS,
             Base => KB);
       end if;
@@ -613,8 +618,7 @@ package body Gnatcheck.Projects is
          Collect_Aggregated_Projects (My_Project.Tree.Root_Project);
          N_Of_Aggregated_Projects := Num_Of_Aggregated_Projects;
 
-         Free (Target);
-         Target := new String'(String (My_Project.Tree.Target));
+         Target := To_Unbounded_String (String (My_Project.Tree.Target));
 
          case N_Of_Aggregated_Projects is
             when 0 =>
@@ -1292,6 +1296,7 @@ package body Gnatcheck.Projects is
          declare
             In_Project_Msg : constant String := "forbidden in project file";
          begin
+            Disallow (Arg.Aggregate_Subproject.This, In_Project_Msg);
             Disallow (Arg.Project_File.This, In_Project_Msg);
             Disallow (Arg.Transitive_Closure.This, In_Project_Msg);
             Disallow (Arg.Scenario_Vars.This, In_Project_Msg);
@@ -1312,8 +1317,9 @@ package body Gnatcheck.Projects is
       --  Reallow arguments that were disallowed
       if Args_From_Project then
          Allow (Arg.Transitive_Closure.This);
-         Allow (Arg.Project_File.This);
          Allow (Arg.Scenario_Vars.This);
+         Allow (Arg.Aggregate_Subproject.This);
+         Allow (Arg.Project_File.This);
       end if;
 
       loop
@@ -1321,12 +1327,11 @@ package body Gnatcheck.Projects is
            GNAT.Command_Line.Getopt
              ("v q t h hx s "               &
               "m? files= a "                &
-              "vP! eL -config! "            &   --  project-specific options
+              "vP! eL "            &   --  project-specific options
               "-brief "                     &
               "-check-redefinition "        &
               "-no_objects_dir "            &
               "-subdirs= "                  &
-              "-target= "                   &
               "-kp-version= "               &
               "j! "                         &
               "o= "                         &
@@ -1586,40 +1591,9 @@ package body Gnatcheck.Projects is
                   then
                      Ignore_Project_Switches := True;
 
-                  elsif Full_Switch (Parser => Parser) = "-target" then
-                     Free (Target);
-                     Target := new String'(Parameter (Parser => Parser));
-
                   elsif Full_Switch (Parser => Parser) = "-RTS" then
                      Free (RTS_Path);
                      RTS_Path := new String'(Parameter (Parser => Parser));
-
-                  elsif Full_Switch (Parser => Parser) = "-config" then
-                     if Args_From_Project then
-                        Error ("configuration project cannot be set in " &
-                                 "a project file");
-                        raise Parameter_Error;
-                     else
-                        declare
-                           Arg : constant String :=
-                             Parameter (Parser => Parser);
-                        begin
-                           --  Mimicking gprtools behaviour, --config accepts
-                           --  only '=' as a delimiter.
-                           if Arg'Length > 1 and then Arg (Arg'First) = '='
-                           then
-                              My_Project.Store_CGPR_Source
-                                (Arg (Arg'First + 1 .. Arg'Last));
-                           else
-                              Error
-                                ("invalid switch: "
-                                 & Full_Switch (Parser => Parser)
-                                 &  Parameter (Parser => Parser));
-                              raise Parameter_Error;
-                           end if;
-
-                        end;
-                     end if;
 
                   elsif Full_Switch (Parser => Parser) = "-subdirs" then
                      Set_Subdir_Name (Parameter (Parser => Parser));
@@ -1680,6 +1654,7 @@ package body Gnatcheck.Projects is
    ----------------------
 
    procedure Check_Parameters is
+      use Ada.Strings.Unbounded;
    begin
       if Verbose_Mode and then not Arg.Aggregated_Project then
          --  When procressing aggregated projects one by one, we want
@@ -1784,8 +1759,8 @@ package body Gnatcheck.Projects is
                  and then Match (KP_Version.all, Rule.Impact.all)
                then
                   if Rule.Target /= null
-                    and then Target.all /= ""
-                    and then not Match (Target.all, Rule.Target.all)
+                    and then Target /= Null_Unbounded_String
+                    and then not Match (To_String (Target), Rule.Target.all)
                   then
                      if not Quiet_Mode then
                         Info
