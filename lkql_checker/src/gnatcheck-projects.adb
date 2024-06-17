@@ -37,7 +37,6 @@ with GPR2.Containers;
 with GPR2.Context;
 with GPR2.KB;
 with GPR2.Log;
-with GPR2.Options;
 with GPR2.Path_Name;
 with GPR2.Project.Attribute;
 with GPR2.Project.Attribute_Index;
@@ -425,10 +424,7 @@ package body Gnatcheck.Projects is
            (Filename         => My_Project.Project_Path_Object,
             Context          => Project_Context,
             Config           => Conf_Obj,
-            Subdirs          =>
-              (if Subdir_Name = null then
-                    No_Name
-               else Name_Type (Subdir_Name.all)),
+            Subdirs          => Name_Type (Subdir_Name),
             Check_Shared_Lib => False);
 
          if My_Project.Tree.Has_Runtime_Project then
@@ -446,10 +442,7 @@ package body Gnatcheck.Projects is
          My_Project.Tree.Load_Autoconf
            (Filename          => My_Project.Project_Path_Object,
             Context           => Project_Context,
-            Subdirs           =>
-              (if Subdir_Name = null then
-                 No_Name
-               else Name_Type (Subdir_Name.all)),
+            Subdirs           => Name_Type (Subdir_Name),
             Target            =>
               Optional_Name_Type (To_String (Target)),
             Language_Runtimes => RTS,
@@ -483,10 +476,7 @@ package body Gnatcheck.Projects is
            (Filename_Type (Get_Aggregated_Project)),
          Context           => Agg_Context,
          Config            => Conf_Obj,
-         Subdirs           =>
-           (if Subdir_Name = null then
-                 No_Name
-            else Name_Type (Subdir_Name.all)));
+         Subdirs           => Name_Type (Subdir_Name));
 
       if not My_Project.Tree.Has_Runtime_Project then
          for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
@@ -560,10 +550,7 @@ package body Gnatcheck.Projects is
            (Filename         => Prj_File,
             Context          => Project_Context,
             Config           => Conf_Obj,
-            Subdirs          =>
-              (if Subdir_Name = null
-               then No_Name
-               else Name_Type (Subdir_Name.all)),
+            Subdirs          => Name_Type (Subdir_Name),
             Check_Shared_Lib => False);
 
          if My_Project.Tree.Has_Runtime_Project then
@@ -581,10 +568,7 @@ package body Gnatcheck.Projects is
          My_Project.Tree.Load_Autoconf
            (Filename          => Prj_File,
             Context           => Project_Context,
-            Subdirs           =>
-              (if Subdir_Name = null then
-                    No_Name
-               else Name_Type (Subdir_Name.all)),
+            Subdirs           => Name_Type (Subdir_Name),
             Check_Shared_Lib  => False,
             Target            => Optional_Name_Type (To_String (Target)),
             Language_Runtimes => RTS,
@@ -645,10 +629,7 @@ package body Gnatcheck.Projects is
                  (Filename          => Aggregated_Prj_Name,
                   Context           => Agg_Context,
                   Config            => Conf_Obj,
-                  Subdirs           =>
-                    (if Subdir_Name = null
-                     then No_Name
-                     else Name_Type (Subdir_Name.all)));
+                  Subdirs           => Name_Type (Subdir_Name));
 
                if not My_Project.Tree.Has_Runtime_Project then
                   for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
@@ -882,7 +863,8 @@ package body Gnatcheck.Projects is
               (GNAT.Directory_Operations.Get_Current_Dir));
 
       Dir : constant String :=
-        (if not No_Object_Dir and then Gnatcheck_Prj.Is_Specified then
+        (if not Arg.No_Object_Dir.Get and then Gnatcheck_Prj.Is_Specified
+         then
            (if My_Project.Tree.Root_Project.Kind in K_Abstract |
                                                     K_Aggregate then
                My_Project.Tree.Root_Project.Path_Name.Dir_Name
@@ -899,16 +881,17 @@ package body Gnatcheck.Projects is
    -- Set_Subdir_Name --
    ---------------------
 
-   procedure Set_Subdir_Name (S : String) is
+   function Subdir_Name return String is
+      use Ada.Strings.Unbounded;
    begin
-      Free (Subdir_Name);
-      if S = "" then
-         Subdir_Name := new String'("gnatcheck");
+      if Arg.Subdirs.Get = Null_Unbounded_String then
+         return "gnatcheck";
       else
-         Subdir_Name := new String'
-           (S & GNAT.OS_Lib.Directory_Separator & "gnatcheck");
+         return To_String (Arg.Subdirs.Get)
+           & GNAT.OS_Lib.Directory_Separator
+           & "gnatcheck";
       end if;
-   end Set_Subdir_Name;
+   end Subdir_Name;
 
    ----------------
    -- Source_Prj --
@@ -1268,11 +1251,6 @@ package body Gnatcheck.Projects is
       Initial_Char      : Character;
       Success           : Boolean;
 
-      Print_Registry_Option : constant String :=
-        GPR2.Options.Print_GPR_Registry_Option
-          (GPR2.Options.Print_GPR_Registry_Option'First + 1 ..
-           GPR2.Options.Print_GPR_Registry_Option'Last);
-
    --  Start of processing for Scan_Arguments
 
    begin
@@ -1329,20 +1307,13 @@ package body Gnatcheck.Projects is
              ("v h hx "                     &
               "m? files= a "                &
               "vP! "                        &   --  project-specific options
-              "-check-redefinition "        &
-              "-no_objects_dir "            &
-              "-subdirs= "                  &
               "-kp-version= "               &
               "j! "                         &
               "o= "                         &
               "ox= "                        &
               "l log "                      &
-              "-include-file= "             &
               "-subprocess "                &
               "-version -help "             &
-              "-ignore= "                   &
-              "-ignore-project-switches "   &
-              Print_Registry_Option & " "   &
               "nt xml",
               Parser => Parser);
 
@@ -1503,24 +1474,7 @@ package body Gnatcheck.Projects is
 
             when '-' =>
                if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "-check-redefinition"
-                  then
-                     Check_Param_Redefinition := True;
-                  elsif Full_Switch (Parser => Parser) = "-ignore" then
-                     if Is_Regular_File (Parameter (Parser => Parser)) then
-                        Exempted_Units :=
-                          new String'(Normalize_Pathname
-                                        (Parameter (Parser => Parser)));
-                     else
-                        Error (Parameter (Parser => Parser) & " not found");
-                        raise Parameter_Error;
-                     end if;
-
-                  elsif Full_Switch (Parser => Parser) = "-include-file" then
-                     Gnatcheck.Diagnoses.Process_User_Filename
-                       (Parameter (Parser => Parser));
-
-                  elsif Full_Switch (Parser => Parser) = "-kp-version" then
+                  if Full_Switch (Parser => Parser) = "-kp-version" then
                      Free (KP_Version);
                      KP_Version := new String'(Parameter (Parser => Parser));
                   end if;
@@ -1544,21 +1498,6 @@ package body Gnatcheck.Projects is
                      end if;
 
                      Print_Version := True;
-
-                  elsif Full_Switch (Parser => Parser) =
-                        "-ignore-project-switches"
-                  then
-                     Ignore_Project_Switches := True;
-
-                  elsif Full_Switch (Parser => Parser) = "-subdirs" then
-                     Set_Subdir_Name (Parameter (Parser => Parser));
-
-                  elsif Full_Switch (Parser => Parser) = "-no_objects_dir" then
-                     No_Object_Dir := True;
-
-                  elsif Full_Switch (Parser => Parser) = Print_Registry_Option
-                  then
-                     Print_Gpr_Registry := True;
 
                   end if;
                end if;
