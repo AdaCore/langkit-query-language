@@ -31,8 +31,6 @@ with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
-with GNATCOLL.Traces;
-
 with GPR2.Containers;
 with GPR2.Context;
 with GPR2.KB;
@@ -51,6 +49,7 @@ with GPR2.Project.View.Set;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
+with GNATCOLL.Traces;
 
 with Rule_Commands; use Rule_Commands;
 
