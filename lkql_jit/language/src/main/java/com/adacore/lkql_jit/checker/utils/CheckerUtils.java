@@ -260,11 +260,6 @@ public class CheckerUtils {
         }
 
         @Override
-        public boolean useFullFilePath() {
-            return true;
-        }
-
-        @Override
         public String kindtoString(MessageKind messageKind) {
             return switch (messageKind) {
                 case WARNING -> "warning";
@@ -278,9 +273,7 @@ public class CheckerUtils {
 
             this.emitDiagnostic(
                     isError ? MessageKind.ERROR : MessageKind.WARNING,
-                    "internal error: File "
-                            + (useFullFilePath() ? fileName : FileUtils.baseName(fileName))
-                            + " not found",
+                    "internal error: File " + (FileUtils.baseName(fileName)) + " not found",
                     from,
                     null,
                     "");
