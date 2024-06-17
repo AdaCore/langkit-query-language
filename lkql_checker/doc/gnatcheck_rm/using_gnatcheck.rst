@@ -36,20 +36,13 @@ The following switches control the general ``gnatcheck`` behavior
 
 
 ``-U``
-  If a project file is specified and no argument source is explicitly
-  specified (either directly or by means of ``-files`` option), process
-  all the units of the closure of the argument project. Otherwise this option
-  has no effect.
-
-  .. index:: -U main_unit
-
-
-``-U main_unit``
-  If a project file is specified and no argument source is explicitly
-  specified (either directly or by means of ``-files`` option), process
-  the closure of units rooted at `main_unit`. Otherwise this option
-  has no effect. ``main_unit`` should be the name of a source file that contains
-  the main unit of closure.
+  If a project file is specified and no argument source is provided,
+  process all units of the closure of the argument project.
+  If explicit argument sources are specified directly through the command-line
+  alongside the ``-U`` flag, they will be considered as closure roots for
+  source fetching and not as explicit source files.
+  If explicit argument sources are passed through `-files`, this option has no
+  effect.
 
   .. index:: --no-subprojects
 
