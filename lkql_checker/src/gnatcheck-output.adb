@@ -683,7 +683,10 @@ package body Gnatcheck.Output is
          Info (" -eL              - follow all symbolic links when processing project files");
          Info (" -o filename      - specify the name of the report file");
          Info ("");
+
+         --  TODO: Remove when we switch to Opt_Parse's help message
          Info (" --target=targetname - specify a target for cross platforms");
+
          Info (" --RTS=<runtime>     - use runtime <runtime>");
          Info ("");
          Info (" -h   - print out the list of the available kp detectors");
@@ -738,9 +741,15 @@ package body Gnatcheck.Output is
       Info (" -eL              - follow all symbolic links when processing project files");
       Info ("");
       Info (" --ignore-project-switches - ignore switches specified in the project file");
+
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --target=targetname       - specify a target for cross platforms");
+
       Info (" --RTS=<runtime>           - use runtime <runtime>");
+
+      --  TODO: Remove when we switch to Opt_Parse's help message
       Info (" --config=<cgpr>           - use configuration project <cgpr>");
+
       Info ("");
       Info (" -h   - print out the list of the currently implemented rules");
       Info (" -mn  - n is the maximal number of diagnoses in Stderr");
