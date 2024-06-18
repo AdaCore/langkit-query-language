@@ -946,6 +946,26 @@ package body Gnatcheck.Projects is
       Process_Compiler_Instances;
    end Process_Rule_Options;
 
+   ---------------------
+   -- Add_Rule_Option --
+   ---------------------
+
+   procedure Add_Rule_Option
+     (Opt     : String;
+      Prepend : Boolean := False)
+   is
+      use Ada.Strings.Unbounded;
+
+      Opt_Rec : constant Option_Record :=
+        (Option, To_Unbounded_String (Trim (Opt, Both)));
+   begin
+      if Prepend then
+         Rule_Options.Prepend (Opt_Rec);
+      else
+         Rule_Options.Append (Opt_Rec);
+      end if;
+   end Add_Rule_Option;
+
    --------------------
    -- Scan_Arguments --
    --------------------
@@ -1037,14 +1057,7 @@ package body Gnatcheck.Projects is
                   end if;
 
                when others =>
-                  Rule_Options.Append
-                    (Option_Record'(Option,
-                      To_Unbounded_String
-                        (Ada.Strings.Fixed.Trim
-                           (Full_Switch (Parser => Parser),
-                         Ada.Strings.Both))));
-                  --  We use the call to Trim here because there can be a rule
-                  --  option in quotation marks
+                  Add_Rule_Option (Full_Switch (Parser => Parser));
                   Individual_Rules_Set := True;
             end case;
          end loop;
@@ -1088,6 +1101,7 @@ package body Gnatcheck.Projects is
             Disallow (Arg.Transitive_Closure.This, In_Project_Msg);
             Disallow (Arg.Scenario_Vars.This, In_Project_Msg);
             Disallow (Arg.Follow_Symbolic_Links.This, In_Project_Msg);
+            Disallow (Arg.Rules.This, In_Project_Msg);
          end;
       end if;
 
@@ -1109,6 +1123,7 @@ package body Gnatcheck.Projects is
          Allow (Arg.Aggregate_Subproject.This);
          Allow (Arg.Project_File.This);
          Allow (Arg.Follow_Symbolic_Links.This);
+         Allow (Arg.Rules.This);
       end if;
 
       loop

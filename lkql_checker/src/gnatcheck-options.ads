@@ -440,6 +440,16 @@ package Gnatcheck.Options is
          Convert     => Jobs_Convert,
          Help        => "the maximal number of processes");
 
+      package Rules is new Parse_Option_List
+        (Parser                    => Parser,
+         Short                     => "-r",
+         Long                      => "--rule",
+         Arg_Type                  => Unbounded_String,
+         Accumulate                => True,
+         Allow_Collated_Short_Form => False,
+         Help                      =>
+           "enable the given rules for the GNATcheck run");
+
       function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
 
       function Short_Report return Boolean is (Brief.Get or else Short.Get);
