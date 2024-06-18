@@ -1,1 +1,9 @@
+Classic argument object
+=======================
+
+main.adb:1:09: unit "Ada.Text_IO" is not referenced
+
+Shortcut argument
+=================
+
 main.adb:1:09: unit "Ada.Text_IO" is not referenced

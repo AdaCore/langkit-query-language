@@ -1,5 +1,9 @@
 driver: gnatcheck
 format: brief
 input_sources:
- - main.adb
-lkql_rule_file: config.lkql
+  - main.adb
+tests:
+  - label: Classic argument object
+    lkql_rule_file: config.lkql
+  - label: Shortcut argument
+    lkql_rule_file: short.lkql

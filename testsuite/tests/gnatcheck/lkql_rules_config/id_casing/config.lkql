@@ -1,3 +1,3 @@
 val rules = @{
-    identifier_casing: [{exclude: "exclude.txt", type: "Mixed", constant: "UPPER"}]
+    identifier_casing: {exclude: "exclude.txt", type: "Mixed", constant: "UPPER"}
 }

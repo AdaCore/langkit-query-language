@@ -1,5 +1,5 @@
 val rules = @{
-    identifier_suffixes: [{type_suffix: "_T", instance_name: "my_alias"}]
+    identifier_suffixes: {type_suffix: "_T", instance_name: "my_alias"}
 }
 
 val ada_rules = @{

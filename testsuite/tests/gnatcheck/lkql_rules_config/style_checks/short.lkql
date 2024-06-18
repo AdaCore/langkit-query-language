@@ -1,0 +1,3 @@
+val rules = @{
+    style_checks: "xz"
+}
