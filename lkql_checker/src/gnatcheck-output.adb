@@ -688,6 +688,7 @@ package body Gnatcheck.Output is
          Info (" --check-semantic       - check semantic validity of the source files");
          Info (" --charset=<charset>    - specify the charset of the source files");
          Info (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
+         Info (" -r [kp_ids]            - enable the given kp detectors during the GNATKP run");
          Info ("");
          Info (" -from=filename    - read kp options from filename");
          Info (" +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
@@ -749,11 +750,12 @@ package body Gnatcheck.Output is
       Info (" -o filename   - specify the name of the text report file");
       Info (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
       Info ("");
-      Info ("filename                 - the name of the Ada source file to be analyzed.");
+      Info (" filename                 - the name of the Ada source file to be analyzed.");
       Info ("                           Wildcards are allowed");
-      Info ("-files=filename          - the name of the text file containing a list of Ada");
+      Info (" -files=filename          - the name of the text file containing a list of Ada");
       Info ("                           source files to analyze");
-      Info ("--ignore=filename        - do not process sources listed in filename");
+      Info (" --ignore=filename        - do not process sources listed in filename");
+      Info (" -r [rule_names]          - enable the given rules during the GNATcheck run");
       Info ("");
       Info ("rule_switches          - a list of the following switches");
       Info ("   -from=filename      - read rule options from filename");

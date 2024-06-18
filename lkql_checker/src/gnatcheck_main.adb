@@ -4,11 +4,12 @@
 --
 
 with Ada.Calendar;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded;
-with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Text_IO;             use Ada.Text_IO;
 
 with Checker_App;
 
@@ -433,6 +434,19 @@ begin
    then
       Extract_Tool_Options (Gnatcheck_Prj);
    end if;
+
+   --  Add the command-line rules to the rule options. Do this before the
+   --  second argument parsing to avoid duplicate rule names coming from the
+   --  command-line.
+   for Rule of Arg.Rules.Get loop
+      declare
+         Lower_Rule : constant String := To_Lower (To_String (Rule));
+         Prefix : constant String :=
+           (if Lower_Rule = "all" then "+" else "+R");
+      begin
+         Add_Rule_Option (Prefix & Lower_Rule, Prepend => True);
+      end;
+   end loop;
 
    --  Then analyze the command-line parameters
 

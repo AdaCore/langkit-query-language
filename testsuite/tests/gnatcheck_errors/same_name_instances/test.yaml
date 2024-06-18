@@ -2,9 +2,23 @@ driver: gnatcheck
 format: brief
 input_sources:
   - main.adb
-rules:
-  - +R:same_alias:goto_statements
-  - +R:same_alias:integer_types_as_enum
-  - +R:comp_check:Style_Checks:xz
-  - +R:comp_check:Warnings:u
-  - +R:comp_check:Restrictions:No_Access_Subprograms
+tests:
+  - label: In rule options
+    rules:
+      - +R:same_alias:goto_statements
+      - +R:same_alias:integer_types_as_enum
+      - +R:comp_check:Style_Checks:xz
+      - +R:comp_check:Warnings:u
+      - +R:comp_check:Restrictions:No_Access_Subprograms
+  - label: In command-line
+    extra_args:
+      - -r
+      - goto_statements
+      - -r
+      - goto_statements
+  - label: In command-line and rule options
+    extra_args:
+      - -r
+      - goto_statements
+    rule_file: rules.txt
+canonicalize_backslashes: True

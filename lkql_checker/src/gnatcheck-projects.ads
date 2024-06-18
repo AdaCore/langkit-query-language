@@ -234,6 +234,12 @@ package Gnatcheck.Projects is
    procedure Process_Rule_Options;
    --  Process all the rule options found as part of scanning arguments
 
+   procedure Add_Rule_Option
+     (Opt     : String;
+      Prepend : Boolean := False);
+   --  Add the given ``Opt`` to the list of rule options processed by
+   --  ``Process_Rule_Options`` as a command-line rule option (e.g. +R...).
+
    procedure Scan_Arguments
      (My_Project : in out Arg_Project_Type;
       First_Pass : Boolean    := False;

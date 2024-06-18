@@ -1,0 +1,2 @@
+main.adb:3:04: goto statement
+main.adb:4:04: redundant null statement
