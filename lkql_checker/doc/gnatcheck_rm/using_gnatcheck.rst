@@ -255,6 +255,12 @@ The following switches control the general ``gnatcheck`` behavior
 ``-ox report_file``
   Set name of the XML report file to `report_file`. Enforces  ``-xml``.
 
+``-r=[rule_names]``
+  Enable the given rules for the current GNATcheck run. ``[rule_names]`` is
+  a space separated list of rule names.
+  You cannot provide parameters to a rules through this command-line option,
+  to do so, please use a :ref:`LKQL_options_file`.
+
 ``-rules rules_options``
   Provide rule options for the current GNATcheck run through the command-line.
   All switches and options provided after this flag will be parse as
@@ -406,11 +412,12 @@ LKQL rule options file
 ----------------------
 
 You can configure GNATcheck rules using an LKQL file, provided with the ``-from-lkql``
-command-line option. This file must be a valid LKQL file that exports at least a
-``rules`` top-level symbol. This symbol must refer to an object value containing rules
-configuration; keys are GNATcheck rules to enable; and values are lists of objects
-containing rule parameter. An rule parameter value can be a boolean, an integer,
-a string or an list of strings.
+command-line option (see :ref:`gnatcheck_Rule_Options`).
+This file must be a valid LKQL file that exports at least a ``rules`` top-level
+symbol. This symbol must refer to an object value containing rules configuration;
+keys are GNATcheck rules to enable; and values are lists of objects containing
+rule parameter. An rule parameter value can be a boolean, an integer, a string
+or an list of strings.
 
 ::
 

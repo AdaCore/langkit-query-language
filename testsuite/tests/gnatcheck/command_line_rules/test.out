@@ -1,0 +1,12 @@
+Valid '-r' option
+=================
+
+main.adb:3:04: goto statement
+main.adb:4:04: redundant null statement
+
+Empty '-r' option
+=================
+
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

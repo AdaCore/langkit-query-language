@@ -241,6 +241,10 @@ package Gnatcheck.Projects is
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type);
    --  Extracts gnatcheck options from the project file
 
+   procedure Add_Rule_Option (Opt : String);
+   --  Add the given ``Opt`` to the list of rule options processed by
+   --  ``Process_Rule_Options`` as a command-line rule option (e.g. +R...).
+
    procedure Process_Rule_Options;
    --  Process all the rule options found as part of scanning arguments
 

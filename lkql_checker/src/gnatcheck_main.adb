@@ -441,6 +441,11 @@ begin
       end if;
    end if;
 
+   --  Add the command line rules to the rule options
+   for Rule of Arg.Rules.Get loop
+      Add_Rule_Option ("+R" & To_String (Rule));
+   end loop;
+
    --  Setup LKQL_RULES_PATH to point on built-in rules
 
    Setup_Search_Paths;

@@ -1,0 +1,15 @@
+driver: gnatcheck
+description: Check the '-r' option behavior
+format: brief
+input_sources:
+  - main.adb
+
+tests:
+  - label: Valid '-r' option
+    extra_args:
+      - -r
+      - goto_statements
+      - Redundant_Null_Statements
+  - label: Empty '-r' option
+    extra_args:
+      - -r
