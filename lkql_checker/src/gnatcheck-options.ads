@@ -122,14 +122,6 @@ package Gnatcheck.Options is
    Files_Switch_Used : Boolean := False;
    --  True if the files= switch was used
 
-   Process_Num : Natural := 1;
-   --  The maximal number of cores used
-   --  -jN
-
-   J_Specified : Boolean := False;
-   --  True if the -jN option was given. This is used to distinguish -j0 on a
-   --  uniprocessor from no -j switch.
-
    ----------------------------------------
    -- Flags computed from other settings --
    ----------------------------------------
@@ -247,6 +239,8 @@ package Gnatcheck.Options is
 
    procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String);
    procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String);
+
+   function Jobs_Convert (Arg : String) return Natural;
 
    package Arg is
       Parser : Argument_Parser := Create_Argument_Parser
@@ -431,6 +425,15 @@ package Gnatcheck.Options is
          Arg_Type    => Unbounded_String,
          Default_Val => Null_Unbounded_String,
          Help        => "do not process sources listed in filename");
+
+      package Jobs is new Parse_Option
+        (Parser      => Parser,
+         Short       => "-j",
+         Name        => "Jobs",
+         Arg_Type    => Natural,
+         Default_Val => 1,
+         Convert     => Jobs_Convert,
+         Help        => "the maximal number of processes");
 
       function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
 

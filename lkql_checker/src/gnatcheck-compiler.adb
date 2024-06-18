@@ -1781,9 +1781,9 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("--target=codepeer");
       end if;
 
-      if Process_Num > 1 then
+      if Arg.Jobs.Get > 1 then
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-j" & Image (Process_Num));
+         Args (Num_Args) := new String'("-j" & Image (Arg.Jobs.Get));
       end if;
 
       if Prj /= "" then

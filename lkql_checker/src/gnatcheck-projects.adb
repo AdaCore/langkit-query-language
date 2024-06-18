@@ -58,8 +58,6 @@ with GNATCOLL.Traces;
 
 with Rule_Commands; use Rule_Commands;
 
-with System.Multiprocessors;
-
 package body Gnatcheck.Projects is
 
    subtype Unbounded_String is Ada.Strings.Unbounded.Unbounded_String;
@@ -1118,7 +1116,6 @@ package body Gnatcheck.Projects is
               "m? files= a "                &
               "vP! "                        &   --  project-specific options
               "-kp-version= "               &
-              "j! "                         &
               "o= "                         &
               "ox= "                        &
               "l log "                      &
@@ -1182,27 +1179,6 @@ package body Gnatcheck.Projects is
                   elsif Full_Switch (Parser => Parser) = "hx" then
                      Generate_XML_Help := True;
                   end if;
-               end if;
-
-            when 'j' =>
-               if Full_Switch (Parser => Parser) = "j"
-                 and then not First_Pass
-               then
-                  begin
-                     J_Specified := True;
-                     Process_Num :=
-                       Natural'Value (Parameter (Parser => Parser));
-
-                     if Process_Num = 0 then
-                        Process_Num :=
-                          Positive (System.Multiprocessors.Number_Of_CPUs);
-                     end if;
-                  exception
-                     when Constraint_Error =>
-                        Error ("Wrong Parameter of '-j' option: " &
-                               Parameter (Parser => Parser));
-                        raise Parameter_Error;
-                  end;
                end if;
 
             when 'l' =>

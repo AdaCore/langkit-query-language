@@ -158,6 +158,7 @@ procedure Gnatcheck_Main is
       File          : Ada.Text_IO.File_Type;
       Status        : Boolean;
       Total_Jobs    : Natural;
+      Process_Num   : Natural := Arg.Jobs.Get;
    begin
       --  Compute number of files
 
