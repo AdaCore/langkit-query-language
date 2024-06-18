@@ -37,7 +37,7 @@ GNATcheck's predefined rules' parameters may have the following types:
    .. code-block:: lkql
 
       val rules = @{
-         My_Rule: [{Bool_Param: true}]
+         My_Rule: {Bool_Param: true}
       }
 
 *[int]*
@@ -54,7 +54,7 @@ GNATcheck's predefined rules' parameters may have the following types:
    .. code-block:: lkql
 
       val rules = @{
-         My_Rule: [{N: 5}] # If the rule param is named 'N'
+         My_Rule: {N: 5} # If the rule param is named 'N'
       }
 
 *[string]*
@@ -70,7 +70,7 @@ GNATcheck's predefined rules' parameters may have the following types:
    .. code-block:: lkql
 
       val rules = @{
-         My_Rule: [{Str: "i_am_a_string"}] # If the rule param is named 'Str'
+         My_Rule: {Str: "i_am_a_string"} # If the rule param is named 'Str'
       }
 
 *[list[string]]*
@@ -87,7 +87,7 @@ GNATcheck's predefined rules' parameters may have the following types:
    .. code-block:: lkql
 
       val rules = @{
-         My_Rule: [{Lst: ["One", "Two", "Three"]}] # If the rule param is named 'Lst'
+         My_Rule: {Lst: ["One", "Two", "Three"]} # If the rule param is named 'Lst'
       }
 
 
@@ -825,7 +825,7 @@ thus, it has no effect.
    .. code-block:: lkql
 
       val rules = @{
-         Forbidden_Aspects: [{Forbidden: ["one", "two"], Allowed: ["two"]}]
+         Forbidden_Aspects: {Forbidden: ["one", "two"], Allowed: ["two"]}
       }
 
 The rule allows parametric exemption, the parameters that are allowed in the
@@ -923,7 +923,7 @@ thus, it has no effect.
    .. code-block:: lkql
 
       val rules = @{
-         Forbidden_Attributes: [{Forbidden: ["X", "Y", "GNAT"], Allowed: ["Z"]}]
+         Forbidden_Attributes: {Forbidden: ["X", "Y", "GNAT"], Allowed: ["Z"]}
       }
 
 The rule allows parametric exemption, the parameters that are allowed in the
@@ -1027,7 +1027,7 @@ rule option.
    .. code-block:: lkql
 
       val rules = @{
-         Forbidden_Pragmas: [{Forbidden: ["gnat"], Allowed: ["Annotate"]}]
+         Forbidden_Pragmas: {Forbidden: ["gnat"], Allowed: ["Annotate"]}
       }
 
 The rule allows parametric exemption, the parameters that are allowed in the
@@ -1891,7 +1891,7 @@ options files:
    .. code-block:: lkql
 
       val rules = @{
-         Actual_Parameters: [{Forbidden: [("P.SubP", "Param", "Value")]}]
+         Actual_Parameters: {Forbidden: [("P.SubP", "Param", "Value")]}
       }
 
 For all the calls to ``subprogram`` the rule checks if the called subprogram
@@ -2615,7 +2615,7 @@ options files:
    .. code-block:: lkql
 
       val rules = @{
-         Exception_Propagation_From_Callbacks: [{Forbidden: [("P.SubP", "Param")]}]
+         Exception_Propagation_From_Callbacks: {Forbidden: [("P.SubP", "Param")]}
       }
 
 Note that if a rule parameter does not denote the name of an existing
@@ -4611,7 +4611,7 @@ the pragma ``Restrictions`` or ``Restriction_Warnings``.
    .. code-block:: lkql
 
       val rules = @{
-         Restrictions: [{Arg: ["Max_Task_Entries=>2", "No_Access_Subprograms"]}]
+         Restrictions: {Arg: ["Max_Task_Entries=>2", "No_Access_Subprograms"]}
       }
 
 If your code contains pragmas ``Warnings`` with parameter ``Off``, this may
@@ -4799,7 +4799,7 @@ options files:
    .. code-block:: lkql
 
       val rules = @{
-         Silent_Exception_Handlers: [{Subprograms: ["My.Expanded.Name", "|My\.Regex\..*"]}]
+         Silent_Exception_Handlers: {Subprograms: ["My.Expanded.Name", "|My\.Regex\..*"]}
       }
 
 Note that if you specify the rule with parameters in a command shell, you may
@@ -5712,7 +5712,16 @@ mentioned above).
 
    .. code-block:: lkql
 
-      val rules = @{ Warnings: [{Arg: "u"}] }
+      val rules = @{ Warnings: {Arg: "u"} }
+
+   You can also use the shortcut argument format by associating a simple string
+   to the rule name:
+
+   .. code-block:: lkql
+
+      val rules = @{
+         Warnings: "u"
+      }
 
 Note that ``s`` and ``e`` parameters, corresponding respectively to GNAT
 ``-gnatws`` and ``-gnatwe`` options, are not allowed for the ``Warnings``
@@ -6718,7 +6727,16 @@ the compiler style check that corresponds to ``-gnatyO`` style check option.
 
    .. code-block:: lkql
 
-      val rules = @{ Style_Checks: [{Arg: "xz"}] }
+      val rules = @{ Style_Checks: {Arg: "xz"} }
+
+   You can also use the shortcut argument format by associating a simple string
+   to the rule name:
+
+   .. code-block:: lkql
+
+      val rules = @{
+         Style_Checks: "xz"
+      }
 
 This rule allows parametric rule exemptions, the parameters
 that are allowed in the definition of exemption sections are the

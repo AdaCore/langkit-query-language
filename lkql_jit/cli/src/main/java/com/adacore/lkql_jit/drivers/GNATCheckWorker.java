@@ -354,64 +354,111 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // Iterate on all instance object keys
         for (String ruleName : instancesObject.getMemberKeys()) {
             final String lowerRuleName = ruleName.toLowerCase();
-            final Value argList = instancesObject.getMember(ruleName);
+            final Value args = instancesObject.getMember(ruleName);
 
             // Check that the value associated to the rule name is an array like value
-            if (!argList.hasArrayElements()) {
-                errorInLKQLRuleFile(lkqlRuleFile, "Rule arguments must be an indexable value");
-                continue;
-            }
-
-            // If there is elements in the argument list, process it.
-            final long argListSize = argList.getArraySize();
-            if (argListSize == 0) {
-                if (toPopulate.containsKey(lowerRuleName)) {
-                    errorInLKQLRuleFile(
-                            lkqlRuleFile,
-                            "Multiple instances with the same name: " + lowerRuleName);
-                } else {
-                    toPopulate.put(
-                            lowerRuleName,
-                            new RuleInstance(
-                                    lowerRuleName, Optional.empty(), sourceMode, new HashMap<>()));
-                }
-            }
-
-            // Else iterate over each argument object and create one instance for each
-            else {
-                for (long i = 0; i < argListSize; i++) {
-                    String instanceId = lowerRuleName;
-                    Optional<String> instanceName = Optional.empty();
-                    final Map<String, String> arguments = new HashMap<>();
-                    final Value argObject = argList.getArrayElement(i);
-                    for (String argName : argObject.getMemberKeys()) {
-                        if (argName.equals("instance_name")) {
-                            final String aliasName =
-                                    argObject.getMember("instance_name").asString();
-                            instanceId = aliasName.toLowerCase();
-                            instanceName = Optional.of(aliasName);
-                        } else {
-                            Value argValue = argObject.getMember(argName);
-                            arguments.put(
-                                    argName,
-                                    argValue.isString()
-                                            ? "\"" + argValue + "\""
-                                            : argValue.toString());
-                        }
-                    }
-                    if (toPopulate.containsKey(instanceId)) {
+            if (args.hasArrayElements()) {
+                // If there is no element in the argument list, just create an instance with no
+                // argument and no alias.
+                if (args.getArraySize() == 0) {
+                    if (toPopulate.containsKey(lowerRuleName)) {
                         errorInLKQLRuleFile(
                                 lkqlRuleFile,
-                                "Multiple instances with the same name: " + instanceId);
+                                "Multiple instances with the same name: " + lowerRuleName);
                     } else {
                         toPopulate.put(
-                                instanceId,
+                                lowerRuleName,
                                 new RuleInstance(
-                                        lowerRuleName, instanceName, sourceMode, arguments));
+                                        lowerRuleName,
+                                        Optional.empty(),
+                                        sourceMode,
+                                        new HashMap<>()));
                     }
+                }
+
+                // Else iterate over each argument object and create one instance for each
+                else {
+                    for (long i = 0; i < args.getArraySize(); i++) {
+                        processArgsObject(
+                                lkqlRuleFile,
+                                args.getArrayElement(i),
+                                sourceMode,
+                                lowerRuleName,
+                                toPopulate);
+                    }
+                }
+            } else if (args.hasMembers()) {
+                processArgsObject(lkqlRuleFile, args, sourceMode, lowerRuleName, toPopulate);
+            } else {
+                // Allow sole arguments for some rules
+                if (acceptSoleArgs(lowerRuleName) && args.isString()) {
+                    processSoleArg(args, sourceMode, lowerRuleName, toPopulate);
+                } else {
+                    errorInLKQLRuleFile(
+                            lkqlRuleFile, "Rule arguments must be an object or indexable value");
                 }
             }
         }
+    }
+
+    /** Internal method to process an object value containing arguments for the given rule name. */
+    private static void processArgsObject(
+            final String lkqlRuleFile,
+            final Value argsObject,
+            final RuleInstance.SourceMode sourceMode,
+            final String ruleName,
+            final Map<String, RuleInstance> toPopulate) {
+        // Ensure that the given value has members (is an object)
+        if (!argsObject.hasMembers()) {
+            errorInLKQLRuleFile(lkqlRuleFile, "Arguments should be in an object value");
+        }
+
+        // If this is a valid value, process arguments in it
+        else {
+            // Compute the instance arguments and optional instance name
+            String instanceId = ruleName;
+            Optional<String> instanceName = Optional.empty();
+            Map<String, String> arguments = new HashMap<>();
+            for (String argName : argsObject.getMemberKeys()) {
+                if (argName.equals("instance_name")) {
+                    String aliasName = argsObject.getMember("instance_name").asString();
+                    instanceId = aliasName.toLowerCase();
+                    instanceName = Optional.of(aliasName);
+                } else {
+                    Value argValue = argsObject.getMember(argName);
+                    arguments.put(
+                            argName,
+                            argValue.isString() ? "\"" + argValue + "\"" : argValue.toString());
+                }
+            }
+
+            // Add an instance in the instance map if it is not present
+            if (toPopulate.containsKey(instanceId)) {
+                errorInLKQLRuleFile(
+                        lkqlRuleFile, "Multiple instances with the same name: " + instanceId);
+            } else {
+                toPopulate.put(
+                        instanceId,
+                        new RuleInstance(ruleName, instanceName, sourceMode, arguments));
+            }
+        }
+    }
+
+    /** Internal function to process a sole string argument for a compiler-based rule. */
+    private static void processSoleArg(
+            final Value arg,
+            final RuleInstance.SourceMode sourceMode,
+            final String ruleName,
+            final Map<String, RuleInstance> toPopulate) {
+        // Create the new rule instance and add it to the "global" map
+        Map<String, String> args = new HashMap<>();
+        args.put("arg", "\"" + arg + "\"");
+        toPopulate.put(ruleName, new RuleInstance(ruleName, Optional.empty(), sourceMode, args));
+    }
+
+    /** Util function which returns whether a rule accepts sole argument. */
+    private static boolean acceptSoleArgs(final String ruleName) {
+        return List.of("style_checks", "warnings").contains(ruleName);
     }
 
     // ----- The LKQL checker -----
