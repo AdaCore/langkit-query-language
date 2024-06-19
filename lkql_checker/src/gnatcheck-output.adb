@@ -755,6 +755,7 @@ package body Gnatcheck.Output is
       Info (" -files=filename          - the name of the text file containing a list of Ada");
       Info ("                           source files to analyze");
       Info (" --ignore=filename        - do not process sources listed in filename");
+      Info (" --rule-file=filename     - read rule configuration from the given LKQL file");
       Info (" -r [rule_names]          - enable the given rules during the GNATcheck run");
       Info ("");
       Info ("rule_switches          - a list of the following switches");

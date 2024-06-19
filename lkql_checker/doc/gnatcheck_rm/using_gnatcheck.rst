@@ -177,6 +177,12 @@ The following switches control the general ``gnatcheck`` behavior
   Do not process the sources listed in a specified file, using the same syntax as
   for the ``-files`` switch.
 
+  .. index:: --rule-file
+
+``--rule-file=filename``
+  Load the given file as an LKQL rule options file (see :ref:`LKQL_options_file`
+  for more information).
+
   .. index:: --show-rule
 
 ``--show-rule``
@@ -411,8 +417,11 @@ file directory if gnatcheck is called with a project file as an argument.
 LKQL rule options file
 ----------------------
 
-You can configure GNATcheck rules using an LKQL file, provided with the ``-from-lkql``
-command-line option (see :ref:`gnatcheck_Rule_Options`).
+You can configure GNATcheck rules using an LKQL file, provided through the
+``--rule-file`` command-line option, or with the ``-from-lkql`` rule option
+(see :ref:`gnatcheck_Rule_Options`). Please note that you can only provide
+one LKQL rule file for a GNATcheck run.
+
 This file must be a valid LKQL file that exports at least a ``rules`` top-level
 symbol. This symbol must refer to an object value containing rules
 configuration; keys are GNATcheck rules to enable; and values are objects
