@@ -219,9 +219,8 @@ package Gnatcheck.Options is
    --  If More_Then_One_Rule_File_Set is OFF and if a rule file has been
    --  processed, keeps the name of this file, otherwise is null.
 
-   LKQL_Rule_File_Name : GNAT.OS_Lib.String_Access;
-   --  Contains the name of the LKQL file to use for rule configuration if
-   --  one has been provided, otherwise is null.
+   LKQL_Rule_File_Name : Unbounded_String := Null_Unbounded_String;
+   --  Name of the LKQL file to process as a rule file.
 
    ---------------------
    -- Project support --
@@ -449,6 +448,13 @@ package Gnatcheck.Options is
          Allow_Collated_Short_Form => False,
          Help                      =>
            "enable the given rules for the GNATcheck run");
+
+      package Rule_File is new Parse_Option
+        (Parser => Parser,
+         Long => "--rule-file",
+         Arg_Type => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help => "read rule configuration from the given LKQL file");
 
       function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
 

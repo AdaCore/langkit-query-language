@@ -378,9 +378,6 @@ package body Gnatcheck.Compiler is
                end if;
 
                --  Get the rule information and save the diagnosis about it.
-               --  Important: Here we don't use the instance map because of the
-               --  `-from-lkql` option which can define and enable rules
-               --  without the driver knowing.
                Id := Get_Rule (Rule_Name);
                Store_Diagnosis
                  (Text           => Gnatcheck.Source_Table.File_Name (SF) &

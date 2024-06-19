@@ -918,7 +918,7 @@ package body Gnatcheck.Projects is
    -- Process_Rule_Options --
    --------------------------
 
-   type Option_Kind is (File, LKQL_File, Option);
+   type Option_Kind is (File, Option);
 
    type Option_Record is record
       Kind  : Option_Kind;
@@ -933,12 +933,16 @@ package body Gnatcheck.Projects is
    procedure Process_Rule_Options is
       use Ada.Strings.Unbounded;
    begin
+      --  First of all, process the provided LKQL rule file
+      if LKQL_Rule_File_Name /= Null_Unbounded_String then
+         Process_LKQL_Rule_File (To_String (LKQL_Rule_File_Name));
+      end if;
+
+      --  Then process the legacy rule options
       for O of Rule_Options loop
          case O.Kind is
             when File =>
                Process_Rule_File (To_String (O.Value));
-            when LKQL_File =>
-               Process_LKQL_Rule_File (To_String (O.Value));
             when Option =>
                Process_Rule_Option (To_String (O.Value), Defined_At => "");
          end case;
@@ -965,6 +969,21 @@ package body Gnatcheck.Projects is
          Rule_Options.Append (Opt_Rec);
       end if;
    end Add_Rule_Option;
+
+   ------------------------
+   -- Set_LKQL_Rule_File --
+   ------------------------
+
+   procedure Set_LKQL_Rule_File (File : String) is
+      use Ada.Strings.Unbounded;
+   begin
+      if LKQL_Rule_File_Name = Null_Unbounded_String then
+         LKQL_Rule_File_Name := To_Unbounded_String (File);
+      else
+         Error ("only one LKQL configuration file is allowed");
+         Rule_Option_Problem_Detected := True;
+      end if;
+   end Set_LKQL_Rule_File;
 
    --------------------
    -- Scan_Arguments --
@@ -1026,34 +1045,21 @@ package body Gnatcheck.Projects is
 
          loop
             case GNAT.Command_Line.Getopt
-              ("* from= from-lkql=", Parser => Parser) is
+              ("* from=", Parser => Parser) is
             --  We do not want to depend on the set of the currently
             --  implemented rules
                when ASCII.NUL =>
                   exit;
                when 'f' =>
-                  if Full_Switch (Parser => Parser) = "from" then
-                     Rule_Options.Append
-                       (Option_Record'(File,
-                         To_Unbounded_String (Parameter (Parser => Parser))));
-                     if not More_Then_One_Rule_File_Set then
-                        Rule_File_Name :=
-                        new String'(Parameter (Parser => Parser));
-                        More_Then_One_Rule_File_Set := True;
-                     else
-                        Free (Rule_File_Name);
-                     end if;
+                  Rule_Options.Append
+                     (Option_Record'(File,
+                        To_Unbounded_String (Parameter (Parser => Parser))));
+                  if not More_Then_One_Rule_File_Set then
+                     Rule_File_Name :=
+                     new String'(Parameter (Parser => Parser));
+                     More_Then_One_Rule_File_Set := True;
                   else
-                     Rule_Options.Append
-                       (Option_Record'(LKQL_File,
-                         To_Unbounded_String (Parameter (Parser => Parser))));
-                     if LKQL_Rule_File_Name = null then
-                        LKQL_Rule_File_Name :=
-                        new String'(Parameter (Parser => Parser));
-                     else
-                        Error ("only one LKQL configuration file is allowed");
-                        Rule_Option_Problem_Detected := True;
-                     end if;
+                     Free (Rule_File_Name);
                   end if;
 
                when others =>
@@ -1102,6 +1108,7 @@ package body Gnatcheck.Projects is
             Disallow (Arg.Scenario_Vars.This, In_Project_Msg);
             Disallow (Arg.Follow_Symbolic_Links.This, In_Project_Msg);
             Disallow (Arg.Rules.This, In_Project_Msg);
+            Disallow (Arg.Rule_File.This, In_Project_Msg);
          end;
       end if;
 
@@ -1124,6 +1131,7 @@ package body Gnatcheck.Projects is
          Allow (Arg.Project_File.This);
          Allow (Arg.Follow_Symbolic_Links.This);
          Allow (Arg.Rules.This);
+         Allow (Arg.Rule_File.This);
       end if;
 
       loop

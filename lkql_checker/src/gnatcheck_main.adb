@@ -470,6 +470,11 @@ begin
       end if;
    end if;
 
+   --  Add the command-line LKQL rule file to the rule options
+   if Arg.Rule_File.Get /= Null_Unbounded_String then
+      Set_LKQL_Rule_File (To_String (Arg.Rule_File.Get));
+   end if;
+
    --  Setup LKQL_RULES_PATH to point on built-in rules
 
    Setup_Search_Paths;

@@ -688,6 +688,7 @@ package body Gnatcheck.Output is
          Info (" --check-semantic       - check semantic validity of the source files");
          Info (" --charset=<charset>    - specify the charset of the source files");
          Info (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
+         Info (" --rule-file=filename   - read kp configuration from the given LKQL file");
          Info (" -r, --rule [kp_id]     - enable the given kp detector during the GNATKP run (this option is cumulative)");
          Info ("");
          Info (" -from=filename    - read kp options from filename");
@@ -756,11 +757,11 @@ package body Gnatcheck.Output is
       Info (" -files=filename          - the name of the text file containing a list of Ada");
       Info ("                           source files to analyze");
       Info (" --ignore=filename        - do not process sources listed in filename");
+      Info (" --rule-file=filename     - read rule configuration from the given LKQL file");
       Info (" -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)");
       Info ("");
       Info ("rule_switches          - a list of the following switches");
       Info ("   -from=filename      - read rule options from filename");
-      Info ("   -from-lkql=filename - read rule options from the given LKQL file");
       Info ("   +R<rule_id>[:param] - turn ON a given rule [with given parameter]");
       Info ("   -R<rule_id>         - turn OFF a given rule");
       Info ("   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,");

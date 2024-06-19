@@ -239,6 +239,12 @@ package Gnatcheck.Projects is
       Prepend : Boolean := False);
    --  Add the given ``Opt`` to the list of rule options processed by
    --  ``Process_Rule_Options`` as a command-line rule option (e.g. +R...).
+   --  If ``Prepend`` is set to True, add the rule option at the start of
+   --  the processing list.
+
+   procedure Set_LKQL_Rule_File (File : String);
+   --  Set the given ``File`` as the LKQL rule file to process during the
+   --  execution of ``Process_Rule_Options``.
 
    procedure Scan_Arguments
      (My_Project : in out Arg_Project_Type;
