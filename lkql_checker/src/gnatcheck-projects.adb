@@ -964,6 +964,26 @@ package body Gnatcheck.Projects is
       end if;
    end Add_Rule_Option;
 
+   --------------------------------
+   -- Add_LKQL_Rule_Options_File --
+   --------------------------------
+
+   procedure Add_LKQL_Rule_File
+     (File    : String;
+      Prepend : Boolean := False)
+   is
+      use Ada.Strings.Unbounded;
+
+      Opt_Rec : constant Option_Record :=
+        (LKQL_File, To_Unbounded_String (File));
+   begin
+      if Prepend then
+         Rule_Options.Prepend (Opt_Rec);
+      else
+         Rule_Options.Append (Opt_Rec);
+      end if;
+   end Add_LKQL_Rule_File;
+
    --------------------
    -- Scan_Arguments --
    --------------------
@@ -1042,16 +1062,7 @@ package body Gnatcheck.Projects is
                         Free (Rule_File_Name);
                      end if;
                   else
-                     Rule_Options.Append
-                       (Option_Record'(LKQL_File,
-                         To_Unbounded_String (Parameter (Parser => Parser))));
-                     if LKQL_Rule_File_Name = null then
-                        LKQL_Rule_File_Name :=
-                        new String'(Parameter (Parser => Parser));
-                     else
-                        Error ("only one LKQL configuration file is allowed");
-                        Rule_Option_Problem_Detected := True;
-                     end if;
+                     Add_LKQL_Rule_File (Parameter (Parser => Parser));
                   end if;
 
                when others =>
