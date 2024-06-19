@@ -827,6 +827,14 @@ package body Gnatcheck.Rules.Rule_Table is
          return;
       end if;
 
+      --  Ensure that this is the only LKQL rule file to be processed
+      if LKQL_Rule_File_Processed then
+         Error ("only one LKQL configuration file is allowed");
+         Rule_Option_Problem_Detected := True;
+         return;
+      end if;
+      LKQL_Rule_File_Processed := True;
+
       --  Call the LKQL rule config file parser and parse its result
       Parser_Pid :=
         Spawn_LKQL_Rule_File_Parser
