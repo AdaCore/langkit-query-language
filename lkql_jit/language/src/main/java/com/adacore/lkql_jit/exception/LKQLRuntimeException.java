@@ -415,6 +415,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         var loc = getSourceLoc();
         return LKQLLanguage.getContext(null)
                 .getDiagnosticEmitter()
-                .diagnostic(CheckerUtils.MessageKind.ERROR, this.getErrorMessage(), null, loc, "");
+                .diagnostic(
+                        CheckerUtils.MessageKind.ERROR, this.getErrorMessage(), null, loc, null);
     }
 }
