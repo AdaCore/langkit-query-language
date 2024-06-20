@@ -383,6 +383,16 @@ fun is_unchecked_deallocation(node) =
         fqn == "Ada.Unchecked_Deallocation" or fqn == "Unchecked_Deallocation"
     })
 
+fun is_composite_type(decl) =
+    |" Given a BaseTypeDecl, returns whether the declared type is a composite
+    |" Ada type (record, array, task or protected).
+    {
+        val v = decl.p_full_view();
+        v.p_is_array_type() or
+        v.p_is_record_type() or
+        v.p_root_type() is (TaskTypeDecl | ProtectedTypeDecl)
+    }
+
 @memoized
 fun get_subp_body(node) =
     |" Return the SubpBody, TaskBody or ExprFunction corresponding to node,

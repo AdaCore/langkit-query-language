@@ -1,0 +1,36 @@
+main.adb:10:9: rule violation: possible occurrence of KP 19341
+10 |    type Arr_Priv is array (1 .. 10) of aliased Priv_Rec  --  FLAG
+   |         ^^^^^^^^
+
+main.ads:21:9: rule violation: possible occurrence of KP 19341
+21 |    type Arr_3 is array (1 .. 10) of aliased Rec  --  FLAG
+   |         ^^^^^
+
+main.ads:24:9: rule violation: possible occurrence of KP 19341
+24 |    type Arr_2_New is new Arr_2 with Pack;        --  FLAG
+   |         ^^^^^^^^^
+
+main.ads:25:12: rule violation: possible occurrence of KP 19341
+25 |    subtype Arr_3_Sub is Arr_3;                   --  FLAG
+   |            ^^^^^^^^^
+
+main.ads:26:9: rule violation: possible occurrence of KP 19341
+26 |    type Arr_3_New is new Arr_3;                  --  FLAG
+   |         ^^^^^^^^^
+
+main.ads:28:9: rule violation: possible occurrence of KP 19341
+28 |    type Arr_Comp_Size is array (1 .. 10) of aliased Rec  --  FLAG
+   |         ^^^^^^^^^^^^^
+
+main.ads:31:9: rule violation: possible occurrence of KP 19341
+31 |    type Arr_Arr is array (1 .. 10) of aliased Arr    --  FLAG
+   |         ^^^^^^^
+
+main.ads:33:9: rule violation: possible occurrence of KP 19341
+33 |    type Arr_Task is array (1 .. 10) of aliased Tsk   --  FLAG
+   |         ^^^^^^^^
+
+main.ads:35:9: rule violation: possible occurrence of KP 19341
+35 |    type Arr_Prot is array (1 .. 10) of aliased Prot  --  FLAG
+   |         ^^^^^^^^
+
