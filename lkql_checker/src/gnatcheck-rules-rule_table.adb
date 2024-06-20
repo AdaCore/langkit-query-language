@@ -1509,21 +1509,35 @@ package body Gnatcheck.Rules.Rule_Table is
    -- XML_Help --
    --------------
 
-   function Name (R : Rule_Info) return String is
+   function Category_Name (R : Rule_Info) return String is
      (To_String (R.Category & "/" & R.Subcategory));
 
-   function "<" (Left, Right : Rule_Info) return Boolean is
-     (Name (Left) < Name (Right));
+   function Lt (Left, Right : Rule_Info) return Boolean is
+     (Left.Name < Right.Name);
+
+   function Category_Lt (Left, Right : Rule_Info) return Boolean is
+     (Category_Name (Left) < Category_Name (Right));
 
    function Equal (Left, Right : Rule_Info) return Boolean is
-     (Name (Left) = Name (Right));
+     (Left.Name = Right.Name);
 
-   package Category_Sets is new
-     Ada.Containers.Ordered_Sets (Rule_Info, "=" => Equal);
+   function Category_Equal (Left, Right : Rule_Info) return Boolean is
+     (Category_Name (Left) = Category_Name (Right));
+
+   package Rule_Sets is new Ada.Containers.Ordered_Sets
+     (Element_Type => Rule_Info,
+      "=" => Equal,
+      "<" => Lt);
+
+   package Category_Sets is new Ada.Containers.Ordered_Sets
+     (Element_Type => Rule_Info,
+      "=" => Category_Equal,
+      "<" => Category_Lt);
 
    procedure XML_Help is
       Level        : Positive;
-      Set          : Category_Sets.Set;
+      Cat_Set      : Category_Sets.Set;
+      Rule_Set     : Rule_Sets.Set;
       Previous     : Rule_Info;
       Has_Previous : Boolean := False;
    begin
@@ -1531,10 +1545,10 @@ package body Gnatcheck.Rules.Rule_Table is
       Info ("<gnatcheck>");
 
       for Rule in All_Rules.Iterate loop
-         Set.Include (All_Rules (Rule));
+         Cat_Set.Include (All_Rules (Rule));
       end loop;
 
-      for R of Set loop
+      for R of Cat_Set loop
          Level := 1;
 
          if Has_Previous
@@ -1549,7 +1563,7 @@ package body Gnatcheck.Rules.Rule_Table is
                   To_String (R.Category) & """>");
          else
             if Has_Previous
-              or else Previous.Category /= R.Category
+              and then Previous.Category /= R.Category
             then
                Info (Indent_String & "<category name=""" &
                      To_String (R.Category) & """>");
@@ -1561,13 +1575,16 @@ package body Gnatcheck.Rules.Rule_Table is
          end if;
 
          declare
-            Category : constant String := Name (R);
+            Category : constant String := Category_Name (R);
          begin
             for Rule in All_Rules.Iterate loop
-               if Name (All_Rules (Rule)) = Category then
-                  All_Rules (Rule).XML_Rule_Help
-                    (All_Rules (Rule), Level + 1);
+               if Category_Name (All_Rules (Rule)) = Category then
+                  Rule_Set.Include (All_Rules (Rule));
                end if;
+            end loop;
+
+            for Rule of Rule_Set loop
+               Rule.XML_Rule_Help (Rule, Level + 1);
             end loop;
          end;
 
