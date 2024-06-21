@@ -62,7 +62,7 @@ public final class LKQLContext {
                                     .emitFileNotFound(
                                             new LalLocationWrapper(from.getRoot(), this.linesCache),
                                             name,
-                                            notFoundIsError);
+                                            isFatal);
                             if (isFatal) {
                                 this.env.getContext().closeExited(null, 1);
                             }
@@ -508,7 +508,7 @@ public final class LKQLContext {
                     this.specifiedSourceFiles.add(sourceFile.getAbsolutePath());
                 } else {
                     this.getDiagnosticEmitter()
-                            .emitFileNotFound(null, file, this.keepGoingOnMissingFile());
+                            .emitFileNotFound(null, file, !this.keepGoingOnMissingFile());
                 }
             }
         }

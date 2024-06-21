@@ -115,7 +115,7 @@ public class CheckerUtils {
                 String errorMessage,
                 SourceLocation adaErrorLocation,
                 SourceLocation lkqlErrorLocation) {
-            emitDiagnostic(messageKind, errorMessage, adaErrorLocation, lkqlErrorLocation, "");
+            emitDiagnostic(messageKind, errorMessage, adaErrorLocation, lkqlErrorLocation, null);
         }
 
         /**
@@ -140,7 +140,7 @@ public class CheckerUtils {
                             + " not found",
                     from,
                     null,
-                    "");
+                    null);
         }
 
         default boolean useFullFilePath() {
@@ -182,7 +182,10 @@ public class CheckerUtils {
 
             var adaLoc = adaErrorLocation != null ? adaErrorLocation.display() + ": " : "";
             var lkqlLoc = lkqlErrorLocation != null ? lkqlErrorLocation.display() + ": " : "";
-            var rulePart = ruleName.equals("") ? "" : "[" + ruleName.toLowerCase() + "]";
+            var rulePart =
+                    ruleName == null || ruleName.isBlank()
+                            ? ""
+                            : "[" + ruleName.toLowerCase() + "]";
 
             String sourceString =
                     lkqlErrorLocation != null
@@ -254,7 +257,10 @@ public class CheckerUtils {
                     lkqlErrorLocation != null
                             ? "internal error at " + lkqlErrorLocation.display(true) + ": "
                             : "";
-            var rulePart = ruleName.equals("") ? "" : " [" + ruleName.toLowerCase() + "]";
+            var rulePart =
+                    ruleName == null || ruleName.isBlank()
+                            ? ""
+                            : " [" + ruleName.toLowerCase() + "]";
 
             return adaLoc + kindtoString(messageKind) + ": " + lkqlLoc + message + rulePart;
         }
@@ -273,10 +279,10 @@ public class CheckerUtils {
 
             this.emitDiagnostic(
                     isError ? MessageKind.ERROR : MessageKind.WARNING,
-                    "internal error: File " + (FileUtils.baseName(fileName)) + " not found",
+                    "cannot find " + (FileUtils.baseName(fileName)),
                     from,
                     null,
-                    "");
+                    null);
         }
     }
 }

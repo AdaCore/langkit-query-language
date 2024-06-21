@@ -1,10 +1,10 @@
-Total gnatcheck failures: 1
+gnatcheck: main.adb: cannot find pouet.ads
 1. Summary
 
-   fully compliant sources               : 0
+   fully compliant sources               : 1
    sources with exempted violations only : 0
    sources with non-exempted violations  : 0
-   unverified sources                    : 1
+   unverified sources                    : 0
    total sources                         : 1
    ignored sources                       : 0
 
@@ -12,7 +12,7 @@ Total gnatcheck failures: 1
    rule exemption warnings               : 0
    compilation errors                    : 0
    exempted violations                   : 0
-   internal errors                       : 1
+   internal errors                       : 0
 
 2. Exempted Coding Standard Violations
 
@@ -32,6 +32,6 @@ Total gnatcheck failures: 1
 
 6. Gnatcheck internal errors
 
-main.adb:1:01: error: internal error: File pouet.ads not found
+   no internal error detected
 
->>>program returned status code 2
+>>>program returned status code 3
