@@ -1,0 +1,3 @@
+driver: gnatcheck
+extra_args:
+  - -hx
