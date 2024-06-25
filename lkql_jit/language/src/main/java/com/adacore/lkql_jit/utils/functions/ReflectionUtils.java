@@ -101,7 +101,7 @@ public final class ReflectionUtils {
     @CompilerDirectives.TruffleBoundary
     public static Object callProperty(
             Libadalang.AdaNode node,
-            Libadalang.LibadalangField fieldDescription,
+            Libadalang.Reflection.Field fieldDescription,
             Node caller,
             ArgList argList,
             Object... arguments)
@@ -116,14 +116,13 @@ public final class ReflectionUtils {
         try {
             // Create the argument list with the default values if needed
             for (int i = 0; i < refinedArgs.length; i++) {
-                Libadalang.Param currentParam = fieldDescription.params.get(i);
+                Libadalang.Reflection.Param currentParam = fieldDescription.params.get(i);
                 if (i < arguments.length) {
                     refinedArgs[i] =
                             refineArgument(arguments[i], currentParam.type, argList.getArgs()[i]);
                 } else {
-                    if (currentParam
-                            instanceof Libadalang.ParamWithDefaultValue paramWithDefaultValue) {
-                        refinedArgs[i] = paramWithDefaultValue.defaultValue;
+                    if (currentParam.defaultValue.isPresent()) {
+                        refinedArgs[i] = currentParam.defaultValue.get();
                     } else {
                         throw LKQLRuntimeException.wrongArity(
                                 fieldDescription.params.size(), arguments.length, argList);
