@@ -92,9 +92,8 @@
 with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
-with GPR2.Path_Name.Set;
+with GPR2.Containers;
 with GPR2.Project.Tree;
-with GPR2.Project.Source;
 
 package Gnatcheck.Projects is
 
@@ -134,7 +133,7 @@ package Gnatcheck.Projects is
    --  units of the closure of the argument project or to process the closure
    --  of the main unit if the main unit is set)
 
-   Main_Unit : GPR2.Path_Name.Set.Object;
+   Main_Unit : GPR2.Containers.Filename_Set;
    --  If the tool is called with "... Pproj -U main_unit1 main_unit2 ...",
    --  main units are stored here.
 
@@ -198,12 +197,12 @@ package Gnatcheck.Projects is
    -- Type to represent a project passed as a tool option --
    ---------------------------------------------------------
 
-   type Arg_Project_Type is tagged limited private;
+   type Arg_Project_Type is tagged private;
    --  This type is the base for each tool-specific project type. Most of its
    --  primitives does not need any redefinition for a specific tool.
 
    function Tree
-     (My_Project : Arg_Project_Type) return access GPR2.Project.Tree.Object;
+     (My_Project : Arg_Project_Type) return GPR2.Project.Tree.Object;
    --  Returns access to project tree object
 
    procedure Store_Project_Source
@@ -231,12 +230,6 @@ package Gnatcheck.Projects is
    --  Checks if the argument represents a project that corresponds to some
    --  project file specified as a tool parameter.
 
-   function Project_Path_Object (My_Project : Arg_Project_Type)
-     return GPR2.Path_Name.Object;
-   --  Get the GPR2 path object required to load the project for the current
-   --  GNATcheck run. It can be the specified GPR file if any, or the current
-   --  working directory if there is none.
-
    procedure Clean_Up (My_Project : Arg_Project_Type);
    --  Removes all the temporary files created when loading a project. Does
    --  nothing of Debug_Flag_N is ON.
@@ -248,9 +241,6 @@ package Gnatcheck.Projects is
    function Source_CGPR (My_Project : Arg_Project_Type) return String;
    --  If My_Project.Source_CGPR is specified then returns its value,
    --  otherwise returns a null string.
-
-   procedure Load_Tool_Project (My_Project : in out Arg_Project_Type);
-   --  Loads argument project
 
    procedure Set_External_Values (My_Project : Arg_Project_Type);
    --  For each value of an external variable that has been stored as a result
@@ -364,7 +354,7 @@ package Gnatcheck.Projects is
 
 private
 
-   type Arg_Project_Type is tagged limited record
+   type Arg_Project_Type is tagged record
       Tree        : aliased GPR2.Project.Tree.Object;
       Source_Prj  : String_Access;
       Source_CGPR : String_Access;
@@ -372,6 +362,6 @@ private
 
    function Tree
      (My_Project : Arg_Project_Type)
-      return access GPR2.Project.Tree.Object is (My_Project.Tree.Reference);
+      return GPR2.Project.Tree.Object is (My_Project.Tree);
 
 end Gnatcheck.Projects;

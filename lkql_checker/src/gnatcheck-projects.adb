@@ -3,13 +3,12 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Calendar;
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Command_Line;
-with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
 with Ada.Directories;         use Ada.Directories;
 with Ada.Environment_Variables;
+with Ada.Exceptions;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
@@ -24,7 +23,7 @@ with Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;                use Gnatcheck.Ids;
 with Gnatcheck.Options;            use Gnatcheck.Options;
 with Gnatcheck.Output;             use Gnatcheck.Output;
-with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
+with Gnatcheck.Projects.Aggregate;
 with Gnatcheck.Rules;              use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
@@ -32,10 +31,17 @@ with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
 with GNATCOLL.Traces;
 
-with GPR2.Containers;
+with GPR2;
+with GPR2.Build.Compilation_Unit;
+pragma Warnings (Off, ".* is not referenced");
+--  GPR2.Project.View has only limited view on Source.Sets, so we need
+--  an explicit with here to be able to use View.Sources
+with GPR2.Build.Source.Sets;
+pragma Warnings (On);
 with GPR2.Context;
 with GPR2.KB;
 with GPR2.Log;
+with GPR2.Message.Reporter;
 with GPR2.Options;
 with GPR2.Path_Name;
 with GPR2.Project.Attribute;
@@ -45,9 +51,7 @@ with GPR2.Project.Registry.Attribute;
 with GPR2.Project.Registry.Attribute.Description;
 with GPR2.Project.Registry.Pack;
 with GPR2.Project.Registry.Pack.Description;
-with GPR2.Project.Source.Set;
 with GPR2.Project.View;
-with GPR2.Project.View.Set;
 
 with Rule_Commands; use Rule_Commands;
 
@@ -57,9 +61,8 @@ package body Gnatcheck.Projects is
 
    subtype Unbounded_String is Ada.Strings.Unbounded.Unbounded_String;
 
-   Project_Context  : GPR2.Context.Object;
    Project_File_Set : Boolean := False;
-   CGPR_File_Set    : Boolean := False;
+   Project_Options  : GPR2.Options.Object;
 
    Default_Switches_Attr : constant GPR2.Q_Attribute_Id :=
      (GPR2."+"("Check"), GPR2."+"("Default_Switches"));
@@ -70,21 +73,50 @@ package body Gnatcheck.Projects is
    -- External variables table --
    ------------------------------
 
-   type X_Var_Record is record
-      Var_Name  : String_Access;
-      Var_Value : String_Access;
-   end record;
+   X_Vars : GPR2.Containers.Value_Set;
 
-   function "<" (Left, Right : X_Var_Record) return Boolean is
-     (To_Lower (Left.Var_Name.all) < To_Lower (Right.Var_Name.all));
+   type Gnatcheck_Reporter is new GPR2.Message.Reporter.Object with
+     null record;
 
-   function "=" (Left, Right : X_Var_Record)  return Boolean is
-     (To_Lower (Left.Var_Name.all) = To_Lower (Right.Var_Name.all));
+   overriding procedure Report
+     (Self    : Gnatcheck_Reporter;
+      Message : GPR2.Message.Object);
 
-   package X_Vars_Sets is new Ada.Containers.Ordered_Sets
-     (Element_Type => X_Var_Record);
+   overriding procedure Report
+     (Self    : Gnatcheck_Reporter;
+      Message : String);
 
-   X_Vars : X_Vars_Sets.Set;
+   Gpr2_Reporter : Gnatcheck_Reporter;
+   --  Make libgpt2 report messages using the proper gnatcheck.Output API
+
+   ------------
+   -- Report --
+   ------------
+
+   overriding procedure Report
+     (Self    : Gnatcheck_Reporter;
+      Message : GPR2.Message.Object)
+   is
+   begin
+      case Message.Level is
+         when GPR2.Message.Error =>
+            Error (Message.Format);
+         when GPR2.Message.Warning =>
+            Warning (Message.Format);
+         when others =>
+            null;
+      end case;
+   end Report;
+
+   overriding procedure Report
+     (Self    : Gnatcheck_Reporter;
+      Message : String)
+   is
+      pragma Unreferenced (Self, Message);
+   begin
+      --  Info (Message);
+      null;
+   end Report;
 
    -----------------------
    -- Local subprograms --
@@ -92,6 +124,11 @@ package body Gnatcheck.Projects is
 
    procedure Store_Compiler_Option (Switch : String);
    --  Stores compiler option as is
+
+   procedure Load_Tool_Project
+     (My_Project   : in out Arg_Project_Type'Class;
+      Load_Sources : Boolean := True);
+   --  Loads argument project
 
    procedure Load_Aggregated_Project
      (My_Project : in out Arg_Project_Type'Class)
@@ -106,10 +143,6 @@ package body Gnatcheck.Projects is
      and then
       Index (Log, "not found") /= 0);
    --  Checks if Log reports about a missing source file.
-
-   function Has_Explicit_Runtime_Attribute
-     (My_Project : Arg_Project_Type'Class) return Boolean;
-   --  Checks if root project has Runtime ("Ada") explicitly declared
 
    --------------
    -- Clean_Up --
@@ -131,7 +164,8 @@ package body Gnatcheck.Projects is
    --------------------------
 
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type) is
-      Proj : constant GPR2.Project.View.Object := My_Project.Tree.Root_Project;
+      Proj : constant GPR2.Project.View.Object :=
+               My_Project.Tree.Namespace_Root_Projects.First_Element;
 
       use GPR2;
       use GPR2.Project.Registry.Attribute;
@@ -179,52 +213,31 @@ package body Gnatcheck.Projects is
    ------------------------------
 
    procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type) is
-      use GPR2;
-      use GPR2.Project.View;
-      use GPR2.Project.Source.Set;
 
-      procedure Store_Source (Source : Project.Source.Object);
+      function Only_Ada_Mains
+        (Prj : GPR2.Project.View.Object) return Boolean;
+
+      procedure Store_Source (Unit : GPR2.Build.Compilation_Unit.Object);
       --  Callback used to store sources
-
-      procedure Add_Src
-        (Source    : GPR2.Project.Source.Object;
-         Index     : GPR2.Unit_Index;
-         Timestamp : Ada.Calendar.Time);
-      --  Callback on sources from the list of dependencies
-
-      function Only_Ada_Mains (Prj : GPR2.Project.View.Object) return Boolean;
-      --  Checks that all mains of given project are Ada sources
-
-      function Locate_Source
-        (File : GPR2.Path_Name.Object) return GPR2.Project.Source.Object;
-      --  Locates given file by its simple name in the project tree and returns
-      --  corresponding source object.
-
-      -------------
-      -- Add_Src --
-      -------------
-
-      procedure Add_Src
-        (Source    : GPR2.Project.Source.Object;
-         Index     : GPR2.Unit_Index;
-         Timestamp : Ada.Calendar.Time)
-      is
-         pragma Unreferenced (Index, Timestamp);
-      begin
-         if not Source.Is_Runtime then
-            Store_Source (Source);
-         end if;
-      end Add_Src;
 
       --------------------
       -- Only_Ada_Mains --
       --------------------
 
       function Only_Ada_Mains
-        (Prj : GPR2.Project.View.Object) return Boolean is
+        (Prj : GPR2.Project.View.Object) return Boolean
+      is
+         use type GPR2.Language_Id;
+         Src : GPR2.Build.Source.Object;
+         CU  : GPR2.Build.Compilation_Unit.Unit_Location;
+
       begin
-         for Main of Prj.Mains loop
-            if not Prj.Source (Main.Source).Is_Ada then
+         for C in Prj.Mains.Iterate loop
+            CU :=
+              GPR2.Build.Compilation_Unit.Unit_Location_Vectors.Element (C);
+            Src := CU.View.Source (CU.Source.Simple_Name);
+
+            if Src.Language /= GPR2.Ada_Language then
                return False;
             end if;
          end loop;
@@ -232,39 +245,38 @@ package body Gnatcheck.Projects is
          return True;
       end Only_Ada_Mains;
 
-      -------------------
-      -- Locate_Source --
-      -------------------
-
-      function Locate_Source
-        (File : GPR2.Path_Name.Object) return GPR2.Project.Source.Object
-      is
-         File_In_Prj : constant GPR2.Path_Name.Object :=
-           My_Project.Tree.Get_File (File.Simple_Name);
-         Src_Obj     : GPR2.Project.Source.Object;
-      begin
-         if File_In_Prj.Is_Defined then
-            for V of My_Project.Tree loop
-               Src_Obj := V.Source (File_In_Prj);
-               if Src_Obj.Is_Defined then
-                  return Src_Obj;
-               end if;
-            end loop;
-         end if;
-
-         return GPR2.Project.Source.Undefined;
-      end Locate_Source;
-
       ------------------
       -- Store_Source --
       ------------------
 
-      procedure Store_Source (Source : Project.Source.Object) is
+      procedure Store_Source (Unit : GPR2.Build.Compilation_Unit.Object) is
+         use GPR2.Build.Compilation_Unit.Separate_Maps;
       begin
-         if not Source.View.Is_Externally_Built then
-            Store_Sources_To_Process (String (Source.Path_Name.Simple_Name));
+         for Part in GPR2.S_Spec .. GPR2.S_Body loop
+            if Unit.Has_Part (Part) then
+               Store_Sources_To_Process
+                 (String (Unit.Get (Part).Source.Simple_Name));
+            end if;
+         end loop;
+
+         if Unit.Has_Part (GPR2.S_Separate) then
+            for Sep in Unit.Separates.Iterate loop
+               Store_Sources_To_Process
+                 (String (Element (Sep).Source.Simple_Name));
+            end loop;
          end if;
       end Store_Source;
+
+      --  Get the root project:
+      --  * if the root project is a regular project then
+      --  Namespece_Root_Projects will have just one element, this root project
+      --  * if the root project is an aggregate project with just one element
+      --  then Namespace_Root_Projects.First_Element will return it
+      --  * if the root project is an aggregate with several subprojects then
+      --  they are loaded individually using Load_Aggregated_Project and so
+      --  we're similar to case one
+      Root : constant GPR2.Project.View.Object :=
+               My_Project.Tree.Namespace_Root_Projects.First_Element;
 
    begin
       if (Argument_File_Specified and then not U_Option_Set)
@@ -277,88 +289,52 @@ package body Gnatcheck.Projects is
          if Main_Unit.Is_Empty then
             --  No argument sources, -U specified. Process recursively
             --  all sources.
-            My_Project.Tree.For_Each_Source
-              (Action   => Store_Source'Access,
-               Language => Ada_Language);
-         else
-            --  Argument source(s) specified, -U specified. Process closure
-            --  of all specified sources.
 
-            --  ??? Closure computation is based upon the current implmentation
-            --  of GPR2.Project.Source.Dependencies with Closure => True.
-            --  It is to be changed to more closely represent the notion,
-            --  of closure, and desired behaviour will be achieved
-            --  by setting dedicated Recursive parameter.
-
-            for MU of Main_Unit loop
-               declare
-                  Src_Obj : constant GPR2.Project.Source.Object :=
-                    Locate_Source (MU);
-               begin
-                  if Src_Obj.Is_Defined then
-                     Src_Obj.Dependencies
-                       (GPR2.No_Index, Add_Src'Access, Closure => True);
-                  else
-                     Error (String (MU.Name) & " not found");
-                  end if;
-               end;
+            for U of Root.Units loop
+               Store_Source (U);
             end loop;
+         else
+            --  No argument sources, -U specified. Process recursively
+            --  all sources.
+            My_Project.Tree.For_Each_Ada_Closure
+              (Action            => Store_Source'Access,
+               Mains             => Main_Unit,
+               Root_Project_Only => not Recursive_Sources,
+               Externally_Built  => False);
          end if;
       else
          if Recursive_Sources then
-            if My_Project.Tree.Root_Project.Has_Mains and then
-              Only_Ada_Mains (My_Project.Tree.Root_Project)
+            if Root.Has_Mains
+              and then Only_Ada_Mains (Root)
             then
                --  No argument sources, no -U/--no-subprojects specified,
                --  root project has mains, all of mains are Ada.
                --  Process closure of those mains.
 
-               for Main of My_Project.Tree.Root_Project.Mains loop
-                  My_Project.Tree.Root_Project.Source
-                    (Main.Source).Dependencies
-                      (GPR2.No_Index, Add_Src'Access, Closure => True);
-               end loop;
+               My_Project.Tree.For_Each_Ada_Closure
+                 (Action            => Store_Source'Access,
+                  Root_Project_Only => False,
+                  Externally_Built  => False);
             else
                --  No argument sources, no -U/--no-subprojects specified,
                --  no mains (or at least one non-Ada main) in root project.
                --  Recursively process all sources.
 
-               My_Project.Tree.For_Each_Source
-                 (Action   => Store_Source'Access,
-                  Language => Ada_Language);
+               for U of Root.Units loop
+                  Store_Source (U);
+               end loop;
             end if;
          else
-            --  No argument sources, --no-subprojects specified
-
-            for Src of My_Project.Tree.Root_Project.Sources loop
-               if not Src.View.Is_Externally_Built and then Src.Is_Ada then
-                  Store_Sources_To_Process
-                    (String (Src.Path_Name.Simple_Name));
-               end if;
+            for Src of Root.Sources loop
+               Store_Sources_To_Process (String (Src.Path_Name.Simple_Name));
             end loop;
          end if;
       end if;
+
+   exception
+      when E : GPR2.Options.Usage_Error =>
+         Error (Ada.Exceptions.Exception_Message (E));
    end Get_Sources_From_Project;
-
-   ------------------------------------
-   -- Has_Explicit_Runtime_Attribute --
-   ------------------------------------
-
-   function Has_Explicit_Runtime_Attribute
-     (My_Project : Arg_Project_Type'Class) return Boolean
-   is
-      use GPR2;
-      Tmp_Tree : Project.Tree.Object;
-   begin
-      Tmp_Tree.Load
-        (Filename      => My_Project.Project_Path_Object,
-         Context       => Project_Context,
-         Pre_Conf_Mode => True);
-
-      return Tmp_Tree.Root_Project.Has_Attribute
-        (Project.Registry.Attribute.Runtime,
-         Project.Attribute_Index.Create (Ada_Language));
-   end Has_Explicit_Runtime_Attribute;
 
    ----------------------------
    -- Initialize_Environment --
@@ -378,22 +354,6 @@ package body Gnatcheck.Projects is
       return My_Project.Source_Prj /= null;
    end Is_Specified;
 
-   -------------------------
-   -- Project_Path_Object --
-   -------------------------
-
-   function Project_Path_Object (My_Project : Arg_Project_Type)
-     return GPR2.Path_Name.Object
-   is
-      use GPR2;
-      use GPR2.Path_Name;
-   begin
-      return (if My_Project.Is_Specified
-              then Create_File
-                (Filename_Type (My_Project.Source_Prj.all), No_Resolution)
-              else Create_Directory ("./"));
-   end Project_Path_Object;
-
    -----------------------------
    -- Load_Aggregated_Project --
    -----------------------------
@@ -403,100 +363,42 @@ package body Gnatcheck.Projects is
    is
       use GPR2;
       use GPR2.Containers;
-      use GPR2.Path_Name;
-
-      RTS : Lang_Value_Map := Lang_Value_Maps.Empty_Map;
+      use Gnatcheck.Projects.Aggregate;
 
       Conf_Obj : GPR2.Project.Configuration.Object;
 
       Agg_Context : GPR2.Context.Object;
 
-      KB : constant GPR2.KB.Object :=
-        GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
    begin
-      if CGPR_File_Set then
-         if RTS_Path.all /= "" then
-            Warning
-              ("runtimes are taken into account only in auto-configuration");
-         end if;
-
-         Conf_Obj := Project.Configuration.Load
-           (Path_Name.Create_File
-              (Filename_Type (My_Project.Source_CGPR.all)));
-         My_Project.Tree.Load
-           (Filename         => My_Project.Project_Path_Object,
-            Context          => Project_Context,
-            Config           => Conf_Obj,
-            Subdirs          =>
-              (if Subdir_Name = null then
-                    No_Name
-               else Name_Type (Subdir_Name.all)),
-            Check_Shared_Lib => False);
-
-         if My_Project.Tree.Has_Runtime_Project then
-            Free (RTS_Path);
-            RTS_Path := new String'
-              (My_Project.Tree.Runtime_Project.Path_Name.Value);
-         end if;
-      else
-         if RTS_Path.all /= "" then
-            RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
-         end if;
-
-         My_Project.Tree.Restrict_Autoconf_To_Languages
-           (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
-
-         My_Project.Tree.Load_Autoconf
-           (Filename          => My_Project.Project_Path_Object,
-            Context           => Project_Context,
-            Subdirs           =>
-              (if Subdir_Name = null then
-                 No_Name
-               else Name_Type (Subdir_Name.all)),
-            Target            => Optional_Name_Type (Target.all),
-            Language_Runtimes => RTS,
-            Base => KB);
-      end if;
-
-      if not My_Project.Tree.Is_Defined then
-         Error ("project not loaded");
-      end if;
+      Load_Tool_Project (My_Project, Load_Sources => False);
 
       pragma Assert (My_Project.Tree.Root_Project.Kind in Aggregate_Kind);
 
       Agg_Context :=
-        GPR2.Project.View.Set.Set.Element
-          (My_Project.Tree.Root_Project.Aggregated.First).Context;
-
-      if RTS_Path.all = "" and then Has_Explicit_Runtime_Attribute (My_Project)
-      then
-         --  Capturing the explicitly specified in the root aggregate project
-         --  runtime value so that it appears in reports for aggregated ones.
-         Free (RTS_Path);
-         RTS_Path :=
-           new String'(String (My_Project.Tree.Runtime (Ada_Language)));
-      end if;
+        My_Project.Tree.Namespace_Root_Projects.First_Element.Context;
 
       Conf_Obj := My_Project.Tree.Configuration;
       My_Project.Tree.Unload;
 
-      My_Project.Tree.Load
-        (Filename          => GPR2.Path_Name.Create_File
-           (Filename_Type (Get_Aggregated_Project)),
-         Context           => Agg_Context,
-         Config            => Conf_Obj,
-         Subdirs           =>
-           (if Subdir_Name = null then
-                 No_Name
-            else Name_Type (Subdir_Name.all)));
+      --  Amend the project options to load the aggregated project
+      Project_Options.Add_Switch
+        (GPR2.Options.P, Get_Aggregated_Project, Override => True);
 
-      if not My_Project.Tree.Has_Runtime_Project then
-         for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-           (Information => Verbosity_Level > 0)
-         loop
-            Error (GPR2.Log.Element (Msg_Cur).Format);
-         end loop;
-         Error ("no runtime information found");
+      for C in Agg_Context.Iterate loop
+         Project_Options.Add_Switch
+           (GPR2.Options.X,
+            String (Name_Value_Map_Package.Key (C)) & "=" &
+              Name_Value_Map_Package.Element (C));
+      end loop;
+
+      if not My_Project.Tree.Load (Project_Options,
+                                   With_Runtime => True,
+                                   Config       => Conf_Obj)
+      then
+         if not My_Project.Tree.Has_Runtime_Project then
+            Error ("no runtime information found");
+         end if;
+
          Error
            (""""
             & Get_Aggregated_Project
@@ -505,23 +407,13 @@ package body Gnatcheck.Projects is
          raise Parameter_Error;
       end if;
 
-      My_Project.Tree.Update_Sources
-        (Stop_On_Error => True,  With_Runtime => True);
-
-      for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-        (Information => Verbosity_Level > 1,
-         Warning     => Verbose_Mode)
-      loop
-         Error (GPR2.Log.Element (Msg_Cur).Format);
-      end loop;
+      if not My_Project.Tree.Update_Sources (GPR2.Sources_Units) then
+         raise Parameter_Error;
+      end if;
 
    exception
-      when GPR2.Project_Error | GPR2.Processing_Error =>
-         for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-           (Information => Verbosity_Level > 1)
-         loop
-            Error (GPR2.Log.Element (Msg_Cur).Format);
-         end loop;
+      when E : GPR2.Options.Usage_Error =>
+         Error ("usage error: " & Ada.Exceptions.Exception_Message (E));
          raise Parameter_Error;
    end Load_Aggregated_Project;
 
@@ -529,75 +421,70 @@ package body Gnatcheck.Projects is
    -- Load_Tool_Project --
    -----------------------
 
-   procedure Load_Tool_Project (My_Project : in out Arg_Project_Type) is
-      Aggregated_Prj_Name : GPR2.Path_Name.Object;
+   -----------------------
+   -- Load_Tool_Project --
+   -----------------------
+
+   procedure Load_Tool_Project
+     (My_Project   : in out Arg_Project_Type'Class;
+      Load_Sources : Boolean := True)
+   is
 
       use GPR2;
       use GPR2.Containers;
-      use GPR2.Path_Name;
 
-      RTS : Lang_Value_Map := Lang_Value_Maps.Empty_Map;
+      Log       : GPR2.Log.Object;
+      Has_Error : Boolean;
 
-      Agg_Context : GPR2.Context.Object;
-
-      Conf_Obj : GPR2.Project.Configuration.Object;
-
-      KB : constant GPR2.KB.Object :=
-        GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
-
-      Prj_File : constant Path_Name.Object := My_Project.Project_Path_Object;
    begin
-      if CGPR_File_Set then
-         if RTS_Path.all /= "" then
-            Warning
-              ("runtimes are taken into account only in auto-configuration");
-         end if;
-
-         Conf_Obj := Project.Configuration.Load
-           (Path_Name.Create_File
-              (Filename_Type (My_Project.Source_CGPR.all)));
-         My_Project.Tree.Load
-           (Filename         => Prj_File,
-            Context          => Project_Context,
-            Config           => Conf_Obj,
-            Subdirs          =>
-              (if Subdir_Name = null
-               then No_Name
-               else Name_Type (Subdir_Name.all)),
-            Check_Shared_Lib => False);
-
-         if My_Project.Tree.Has_Runtime_Project then
-            Free (RTS_Path);
-            RTS_Path := new String'
-              (My_Project.Tree.Runtime_Project.Path_Name.Value);
-         end if;
+      --  Set reporting verbosity when loading the project tree and the sources
+      if Verbose_Mode then
+         GPR2.Project.Tree.Verbosity := GPR2.Project.Tree.Warnings_And_Errors;
       else
-         if RTS_Path.all /= "" then
-            RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
-         end if;
-
-         My_Project.Tree.Restrict_Autoconf_To_Languages
-           (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
-
-         My_Project.Tree.Load_Autoconf
-           (Filename          => Prj_File,
-            Context           => Project_Context,
-            Subdirs           =>
-              (if Subdir_Name = null then
-                    No_Name
-               else Name_Type (Subdir_Name.all)),
-            Check_Shared_Lib  => False,
-            Target            => Optional_Name_Type (Target.all),
-            Language_Runtimes => RTS,
-            Base => KB);
+         GPR2.Project.Tree.Verbosity := GPR2.Project.Tree.Errors;
       end if;
 
-      if not My_Project.Tree.Has_Runtime_Project then
-         for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-           (Information => Verbosity_Level > 0)
-         loop
-            Error (GPR2.Log.Element (Msg_Cur).Format);
-         end loop;
+      GPR2.Message.Reporter.Register_Reporter (Gpr2_Reporter);
+
+      --  In case of autoconf, restrict to the Ada language
+
+      My_Project.Tree.Restrict_Autoconf_To_Languages
+        (Language_Id_Set.To_Set (GPR2.Ada_Language));
+
+      --  Apply the options
+
+      if My_Project.Source_Prj /= null then
+         Project_Options.Add_Switch
+           (GPR2.Options.P, My_Project.Source_Prj.all);
+      end if;
+
+      if My_Project.Source_CGPR /= null then
+         Project_Options.Add_Switch
+           (GPR2.Options.Config, My_Project.Source_CGPR.all);
+      end if;
+
+      if Subdir_Name /= null then
+         Project_Options.Add_Switch (GPR2.Options.Subdirs, Subdir_Name.all);
+      end if;
+
+      if RTS_Path.all /= "" then
+         Project_Options.Add_Switch (GPR2.Options.RTS, RTS_Path.all);
+      end if;
+
+      if Target.all /= "" then
+         Project_Options.Add_Switch (GPR2.Options.Target, Target.all);
+      end if;
+
+      if Follow_Symbolic_Links then
+         Project_Options.Add_Switch (GPR2.Options.Resolve_Links);
+      end if;
+
+      if not My_Project.Tree.Load (Project_Options, With_Runtime => True) then
+         raise Parameter_Error;
+      end if;
+
+      if not My_Project.Tree.Has_Runtime_Project  then
+         My_Project.Tree.Log_Messages.Output_Messages (Information => False);
          Error
            (""""
             & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
@@ -606,106 +493,55 @@ package body Gnatcheck.Projects is
          raise Parameter_Error;
       end if;
 
-      if RTS_Path.all = "" and then Has_Explicit_Runtime_Attribute (My_Project)
+      if RTS_Path.all = ""
+        and then My_Project.Tree.Runtime (Ada_Language) /= ""
       then
          Free (RTS_Path);
          RTS_Path :=
            new String'(String (My_Project.Tree.Runtime (Ada_Language)));
       end if;
 
-      if My_Project.Tree.Root_Project.Kind in Aggregate_Kind then
-         Collect_Aggregated_Projects (My_Project.Tree.Root_Project);
-         N_Of_Aggregated_Projects := Num_Of_Aggregated_Projects;
+      if Load_Sources then
+         if My_Project.Tree.Root_Project.Kind = K_Aggregate then
+            --  We cannot load sources when the number of aggregated projects
+            --  is more than one (ambiguities in terms of Ada units may then
+            --  arise). Let's check here, and run gnatcheck on
+            --  each aggregated project when necessary.
 
-         Free (Target);
-         Target := new String'(String (My_Project.Tree.Target));
+            Gnatcheck.Projects.Aggregate.Collect_Aggregated_Projects
+              (My_Project.Tree);
 
-         case N_Of_Aggregated_Projects is
-            when 0 =>
-               --  Pathological case, but we need to generate a reasonable
-               --  message
-               Error
-                 ("aggregate project does not contain anything to process");
-               raise Parameter_Error;
+            Free (Target);
+            Target := new String'(String (My_Project.Tree.Target));
+         end if;
 
-            when 1 =>
-               --  Important and useful particular case - exactly one project
-               --  is aggregated, so we load it in the environment that already
-               --  has all the settings from the argument aggregate project:
+         My_Project.Tree.Update_Sources (Messages => Log);
 
-               Aggregated_Prj_Name := Get_Aggregated_Prj_Src;
-
-               Agg_Context :=
-                 GPR2.Project.View.Set.Set.Element
-                   (My_Project.Tree.Root_Project.Aggregated.First).Context;
-
-               Conf_Obj := My_Project.Tree.Configuration;
-               My_Project.Tree.Unload;
-
-               My_Project.Tree.Load
-                 (Filename          => Aggregated_Prj_Name,
-                  Context           => Agg_Context,
-                  Config            => Conf_Obj,
-                  Subdirs           =>
-                    (if Subdir_Name = null
-                     then No_Name
-                     else Name_Type (Subdir_Name.all)));
-
-               if not My_Project.Tree.Has_Runtime_Project then
-                  for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-                    (Information => Verbosity_Level > 0)
-                  loop
-                     Error (GPR2.Log.Element (Msg_Cur).Format);
-                  end loop;
-                  Error
-                    (""""
-                     & String (Aggregated_Prj_Name.Simple_Name)
-                     & """ processing failed");
-
-                  raise Parameter_Error;
-
-               end if;
-
-               My_Project.Tree.Update_Sources
-                 (Stop_On_Error => True,  With_Runtime => True);
-
-            when others =>
-               --  General case - more than one project is aggregated. We have
-               --  process them one by one spawning gnatcheck for each project.
-
-               --  We still need to check if sources can be succesfully loaded,
-               --  otherwise there might be a discrepancy when gnatcheck
-               --  silently acceptsa project that gprtools will reject.
-               --  We don't need run time sources here as no actual processing
-               --  is going to happen.
-               My_Project.Tree.Update_Sources
-                 (Stop_On_Error => True,  With_Runtime => False);
-         end case;
-      else
-         My_Project.Tree.Update_Sources
-           (Stop_On_Error => True,  With_Runtime => True);
-      end if;
-
-      for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-        (Information => Verbosity_Level > 0,
-         Warning     => Verbose_Mode)
-      loop
-         Error (GPR2.Log.Element (Msg_Cur).Format);
-
-         if not Missing_File_Detected then
+         for Msg_Cur in Log.Iterate
+           (Information => False,
+            Warning     => False)
+         loop
             Missing_File_Detected :=
               Report_Missing_File (GPR2.Log.Element (Msg_Cur).Format);
+
+            exit when Missing_File_Detected;
+         end loop;
+
+         Has_Error := Log.Has_Element
+           (Error       => True,
+            Warning     => False,
+            Information => False,
+            Read        => True);
+
+         if Has_Error then
+            raise Parameter_Error;
          end if;
-      end loop;
+      end if;
 
    exception
-      when GPR2.Project_Error | GPR2.Processing_Error =>
-            for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-              (Information => Verbosity_Level > 0)
-            loop
-               Error (GPR2.Log.Element (Msg_Cur).Format);
-            end loop;
-            raise Parameter_Error;
+      when E : GPR2.Options.Usage_Error =>
+         Error ("usage error: " & Ada.Exceptions.Exception_Message (E));
+         raise Parameter_Error;
    end Load_Tool_Project;
 
    --------------------------
@@ -716,13 +552,14 @@ package body Gnatcheck.Projects is
      (My_Project : in out Arg_Project_Type'Class) is
    begin
       Set_External_Values (My_Project);
+
       if Aggregated_Project then
          Load_Aggregated_Project (My_Project);
       else
          Load_Tool_Project (My_Project);
       end if;
 
-      if N_Of_Aggregated_Projects > 1 then
+      if Aggregate.Num_Of_Aggregated_Projects > 1 then
          if not Main_Unit.Is_Empty then
             Error ("'-U main' cannot be used if aggregate project");
             Error_No_Tool_Name
@@ -851,22 +688,19 @@ package body Gnatcheck.Projects is
       GPR_TOOL_Set : Boolean := False;
       use GPR2;
    begin
-      for Var of X_Vars loop
-         Project_Context.Include
-           (Name_Type (Var.Var_Name.all),
-            Var.Var_Value.all);
+      --  Set GPR_TOOL, if needed
 
-         if Var.Var_Name.all = "GPR_TOOL" then
+      for Cursor in Project_Options.Context.Iterate loop
+         if Containers.Name_Value_Map_Package.Key (Cursor) = "GPR_TOOL" then
             GPR_TOOL_Set := True;
+            exit;
          end if;
       end loop;
-
-      --  Set GPR_TOOL, if needed
 
       if not Ada.Environment_Variables.Exists ("GPR_TOOL")
         and then not GPR_TOOL_Set
       then
-         Project_Context.Include ("GPR_TOOL", "gnatcheck");
+         Project_Options.Add_Switch (GPR2.Options.X, "GPR_TOOL=gnatcheck");
       end if;
    end Set_External_Values;
 
@@ -883,14 +717,16 @@ package body Gnatcheck.Projects is
               (GNAT.Directory_Operations.Get_Current_Dir));
 
       Dir : constant String :=
-        (if not No_Object_Dir and then Gnatcheck_Prj.Is_Specified then
-           (if My_Project.Tree.Root_Project.Kind in K_Abstract |
-                                                    K_Aggregate then
-               My_Project.Tree.Root_Project.Path_Name.Dir_Name
-            else
-               My_Project.Tree.Root_Project.Object_Directory.Dir_Name)
-         else
-            Cur_Dir.Dir_Name);
+              String
+                (if not No_Object_Dir and then Gnatcheck_Prj.Is_Specified
+                 then  (if My_Project.Tree.Root_Project.Kind not in
+                     GPR2.With_Object_Dir_Kind
+                   then
+                      My_Project.Tree.Root_Project.Path_Name.Dir_Name
+                   else
+                      My_Project.Tree.Root_Project.Object_Directory.Dir_Name)
+                 else
+                    Cur_Dir.Dir_Name);
    begin
       GNAT.OS_Lib.Free (Global_Report_Dir);
       Global_Report_Dir := new String'(Dir);
@@ -935,7 +771,7 @@ package body Gnatcheck.Projects is
          return "";
       elsif My_Project.Tree.Is_Defined then
          return My_Project.Tree.
-           Configuration.Corresponding_View.Path_Name.Value;
+           Configuration.Corresponding_View.Path_Name.String_Value;
       else
          return My_Project.Source_CGPR.all;
       end if;
@@ -947,12 +783,13 @@ package body Gnatcheck.Projects is
 
    procedure Append_Variables
      (Args : in out Argument_List;
-      Last : in out Natural) is
+      Last : in out Natural)
+   is
    begin
       for Var of X_Vars loop
          Last := Last + 1;
          Args (Last) :=
-           new String'("-X" & Var.Var_Name.all & "=" & Var.Var_Value.all);
+           new String'("-X" & Var);
       end loop;
    end Append_Variables;
 
@@ -961,37 +798,9 @@ package body Gnatcheck.Projects is
    -----------------------------
 
    procedure Store_External_Variable (Var : String) is
-      Var_Name_Start  : constant Natural := Var'First;
-      Var_Name_End    :          Natural := Index (Var, "=");
-      Var_Value_Start :          Natural;
-      Var_Value_End   : constant Natural := Var'Last;
-
-      New_Var_Rec : X_Var_Record;
-
-      use X_Vars_Sets;
-      C : Cursor;
    begin
-      if Var_Name_End <= Var_Name_Start then
-         Error ("wrong parameter of -X option: " & Var);
-         raise Parameter_Error;
-      else
-         Var_Name_End    := Var_Name_End - 1;
-         Var_Value_Start := Var_Name_End + 2;
-         New_Var_Rec    :=
-           (Var_Name  => new String'(Var (Var_Name_Start .. Var_Name_End)),
-            Var_Value => new String'(Var (Var_Value_Start .. Var_Value_End)));
-      end if;
-
-      C := Find (X_Vars, New_Var_Rec);
-
-      if Has_Element (C) then
-         Replace_Element (Container => X_Vars,
-                          Position  => C,
-                          New_Item  => New_Var_Rec);
-
-      else
-         Insert (X_Vars, New_Var_Rec);
-      end if;
+      X_Vars.Include (Var);
+      Project_Options.Add_Switch (GPR2.Options.X, Var);
    end Store_External_Variable;
 
    ---------------------
@@ -1003,8 +812,7 @@ package body Gnatcheck.Projects is
       Store       : Boolean := True) is
    begin
       if Store then
-         Gnatcheck.Projects.Main_Unit.Append
-           (GPR2.Path_Name.Create_File (GPR2.Filename_Type (Unit_Name)));
+         Gnatcheck.Projects.Main_Unit.Include (GPR2.Filename_Type (Unit_Name));
       end if;
    end Store_Main_Unit;
 
@@ -1039,14 +847,7 @@ package body Gnatcheck.Projects is
      (My_Project     : in out Arg_Project_Type;
       CGPR_File_Name : String) is
    begin
-      if CGPR_File_Set then
-         Error ("cannot have several configuration project files specified");
-         raise Parameter_Error;
-      else
-         CGPR_File_Set := True;
-      end if;
-
-      My_Project.Source_CGPR := new String'(CGPR_File_Name);
+      Project_Options.Add_Switch (GPR2.Options.Config, CGPR_File_Name);
    end Store_CGPR_Source;
 
    -------------------------------------
@@ -1728,27 +1529,13 @@ package body Gnatcheck.Projects is
          Print_Version_Info (2004);
       end if;
 
-      if Print_Version then
-         Print_Tool_Version (2004);
-         Nothing_To_Do := True;
-         return;
-      end if;
-
-      if Print_Usage then
-         Print_Gnatcheck_Usage;
-         Nothing_To_Do := True;
-         return;
-      end if;
-
       --  We generate the rule help unconditionally
 
-      if Generate_Rules_Help and then not Aggregated_Project then
+      if Generate_Rules_Help then
          Rules_Help;
       end if;
 
-      if Gnatcheck.Options.Generate_XML_Help
-        and then not Aggregated_Project
-      then
+      if Gnatcheck.Options.Generate_XML_Help then
          XML_Help;
       end if;
 
@@ -1890,7 +1677,6 @@ package body Gnatcheck.Projects is
 
       Ada.Directories.Create_Path (Global_Report_Dir.all);
       Gnatcheck.Output.Set_Report_Files;
-
    end Check_Parameters;
 
 end Gnatcheck.Projects;

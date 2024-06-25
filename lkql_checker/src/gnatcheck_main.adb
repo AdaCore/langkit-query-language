@@ -374,6 +374,22 @@ begin
       OS_Exit (E_Success);
    end if;
 
+   --  If no project is specified, just generate the rules help now as we
+   --  know the default project won't have any gnatcheck switches that may
+   --  change the list of rules.
+
+   if not Gnatcheck_Prj.Is_Specified then
+      if Generate_Rules_Help then
+         Rules_Help;
+         OS_Exit (E_Success);
+      end if;
+
+      if Gnatcheck.Options.Generate_XML_Help then
+         XML_Help;
+         OS_Exit (E_Success);
+      end if;
+   end if;
+
    Gnatcheck.Projects.Set_Default_Target;
 
    --  If we have the project file specified as a tool parameter, analyze it.

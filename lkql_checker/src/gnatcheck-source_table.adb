@@ -26,10 +26,10 @@ with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
+with GPR2.Build.Source.Sets;
 with GPR2.Path_Name;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
-with GPR2.Project.Source.Set;
 
 with Langkit_Support.Generic_API.Analysis;
 with Langkit_Support.Generic_API.Introspection;
@@ -237,8 +237,9 @@ package body Gnatcheck.Source_Table is
      (Ctx     : Checker_App.Lkql_Context;
       Project : Arg_Project_Type'Class)
    is
+      use GPR2;
       use GPR2.Project.View;
-      use GPR2.Project.Source.Set;
+      use GPR2.Build.Source.Sets;
       Units : Unit_Vectors.Vector;
 
    begin
@@ -252,12 +253,12 @@ package body Gnatcheck.Source_Table is
          --  We want to add all sources from the project and not just the
          --  sources from Source_Name, so that global queries are complete.
 
-         for View of Project.Tree.all loop
+         for View of Project.Tree loop
             for Src of View.Sources loop
-               if Src.Is_Ada then
+               if Src.Language = GPR2.Ada_Language then
                   Units.Append
                     (Ctx.Analysis_Ctx.Get_From_File
-                       (String (Src.Path_Name.Value)));
+                       (Src.Path_Name.String_Value));
                end if;
             end loop;
          end loop;
@@ -302,14 +303,17 @@ package body Gnatcheck.Source_Table is
 
       if Arg_Project.Tree.Is_Defined then
          declare
-            Res : constant GPR2.Path_Name.Object :=
-              Arg_Project.Tree.Get_File
-                (Filename_Optional (Base_Name (Fname)));
+            Root : constant GPR2.Project.View.Object :=
+                     Arg_Project.Tree.Namespace_Root_Projects.First_Element;
+            Res : constant GPR2.Build.Source.Object :=
+                     Root.View_Db.Visible_Source
+                       (GPR2.Path_Name.Simple_Name (Filename_Type (Fname)));
          begin
             if not Res.Is_Defined then
                Free (Short_Source_Name_String);
             else
-               Short_Source_Name_String := new String'(Res.Value);
+               Short_Source_Name_String :=
+                 new String'(Res.Path_Name.String_Value);
             end if;
          end;
       end if;
@@ -1584,7 +1588,7 @@ package body Gnatcheck.Source_Table is
       then
          if Partition = null then
             Partition :=
-              Create_Project_Unit_Providers (Gnatcheck_Prj.Tree.all);
+              Create_Project_Unit_Providers (Gnatcheck_Prj.Tree);
          end if;
 
          --  We can ignore multiple partitions: this will only occur with
@@ -1598,7 +1602,7 @@ package body Gnatcheck.Source_Table is
          --  Setup the configuration pragma mapping by reading the
          --  configuration file given by the project.
          Libadalang.Config_Pragmas.Import_From_Project
-           (Ctx.Analysis_Ctx, Gnatcheck_Prj.Tree.all);
+           (Ctx.Analysis_Ctx, Gnatcheck_Prj.Tree);
       end if;
 
       --  Initialize the cached rules array, with an array that goes from

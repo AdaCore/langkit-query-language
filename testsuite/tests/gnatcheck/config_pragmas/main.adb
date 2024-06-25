@@ -1,4 +1,4 @@
-procedure Test is  --  FLAG (4)
+procedure Main is  --  FLAG (4)
 begin
    null;
-end Test;
+end Main;

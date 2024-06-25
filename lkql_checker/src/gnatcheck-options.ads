@@ -69,9 +69,6 @@ package Gnatcheck.Options is
    --  tool (includes both wrong parameters and wrong combinations of correct
    --  parameters).
 
-   N_Of_Aggregated_Projects : Natural := 0;
-   --  Number of aggregated projects found
-
    Gnatkp_Mode : Boolean := Executable = "gnatkp";
    --  Whether we are running in KP detection mode
    --  Set either when the executable is called gnatkp or with the debug switch

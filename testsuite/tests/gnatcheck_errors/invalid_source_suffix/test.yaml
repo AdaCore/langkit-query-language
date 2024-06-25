@@ -1,8 +1,0 @@
-driver: gnatcheck
-format: short
-input_sources:
- - main.adb
- - bad__suffix.adb
-rules:
- - +RGoto_Statements
- - +RRestrictions:No_Specification_Of_Aspect=>Iterable

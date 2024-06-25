@@ -1,6 +1,6 @@
 with Pouet;
 
-procedure Test is
+procedure Main is
 begin
    null;
-end Test;
+end Main;
