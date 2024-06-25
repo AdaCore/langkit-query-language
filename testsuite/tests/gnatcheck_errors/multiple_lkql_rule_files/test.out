@@ -1,3 +1,5 @@
+gnatcheck: '-rules' section is deprecated, please prefer the usage of '--rules' to provide an LKQL rule configuration file
+gnatcheck: use the '--emit-lkql-rule-file' flag to automatically translate your current rule configuration to an LKQL rule file
 gnatcheck: only one LKQL configuration file is allowed
 1. Summary
 

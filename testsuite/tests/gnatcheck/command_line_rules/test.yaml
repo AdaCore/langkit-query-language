@@ -6,8 +6,7 @@ input_sources:
 
 tests:
   - label: Valid '-r' option
-    extra_args:
-      - -r
+    rules:
       - goto_statements
       - Redundant_Null_Statements
   - label: Empty '-r' option

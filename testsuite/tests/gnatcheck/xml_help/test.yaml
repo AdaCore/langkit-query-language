@@ -1,3 +1,4 @@
+description: Ensure the output of '-hx' flag
 driver: gnatcheck
 extra_args:
-  - -hx
+- -hx

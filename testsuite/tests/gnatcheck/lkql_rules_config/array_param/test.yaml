@@ -1,10 +1,10 @@
+description: Testing an LKQL rule file to configure an array param rule
 driver: gnatcheck
 format: brief
 input_sources:
- - main.adb
-
+- main.adb
 tests:
- - label: Direct_Equalities
-   lkql_rule_file: direct_eq.lkql
- - label: Invalid type
-   lkql_rule_file: invalid_type.lkql
+- label: Direct_Equalities
+  lkql_rule_file: direct_eq.lkql
+- label: Invalid type
+  lkql_rule_file: invalid_type.lkql

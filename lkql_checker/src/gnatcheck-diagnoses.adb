@@ -1423,10 +1423,7 @@ package body Gnatcheck.Diagnoses is
                New_Line (Rule_List_File);
                Put_Line (Rule_List_File, "-- Compiler style checks:");
                Put      (Rule_List_File, "+RStyle_Checks : ");
-               Put_Line (Rule_List_File,
-                         Get_Style_Option
-                           (Get_Style_Option'First + 6 ..
-                              Get_Style_Option'Last));
+               Put_Line (Rule_List_File, Get_Specified_Style_Option);
             end if;
 
             if Use_gnatw_Option then
@@ -1465,10 +1462,7 @@ package body Gnatcheck.Diagnoses is
               ("<rule id=""Style_Checks"">",
                Indent_Level => 2);
             XML_Report
-              ("<parameter>" &
-                 Get_Style_Option
-                   (Get_Style_Option'First + 6 ..
-                      Get_Style_Option'Last) & "</parameter>",
+              ("<parameter>" & Get_Specified_Style_Option & "</parameter>",
                Indent_Level => 3);
             XML_Report ("</rule>", Indent_Level => 2);
          end if;

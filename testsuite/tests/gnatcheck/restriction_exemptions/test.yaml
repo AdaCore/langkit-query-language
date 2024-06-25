@@ -1,4 +1,5 @@
-format: full
+description: Testing exemption the 'Restrictions' rule
 driver: gnatcheck
 project: prj.gpr
-rule_file: rules.txt
+format: full
+lkql_rule_file: rules.lkql

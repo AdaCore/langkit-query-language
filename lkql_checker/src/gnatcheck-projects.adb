@@ -1255,6 +1255,23 @@ package body Gnatcheck.Projects is
          --  Processing the 'rules' section
          Goto_Section ("rules", Parser => Parser);
 
+         --  The '-rules' section is deprecated, display a warning message
+         --  about it.
+         if Current_Section (Parser => Parser) = "-rules" then
+            if not Rules_Warning_Emitted then
+               Warning
+                 ("'-rules' section is deprecated, please prefer the usage " &
+                  "of '--rules' to provide an LKQL rule configuration file");
+               if not Arg.Emit_LKQL_Rule_File.Get then
+                  Warning
+                    ("use the '--emit-lkql-rule-file' flag to automatically " &
+                     "translate your current rule configuration to an LKQL "  &
+                     "rule file");
+               end if;
+               Rules_Warning_Emitted := True;
+            end if;
+         end if;
+
          loop
             case GNAT.Command_Line.Getopt
               ("* from= from-lkql=", Parser => Parser) is

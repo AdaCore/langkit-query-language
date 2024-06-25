@@ -1,0 +1,4 @@
+val rules = @{
+    goto_statements,
+    restrictions: [{arg: ["No_Specification_Of_Aspect => Iterable"]}]
+}

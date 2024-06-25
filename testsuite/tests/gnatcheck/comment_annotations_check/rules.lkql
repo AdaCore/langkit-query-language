@@ -1,0 +1,8 @@
+val rules = @{
+    identifier_prefixes: [{type: "T_"}],
+    subprogram_access,
+    expression_functions: [{instance_name: "expr_func"}],
+    implicit_in_mode_parameters: [{instance_name: "implicit_in"}],
+    forbidden_pragmas: [{forbidden: ["import"]}],
+    goto_statements
+}

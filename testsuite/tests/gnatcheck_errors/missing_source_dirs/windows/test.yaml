@@ -1,9 +1,11 @@
+description: Testing the behavior when a source dir from the project file is missing
+  (on Windows)
 driver: gnatcheck
-format: brief
 project: prj.gpr
+format: brief
 rules:
-  - +RGOTO_Statements
+- goto_statements
 control:
-  - [SKIP,
-     "os != 'windows'",
-     "Disable this test on non-Windows systems due to path formatting"]
+- - SKIP
+  - os != 'windows'
+  - Disable this test on non-Windows systems due to path formatting

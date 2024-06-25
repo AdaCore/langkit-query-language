@@ -1,7 +1,8 @@
+description: Testing the handling of unparseable messages coming from the worker
 driver: gnatcheck
+worker: python bogus_lkql.py
 format: brief
-worker: "python bogus_lkql.py"
 input_sources:
-  - main.adb
+- main.adb
 rules:
-  - +RGOTO_Statements
+- goto_statements

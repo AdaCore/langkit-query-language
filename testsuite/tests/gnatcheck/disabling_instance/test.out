@@ -1,6 +1,8 @@
 Disable an instance with its name
 =================================
 
+gnatcheck: '-rules' section is deprecated, please prefer the usage of '--rules' to provide an LKQL rule configuration file
+gnatcheck: use the '--emit-lkql-rule-file' flag to automatically translate your current rule configuration to an LKQL rule file
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -8,10 +10,14 @@ try "gnatcheck --help" for more information.
 Disable an instance with a previously given parameter
 =====================================================
 
+gnatcheck: '-rules' section is deprecated, please prefer the usage of '--rules' to provide an LKQL rule configuration file
+gnatcheck: use the '--emit-lkql-rule-file' flag to automatically translate your current rule configuration to an LKQL rule file
 main.adb:3:04: goto statement [cond_goto|goto_statements]
 main.adb:8:07: goto statement [cond_goto|goto_statements]
 
 Disabling the wrong instance
 ============================
 
+gnatcheck: '-rules' section is deprecated, please prefer the usage of '--rules' to provide an LKQL rule configuration file
+gnatcheck: use the '--emit-lkql-rule-file' flag to automatically translate your current rule configuration to an LKQL rule file
 main.adb:3:04: goto statement [cond_goto|goto_statements]

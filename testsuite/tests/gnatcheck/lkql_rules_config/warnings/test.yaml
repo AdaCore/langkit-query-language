@@ -1,5 +1,6 @@
+description: Testing the 'Warnings' rule configuration through an LKQL rule file
 driver: gnatcheck
 format: brief
 input_sources:
- - main.adb
+- main.adb
 lkql_rule_file: config.lkql

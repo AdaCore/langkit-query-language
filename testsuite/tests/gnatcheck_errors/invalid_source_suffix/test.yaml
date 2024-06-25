@@ -1,8 +1,7 @@
+description: Testing the error handling when there are wrongly named sources
 driver: gnatcheck
 format: short
 input_sources:
- - main.adb
- - bad__suffix.adb
-rules:
- - +RGoto_Statements
- - +RRestrictions:No_Specification_Of_Aspect=>Iterable
+- main.adb
+- bad__suffix.adb
+lkql_rule_file: rules.lkql

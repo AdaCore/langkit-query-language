@@ -1,5 +1,6 @@
+description: Testing the error message when an excluded source is missing
 driver: gnatcheck
-format: brief
 project: prj.gpr
+format: brief
 rules:
-  - +RGOTO_Statements
+- goto_statements

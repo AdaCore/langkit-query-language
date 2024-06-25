@@ -240,6 +240,14 @@ The following switches control the general ``gnatcheck`` behavior
 ``--include-file=file``
   Append the content of the specified text file to the report file
 
+  .. index:: --emit-lkql-rule-file
+
+``--emit-lkql-rule-file``
+  Emit a file named ``rules.lkql`` containing the rule configuration of the
+  current GNATcheck run. This file is emitted besides the given project file
+  if there is one, otherwise, it is generated in the current directory.
+  Be careful, if a ``rules.lkql`` file already exists, it will be overwritten.
+
   .. index:: -t
 
 ``-t``
@@ -272,6 +280,16 @@ The following switches control the general ``gnatcheck`` behavior
   Provide rule options for the current GNATcheck run through the command-line.
   All switches and options provided after this flag will be parse as
   :ref:`rule options<gnatcheck_Rule_Options>`.
+
+  .. attention::
+
+    This flag and all rule options section are deprecated. If you use the
+    ``-rules`` flag, you will get a warning message informing you about this
+    deprecation.
+    From now, you should use ``--rules=filename`` and ``-r [rule_names]``
+    command-line options to provide a rules configuration.
+    You can also use the ``--emit-lkql-rule-file`` flag to automatically
+    translate your current GNATcheck rule options to an LKQL rule file.
 
 If a project file is specified and no argument source is explicitly
 specified (either directly or by means of ``-files`` option), and no

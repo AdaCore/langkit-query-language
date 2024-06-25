@@ -1,10 +1,10 @@
+description: Testing 'identifier_prefixes' configuration through an LKQL rule file
 driver: gnatcheck
 format: brief
 input_sources:
- - main.adb
-
+- main.adb
 tests:
- - label: Valid run
-   lkql_rule_file: config.lkql
- - label: Exclusive parameter
-   lkql_rule_file: exclusive.lkql
+- label: Valid run
+  lkql_rule_file: config.lkql
+- label: Exclusive parameter
+  lkql_rule_file: exclusive.lkql

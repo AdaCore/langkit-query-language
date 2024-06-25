@@ -6,7 +6,7 @@
 # Hence we must detect two times the violation in src_2/test.ads.
 
 driver: gnatcheck
-format: brief
 project: agg.gpr
+format: brief
 rules:
-  - +Rlocal_packages
+- local_packages

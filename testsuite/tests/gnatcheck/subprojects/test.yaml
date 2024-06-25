@@ -1,4 +1,4 @@
-# This test is to assert that subprojects are taken into account by rules:
+# This test is to assert that subprojects are taken into account by old_rules:
 # even though we run it on `root_prj.gpr`, "same_instantiations" will find a
 # rule violation in a source of `dep_prj.gpr` (meaning `select` queries such
 # as can be found in "same_instantiations.lkql:insts` correctly consider units
@@ -9,4 +9,4 @@
 driver: gnatcheck
 project: root_prj.gpr
 rules:
-  - +Rsame_instantiations
+- same_instantiations
