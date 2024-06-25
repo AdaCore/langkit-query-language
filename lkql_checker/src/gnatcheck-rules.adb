@@ -12,6 +12,7 @@ with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 with GNAT.OS_Lib;
 with GNAT.String_Split;          use GNAT.String_Split;
 
+with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
@@ -2030,12 +2031,17 @@ package body Gnatcheck.Rules is
                "others");
 
          elsif Has_Prefix (Norm_Param, "exclude=") then
-            if not Load_Dictionary
+            if Load_Dictionary
               (Instance,
                Expand_Env_Variables
                  (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last)),
                Tagged_Instance.Exclude)
             then
+               Set_Unbounded_Wide_Wide_String
+                 (Tagged_Instance.Exclude_File,
+                  To_Wide_Wide_String (Norm_Param
+                    (Norm_Param'First + 8 .. Norm_Param'Last)));
+            else
                Turn_Instance_Off (Instance);
             end if;
 
@@ -2396,7 +2402,7 @@ package body Gnatcheck.Rules is
          Args.Append
            (Rule_Argument'
               (Name  => To_Unbounded_Text (Name),
-               Value => To_Unbounded_Text (Value'Wide_Wide_Image)));
+               Value => To_Unbounded_Text (To_Text (Image (Value)))));
       end if;
    end Append_Int_Param;
 
@@ -2457,7 +2463,7 @@ package body Gnatcheck.Rules is
             C := Element (Value, J);
 
             if C = ',' then
-               Append (Param, """,""");
+               Append (Param, """, """);
             else
                Append (Param, C);
             end if;
@@ -2577,12 +2583,12 @@ package body Gnatcheck.Rules is
                      end if;
 
                   when ':'    =>
-                     Append (Param, """,""");
+                     Append (Param, """, """);
                      Num_Elements := @ + 1;
                      Lower := True;
 
                   when ','    =>
-                     Append (Param, """),(""");
+                     Append (Param, """), (""");
                      Num_Elements := 1;
                      Lower := True;
 
@@ -2630,13 +2636,13 @@ package body Gnatcheck.Rules is
                end if;
 
                Append (Param, To_Lower (Str (Current .. Dot - 1)));
-               Append (Param, """,""");
+               Append (Param, """, """);
                Append (Param, To_Lower (Str (Dot + 1 .. Next_Comma - 1)));
                Current := Next_Comma + 1;
 
                exit when Current > Str'Last;
 
-               Append (Param, """),(""");
+               Append (Param, """), (""");
             end loop;
 
             Append (Param, """)]");
@@ -2787,14 +2793,115 @@ package body Gnatcheck.Rules is
      (Rule       : Rule_Info;
       Rule_File  : File_Type;
       Mode       : Source_Modes;
+      For_Worker : Boolean;
       First_Rule : in out Boolean)
    is
+      Mode_String : constant String :=
+        (case Mode is
+            when General    => "rules",
+            when Ada_Only   => "ada_rules",
+            when Spark_Only => "spark_rules");
+
       Instance_Names : String_Vector;
       Instance       : Rule_Instance_Access;
       Args           : Rule_Argument_Vectors.Vector;
 
       First_Instance : Boolean := True;
       First_Param    : Boolean := True;
+
+      procedure Postprocess_Args;
+      --  Perform the required post-processing on mapped args to emit an LKQL
+      --  file usable by GNATcheck.
+
+      procedure Postprocess_Args is
+         Lower_Rule_Name : constant String := To_Lower (Rule_Name (Rule));
+      begin
+         --  For "headers" and "name_clashes" rules, set the argument value to
+         --  the name of the file.
+         if Lower_Rule_Name = "headers"
+           or else Lower_Rule_Name = "name_clashes"
+         then
+            declare
+               Str_Instance : constant One_String_Parameter_Instance :=
+                 One_String_Parameter_Instance (Instance.all);
+               Filename : constant Text_Type :=
+                 To_Text (To_String (Str_Instance.File));
+            begin
+               Set_Unbounded_Wide_Wide_String
+                 (Args (1).Value, '"' & Filename & '"');
+            end;
+
+         --  For the "identifier_suffixes" rule, process the "access_suffix"
+         --  arg to format it like `<access_suffix>(<access_access_suffix>)`.
+         elsif Lower_Rule_Name = "identifier_suffixes" then
+            declare
+               Id_Suf_Instance : constant Identifier_Suffixes_Instance :=
+                 Identifier_Suffixes_Instance (Instance.all);
+               To_Delete : Natural := 0;
+               Acc_Suf_Value : constant Text_Type := To_Text
+                 ((if Length (Id_Suf_Instance.Access_Access_Suffix) = 0
+                   then Id_Suf_Instance.Access_Suffix
+                   else Id_Suf_Instance.Access_Suffix &
+                       '(' & Id_Suf_Instance.Access_Access_Suffix & ')'));
+            begin
+               for I in Args.First_Index .. Args.Last_Index loop
+                  if Args (I).Name = "access_suffix" then
+                     Set_Unbounded_Wide_Wide_String
+                       (Args (I).Value, '"' & Acc_Suf_Value & '"');
+                  elsif Args (I).Name = "access_access_suffix" then
+                     To_Delete := I;
+                  end if;
+               end loop;
+               if To_Delete /= 0 then
+                  Args.Delete (To_Delete);
+               end if;
+            end;
+
+         --  For the "identifier_casing" rule, if there is a "exclude" file,
+         --  add it into the argument list.
+         elsif Lower_Rule_Name = "identifier_casing" then
+            declare
+               Id_Cas_Instance : constant Identifier_Casing_Instance :=
+                 Identifier_Casing_Instance (Instance.all);
+               Filename : constant Text_Type :=
+                 To_Text (Id_Cas_Instance.Exclude_File);
+            begin
+               for I in Args.First_Index .. Args.Last_Index loop
+                  if Args (I).Name = "exclude" then
+                     Set_Unbounded_Wide_Wide_String
+                       (Args (I).Value, '"' & Filename & '"');
+                  end if;
+               end loop;
+            end;
+
+         --  For the "silent_exception_handlers", process all subprogram
+         --  regexps to add a '|' char before
+         elsif Lower_Rule_Name = "silent_exception_handlers" then
+            declare
+               Subp_Value : Unbounded_Text_Type;
+            begin
+               for I in Args.First_Index .. Args.Last_Index loop
+                  if Args (I).Name = "subprograms" then
+                     Append (Subp_Value, Slice
+                       (Args (I).Value, 2, Length (Args (I).Value) - 1));
+                  elsif Args (I).Name = "subprogram_regexps" then
+                     for R of Parse_LKQL_List (To_String (Args (I).Value)) loop
+                        if Length (Subp_Value) /= 0 then
+                           Append (Subp_Value, ", ");
+                        end if;
+                        Append (Subp_Value, To_Text (Insert (R, 2, "|")));
+                     end loop;
+                  end if;
+               end loop;
+
+               Args.Clear;
+               Args.Append (Rule_Argument'
+                 (Name  => To_Unbounded_Text ("subprograms"),
+                  Value => To_Unbounded_Text
+                    ('[' & To_Text (Subp_Value) & ']')));
+            end;
+         end if;
+      end Postprocess_Args;
    begin
       --  Get all instances to print into the LKQL file
       for Instance of Rule.Instances loop
@@ -2805,10 +2912,15 @@ package body Gnatcheck.Rules is
 
       --  Then iterate oven them to output them if there are some
       if not Instance_Names.Is_Empty then
-         --  If this is not the first rule to be printed, add a comma
-         --  before anything
+         --  If this is the first rule to be displayed, print the object
+         --  declaration.
          if First_Rule then
+            if Mode /= General then
+               Put_Line (Rule_File, "val " & Mode_String & " = @{");
+            end if;
             First_Rule := False;
+
+         --  Else, print a comma
          else
             Put_Line (Rule_File, ",");
          end if;
@@ -2819,6 +2931,9 @@ package body Gnatcheck.Rules is
             First_Param := True;
             Args.Clear;
             Map_Parameters (Instance.all, Args);
+            if not For_Worker then
+               Postprocess_Args;
+            end if;
 
             if not Args.Is_Empty
               or else Instance.Is_Alias
@@ -2862,6 +2977,50 @@ package body Gnatcheck.Rules is
          end if;
       end if;
    end Print_Rule_Instances_To_LKQL_File;
+
+   --------------------------------------
+   -- Print_Compiler_Rule_To_LKQL_File --
+   --------------------------------------
+
+   procedure Print_Compiler_Rule_To_LKQL_File
+     (Compiler_Rule : Rule_Id;
+      Rule_File     : File_Type;
+      First_Rule    : in out Boolean)
+   is
+   begin
+      --  First of all, check that the rule is enabled
+      if not Is_Enabled (Compiler_Rule) then
+         return;
+      end if;
+
+      --  If this is not the first rule to be printed, add a comma
+      --  before anything.
+      if First_Rule then
+         First_Rule := False;
+      else
+         Put_Line (Rule_File, ",");
+      end if;
+      Put (Rule_File, "    " & Rule_Name (Compiler_Rule) & ": [{arg: ");
+
+      --  Print the rule options
+      if Compiler_Rule = Style_Checks_Id then
+         Put (Rule_File, """" & Get_Specified_Style_Option & """");
+      elsif Compiler_Rule = Warnings_Id then
+         Put (Rule_File, """" & Get_Specified_Warning_Option & """");
+      else
+         Put
+           (Rule_File,
+            "[" &
+            Active_Restrictions_List
+              (Separator => ", ",
+               Elem_Prefix => """",
+               Elem_Postfix => """") &
+            "]");
+      end if;
+
+      --  Close the instances list
+      Put (Rule_File, "}]");
+   end Print_Compiler_Rule_To_LKQL_File;
 
    -------------------
    -- Annotate_Rule --
@@ -3202,6 +3361,9 @@ package body Gnatcheck.Rules is
          begin
             Params_Object.Unset_Field ("exclude");
             if File_Content /= Null_Unbounded_String then
+               Set_Unbounded_Wide_Wide_String
+                 (Instance.Exclude_File,
+                  To_Wide_Wide_String (Exclude_File));
                Set_Unbounded_Wide_Wide_String
                  (Instance.Exclude,
                   To_Wide_Wide_String (To_String (File_Content)));
@@ -4171,7 +4333,7 @@ package body Gnatcheck.Rules is
    begin
       if Abs_Name /= "" then
          Str := Read_File (Abs_Name);
-         Ada.Strings.Unbounded.Set_Unbounded_String (Instance.File, Abs_Name);
+         Ada.Strings.Unbounded.Set_Unbounded_String (Instance.File, To_Load);
 
          Last := Str'Last;
 

@@ -145,9 +145,11 @@ class GnatcheckDriver(BaseDriver):
           associations to pass as scenario variables to GNATcheck.
         - ``extra_args`` (list[str]): Extra arguments to pass to GNATcheck.
 
-        - ``rules`` (list[str]): A list of rules with their arguments, in the
-          gnatcheck format.  Note that the list can be empty, and people can
-          instead decide to pass rules via the project file.
+        - ``rules`` (list[str]): A list of rule names to enable during the
+          test.
+        - ``old_rules`` (list[str]): A list of rules with their arguments, in
+          the gnatcheck format.  Note that the list can be empty, and people
+          can instead decide to pass rules via the project file.
         - ``rule_file`` (str): If passed, will be forwarded as `-from` to
           gnatcheck.
         - ``lkql_rule_file`` (str): If passed, will be forwarded as `--from-lkql`
@@ -221,7 +223,31 @@ class GnatcheckDriver(BaseDriver):
                 for project_dir in project_path
             ])
 
-        globs, locs = {}, {}
+        def cat(
+            filename: str,
+            sort: bool = False,
+            trim_start: int = 0,
+            trim_end: int = 0
+        ):
+            """
+            Add the content of ``filename`` to the test output if it is readable.
+            This filename must be relative to the test working dir.
+
+            :param sort: Whether to sort the content of the file.
+            :param trim_start: Count of lines to trim from the file start.
+            :param trim_end: Count of lines to trim from the file end.
+            """
+            try:
+                with open(self.working_dir(filename), 'r') as f:
+                    lines = f.readlines()
+                    lines = lines[trim_start:len(lines) - trim_end]
+                    if sort:
+                        lines.sort()
+                    self.output += f"testsuite_driver: Content of {filename}\n{''.join(lines)}"
+            except FileNotFoundError:
+                self.output += f"testsuite_driver: Cannot find the file {filename}\n"
+
+        globs, locs = {'cat': cat}, {}
         global_python = self.test_env.get("global_python", None)
         if global_python:
             exec(global_python, globs, locs)
@@ -327,6 +353,12 @@ class GnatcheckDriver(BaseDriver):
             if test_data.get('lkql_rule_file', None):
                 args.append(f"--rule-file={test_data['lkql_rule_file']}")
 
+            # Add rules to enable
+            if test_data.get('rules', None):
+                for r in test_data['rules']:
+                    args.append("-r")
+                    args.append(r)
+
             # Finally add all extra arguments given in the test
             for extra_arg in test_data.get('extra_args', []):
                 args.append(extra_arg)
@@ -344,7 +376,7 @@ class GnatcheckDriver(BaseDriver):
                 args += ['-from', rule_file]
 
             # Add all rules options, add it to the command-line
-            for r in test_data.get('rules', []):
+            for r in test_data.get('old_rules', []):
                 args.append(r)
 
             # Finally, add the extra rule options
@@ -451,4 +483,8 @@ class GnatcheckDriver(BaseDriver):
 
     def parse_flagged_lines(self, output: str, format: str) -> Flags:
         assert format in self.output_formats
-        return self.parsers[format](output)
+        try:
+            return self.parsers[format](output)
+        except ET.ParseError:
+            self.output += "Error while parsing the XML GNATcheck output file\n"
+            return {}

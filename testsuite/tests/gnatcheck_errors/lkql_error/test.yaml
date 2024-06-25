@@ -1,7 +1,8 @@
+description: Testing the handling of an error coming from the LKQL layer
 driver: gnatcheck
 project: prj.gpr
-rules_dirs:
-  - rules
 rules:
-  - +Rfoo
-  - +Rfoo_unit
+- foo_unit
+- foo
+rules_dirs:
+- rules

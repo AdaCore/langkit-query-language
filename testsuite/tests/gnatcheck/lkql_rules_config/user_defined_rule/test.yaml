@@ -1,7 +1,8 @@
+description: Testing an LKQL rule file to configure a custom rule
 driver: gnatcheck
 format: brief
-rules_dirs:
- - rules
 input_sources:
- - main.adb
+- main.adb
 lkql_rule_file: config.lkql
+rules_dirs:
+- rules

@@ -1,6 +1,7 @@
+description: Testing that 'all' special rule is case insensitive
 driver: gnatcheck
 format: brief
 input_sources:
-  - "main.adb"
+- main.adb
 rules:
-  - "+aLl"
+- aLl

@@ -1,4 +1,5 @@
-format: brief
+description: Testing the output of the '--print-gpr-registry' flag
 driver: gnatcheck
+format: brief
 extra_args:
-  - --print-gpr-registry
+- --print-gpr-registry

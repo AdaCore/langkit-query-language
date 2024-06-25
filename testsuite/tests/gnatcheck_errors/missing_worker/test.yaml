@@ -1,7 +1,8 @@
+description: Testing the behavior when providing an inexistant worker to GNATcheck
 driver: gnatcheck
-format: brief
 worker: i_dont_exist
+format: brief
 input_sources:
-  - main.adb
+- main.adb
 rules:
-  - +RGOTO_Statements
+- goto_statements

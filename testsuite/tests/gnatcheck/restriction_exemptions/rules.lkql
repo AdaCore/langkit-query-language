@@ -1,0 +1,3 @@
+val rules = @{
+    restrictions: [{arg: ["Max_Protected_Entries =>  0"]}]
+}
