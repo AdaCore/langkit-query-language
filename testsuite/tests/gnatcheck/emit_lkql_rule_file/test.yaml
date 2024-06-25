@@ -1,6 +1,6 @@
 driver: gnatcheck
 description: Test the '--emit-lkql-rule-file' flag and the warning message about the '-rules' section
-rules:
+old_rules:
   - +RGoto_Statements
   - +RHeaders:header.txt
   - +RName_Clashes:names.txt

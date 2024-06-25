@@ -1,10 +1,10 @@
+description: Testing the 'actual_parameters' configuraiton through an LKQL rule file
 driver: gnatcheck
 format: brief
 input_sources:
- - main.adb
-
+- main.adb
 tests:
- - label: Valid run
-   lkql_rule_file: config.lkql
- - label: Invalid type
-   lkql_rule_file: invalid_type.lkql
+- label: Valid run
+  lkql_rule_file: config.lkql
+- label: Invalid type
+  lkql_rule_file: invalid_type.lkql

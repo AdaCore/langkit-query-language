@@ -1,4 +1,5 @@
+description: Testing the behavior when there is a missing required source file
 driver: gnatcheck
 project: prj.gpr
 rules:
-  - +Rrecursive_subprograms
+- recursive_subprograms

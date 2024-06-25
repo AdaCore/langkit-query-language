@@ -1,4 +1,4 @@
-# Check that comment based rule exemptions work as expected
-
+description: Check that comment based rule exemptions work as expected
 driver: gnatcheck
 project: comment_annotations_check.gpr
+lkql_rule_file: rules.lkql

@@ -1,0 +1,7 @@
+val rules = @{
+    identifier_suffixes: [
+        {instance_name: "type_suffixes", type_suffix: "_T"},
+        {instance_name: "constant_suffixes", constant_suffix: "_C"},
+        {instance_name: "both", type_suffix: "_T", constant_suffix: "_C"}
+    ]
+}

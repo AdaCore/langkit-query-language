@@ -3,7 +3,5 @@ description: Test the GNATcheck XML output
 format: xml
 input_sources:
   - main.adb
-rules:
-  - +RGoto_Statements
-  - +RWarnings:u
+lkql_rule_file: rules.lkql
 extra_args: ['-s']

@@ -1,10 +1,11 @@
+description: Testing the 'parameter_out_of_order' rule configuraiton through an LKQL
+  rule file
 driver: gnatcheck
 format: brief
 input_sources:
- - main.adb
-
+- main.adb
 tests:
- - label: Valid run
-   lkql_rule_file: config.lkql
- - label: Invalid argument value
-   lkql_rule_file: invalid_arg.lkql
+- label: Valid run
+  lkql_rule_file: config.lkql
+- label: Invalid argument value
+  lkql_rule_file: invalid_arg.lkql

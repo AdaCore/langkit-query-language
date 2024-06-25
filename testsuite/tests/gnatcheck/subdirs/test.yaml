@@ -1,9 +1,8 @@
+description: Testing the handling of the '--subdirs' option
 driver: gnatcheck
+project: prj.gpr
 format: short
 subdirs: custom_subdirs
-project: prj.gpr
-rules:
-  - +RGOTO_Statements
-  - +RWarnings:a
+lkql_rule_file: rules.lkql
 list_dirs:
-  - custom_subdirs/gnatcheck
+- custom_subdirs/gnatcheck

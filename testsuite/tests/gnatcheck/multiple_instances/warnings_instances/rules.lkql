@@ -1,0 +1,7 @@
+val rules = @{
+    warnings: [
+        {instance_name: "hiding", arg: "h"},
+        {instance_name: "unreferenced_formal", arg: "f"},
+        {arg: "m"}
+    ]
+}

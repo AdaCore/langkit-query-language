@@ -2,7 +2,7 @@ driver: gnatcheck
 description: Test the behavior when providing a invalid source
 format: brief
 rules:
-  - +RGoto_Statements
+  - goto_statements
 tests:
   - label: With a non-existing source file
     input_sources:

@@ -1,5 +1,6 @@
+description: Testing the exemptions with an LKQL rule file
 driver: gnatcheck
 format: full
 input_sources:
- - main.adb
+- main.adb
 lkql_rule_file: config.lkql

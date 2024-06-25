@@ -1,8 +1,8 @@
+description: Testing error messages related to invalid LKQL rule files
 driver: gnatcheck
-input_sources:
-  - main.adb
 format: brief
-
+input_sources:
+- main.adb
 tests:
 - label: Invalid LKQL semantic
   lkql_rule_file: invalid_semantic.lkql

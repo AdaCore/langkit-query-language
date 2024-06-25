@@ -1,0 +1,8 @@
+val rules = @{
+    restrictions: [
+        {instance_name: "subprogram_access", arg: ["No_Access_Subprograms"]},
+        {instance_name: "no_use_of", arg: ["No_Use_Of_Entity => Ada.Text_IO.Put_Line"]},
+        {instance_name: "maximum_entry_num", arg: ["Max_Task_Entries => 2"]},
+        {arg: ["No_Calendar"]}
+    ]
+}

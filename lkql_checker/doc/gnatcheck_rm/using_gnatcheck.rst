@@ -279,6 +279,16 @@ The following switches control the general ``gnatcheck`` behavior
   All switches and options provided after this flag will be parse as
   :ref:`rule options<gnatcheck_Rule_Options>`.
 
+  .. attention::
+
+    This flag and all rule options section are deprecated. If you use the
+    ``-rules`` flag, you will get a warning message informing you about this
+    deprecation.
+    From now, you should use ``--rules=filename`` and ``-r [rule_names]``
+    command-line options to provide a rules configuration.
+    You can also use the ``--emit-lkql-rule-file`` flag to automatically
+    translate your current GNATcheck rule options to an LKQL rule file.
+
 If a project file is specified and no argument source is explicitly
 specified (either directly or by means of ``-files`` option), and no
 ``-U`` or ``--no-subprojects`` is specified, then the set of processed

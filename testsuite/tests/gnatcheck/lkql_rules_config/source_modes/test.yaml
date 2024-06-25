@@ -1,5 +1,7 @@
+description: Testing the source mode selection feature (run rules only on Ada/SPARK
+  sources)
 driver: gnatcheck
 project: prj.gpr
-lkql_rule_file: config.lkql
 format: brief
-show_rule: True
+lkql_rule_file: config.lkql
+show_rule: true

@@ -1,0 +1,7 @@
+val rules = @{
+    style_checks: [
+        {instance_name: "extra_par", arg: "xz"},
+        {instance_name: "keywords", arg: "k"},
+        {arg: "r"}
+    ]
+}
