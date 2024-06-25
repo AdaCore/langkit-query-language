@@ -1,7 +1,9 @@
 def install():
-    # We are not interested in rebuilding gpr in this CI. The Langkit/LAL
-    # CIs are doing that already.
-    anod_install("libgpr2", qualifier="bare")
+    # gprname depends on lal, and gprbuild embeds it, so to prevent to rebuild
+    # the world entirely with a lal change, we install them here.
+    # note: libgpr2 changes are to be tested if any, since this impacts
+    # directly gnatcheck
+    anod_install("gprname")
     anod_install("gprbuild")
 
 def lkql_jit():
