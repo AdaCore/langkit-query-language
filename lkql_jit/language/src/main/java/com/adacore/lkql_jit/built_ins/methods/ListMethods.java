@@ -31,8 +31,8 @@ public class ListMethods {
             create(
                     "sublist",
                     "Return a sublist of `list` from `low_bound` to `high_bound`",
-                    new String[] {"list", "low_bound", "high_bound"},
-                    new Expr[] {null, null, null},
+                    new String[] {"low_bound", "high_bound"},
+                    new Expr[] {null, null},
                     (VirtualFrame frame, FunCall call) -> {
                         var args = frame.getArguments();
 

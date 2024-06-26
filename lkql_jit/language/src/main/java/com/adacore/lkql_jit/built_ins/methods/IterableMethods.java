@@ -35,14 +35,14 @@ public class IterableMethods {
                     create(
                             "to_list",
                             "Transform an iterator into a list",
-                            new String[] {"iterable"},
-                            new Expr[] {null},
+                            new String[0],
+                            new Expr[0],
                             new ToListExpr()),
                     create(
                             "length",
                             "Get the length of the iterable element",
-                            new String[] {"iterable"},
-                            new Expr[] {null},
+                            new String[0],
+                            new Expr[0],
                             new LengthExpr()));
 
     // ----- Inner classes -----

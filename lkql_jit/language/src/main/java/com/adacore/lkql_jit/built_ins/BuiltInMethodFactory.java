@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.built_ins;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import java.util.Map;
 
 /**
@@ -28,7 +29,7 @@ public final class BuiltInMethodFactory {
 
     // ----- Constructors -----
 
-    /** Create a new method factory directly with the method body */
+    /** Create a new method factory directly with the method body. */
     public BuiltInMethodFactory(
             String name,
             String documentation,
@@ -62,11 +63,15 @@ public final class BuiltInMethodFactory {
      * parameter is considered as the "this" parameter.
      */
     public static BuiltInMethodFactory fromFunctionValue(BuiltInFunctionValue value) {
+        String[] paramNames = value.parameterNames.clone();
+        Expr[] paramDefaults = value.parameterDefaultValues.clone();
+        paramNames[0] = "this";
+        paramDefaults[0] = null;
         return new BuiltInMethodFactory(
                 value.name,
                 value.documentation,
-                value.parameterNames,
-                value.parameterDefaultValues,
+                paramNames,
+                paramDefaults,
                 (BuiltInBody) value.rootNode.getBody());
     }
 
@@ -77,16 +82,26 @@ public final class BuiltInMethodFactory {
             String[] paramNames,
             Expr[] paramDefaults,
             BuiltInBody.BuiltInCallback callback) {
-        return Map.entry(
-                name,
-                new BuiltInMethodFactory(
-                        name, doc, paramNames, paramDefaults, BuiltInBody.fromCallback(callback)));
+        return create(name, doc, paramNames, paramDefaults, BuiltInBody.fromCallback(callback));
     }
 
-    /** Util function to create a map entry associating the method name with its value. */
+    /**
+     * Util function to create a map entry associating the method name with its value.
+     *
+     * @param paramNames Names of the method parameters. This array SHOULDN'T contain the "this"
+     *     parameter since it is automatically added by this method.
+     * @param paramDefaults Default values for the method parameters. A null value will
+     *     automatically be added at the start of it to represents the "this" default value.
+     */
     public static Map.Entry<String, BuiltInMethodFactory> create(
             String name, String doc, String[] paramNames, Expr[] paramDefaults, BuiltInBody body) {
         return Map.entry(
-                name, new BuiltInMethodFactory(name, doc, paramNames, paramDefaults, body));
+                name,
+                new BuiltInMethodFactory(
+                        name,
+                        doc,
+                        ArrayUtils.concat(new String[] {"this"}, paramNames),
+                        ArrayUtils.concat(new Expr[] {null}, paramDefaults),
+                        body));
     }
 }
