@@ -2821,7 +2821,8 @@ package body Gnatcheck.Rules is
             Map_Parameters (Instance.all, Args);
 
             if not Args.Is_Empty
-            or else Instance.Is_Alias
+              or else Instance.Is_Alias
+              or else Natural (Instance_Names.Length) > 1
             then
                if First_Instance then
                   First_Instance := False;
