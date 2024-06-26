@@ -25,7 +25,7 @@ public final class BuiltInMethodFactory {
 
     public final Expr[] paramDefaults;
 
-    public final BuiltInBody methodBody;
+    public final AbstractBuiltInFunctionBody methodBody;
 
     /**
      * Whether the factory should produce "attribute" value. See the {@link BuiltInAttributeValue}
@@ -41,7 +41,7 @@ public final class BuiltInMethodFactory {
             String documentation,
             String[] paramNames,
             Expr[] paramDefaults,
-            BuiltInBody methodBody,
+            AbstractBuiltInFunctionBody methodBody,
             boolean isAttribute) {
         this.name = name;
         this.documentation = documentation;
@@ -84,7 +84,7 @@ public final class BuiltInMethodFactory {
                 value.documentation,
                 paramNames,
                 paramDefaults,
-                (BuiltInBody) value.rootNode.getBody(),
+                (AbstractBuiltInFunctionBody) value.rootNode.getBody(),
                 isAttribute);
     }
 
@@ -94,9 +94,13 @@ public final class BuiltInMethodFactory {
             String doc,
             String[] paramNames,
             Expr[] paramDefaults,
-            BuiltInBody.BuiltInCallback callback) {
+            AbstractBuiltInFunctionBody.BuiltInCallback callback) {
         return createMethod(
-                name, doc, paramNames, paramDefaults, BuiltInBody.fromCallback(callback));
+                name,
+                doc,
+                paramNames,
+                paramDefaults,
+                AbstractBuiltInFunctionBody.fromCallback(callback));
     }
 
     /**
@@ -108,7 +112,11 @@ public final class BuiltInMethodFactory {
      *     automatically be added at the start of it to represents the "this" default value.
      */
     public static Map.Entry<String, BuiltInMethodFactory> createMethod(
-            String name, String doc, String[] paramNames, Expr[] paramDefaults, BuiltInBody body) {
+            String name,
+            String doc,
+            String[] paramNames,
+            Expr[] paramDefaults,
+            AbstractBuiltInFunctionBody body) {
         return Map.entry(
                 name,
                 new BuiltInMethodFactory(
@@ -122,7 +130,7 @@ public final class BuiltInMethodFactory {
 
     /** Create a map entry containing a method factory which will produce attribute values. */
     public static Map.Entry<String, BuiltInMethodFactory> createAttribute(
-            String name, String doc, BuiltInBody body) {
+            String name, String doc, AbstractBuiltInFunctionBody body) {
         return Map.entry(
                 name,
                 new BuiltInMethodFactory(

@@ -9,8 +9,8 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-/** This node represents a body of a built-in executable value. */
-public abstract class BuiltInBody extends Expr {
+/** This node represents a base for all built-in functions body. */
+public abstract class AbstractBuiltInFunctionBody extends Expr {
 
     // ----- Attributes -----
 
@@ -20,7 +20,7 @@ public abstract class BuiltInBody extends Expr {
     // ----- Constructors -----
 
     /** Create a new expression for a built-in function. */
-    protected BuiltInBody() {
+    protected AbstractBuiltInFunctionBody() {
         super(null);
     }
 
@@ -33,8 +33,8 @@ public abstract class BuiltInBody extends Expr {
     // ----- Class methods -----
 
     /** Create a new built-in function body from the given callback representing its execution. */
-    public static BuiltInBody fromCallback(BuiltInCallback callback) {
-        return new BuiltInBody() {
+    public static AbstractBuiltInFunctionBody fromCallback(BuiltInCallback callback) {
+        return new AbstractBuiltInFunctionBody() {
             @Override
             public Object executeGeneric(VirtualFrame frame) {
                 return callback.apply(frame, this.callNode);

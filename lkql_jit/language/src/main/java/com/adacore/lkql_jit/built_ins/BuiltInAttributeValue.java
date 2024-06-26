@@ -14,7 +14,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 public class BuiltInAttributeValue extends BuiltInMethodValue {
     /** Create a new built-in attribute value. */
     public BuiltInAttributeValue(
-            String name, String documentation, BuiltInBody body, Object thisValue) {
+            String name, String documentation, AbstractBuiltInFunctionBody body, Object thisValue) {
         super(name, documentation, new String[] {"this"}, new Expr[] {null}, body, thisValue);
     }
 }
