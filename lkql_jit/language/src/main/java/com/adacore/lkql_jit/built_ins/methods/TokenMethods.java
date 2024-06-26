@@ -5,7 +5,8 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -30,72 +31,35 @@ public final class TokenMethods {
 
     public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
-                    create(
-                            "start_column",
-                            "Return the column start",
-                            new String[0],
-                            new Expr[0],
-                            new StartColExpr()),
-                    create(
-                            "end_column",
-                            "Return the column end",
-                            new String[0],
-                            new Expr[0],
-                            new EndColExpr()),
-                    create(
-                            "start_line",
-                            "Return the line start",
-                            new String[0],
-                            new Expr[0],
-                            new StartLineExpr()),
-                    create(
-                            "end_line",
-                            "Return the line end",
-                            new String[0],
-                            new Expr[0],
-                            new EndLineExpr()),
-                    create(
+                    createAttribute("start_column", "Return the column start", new StartColExpr()),
+                    createAttribute("end_column", "Return the column end", new EndColExpr()),
+                    createAttribute("start_line", "Return the line start", new StartLineExpr()),
+                    createAttribute("end_line", "Return the line end", new EndLineExpr()),
+                    createMethod(
                             "is_equivalent",
                             "Return whether two tokens are structurally equivalent",
                             new String[] {"other"},
                             new Expr[] {null},
                             new IsEquivalentExpr()),
-                    create(
+                    createAttribute(
                             "is_trivia",
                             "Return whether this token is a trivia",
-                            new String[0],
-                            new Expr[0],
                             new IsTriviaExpr()),
-                    create(
+                    createMethod(
                             "next",
                             "Return the next token",
                             new String[] {"exclude_trivia"},
                             new Expr[] {new BooleanLiteral(null, false)},
                             new NextExpr()),
-                    create(
+                    createMethod(
                             "previous",
                             "Return the previous token",
                             new String[] {"exclude_trivia"},
                             new Expr[] {new BooleanLiteral(null, false)},
                             new PrevExpr()),
-                    create(
-                            "unit",
-                            "Return the unit for this token",
-                            new String[0],
-                            new Expr[0],
-                            new UnitExpr()),
-                    create(
-                            "text",
-                            "Return the text of the token",
-                            new String[0],
-                            new Expr[0],
-                            new TextExpr()),
-                    create(
-                            "kind",
-                            "Return the kind of the token",
-                            new String[0],
-                            new Expr[0],
-                            new KindExpr()));
+                    createAttribute("unit", "Return the unit for this token", new UnitExpr()),
+                    createAttribute("text", "Return the text of the token", new TextExpr()),
+                    createAttribute("kind", "Return the kind of the token", new KindExpr()));
 
     // ----- Inner classes -----
 

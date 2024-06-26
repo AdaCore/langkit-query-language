@@ -27,8 +27,7 @@ import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyExpr;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockExpr;
-import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
-import com.adacore.lkql_jit.nodes.expressions.dot.SafeDotAccessNodeGen;
+import com.adacore.lkql_jit.nodes.expressions.dot.*;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ComprehensionAssoc;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ComprehensionAssocList;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListComprehension;
@@ -696,6 +695,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     // --- Dot accesses
 
+    /** Util function to wrap a dot access node. */
+    private static DotAccessWrapper wrapDotAccess(BaseDotAccess dotAccess) {
+        return DotAccessWrapperNodeGen.create(dotAccess.getSourceSection(), dotAccess);
+    }
+
     /**
      * Visit a dot access node.
      *
@@ -709,10 +713,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr receiver = (Expr) dotAccess.fReceiver().accept(this);
 
         // Return the new DotAccess node
-        return DotAccessNodeGen.create(
-                loc(dotAccess),
-                new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
-                receiver);
+        return wrapDotAccess(
+                DotAccessNodeGen.create(
+                        loc(dotAccess),
+                        new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
+                        receiver));
     }
 
     /**
@@ -728,10 +733,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr receiver = (Expr) safeAccess.fReceiver().accept(this);
 
         // Return the new DotAccess node
-        return SafeDotAccessNodeGen.create(
-                loc(safeAccess),
-                new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
-                receiver);
+        return wrapDotAccess(
+                SafeDotAccessNodeGen.create(
+                        loc(safeAccess),
+                        new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
+                        receiver));
     }
 
     // --- In clause

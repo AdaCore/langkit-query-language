@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -13,7 +13,6 @@ import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.ArrayList;
 import java.util.Map;
@@ -27,30 +26,11 @@ public final class AnalysisUnitMethods {
 
     public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
-                    create(
-                            "root",
-                            "Return the root for this unit",
-                            new String[0],
-                            new Expr[0],
-                            new RootExpr()),
-                    create(
-                            "name",
-                            "Return the name of this unit",
-                            new String[0],
-                            new Expr[0],
-                            new NameExpr()),
-                    create(
-                            "tokens",
-                            "Return the tokens of the unit",
-                            new String[0],
-                            new Expr[0],
-                            new TokensExpr()),
-                    create(
-                            "text",
-                            "Return the text of the analysis unit",
-                            new String[0],
-                            new Expr[0],
-                            new TextExpr()));
+                    createAttribute("root", "Return the root for this unit", new RootExpr()),
+                    createAttribute("name", "Return the name of this unit", new NameExpr()),
+                    createAttribute("tokens", "Return the tokens of the unit", new TokensExpr()),
+                    createAttribute(
+                            "text", "Return the text of the analysis unit", new TextExpr()));
 
     // ----- Inner classes -----
 

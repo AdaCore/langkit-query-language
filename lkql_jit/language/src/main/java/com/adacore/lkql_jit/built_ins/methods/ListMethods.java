@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
@@ -28,7 +28,7 @@ import java.util.Map;
 public class ListMethods {
 
     private static final Map.Entry<String, BuiltInMethodFactory> sublistFunction =
-            create(
+            createMethod(
                     "sublist",
                     "Return a sublist of `list` from `low_bound` to `high_bound`",
                     new String[] {"low_bound", "high_bound"},
@@ -78,7 +78,7 @@ public class ListMethods {
                             Map.entry(
                                     UniqueFunction.NAME,
                                     BuiltInMethodFactory.fromFunctionValue(
-                                            UniqueFunction.getValue())),
+                                            UniqueFunction.getValue(), true)),
                             sublistFunction),
                     IterableMethods.methods);
 }

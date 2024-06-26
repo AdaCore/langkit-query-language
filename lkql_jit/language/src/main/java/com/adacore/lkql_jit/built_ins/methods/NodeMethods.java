@@ -5,7 +5,8 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
@@ -35,61 +36,32 @@ public final class NodeMethods {
 
     public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
-                    create(
+                    createAttribute(
                             "children_count",
                             "Given a node, return the count of its children",
-                            new String[0],
-                            new Expr[0],
                             new ChildrenCountExpr()),
-                    create(
+                    createAttribute(
                             "children",
                             "Given a node, get the list of all its children",
-                            new String[0],
-                            new Expr[0],
                             new ChildrenExpr()),
-                    create(
-                            "parent",
-                            "Given a node, get the parent of it",
-                            new String[0],
-                            new Expr[0],
-                            new ParentExpr()),
-                    create(
+                    createAttribute(
+                            "parent", "Given a node, get the parent of it", new ParentExpr()),
+                    createAttribute(
                             "dump",
                             "Given an ast node, return a structured dump of the subtree",
-                            new String[0],
-                            new Expr[0],
                             new DumpExpr()),
-                    create(
-                            "text",
-                            "Given an ast node, return its text",
-                            new String[0],
-                            new Expr[0],
-                            new TextExpr()),
-                    create(
-                            "image",
-                            "Given an ast node, return its image",
-                            new String[0],
-                            new Expr[0],
-                            new ImageExpr()),
-                    create(
-                            "unit",
-                            "Given an ast node, return its analysis unit",
-                            new String[0],
-                            new Expr[0],
-                            new UnitExpr()),
-                    create(
-                            "kind",
-                            "Return the kind of this node, as a string",
-                            new String[0],
-                            new Expr[0],
-                            new KindExpr()),
-                    create(
+                    createAttribute("text", "Given an ast node, return its text", new TextExpr()),
+                    createAttribute(
+                            "image", "Given an ast node, return its image", new ImageExpr()),
+                    createAttribute(
+                            "unit", "Given an ast node, return its analysis unit", new UnitExpr()),
+                    createAttribute(
+                            "kind", "Return the kind of this node, as a string", new KindExpr()),
+                    createAttribute(
                             "tokens",
                             "Given a node, return an iterator on its tokens",
-                            new String[0],
-                            new Expr[0],
                             new TokensExpr()),
-                    create(
+                    createMethod(
                             "same_tokens",
                             "Return whether two nodes have the same tokens, ignoring trivias",
                             new String[] {"other"},

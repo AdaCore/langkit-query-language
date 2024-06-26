@@ -9,16 +9,11 @@ import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodValue;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Map;
 
@@ -46,34 +41,6 @@ public abstract class BaseDotAccess extends Expr {
     public abstract Expr getReceiver();
 
     // ----- Instance methods -----
-
-    /**
-     * Try to get a built-in method and execute it if there is no parameters.
-     *
-     * @param receiver The receiver object.
-     * @return The built-in result, null if the built-in method doesn't exist.
-     */
-    protected Object tryBuiltIn(Object receiver) {
-        // Get the built in
-        BuiltInMethodValue builtinMethod = this.getBuiltIn(receiver);
-        if (builtinMethod != null) {
-            if (builtinMethod.parameterNames.length <= 1) {
-                InteropLibrary builtInLibrary = InteropLibrary.getUncached(builtinMethod);
-                try {
-                    return builtInLibrary.execute(builtinMethod, builtinMethod.thisValue);
-                } catch (ArityException
-                        | UnsupportedTypeException
-                        | UnsupportedMessageException e) {
-                    throw LKQLRuntimeException.fromJavaException(e, this);
-                }
-            } else {
-                return builtinMethod;
-            }
-        }
-
-        // Return the null value if there is no method
-        return null;
-    }
 
     /**
      * Get the built-in method for the receiver.

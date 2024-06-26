@@ -27,6 +27,12 @@ public final class BuiltInMethodFactory {
 
     public final BuiltInBody methodBody;
 
+    /**
+     * Whether the factory should produce "attribute" value. See the {@link BuiltInAttributeValue}
+     * class for more information.
+     */
+    public final boolean isAttribute;
+
     // ----- Constructors -----
 
     /** Create a new method factory directly with the method body. */
@@ -35,25 +41,30 @@ public final class BuiltInMethodFactory {
             String documentation,
             String[] paramNames,
             Expr[] paramDefaults,
-            BuiltInBody methodBody) {
+            BuiltInBody methodBody,
+            boolean isAttribute) {
         this.name = name;
         this.documentation = documentation;
         this.paramNames = paramNames;
         this.paramDefaults = paramDefaults;
         this.methodBody = methodBody;
+        this.isAttribute = isAttribute;
     }
 
     // ----- Instance methods -----
 
     /** Instantiate the method with the given "thisValue" and return the LKQL value. */
     public BuiltInMethodValue instantiate(Object thisValue) {
-        return new BuiltInMethodValue(
-                this.name,
-                this.documentation,
-                this.paramNames,
-                this.paramDefaults,
-                this.methodBody,
-                thisValue);
+        return this.isAttribute
+                ? new BuiltInAttributeValue(
+                        this.name, this.documentation, this.methodBody, thisValue)
+                : new BuiltInMethodValue(
+                        this.name,
+                        this.documentation,
+                        this.paramNames,
+                        this.paramDefaults,
+                        this.methodBody,
+                        thisValue);
     }
 
     // ----- Class methods -----
@@ -62,7 +73,8 @@ public final class BuiltInMethodFactory {
      * Create a new methods factory wrapping an existing function value. The first function
      * parameter is considered as the "this" parameter.
      */
-    public static BuiltInMethodFactory fromFunctionValue(BuiltInFunctionValue value) {
+    public static BuiltInMethodFactory fromFunctionValue(
+            BuiltInFunctionValue value, boolean isAttribute) {
         String[] paramNames = value.parameterNames.clone();
         Expr[] paramDefaults = value.parameterDefaultValues.clone();
         paramNames[0] = "this";
@@ -72,17 +84,19 @@ public final class BuiltInMethodFactory {
                 value.documentation,
                 paramNames,
                 paramDefaults,
-                (BuiltInBody) value.rootNode.getBody());
+                (BuiltInBody) value.rootNode.getBody(),
+                isAttribute);
     }
 
     /** Util function to create a map entry associating the method name with its value. */
-    public static Map.Entry<String, BuiltInMethodFactory> create(
+    public static Map.Entry<String, BuiltInMethodFactory> createMethod(
             String name,
             String doc,
             String[] paramNames,
             Expr[] paramDefaults,
             BuiltInBody.BuiltInCallback callback) {
-        return create(name, doc, paramNames, paramDefaults, BuiltInBody.fromCallback(callback));
+        return createMethod(
+                name, doc, paramNames, paramDefaults, BuiltInBody.fromCallback(callback));
     }
 
     /**
@@ -93,7 +107,7 @@ public final class BuiltInMethodFactory {
      * @param paramDefaults Default values for the method parameters. A null value will
      *     automatically be added at the start of it to represents the "this" default value.
      */
-    public static Map.Entry<String, BuiltInMethodFactory> create(
+    public static Map.Entry<String, BuiltInMethodFactory> createMethod(
             String name, String doc, String[] paramNames, Expr[] paramDefaults, BuiltInBody body) {
         return Map.entry(
                 name,
@@ -102,6 +116,16 @@ public final class BuiltInMethodFactory {
                         doc,
                         ArrayUtils.concat(new String[] {"this"}, paramNames),
                         ArrayUtils.concat(new Expr[] {null}, paramDefaults),
-                        body));
+                        body,
+                        false));
+    }
+
+    /** Create a map entry containing a method factory which will produce attribute values. */
+    public static Map.Entry<String, BuiltInMethodFactory> createAttribute(
+            String name, String doc, BuiltInBody body) {
+        return Map.entry(
+                name,
+                new BuiltInMethodFactory(
+                        name, doc, new String[] {"this"}, new Expr[] {null}, body, true));
     }
 }
