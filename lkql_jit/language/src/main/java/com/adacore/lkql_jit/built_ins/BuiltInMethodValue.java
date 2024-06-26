@@ -26,7 +26,7 @@ public class BuiltInMethodValue extends BuiltInFunctionValue {
             String documentation,
             String[] names,
             Expr[] defaultValues,
-            BuiltInBody body,
+            AbstractBuiltInFunctionBody body,
             Object thisValue) {
         super(name, documentation, names, defaultValues, body);
         this.thisValue = thisValue;

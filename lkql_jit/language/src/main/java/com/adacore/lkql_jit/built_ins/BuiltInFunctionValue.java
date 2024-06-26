@@ -30,7 +30,7 @@ public class BuiltInFunctionValue extends LKQLFunction {
             String documentation,
             String[] names,
             Expr[] defaultValues,
-            BuiltInBody body) {
+            AbstractBuiltInFunctionBody body) {
         super(
                 new FunctionRootNode(null, null, false, body),
                 Closure.EMPTY,
@@ -45,9 +45,10 @@ public class BuiltInFunctionValue extends LKQLFunction {
             String documentation,
             String[] names,
             Expr[] defaultValues,
-            BuiltInBody.BuiltInCallback fn) {
+            AbstractBuiltInFunctionBody.BuiltInCallback fn) {
         super(
-                new FunctionRootNode(null, null, false, BuiltInBody.fromCallback(fn)),
+                new FunctionRootNode(
+                        null, null, false, AbstractBuiltInFunctionBody.fromCallback(fn)),
                 Closure.EMPTY,
                 name,
                 documentation,
@@ -63,6 +64,6 @@ public class BuiltInFunctionValue extends LKQLFunction {
      * @param callNode The node which called the built-in.
      */
     public void setCallNode(FunCall callNode) {
-        ((BuiltInBody) this.getBody()).setCallNode(callNode);
+        ((AbstractBuiltInFunctionBody) this.getBody()).setCallNode(callNode);
     }
 }

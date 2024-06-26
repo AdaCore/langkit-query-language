@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.built_ins.methods;
 import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.functions.ReduceFunction;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
@@ -40,7 +40,7 @@ public class IterableMethods {
     // ----- Inner classes -----
 
     /** Expression of the "to_list" method. */
-    public static class ToListExpr extends BuiltInBody {
+    public static class ToListExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the iterable receiver
@@ -59,7 +59,7 @@ public class IterableMethods {
     }
 
     /** Expression of the "length" method. */
-    public static class LengthExpr extends BuiltInBody {
+    public static class LengthExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the iterable receiver

@@ -9,7 +9,7 @@ import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribut
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
@@ -35,7 +35,7 @@ public final class AnalysisUnitMethods {
     // ----- Inner classes -----
 
     /** Expression of the "root" method. */
-    public static final class RootExpr extends BuiltInBody {
+    public static final class RootExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode res =
@@ -45,7 +45,7 @@ public final class AnalysisUnitMethods {
     }
 
     /** Expression of the "name" method. */
-    public static final class NameExpr extends BuiltInBody {
+    public static final class NameExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getFileName();
@@ -53,7 +53,7 @@ public final class AnalysisUnitMethods {
     }
 
     /** Expression of the "tokens" method. */
-    public static final class TokensExpr extends BuiltInBody {
+    public static final class TokensExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AnalysisUnit unit =
@@ -70,7 +70,7 @@ public final class AnalysisUnitMethods {
     }
 
     /** Expression of the "text" method. */
-    public static final class TextExpr extends BuiltInBody {
+    public static final class TextExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getText();

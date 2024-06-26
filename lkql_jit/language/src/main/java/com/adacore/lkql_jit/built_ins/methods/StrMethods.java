@@ -9,7 +9,7 @@ import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribut
 import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.functions.BaseNameFunction;
 import com.adacore.lkql_jit.built_ins.values.LKQLPattern;
@@ -106,7 +106,7 @@ public class StrMethods {
     // ----- Inner classes -----
 
     /** Expression of the "to_lower_case" method. */
-    public static final class ToLowerCaseExpr extends BuiltInBody {
+    public static final class ToLowerCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return StringUtils.toLowerCase(LKQLTypeSystemGen.asString(frame.getArguments()[0]));
@@ -114,7 +114,7 @@ public class StrMethods {
     }
 
     /** Expression of the "is_lower_case" method. */
-    public static final class IsLowerCaseExpr extends BuiltInBody {
+    public static final class IsLowerCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             String arg = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
@@ -123,7 +123,7 @@ public class StrMethods {
     }
 
     /** Expression of the "to_upper_case" method. */
-    public static final class ToUpperCaseExpr extends BuiltInBody {
+    public static final class ToUpperCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return StringUtils.toUpperCase(LKQLTypeSystemGen.asString(frame.getArguments()[0]));
@@ -131,7 +131,7 @@ public class StrMethods {
     }
 
     /** Expression of the "is_upper_case" method. */
-    public static final class IsUpperCaseExpr extends BuiltInBody {
+    public static final class IsUpperCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             String arg = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
@@ -140,7 +140,7 @@ public class StrMethods {
     }
 
     /** Expression of the "is_mixed_case" method. */
-    public static final class IsMixedCaseExpr extends BuiltInBody {
+    public static final class IsMixedCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the receiver
@@ -174,7 +174,7 @@ public class StrMethods {
     }
 
     /** Expression of the "length" method. */
-    public static final class LengthExpr extends BuiltInBody {
+    public static final class LengthExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the receiver
@@ -186,7 +186,7 @@ public class StrMethods {
     }
 
     /** Expression of the "substring" method. */
-    public static final class SubstringExpr extends BuiltInBody {
+    public static final class SubstringExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -233,7 +233,7 @@ public class StrMethods {
     }
 
     /** Expression of the "split" method. */
-    public static final class SplitExpr extends BuiltInBody {
+    public static final class SplitExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the argument
@@ -260,7 +260,7 @@ public class StrMethods {
     }
 
     /** Expression of the "contains" method. */
-    public static final class ContainsExpr extends BuiltInBody {
+    public static final class ContainsExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -294,7 +294,7 @@ public class StrMethods {
     }
 
     /** Expression of the "find" method. */
-    public static final class FindExpr extends BuiltInBody {
+    public static final class FindExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -328,7 +328,7 @@ public class StrMethods {
     }
 
     /** Expression of the "starts_with" method. */
-    public static final class StartsWithExpr extends BuiltInBody {
+    public static final class StartsWithExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the argument
@@ -352,7 +352,7 @@ public class StrMethods {
     }
 
     /** Expression of the "ends_with" method. */
-    public static final class EndsWithExpr extends BuiltInBody {
+    public static final class EndsWithExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the argument
