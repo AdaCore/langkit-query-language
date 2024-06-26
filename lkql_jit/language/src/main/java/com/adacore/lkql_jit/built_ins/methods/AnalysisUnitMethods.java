@@ -30,26 +30,26 @@ public final class AnalysisUnitMethods {
                     create(
                             "root",
                             "Return the root for this unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
+                            new String[0],
+                            new Expr[0],
                             new RootExpr()),
                     create(
                             "name",
                             "Return the name of this unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
+                            new String[0],
+                            new Expr[0],
                             new NameExpr()),
                     create(
                             "tokens",
                             "Return the tokens of the unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
+                            new String[0],
+                            new Expr[0],
                             new TokensExpr()),
                     create(
                             "text",
                             "Return the text of the analysis unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
+                            new String[0],
+                            new Expr[0],
                             new TextExpr()));
 
     // ----- Inner classes -----
