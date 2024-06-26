@@ -64,11 +64,11 @@ public final class BuiltInsHolder {
     public final Map<String, BuiltInMethodFactory> commonMethods =
             Map.of(
                     ImgFunction.NAME,
-                    BuiltInMethodFactory.fromFunctionValue(ImgFunction.getValue()),
+                    BuiltInMethodFactory.fromFunctionValue(ImgFunction.getValue(), true),
                     PrintFunction.NAME,
-                    BuiltInMethodFactory.fromFunctionValue(PrintFunction.getValue()),
+                    BuiltInMethodFactory.fromFunctionValue(PrintFunction.getValue(), false),
                     DocFunction.NAME,
-                    BuiltInMethodFactory.fromFunctionValue(DocFunction.getValue()));
+                    BuiltInMethodFactory.fromFunctionValue(DocFunction.getValue(), true));
 
     public static Map<String, BuiltInMethodFactory> combine(
             Map<String, BuiltInMethodFactory> m1, Map<String, BuiltInMethodFactory> m2) {

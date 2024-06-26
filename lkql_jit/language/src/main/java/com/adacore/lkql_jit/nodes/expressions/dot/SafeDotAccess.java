@@ -16,21 +16,12 @@ import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the safe dot access in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents the safe dot access in the LKQL language. */
 public abstract class SafeDotAccess extends BaseDotAccess {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new base dot access with the needed parameters.
-     *
-     * @param location The location of the dot access.
-     * @param member The member to access.
-     */
+    /** Create a new sage dot access. */
     protected SafeDotAccess(SourceSection location, Identifier member) {
         super(location, member);
     }
@@ -40,7 +31,6 @@ public abstract class SafeDotAccess extends BaseDotAccess {
     /**
      * Execute the safe dot access on a node with the cached strategy.
      *
-     * @param receiver The node receiver.
      * @param property The cached property reference.
      * @param isField The cached value if the property is a field.
      * @return The property reference or the field value.
@@ -71,13 +61,12 @@ public abstract class SafeDotAccess extends BaseDotAccess {
     /**
      * Execute the safe dot access on a node with the un-cached strategy.
      *
-     * @param receiver The node receiver.
      * @return The property reference or the field value.
      */
     @Specialization(replaces = "onNodeCached")
     protected Object onNodeUncached(Libadalang.AdaNode receiver) {
         // Try the built_in
-        Object builtIn = this.tryBuiltIn(receiver);
+        Object builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
             return builtIn;
         }
@@ -97,11 +86,7 @@ public abstract class SafeDotAccess extends BaseDotAccess {
         return this.onNodeCached(receiver, propertyRef, propertyRef.isField());
     }
 
-    /**
-     * Fallback when the receiver is a generic object.
-     *
-     * @param receiver The receiver generic value.
-     */
+    /** Fallback when the receiver is a generic object. */
     @Fallback
     protected void onGeneric(Object receiver) {
         throw LKQLRuntimeException.wrongType(

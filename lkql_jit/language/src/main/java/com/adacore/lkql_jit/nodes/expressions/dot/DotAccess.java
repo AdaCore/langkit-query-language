@@ -18,39 +18,25 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the dot access in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents the dot access in the LKQL language. */
 public abstract class DotAccess extends BaseDotAccess {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new base dot access with the needed parameters.
-     *
-     * @param location The location of the node in the source.
-     * @param member The member to access.
-     */
+    /** Create a new dot access. */
     protected DotAccess(SourceSection location, Identifier member) {
         super(location, member);
     }
 
     // ----- Execution methods -----
 
-    /**
-     * Access to a member of an object value.
-     *
-     * @param receiver The receiver object value.
-     * @return The member of the object.
-     */
+    /** Access to a member of an object value. */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onObject(
             final LKQLObject receiver,
             @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary) {
         // Try to get the built in
-        Object builtIn = this.tryBuiltIn(receiver);
+        Object builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
             return builtIn;
         }
@@ -65,18 +51,13 @@ public abstract class DotAccess extends BaseDotAccess {
         throw LKQLRuntimeException.noSuchMember(this);
     }
 
-    /**
-     * Execute the dot access on a namespace value.
-     *
-     * @param receiver The namespace.
-     * @return The member of the namespace.
-     */
+    /** Execute the dot access on a namespace value. */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onNamespace(
             final LKQLNamespace receiver,
             @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary) {
         // Try to get the built in
-        Object builtIn = this.tryBuiltIn(receiver);
+        Object builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
             return builtIn;
         }
@@ -94,10 +75,9 @@ public abstract class DotAccess extends BaseDotAccess {
     /**
      * Execute the dot access on a node with the cached strategy.
      *
-     * @param receiver The node receiver.
      * @param property The cached property reference.
      * @param isField The cached value if the property is a field.
-     * @return The result of the property reference.
+     * @return The property reference or the field value.
      */
     @Specialization(
             guards = {
@@ -125,13 +105,12 @@ public abstract class DotAccess extends BaseDotAccess {
     /**
      * Execute the dot access on a node with the un-cached strategy.
      *
-     * @param receiver The node receiver.
-     * @return The result of the property call.
+     * @return The property call or the file value.
      */
     @Specialization(replaces = "onNodeCached")
     protected Object onNodeUncached(Libadalang.AdaNode receiver) {
         // Try the built_in
-        Object builtIn = this.tryBuiltIn(receiver);
+        Object builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
             return builtIn;
         }
@@ -151,17 +130,11 @@ public abstract class DotAccess extends BaseDotAccess {
         return this.onNodeCached(receiver, property, property.isField());
     }
 
-    /**
-     * Fallback when the receiver is none of the case identified by the specializations.
-     *
-     * @param receiver The receiver value.
-     * @return The execution of the dot access.
-     */
+    /** Fallback when the receiver is none of the case identified by the specializations. */
     @Fallback
     protected Object onOthers(Object receiver) {
         // In the fallback case, only built-in methods are candidates. Try to get a built-in.
-        Object builtIn = this.tryBuiltIn(receiver);
-
+        Object builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
             return builtIn;
         }

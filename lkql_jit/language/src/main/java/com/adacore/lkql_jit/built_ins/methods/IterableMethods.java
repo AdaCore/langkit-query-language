@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
@@ -13,7 +13,6 @@ import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.functions.ReduceFunction;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.LinkedList;
@@ -31,19 +30,12 @@ public class IterableMethods {
             Map.ofEntries(
                     Map.entry(
                             ReduceFunction.NAME,
-                            BuiltInMethodFactory.fromFunctionValue(ReduceFunction.getValue())),
-                    create(
-                            "to_list",
-                            "Transform an iterator into a list",
-                            new String[0],
-                            new Expr[0],
-                            new ToListExpr()),
-                    create(
-                            "length",
-                            "Get the length of the iterable element",
-                            new String[0],
-                            new Expr[0],
-                            new LengthExpr()));
+                            BuiltInMethodFactory.fromFunctionValue(
+                                    ReduceFunction.getValue(), false)),
+                    createAttribute(
+                            "to_list", "Transform an iterator into a list", new ToListExpr()),
+                    createAttribute(
+                            "length", "Get the length of the iterable element", new LengthExpr()));
 
     // ----- Inner classes -----
 
