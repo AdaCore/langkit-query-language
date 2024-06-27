@@ -23,16 +23,10 @@ results of generic instantiations.
 
 GNATcheck's predefined rules' parameters may have the following types:
 
-*[bool]*
-   The parameter represents a boolean value, toggling a rule behavior. To specify
-   a boolean parameter through a ``+R`` option, you just have to provided the
-   parameter's name to set it to true:
-
-   .. code-block:: ada
-
-      +RMy_Rule:Bool_Param  -- 'Bool_Param' value is set to true
-
-   In a LKQL rule options file you have to set a boolean value to it:
+*bool*
+   The parameter represents a boolean value, toggling a rule behavior.
+   In a LKQL rule file you have to associate a boolean value to the parameter
+   name:
 
    .. code-block:: lkql
 
@@ -40,16 +34,17 @@ GNATcheck's predefined rules' parameters may have the following types:
          My_Rule: [{Bool_Param: true}]
       }
 
-*[int]*
-   The parameter is an integer value, to specify it with a ``+R`` option, you
-   can write its value right after the rule name:
+   To specify a boolean parameter through a ``+R`` option, you just have to provide
+   the parameter's name to set it to true:
 
    .. code-block:: ada
 
-      +RMy_Rule:5  -- 'My_Rule' integer param is set to 5
+      +RMy_Rule:Bool_Param  -- 'Bool_Param' value is set to true
 
-   In a LKQL rule options file, you have to provide an integer value to the
-   object key corresponding to the parameter name:
+*int*
+   The parameter is an integer value.
+   In a LKQL rule options file, you have to associate an integer value to the
+   parameter name:
 
    .. code-block:: lkql
 
@@ -57,14 +52,15 @@ GNATcheck's predefined rules' parameters may have the following types:
          My_Rule: [{N: 5}] # If the rule param is named 'N'
       }
 
-*[string]*
-   The parameter value is a string, sometimes with formatting constraints. You
-   can specify it through the ``+R`` option like an integer parameter:
+   To specify it with a ``+R`` option, you can write its value right after the
+   rule name:
 
    .. code-block:: ada
 
-      +RMy_Rule:i_am_a_string  -- 'My_Rule' string param is set to "i_am_a_string"
+      +RMy_Rule:5  -- 'My_Rule' integer param is set to 5
 
+*string*
+   The parameter value is a string, sometimes with formatting constraints.
    In a LKQL rule options file, you just have to provide a string value:
 
    .. code-block:: lkql
@@ -73,14 +69,15 @@ GNATcheck's predefined rules' parameters may have the following types:
          My_Rule: [{Str: "i_am_a_string"}] # If the rule param is named 'Str'
       }
 
-*[list[string]]*
-   The parameter value is a list of string. Through the ``+R`` option, you can
-   specify it as a collection a string parameter separated by commas:
+   You can specify it through the ``+R`` option also by passing a string right
+   after the rule name:
 
    .. code-block:: ada
 
-      +RMy_Rule:One,Two,Three  -- 'My_Rule' string list param is set to ["One", "Two", "Three"]
+      +RMy_Rule:i_am_a_string  -- 'My_Rule' string param is set to "i_am_a_string"
 
+*list[string]*
+   The parameter value is a list of string.
    In a LKQL rule options file, you can use the LKQL list type to specify the
    parameter value:
 
@@ -89,6 +86,13 @@ GNATcheck's predefined rules' parameters may have the following types:
       val rules = @{
          My_Rule: [{Lst: ["One", "Two", "Three"]}] # If the rule param is named 'Lst'
       }
+
+   Through the ``+R`` option, you can specify it as a collection of string
+   parameters separated by commas:
+
+   .. code-block:: ada
+
+      +RMy_Rule:One,Two,Three  -- 'My_Rule' string list param is set to ["One", "Two", "Three"]
 
 
 
@@ -794,22 +798,12 @@ rule options file:
    specifying ``Pre'Class`` as the rule parameter does not mean that the rule
    will flag the ``Pre`` aspect).
 
-*All [bool]*
-   If ``true``, all aspects are detected; this sets the rule ON.
-
-and for the ``-R`` option:
-
-*Forbidden [list[string]]*
-   Removes the specified aspects from the set of aspects to be detected without
-   affecting detection checks for other aspects.
-
 *Allowed [string]*
    A semi-colon separated list of aspects to remove from the set of aspects to
    be detected. You have to use the named parameter formatting to specify it.
 
 *All [bool]*
-   If ``true``, clear the list of the aspects to be detected and turn the rule
-   OFF.
+   If ``true``, all aspects are detected; this sets the rule ON.
 
 Parameters are case insensitive. If an element of *Forbidden* or *Allowed*
 does not have the syntax of an Ada identifier, it is (silently) ignored, but
@@ -884,27 +878,12 @@ rule options file:
    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
    attributes are added to the set of attributes to be detected.
 
-*All [bool]*
-   If ``true``, all attributes are detected; this sets the rule ON.
-
-and for the ``-R`` option:
-
-*Forbidden [list[string]]*
-   Removes the specified attributes from the set of attributes to be
-   detected without affecting detection checks for other attributes.
-   If an element does not correspond to any attribute defined in the Ada
-   standard or in the GNAT Reference Manual, this option is treated as turning
-   OFF detection of all unknown attributes.
-   If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
-   attributes are removed from the set of attributes to be detected.
-
 *Allowed [string]*
    A semi-colon separated list of attributes to remove from the set of attributes
    to be detected. You have to use the named parameter formatting to specify it.
 
 *All [bool]*
-   If ``true``, clear the list of the attributes to be detected and turn the
-   rule OFF.
+   If ``true``, all attributes are detected; this sets the rule ON.
 
 Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
 does not have the syntax of an Ada identifier and therefore can not be
@@ -981,27 +960,12 @@ rule options file:
    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
    pragmas are added to the set of attributes to be detected.
 
-*All [bool]*
-   If ``true``, all pragmas are detected; this sets the rule ON.
-
-and for the ``-R`` option:
-
-*Forbidden [list[string]]*
-   Removes the specified pragmas from the set of pragmas to be checked without
-   affecting checks for other pragmas. An element is treated as a name
-   of a pragma. If it does not correspond to any pragma defined in the Ada
-   standard or to any name defined in the GNAT Reference Manual,
-   this option is treated as turning OFF detection of all unknown pragmas.
-   If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
-   pragmas are removed to the set of attributes to be detected.
-
 *Allowed [string]*
    A semi-colon separated list of pragmas to remove from the set of pragmas to
    be detected. You have to use the named parameter formatting to specify it.
 
 *All [bool]*
-   If ``true``, clear the list of the pragmas to be detected and turn the rule
-   OFF.
+   If ``true``, all pragmas are detected; this sets the rule ON.
 
 Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
 does not have the syntax of an Ada identifier and therefore can not be
@@ -6081,57 +6045,6 @@ rule options files:
 You have to use the ``param_name=value`` formatting to pass arguments through
 the ``+R`` options. Example: ``+RIdentifier_Prefixes:Type=Type_,Enum=Enum_``.
 
-For the ``-R`` option:
-
-*All_Prefixes [bool]*
-   If ``true``, removes all the prefixes specified for the identifier prefix
-   checks, whether by default or as specified by other rule parameters and
-   disables the rule.
-
-*Type [bool]*
-   If ``true``, removes the prefix specified for type/subtype names. This does
-   not remove prefixes specified for specific type kinds and does not disable
-   checks for these specific kinds.
-
-*Concurrent [bool]*
-   If ``true``, removes the prefix specified for task and protected types.
-
-*Access [bool]*
-   If ``true``, removes the prefix specified for access types. This does not
-   remove prefixes specified for specific access types (access to subprograms
-   and class-wide access)
-
-*Class_Access [bool]*
-   If ``true``, removes the prefix specified for access types pointing to
-   class-wide types.
-
-*Subprogram_Access [bool]*
-   If ``true``, removes the prefix specified for access types pointing to
-   subprograms.
-
-*Derived [bool]*
-   If ``true``, removes prefixes specified for derived types that are directly
-   derived from specific types.
-
-*Constant [bool]*
-   If ``true``, removes the prefix specified for constant and number names and
-   turns off the check for these names.
-
-*Exception [bool]*
-   If ``true``, removes the prefix specified for exception names and turns off the
-   check for exception names.
-
-*Enum [bool]*
-   If ``true``, removes the prefix specified for enumeration literal names and
-   turns off the check for them.
-
-*Exclusive [bool]*
-   If ``true``, turns of the check that only names of specific kinds of entities
-   have prefixes specified for these kinds.
-
-If more than one parameter is used, parameters must be separated by
-commas.
-
 The ``+RIdentifier_Prefixes`` option (with no parameter) does not create a new
 instance for the rule; thus, it has no effect on the current GNATcheck run.
 
@@ -6319,55 +6232,6 @@ options files:
 
 You have to use the ``param_name=value`` formatting to pass arguments through
 the ``+R`` options. Example: ``+RIdentifier_Prefixes:Type=_T,Constant=_C``.
-
-For the ``-R`` option:
-
-*All_Suffixes [bool]*
-   If ``true``, removes all the suffixes specified for the identifier suffix
-   checks, whether by default or as specified by other rule parameters. All
-   the checks for this rule are disabled as a result.
-
-*Type_Suffix [bool]*
-   If ``true``, removes the suffix specified for types. This disables checks
-   for types but does not disable any other checks for this rule (including the
-   check for access type names if ``Access_Suffix`` is set).
-
-*Access_Suffix [bool]*
-   If ``true``, removes the suffix specified for access types. This disables
-   checks for access type names but does not disable any other checks for
-   this rule. If ``Type_Suffix`` is set, access type names are checked as
-   ordinary type names.
-
-*Class_Access_Suffix [bool]*
-   If ``true``, removes the suffix specified for access types pointing to
-   class-wide type. This disables specific checks for names of access types
-   pointing to class-wide types but does not disable any other checks for
-   this rule. If ``Type_Suffix`` is set, access type names are checked as
-   ordinary type names. If ``Access_Suffix`` is set, these access types are
-   checked as any other access type name.
-
-*Class_Subtype_Suffix [bool]*
-   If ``true``, removes the suffix specified for subtype names. This disables
-   checks for subtype names but does not disable any other checks for this rule.
-
-*Constant_Suffix [bool]*
-   If ``true``, removes the suffix specified for constants. This disables checks
-   for constant names but does not disable any other checks for this rule.
-
-*Renaming_Suffix [bool]*
-   If ``true``, removes the suffix specified for package renamings. This disables
-   checks for package renamings but does not disable any other checks for this rule.
-
-*Access_Obj_Suffix [bool]*
-   If ``true``, removes the suffix specified for objects of access types, this
-   disables checks for such objects. It does not disable any other checks for this
-   rule.
-
-*Interrupt_Suffix [bool]*
-   If ``true``, removes the suffix specified for protected subprograms used as
-   interrupt handlers. It does not disable any other checks for this rule.
-
-If more than one parameter is used, parameters must be separated by commas.
 
 The ``+RIdentifier_Prefixes`` option (with no parameter) does not create a new
 instance for the rule; thus, it has no effect on the current GNATcheck run.
