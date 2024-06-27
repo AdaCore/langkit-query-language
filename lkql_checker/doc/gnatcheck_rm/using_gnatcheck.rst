@@ -4,6 +4,7 @@
 Using GNATcheck
 ***************
 
+
 .. _General_gnatcheck_Switches:
 
 General GNATcheck Switches
@@ -180,6 +181,15 @@ The following switches control the general ``gnatcheck`` behavior
   Load the given file as an LKQL rule options file (see :ref:`LKQL_options_file`
   for more information).
 
+  .. index:: -r, --rule
+
+``-r, --rule [rule_name]``
+  Enable the given ``rule_name`` for the current GNATcheck run; you can pass
+  this option multiple times to enable more that one rule. Note that you can
+  enable all rules by passing "all" as ``rule_name``.
+  You cannot provide parameters to a rule through this command-line option,
+  to do so, please use an :ref:`LKQL_options_file`.
+
   .. index:: --show-rule
 
 ``--show-rule``
@@ -265,12 +275,7 @@ location going from the generic unit to the instantiation.
 ``-ox report_file``
   Set name of the XML report file to `report_file`. Enforces  ``-xml``.
 
-``-r, --rule [rule_name]``
-  Enable the given ``rule_name`` for the current GNATcheck run; you can pass
-  this option multiple times to enable more that one rule. Note that you can
-  enable all rules by passing "all" as ``rule_name``.
-  You cannot provide parameters to a rule through this command-line option,
-  to do so, please use an :ref:`LKQL_options_file`.
+  .. index:: -rules
 
 ``-rules rules_options``
   Provide rule options for the current GNATcheck run through the command-line.
@@ -299,14 +304,115 @@ If the argument project file defines an aggregate project that aggregates only
 one (non-aggregate) project, the gnatcheck behavior is the same as for the
 case of non-aggregate argument project file.
 
+
+.. _LKQL_options_file:
+
+LKQL rule options file
+======================
+
+You can configure GNATcheck rules using an LKQL file, provided through the
+``--rule-file`` command-line option.
+
+By default, GNATcheck will look for a ``rules.lkql`` file in the current working
+directory or besides the specified project file if any. If there is one and
+no other rule configuration has been provided (through an LKQL rule file, or
+through the rule options), GNATcheck will load it as the LKQL rule options
+file, as if it was provided through the ``--rule-file`` option.
+
+This file must be a valid LKQL file that exports at least a ``rules`` top-level
+symbol. This symbol must refer to an object value containing rules
+configuration; keys are GNATcheck rules to enable; and values are objects
+containing rule parameters. A rule parameter value can be a boolean, an
+integer, a string or a list of strings.
+
+::
+
+  val rules = @{
+    Goto_Statements,
+    Forbidden_Attributes: {Forbidden: ["GNAT"], Allowed: ["First", "Last"]}
+  }
+
+You can map a boolean parameter from a ``+R`` option to an LKQL rule options file by
+passing an LKQL boolean value to it. For example:
+
+::
+
+  +RGoto_Statements:Only_Unconditional
+
+maps to:
+
+::
+
+  val rules = @{
+    Goto_Statements: {Only_Unconditional: true}
+  }
+
+.. attention::
+
+  You cannot provide the same key twice; thus, the following code will
+  result in a runtime error.
+
+  ::
+
+    val rules = @{
+      Forbidden_Attributes,
+      Forbidden_Attributes: {Forbidden: ["GNAT"], Allowed: ["First", "Last"]}
+    }
+
+If you want to create many instances of the same rule, you can associate a list
+to the rule name and add an ``instance_name`` key in argument objects to define
+their names.
+
+::
+
+  val rules = @{
+    Goto_Statements,
+    Forbidden_Attributes: [
+      {Forbidden: ["First", "Last"]},
+      {Forbidden: ["Length"], instance_name: "Length_Attr"}
+    ]
+  }
+
+Additionally to the ``rules`` top-level symbol, the LKQL rule file may export ``ada_rules``
+and ``spark_rules`` symbols to enable associated rules, respectively, only on Ada code and
+only on SPARK code. Those symbols must also refer to an object value formatted like the
+``rules`` value.
+
+::
+
+  # Rules to run on both Ada and SPARK code
+  val rules = @{
+    Goto_Statements
+  }
+
+  # Rules to run only on Ada code
+  val ada_rules = @{
+    Forbidden_Attributes: {Forbidden: ["GNAT"]}
+  }
+
+  # Rules to run only on SPARK code
+  val spark_rules = @{
+    Ada_2022_In_Ghost_Code
+  }
+
+.. note::
+
+  Note that an LKQL rules config file may contain arbitrary computation logic; the only
+  rule for this type of file is to export a ``rules`` symbol referring to an object value.
+
+
 .. _gnatcheck_Rule_Options:
 
 GNATcheck Rule Options
 ======================
 
+.. attention::
+
+  GNATcheck rule options are deprecated, please use :ref:`LKQL_options_file`
+  instead.
+
 The following options control the processing performed by ``gnatcheck``. You
 can provide as many rule options as you want after the ``-rules`` switch.
-
 
   .. index:: +R (gnatcheck)
 
@@ -413,101 +519,6 @@ absolute form, then it is treated as being relative to the current directory if
 gnatcheck is called without a project file or as being relative to the project
 file directory if gnatcheck is called with a project file as an argument.
 
-.. _LKQL_options_file:
-
-LKQL rule options file
-----------------------
-
-You can configure GNATcheck rules using an LKQL file, provided through the
-``--rule-file`` command-line option.
-
-By default, GNATcheck will look for a ``rules.lkql`` file in the current working
-directory or besides the specified project file if any. If there is one and
-no other rule configuration has been provided (through an LKQL rule file, or
-through the rule options), GNATcheck will load it as the LKQL rule options
-file, as if it was provided through the ``--rule-file`` option.
-
-This file must be a valid LKQL file that exports at least a ``rules`` top-level
-symbol. This symbol must refer to an object value containing rules
-configuration; keys are GNATcheck rules to enable; and values are objects
-containing rule parameters. A rule parameter value can be a boolean, an
-integer, a string or a list of strings.
-
-::
-
-  val rules = @{
-    gnatcheck_rule_1,
-    gnatcheck_rule_2: {param_1: "Hello", param_2: "World"}
-  }
-
-You can map a boolean parameter from a ``+R`` option to an LKQL rule options file by
-passing an LKQL boolean value to it. For example:
-
-::
-
-  +RGoto_Statements:Only_Unconditional
-
-maps to:
-
-::
-
-  val rules = @{
-    Goto_Statements: {Only_Unconditional: true}
-  }
-
-.. attention::
-
-  You cannot provide the same key twice; thus, the following code will
-  result in a runtime error.
-
-  ::
-
-    val rules = @{
-      gnatcheck_rule_1,
-      gnatcheck_rule_1: {param_1: "Hello", param_2: "World"}
-    }
-
-If you want to create many instances of the same rule, you can associate a list
-to the rule name and add an ``instance_name`` key in argument objects to define
-their names.
-
-::
-
-  val rules = @{
-    gnatcheck_rule_1,
-    gnatcheck_rule_2: [
-      {param_1: "Hello", param_2: "World"},
-      {param_1: "Foo",   param_2: "Bar", instance_name: "My_Name"}
-    ]
-  }
-
-Additionally to the ``rules`` top-level symbol, the LKQL rule file may export ``ada_rules``
-and ``spark_rules`` symbols to enable associated rules, respectively, only on Ada code and
-only on SPARK code. Those symbols must also refer to an object value formatted like the
-``rules`` value.
-
-::
-
-  # Rules to run on both Ada and SPARK code
-  val rules = @{
-    gnatcheck_rule_1
-  }
-
-  # Rules to run only on Ada code
-  val ada_rules = @{
-    gnatcheck_rule_2: {param_1: 42}
-  }
-
-  # Rules to run only on SPARK code
-  val spark_rules = @{
-    gnatcheck_rule_3
-  }
-
-.. note::
-
-  Note that an LKQL rules config file may contain arbitrary computation logic; the only
-  rule for this type of file is to export a ``rules`` symbol referring to an object value.
-
 .. _Mapping_gnatcheck_Rules_Onto_Coding_Standards:
 
 Mapping GNATcheck Rules Onto Coding Standards
@@ -518,17 +529,24 @@ follows a given coding standard, you can use the following approach
 to simplify mapping your coding standard requirements onto
 ``GNATcheck`` rules:
 
-* when specifying rule options, use instance names for the rule
-  that are relevant to your coding standard::
+* when specifying rule configuration, use instance names that are relevant
+  to your coding standard::
+
+    val rules = @{
+      Gnatcheck_Rule_1: {instance_name: "My_Coding_Rule_1", param1: "value"},
+      ...
+      Gnatcheck_Rule_N: {instance_name: "My_Coding_Rule_N"}
+    }
+
+  or with the deprecated rule options::
 
     +R:My_Coding_Rule_1:Gnatcheck_Rule_1:param1
     ...
     +R:My_Coding_Rule_N:Gnatcheck_Rule_N
 
-* call ``gnatcheck`` with the ``--show-rule`` option that adds the rule names
-  to the generated diagnoses. If a synonym is used in the rule option that
-  enables the rule, then this synonym will be used to annotate the diagnosis
-  instead of the rule name::
+* call ``gnatcheck`` with the ``--show-rule`` flag that adds the rule names
+  the generated diagnoses. If a instance name is defined in the rule configuration,
+  then this name will be used to annotate the diagnosis of the rule name::
 
     foo.adb:2:28: something is wrong here [My_Coding_Rule_1|Gnatcheck_Rule_1]
     ...
@@ -870,11 +888,11 @@ Note that you need to have the corresponding target GNAT compiler installed
 to use this option. By default, detectors for all targets are enabled.
 
 It is also possible to specify the custom list of detectors for GNATkp to run
-using the switch ``-rules``:
+using the switch ``-r``:
 
 .. code-block:: none
 
-  gnatkp -Pproject --target=<my_target> --RTS=<my_runtime> -rules +Rkp_xxxx_xxx [+Rkp_xxxx_xxx]
+  gnatkp -Pproject --target=<my_target> --RTS=<my_runtime> -r kp_xxxx_xxx [-r kp_xxxx_xxx]
 
 where ``kp_xxxx_xxx`` is the name of a relevant known-problem to detect. You
 can get the list of available detectors via the command ``gnatkp -h``. When

@@ -23,16 +23,10 @@ results of generic instantiations.
 
 GNATcheck's predefined rules' parameters may have the following types:
 
-*[bool]*
-   The parameter represents a boolean value, toggling a rule behavior. To specify
-   a boolean parameter through a ``+R`` option, you just have to provided the
-   parameter's name to set it to true:
-
-   .. code-block:: ada
-
-      +RMy_Rule:Bool_Param  -- 'Bool_Param' value is set to true
-
-   In a LKQL rule options file you have to set a boolean value to it:
+*bool*
+   The parameter represents a boolean value, toggling a rule behavior.
+   In a LKQL rule file you have to associate a boolean value to the parameter
+   name:
 
    .. code-block:: lkql
 
@@ -40,16 +34,17 @@ GNATcheck's predefined rules' parameters may have the following types:
          My_Rule: {Bool_Param: true}
       }
 
-*[int]*
-   The parameter is an integer value, to specify it with a ``+R`` option, you
-   can write its value right after the rule name:
+   To specify a boolean parameter through a ``+R`` option, you just have to provide
+   the parameter's name to set it to true:
 
    .. code-block:: ada
 
-      +RMy_Rule:5  -- 'My_Rule' integer param is set to 5
+      +RMy_Rule:Bool_Param  -- 'Bool_Param' value is set to true
 
-   In a LKQL rule options file, you have to provide an integer value to the
-   object key corresponding to the parameter name:
+*int*
+   The parameter is an integer value.
+   In a LKQL rule options file, you have to associate an integer value to the
+   parameter name:
 
    .. code-block:: lkql
 
@@ -57,14 +52,15 @@ GNATcheck's predefined rules' parameters may have the following types:
          My_Rule: {N: 5} # If the rule param is named 'N'
       }
 
-*[string]*
-   The parameter value is a string, sometimes with formatting constraints. You
-   can specify it through the ``+R`` option like an integer parameter:
+   To specify it with a ``+R`` option, you can write its value right after the
+   rule name:
 
    .. code-block:: ada
 
-      +RMy_Rule:i_am_a_string  -- 'My_Rule' string param is set to "i_am_a_string"
+      +RMy_Rule:5  -- 'My_Rule' integer param is set to 5
 
+*string*
+   The parameter value is a string, sometimes with formatting constraints.
    In a LKQL rule options file, you just have to provide a string value:
 
    .. code-block:: lkql
@@ -73,14 +69,15 @@ GNATcheck's predefined rules' parameters may have the following types:
          My_Rule: {Str: "i_am_a_string"} # If the rule param is named 'Str'
       }
 
-*[list[string]]*
-   The parameter value is a list of string. Through the ``+R`` option, you can
-   specify it as a collection a string parameter separated by commas:
+   You can specify it through the ``+R`` option also by passing a string right
+   after the rule name:
 
    .. code-block:: ada
 
-      +RMy_Rule:One,Two,Three  -- 'My_Rule' string list param is set to ["One", "Two", "Three"]
+      +RMy_Rule:i_am_a_string  -- 'My_Rule' string param is set to "i_am_a_string"
 
+*list[string]*
+   The parameter value is a list of string.
    In a LKQL rule options file, you can use the LKQL list type to specify the
    parameter value:
 
@@ -89,6 +86,13 @@ GNATcheck's predefined rules' parameters may have the following types:
       val rules = @{
          My_Rule: {Lst: ["One", "Two", "Three"]} # If the rule param is named 'Lst'
       }
+
+   Through the ``+R`` option, you can specify it as a collection of string
+   parameters separated by commas:
+
+   .. code-block:: ada
+
+      +RMy_Rule:One,Two,Three  -- 'My_Rule' string list param is set to ["One", "Two", "Three"]
 
 
 
@@ -258,7 +262,7 @@ depth of the actual parameters.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Integer not less than -1 specifying the maximal allowed depth of any
    inheritance hierarchy. If the rule parameter is set to -1, the rule
    flags all the declarations of tagged and interface types.
@@ -303,7 +307,7 @@ Flag any non-dispatching call to a dispatching primitive operation, except for:
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Except_Constructors [bool]*
+*Except_Constructors: bool*
    If ``true``, do not flag non-dispatching calls to functions if the function
    has a controlling result and no controlling parameters (in a traditional OO
    sense such functions may be considered as constructors).
@@ -597,7 +601,7 @@ any of the progenitors from the interface list (if any).
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Positive integer specifying the maximal allowed number of parents/progenitors.
 
 .. rubric:: Example
@@ -635,7 +639,7 @@ instantiations are flagged.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Positive integer specifying the maximal number of primitives when
    the type is not flagged.
 
@@ -691,7 +695,7 @@ flagged.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Tagged_Only [bool]*
+*Tagged_Only: bool*
    If ``true``, only declarations of tagged types are flagged.
 
 .. rubric:: Example
@@ -785,7 +789,7 @@ named in the rule's parameters.
 This rule has the following parameters for the ``+R`` option and for LKQL
 rule options file:
 
-*Forbidden [list[string]]*
+*Forbidden: list[string]*
    Adds the specified aspects to the set of aspects to be detected and sets
    the detection checks for all the specified attributes ON. Note that if some
    aspect exists also as class-wide aspect, the rule treats its normal
@@ -794,22 +798,12 @@ rule options file:
    specifying ``Pre'Class`` as the rule parameter does not mean that the rule
    will flag the ``Pre`` aspect).
 
-*All [bool]*
-   If ``true``, all aspects are detected; this sets the rule ON.
-
-and for the ``-R`` option:
-
-*Forbidden [list[string]]*
-   Removes the specified aspects from the set of aspects to be detected without
-   affecting detection checks for other aspects.
-
-*Allowed [string]*
+*Allowed: string*
    A semi-colon separated list of aspects to remove from the set of aspects to
    be detected. You have to use the named parameter formatting to specify it.
 
-*All [bool]*
-   If ``true``, clear the list of the aspects to be detected and turn the rule
-   OFF.
+*All: bool*
+   If ``true``, all aspects are detected; this sets the rule ON.
 
 Parameters are case insensitive. If an element of *Forbidden* or *Allowed*
 does not have the syntax of an Ada identifier, it is (silently) ignored, but
@@ -875,7 +869,7 @@ named in the rule's parameters.
 This rule has the following parameters for the ``+R`` option and for LKQL
 rule options file:
 
-*Forbidden [list[string]]*
+*Forbidden: list[string]*
    Adds the specified attributes to the set of attributes to be detected and sets
    the detection checks for all the specified attributes ON.
    If an element does not denote any attribute defined in the Ada standard
@@ -884,27 +878,12 @@ rule options file:
    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
    attributes are added to the set of attributes to be detected.
 
-*All [bool]*
-   If ``true``, all attributes are detected; this sets the rule ON.
-
-and for the ``-R`` option:
-
-*Forbidden [list[string]]*
-   Removes the specified attributes from the set of attributes to be
-   detected without affecting detection checks for other attributes.
-   If an element does not correspond to any attribute defined in the Ada
-   standard or in the GNAT Reference Manual, this option is treated as turning
-   OFF detection of all unknown attributes.
-   If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
-   attributes are removed from the set of attributes to be detected.
-
-*Allowed [string]*
+*Allowed: string*
    A semi-colon separated list of attributes to remove from the set of attributes
    to be detected. You have to use the named parameter formatting to specify it.
 
-*All [bool]*
-   If ``true``, clear the list of the attributes to be detected and turn the
-   rule OFF.
+*All: bool*
+   If ``true``, all attributes are detected; this sets the rule ON.
 
 Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
 does not have the syntax of an Ada identifier and therefore can not be
@@ -972,7 +951,7 @@ are named in the rule's  parameters.
 This rule has the following parameters for the ``+R`` option and for LKQL
 rule options file:
 
-*Forbidden [list[string]]*
+*Forbidden: list[string]*
    Adds the specified pragmas to the set of pragmas to be checked and sets
    the checks for all the specified pragmas ON. An element of this list
    is treated as a name of a pragma. If it does not correspond to any pragma name
@@ -981,27 +960,12 @@ rule options file:
    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
    pragmas are added to the set of attributes to be detected.
 
-*All [bool]*
-   If ``true``, all pragmas are detected; this sets the rule ON.
-
-and for the ``-R`` option:
-
-*Forbidden [list[string]]*
-   Removes the specified pragmas from the set of pragmas to be checked without
-   affecting checks for other pragmas. An element is treated as a name
-   of a pragma. If it does not correspond to any pragma defined in the Ada
-   standard or to any name defined in the GNAT Reference Manual,
-   this option is treated as turning OFF detection of all unknown pragmas.
-   If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
-   pragmas are removed to the set of attributes to be detected.
-
-*Allowed [string]*
+*Allowed: string*
    A semi-colon separated list of pragmas to remove from the set of pragmas to
    be detected. You have to use the named parameter formatting to specify it.
 
-*All [bool]*
-   If ``true``, clear the list of the pragmas to be detected and turn the rule
-   OFF.
+*All: bool*
+   If ``true``, all pragmas are detected; this sets the rule ON.
 
 Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
 does not have the syntax of an Ada identifier and therefore can not be
@@ -1364,7 +1328,7 @@ subprogram instantiations and package bodies are not flagged.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Positive integer specifying the maximal number of ancestors when
    the unit is not flagged.
 
@@ -1395,7 +1359,7 @@ The nesting level is the number of generic declarations that enclose the given
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Non-negative integer specifying the maximum nesting level for a generic
    declaration.
 
@@ -1436,7 +1400,7 @@ nested instantiations is more than N where N is a rule parameter.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Non-negative integer specifying the maximum nesting level for instantiations.
 
 .. rubric:: Example
@@ -1596,7 +1560,7 @@ as its subcomponents, *N* is a rule parameter:
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Positive integer specifying the maximum allowed number of expression
    subcomponents.
 
@@ -1625,7 +1589,7 @@ first to the end of the last statement, including blank and comment lines
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Positive integer specifying the maximum allowed number of lines in the
    subprogram statement sequence.
 
@@ -1738,7 +1702,7 @@ non-trivial actions as a part of their elaboration.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Library_Level_Only [bool]*
+*Library_Level_Only: bool*
    If ``true``, only check library level instantiations.
 
 .. rubric:: Example
@@ -1783,7 +1747,7 @@ a rule parameter.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Non-negative integer specifying the maximal allowed length of the
    chain of dependencies on generic units.
 
@@ -1874,7 +1838,7 @@ actual parameters to check are specified by the rule parameters.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Forbidden [list[string]]*
+*Forbidden: list[string]*
    A list of strings formatted as following: ``subprogram:formal:actual`` where
    ``subprogram`` should be a full expanded Ada name of a subprogram, ``formal``
    should be an identifier, it is treated as the name of a formal parameter of
@@ -2140,7 +2104,7 @@ or the ``others`` choice.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Except_Enums [bool]*
+*Except_Enums: bool*
    If ``true``, do not flag case statements whose selecting expression is of an
    enumeration type.
 
@@ -2196,7 +2160,7 @@ the subprograms specified as a rule parameter.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Subprograms [list[string]]*
+*Subprograms: list[string]*
    A list of full expanded Ada name of subprograms.
 
 Note that if a rule parameter does not denote the name of an existing
@@ -2253,7 +2217,7 @@ not followed.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Forbidden [list[string]]*
+*Forbidden: list[string]*
    A list of full expanded Ada name of subprograms.
 
 Note that if a rule parameter does not denote the name of an existing
@@ -2387,7 +2351,7 @@ operands is a name of a data object provided as a rule parameter.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Actuals [list[string]]*
+*Actuals: list[string]*
    A list of full expanded Ada name of a data objects declared by object
    declaration, number declaration, parameter specification, generic object
    declaration or object renaming declaration. Any other parameter does not
@@ -2465,11 +2429,11 @@ Small sequences of statements are not flagged by this rule. The rule has
 two optional parameters that allow to specify the maximal size of statement
 sequences that are not flagged:
 
-* *min_stmt [int]*
+* *min_stmt: int*
    An integer literal. All statement sequences that contain more than *min_stmt*
    statements (`Stmt` as defined in Libadalang) as subcomponents are flagged;
 
-* *min_size [int]*
+* *min_size: int*
    An integer literal. All statement sequences that contain more than *min_size*
    lexical elements (`SingleTokNode` in Libadalang terms) are flagged.
 
@@ -2597,7 +2561,7 @@ A subprogram is considered as not propagating an exception if:
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Callbacks [list[string]]*
+*Callbacks: list[string]*
    A list of strings which should have the following structure
    ``subprogram_name.parameter``. ``subprogram_name`` should be a full expanded
    Ada name of a subprogram. ``parameter`` should be a simple name of a
@@ -2812,7 +2776,7 @@ being exited.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Nested_Only [bool]*
+*Nested_Only: bool*
    If ``true``, flag only those exit statements with no loop name that exit from
    nested loops.
 
@@ -2874,7 +2838,7 @@ not flagged.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Only_Public [bool]*
+*Only_Public: bool*
    If ``true``, do not flag variable declarations in private library (generic)
    packages and in package private parts.
 
@@ -2904,7 +2868,7 @@ Flag each occurrence of a ``goto`` statement.
 This rule has the following optional parameter for the ``+R`` option and for
 LKQL rule options files:
 
-*Only_Unconditional [bool]*
+*Only_Unconditional: bool*
    If ``true``, Only flag unconditional goto statements, that is, goto statements
    that are not directly enclosed in an if or a case statement.
 
@@ -3036,7 +3000,7 @@ Non library-level generic instantiations are flagged.
 The rule has an optional parameter(s) for the ``+R`` option and for LKQL rule
 options files:
 
-*Packages [list[string]]*
+*Packages: list[string]*
    A list of fully expanded Ada names of generic units to flag local instantiations
    of.
 
@@ -3085,7 +3049,7 @@ flagged.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Except_USE_TYPE_Clauses [bool]*
+*Except_USE_TYPE_Clauses: bool*
    If ``true``, do not flag local use type clauses.
 
 .. rubric:: Example
@@ -3117,7 +3081,7 @@ file contains more than N lines where N is a rule parameter
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
   Positive integer specifying the maximum allowed number of lines in
   the compilation unit source text.
 
@@ -3145,7 +3109,7 @@ inside expanded generic instantiations are never flagged.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
   Positive integer specifying the maximum allowed total number of
   subprogram formal parameters of modes ``out`` and ``in out``.
 
@@ -3183,7 +3147,7 @@ inside expanded generic instantiations are never flagged.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
   Positive integer specifying the maximum allowed total number of
   subprogram formal parameters.
 
@@ -3357,7 +3321,7 @@ and does not repeat its name after the trailing ``END`` keyword.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
   Positive integer specifying the maximal allowed number of lines in the
   program unit that allows not to repeat the unit name at the end.
 
@@ -3387,19 +3351,19 @@ specified.
 This rule has three parameters for the ``+R`` option and for LKQL rule
 options files:
 
-*Subprogram [bool]*
+*Subprogram: bool*
    If ``true``, flag a subprogram body if the handled sequence of statements
    of this body does not contain an exception handler with ``others`` choice.
    This includes the case when the body does not contain any exception handler
    at all. The diagnostic message points to the beginning of the subprogram body.
 
-*Task [bool]*
+*Task: bool*
    If ``true``, flag a task body if the handled sequence of statements of this
    body does not contain an exception handler with ``others`` choice. This
    includes the case when the body does not contain any exception handler at all.
    The diagnostic message points to the beginning of the task body.
 
-*All_Handlers [bool]*
+*All_Handlers: bool*
    If ``true``, flag a handled sequence of statements if it does contain at least
    one exception handler, but it does not contain an exception handler with
    ``others`` choice. If a handled sequence of statements does not have any
@@ -3570,7 +3534,7 @@ operators for modular types or boolean array types are not flagged.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Except_Assertions [bool]*
+*Except_Assertions: bool*
    If ``true``, do not flag the use of non-short-circuit_operators inside
    assertion-related pragmas or aspect specifications.
 
@@ -3678,7 +3642,7 @@ Flag a statement sequence that is a component of an ``if``, ``case`` or
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Except_Enums [bool]*
+*Except_Enums: bool*
    If ``true``, do not flag null paths inside case statements whose selecting
    expression is of an enumeration type.
 
@@ -3761,7 +3725,7 @@ the name of renamed subprogram.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Name_Mismatch [bool]*
+*Name_Mismatch: bool*
    If ``true``, only flag when the renamed subprogram is also an operator with
    a different name.
 
@@ -3845,7 +3809,7 @@ Flag any use of an ``others`` choice in a ``case`` statement.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*N [int]*
+*N: int*
    If specified, only flag if the others choice can be determined to span less
    than ``N`` values (0 means no minimum value).
 
@@ -3988,11 +3952,11 @@ The control structures checked are the following:
 The rule has the following (optional) parameters for the ``+R`` option and for
 LKQL rule options files:
 
-*N [int]*
+*N: int*
    Positive integer specifying the maximal control structure nesting
    level that is not flagged. Defaults to 3 if not specified.
 
-*Loops_Only [bool]*
+*Loops_Only: bool*
    If ``true``, only loop statements are counted.
 
 .. rubric:: Example
@@ -4049,7 +4013,7 @@ rule:
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Non-negative integer specifying the maximal allowed depth of scope
    constructs.
 
@@ -4091,7 +4055,7 @@ object renamings.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*In_Parameters [bool]*
+*In_Parameters: bool*
    Whether to consider aliasing between ``OUT``, ``IN OUT`` and ``IN``
    parameters, except for those ``IN`` parameters that are of a by-copy
    type, see the definition of by-copy parameters in the Ada Standard.
@@ -4321,7 +4285,7 @@ except for the following:
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*All [bool]*
+*All: bool*
    If ``true``, all the positional parameter associations that can be replaced
    with named associations according to language rules are flagged, except
    parameters of the calls to operator functions.
@@ -4377,7 +4341,7 @@ Note that this rule does not flag calls that are flagged by the
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*In_Parameters [bool]*
+*In_Parameters: bool*
    Whether to consider aliasing between ``OUT``, ``IN OUT`` and ``IN``
    parameters, except for those ``IN`` parameters that are of a by-copy
    type, see the definition of by-copy parameters in the Ada Standard.
@@ -4471,11 +4435,11 @@ aspect definitions.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Follow_Dispatching_Calls [bool]*
+*Follow_Dispatching_Calls: bool*
    Whether to treat a dispatching call as a set of calls to all the subprograms
    the dispatching call may dispatch to.
 
-*Follow_Ghost_Code [bool]*
+*Follow_Ghost_Code: bool*
    Whether to analyze ghost code and assertion code, which isn't analyzed by
    this check by default.
 
@@ -4731,7 +4695,7 @@ considered.
 The rule has an optional parameter(s) for the ``+R`` option and for LKQL rule
 options files:
 
-*Functions [list[string]]*
+*Functions: list[string]*
    A list of fully expanded Ada names of functions to flag parameters from.
 
 Note that a rule parameter should be a function name but not the name defined
@@ -4781,7 +4745,7 @@ nor contains a call to some subprogram specified by the rule parameter
 The rule has the following parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Subprograms [list[string]]*
+*Subprograms: list[string]*
    List of names of subprograms. An exception handler is not flagged if it
    contains a call to a subprogram that has a fully expanded Ada names that
    matches an element of this list.
@@ -4942,7 +4906,7 @@ detection and identify potential missing checks.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Indirect_Calls [bool]*
+*Indirect_Calls: bool*
    Whether to flag all the indirect calls (that is, calls through
    access-to-subprogram values).
 
@@ -4982,11 +4946,11 @@ is set.
 The rule has the following optional parameters for the ``+R`` option and for
 LKQL rule options files:
 
-*All [bool]*
+*All: bool*
    If ``true``, all instantiations of Unchecked_Conversion to or from System.Address are
    flagged.
 
-*No_Instantiations [bool]*
+*No_Instantiations: bool*
    If ``true``, Do not check inside expanded generics.
 
 .. rubric:: Example
@@ -5267,7 +5231,7 @@ in them are not flagged.
 This rule has the following optional parameter for the ``+R`` option and for
 LKQL rule options files:
 
-*Exempt_Operator_Packages [bool]*
+*Exempt_Operator_Packages: bool*
    If ``true``, do not flag a package name in a package use clause if it refers
    to a package that only declares operators in its visible part.
 
@@ -5326,11 +5290,11 @@ loops marked by the rule.
 This rule has the following (optional) parameters for the ``+R`` option and
 for LKQL rule options files:
 
-*No_Exit [bool]*
+*No_Exit: bool*
    If ``true``, flag only loops that do not include an exit statement that
    applies to them.
 
-*No_Function [bool]*
+*No_Function: bool*
    If ``true``, <expression> must not contain any non-operator function call.
 
 .. rubric:: Example
@@ -5370,7 +5334,7 @@ The rule detects the following code patterns:
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Non-negative integer, indicates the minimal number of references of the form
    ``<array> (Index)`` in the loop to make the loop to be flagged.
 
@@ -5476,7 +5440,7 @@ a comparison of the same variable of one of following forms:
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Short_Circuit [bool]*
+*Short_Circuit: bool*
   Whether to consider the short circuit ``and then`` and ``or else`` operations
   along with the predefined logical ``and`` and ``or`` operators.
 
@@ -5803,7 +5767,7 @@ the text fragment specified as a rule parameter.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Header [string]*
+*Header: string*
    The name of a header file.
 
 A header file is a plain text file. The rule checks that
@@ -5844,29 +5808,29 @@ can be defined:
 The rule may have the following parameters for ``+R`` option and for LKQL rule
 options files:
 
-*Type [casing_scheme]*
+*Type: casing_scheme*
    Specifies casing for names from type and subtype declarations.
 
-*Enum [casing_scheme]*
+*Enum: casing_scheme*
    Specifies the casing of defining enumeration literals and for the
    defining names in a function renaming declarations if the renamed
    entity is an enumeration literal.
 
-*Constant [casing_scheme]*
+*Constant: casing_scheme*
    Specifies the casing for defining names from constants and named number
    declarations, including the object renaming declaration if the
    renamed object is a constant
 
-*Exception [casing_scheme]*
+*Exception: casing_scheme*
    Specifies the casing for names from exception declarations and exception
    renaming declarations.
 
-*Others [casing_scheme]*
+*Others: casing_scheme*
    Specifies the casing for all defining names for which no special casing
    scheme is specified. If this parameter is not set, the casing for the
    entities that do not correspond to the specified parameters is not checked.
 
-*Exclude [string]*
+*Exclude: string*
    The name of a dictionary file to specify casing exceptions. The name of the
    file may contain references to environment variables (e.g.
    $REPOSITORY_ROOT/my_dict.txt), they are replaced by the values of these
@@ -6034,30 +5998,30 @@ not checked and are never flagged.
 The rule may have the following parameters for the ``+R`` option and for LKQL
 rule options files:
 
-*Type [string]*
+*Type: string*
    Specifies the prefix for a type or subtype name.
 
-*Concurrent [string]*
+*Concurrent: string*
    Specifies the prefix for a task and protected type/subtype name. If this
    parameter is set, it overrides for task and protected types the prefix set by
    the Type parameter.
 
-*Access [string]*
+*Access: string*
    Specifies the prefix for an access type/subtype name. If this parameter is
    set, it overrides for access types the prefix set by the ``Type``
    parameter.
 
-*Class_Access [string]*
+*Class_Access: string*
    Specifies the prefix for the name of an access type/subtype that points to some
    class-wide type. If this parameter is set, it overrides for such access types
    and subtypes the prefix set by the ``Type`` or ``Access`` parameter.
 
-*Subprogram_Access [string]*
+*Subprogram_Access: string*
    Specifies the prefix for the name of an access type/subtype that points to a
    subprogram. If this parameter is set, it overrides for such access
    types/subtypes the prefix set by the ``Type`` or ``Access`` parameter.
 
-*Derived [string]*
+*Derived: string*
    Specifies the prefix for a type that is directly derived from a given type or
    from a subtype thereof. The parameter must have the ``string1:string2`` format
    where *string1* should be a full expanded Ada name of the ancestor type
@@ -6066,21 +6030,21 @@ rule options files:
    are directly derived from the given type the prefix set by the ``Type``
    parameter.
 
-*Constant [string]*
+*Constant: string*
    Specifies the prefix for defining names from constants and named number
    declarations, including the object renaming declaration if the
    renamed object is a constant
 
-*Enum [string]*
+*Enum: string*
    Specifies the prefix for defining enumeration literals and for the
    defining names in a function renaming declarations if the renamed
    entity is an enumeration literal.
 
-*Exception [string]*
+*Exception: string*
    Specifies the prefix for defining names from exception declarations
    and exception renaming declarations.
 
-*Exclusive [bool]*
+*Exclusive: bool*
    If ``true``, check that only those kinds of names for which specific prefix
    is defined have that prefix (e.g., only type/subtype names have prefix *T_*,
    but not variable or package names), and flag all defining names that have any
@@ -6089,57 +6053,6 @@ rule options files:
 
 You have to use the ``param_name=value`` formatting to pass arguments through
 the ``+R`` options. Example: ``+RIdentifier_Prefixes:Type=Type_,Enum=Enum_``.
-
-For the ``-R`` option:
-
-*All_Prefixes [bool]*
-   If ``true``, removes all the prefixes specified for the identifier prefix
-   checks, whether by default or as specified by other rule parameters and
-   disables the rule.
-
-*Type [bool]*
-   If ``true``, removes the prefix specified for type/subtype names. This does
-   not remove prefixes specified for specific type kinds and does not disable
-   checks for these specific kinds.
-
-*Concurrent [bool]*
-   If ``true``, removes the prefix specified for task and protected types.
-
-*Access [bool]*
-   If ``true``, removes the prefix specified for access types. This does not
-   remove prefixes specified for specific access types (access to subprograms
-   and class-wide access)
-
-*Class_Access [bool]*
-   If ``true``, removes the prefix specified for access types pointing to
-   class-wide types.
-
-*Subprogram_Access [bool]*
-   If ``true``, removes the prefix specified for access types pointing to
-   subprograms.
-
-*Derived [bool]*
-   If ``true``, removes prefixes specified for derived types that are directly
-   derived from specific types.
-
-*Constant [bool]*
-   If ``true``, removes the prefix specified for constant and number names and
-   turns off the check for these names.
-
-*Exception [bool]*
-   If ``true``, removes the prefix specified for exception names and turns off the
-   check for exception names.
-
-*Enum [bool]*
-   If ``true``, removes the prefix specified for enumeration literal names and
-   turns off the check for them.
-
-*Exclusive [bool]*
-   If ``true``, turns of the check that only names of specific kinds of entities
-   have prefixes specified for these kinds.
-
-If more than one parameter is used, parameters must be separated by
-commas.
 
 The ``+RIdentifier_Prefixes`` option (with no parameter) does not create a new
 instance for the rule; thus, it has no effect on the current GNATcheck run.
@@ -6289,13 +6202,13 @@ of access type the check for access object suffixes is applied.
 The rule may have the following parameters for ``+R`` option and for LKQL rule
 options files:
 
-*Default [bool]*
+*Default: bool*
    If ``true``, sets the default listed above for all the names to be checked.
 
-*Type_Suffix [string]*
+*Type_Suffix: string*
    Specifies the suffix for a type name.
 
-*Access_Suffix [string]*
+*Access_Suffix: string*
    Specifies the suffix for an access type name. If this parameter is set, it
    overrides for access types the suffix set by the ``Type_Suffix`` parameter.
    For access types, this parameter may have the following format:
@@ -6304,79 +6217,30 @@ options files:
    access type, in this case the type name should have the *suffix1 & suffix2*
    suffix.
 
-*Class_Access_Suffix [string]*
+*Class_Access_Suffix: string*
    Specifies the suffix for the name of an access type that points to some
    class-wide type.
    If this parameter is set, it overrides for such access types the suffix
    set by the ``Type_Suffix`` or ``Access_Suffix`` parameter.
 
-*Class_Subtype_Suffix [string]*
+*Class_Subtype_Suffix: string*
    Specifies the suffix for the name of a subtype that denotes a class-wide type.
 
-*Constant_Suffix [string]*
+*Constant_Suffix: string*
    Specifies the suffix for a constant name.
 
-*Renaming_Suffix [string]*
+*Renaming_Suffix: string*
    Specifies the suffix for a package renaming name.
 
-*Access_Obj_Suffix [string]*
+*Access_Obj_Suffix: string*
    Specifies the suffix for objects that have an access type (including types
    derived from access types).
 
-*Interrupt_Suffix [string]*
+*Interrupt_Suffix: string*
    Specifies the suffix for protected subprograms used as interrupt handlers.
 
 You have to use the ``param_name=value`` formatting to pass arguments through
 the ``+R`` options. Example: ``+RIdentifier_Prefixes:Type=_T,Constant=_C``.
-
-For the ``-R`` option:
-
-*All_Suffixes [bool]*
-   If ``true``, removes all the suffixes specified for the identifier suffix
-   checks, whether by default or as specified by other rule parameters. All
-   the checks for this rule are disabled as a result.
-
-*Type_Suffix [bool]*
-   If ``true``, removes the suffix specified for types. This disables checks
-   for types but does not disable any other checks for this rule (including the
-   check for access type names if ``Access_Suffix`` is set).
-
-*Access_Suffix [bool]*
-   If ``true``, removes the suffix specified for access types. This disables
-   checks for access type names but does not disable any other checks for
-   this rule. If ``Type_Suffix`` is set, access type names are checked as
-   ordinary type names.
-
-*Class_Access_Suffix [bool]*
-   If ``true``, removes the suffix specified for access types pointing to
-   class-wide type. This disables specific checks for names of access types
-   pointing to class-wide types but does not disable any other checks for
-   this rule. If ``Type_Suffix`` is set, access type names are checked as
-   ordinary type names. If ``Access_Suffix`` is set, these access types are
-   checked as any other access type name.
-
-*Class_Subtype_Suffix [bool]*
-   If ``true``, removes the suffix specified for subtype names. This disables
-   checks for subtype names but does not disable any other checks for this rule.
-
-*Constant_Suffix [bool]*
-   If ``true``, removes the suffix specified for constants. This disables checks
-   for constant names but does not disable any other checks for this rule.
-
-*Renaming_Suffix [bool]*
-   If ``true``, removes the suffix specified for package renamings. This disables
-   checks for package renamings but does not disable any other checks for this rule.
-
-*Access_Obj_Suffix [bool]*
-   If ``true``, removes the suffix specified for objects of access types, this
-   disables checks for such objects. It does not disable any other checks for this
-   rule.
-
-*Interrupt_Suffix [bool]*
-   If ``true``, removes the suffix specified for protected subprograms used as
-   interrupt handlers. It does not disable any other checks for this rule.
-
-If more than one parameter is used, parameters must be separated by commas.
 
 The ``+RIdentifier_Prefixes`` option (with no parameter) does not create a new
 instance for the rule; thus, it has no effect on the current GNATcheck run.
@@ -6448,7 +6312,7 @@ flagged.
 The rule has a mandatory parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*N [int]*
+*N: int*
    The maximal allowed identifier length specification.
 
 .. rubric:: Example
@@ -6475,7 +6339,7 @@ numeric types are not flagged.
 The rule has a mandatory parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*N [int]*
+*N: int*
    The minimal allowed identifier length specification.
 
 .. rubric:: Example
@@ -6539,7 +6403,7 @@ identifiers from all the dictionary files provided as the rule parameters.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Dictionary_File [string]*
+*Dictionary_File: string*
    The name of a dictionary file. The name may contain references to environment
    variables (e.g. $REPOSITORY_ROOT/my_dict.txt), they are replaced by the
    values of these variables.
@@ -6837,7 +6701,7 @@ the type name by a space or a comma.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Non-negative integer specifying the maximum size (in source code lines)
    of a record definition that does not require the type name as a trailing
    comment.
@@ -7098,7 +6962,7 @@ Subprogram renamings are also considered.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Positive integer specifying the maximum allowed total number of statements
    in the subprogram body.
 
@@ -7138,7 +7002,7 @@ Flag use of conditional expression.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Except_Assertions [bool]*
+*Except_Assertions: bool*
    If ``true``, do not flag a conditional expression if it is a subcomponent
    of the following constructs:
 
@@ -7317,7 +7181,7 @@ may result in rule false negatives.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Positive integer specifying the maximum level of nested calls to
    subprograms to which pragma Inline has been applied.
 
@@ -7371,7 +7235,7 @@ formal parts with defaulted parameters are flagged.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Integer not less than 0 specifying the minimal allowed number of
    defaulted parameters.
 
@@ -7558,7 +7422,7 @@ equality operations will be flagged if `Follow_Renamings` is true.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Follow_Renamings [bool]*
+*Follow_Renamings: bool*
    Whether to take renamings of predefined equality operations into account.
 
 
@@ -7751,16 +7615,16 @@ Flag use of membership test expression.
 This rule has the following (optional) parameters for the ``+R`` option and
 for LKQL rule options files:
 
-*Multi_Alternative_Only [bool]*
+*Multi_Alternative_Only: bool*
    If ``true``, flag only those membership test expressions that have more than
    one membership choice in the membership choice list.
 
-*Float_Types_Only [bool]*
+*Float_Types_Only: bool*
    If ``true``, flag only those membership test expressions that checks objects
    of floating point type and private types whose completions are floating-point
    types.
 
-*Except_Assertions [bool]*
+*Except_Assertions: bool*
    If ``true``, do not flag a membership test expression if it is a subcomponent
    of the following constructs:
 
@@ -7978,16 +7842,16 @@ Flag each use of a numeric literal except for the following:
 This rule may have the following parameters for the ``+R`` option and for
 LKQL rule options files:
 
-*N [int]*
+*N: int*
   An integer literal used as the maximal value that is not flagged
   (i.e., integer literals not exceeding this value are allowed).
 
 
-*All [bool]*
+*All: bool*
   If ``true``, all integer literals are flagged.
 
 
-*Statements_Only [bool]*
+*Statements_Only: bool*
   If ``true``, numeric literals are flagged only when used in statements.
 
 If no parameters are set, the maximum unflagged value is 1, and the check for
@@ -8068,7 +7932,7 @@ prefix has (static or dynamic) subtype predicate.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Except_Assertions [bool]*
+*Except_Assertions: bool*
    If ``true``, do not flag the use of non-short-circuit_operators inside
    assertion-related pragmas or aspect specifications.
 
@@ -8191,7 +8055,7 @@ definition of the corresponding aspects.
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Record_Rep_Clauses_Only [bool]*
+*Record_Rep_Clauses_Only: bool*
    If ``true``, only record representation clauses are flagged.
 
 .. rubric:: Example
@@ -8225,7 +8089,7 @@ Flag use of quantified expression.
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Except_Assertions [bool]*
+*Except_Assertions: bool*
    If ``true``, do not flag a conditional expression if it is a subcomponent
    of the following constructs:
 
@@ -8484,7 +8348,7 @@ not counted.
 This rule has the following (mandatory) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*N [int]*
+*N: int*
    Positive integer specifying the maximal number of dependencies when
    the library item or subunit is not flagged.
 
@@ -8532,7 +8396,7 @@ The following are treated as assignments to an ``out`` parameter:
 The rule has an optional parameter for the ``+R`` option and for LKQL rule
 options files:
 
-*Ignore_Component_Assignments [bool]*
+*Ignore_Component_Assignments: bool*
    Whether to ignore assignments to subcomponents of an ``out`` parameter when
    detecting if the parameter is assigned.
 
@@ -8582,7 +8446,7 @@ body corresponding to an instantiation).
 This rule has the following (optional) parameter for the ``+R`` option and
 for LKQL rule options files:
 
-*Except_String [bool]*
+*Except_String: bool*
    If ``true``, do not flag functions that return the predefined ``String`` type
    or a type derived from it, directly or indirectly.
 
@@ -8715,7 +8579,7 @@ upper bound.  A program unit that is an executable body exceeding this limit wil
 This rule has the following optional parameter for the ``+R`` option and for
 LKQL rule options files:
 
-*Exempt_Case_Statements [bool]*
+*Exempt_Case_Statements: bool*
    Whether to count the complexity introduced by ``case`` statement or ``case``
    expression as 1.
 
@@ -8769,7 +8633,7 @@ The metric counts the total number of declarations and the total number of state
 This rule has the following optional parameter for the ``+R`` option and for
 LKQL rule options files:
 
-*Subprograms [bool]*
+*Subprograms: bool*
    Whether to check the rule for subprogram bodies only.
 
 .. rubric:: Example
@@ -8842,7 +8706,7 @@ that does not contain any other character except white space
 The rule has the following mandatory parameter for the ``+R`` option and for
 LKQL rule options files:
 
-*S [list[string]]*
+*S: list[string]*
    List of string with the following interpretation: the first character
    is the special comment character, and the rest is the comment marker.
    Items must not contain any white space.

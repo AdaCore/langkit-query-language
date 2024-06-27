@@ -42,7 +42,7 @@ modify GNATcheck itself. For example:
 
 .. code-block:: sh
 
-    $ gnatcheck -Pprj --rules-dir=. -rules +Rbodies
+    $ gnatcheck -Pprj --rules-dir=. -r bodies
 
 Boolean Rules
 ~~~~~~~~~~~~~
@@ -120,7 +120,7 @@ in the current directory) will output:
 
 .. code-block:: sh
 
-    $ gnatcheck -d go_to.adb --rules-dir=. -rules +Rgoto_line
+    $ gnatcheck -d go_to.adb --rules-dir=. -r goto_line
     go_to.adb:3:09: go to line 5
 
 Rule Arguments
