@@ -1,5 +1,6 @@
 Query
-|f_unpack_from: <null>
+|f_unpack_from:
+|  UnpackAbsent
 |f_from_expr: <null>
 |f_through_expr: <null>
 |f_query_kind:
