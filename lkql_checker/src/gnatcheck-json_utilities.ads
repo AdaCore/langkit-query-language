@@ -62,6 +62,12 @@ package Gnatcheck.JSON_Utilities is
    --  function return a string vector containing all elements in the list.
    --  This function does not parse nested list, but handles nested tuples.
 
+   function Parse_LKQL_List
+     (List_Literal : String) return String_Vector;
+   --  Parse the given string as a LKQL list literal. Return its content as
+   --  a string vector. This function only handles list of non-composite types.
+   --  Raise `Invalid_Type` if the given literal is not a list.
+
    function Parse_String_Tuple
      (Tuple_Literal : String) return String_Vector;
    --  Parse the given string as a LKQL tuple literal composed of strings.
