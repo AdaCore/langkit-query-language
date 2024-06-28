@@ -31,7 +31,7 @@ public class LKQLProperty extends BasicLKQLValue {
     private final String name;
 
     /** Description of the Libadalang property with its Java method and parameters. */
-    private final Libadalang.LibadalangField description;
+    private final Libadalang.Reflection.Field description;
 
     /** The node associated to the property. */
     private final Libadalang.AdaNode node;
@@ -56,7 +56,7 @@ public class LKQLProperty extends BasicLKQLValue {
         return node;
     }
 
-    public Libadalang.LibadalangField getDescription() {
+    public Libadalang.Reflection.Field getDescription() {
         return description;
     }
 
