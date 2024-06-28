@@ -116,6 +116,25 @@ package body Gnatcheck.JSON_Utilities is
       raise Invalid_Type with "'" & Field & "' value should be a list";
    end Expect_Literal;
 
+   ---------------------
+   -- Parse_LKQL_List --
+   ---------------------
+
+   function Parse_LKQL_List
+     (List_Literal : String) return String_Vector is
+   begin
+      if List_Literal'Length > 1
+        and then List_Literal (List_Literal'First) = '['
+        and then List_Literal (List_Literal'Last) = ']'
+      then
+         return Split
+           (List_Literal ((List_Literal'First + 1) .. (List_Literal'Last - 1)),
+            Sep        => ',',
+            Trim_Elems => True);
+      end if;
+      raise Invalid_Type with "expecting a list literal";
+   end Parse_LKQL_List;
+
    ------------------------
    -- Parse_String_Tuple --
    ------------------------
@@ -123,34 +142,20 @@ package body Gnatcheck.JSON_Utilities is
    function Parse_String_Tuple
      (Tuple_Literal : String) return String_Vector
    is
-      use Ada.Strings.Unbounded;
-
       Res : String_Vector;
-      Acc : Unbounded_String;
-      In_Item : Boolean := False;
    begin
       if Tuple_Literal'Length > 2
          and then Tuple_Literal (Tuple_Literal'First) = '('
          and then Tuple_Literal (Tuple_Literal'Last) = ')'
       then
-         for C of Tuple_Literal
-           ((Tuple_Literal'First + 1) .. (Tuple_Literal'Last - 1))
-         loop
-            case C is
-               when ',' =>
-                  Res.Append (Remove_Quotes (To_String (Acc)));
-                  Set_Unbounded_String (Acc, "");
-                  In_Item := False;
-               when ' ' =>
-                  if In_Item then
-                     Append (Acc, C);
-                  end if;
-               when others =>
-                  Append (Acc, C);
-                  In_Item := True;
-            end case;
+         Res := Split
+           (Tuple_Literal
+              ((Tuple_Literal'First + 1) .. (Tuple_Literal'Last - 1)),
+            Sep        => ',',
+            Trim_Elems => True);
+         for C in Res.Iterate loop
+            Res.Replace_Element (C, Remove_Quotes (Res (C)));
          end loop;
-         Res.Append (Remove_Quotes (To_String (Acc)));
          return Res;
       end if;
       raise Invalid_Type with "expecting a tuple of strings";

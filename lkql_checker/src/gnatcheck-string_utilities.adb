@@ -182,6 +182,34 @@ package body Gnatcheck.String_Utilities is
       return S;
    end Remove_Quotes;
 
+   -----------
+   -- Split --
+   -----------
+
+   function Split
+     (S          : String;
+      Sep        : Character;
+      Trim_Elems : Boolean := False) return String_Vector
+   is
+      use Ada.Strings.Unbounded;
+      use Ada.Strings;
+
+      Res : String_Vector;
+      Acc : Unbounded_String;
+   begin
+      for C of S loop
+         if C = Sep then
+            Res.Append (To_String
+              (if Trim_Elems then Trim (Acc, Both) else Acc));
+            Set_Unbounded_String (Acc, "");
+         else
+            Append (Acc, C);
+         end if;
+      end loop;
+      Res.Append (To_String (if Trim_Elems then Trim (Acc, Both) else Acc));
+      return Res;
+   end Split;
+
    ----------
    -- Join --
    ----------
