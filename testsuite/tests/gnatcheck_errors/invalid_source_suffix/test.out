@@ -1,8 +1,0 @@
-gnatcheck: bad__suffix.adb not found
-   no exempted violations detected
-main.adb:3:11: violation of restriction "No_Specification_Of_Aspect => Iterable"
-main.adb:9:04: goto statement
-   no rule exemption problems detected
-   no language violations detected
-   no internal error detected
->>>program returned status code 3

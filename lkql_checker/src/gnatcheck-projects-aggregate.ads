@@ -20,7 +20,7 @@
 --                   this case is described in the body of this package.
 
 with GPR2.Path_Name;
-with GPR2.Project.View;
+with GPR2.Project.Tree;
 
 package Gnatcheck.Projects.Aggregate is
 
@@ -29,7 +29,7 @@ package Gnatcheck.Projects.Aggregate is
    --  Stores and returns the name of the aggregated project file passed as an
    --  actual for '-A ' option.
 
-   procedure Collect_Aggregated_Projects (P : GPR2.Project.View.Object);
+   procedure Collect_Aggregated_Projects (Tree : GPR2.Project.Tree.Object);
    --  Stores (in internal data structures) the full paths to the
    --  (non-aggregate!) projects that have been aggregated by P
 

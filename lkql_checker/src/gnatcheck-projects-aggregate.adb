@@ -55,6 +55,7 @@ package body Gnatcheck.Projects.Aggregate is
 
    function "=" (L, R : Project_Record) return Boolean is
       use GPR2.Path_Name;
+      use type GPR2.Filename_Optional;
    begin
       if R.Project_Path = Undefined and then R.Project_Path = Undefined then
          return True;
@@ -67,6 +68,7 @@ package body Gnatcheck.Projects.Aggregate is
 
    function "<" (L, R : Project_Record) return Boolean is
       use GPR2.Path_Name;
+      use type GPR2.Filename_Optional;
    begin
       if L = R then
          return False;
@@ -83,17 +85,12 @@ package body Gnatcheck.Projects.Aggregate is
    -- Collect_Aggregated_Projects --
    ---------------------------------
 
-   procedure Collect_Aggregated_Projects (P : GPR2.Project.View.Object) is
+   procedure Collect_Aggregated_Projects (Tree : GPR2.Project.Tree.Object) is
       New_Prj_Rec     : Project_Record;
    begin
-      for Agg of P.Aggregated loop
-         if Agg.Kind in GPR2.Aggregate_Kind then
-            --  Unwind nested aggregate projects
-            Collect_Aggregated_Projects (Agg);
-         else
-            New_Prj_Rec.Project_Path := Agg.Path_Name;
-            Include (Aggregated_Projects, New_Prj_Rec);
-         end if;
+      for Agg of Tree.Namespace_Root_Projects loop
+         New_Prj_Rec.Project_Path := Agg.Path_Name;
+         Include (Aggregated_Projects, New_Prj_Rec);
       end loop;
    end Collect_Aggregated_Projects;
 

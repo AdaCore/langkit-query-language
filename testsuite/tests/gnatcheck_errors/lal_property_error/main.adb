@@ -1,5 +1,5 @@
-procedure Test is
+procedure Main is
    A, B : Integer;
 begin
    null;
-end Test;
+end Main;

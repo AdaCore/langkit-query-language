@@ -1707,7 +1707,7 @@ package body Gnatcheck.Compiler is
          if not Main_Unit.Is_Empty then
             for MU of Main_Unit loop
                Num_Args := @ + 1;
-               Args (Num_Args) := new String'(String (MU.Name));
+               Args (Num_Args) := new String'(String (MU));
             end loop;
          end if;
       end if;
