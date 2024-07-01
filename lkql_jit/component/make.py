@@ -29,25 +29,25 @@ To create a GraalVM component, we must create a directory as following :
 |   - languages/
 |   |   - my_language/
 |   |   |   - bin/   ==> Directory that contains all executable files (startup scripts,
-|   |   |   |               native image...)
+|   |   |   |            native image...)
 |   |   |   |   - my_language.sh
 |   |   |   |   - my_language
 |   |   |
 |   |   |   - launcher/   ==> Directory that contains the language launcher if there
-|   |   |   |                    is one
+|   |   |   |                 is one
 |   |   |   |   - my_language_launcher.jar
 |   |   |
 |   |   |   - my_language.jar   ==> Your language Truffle implementation compiled in a
-|   |   |                              JAR file
+|   |   |                           JAR file
 |   |   |   - native-image.properties   ==> The properties of the language native image
 |
 |   - META-INF/
 |   |   - MANIFEST.MF   ==> The manifest file to declare the language properties and
-|   |                          the installation process
-|   |   - symlinks   ==> The symbolic links to create to the binary files, there will
+|   |                       the installation process
+|   |   - symlinks      ==> The symbolic links to create to the binary files, there will
 |   |                       be placed in the GRAAL_HOME/bin
 |   |   - permissions   ==> The binary files permissions to ensure the executability
-                               by users
+                            by users
 
 After that we bundle it using the "jar" command and install it with Graal Updater (gu)
 binary
@@ -69,30 +69,18 @@ from utils import (
 )
 
 if __name__ == "__main__":
-    # Create the utils
     graal = GraalManager()
     args = parse_args()
 
-    # Create the hierarchy
+    # Create the component hierarchy
     comp_dir = P.realpath(P.join(P.dirname(__file__), "lkql_jit_component"))
     shutil.rmtree(comp_dir, ignore_errors=True)
     meta_dir, lang_dir, bin_dir = component_template(comp_dir)
 
-    # Get the native components to include
-    include_native_launcher = "launcher" in args.native_components
-    include_native_checker = "checker" in args.native_components
-    include_native_worker = "gnatcheck_worker" in args.native_components
+    # Get if the LKQL native executable should be included in the component
+    include_native_lkql = "lkql_cli" in args.native_components
 
-    # Define the native executables
-    native_launcher_exe = "native_lkql_jit.exe" if is_windows() else "native_lkql_jit"
-    native_checker_exe = (
-        "native_lkql_jit_checker.exe" if is_windows() else "native_lkql_jit_checker"
-    )
-    native_gnatcheck_worker_exe = (
-        "native_gnatcheck_worker.exe" if is_windows() else "native_gnatcheck_worker"
-    )
-
-    # Copy the produced JARs to the component
+    # Copy the produced JARs into the component
     for name, source_filename in [
         ("language", P.join("..", "language", "target", "lkql_jit.jar")),
         ("cli", P.join("..", "cli", "target", "lkql_cli.jar")),
@@ -103,36 +91,22 @@ if __name__ == "__main__":
 
         shutil.copy(source_filename, P.join(lang_dir))
 
-    # Copy the GraalVM launching scripts
-    if not is_windows():
-        shutil.copy(P.join("scripts", "lkql_jit.sh"), P.join(bin_dir, "lkql_jit"))
+    # Copy the LKQL Python script into the component
+    shutil.copy(P.join("scripts", "lkql.py"), P.join(bin_dir, "lkql.py"))
+
+    # Copy the LKQL native executable if required by the build process
+    if include_native_lkql:
         shutil.copy(
-            P.join("scripts", "lkql_jit_checker.sh"),
-            P.join(bin_dir, "lkql_jit_checker"),
-        )
-        shutil.copy(
-            P.join("scripts", "gnatcheck_worker.sh"),
-            P.join(bin_dir, "gnatcheck_worker"),
+            P.join(
+                "..",
+                "native",
+                "bin",
+                "lkql.exe" if is_windows() else "lkql"
+            ),
+            P.join(bin_dir, "lkql"),
         )
 
-    # Copy the needed native images
-    if include_native_launcher:
-        shutil.copy(
-            P.join("..", "native", "bin", native_launcher_exe),
-            P.join(bin_dir, "native_lkql_jit"),
-        )
-    if include_native_checker:
-        shutil.copy(
-            P.join("..", "native", "bin", native_checker_exe),
-            P.join(bin_dir, "native_lkql_jit_checker"),
-        )
-    if include_native_worker:
-        shutil.copy(
-            P.join("..", "native", "bin", native_gnatcheck_worker_exe),
-            P.join(bin_dir, "native_gnatcheck_worker"),
-        )
-
-    # Create the needed file to compile in jar
+    # Create the native image properties file
     open(P.join(lang_dir, "native-image.properties"), "w").close()
 
     # Write the manifest
@@ -149,54 +123,18 @@ if __name__ == "__main__":
         )
 
     # Write the symbolic links
-    # TODO: create symlink to native build or interpreter version depending on a setting
-    # chosen at installation time?
-    if not is_windows():
-        with open(P.join(meta_dir, "symlinks"), "w") as f:
-            f.writelines(
-                [
-                    (
-                        "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
-                        if include_native_launcher
-                        else ""
-                    ),
-                    (
-                        "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
-                        if include_native_checker
-                        else ""
-                    ),
-                    (
-                        "bin/gnatcheck_worker = ../languages/lkql/bin/gnatcheck_worker\n"
-                        if include_native_worker
-                        else ""
-                    ),
-                ]
-            )
+    with open(P.join(meta_dir, "symlinks"), "w") as f:
+        if include_native_lkql:
+            f.writelines(["bin/lkql = ../languages/lkql/bin/lkql\n"])
+        elif not is_windows():
+            f.writelines(["bin/lkql = ../languages/lkql/bin/lkql.py\n"])
 
     # Write the permissions file
     with open(P.join(meta_dir, "permissions"), "w") as f:
-        f.writelines(
-            [
-                "languages/lkql/bin/lkql_jit = rwxrwxr-x\n",
-                "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n",
-                "languages/lkql/bin/gnatcheck_worker = rwxrwxr-x\n",
-                (
-                    f"languages/lkql/bin/{native_launcher_exe} = rwxrwxr-x\n"
-                    if include_native_launcher
-                    else ""
-                ),
-                (
-                    f"languages/lkql/bin/{native_checker_exe} = rwxrwxr-x\n"
-                    if include_native_checker
-                    else ""
-                ),
-                (
-                    f"languages/lkql/bin/{native_gnatcheck_worker_exe} = rwxrwxr-x\n"
-                    if include_native_worker
-                    else ""
-                ),
-            ]
-        )
+        f.writelines([
+            "languages/lkql/bin/lkql = rwxrwxr-x\n",
+            "languages/lkql/bin/lkql.py = rwxrwxr-x\n",
+        ])
 
     # Create the component jar
     os.chdir(comp_dir)

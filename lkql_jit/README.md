@@ -25,7 +25,7 @@ running `gu install native-image` (where `gu` is in the `bin` directory of the G
 installation).
 
 Also make sure that your GraalVM installation is for Java 17, as Java 19 is not supported for now.
-for information, the tested version of GraalVM is graalvm-ce-java17-22.3.1.
+For information, the tested version of GraalVM is graalvm-ce-java17-22.3.1.
 
 ### 1) Install Langkit and make sure it is usable
 
@@ -78,34 +78,21 @@ $[langkit-query-language/lkql]> mvn -f build/java install
 $[langkit-query-language/lkql_jit]> mvn clean install
 ```
 
-You can now access the LKQL JIT launcher using the `lkql_jit` bash script that has been
-installed in the `languages/lkql/bin` directory of your GraalVM installation (Linux only for now).
+You can now access the LKQL JIT launcher using the `lkql.py` Python script that has been installed
+in the `languages/lkql/bin` directory of your GraalVM installation.
 
-This bash script will launch LKQL JIT with the current accessible Java installation (`java -jar
-lkql_jit_launcher.jar ...`) so you have to run it in a valid environment.
+This script will launch LKQL JIT with the current accessible Java installation (`java -jar
+lkql_cli.jar ...`) so you have to run it in a valid environment.
 
-If you want to build LKQL JIT as a native executable, you can use the `native-launcher` Maven
-profile:
+If you want to build LKQL JIT as a native executable, you can use the `native` Maven profile:
 
 ```sh
-$[langkit-query-language/lkql_jit]> mvn clean install -P native-launcher
+$[langkit-query-language/lkql_jit]> mvn clean install -P native
 ```
 
-Then the `lkql_jit` executable will be available under the
-`langkit-query-language/lkql_jit/native/bin` directory and will be installed to your local
-GraalVM guest languages folder (`$GRAAL_HOME/languages/lkql/bin`).
-
-LKQL JIT has currently 3 drivers:
-
-* `launcher` : A simple driver to run LKQL JIT with a given LKQL source.
-* `checker` : A driver to run LKQL rules on Ada code bases, this is mainly used to test the LKQL
-  language implementation.
-* `gnatcheck_worker` : A driver which is not designed to be user from the command line. This is
-  used by the main GNATcheck executable to run LKQL rules.
-
-When building LKQL JIT you can define which drivers you want to build as native executables with
-the Maven profiles `native-launcher`, `native-checker` and `native-gnatcheck_worker`. If you
-want to build them all just use the `native-all` profile.
+Then the `lkql` executable will be available under the `langkit-query-language/lkql_jit/native/bin`
+directory and will be installed to your local GraalVM guest languages folder
+(`$GRAAL_HOME/languages/lkql/bin`).
 
 ### 6) Running the code formatter
 
@@ -123,23 +110,21 @@ Debugging LKQL JIT
 To debug LKQL_JIT native-image build you can use the `debug` maven profile.
 
 ```sh
-$[langkit-query-language/lkql_jit]> mvn clean install -P native-checker,debug
+$[langkit-query-language/lkql_jit]> mvn clean install -P native,debug
 ```
 
 If you need to debug or profile LKQL_JIT native-image binaries there is the `dev` profile which
-enable support for tools
-like
-`valgrind`, `gdb` or `perf` on the produced binaries.
+enable support for tools like `valgrind`, `gdb` or `perf` on the produced binaries.
 
 ```sh
-$[langkit-query-language/lkql_jit]> mvn clean install -P native-checker,dev
+$[langkit-query-language/lkql_jit]> mvn clean install -P native,dev
 ```
 
 If you don't need or want any of those, use the `prod` profile to disable all debugging and
 profiling information.
 
 ```sh
-$[langkit-query-language/lkql_jit]> mvn clean install -P native-checker,prod
+$[langkit-query-language/lkql_jit]> mvn clean install -P native,prod
 ```
 
 Configuring Intellij IDEA
