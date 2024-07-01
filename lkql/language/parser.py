@@ -1275,7 +1275,7 @@ lkql_grammar.add_rules(
         "{",
         List(
             Or(BlockBodyDecl(G.decl, ";"), BlockBodyExpr(G.expr, ";")),
-            empty_valid=False
+            empty_valid=True
         ),
         c(),
         G.expr,

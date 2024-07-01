@@ -1,0 +1,13 @@
+{
+    val x = 0;
+    x
+}
+
+{
+    print("Hello!");
+    42
+}
+
+{
+    print("World!")
+}

@@ -1,0 +1,18 @@
+val x = {
+    val x = 1;
+    val y = 10;
+    x + y
+}
+
+val y = {
+    print("Hello!");
+    42
+}
+
+val z = {
+    print("World!")
+}
+
+print(x)
+print(y)
+print(z)
