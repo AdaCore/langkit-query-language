@@ -2,16 +2,35 @@ from langkit.parsers import (
     Grammar, Or, List, Pick, Opt, Cut as c, Null
 )
 from langkit.dsl import (
-    T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic
+    T, ASTNode, abstract, Field, synthetic, Struct, UserField, LookupKind, AbstractField
 )
 from langkit.expressions import (
     Entity, Self, String, No, langkit_property, AbstractKind, AbstractProperty,
-    Let, If
+    Let, If, ArrayLiteral
 )
 import langkit.expressions as dsl_expr
-from langkit.expressions import String as S
-from langkit.envs import add_to_env_kv, EnvSpec
+from langkit.expressions import String as S, new_env_assoc, ArrayLiteral, Not, direct_env
+from langkit.envs import add_to_env_kv, add_env, add_to_env, handle_children, EnvSpec
 from language.lexer import Token, lkql_lexer as L
+
+
+class DiagnosticHint(Struct):
+    """
+    A hint for a diagnostic, providing additional information.
+    """
+    message = UserField(type=T.String)
+    node = UserField(type=T.LkqlNode.entity, default_value=No(T.LkqlNode.entity))
+
+
+class LkqlDiagnostic(Struct):
+    """
+    Base for all kinds of diagnostic.
+    """
+    message = UserField(type=T.String)
+    node = UserField(type=T.LkqlNode.entity, default_value=No(T.LkqlNode.entity))
+    hints = UserField(
+        type=T.DiagnosticHint.array
+    )
 
 
 @abstract
@@ -19,7 +38,43 @@ class LkqlNode(ASTNode):
     """
     Root node class for LKQL AST nodes.
     """
-    pass
+    @langkit_property(return_type=T.LkqlNode)
+    def lookup_bound():
+        """
+        Return the node representing the nearest lookup bound. The result of
+        this property represents the limit from where a lookup result isn't
+        valid anymore.
+        """
+        parent = Self.parent
+        return If(
+            parent.is_null,
+            No(LkqlNode),
+            parent.match(
+                lambda vd=ValDecl: If(
+                    Self == vd.value,
+                    vd,
+                    No(LkqlNode)
+                ),
+                lambda pd=ParameterDecl: If(
+                    (Self == pd.default_expr) | (Self == pd.type_annotation),
+                    pd,
+                    No(LkqlNode)
+                ),
+                lambda lca=ListCompAssoc: If(
+                    (Self == lca.coll_expr),
+                    lca,
+                    No(LkqlNode)
+                ),
+                lambda _=FunDecl: No(LkqlNode),
+                lambda _=SelectorDecl: No(LkqlNode),
+                lambda _=BasePattern: No(LkqlNode),
+                lambda _=ListComprehension: No(LkqlNode),
+                lambda _=BlockExpr: Self,
+                lambda _=TopLevelList: Self,
+                lambda p: p.lookup_bound()
+            )
+        )
+
 
 
 class DeclAnnotation(LkqlNode):
@@ -64,7 +119,9 @@ class TopLevelList(LkqlNode.list):
     """
     Holder for the top-level environment
     """
-    pass
+    env_spec = EnvSpec(
+        add_env()
+    )
 
 
 @abstract
@@ -107,6 +164,32 @@ class Identifier(Expr):
         Return the symbol for this identifier.
         """
         return Self.symbol
+
+    @langkit_property(return_type=T.LkqlNode.entity, public=True, memoized=True)
+    def referenced_decl():
+        """
+        Get the node which declared this identifier in its scope, if any.
+        """
+        res_list = Entity.node_env.get(Self.symbol, from_node=Self.lookup_bound())
+        return res_list.find(lambda n: n._.match(
+            # Filter out value decls when the queried Id appears in their value
+            # part.
+            lambda vd=ValDecl: Self.parents.find(lambda p: p == vd.value.node).is_null,
+
+            # Filter out param decls the same way
+            lambda pd=ParameterDecl: Self.parents.find(
+                lambda p: (
+                    (p == pd.default_expr.node) |
+                    (p == pd.type_annotation.node)
+                )
+            ).is_null,
+
+            # Filter out list comprehension association the same way
+            lambda lca=ListCompAssoc: Self.parents.find(lambda p: p == lca.coll_expr.node).is_null,
+
+            # Otherwise, just return the result
+            lambda _: True
+        ))
 
 
 class IntegerLiteral(Literal):
@@ -253,6 +336,10 @@ class ParameterDecl(Declaration):
     type_annotation = Field(type=Identifier)
     default_expr = Field(type=Expr)
 
+    env_spec = EnvSpec(
+        add_to_env_kv(key = Self.param_identifier.symbol, value=Self)
+    )
+
     @langkit_property()
     def doc():
         return No(T.BaseStringLiteral)
@@ -323,6 +410,10 @@ class ValDecl(Declaration):
     doc_node = Field(type=T.BaseStringLiteral)
     identifier = Field(type=Identifier)
     value = Field(type=Expr)
+
+    env_spec = EnvSpec(
+        add_to_env_kv(key = Self.identifier.symbol, value=Self)
+    )
 
     @langkit_property()
     def doc():
@@ -422,6 +513,10 @@ class BindingPattern(BasePattern):
     binding = Field(type=Identifier)
     value_pattern = Field(type=BasePattern)
 
+    env_spec = EnvSpec(
+        add_to_env_kv(key=Self.binding.symbol, value=Self)
+    )
+
 
 class IsClause(Expr):
     """
@@ -429,6 +524,10 @@ class IsClause(Expr):
     """
     node_expr = Field(type=Expr)
     pattern = Field(type=BasePattern)
+
+    env_spec = EnvSpec(
+        add_env()
+    )
 
 
 class NullPattern(ValuePattern):
@@ -566,6 +665,10 @@ class Query(Expr):
     query_kind = Field(type=QueryKind)
     pattern = Field(type=BasePattern)
 
+    env_spec = EnvSpec(
+        add_env()
+    )
+
 
 class ListCompAssoc(LkqlNode):
     """
@@ -575,6 +678,10 @@ class ListCompAssoc(LkqlNode):
 
     binding_name = Field(type=Identifier)
     coll_expr = Field(type=Expr)
+
+    env_spec = EnvSpec(
+        add_to_env_kv(key=Self.binding_name.symbol, value=Self)
+    )
 
 
 class ListLiteral(Expr):
@@ -594,6 +701,10 @@ class ListComprehension(Expr):
     expr = Field(type=Expr)
     generators = Field(type=ListCompAssoc.list)
     guard = Field(type=Expr)
+
+    env_spec = EnvSpec(
+        add_env()
+    )
 
 
 class ObjectLiteral(Expr):
@@ -671,6 +782,10 @@ class BlockExpr(Expr):
     body = Field(type=BlockBody.list)
     expr = Field(type=Expr)
 
+    env_spec = EnvSpec(
+        add_env()
+    )
+
 
 @abstract
 class BaseFunction(Expr):
@@ -680,6 +795,10 @@ class BaseFunction(Expr):
     parameters = Field(type=ParameterDecl.list)
     doc_node = Field(type=T.BaseStringLiteral)
     body_expr = Field(type=Expr)
+
+    env_spec = EnvSpec(
+        add_env()
+    )
 
     @langkit_property(return_type=T.String, public=True)
     def profile():
@@ -762,7 +881,9 @@ class FunDecl(Declaration):
     name = Field(type=Identifier)
     fun_expr = Field(type=NamedFunction)
 
-    env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
+    env_spec = EnvSpec(
+        add_to_env_kv(key=Self.name.symbol, value=Self)
+    )
 
     @langkit_property()
     def doc():
@@ -892,6 +1013,10 @@ class SelectorArm(LkqlNode):
     pattern = Field(type=BasePattern)
     expr = Field(type=Expr)
 
+    env_spec = EnvSpec(
+        add_env()
+    )
+
 
 class SelectorDecl(Declaration):
     """
@@ -901,7 +1026,12 @@ class SelectorDecl(Declaration):
     doc_node = Field(type=T.BaseStringLiteral)
     arms = Field(type=SelectorArm.list)
 
-    env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
+    env_spec = EnvSpec(
+        add_to_env_kv(key=Self.name.symbol, value=Self),
+        add_env(),
+        add_to_env_kv(key="this", value=Self, dest_env=direct_env(Self.children_env)),
+        add_to_env_kv(key="depth", value=Self, dest_env=direct_env(Self.children_env))
+    )
 
     @langkit_property()
     def doc():
@@ -916,6 +1046,16 @@ class SelectorCall(LkqlNode):
     quantifier = Field(type=Identifier)
     binding = Field(type=Identifier)
     selector_call = Field(type=Expr)
+
+    env_spec = EnvSpec(
+        add_to_env(
+            If(
+                Self.binding.is_null,
+                No(T.env_assoc),
+                new_env_assoc(key=Self.binding.symbol, value=Self)
+            )
+        )
+    )
 
     @langkit_property(return_type=T.String, public=True)
     def quantifier_name():
@@ -993,6 +1133,10 @@ class NodePatternSelector(NodePatternDetail):
     pattern_detail_delimiter = Field(type=PatternDetailDelimiter)
     pattern = Field(type=BasePattern)
 
+    env_spec = EnvSpec(
+        add_env()
+    )
+
 
 class ExtendedNodePattern(NodePattern):
     """
@@ -1015,6 +1159,10 @@ class MatchArm(LkqlNode):
 
     pattern = Field(type=BasePattern)
     expr = Field(type=Expr)
+
+    env_spec = EnvSpec(
+        add_env()
+    )
 
 
 class Match(Expr):
@@ -1053,6 +1201,10 @@ class Import(LkqlNode):
     """
 
     name = Field(type=Identifier)
+
+    env_spec = EnvSpec(
+        add_to_env_kv(key=Self.name.symbol, value=Self)
+    )
 
 
 class Tuple(Expr):
