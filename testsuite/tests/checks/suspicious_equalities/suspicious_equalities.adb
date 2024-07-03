@@ -12,16 +12,22 @@ begin
    if B = True and then B = False then   --  FLAG
       null;
    end if;
+   if B = True or B = False then         --  NOFLAG
+      null;
+   end if;
    if B /= True or B /= False then       --  FLAG
       null;
    end if;
    if B /= True or else B /= False then  --  FLAG
       null;
    end if;
+   if B /= True and B /= False then      --  NOFLAG
+      null;
+   end if;
    if E = E1 and then E = E2 then        --  FLAG
       null;
    end if;
-   if E /= E1 or else E /= E2 then         --  FLAG
+   if E /= E1 or else E /= E2 then       --  FLAG
       null;
    end if;
 
@@ -34,7 +40,7 @@ begin
    if X /= 1 or x /= 2 then              --  FLAG
       null;
    end if;
-   if X /= 1 or else x/= 2 then          --  FLAG
+   if X /= 1 or else x /= 2 then         --  FLAG
       null;
    end if;
 
@@ -43,15 +49,15 @@ begin
    end if;
    if X = 1 and (Y = 5 and X = 2) then   --  FLAG
       null;
-   end if:
+   end if;
    if (X = 1 and Y = 5) and (X = 2 and Y = 3)  --  FLAG
    then
       null;
    end if;
-   if X = 1 and Y = 5 or X /= 2 then     --  NOFLAG
+   if (X = 1 and Y = 5) or X /= 2 then         --  NOFLAG
       null;
    end if;
-   if X = 1 and Y = 5 or X /= 2 or X /= 2  --  FLAG
+   if (X = 1 and Y = 5) or X /= 2 or X /= 2    --  FLAG
    then
       null;
    end if;
