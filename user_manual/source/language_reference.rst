@@ -326,8 +326,8 @@ readable, or to print debug values.
        x + y
     }
 
-As you can see in the example above, value declarations and intermediate 
-expressions are ended by semicolons. After the last one, you write the 
+As you can see in the example above, value declarations and intermediate
+expressions are ended by semicolons. After the last one, you write the
 block's result expression, without an ending semicolon.
 
 Field Access

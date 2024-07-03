@@ -1,0 +1,46 @@
+TopLevelList
+|  BlockExpr
+|  |f_body:
+|  |  BlockBodyList
+|  |  |  BlockBodyDecl
+|  |  |  |f_decl:
+|  |  |  |  ValDecl
+|  |  |  |  |f_annotation: <null>
+|  |  |  |  |f_doc_node: <null>
+|  |  |  |  |f_identifier:
+|  |  |  |  |  Identifier: x
+|  |  |  |  |f_value:
+|  |  |  |  |  IntegerLiteral: 0
+|  |f_expr:
+|  |  Identifier: x
+|  BlockExpr
+|  |f_body:
+|  |  BlockBodyList
+|  |  |  BlockBodyExpr
+|  |  |  |f_expr:
+|  |  |  |  FunCall
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier: print
+|  |  |  |  |f_has_safe:
+|  |  |  |  |  SafeAbsent
+|  |  |  |  |f_arguments:
+|  |  |  |  |  ArgList
+|  |  |  |  |  |  ExprArg
+|  |  |  |  |  |  |f_value_expr:
+|  |  |  |  |  |  |  StringLiteral: "Hello!"
+|  |f_expr:
+|  |  IntegerLiteral: 42
+|  BlockExpr
+|  |f_body:
+|  |  BlockBodyList: <empty list>
+|  |f_expr:
+|  |  FunCall
+|  |  |f_name:
+|  |  |  Identifier: print
+|  |  |f_has_safe:
+|  |  |  SafeAbsent
+|  |  |f_arguments:
+|  |  |  ArgList
+|  |  |  |  ExprArg
+|  |  |  |  |f_value_expr:
+|  |  |  |  |  StringLiteral: "World!"
