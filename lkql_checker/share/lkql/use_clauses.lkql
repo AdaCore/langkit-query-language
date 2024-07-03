@@ -1,28 +1,52 @@
-# Flag names mentioned in use clauses. Use type clauses and names mentioned in
-# them are not flagged.
-# This rule has an optional parameter Exempt_Operator_Packages: do not flag a
-# package name in a package use clause if it refers to a package that only
-# declares operators in its visible part.
+import stdlib
 
 fun is_operator(s) =
+    |" Whether given subprogram declaration of body node represents an
+    |" operator.
     s is (BasicSubpDecl | BaseSubpBody)
     when s.p_defining_name().p_is_operator_name()
 
 fun decls_not_only_operator(pkg) =
-    [s for s in match pkg.p_referenced_decl()
-       | p@BasePackageDecl     => p.f_public_part.f_decls.children
-       | p@PackageRenamingDecl => p.p_final_renamed_package()
-                                   .f_public_part.f_decls.children
-       | p@GenericPackageInstantiation => p.p_designated_generic_decl()
-                                           .f_package_decl.f_public_part
-                                           .f_decls.children
-       | *                     => []
-     if not is_operator(s)]
+    |" Whether the given package name identifies a package that defines other
+    |" symbols than operators.
+    {
+        val decls = match pkg.p_referenced_decl()
+            | p@BasePackageDecl     => p.f_public_part.f_decls.children
+            | p@PackageRenamingDecl => p.p_final_renamed_package()
+                                        .f_public_part.f_decls.children
+            | p@GenericPackageInstantiation => p.p_designated_generic_decl()
+                                                .f_package_decl.f_public_part
+                                                .f_decls.children
+            | *                     => [];
+        not decls or
+        stdlib.any([s for s in decls if not is_operator(s)])
+    }
 
 @unit_check(help="use clause", category="Feature")
-fun use_clauses(unit, exempt_operator_packages=false) = [
-    {message: "use clause", loc: p}
-    for p in concat([use.f_packages.children
-                     for use in from unit.root select UsePackageClause].to_list)
-    if (not exempt_operator_packages) or decls_not_only_operator(p)
-]
+fun use_clauses(unit, exempt_operator_packages=false, allowed=[]) =
+    |" Flag names mentioned in use clauses. Use type clauses and names mentioned in
+    |" them are not flagged.
+    |" This rule has two optional parameter:
+    |"   * exempt_operator_packages: If true, do not flag a package name in a
+    |"     package use clause if it refers to a package that only declares operators
+    |"     in its visible part.
+    |"   * allowed: List of fully qualified names to describe packages allowed in
+    |"     "use" clauses. If the "all_operator_packages" value is present in this
+    |"     list, all packages declaring only operators in their visible part are
+    |"     allowed.
+    {
+        val canonical_allowed = [s.to_lower_case for s in allowed].to_list;
+        [
+            {message: "use clause", loc: p}
+            for p in concat(
+                [
+                    [
+                        c for c in use.f_packages.children
+                        if not c.p_referenced_decl()?.p_canonical_fully_qualified_name?() in canonical_allowed
+                    ].to_list
+                    for use in from unit.root select UsePackageClause
+                ].to_list
+            )
+            if not exempt_operator_packages or decls_not_only_operator(p)
+        ]
+    }
