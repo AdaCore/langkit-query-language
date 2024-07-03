@@ -51,7 +51,9 @@ public abstract class ListPattern extends ValuePattern {
     }
 
     @Fallback
-    public boolean onOther(VirtualFrame frame, Object other) {
+    public boolean onOther(
+            @SuppressWarnings("unused") VirtualFrame frame,
+            @SuppressWarnings("unused") Object other) {
         return false;
     }
 

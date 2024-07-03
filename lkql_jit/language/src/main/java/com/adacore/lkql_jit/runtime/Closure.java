@@ -82,18 +82,6 @@ public final class Closure {
         return content;
     }
 
-    // ----- Instance methods -----
-
-    /**
-     * Get the cell at the given slot.
-     *
-     * @param slot The slot to get the cell at.
-     * @return The cell.
-     */
-    public Cell get(final int slot) {
-        return this.content[slot];
-    }
-
     // ----- Override methods -----
 
     @Override

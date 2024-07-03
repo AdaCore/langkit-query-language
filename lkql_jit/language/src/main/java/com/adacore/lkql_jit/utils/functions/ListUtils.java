@@ -15,20 +15,6 @@ import java.util.List;
  * @author Hugo GUERRIER
  */
 public final class ListUtils {
-
-    /**
-     * Get if a list contains an element.
-     *
-     * @param list The list to verify.
-     * @param elem The element to find.
-     * @param <T> The type of the element.
-     * @return True if the list contains the element.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static <T> boolean contains(List<T> list, T elem) {
-        return list.contains(elem);
-    }
-
     @SafeVarargs
     @CompilerDirectives.TruffleBoundary
     public static <T> void addAll(List<T> lst, T... elems) {

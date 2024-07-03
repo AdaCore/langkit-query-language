@@ -21,12 +21,14 @@ public abstract class BoolPattern extends ValuePattern {
     }
 
     @Specialization
-    public boolean onBool(VirtualFrame frame, boolean val) {
+    public boolean onBool(@SuppressWarnings("unused") VirtualFrame frame, boolean val) {
         return val == toMatch;
     }
 
     @Fallback
-    public boolean onOther(VirtualFrame frame, Object other) {
+    public boolean onOther(
+            @SuppressWarnings("unused") VirtualFrame frame,
+            @SuppressWarnings("unused") Object other) {
         return false;
     }
 

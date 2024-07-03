@@ -45,10 +45,6 @@ public final class Cell {
 
     // ----- Setters -----
 
-    public void clear() {
-        this.ref = null;
-    }
-
     public void setRef(Object ref) {
         this.ref = ref;
     }

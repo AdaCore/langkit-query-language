@@ -20,9 +20,6 @@ public final class LangkitException extends AbstractTruffleException {
 
     @Serial private static final long serialVersionUID = 1755847711876252095L;
 
-    /** Kind of the Langkit exception. */
-    private final String kind;
-
     /** Message of the exception. */
     private final String msg;
 
@@ -34,21 +31,15 @@ public final class LangkitException extends AbstractTruffleException {
     /**
      * Create a new Langkit exception.
      *
-     * @param kind The kind of the exception.
      * @param msg The message of the exception.
      * @param location The location of the exception.
      */
-    public LangkitException(String kind, String msg, SourceSection location) {
-        this.kind = kind;
+    public LangkitException(String msg, SourceSection location) {
         this.msg = msg;
         this.location = location;
     }
 
     // ----- Getters -----
-
-    public String getKind() {
-        return this.kind;
-    }
 
     public String getMsg() {
         return this.msg;

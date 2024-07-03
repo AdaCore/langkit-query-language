@@ -143,14 +143,9 @@ public final class LKQLContext {
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private Libadalang.ScenarioVariable[] scenarioVars = null;
 
-    private Boolean useAutoProvider = null;
-
     /** The ada files passed through the command line. */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] files = null;
-
-    /** The error printing mode. */
-    @CompilerDirectives.CompilationFinal private String errorMode = null;
 
     /** Whether the checker is in debug mode. */
     @CompilerDirectives.CompilationFinal private Boolean checkerDebug = null;
@@ -344,18 +339,6 @@ public final class LKQLContext {
     }
 
     /**
-     * Get the error handling mode.
-     *
-     * @return The mode in a string.
-     */
-    public String getErrorMode() {
-        if (this.errorMode == null) {
-            this.errorMode = this.env.getOptions().get(LKQLLanguage.errorMode);
-        }
-        return this.errorMode;
-    }
-
-    /**
      * Get the directories to get the rules from.
      *
      * @return The directory array.
@@ -395,7 +378,6 @@ public final class LKQLContext {
         this.isVerbose = null;
         this.projectFile = null;
         this.files = null;
-        this.errorMode = null;
         this.ruleInstances = null;
         this.instancesArgsCache = new HashMap<>();
         this.ruleDirectories = null;

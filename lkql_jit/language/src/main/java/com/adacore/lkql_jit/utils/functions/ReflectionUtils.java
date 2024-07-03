@@ -151,9 +151,7 @@ public final class ReflectionUtils {
             Throwable targetException = e.getTargetException();
             if (targetException instanceof Libadalang.LangkitException langkitException) {
                 throw new LangkitException(
-                        langkitException.kind.toString(),
-                        langkitException.getMessage(),
-                        caller.getSourceSection());
+                        langkitException.getMessage(), caller.getSourceSection());
             } else if (targetException instanceof Error error) {
                 // Forward fatal errors without wrapping them in LKQLRuntimeExceptions: those
                 // shouldn't

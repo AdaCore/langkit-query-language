@@ -56,12 +56,6 @@ public final class ScriptFrames {
         this.current = null;
     }
 
-    // ----- Getters -----
-
-    public AbstractNodeFrame getCurrent() {
-        return this.current;
-    }
-
     // ----- Instance methods -----
 
     // --- Frame methods

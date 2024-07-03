@@ -38,12 +38,6 @@ public final class ScriptFramesBuilder {
         this.current = null;
     }
 
-    // ----- Getters -----
-
-    public NodeFrameBuilder getCurrent() {
-        return this.current;
-    }
-
     // ----- Instance methods -----
 
     // --- Frame methods
@@ -253,7 +247,6 @@ public final class ScriptFramesBuilder {
                             : new ScriptFrames.NodeFrame(this.node, parent);
 
             // Add all bindings to the node frame
-            final boolean saveNames = this.node instanceof Liblkqllang.TopLevelList;
             for (String binding : this.bindings) {
                 res.addBinding(binding);
             }
