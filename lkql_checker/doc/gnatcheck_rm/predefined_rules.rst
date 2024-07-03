@@ -5267,9 +5267,12 @@ in them are not flagged.
 This rule has the following optional parameter for the ``+R`` option and for
 LKQL rule options files:
 
-*Exempt_Operator_Packages [bool]*
-   If ``true``, do not flag a package name in a package use clause if it refers
-   to a package that only declares operators in its visible part.
+*Allowed: list[string]*
+   A list of Ada names describing packages to exempt from begin flagged when
+   used in use clauses.
+   If this list contains the "All_Operator_Packages" strings, all packages
+   which declares only operators in their visible part are allowed.
+   Strings in this list are case insensitive.
 
 .. rubric:: Example
 
@@ -5285,8 +5288,8 @@ LKQL rule options files:
    end Operator_Pack;
 
    with Pack, Operator_Pack;
-   use Pack;                   --  FLAG
-   use Operator_Pack;          --  FLAG only if Exempt_Operator_Packages is not set
+   use Pack;                   --  FLAG if "Pack" is not in Allowed
+   use Operator_Pack;          --  FLAG only if "All_Operator_Packages" is in Allowed
 
 
 
