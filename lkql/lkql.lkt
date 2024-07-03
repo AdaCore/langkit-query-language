@@ -1,25 +1,23 @@
 lexer lkql_lexer {
 
-    BigLongRArrow
     @trivia()
     Whitespace <- p"[ \\t\\n\\r]"
-    Dot <- "."
     DotDotDot <- "..."
-    QuestionDot <- "?."
-    QuestionBrack <- "?["
     Question <- "?"
+    Dot <- "."
     Coma <- ","
     SemiCol <- ";"
     Colon <- ":"
+    ExclExcl <- "!!"
     UnderScore <- "_"
-    Eq <- "="
+    BigRArrow <- "=>"
     EqEq <- "=="
     Neq <- "!="
-    ExclExcl <- "!!"
-    Lt <- "<"
     LEq <- "<="
-    Gt <- ">"
     GEq <- ">="
+    Lt <- "<"
+    Gt <- ">"
+    Eq <- "="
     And <- "and"
     Or <- "or"
     Plus <- "+"
@@ -36,11 +34,6 @@ lexer lkql_lexer {
     At <- "@"
     SubBlockLiteral <- p"\\|\\\"(.?)+"
     Pipe <- "|"
-    LArrow <- "<-"
-    BigRArrow <- "=>"
-    Box <- "<>"
-    @symbol()
-    Let <- "let"
     @symbol()
     SelectTok <- "select"
     @symbol()
@@ -63,8 +56,6 @@ lexer lkql_lexer {
     Rec <- "rec"
     @symbol()
     For <- "for"
-    @symbol()
-    Skip <- "skip"
     @symbol()
     Is <- "is"
     @symbol()
@@ -225,10 +216,10 @@ grammar lkql_grammar {
     value_expr <- or(
         | Unwrap(value_expr "!!")
         | DotAccess(value_expr "." / id)
-        | SafeAccess(value_expr "?." / id)
+        | SafeAccess(value_expr "?" "." / id)
         | UpperDotAccess(upper_id "." / id)
         | Indexing(value_expr "[" / expr "]")
-        | SafeIndexing(value_expr "?[" / expr "]")
+        | SafeIndexing(value_expr "?" "[" / expr "]")
         | selector_expr
         | FunCall(value_expr Safe("?") "(" / list*(arg, ",") ")")
         | constructor_call
@@ -309,6 +300,29 @@ grammar lkql_grammar {
 |" Root node class for LKQL AST nodes.
 @abstract
 class LkqlNode implements Node[LkqlNode] {
+    |" Return the node representing the nearest lookup bound. The result of
+    |" this property represents the limit from where a lookup result isn't
+    |" valid anymore.
+    fun lookup_bound(): LkqlNode =
+        if node.parent.is_null then null[LkqlNode]
+        else
+            match node.parent {
+                case vd: ValDecl =>
+                    if node == vd.value then vd else null[LkqlNode]
+                case pd: ParameterDecl =>
+                    if node == pd.default_expr or node == pd.type_annotation
+                    then pd
+                    else null[LkqlNode]
+                case lca: ListCompAssoc =>
+                    if node == lca.coll_expr then lca else null[LkqlNode]
+                case _: FunDecl => null[LkqlNode]
+                case _: SelectorDecl => null[LkqlNode]
+                case _: BasePattern => null[LkqlNode]
+                case _: ListComprehension => null[LkqlNode]
+                case _: BlockExpr => node
+                case _: TopLevelList => node
+                case p => p.lookup_bound()
+            }
 }
 
 |" Base class for arguments
@@ -384,6 +398,10 @@ class BindingPattern: BasePattern {
     @parse_field
     @nullable
     value_pattern: BasePattern
+
+    env_spec {
+        add_to_env_kv(node.binding.symbol, node)
+    }
 }
 
 |" Pattern with a filtering predicate, of the form:
@@ -450,7 +468,7 @@ class NodeKindPattern: NodePattern {
 |"
 |" For instance::
 |"
-|"    let non_objects = select not ObjectDecl
+|"    val non_objects = select not ObjectDecl
 class NotPattern: ValuePattern {
     @parse_field
     pattern: BasePattern
@@ -470,7 +488,7 @@ class ObjectPattern: ValuePattern {
 |"
 |" For instance::
 |"
-|"     let value_decls = select ObjectDecl or ParamSpec
+|"     val value_decls = select ObjectDecl or ParamSpec
 class OrPattern: ValuePattern {
     @parse_field
     left: BasePattern
@@ -592,6 +610,10 @@ class ParameterDecl: Declaration {
     |" Return the name of the parameter.
     @exported
     fun name(): String = node.param_identifier.text
+
+    env_spec {
+        add_to_env_kv(node.param_identifier.symbol, node)
+    }
 }
 
 |" Ast selector, describing a subtree
@@ -608,6 +630,25 @@ class SelectorDecl: Declaration {
 
     env_spec {
         add_to_env_kv(node.name.symbol, node)
+        add_env()
+        add_to_env_kv(
+            s"this",
+            node,
+            dest_env=DesignatedEnv(
+                kind=DesignatedEnvKind.direct_env,
+                env_name=null[Symbol],
+                direct_env=node.children_env
+            )
+        )
+        add_to_env_kv(
+            s"depth",
+            node,
+            dest_env=DesignatedEnv(
+                kind=DesignatedEnvKind.direct_env,
+                env_name=null[Symbol],
+                direct_env=node.children_env
+            )
+        )
     }
 }
 
@@ -627,6 +668,10 @@ class ValDecl: Declaration {
     value: Expr
 
     fun doc(): BaseStringLiteral = node.doc_node
+
+    env_spec {
+        add_to_env_kv(node.identifier.symbol, node)
+    }
 }
 
 |" Root node class for LKQL expressions.
@@ -685,6 +730,10 @@ class BaseFunction: Expr {
     @exported
     fun default_parameters(): Array[Entity[ParameterDecl]] =
         self.parameters.filter((p) => not p.default_expr.is_null)
+
+    env_spec {
+        add_env()
+    }
 }
 
 |" Anonymous function expression.
@@ -729,6 +778,10 @@ class BlockExpr: Expr {
     body: ASTList[BlockBody]
     @parse_field
     expr: Expr
+
+    env_spec {
+        add_env()
+    }
 }
 
 |" Expression of the form: ``if CONDITION then EXPR1 else EXPR2``
@@ -835,6 +888,44 @@ class Identifier: Expr implements TokenNode {
     |" Return the symbol for this identifier.
     @exported
     fun sym(): Symbol = node.symbol
+
+    |" Get the node which declared this identifier in its scope, if any.
+    @exported
+    @memoized
+    fun referenced_decl(): Entity[LkqlNode] = {
+        val res_list =
+            self.node_env.get(node.symbol, from=node.lookup_bound());
+
+        res_list.find(
+            (n) =>
+            n.do(
+                (v1) =>
+                match v1 {
+                    # Filter out value decls when the queried Id appears in their value
+                    # part.
+                    case vd: ValDecl =>
+                        node.parents().find((p) => p == vd.value.node).is_null
+
+                    # Filter out param decls the same way
+                    case pd: ParameterDecl =>
+                        node.parents().find(
+                            (p) =>
+                            p == pd.default_expr.node
+                            or p == pd.type_annotation.node
+                        )
+                        .is_null
+
+                    # Filter out list comprehension association the same way
+                    case lca: ListCompAssoc =>
+                        node.parents().find((p) => p == lca.coll_expr.node)
+                        .is_null
+
+                    # Otherwise, just return the result
+                    case _ => true
+                }
+            )
+        )
+    }
 }
 
 |" Check that a list contains a given value using the ``in`` keyword
@@ -867,6 +958,10 @@ class IsClause: Expr {
     node_expr: Expr
     @parse_field
     pattern: BasePattern
+
+    env_spec {
+        add_env()
+    }
 }
 
 |" List comprehension of the form:
@@ -879,6 +974,10 @@ class ListComprehension: Expr {
     @parse_field
     @nullable
     guard: Expr
+
+    env_spec {
+        add_env()
+    }
 }
 
 |" List literal of the form: ``[ expr1, expr2, ..., exprn ]``
@@ -962,7 +1061,7 @@ class ObjectLiteral: Expr {
 |"
 |" For instance::
 |"
-|"    let withAspects = [from <node>] [through <selector>]
+|"    val withAspects = [from <node>] [through <selector>]
 |"                      select ObjectDecl [child] AspectAssoc
 class Query: Expr {
     @parse_field
@@ -978,6 +1077,10 @@ class Query: Expr {
     query_kind: QueryKind
     @parse_field
     pattern: BasePattern
+
+    env_spec {
+        add_env()
+    }
 }
 
 |" Expression that is only valid in a selector. Describes the next actions of
@@ -1027,19 +1130,30 @@ class UpperDotAccess: Expr {
 class Import: LkqlNode {
     @parse_field
     name: Identifier
+
+    env_spec {
+        add_to_env_kv(node.name.symbol, node)
+    }
 }
 
-|" Arrow association of the form: id <- expr.
+|" Arrow association of the form: id in expr.
 |" This construction is meant to be used a part of a list comprehension
 class ListCompAssoc: LkqlNode {
     @parse_field
     binding_name: Identifier
     @parse_field
     coll_expr: Expr
+
+    env_spec {
+        add_to_env_kv(node.binding_name.symbol, node)
+    }
 }
 
 |" Holder for the top-level environment
 class TopLevelList: ASTList[LkqlNode] {
+    env_spec {
+        add_env()
+    }
 }
 
 |" Represents one case of a 'match'.
@@ -1048,6 +1162,10 @@ class MatchArm: LkqlNode {
     pattern: BasePattern
     @parse_field
     expr: Expr
+
+    env_spec {
+        add_env()
+    }
 }
 
 |" Access to a field, property or selector inside a node pattern.
@@ -1086,6 +1204,10 @@ class NodePatternSelector: NodePatternDetail {
     pattern_detail_delimiter: PatternDetailDelimiter
     @parse_field
     pattern: BasePattern
+
+    env_spec {
+        add_env()
+    }
 }
 
 |" Object assoc in an object literal:
@@ -1136,6 +1258,10 @@ class SelectorArm: LkqlNode {
     pattern: BasePattern
     @parse_field
     expr: Expr
+
+    env_spec {
+        add_env()
+    }
 }
 
 |" Root node for selector patterns
@@ -1158,6 +1284,23 @@ class SelectorCall: LkqlNode {
     |" Return the binding name associated with this selector call, if any.
     @exported
     fun binding_name(): Identifier = node.binding
+
+    env_spec {
+        add_single_to_env(
+            if node.binding.is_null then null[EnvAssoc]
+            else
+                EnvAssoc(
+                    key=node.binding.symbol,
+                    value=node,
+                    dest_env=DesignatedEnv(
+                        kind=DesignatedEnvKind.current_env,
+                        env_name=null[Symbol],
+                        direct_env=null[LexicalEnv]
+                    ),
+                    metadata=null[Metadata]
+                )
+        )
+    }
 }
 
 |" Wrapper for a SubBlockLiteral token.
@@ -1167,4 +1310,17 @@ class SubBlockLiteral: LkqlNode {
 |" Qualifier for unpack operator ("*").
 @qualifier
 enum class Unpack: LkqlNode {
+}
+
+|" A hint for a diagnostic, providing additional information.
+struct DiagnosticHint {
+    message: String
+    node: Entity[LkqlNode] = null[Entity[LkqlNode]]
+}
+
+|" Base for all kinds of diagnostic.
+struct LkqlDiagnostic {
+    message: String
+    node: Entity[LkqlNode] = null[Entity[LkqlNode]]
+    hints: Array[DiagnosticHint]
 }
