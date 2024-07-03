@@ -1,3 +1,5 @@
 ["procedure Main is\x0a   Message         : String := \"Hello World !\";\x0a   ConstantMessage : constant String := \"Hello Constant world !\";\x0abegin\x0a   Put_Line (Message);\x0aend Main;", "Message         : String := \"Hello World !\";", "ConstantMessage : constant String := \"Hello Constant world !\";"]
 27
 14
+CALLBACK 1
+CALLBACK 2
