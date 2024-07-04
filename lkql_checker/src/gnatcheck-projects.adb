@@ -499,7 +499,7 @@ package body Gnatcheck.Projects is
             Gnatcheck.Projects.Aggregate.Collect_Aggregated_Projects
               (My_Project.Tree);
 
-            Set_Unbounded_String (Target, String (My_Project.Tree.Target));
+            Target := To_Unbounded_String (String (My_Project.Tree.Target));
          end if;
 
          My_Project.Tree.Update_Sources (Messages => Log);

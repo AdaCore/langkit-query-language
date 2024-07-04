@@ -128,6 +128,8 @@ class GnatcheckDriver(BaseDriver):
         - ``label`` (str): An arbitrary label to add at the top of the gnatcheck
           output.
         - ``worker``: Provide a custom worker for the GNATcheck run.
+        - ``gnatkp_autoconfig`` (bool): Whether to automatically configure the
+          target and runtime when running in "gnatkp" mode. Default is True.
 
         - ``jobs`` (int): The number of jobs to forward to the GNATcheck command.
         - ``project`` (str): GPR build file to use (if any).
@@ -262,6 +264,13 @@ class GnatcheckDriver(BaseDriver):
             # for this test, run it and capture its output
             if pre_python:
                 capture_exec_python(pre_python)
+
+            # If the executable is gantkp, we must provide an explicit runtime
+            # and target
+            if exe == "gnatkp" and test_data.get('gnatkp_autoconfig', True):
+                if not self.is_codepeer:
+                    args.append(f"--target={self.env.build.platform}")
+                args.append("--RTS=native")
 
             # Set the codepeer target if needed
             if self.is_codepeer:

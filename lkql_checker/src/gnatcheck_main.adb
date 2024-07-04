@@ -468,11 +468,18 @@ begin
 
    Process_Rule_Options;
 
-   --  Force some switches for gnatkp
+   --  Force some switches and perform some checks for gnatkp
 
    if Gnatkp_Mode then
       Max_Diagnoses  := 0;
       Log_Mode       := False;
+
+      if Target = Null_Unbounded_String
+        or else RTS_Path = Null_Unbounded_String
+      then
+         Error ("missing explicit target and/or runtime");
+         OS_Exit (E_Error);
+      end if;
    end if;
 
    Set_Log_File;
@@ -518,9 +525,7 @@ begin
    Gnatcheck.Rules.Rule_Table.Clean_Up;
    Close_Log_File;
 
-   OS_Exit (if Tool_Failures /= 0
-              or else
-               Detected_Internal_Error /= 0
+   OS_Exit (if Tool_Failures /= 0 or else Detected_Internal_Error /= 0
             then                                    E_Error
             elsif Missing_Rule_File_Detected   then E_Missing_Rule_File
             elsif Bad_Rule_Detected            then E_Missing_Rule
