@@ -61,4 +61,7 @@ begin
    then
       null;
    end if;
+   if X = (Y + 1) and then Y < 0 then          --  NOFLAG
+      null;
+   end if;
 end;

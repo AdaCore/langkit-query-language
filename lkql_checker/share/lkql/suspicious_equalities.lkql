@@ -14,7 +14,7 @@ fun name_of(bin_op) =
 fun is_literal(node) =
     |" Returns whether `node` should be considered as a literal expression.
     node is (CharLiteral | NumLiteral | StringLiteral) or
-    node.p_referenced_decl() is EnumLiteralDecl
+    node is Name(p_referenced_decl(): EnumLiteralDecl)
 
 fun is_sus_eq(bin_op, logic_op_predicate, comp_op_predicate) =
     |" Returns whether a logic BinOp should be considered as a suspicious
