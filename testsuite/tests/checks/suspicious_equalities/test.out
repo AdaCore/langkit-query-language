@@ -6,51 +6,51 @@ suspicious_equalities.adb:12:7: rule violation: suspicious equality
 12 |    if B = True and then B = False then   --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:15:7: rule violation: suspicious equality
-15 |    if B /= True or B /= False then       --  FLAG
-   |       ^^^^^^^^^^^^^^^^^^^^^^^
-
 suspicious_equalities.adb:18:7: rule violation: suspicious equality
-18 |    if B /= True or else B /= False then  --  FLAG
-   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+18 |    if B /= True or B /= False then       --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^
 
 suspicious_equalities.adb:21:7: rule violation: suspicious equality
-21 |    if E = E1 and then E = E2 then        --  FLAG
+21 |    if B /= True or else B /= False then  --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:27:7: rule violation: suspicious equality
+27 |    if E = E1 and then E = E2 then        --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:24:7: rule violation: suspicious equality
-24 |    if E /= E1 or else E /= E2 then         --  FLAG
+suspicious_equalities.adb:30:7: rule violation: suspicious equality
+30 |    if E /= E1 or else E /= E2 then       --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:28:7: rule violation: suspicious equality
-28 |    if X = 1 and x = 2 then               --  FLAG
+suspicious_equalities.adb:34:7: rule violation: suspicious equality
+34 |    if X = 1 and x = 2 then               --  FLAG
    |       ^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:31:7: rule violation: suspicious equality
-31 |    if X = 1 and then x = 2 then          --  FLAG
+suspicious_equalities.adb:37:7: rule violation: suspicious equality
+37 |    if X = 1 and then x = 2 then          --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:34:7: rule violation: suspicious equality
-34 |    if X /= 1 or x /= 2 then              --  FLAG
+suspicious_equalities.adb:40:7: rule violation: suspicious equality
+40 |    if X /= 1 or x /= 2 then              --  FLAG
    |       ^^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:37:7: rule violation: suspicious equality
-37 |    if X /= 1 or else x/= 2 then          --  FLAG
-   |       ^^^^^^^^^^^^^^^^^^^^
-
-suspicious_equalities.adb:41:7: rule violation: suspicious equality
-41 |    if X = 1 and Y = 5 and X = 2 then     --  FLAG
-   |       ^^^^^^^^^^^^^^^^^^^^^^^^^
-
-suspicious_equalities.adb:44:7: rule violation: suspicious equality
-44 |    if X = 1 and (Y = 5 and X = 2) then   --  FLAG
-   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suspicious_equalities.adb:43:7: rule violation: suspicious equality
+43 |    if X /= 1 or else x /= 2 then         --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^
 
 suspicious_equalities.adb:47:7: rule violation: suspicious equality
-47 |    if (X = 1 and Y = 5) and (X = 2 and Y = 3)  --  FLAG
+47 |    if X = 1 and Y = 5 and X = 2 then     --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:50:7: rule violation: suspicious equality
+50 |    if X = 1 and (Y = 5 and X = 2) then   --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:53:7: rule violation: suspicious equality
+53 |    if (X = 1 and Y = 5) and (X = 2 and Y = 3)  --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-suspicious_equalities.adb:54:7: rule violation: suspicious equality
-54 |    if X = 1 and Y = 5 or X /= 2 or X /= 2  --  FLAG
-   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suspicious_equalities.adb:60:7: rule violation: suspicious equality
+60 |    if (X = 1 and Y = 5) or X /= 2 or X /= 2    --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

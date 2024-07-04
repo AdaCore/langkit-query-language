@@ -46,6 +46,7 @@ fun is_sus_eq(bin_op, logic_op_predicate, comp_op_predicate) =
         # considering the second "and then", left names would be ["A", "B"] and
         # right names ["A"], there is a match so this "and then" construction
         # seems like a suspicious equalities combining.
+        logic_op_predicate(bin_op.f_op) and
         stdlib.any(
             [ln.p_name_matches(rn)
              for ln in names(bin_op.f_left), rn in names(bin_op.f_right)]
