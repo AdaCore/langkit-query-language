@@ -813,7 +813,7 @@ registered for this version, via the switch ``--kp-version``. For example:
 
 .. code-block:: none
 
-   gnatkp -Pproject --kp-version=21.2
+  gnatkp -Pproject --kp-version=21.2 --target=<my_target> --RTS=<my_runtime>
 
 will run all detectors relevant to GNAT Pro 21.2 on all files in the
 project. The list of detectors will be displayed as info messages, and will
@@ -826,14 +826,14 @@ additionally the ``-h`` switch, e.g.:
 
 .. code-block:: none
 
-   gnatkp --kp-version=21.2 -h
+  gnatkp --kp-version=21.2 -h --target=<my_target> --RTS=<my_runtime>
 
 You can also combine the ``--kp-version`` switch with the ``--target`` switch
 to filter out detectors not relevant for your target, e.g:
 
 .. code-block:: none
 
-   gnatkp -Pproject --kp-version=21.2 --target=powerpc-elf
+  gnatkp -Pproject --kp-version=21.2 --target=powerpc-elf --RTS=<my_runtime>
 
 will only enable detectors relevant to GNAT Pro 21.2 and to the ``powerpc-elf``
 target.
@@ -846,13 +846,19 @@ using the switch ``-rules``:
 
 .. code-block:: none
 
-   gnatkp -Pproject -rules +Rkp_xxxx_xxx [+Rkp_xxxx_xxx]
+  gnatkp -Pproject --target=<my_target> --RTS=<my_runtime> -rules +Rkp_xxxx_xxx [+Rkp_xxxx_xxx]
 
 where ``kp_xxxx_xxx`` is the name of a relevant known-problem to detect. You
 can get the list of available detectors via the command ``gnatkp -h``. When
 combined with the ``--kp-version`` and possibly ``--target`` switches,
 ``gnatkp -h`` will only list the detectors relevant to the version
 (and target) specified.
+
+.. attention::
+
+  You must provide explicit target and runtime (either through the command-line
+  or with a provided project file) when running GNATKP to ensure the result
+  soundness.
 
 You can check via the GNAT Tracker interface which known problems are
 relevant to your version of GNAT and your target before deciding which
