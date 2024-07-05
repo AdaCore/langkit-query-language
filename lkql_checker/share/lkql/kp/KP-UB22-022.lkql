@@ -16,5 +16,5 @@ fun kp_ub22_022(node) =
             # Check whether Comp2 is an array-valued component
             f_suffix: id@Identifier(
                 p_referenced_decl(): c@ComponentDecl
-                when c.f_component_def.f_type_expr.p_designated_type_decl()?.
-                     p_is_array_type()))))
+                when c.f_component_def.f_type_expr.p_designated_type_decl()
+                      ?.p_is_array_type()))))

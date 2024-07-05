@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
@@ -48,7 +48,7 @@ public final class MapFunction {
     // ----- Inner classes -----
 
     /** Expression of the "map" function. */
-    public static final class MapExpr extends BuiltinFunctionBody {
+    public static final class MapExpr extends AbstractBuiltInFunctionBody {
 
         /** An uncached interop library for the checker functions execution. */
         private InteropLibrary interopLibrary = InteropLibrary.getUncached();

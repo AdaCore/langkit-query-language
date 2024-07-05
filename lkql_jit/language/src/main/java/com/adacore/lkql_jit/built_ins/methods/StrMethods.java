@@ -5,11 +5,12 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.functions.BaseNameFunction;
 import com.adacore.lkql_jit.built_ins.values.LKQLPattern;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
@@ -29,92 +30,83 @@ import java.util.Map;
  */
 public class StrMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
+    public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
-                    Map.entry(BaseNameFunction.NAME, BaseNameFunction.getValue()),
-                    create(
+                    Map.entry(
+                            BaseNameFunction.NAME,
+                            BuiltInMethodFactory.fromFunctionValue(
+                                    BaseNameFunction.getValue(), true)),
+                    createAttribute(
                             "to_lower_case",
                             "Return the given string written with lower case characters only",
-                            new String[] {"str"},
-                            new Expr[] {null},
                             new ToLowerCaseExpr()),
-                    create(
+                    createAttribute(
                             "is_lower_case",
                             "Return whether the given string contains lower case characters only",
-                            new String[] {"str"},
-                            new Expr[] {null},
                             new IsLowerCaseExpr()),
-                    create(
+                    createAttribute(
                             "to_upper_case",
                             "Return the given string written with upper case characters only",
-                            new String[] {"str"},
-                            new Expr[] {null},
                             new ToUpperCaseExpr()),
-                    create(
+                    createAttribute(
                             "is_upper_case",
                             "Return whether the given string contains upper case characters only",
-                            new String[] {"str"},
-                            new Expr[] {null},
                             new IsUpperCaseExpr()),
-                    create(
+                    createAttribute(
                             "is_mixed_case",
                             "Return whether the given string is written in mixed case, that is,"
                                 + " with only lower case characters except the first one and every"
                                 + " character following an underscore",
-                            new String[] {"str"},
-                            new Expr[] {null},
                             new IsMixedCaseExpr()),
-                    create(
+                    createAttribute(
                             "length",
                             "Given a string, return the length of it in character",
-                            new String[] {"str"},
-                            new Expr[] {null},
                             new LengthExpr()),
-                    create(
+                    createMethod(
                             "substring",
                             "Given a string and two indices (from and to), return the substring"
                                     + " contained between indices from and to (both included)",
-                            new String[] {"str", "from", "to"},
-                            new Expr[] {null, null, null},
+                            new String[] {"from", "to"},
+                            new Expr[] {null, null},
                             new SubstringExpr()),
-                    create(
+                    createMethod(
                             "split",
                             "Given a string, return an iterator on the words contained by str"
                                     + " separated by separator",
-                            new String[] {"str", "separator"},
-                            new Expr[] {null, null},
+                            new String[] {"separator"},
+                            new Expr[] {null},
                             new SplitExpr()),
-                    create(
+                    createMethod(
                             "contains",
                             "Search for to_find in the given string. Return whether a match is"
                                     + " found. to_find can be either a pattern or a string",
-                            new String[] {"str", "to_find"},
-                            new Expr[] {null, null},
+                            new String[] {"to_find"},
+                            new Expr[] {null},
                             new ContainsExpr()),
-                    create(
+                    createMethod(
                             "find",
                             "Search for to_find in the given string. Return position of the match,"
                                 + " or -1 if no match. to_find can be either a pattern or a string",
-                            new String[] {"str", "to_find"},
-                            new Expr[] {null, null},
+                            new String[] {"to_find"},
+                            new Expr[] {null},
                             new FindExpr()),
-                    create(
+                    createMethod(
                             "starts_with",
                             "Given a string, returns whether it starts with the given prefix",
-                            new String[] {"str", "prefix"},
-                            new Expr[] {null, null},
+                            new String[] {"prefix"},
+                            new Expr[] {null},
                             new StartsWithExpr()),
-                    create(
+                    createMethod(
                             "ends_with",
                             "Given a string, returns whether it ends with the given suffix",
-                            new String[] {"str", "suffix"},
-                            new Expr[] {null, null},
+                            new String[] {"suffix"},
+                            new Expr[] {null},
                             new EndsWithExpr()));
 
     // ----- Inner classes -----
 
     /** Expression of the "to_lower_case" method. */
-    public static final class ToLowerCaseExpr extends BuiltinFunctionBody {
+    public static final class ToLowerCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return StringUtils.toLowerCase(LKQLTypeSystemGen.asString(frame.getArguments()[0]));
@@ -122,7 +114,7 @@ public class StrMethods {
     }
 
     /** Expression of the "is_lower_case" method. */
-    public static final class IsLowerCaseExpr extends BuiltinFunctionBody {
+    public static final class IsLowerCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             String arg = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
@@ -131,7 +123,7 @@ public class StrMethods {
     }
 
     /** Expression of the "to_upper_case" method. */
-    public static final class ToUpperCaseExpr extends BuiltinFunctionBody {
+    public static final class ToUpperCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return StringUtils.toUpperCase(LKQLTypeSystemGen.asString(frame.getArguments()[0]));
@@ -139,7 +131,7 @@ public class StrMethods {
     }
 
     /** Expression of the "is_upper_case" method. */
-    public static final class IsUpperCaseExpr extends BuiltinFunctionBody {
+    public static final class IsUpperCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             String arg = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
@@ -148,7 +140,7 @@ public class StrMethods {
     }
 
     /** Expression of the "is_mixed_case" method. */
-    public static final class IsMixedCaseExpr extends BuiltinFunctionBody {
+    public static final class IsMixedCaseExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the receiver
@@ -182,7 +174,7 @@ public class StrMethods {
     }
 
     /** Expression of the "length" method. */
-    public static final class LengthExpr extends BuiltinFunctionBody {
+    public static final class LengthExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the receiver
@@ -194,7 +186,7 @@ public class StrMethods {
     }
 
     /** Expression of the "substring" method. */
-    public static final class SubstringExpr extends BuiltinFunctionBody {
+    public static final class SubstringExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -241,7 +233,7 @@ public class StrMethods {
     }
 
     /** Expression of the "split" method. */
-    public static final class SplitExpr extends BuiltinFunctionBody {
+    public static final class SplitExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the argument
@@ -268,7 +260,7 @@ public class StrMethods {
     }
 
     /** Expression of the "contains" method. */
-    public static final class ContainsExpr extends BuiltinFunctionBody {
+    public static final class ContainsExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -302,7 +294,7 @@ public class StrMethods {
     }
 
     /** Expression of the "find" method. */
-    public static final class FindExpr extends BuiltinFunctionBody {
+    public static final class FindExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -336,7 +328,7 @@ public class StrMethods {
     }
 
     /** Expression of the "starts_with" method. */
-    public static final class StartsWithExpr extends BuiltinFunctionBody {
+    public static final class StartsWithExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the argument
@@ -360,7 +352,7 @@ public class StrMethods {
     }
 
     /** Expression of the "ends_with" method. */
-    public static final class EndsWithExpr extends BuiltinFunctionBody {
+    public static final class EndsWithExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the argument

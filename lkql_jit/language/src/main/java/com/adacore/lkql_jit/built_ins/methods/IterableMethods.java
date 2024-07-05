@@ -5,15 +5,14 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.functions.ReduceFunction;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.LinkedList;
@@ -27,26 +26,21 @@ import java.util.Map;
  */
 public class IterableMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
+    public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
-                    Map.entry(ReduceFunction.NAME, ReduceFunction.getValue()),
-                    create(
-                            "to_list",
-                            "Transform an iterator into a list",
-                            new String[] {"iterable"},
-                            new Expr[] {null},
-                            new ToListExpr()),
-                    create(
-                            "length",
-                            "Get the length of the iterable element",
-                            new String[] {"iterable"},
-                            new Expr[] {null},
-                            new LengthExpr()));
+                    Map.entry(
+                            ReduceFunction.NAME,
+                            BuiltInMethodFactory.fromFunctionValue(
+                                    ReduceFunction.getValue(), false)),
+                    createAttribute(
+                            "to_list", "Transform an iterator into a list", new ToListExpr()),
+                    createAttribute(
+                            "length", "Get the length of the iterable element", new LengthExpr()));
 
     // ----- Inner classes -----
 
     /** Expression of the "to_list" method. */
-    public static class ToListExpr extends BuiltinFunctionBody {
+    public static class ToListExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the iterable receiver
@@ -65,7 +59,7 @@ public class IterableMethods {
     }
 
     /** Expression of the "length" method. */
-    public static class LengthExpr extends BuiltinFunctionBody {
+    public static class LengthExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the iterable receiver

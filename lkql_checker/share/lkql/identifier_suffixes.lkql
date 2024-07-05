@@ -101,8 +101,8 @@ fun identifier_suffixes(unit,
               | PackageRenamingDecl => "renaming suffix " & renaming_suffix
               | p => if p.parent is not ObjectDecl or
                           constant_suffix == "" or
-                          p.parent.f_type_expr.p_designated_type_decl().
-                          p_is_access_type()
+                          p.parent.f_type_expr.p_designated_type_decl()
+                           .p_is_access_type()
                        then "access object suffix " & access_obj_suffix
                        else "constant suffix " & constant_suffix,
      loc: n}

@@ -5,15 +5,14 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.ArrayList;
 import java.util.Map;
@@ -25,37 +24,18 @@ import java.util.Map;
  */
 public final class AnalysisUnitMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
+    public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
-                    create(
-                            "root",
-                            "Return the root for this unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
-                            new RootExpr()),
-                    create(
-                            "name",
-                            "Return the name of this unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
-                            new NameExpr()),
-                    create(
-                            "tokens",
-                            "Return the tokens of the unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
-                            new TokensExpr()),
-                    create(
-                            "text",
-                            "Return the text of the analysis unit",
-                            new String[] {"unit"},
-                            new Expr[] {null},
-                            new TextExpr()));
+                    createAttribute("root", "Return the root for this unit", new RootExpr()),
+                    createAttribute("name", "Return the name of this unit", new NameExpr()),
+                    createAttribute("tokens", "Return the tokens of the unit", new TokensExpr()),
+                    createAttribute(
+                            "text", "Return the text of the analysis unit", new TextExpr()));
 
     // ----- Inner classes -----
 
     /** Expression of the "root" method. */
-    public static final class RootExpr extends BuiltinFunctionBody {
+    public static final class RootExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode res =
@@ -65,7 +45,7 @@ public final class AnalysisUnitMethods {
     }
 
     /** Expression of the "name" method. */
-    public static final class NameExpr extends BuiltinFunctionBody {
+    public static final class NameExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getFileName();
@@ -73,7 +53,7 @@ public final class AnalysisUnitMethods {
     }
 
     /** Expression of the "tokens" method. */
-    public static final class TokensExpr extends BuiltinFunctionBody {
+    public static final class TokensExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AnalysisUnit unit =
@@ -90,7 +70,7 @@ public final class AnalysisUnitMethods {
     }
 
     /** Expression of the "text" method. */
-    public static final class TextExpr extends BuiltinFunctionBody {
+    public static final class TextExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getText();

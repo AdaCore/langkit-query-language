@@ -12,10 +12,10 @@ import stdlib
 
 fun true_and_false(left, right) =
     left is Name and right is Name and {
-        val n1 = left.p_referenced_defining_name()?.
-                 p_canonical_fully_qualified_name?();
-        val n2 = right.p_referenced_defining_name()?.
-                 p_canonical_fully_qualified_name?();
+        val n1 = left.p_referenced_defining_name()
+                     ?.p_canonical_fully_qualified_name?();
+        val n2 = right.p_referenced_defining_name()
+                      ?.p_canonical_fully_qualified_name?();
         (n1 == "standard.boolean.true" and n2 == "standard.boolean.false") or
         (n2 == "standard.boolean.true" and n1 == "standard.boolean.false")
     }
@@ -33,8 +33,8 @@ fun redundant_boolean_expressions(node) =
     node is (RelationOp(f_op: op@(OpEq | OpNeq)
             when stdlib.is_predefined_op(op)
              and (node.f_right is name@Name when {
-                val n = name.p_referenced_defining_name()?.
-                        p_canonical_fully_qualified_name?();
+                val n = name.p_referenced_defining_name()
+                            ?.p_canonical_fully_qualified_name?();
                 n == "standard.boolean.true" or n == "standard.boolean.false"
             }))
 

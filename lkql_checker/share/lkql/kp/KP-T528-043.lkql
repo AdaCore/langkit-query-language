@@ -11,7 +11,7 @@ fun kp_t528_043(node) =
         stdlib.has_non_default_sso(node.f_type_expr.p_designated_type_decl())
     | GenericSubpInstantiation when
         stdlib.is_unchecked_conversion(node) and
-        (stdlib.has_non_default_sso(node.f_params[1].f_r_expr.
-                                    p_referenced_decl()) or
-         stdlib.has_non_default_sso(node.f_params[2].f_r_expr.
-                                    p_referenced_decl())))
+        (stdlib.has_non_default_sso(node.f_params[1].f_r_expr
+                                        .p_referenced_decl()) or
+         stdlib.has_non_default_sso(node.f_params[2].f_r_expr
+                                        .p_referenced_decl())))

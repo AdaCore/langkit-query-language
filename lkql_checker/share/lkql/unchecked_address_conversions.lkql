@@ -13,8 +13,8 @@
 import stdlib
 
 fun is_address(param) =
-    stdlib.full_root_type(param.f_r_expr.p_referenced_decl()).
-    p_fully_qualified_name() == "System.Address"
+    stdlib.full_root_type(param.f_r_expr.p_referenced_decl())
+          .p_fully_qualified_name() == "System.Address"
 
 fun check_uc_params(source, target, all) =
     |" If `all` is true, check that either source or target is derived from

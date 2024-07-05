@@ -13,13 +13,13 @@ for Ada (and Libadalang).
 
 .. attention:: While mostly stable, LKQL is not completely done yet. The
    language will keep being extended with new constructs, and from time to time
-   syntax might change to accomodate new language constructs/enhance the
+   syntax might change to accommodate new language constructs/enhance the
    language ergonomics/fix design mistakes.
 
 Language changes
 ================
 
-Under this section, we'll document language changes chronogically, and
+Under this section, we'll document language changes chronologically, and
 categorize them by AdaCore GNATcheck release.
 
 25.0

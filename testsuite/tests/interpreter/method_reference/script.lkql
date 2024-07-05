@@ -1,0 +1,8 @@
+val s1 = "Hello"
+val s2 = "World"
+
+val s1_sub_ref = s1.substring
+val s2_sub_ref = s2.substring
+
+print(s1_sub_ref(1, 3))
+print(s2_sub_ref(1, 3))

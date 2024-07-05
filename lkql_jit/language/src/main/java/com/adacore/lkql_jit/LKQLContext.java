@@ -7,7 +7,7 @@ package com.adacore.lkql_jit;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.liblkqllang.Liblkqllang;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.checker.*;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -22,7 +22,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
-import java.nio.file.*;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -393,7 +392,7 @@ public final class LKQLContext {
      * @param type The type to get the meta table for.
      * @return The meta table for the type.
      */
-    public Map<String, BuiltInFunctionValue> getMetaTable(String type) {
+    public Map<String, BuiltInMethodFactory> getMetaTable(String type) {
         return this.global.getMetaTable(type);
     }
 

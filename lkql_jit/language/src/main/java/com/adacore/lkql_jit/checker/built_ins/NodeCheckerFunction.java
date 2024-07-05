@@ -9,8 +9,8 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.checker.NodeChecker;
@@ -60,13 +60,14 @@ public final class NodeCheckerFunction {
      * This class is the expression of the "node_checker" built-in. This expression contains the
      * traversing logic to checker the nodes.
      */
-    private static final class NodeCheckerExpr extends BuiltinFunctionBody {
+    private static final class NodeCheckerExpr extends AbstractBuiltInFunctionBody {
 
         /** An uncached interop library for the checker functions execution. */
         private InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
         /**
-         * @see BuiltinFunctionBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+         * @see
+         *     AbstractBuiltInFunctionBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
          */
         @Override
         public Object executeGeneric(VirtualFrame frame) {

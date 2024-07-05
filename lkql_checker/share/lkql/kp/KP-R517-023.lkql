@@ -5,20 +5,20 @@
 fun get_type(type) =
     match type
     | SubtypeIndication => if type.f_constraint == null
-                           then get_type(type.f_name.p_referenced_decl().
-                                         p_full_view())
+                           then get_type(type.f_name.p_referenced_decl()
+                                             .p_full_view())
                            else type
     | AnonymousType     => get_type(type.f_type_decl)
     | SubtypeDecl       => if type.f_subtype.f_constraint == null
-                           then get_type(type.f_subtype.f_name.
-                                         p_referenced_decl().p_full_view())
+                           then get_type(type.f_subtype.f_name
+                                             .p_referenced_decl().p_full_view())
                            else type
     | TypeDecl          =>
         match type.f_type_def
         | def@DerivedTypeDef
           when def.f_subtype_indication.f_constraint == null =>
-            get_type(def.f_subtype_indication.f_name.
-                     p_referenced_decl().p_full_view())
+            get_type(def.f_subtype_indication.f_name
+                        .p_referenced_decl().p_full_view())
         | *                                                  => type
     | *                 => type
 

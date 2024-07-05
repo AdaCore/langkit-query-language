@@ -5,12 +5,13 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
@@ -28,79 +29,42 @@ import java.util.Map;
  */
 public final class TokenMethods {
 
-    public static final Map<String, BuiltInFunctionValue> methods =
+    public static final Map<String, BuiltInMethodFactory> methods =
             Map.ofEntries(
-                    create(
-                            "start_column",
-                            "Return the column start",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new StartColExpr()),
-                    create(
-                            "end_column",
-                            "Return the column end",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new EndColExpr()),
-                    create(
-                            "start_line",
-                            "Return the line start",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new StartLineExpr()),
-                    create(
-                            "end_line",
-                            "Return the line end",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new EndLineExpr()),
-                    create(
+                    createAttribute("start_column", "Return the column start", new StartColExpr()),
+                    createAttribute("end_column", "Return the column end", new EndColExpr()),
+                    createAttribute("start_line", "Return the line start", new StartLineExpr()),
+                    createAttribute("end_line", "Return the line end", new EndLineExpr()),
+                    createMethod(
                             "is_equivalent",
                             "Return whether two tokens are structurally equivalent",
-                            new String[] {"this", "other"},
-                            new Expr[] {null, null},
+                            new String[] {"other"},
+                            new Expr[] {null},
                             new IsEquivalentExpr()),
-                    create(
+                    createAttribute(
                             "is_trivia",
                             "Return whether this token is a trivia",
-                            new String[] {"token"},
-                            new Expr[] {null},
                             new IsTriviaExpr()),
-                    create(
+                    createMethod(
                             "next",
                             "Return the next token",
-                            new String[] {"token", "exclude_trivia"},
-                            new Expr[] {null, new BooleanLiteral(null, false)},
+                            new String[] {"exclude_trivia"},
+                            new Expr[] {new BooleanLiteral(null, false)},
                             new NextExpr()),
-                    create(
+                    createMethod(
                             "previous",
                             "Return the previous token",
-                            new String[] {"token", "exclude_trivia"},
-                            new Expr[] {null, new BooleanLiteral(null, false)},
+                            new String[] {"exclude_trivia"},
+                            new Expr[] {new BooleanLiteral(null, false)},
                             new PrevExpr()),
-                    create(
-                            "unit",
-                            "Return the unit for this token",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new UnitExpr()),
-                    create(
-                            "text",
-                            "Return the text of the token",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new TextExpr()),
-                    create(
-                            "kind",
-                            "Return the kind of the token",
-                            new String[] {"token"},
-                            new Expr[] {null},
-                            new KindExpr()));
+                    createAttribute("unit", "Return the unit for this token", new UnitExpr()),
+                    createAttribute("text", "Return the text of the token", new TextExpr()),
+                    createAttribute("kind", "Return the kind of the token", new KindExpr()));
 
     // ----- Inner classes -----
 
     /** Expression of the "start_column" method. */
-    public static final class StartColExpr extends BuiltinFunctionBody {
+    public static final class StartColExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long)
@@ -112,7 +76,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "end_column" method. */
-    public static final class EndColExpr extends BuiltinFunctionBody {
+    public static final class EndColExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long)
@@ -124,7 +88,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "start_line" method. */
-    public static final class StartLineExpr extends BuiltinFunctionBody {
+    public static final class StartLineExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long)
@@ -136,7 +100,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "end_line" method. */
-    public static final class EndLineExpr extends BuiltinFunctionBody {
+    public static final class EndLineExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long)
@@ -145,7 +109,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "is_equivalent" method. */
-    public static final class IsEquivalentExpr extends BuiltinFunctionBody {
+    public static final class IsEquivalentExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the other token to compare
@@ -165,7 +129,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "is_trivia" method. */
-    public static final class IsTriviaExpr extends BuiltinFunctionBody {
+    public static final class IsTriviaExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).triviaIndex != 0;
@@ -173,7 +137,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "next" method. */
-    public static final class NextExpr extends BuiltinFunctionBody {
+    public static final class NextExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get if the trivia tokens should be ignored
@@ -199,7 +163,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "previous" method. */
-    public static final class PrevExpr extends BuiltinFunctionBody {
+    public static final class PrevExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get if the trivia tokens should be ignored
@@ -225,7 +189,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "unit" method. */
-    public static final class UnitExpr extends BuiltinFunctionBody {
+    public static final class UnitExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).unit;
@@ -233,7 +197,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "text" method. */
-    public static final class TextExpr extends BuiltinFunctionBody {
+    public static final class TextExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).getText();
@@ -241,7 +205,7 @@ public final class TokenMethods {
     }
 
     /** Expression of the "kind" method. */
-    public static final class KindExpr extends BuiltinFunctionBody {
+    public static final class KindExpr extends AbstractBuiltInFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.Token token = LKQLTypeSystemGen.asToken(frame.getArguments()[0]);

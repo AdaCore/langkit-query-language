@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.runtime;
 
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.BuiltInsHolder;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.checker.BaseChecker;
@@ -35,7 +36,7 @@ public final class GlobalScope {
     public Object[] preludeObjects = null;
 
     /** The meta tables that contains built-in methods. */
-    private final Map<String, Map<String, BuiltInFunctionValue>> metaTables;
+    private final Map<String, Map<String, BuiltInMethodFactory>> metaTables;
 
     /**
      * The global objects table. This is only used in the interactive interpreter, because in every
@@ -64,7 +65,7 @@ public final class GlobalScope {
 
         // Add the built-in methods
         for (var entry : builtInsHolder.builtInMethods.entrySet()) {
-            var methods = new HashMap<String, BuiltInFunctionValue>();
+            var methods = new HashMap<String, BuiltInMethodFactory>();
             methods.putAll(builtInsHolder.commonMethods);
             methods.putAll(entry.getValue());
             metaTables.put(entry.getKey(), methods);
@@ -110,7 +111,7 @@ public final class GlobalScope {
      * @return The meta table.
      */
     @CompilerDirectives.TruffleBoundary
-    public Map<String, BuiltInFunctionValue> getMetaTable(String type) {
+    public Map<String, BuiltInMethodFactory> getMetaTable(String type) {
         return this.metaTables.get(type);
     }
 

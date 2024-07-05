@@ -42,7 +42,7 @@ public final class BuiltInsHolder {
                     UnitCheckerFunction.getValue());
 
     /** The built-in method list. */
-    public final Map<String, Map<String, BuiltInFunctionValue>> builtInMethods =
+    public final Map<String, Map<String, BuiltInMethodFactory>> builtInMethods =
             Map.ofEntries(
                     create(LKQLTypesHelper.LKQL_LIST, ListMethods.methods),
                     create(LKQLTypesHelper.LKQL_STRING, StrMethods.methods),
@@ -61,22 +61,25 @@ public final class BuiltInsHolder {
                     create(LKQLTypesHelper.LKQL_OBJECT, null),
                     create(LKQLTypesHelper.LKQL_NAMESPACE, null));
 
-    public final Map<String, BuiltInFunctionValue> commonMethods =
+    public final Map<String, BuiltInMethodFactory> commonMethods =
             Map.of(
-                    ImgFunction.NAME, ImgFunction.getValue(),
-                    PrintFunction.NAME, PrintFunction.getValue(),
-                    DocFunction.NAME, DocFunction.getValue());
+                    ImgFunction.NAME,
+                    BuiltInMethodFactory.fromFunctionValue(ImgFunction.getValue(), true),
+                    PrintFunction.NAME,
+                    BuiltInMethodFactory.fromFunctionValue(PrintFunction.getValue(), false),
+                    DocFunction.NAME,
+                    BuiltInMethodFactory.fromFunctionValue(DocFunction.getValue(), true));
 
-    public static Map<String, BuiltInFunctionValue> combine(
-            Map<String, BuiltInFunctionValue> m1, Map<String, BuiltInFunctionValue> m2) {
-        var res = new HashMap<String, BuiltInFunctionValue>();
+    public static Map<String, BuiltInMethodFactory> combine(
+            Map<String, BuiltInMethodFactory> m1, Map<String, BuiltInMethodFactory> m2) {
+        var res = new HashMap<String, BuiltInMethodFactory>();
         res.putAll(m1);
         res.putAll(m2);
         return res;
     }
 
-    private static Map.Entry<String, Map<String, BuiltInFunctionValue>> create(
-            String name, Map<String, BuiltInFunctionValue> vals) {
+    private static Map.Entry<String, Map<String, BuiltInMethodFactory>> create(
+            String name, Map<String, BuiltInMethodFactory> vals) {
         if (vals == null) {
             vals = new HashMap<>();
         }

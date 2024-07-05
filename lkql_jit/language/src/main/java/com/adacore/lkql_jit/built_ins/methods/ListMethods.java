@@ -5,10 +5,10 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.BuiltInsHolder;
 import com.adacore.lkql_jit.built_ins.functions.UniqueFunction;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
@@ -27,12 +27,12 @@ import java.util.Map;
  */
 public class ListMethods {
 
-    private static final Map.Entry<String, BuiltInFunctionValue> sublistFunction =
-            create(
+    private static final Map.Entry<String, BuiltInMethodFactory> sublistFunction =
+            createMethod(
                     "sublist",
                     "Return a sublist of `list` from `low_bound` to `high_bound`",
-                    new String[] {"list", "low_bound", "high_bound"},
-                    new Expr[] {null, null, null},
+                    new String[] {"low_bound", "high_bound"},
+                    new Expr[] {null, null},
                     (VirtualFrame frame, FunCall call) -> {
                         var args = frame.getArguments();
 
@@ -72,10 +72,13 @@ public class ListMethods {
                                         list.getContent(), (int) lowBound - 1, (int) highBound));
                     });
 
-    public static final Map<String, BuiltInFunctionValue> methods =
+    public static final Map<String, BuiltInMethodFactory> methods =
             BuiltInsHolder.combine(
                     Map.ofEntries(
-                            Map.entry(UniqueFunction.NAME, UniqueFunction.getValue()),
+                            Map.entry(
+                                    UniqueFunction.NAME,
+                                    BuiltInMethodFactory.fromFunctionValue(
+                                            UniqueFunction.getValue(), true)),
                             sublistFunction),
                     IterableMethods.methods);
 }
