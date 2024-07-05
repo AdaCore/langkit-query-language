@@ -18,6 +18,7 @@ class CheckerDriver(BaseDriver):
         - input_sources: Ada files to analyze (if explicit, optional if project
           is passed)
         - rule_name: The name of the rule to check
+        - auto_fixes: Whether to activate auto-fixes for the specified rule
         - rule_arguments: A dict mapping rule argument names to their values
     """
 
@@ -45,6 +46,10 @@ class CheckerDriver(BaseDriver):
 
         if self.test_env.get("keep_going_on_missing_file", False):
             args += ['--keep-going-on-missing-file']
+
+        if self.test_env.get('auto_fixes', False):
+            args += ['-f', self.test_env['rule_name']]
+            args += ['--auto-fix-mode', 'DISPLAY']
 
         # Run the checker
         if self.perf_mode:
