@@ -10,3 +10,26 @@ valid.adb:14:10: rule violation: membership test instead of 'Valid
 14 |    elsif Y in Integer then                       --  FLAG
    |          ^^^^^^^^^^^^
 
+Patched "valid.adb":
+====================
+
+procedure Valid is
+   subtype My_Int is Integer range 1 .. 10;
+
+   X : My_Int;
+   Y : Integer;
+
+begin
+   if X 'Valid then                           --  FLAG
+      null;
+   elsif X 'Valid then   --  FLAG
+      null;
+   elsif X in Integer'First .. Integer'Last then --  NOFLAG
+      null;
+   elsif Y 'Valid then                       --  FLAG
+      null;
+   elsif X in Integer then                       --  NOFLAG
+      null;
+   end if;
+end Valid;
+

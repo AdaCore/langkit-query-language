@@ -1,3 +1,4 @@
 driver: 'checker'
 rule_name: Membership_For_Validity
+auto_fix: True
 input_sources: ['valid.adb']
