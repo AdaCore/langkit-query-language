@@ -765,6 +765,17 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                         receiver));
     }
 
+    /** Visit an upper dot-access node and translate it into a member reference access. */
+    @Override
+    public LKQLNode visit(Liblkqllang.UpperDotAccess upperDotAccess) {
+        final var receiver = upperDotAccess.fReceiver();
+        final var member = upperDotAccess.fMember();
+        return new MemberRefAccess(
+                loc(upperDotAccess),
+                new Identifier(loc(receiver), receiver.getText()),
+                new Identifier(loc(member), member.getText()));
+    }
+
     // --- In clause
 
     /**
