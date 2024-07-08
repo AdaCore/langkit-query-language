@@ -1,9 +1,51 @@
-binary_case_statements.adb:4:9: rule violation: CASE statement can be replaced with IF statement
-4 |          case 1 is                   --  FLAG
-  | _________^
+binary_case_statements.adb:4:4: rule violation: CASE statement can be replaced with IF statement
+4 |     case 1 is  --  FLAG
+  | ____^
   ||
-  || ~~~ 4 other lines ~~~
+  || ~~~ 2 other lines ~~~
   ||
-9 ||         end case;
-  ||_________________^
+7 ||    end case;
+  ||____________^
+
+binary_case_statements.adb:9:4: rule violation: CASE statement can be replaced with IF statement
+9  |     case 1 is  --  FLAG
+   | ____^
+   ||
+   || ~~~ 2 other lines ~~~
+   ||
+12 ||    end case;
+   ||____________^
+
+binary_case_statements.adb:14:4: rule violation: CASE statement can be replaced with IF statement
+14 |     case True is  --  FLAG
+   | ____^
+   ||
+   || ~~~ 2 other lines ~~~
+   ||
+17 ||    end case;
+   ||____________^
+
+Patched "binary_case_statements.adb":
+=====================================
+
+procedure Main is
+   procedure Test (I : Integer);
+begin
+   if 1 =1 then null;
+      else null;
+   end if;if 1 =1 then Test (2);
+      elsif 1 =2 then Test (1);
+   end if;if True =True then null;
+      elsif True =False then null;
+   end if;case 1 is  --  NOFLAG
+      when 1 | 2 => null;
+      when others => null;
+   end case;
+
+   case 1 is  --  NOFLAG
+      when 1 => null;
+      when 2 => null;
+      when others => null;
+   end case;
+end Main;
 
