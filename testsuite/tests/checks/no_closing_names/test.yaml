@@ -3,3 +3,4 @@ rule_name: 'no_closing_names'
 project: 'prj.gpr'
 rule_arguments:
    no_closing_names.n: '3'
+auto_fix: True

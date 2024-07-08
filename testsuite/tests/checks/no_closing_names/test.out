@@ -34,3 +34,72 @@ names.ads:21:14: rule violation: no closing name
 21 |    protected Prot1 is       --  FLAG
    |              ^^^^^
 
+Patched "names.adb":
+====================
+
+package body Names is  --  FLAG
+   procedure Proc is   --  FLAG
+   begin
+      null;
+   end Proc;
+
+   procedure Proc2 is   --  NOFLAG
+   begin
+      null;
+   end Proc2;
+
+   task body Task1 is   --  FLAG
+   begin
+      null;
+   end Task1;
+
+   task body Task2 is   --  NOFLAG
+   begin null; end;
+
+   protected body Prot1 is   --  FLAG
+      procedure P is         --  FLAG
+      begin
+         null;
+      end P;
+   end Prot1;
+
+   protected body Prot2 is  --  NOFLAG
+      --
+      --
+   end Prot2;
+
+end Names;
+
+Patched "names.ads":
+====================
+
+package Names is       --  FLAG
+   procedure Proc;
+
+   package Nested is   --  FLAG
+      --
+      --
+   end Nested;
+
+   package Nested2 is   --  NOFLAG
+      --
+      --
+   end Nested2 ;
+
+   task type Task1;     --  NOFLAG
+
+   task Task2 is        --  FLAG
+      --
+      --
+   end Task2;
+
+   protected Prot1 is       --  FLAG
+      --
+      procedure P;
+   end Prot1;
+
+   protected type Prot2 is  --  NOFLAG
+   end Prot2;
+
+end Names;
+
