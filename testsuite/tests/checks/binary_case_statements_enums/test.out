@@ -1,0 +1,30 @@
+paths.adb:15:4: rule violation: CASE statement can be replaced with IF statement
+15 |     case 1 is  -- FLAG
+   | ____^
+   ||
+   || ~~~ 2 other lines ~~~
+   ||
+18 ||    end case;
+   ||____________^
+
+Patched "paths.adb":
+====================
+
+procedure Paths is
+   type Enum is (A, B);
+   Obj : Enum;
+begin
+   case Obj is  --  NOFLAG
+      when A => null;
+      when B => null;
+   end case;
+
+   case True is  --  NOFLAG
+      when True => null;
+      when others => null;
+   end case;
+
+   if 1 =1 then null;
+      else null;
+   end if;end Paths;
+

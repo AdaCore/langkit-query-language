@@ -1,3 +1,4 @@
 driver: 'checker'
 rule_name: Binary_Case_Statements
 input_sources: ['binary_case_statements.adb']
+auto_fix: True
