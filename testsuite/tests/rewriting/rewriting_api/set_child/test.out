@@ -1,0 +1,19 @@
+main.adb:3:4: rule violation: Custom rule violation
+3 |     if False then
+  | ____^
+  ||
+  || ~~~ 1 other lines ~~~
+  ||
+5 ||    end if;
+  ||__________^
+
+Patched "main.adb":
+===================
+
+procedure Main is
+begin
+   if REPLACED then
+      null;
+   end if;
+end Main;
+

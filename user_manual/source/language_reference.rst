@@ -279,6 +279,7 @@ Field Access
 
 .. lkql_doc_class:: DotAccess
 .. lkql_doc_class:: Safe
+.. lkql_doc_class:: UpperDotAccess
 
 A field access returns the contents of a field. In the following example, we
 get the content of the  ``f_type_expr`` syntax field on a node of type
@@ -298,6 +299,16 @@ access":
 
 The safe access will return null if the left hand side is null. This allows
 users to chain accesses without having to checks for nulls at every step.
+
+In the context of rewriting features usage, you may want to get a reference
+to a field of a node.
+You can access such references with a dot-access notation on node kinds:
+
+.. code-block::
+
+    val ref_to_f_child = MyNodeKind.f_child
+
+Such values can be used when calling ``RewritingContext``'s methods.
 
 
 Unwrap Expression

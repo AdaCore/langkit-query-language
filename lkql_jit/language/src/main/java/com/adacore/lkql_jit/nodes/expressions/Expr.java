@@ -279,4 +279,15 @@ public abstract class Expr extends LKQLNode {
             throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectRewritingNode(executeGeneric(frame));
     }
+
+    /**
+     * Execute the expression as a member reference.
+     *
+     * @throws UnexpectedResultException If the node cannot be evaluated as a member reference.
+     */
+    @SuppressWarnings("unused")
+    public Libadalang.MemberReference executeMemberReference(VirtualFrame frame)
+            throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectMemberReference(executeGeneric(frame));
+    }
 }
