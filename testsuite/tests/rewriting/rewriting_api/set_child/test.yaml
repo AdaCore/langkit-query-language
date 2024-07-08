@@ -1,0 +1,5 @@
+driver: checker
+input_sources:
+  - main.adb
+rule_name: custom
+auto_fix: True

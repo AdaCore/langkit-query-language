@@ -1,0 +1,5 @@
+@check(
+    message="Custom rule violation",
+    auto_fix=(n, ctx) => ctx.set_child(n, IfStmt.f_cond_expr, new Identifier("REPLACED"))
+)
+fun custom(node) = node is IfStmt

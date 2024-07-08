@@ -15,7 +15,9 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverter;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverterNodeGen;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -30,6 +32,13 @@ public final class RewritingContextMethods {
                             new String[] {"old", "new"},
                             new Expr[] {null, null},
                             new ReplaceExpr()),
+                    createMethod(
+                            "set_child",
+                            "Set the node child, following the given member reference, to the new "
+                                    + "value",
+                            new String[] {"node", "member_ref", "new_value"},
+                            new Expr[] {null, null, null},
+                            new SetChildExpr()),
                     createMethod(
                             "insert_before",
                             "Given a node, insert the new one before it in its parent (this"
@@ -95,6 +104,38 @@ public final class RewritingContextMethods {
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }
             return ctx;
+        }
+    }
+
+    /** Body for the "set_child" method. */
+    public static final class SetChildExpr extends AbstractBuiltInFunctionBody {
+        @Child RewritingNodeConverter argToRewritingNode = RewritingNodeConverterNodeGen.create();
+
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            // Get the method arguments
+            final var node =
+                    argToRewritingNode.execute(
+                            frame.getArguments()[1],
+                            false,
+                            this.callNode.getArgList().getArgs()[0]);
+            final Libadalang.MemberReference memberRef;
+            try {
+                memberRef = LKQLTypeSystemGen.expectMemberReference(frame.getArguments()[2]);
+            } catch (UnexpectedResultException e) {
+                throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.MEMBER_REFERENCE,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this.callNode.getArgList().getArgs()[1]);
+            }
+            final var newNode =
+                    argToRewritingNode.execute(
+                            frame.getArguments()[3], true, this.callNode.getArgList().getArgs()[2]);
+
+            // Call the child replacement
+            node.setChild(memberRef, newNode);
+
+            return LKQLTypeSystemGen.asRewritingContext(frame.getArguments()[0]);
         }
     }
 

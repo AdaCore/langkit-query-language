@@ -344,6 +344,14 @@ class SafeAccess(DotAccess):
     pass
 
 
+class UpperDotAccess(Expr):
+    """
+    Access to a node kind field using the dot notation.
+    """
+    receiver = Field(type=Identifier)
+    member = Field(type=Identifier)
+
+
 class InClause(Expr):
     """
     Check that a list contains a given value using the ``in`` keyword
@@ -1269,6 +1277,7 @@ lkql_grammar.add_rules(
 
         DotAccess(G.value_expr, ".", c(), G.id),
         SafeAccess(G.value_expr, "?.", c(), G.id),
+        UpperDotAccess(G.upper_id, ".", c(), G.id),
         Indexing(G.value_expr, "[", c(), G.expr, "]"),
         SafeIndexing(G.value_expr, "?[", c(), G.expr, "]"),
         G.selector_expr,
