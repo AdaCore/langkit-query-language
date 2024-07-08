@@ -6,3 +6,20 @@ default_values_for_record_components.ads:8:13: rule violation: default value for
 8 |             C : Character := 'A';          --  FLAG
   |             ^
 
+Patched "default_values_for_record_components.ads":
+===================================================
+
+package Default_Values_For_Record_Components is
+   type Rec (D : Natural := 0) is record   --  NOFLAG
+      I : Integer ;                    --  FLAG
+      B : Boolean;
+
+      case D is
+         when 0 =>
+            C : Character ;          --  FLAG
+         when others =>
+            F : Float;                     --  NOFLAG
+      end case;
+   end record;
+end Default_Values_For_Record_Components;
+
