@@ -1,10 +1,22 @@
+# Flag each occurrence of a membership test of the form:
+#   X in Subtype_Of_X
+#   X in Subtype_Of_X'First .. Subtype_Of_X'Last
+
+fun valid_attr(node) =
+    new AttributeRef(
+        f_prefix=node.f_expr,
+        f_attribute=new Identifier("Valid"),
+        f_args=new AssocList()
+    )
+
 fun type_of(name) =
     match name.p_referenced_decl()
     | BasicDecl(p_type_expression(): t@TypeExpr) => t.p_designated_type_decl()
     | * => null
 
 @check(message="membership test instead of 'Valid",
-       category="Style", subcategory="Portability")
+       category="Style", subcategory="Portability",
+       auto_fix=(n, ctx) => ctx.replace(n, valid_attr(n)))
 fun membership_for_validity(node) =
     |" Flag membership tests that can be replaced by a ``'Valid`` attribute.
     |" Two forms of membership tests are flagged:
@@ -27,16 +39,16 @@ fun membership_for_validity(node) =
     |"       if X in My_Int then                           --  FLAG
     node is MembershipExpr(f_expr: var@Name)
     when not node.f_membership_exprs[2]
-     and node.f_membership_exprs[1] is
-         ((typ@Name when type_of(var) == typ.p_referenced_decl()) |
-         bin_op@BinOp(f_op: OpDoubleDot,
-               f_left: at1@AttributeRef(f_prefix: typ1)
-                         when at1.f_attribute.p_name_is("First")
-                          and at1.f_prefix is Name,
-               f_right: at2@AttributeRef(f_prefix: typ2)
-                          when at2.f_attribute.p_name_is("Last")
-                           and at2.f_prefix is Name)
-         when (
-             typ1.p_referenced_decl() == typ2.p_referenced_decl()
-             and type_of(var) == typ1.p_referenced_decl()
-         ))
+     and match node.f_membership_exprs[1]
+        | n@Name => type_of(var) == n.p_referenced_decl()
+        | b@BinOp(f_op: OpDoubleDot,
+                  f_left: at1@AttributeRef(f_prefix: typ1@Name)
+                          when at1.f_attribute.p_name_is("First"),
+                  f_right: at2@AttributeRef(f_prefix: typ2@Name)
+                           when at2.f_attribute.p_name_is("Last")) =>
+            {
+                val var_type = type_of(var);
+                var_type == typ1.p_referenced_decl() and
+                var_type == typ2.p_referenced_decl()
+            }
+        | * => false
