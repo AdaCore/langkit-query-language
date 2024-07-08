@@ -1,5 +1,6 @@
 @check(message="default value for record component",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=(n, ctx) => ctx.replace(n.f_default_expr, null))
 fun default_values_for_record_components(node) =
     |" Flag a record component declaration if it contains a default expression.
     |" Do not flag record component declarations in protected definitions.

@@ -1,3 +1,4 @@
 driver: 'checker'
 rule_name: 'Default_Values_For_Record_Components'
 project: 'prj.gpr'
+auto_fix: True
