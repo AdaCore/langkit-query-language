@@ -335,6 +335,7 @@ Field Access
 
 .. lkql_doc_class:: DotAccess
 .. lkql_doc_class:: Safe
+.. lkql_doc_class:: UpperDotAccess
 
 A field access returns the contents of a field. In the following example, we
 get the content of the  ``type_expr`` syntax field on a node of type
@@ -357,6 +358,16 @@ users to chain accesses without having to checks for nulls at every step.
 For a reference of the existing fields for syntax nodes for Ada, look at the
 `Libadalang API doc
 <https://docs.adacore.com/live/wave/libadalang/html/libadalang_ug/python_api_ref.html>`_.
+
+In the context of rewriting features usage, you may want to get a reference
+to a member/child of a node in order to replace/get it.
+You can access such references with a special dot-access on node kinds:
+
+.. code-block::
+
+    val ref_to_f_child = MyNodeKind.f_child
+
+Such values can be used when calling methods on ``RewritingContext`` s.
 
 Property Call
 ^^^^^^^^^^^^^
