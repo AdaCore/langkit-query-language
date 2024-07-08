@@ -231,6 +231,10 @@ Methods for `RewritingContext`
 
     Replace the first node by the second one
 
+.. method:: RewritingContext.set_child(this, node, member_ref, new_value)
+
+    Set the node child, following the given member reference, to the new value
+
 Methods for `RewritingNode`
 """""""""""""""""""""""""""
 .. method:: RewritingNode.clone(this)

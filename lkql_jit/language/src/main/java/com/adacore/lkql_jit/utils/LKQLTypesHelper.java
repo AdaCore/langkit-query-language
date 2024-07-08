@@ -85,6 +85,9 @@ public final class LKQLTypesHelper {
     /** The string representing the rewriting node type. */
     public static final String REWRITING_NODE = "RewritingNode";
 
+    /** The string representing a reference to a lal member. */
+    public static final String MEMBER_REFERENCE = "MemberReference";
+
     // ----- Class methods -----
 
     /**
