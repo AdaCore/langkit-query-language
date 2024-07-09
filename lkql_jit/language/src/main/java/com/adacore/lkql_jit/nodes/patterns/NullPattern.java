@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
+import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -34,7 +35,7 @@ public final class NullPattern extends ValuePattern {
      */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
-        return value == LKQLNull.INSTANCE;
+        return value == LKQLNull.INSTANCE || value == LKQLUnit.INSTANCE;
     }
 
     // ----- Override methods -----
