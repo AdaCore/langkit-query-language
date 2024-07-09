@@ -4,8 +4,28 @@
 fun is_array_or_record(n) =
     n is BaseTypeDecl when n?.p_is_array_type() or n?.p_is_record_type()
 
+fun add_component_names(agg, ctx) =
+    [
+        a for a in agg.f_assocs.children.enumerate
+        if not a[2].f_designators[1]
+    ].reduce(
+        (ctx, assoc) => ctx.set_child(
+            assoc[2],
+            AggregateAssoc.f_designators,
+            new AlternativesList([
+                new Identifier(
+                    match assoc[2].p_get_params()?[1]
+                    | null => assoc[1].img
+                    | name => name.text
+                )
+            ])
+        ),
+        ctx
+    )
+
 @check(message="aggregate with a positional component association",
-       remediation="EASY", category="Style", subcategory="Programming Practice")
+       remediation="EASY", category="Style", subcategory="Programming Practice",
+       auto_fix=add_component_names)
 fun positional_components(node) =
     node is Aggregate(f_assocs: *(any children(depth=2): a@AlternativesList
                       when not a[1]))
