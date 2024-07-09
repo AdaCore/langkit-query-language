@@ -1,3 +1,4 @@
 driver: 'checker'
 rule_name: Positional_Generic_Parameters
 input_sources: ['pos.adb']
+auto_fix: True
