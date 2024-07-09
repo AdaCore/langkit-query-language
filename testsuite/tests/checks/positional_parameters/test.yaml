@@ -1,3 +1,4 @@
 driver: 'checker'
 rule_name: Positional_Parameters
 input_sources: ['pos.adb', 'pack.ads']
+auto_fix: True
