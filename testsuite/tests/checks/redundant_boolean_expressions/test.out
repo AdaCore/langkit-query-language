@@ -41,3 +41,31 @@ test.adb:35:11: rule violation: redundant boolean expression
 35 |    return X = Standard.False;  --  FLAG
    |           ^^^^^^^^^^^^^^^^^^
 
+Patched "test.adb":
+===================
+
+function Test (Cond : Boolean; J : Integer) return Boolean is
+   X : Boolean;
+begin
+   X :=Cond ;return Cond ;X := (Cond               -- FLAG
+         );
+
+   X := X ;     --  FLAG
+
+   if J <=1 then         --  FLAG
+      null;
+   end if;
+
+   declare
+      type Bool_N is new Boolean;
+      Y : Bool_N;
+   begin
+      if Y then    --  FLAG
+         J := 1;
+      end if;
+   end;
+
+   return not X ;  --  FLAG
+   return False;               --  NOFLAG
+end Test;
+
