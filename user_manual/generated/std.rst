@@ -109,9 +109,17 @@ Methods for `AnalysisUnit`
 
 Methods for `LazyList`
 """"""""""""""""""""""
+.. method:: LazyList.enumerate(this)
+
+    Return the content of the iterator with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
 .. method:: LazyList.length(this)
 
     Get the length of the iterable element
+
+.. method:: LazyList.map(this, fn)
+
+    Given a collection, a mapping function
 
 .. method:: LazyList.reduce(this, fn, init)
 
@@ -123,9 +131,17 @@ Methods for `LazyList`
 
 Methods for `List`
 """"""""""""""""""
+.. method:: List.enumerate(this)
+
+    Return the content of the iterator with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
 .. method:: List.length(this)
 
     Get the length of the iterable element
+
+.. method:: List.map(this, fn)
+
+    Given a collection, a mapping function
 
 .. method:: List.reduce(this, fn, init)
 
@@ -187,9 +203,17 @@ Methods for `Node`
 
 Methods for `SelectorList`
 """"""""""""""""""""""""""
+.. method:: SelectorList.enumerate(this)
+
+    Return the content of the iterator with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
 .. method:: SelectorList.length(this)
 
     Get the length of the iterable element
+
+.. method:: SelectorList.map(this, fn)
+
+    Given a collection, a mapping function
 
 .. method:: SelectorList.reduce(this, fn, init)
 
