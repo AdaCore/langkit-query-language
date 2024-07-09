@@ -3,7 +3,8 @@
 # a purpose.
 
 @check(message="redundant null statement",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=(n, ctx) => ctx.remove(n))
 fun redundant_null_statements(node) =
     node is NullStmt
      and node.previous_sibling() is not Label
