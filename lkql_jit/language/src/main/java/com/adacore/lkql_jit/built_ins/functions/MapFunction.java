@@ -39,7 +39,9 @@ public final class MapFunction {
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,
-                "Given a collection, a mapping function",
+                "Given an iterable object and a function, return the list resulting of the "
+                        + "function application on each element of the iterable object: "
+                        + "map(lst, f) -> [f(lst[1]), f(lst[2]), ...]",
                 new String[] {"indexable", "fn"},
                 new Expr[] {null, null},
                 new MapExpr());
