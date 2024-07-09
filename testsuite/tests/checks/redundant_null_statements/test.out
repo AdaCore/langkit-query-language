@@ -10,3 +10,28 @@ null_stmts.adb:22:7: rule violation: redundant null statement
 22 |       null;   --  FLAG
    |       ^^^^^
 
+Patched "null_stmts.adb":
+=========================
+
+procedure Null_Stmts is
+begin
+   null;      --  NOFLAG
+   begin
+      null;   --  NOFLAG
+   end;
+
+   loop
+      null;   --  NOFLAG
+   end loop;
+
+   loop
+      pragma Assert (True);
+      end loop;
+
+   <<label>> null;  --  NOFLAG (label)
+
+   begin
+      pragma Assert (True);
+   end;
+end;
+
