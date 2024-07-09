@@ -26,7 +26,7 @@ Builtin functions
 
 .. function:: map(indexable, fn)
 
-    Given a collection, a mapping function
+    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
 
 .. function:: unique(indexable)
 
@@ -109,9 +109,17 @@ Methods for `AnalysisUnit`
 
 Methods for `LazyList`
 """"""""""""""""""""""
+.. method:: LazyList.enumerate(this)
+
+    Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
 .. method:: LazyList.length(this)
 
     Get the length of the iterable element
+
+.. method:: LazyList.map(this, fn)
+
+    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
 
 .. method:: LazyList.reduce(this, fn, init)
 
@@ -123,9 +131,17 @@ Methods for `LazyList`
 
 Methods for `List`
 """"""""""""""""""
+.. method:: List.enumerate(this)
+
+    Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
 .. method:: List.length(this)
 
     Get the length of the iterable element
+
+.. method:: List.map(this, fn)
+
+    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
 
 .. method:: List.reduce(this, fn, init)
 
@@ -187,9 +203,17 @@ Methods for `Node`
 
 Methods for `SelectorList`
 """"""""""""""""""""""""""
+.. method:: SelectorList.enumerate(this)
+
+    Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
 .. method:: SelectorList.length(this)
 
     Get the length of the iterable element
+
+.. method:: SelectorList.map(this, fn)
+
+    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
 
 .. method:: SelectorList.reduce(this, fn, init)
 
