@@ -1,0 +1,4 @@
+val x = [1, 2, 3, 4]
+val y = [4, 3, 2, 1]
+print(x.enumerate)
+print(y.enumerate)
