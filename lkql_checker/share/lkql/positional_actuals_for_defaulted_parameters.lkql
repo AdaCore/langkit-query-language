@@ -17,8 +17,16 @@ fun check_actual(spec, node) =
                                   stdlib.param_pos(node)).f_default_expr != null
     | *         => false
 
+fun add_param_name(param, ctx) =
+    ctx.set_child(
+        param,
+        ParamAssoc.f_designator,
+        new Identifier(param.p_get_params()[1].text)
+    )
+
 @check(message="use named notation when passing actual to defaulted parameter",
-       remediation="EASY", category="Style", subcategory="Programming Practice")
+       remediation="EASY", category="Style", subcategory="Programming Practice",
+       auto_fix=add_param_name)
 fun positional_actuals_for_defaulted_parameters(node) =
     |" Flag each actual parameter to a subprogram or entry call where the
     |" corresponding formal parameter has a default expression, if positional
