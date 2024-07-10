@@ -1,6 +1,10 @@
 package Pack is
-   I1 : Integer;          --  FLAG
-   I2 : Integer := 13;    --  NOFLAG
+   B : Boolean;                  --  FLAG
+   I1 : Integer;                 --  FLAG
+   C : Character;                --  FLAG
+   W_C : Wide_Character;         --  FLAG
+   W_W_C : Wide_Wide_Character;  --  FLAG
+   I2 : Integer := 13;           --  NOFLAG
 
    generic
       type T is private;
