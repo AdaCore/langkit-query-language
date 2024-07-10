@@ -10,7 +10,8 @@ import stdlib
 import control_flow
 
 @check(message="silent exception handler",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=(n, ctx) => ctx.insert_last(n.f_stmts, new RaiseStmt(null, null)))
 fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) = {
     fun is_raise_or_log(stmt) =
         stmt is (RaiseStmt
