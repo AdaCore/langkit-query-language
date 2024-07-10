@@ -29,13 +29,33 @@ fun is_same_object(a, b) =
     | ParamSpec => true
     | ObjectDecl => true
     | ComponentDecl =>
-        (a is DottedName) and (b is DottedName)
+        (a is DottedName)
+        and (b is DottedName)
         and is_same_object(a.f_prefix, b.f_prefix)
     | * => false
 }
 
+fun replace_in_by_of(for_stmt, ctx) =
+    |" Replace the "for_stmt" with a "in" type by a loop statement with a "of"
+    |" spec. All references to the for <index> variable should be inside array
+    |" accesses, those are replaced by simple <index> references.
+    {
+        val spec = for_stmt.f_spec;
+        val ids = (
+            from for_stmt.f_stmts
+            select Identifier(p_name_matches(spec.f_var_decl.f_id.f_name): true)
+        );
+        ids.reduce(
+            (ctx, id) => ctx.replace(id.parent.parent.parent, id),
+            ctx
+        )
+        .replace(spec.f_loop_type, new IterTypeOf())
+        .replace(spec.f_iter_expr, spec.f_iter_expr.f_prefix)
+    }
+
 @check(message="FOR loop may be replaced by a FOR OF loop",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=replace_in_by_of)
 fun use_for_of_loops(node, n : int = 1, ignore = false) =
     # Look for "for <index> in <array>'Range" loops
     node is ForLoopStmt(
@@ -53,11 +73,13 @@ fun use_for_of_loops(node, n : int = 1, ignore = false) =
                     Identifier(p_name_matches(spec.f_var_decl.f_id.f_name): true));
 
          # Now check that all references to <index> are of the form <array>(<index>)
-         not [f for f in ids
-              if match f.parent
-                 | ParamAssoc(parent: AssocList(parent: call@CallExpr)) =>
-                     not is_same_object(call.f_name, attr.f_prefix)
-                 | * => true]
+         not stdlib.any([
+                f for f in ids
+                if match f.parent
+                   | ParamAssoc(parent: AssocList(parent: call@CallExpr)) =>
+                         not is_same_object(call.f_name, attr.f_prefix)
+                   | * => true
+             ])
          # Finally check that we have at least N references to <index>
          and ids.length >= n
       }
