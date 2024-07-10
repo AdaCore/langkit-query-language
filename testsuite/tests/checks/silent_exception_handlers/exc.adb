@@ -28,7 +28,7 @@ exception
             when 2 =>
                Log ("2");
             when others =>
-               raise
+               raise;
          end case;
       end if;
    when E : others =>        --  NOFLAG
