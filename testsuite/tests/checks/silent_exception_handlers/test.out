@@ -26,3 +26,79 @@ exc_2.adb:26:9: rule violation: silent exception handler
 26 |    when E : others =>        --  FLAG
    |         ^
 
+Patched "exc.adb":
+==================
+
+with Ada.Exceptions; use Ada.Exceptions;
+
+procedure Exc is
+   procedure Log (Msg : String) with Import;
+
+   I : Integer := 0;
+begin
+   begin
+      I := I + 1;
+   exception
+      when others =>   --  FLAG
+         null;
+   raise;end;
+
+exception
+   when Constraint_Error =>  --  NOFLAG
+      declare
+      begin
+         raise;
+      end;
+   when Program_Error =>     --  NOFLAG
+      if I = 0 then
+         Log ("0");
+      elsif I = 1 then
+         Log ("1");
+      else
+         case I is
+            when 2 =>
+               Log ("2");
+            when others =>
+               raise;
+         end case;
+      end if;
+   when E : others =>        --  NOFLAG
+      I := 0;
+      Log (Exception_Message (E));
+end Exc;
+
+Patched "exc_2.adb":
+====================
+
+with Ada.Exceptions; use Ada.Exceptions;
+
+procedure Exc_2 is
+   procedure Log (Msg : String) with Import;
+
+   I : Integer := 0;
+begin
+   null;
+
+exception
+   when Constraint_Error =>  --  FLAG
+      if I = 1 then
+         raise;
+      elsif I = 2 then
+         Log ("");
+      elsif I = 3 then
+         null;
+      else
+         Log ("");
+      end if;
+   raise;when Program_Error =>     --  FLAG
+      while I < 1 loop
+         I := I + 1;
+         Log ("");
+      end loop;
+   raise;when E : others =>        --  FLAG
+      for X in 1 .. I loop
+         I := 0;
+         Log (Exception_Message (E));
+      end loop;
+raise;end Exc_2;
+
