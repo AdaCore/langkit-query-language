@@ -45,7 +45,7 @@ selector children_no_nested
 
 fun all(iterable) =
     |" Return whether all elements in the given iterable are truthy
-    [x for x in iterable if not x].length == 0
+    [x for x in iterable if not x]?[1] == ()
 
 fun any(iterable) =
     |" Return whether at least one element in the given iterable is truthy
