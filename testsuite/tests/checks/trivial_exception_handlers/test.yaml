@@ -1,3 +1,4 @@
 driver: 'checker'
 rule_name: trivial_exception_handlers
 project: 'prj.gpr'
+auto_fix: True
