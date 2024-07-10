@@ -1,7 +1,50 @@
 import stdlib
 
+fun default_value(type_decl) =
+    |" Get the default value for ``type_decl`` if it exists as a rewriting
+    |" expression node, else returns unit.
+    {
+        val r = type_decl.p_root_type();
+        if r == type_decl.p_bool_type() then
+            new Identifier("False")
+        else if r == type_decl.p_int_type() then
+            new IntLiteral("0")
+        else if r == type_decl.p_std_char_type() then
+            new AttributeRef(
+                f_prefix=new Identifier("Character"),
+                f_attribute=new Identifier("First"),
+                f_args=new AssocList()
+            )
+        else if r == type_decl.p_std_wide_char_type() then
+            new AttributeRef(
+                f_prefix=new Identifier("Wide_Character"),
+                f_attribute=new Identifier("First"),
+                f_args=new AssocList()
+            )
+        else if r == type_decl.p_std_wide_wide_char_type() then
+            new AttributeRef(
+                f_prefix=new Identifier("Wide_Wide_Character"),
+                f_attribute=new Identifier("First"),
+                f_args=new AssocList()
+            )
+        else ()
+    }
+
+fun add_default_value(obj_decl, ctx) =
+    |" Add a default value to ``obj_decl`` if there is one. Use the
+    |" ``default_value`` to get it.
+    {
+        val default = match obj_decl.f_type_expr?.p_designated_type_decl()
+                      | t@BaseTypeDecl => default_value(t)
+                      | * => ();
+        if default != ()
+        then ctx.set_child(obj_decl, ObjectDecl.f_default_expr, default)
+        else ctx
+    }
+
 @check(message="uninitialized global variable",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=add_default_value)
 fun uninitialized_global_variables(node) =
     |" Flag an object declaration that does not have an explicit initialization if it is
     |" located in a library-level package or generic package or bodies of library-level package
@@ -17,7 +60,6 @@ fun uninitialized_global_variables(node) =
     |"       Var1 : Integer;      --  FLAG
     |"       Var2 : Integer := 0;
     |"    end Foo;
-    node is ObjectDecl
-    when node.f_default_expr == null
-         and (not node.f_has_constant?.p_as_bool())
-         and not stdlib.is_local_object(node)
+    node is ObjectDecl(f_default_expr: null)
+    when not node.f_has_constant?.p_as_bool()
+     and not stdlib.is_local_object(node)

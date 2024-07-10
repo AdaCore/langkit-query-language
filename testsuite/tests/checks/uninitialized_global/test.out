@@ -1,16 +1,81 @@
 pack.ads:2:4: rule violation: uninitialized global variable
-2 |    I1 : Integer;          --  FLAG
+2 |    B : Boolean;                  --  FLAG
+  |    ^
+
+pack.ads:3:4: rule violation: uninitialized global variable
+3 |    I1 : Integer;                 --  FLAG
   |    ^^
 
-pack.ads:9:7: rule violation: uninitialized global variable
-9 |       X : T;              --  FLAG
-  |       ^
+pack.ads:4:4: rule violation: uninitialized global variable
+4 |    C : Character;                --  FLAG
+  |    ^
 
-pack.ads:17:4: rule violation: uninitialized global variable
-17 |    Y1 : Integer;                --  FLAG
+pack.ads:5:4: rule violation: uninitialized global variable
+5 |    W_C : Wide_Character;         --  FLAG
+  |    ^^^
+
+pack.ads:6:4: rule violation: uninitialized global variable
+6 |    W_W_C : Wide_Wide_Character;  --  FLAG
+  |    ^^^^^
+
+pack.ads:13:7: rule violation: uninitialized global variable
+13 |       X : T;              --  FLAG
+   |       ^
+
+pack.ads:21:4: rule violation: uninitialized global variable
+21 |    Y1 : Integer;                --  FLAG
    |    ^^
 
 pack.adb:2:4: rule violation: uninitialized global variable
 2 |    Z1 : Integer;          --  FLAG
   |    ^^
+
+Patched "pack.ads":
+===================
+
+package Pack is
+   B : Boolean:=False;                  --  FLAG
+   I1 : Integer:=0;                 --  FLAG
+   C : Character:=Character'First;                --  FLAG
+   W_C : Wide_Character:=Wide_Character'First;         --  FLAG
+   W_W_C : Wide_Wide_Character:=Wide_Wide_Character'First;  --  FLAG
+   I2 : Integer := 13;           --  NOFLAG
+
+   generic
+      type T is private;
+      ZZZ : T;            --  NOFLAG
+   package Pack_G is
+      X : T;              --  FLAG
+      Y : T := ZZZ;       --  NOFLAG
+   end Pack_G;
+
+   C1 : constant Integer := 1;  --  NOFLAG
+   C2 : constant Integer;       --  NOFLAG
+
+private
+   Y1 : Integer:=0;                --  FLAG
+   Y2 : Integer := 12;          --  NOFLAG
+   C2 : constant Integer := 1;  --  NOFLAG
+end Pack;
+
+Patched "pack.adb":
+===================
+
+package body Pack is
+   Z1 : Integer:=0;          --  FLAG
+   Z2 : Integer := 12;    --  NOFLAG
+
+   procedure Proc (X : in out Integer) is
+      Tmp : Integer;      --  NOFLAG
+
+      package Inner is
+         J1 : Integer;          --  NOFLAG
+         J2 : Integer := 13;    --  NOFLAG
+      end Inner;
+
+   begin
+      null;
+   end Proc;
+
+end Pack;
 
