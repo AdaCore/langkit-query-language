@@ -22,3 +22,22 @@ handlers.adb:23:4: rule violation: trivial exception handler
 24 ||       raise;
    ||____________^
 
+Patched "handlers.adb":
+=======================
+
+procedure Handlers is
+begin
+   begin
+      null;
+   exception
+      when Constraint_Error =>  --  NOFLAG
+         raise;
+      when others =>
+         null;
+   end;
+
+   begin
+      null;
+   end;
+end Handlers;
+
