@@ -1,6 +1,6 @@
 procedure Loop1 (Str : in out String) is
 begin
-   for J in Str'Range loop    --  FLAG
+   for J in Str'Range loop    --  NOFLAG
       if Str (J) = ' ' then
          return;
       elsif Str (J) = 'a' then
@@ -8,7 +8,7 @@ begin
       end if;
    end loop;
 
-   for J in Str'Range loop    --  FLAG
+   for J in Str'Range loop    --  NOFLAG
       Str (J) := ' ';
    end loop;
 
