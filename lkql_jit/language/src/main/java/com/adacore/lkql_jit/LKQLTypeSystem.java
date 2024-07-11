@@ -26,6 +26,7 @@ import java.math.BigInteger;
  */
 @TypeSystem({
     LKQLUnit.class,
+    boolean.class,
     long.class,
     BigInteger.class,
     String.class,
@@ -42,9 +43,12 @@ import java.math.BigInteger;
     Libadalang.AdaNode.class,
     Libadalang.Token.class,
     Libadalang.AnalysisUnit.class,
-    boolean.class,
+    Libadalang.RewritingContext.class,
+    Libadalang.RewritingNode.class,
+    Libadalang.MemberReference.class,
     LKQLNamespace.class,
     LKQLObject.class,
+    Truthy.class,
     Nullish.class,
     LKQLRecValue.class,
     LKQLValue.class,
@@ -88,34 +92,24 @@ public abstract class LKQLTypeSystem {
         return value == LKQLUnit.INSTANCE || value == LKQLNull.INSTANCE;
     }
 
-    // ----- Boolean value methods -----
+    // ----- Truthy values -----
 
-    /**
-     * Check if a value can be interpreted as a boolean.
-     *
-     * @param value The value to check.
-     * @return True if the value can be a boolean, false else.
-     */
-    @TypeCheck(boolean.class)
-    public static boolean isBoolean(Object value) {
-        return value instanceof Boolean
-                || value instanceof Truthy
+    @TypeCheck(Truthy.class)
+    public static boolean isTruthy(Object value) {
+        return value instanceof Truthy
+                || value instanceof Boolean
                 || value instanceof Libadalang.AdaNode;
     }
 
-    /**
-     * Cast a generic value to a boolean.
-     *
-     * @param value The value to case.
-     * @return The boolean representation of the value.
-     */
-    @TypeCast(boolean.class)
-    public static boolean asBoolean(Object value) {
-        if (value instanceof Boolean bool) {
-            return bool;
-        } else if (value instanceof Truthy truthy) {
-            return truthy.isTruthy();
-        } else return value instanceof Libadalang.AdaNode;
+    @TypeCast(Truthy.class)
+    public static Truthy asTruthy(Object value) {
+        if (value instanceof Truthy t) {
+            return t;
+        } else if (value instanceof Boolean b) {
+            return Truthy.wrapBoolean(b);
+        } else {
+            return Truthy.wrapBoolean(value instanceof Libadalang.AdaNode);
+        }
     }
 
     // ----- Integer value methods -----

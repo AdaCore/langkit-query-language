@@ -9,10 +9,8 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.*;
-import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
+import com.adacore.lkql_jit.runtime.values.interfaces.*;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -74,6 +72,10 @@ public abstract class Expr extends LKQLNode {
     @SuppressWarnings("unused")
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectBoolean(executeGeneric(frame));
+    }
+
+    public Truthy executeTruthy(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectTruthy(executeGeneric(frame));
     }
 
     /**

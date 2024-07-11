@@ -18,4 +18,10 @@ public interface Truthy {
      * @return True if the object is evaluated as true, false else.
      */
     boolean isTruthy();
+
+    // ----- Class methods -----
+
+    static Truthy wrapBoolean(boolean b) {
+        return () -> b;
+    }
 }
