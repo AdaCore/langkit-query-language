@@ -253,8 +253,9 @@ public final class NodeCheckerFunction {
             final boolean ruleResult;
             try {
                 ruleResult =
-                        LKQLTypeSystemGen.expectBoolean(
-                                interopLibrary.execute(functionValue, arguments));
+                        LKQLTypeSystemGen.expectTruthy(
+                                        interopLibrary.execute(functionValue, arguments))
+                                .isTruthy();
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_BOOLEAN,
