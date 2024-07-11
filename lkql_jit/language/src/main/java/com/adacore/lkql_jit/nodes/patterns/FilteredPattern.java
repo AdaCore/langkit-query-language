@@ -57,7 +57,7 @@ public final class FilteredPattern extends BasePattern {
         if (this.pattern.executeValue(frame, value)) {
             // Try to execute the predicate in a boolean
             try {
-                return this.predicate.executeBoolean(frame);
+                return this.predicate.executeTruthy(frame).isTruthy();
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_BOOLEAN,

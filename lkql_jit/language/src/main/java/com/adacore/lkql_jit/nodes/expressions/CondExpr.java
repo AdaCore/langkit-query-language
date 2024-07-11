@@ -63,7 +63,7 @@ public final class CondExpr extends Expr {
         // Evaluate the condition as a boolean
         boolean conditionValue;
         try {
-            conditionValue = this.condition.executeBoolean(frame);
+            conditionValue = this.condition.executeTruthy(frame).isTruthy();
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_BOOLEAN,
