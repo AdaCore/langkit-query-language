@@ -64,7 +64,7 @@ public final class ListComprehensionRootNode extends BaseRootNode {
 
         // Evaluate the predicate and return the result if true, else just return null
         try {
-            if (this.predicate == null || this.predicate.executeBoolean(frame)) {
+            if (this.predicate == null || this.predicate.executeTruthy(frame).isTruthy()) {
                 return this.result.executeGeneric(frame);
             } else {
                 return null;

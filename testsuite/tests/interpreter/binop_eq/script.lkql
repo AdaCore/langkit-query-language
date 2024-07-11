@@ -4,3 +4,7 @@ print (true == true)
 print (43 == 42)
 print ("Hello" == "World")
 print (true == false)
+
+# Tests to ensure that there is no implicit conversion to the boolean type
+print(() == false)
+print([1] == true)

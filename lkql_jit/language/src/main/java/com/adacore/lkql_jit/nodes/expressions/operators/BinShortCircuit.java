@@ -67,7 +67,7 @@ public abstract class BinShortCircuit extends Expr {
         // Execute the left value
         boolean leftValue;
         try {
-            leftValue = this.left.executeBoolean(frame);
+            leftValue = this.left.executeTruthy(frame).isTruthy();
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_BOOLEAN,
@@ -79,7 +79,7 @@ public abstract class BinShortCircuit extends Expr {
         boolean rightValue = false;
         if (this.doRightEvaluation(leftValue)) {
             try {
-                rightValue = this.right.executeBoolean(frame);
+                rightValue = this.right.executeTruthy(frame).isTruthy();
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_BOOLEAN,
