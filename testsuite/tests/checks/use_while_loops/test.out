@@ -16,3 +16,30 @@ loop1.adb:28:4: rule violation: simple LOOP may be replaced by a WHILE loop
 30 ||    end loop Local_Loop;
    ||_______________________^
 
+Patched "loop1.adb":
+====================
+
+procedure Loop1 (Str : in out String) is
+   J : Integer;
+begin
+   J := 0;
+   while J <=10 loop if Str (J) = ' ' then
+         Str (J) := 'a';
+         return;
+      end if;
+
+      J := J + 1;
+   end loop;loop           --  NOFLAG
+      null;
+   end loop;
+
+   Outer_Loop:
+   loop           --  NOFLAG
+      loop        --  NOFLAG
+         exit Outer_Loop when True;
+      end loop;
+   end loop Outer_Loop;
+
+   Local_Loop:
+   while False loop end loop Local_Loop;end Loop1;
+
