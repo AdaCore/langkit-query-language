@@ -25,3 +25,28 @@ loop1.adb:26:4: rule violation: WHILE loop may be replaced by a simple LOOP
 28 ||    end loop;
    ||____________^
 
+Patched "loop1.adb":
+====================
+
+procedure Loop1 (Str : in out String) is
+   J : Integer;
+begin
+   J := 0;
+   loop if Str (J) = ' ' then
+         Str (J) := 'a';
+         return;
+      end if;
+
+      J := J + 1;
+   end loop;declare
+      function True return Boolean is (False);
+   begin
+      while True loop         --  NOFLAG
+         null;
+      end loop;
+   end;
+
+   loop null;
+   end loop;loop null;
+   end loop;end Loop1;
+
