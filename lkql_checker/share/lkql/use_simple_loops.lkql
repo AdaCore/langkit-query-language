@@ -1,8 +1,21 @@
 # Flag while loops where the condition is statically known to be True and which
 # could be replaced by a simple loop.
 
+fun replace_by_simple_loop(while_loop, ctx) =
+    |" Replace the given ``while_loop`` flagged by the "use_simple_loops" rule
+    |" by a simple loop statement.
+    ctx.replace(
+        while_loop,
+        new LoopStmt(
+            f_spec=null,
+            f_stmts=while_loop.f_stmts,
+            f_end_name=while_loop.f_end_name
+        )
+    )
+
 @check(message="WHILE loop may be replaced by a simple LOOP",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=replace_by_simple_loop)
 fun use_simple_loops(node) =
     # Find while loops whose condition is statically known to be True (= 1)
     node is WhileLoopStmt(
