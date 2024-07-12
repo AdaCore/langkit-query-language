@@ -8,17 +8,32 @@
 
 import stdlib
 
+fun get_first_id(node) =
+    |" Get the first Identifier in the given ``node`` which is, either the
+    |" left part of a RelationOp, or the expression if a MembershipExpr
+    match (from node select first (RelationOp(f_left: Identifier) |
+                                   MembershipExpr(f_expr: Identifier)))
+    | r@RelationOp     => r.f_left
+    | m@MembershipExpr => m.f_expr
+
 fun check_expr(expr, id, short_circuit) =
     match expr
     # Strip parenthesis
     | ParenExpr                    => check_expr(expr.f_expr, id, short_circuit)
+
     # Check both "or" operands
-    | BinOp(f_op: OpOr | OpOrElse when short_circuit) =>
+    | BinOp(
+        f_op: op@(OpOr | OpOrElse when short_circuit)
+              when stdlib.is_predefined_op(op)
+    ) =>
         check_expr(expr.f_left, id, short_circuit) and
         check_expr(expr.f_right, id, short_circuit)
+
     # Allow X >= E1 and X <= E2
-    | BinOp(f_op: (op@OpAnd when stdlib.is_predefined_op(op)) |
-                    OpAndThen when short_circuit) =>
+    | BinOp(
+        f_op: op@(OpAnd | OpAndThen when short_circuit)
+              when stdlib.is_predefined_op(op)
+    ) =>
         expr.f_left is RelationOp(
             f_op: gte@OpGte,
             f_left: Identifier(p_name_matches(id): true)) when
@@ -27,26 +42,52 @@ fun check_expr(expr, id, short_circuit) =
             f_left: Identifier(p_name_matches(id): true)) when
         stdlib.is_predefined_op(gte) and
         stdlib.is_predefined_op(lte)
+
     # Allow X = C
     | RelationOp(f_op: op@OpEq)  =>
         expr.f_left is Name(p_name_matches(id): true) and
         stdlib.is_predefined_op(op)
+
     # Allow X in ...
     | MembershipExpr(f_op: OpIn) => expr.f_expr.p_name_matches(id)
+
     # Reject anything else
     | *                            => false
 
-@check(message="expression may be replaced by a membership test",
-       category="Style", subcategory="Programming Practice")
-fun use_memberships(node, short_circuit = false) =
-    node is BinOp(parent: not Expr,
-                  f_op: (op@OpOr when stdlib.is_predefined_op(op)) |
-                          OpOrElse when short_circuit)
-    # Find a first variable used as LHS (id) and pass it to check_expr
-    and match (from node select first
-               (RelationOp(f_left: Identifier)
-               | MembershipExpr(f_expr: Identifier)))
-        | r@RelationOp     => check_expr(node, r.f_left, short_circuit)
-        | m@MembershipExpr => check_expr(node, m.f_expr, short_circuit)
-        | *                => false
+fun to_membership_exprs(node) =
+    |" Used by ``membership_equivalent`` to compute the membership format
+    |" of an expression. This function returns a list containing all
+    |" required parts for the created membership expression.
+    match node
+    | ParenExpr => to_membership_exprs(node.f_expr)
+    | BinOp(f_op: (OpOr | OpOrElse)) =>
+        to_membership_exprs(node.f_left) & to_membership_exprs(node.f_right)
+    | BinOp(f_op: (OpAnd | OpAndThen)) =>
+        [new BinOp(
+            f_left=node.f_left.f_right,
+            f_op= new OpDoubleDot(),
+            f_right=node.f_right.f_right
+        )]
+    | RelationOp(f_op: OpEq) => [node.f_right]
+    | MembershipExpr => node.f_membership_exprs.children
 
+fun membership_equivalent(bin_op) =
+    |" Get the membership equivalent of a BinOp ``bin_op`` which has been
+    |" flagged by the "use_memberships" rule.
+    new MembershipExpr(
+        f_expr=get_first_id(bin_op),
+        f_op=new OpIn(),
+        f_membership_exprs=new ExprAlternativesList(to_membership_exprs(bin_op))
+    )
+
+@check(message="expression may be replaced by a membership test",
+       category="Style", subcategory="Programming Practice",
+       auto_fix=(n, ctx) => ctx.replace(n, membership_equivalent(n)))
+fun use_memberships(node, short_circuit = false) =
+    node is BinOp(
+        parent: not Expr,
+        f_op: op@(OpOr | OpAnd | (OpOrElse | OpAndThen) when short_circuit)
+    ) when stdlib.is_predefined_op(op)
+
+    # Find a first variable used as LHS (id) and pass it to check_expr
+    and check_expr(node, get_first_id(node), short_circuit)
