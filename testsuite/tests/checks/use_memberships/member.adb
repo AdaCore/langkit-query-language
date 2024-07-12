@@ -37,6 +37,7 @@ begin
    end;
 
    Bool := A = B or (A >= 1 and A <= B);  --  FLAG
+   Bool := A >= 1 and A <= B;             --  FLAG
    Bool := A = 100 or A in S;             --  FLAG
    Bool := A = 100 or A in 1 .. B;        --  FLAG
 end Member;
