@@ -6,8 +6,34 @@ fun assign_stmts(n, prefix) =
         => [n] & assign_stmts(n.next_sibling(), prefix)
     | * => []
 
+fun replace_by_aggregate(node, ctx) =
+    |" Replace all consecutive AssignStmt, starting from the ``node`` by a
+    |" record aggregate.
+    {
+        val assigns = assign_stmts(node, node.f_dest.f_prefix);
+        assigns.reduce(
+            (ctx, a) => ctx.remove(a),
+            ctx.insert_before(
+                assigns[1],
+                new AssignStmt(
+                    f_dest=node.f_dest.f_prefix,
+                    f_expr=new Aggregate(
+                        f_ancestor_expr=null,
+                        f_assocs=new AssocList([
+                            new AggregateAssoc(
+                                f_designators=new AlternativesList([a.f_dest.f_suffix]),
+                                f_r_expr=a.f_expr
+                            ) for a in assigns
+                        ].to_list)
+                    )
+                )
+            )
+        )
+    }
+
 @check(message="component assignments may be replaced by an aggregate",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=replace_by_aggregate)
 fun use_record_aggregates(node) =
     |" Flag the first statement in the sequence of assignment statements if the targets
     |" of all these assignment statements are components of the same record objects,
