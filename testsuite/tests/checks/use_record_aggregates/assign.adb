@@ -13,7 +13,7 @@ procedure Assign is
 begin
    null;
    O1.Comp1 := 1;   --  FLAG
-   O1.Comp2 := 1;   --  NOFLAG (flag only first assignment)
+   O1.Comp2 := 2;   --  NOFLAG (flag only first assignment)
 
    O2.Comp1 := 1;   --  NOFLAG (single component)
 
@@ -26,7 +26,7 @@ begin
    begin
       null;
       O3.Comp1 := 1;   --  FLAG
-      O3.Comp2 := 1;   --  NOFLAG
+      O3.Comp2 := 2;   --  NOFLAG
    end;
 
    begin
@@ -56,7 +56,7 @@ begin
 
       Obj.A := 1;   --  NOFLAG (tagged)
       Obj.B := 1;   --  NOFLAG
-   end
+   end;
 
    declare
       type List is record
