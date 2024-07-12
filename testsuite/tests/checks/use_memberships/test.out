@@ -18,10 +18,59 @@ member.adb:39:12: rule violation: expression may be replaced by a membership tes
    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 member.adb:40:12: rule violation: expression may be replaced by a membership test
-40 |    Bool := A = 100 or A in S;             --  FLAG
+40 |    Bool := A >= 1 and A <= B;             --  FLAG
    |            ^^^^^^^^^^^^^^^^^
 
 member.adb:41:12: rule violation: expression may be replaced by a membership test
-41 |    Bool := A = 100 or A in 1 .. B;        --  FLAG
+41 |    Bool := A = 100 or A in S;             --  FLAG
+   |            ^^^^^^^^^^^^^^^^^
+
+member.adb:42:12: rule violation: expression may be replaced by a membership test
+42 |    Bool := A = 100 or A in 1 .. B;        --  FLAG
    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+Patched "member.adb":
+=====================
+
+procedure Member (A, B : Integer) is
+   Bool : Boolean;
+   subtype S is Integer range 1 .. B;
+begin
+   if A in 0            --  FLAG
+     |Natural
+     |2
+     |3 ..5 then
+      null;
+   end if;
+
+   if A in 0            --  FLAG if short_circuit
+     |3 ..5 then
+      null;
+   end if;
+
+   if A = 0 or (A in Natural and A = 2) then  --  NOFLAG
+      null;
+   end if;
+
+   if A = 0            --  NOFLAG
+     or (A >= 3 and A < 5)
+   then
+      null;
+   end if;
+
+   declare
+      function "or" (A, B : Boolean) return Boolean is (True);
+   begin
+      if A = 0            --  NOFLAG
+        or A = 2
+      then
+         null;
+      end if;
+   end;
+
+   Bool := A in B |1 ..B;  --  FLAG
+   Bool := A in 1 ..B;             --  FLAG
+   Bool := A in 100 |S;             --  FLAG
+   Bool := A in 100 |1 .. B;        --  FLAG
+end Member;
 
