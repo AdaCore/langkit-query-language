@@ -1,5 +1,27 @@
+import stdlib
+
+fun replace_by_while_loop(simple_loop, ctx) =
+    |" Replace the given ``simple_loop`` with an exit condition as first
+    |" statement with a while loop.
+    {
+        val negated_exit_cond = match simple_loop.f_stmts[1].f_cond_expr
+        | null => new Identifier("False")
+        | op@(RelationOp | UnOp(f_op: OpNot)) => stdlib.negate_op(op)
+        | e => new UnOp(new OpNot(), e);
+        ctx.remove(simple_loop.f_stmts[1])
+           .replace(
+               simple_loop,
+               new WhileLoopStmt(
+                   f_spec=new WhileLoopSpec(negated_exit_cond),
+                   f_stmts=simple_loop.f_stmts,
+                   f_end_name=simple_loop.f_end_name
+               )
+           )
+    }
+
 @check(message="simple LOOP may be replaced by a WHILE loop",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=replace_by_while_loop)
 fun use_while_loops(node) =
     |" Flag simple loop statements that have the exit statement completing
     |" execution of such a loop as the first statement in their sequence of
