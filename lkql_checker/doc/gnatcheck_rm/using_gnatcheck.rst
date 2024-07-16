@@ -347,6 +347,12 @@ can provide as many rule options as you want after the ``-rules`` switch.
     By removing a rule instance, all previously given instance parameter(s)
     are cleared from the GNATcheck memory.
 
+  .. attention::
+
+    No parameters are allowed for the ``-R`` rule option. Since rule instances
+    are immutable, you cannot modify a parameter set once the instance has been
+    created by a ``+R`` option.
+
   .. index:: -from (gnatcheck)
 
 
