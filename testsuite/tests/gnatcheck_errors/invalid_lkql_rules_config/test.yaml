@@ -20,3 +20,5 @@ tests:
    lkql_rule_file: missing_param.lkql
  - label: Extra parameter
    lkql_rule_file: extra_param.lkql
+ - label: Multiple instance with the same name
+   lkql_rule_file: instance_names.lkql

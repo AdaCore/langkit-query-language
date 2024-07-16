@@ -953,6 +953,7 @@ package body Gnatcheck.Projects is
                Process_Rule_Option (To_String (O.Value), Defined_At => "");
          end case;
       end loop;
+      Process_Compiler_Instances;
    end Process_Rule_Options;
 
    --------------------

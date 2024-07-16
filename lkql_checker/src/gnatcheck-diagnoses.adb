@@ -559,7 +559,7 @@ package body Gnatcheck.Diagnoses is
 
    function Allows_Parametrized_Exemption (Rule : Rule_Id) return Boolean is
    begin
-      if Is_Compiler_Check (Rule) then
+      if Is_Compiler_Rule (Rule) then
          return True;
       else
          return All_Rules (Rule).Allows_Parametrized_Exemption;

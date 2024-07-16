@@ -16,7 +16,6 @@ with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with Langkit_Support.Text;       use Langkit_Support.Text;
 
@@ -2889,7 +2888,7 @@ package body Gnatcheck.Rules is
 
    function Rule_Name (Instance : Rule_Instance'Class) return String is
    begin
-      return Rule_Name (All_Rules (Instance.Rule));
+      return Rule_Name (Instance.Rule);
    end Rule_Name;
 
    -------------------

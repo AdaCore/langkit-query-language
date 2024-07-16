@@ -1,0 +1,3 @@
+main.adb:6:07: redundant parentheses [extra_par|style_checks:x]
+main.adb:6:08: bad casing of "Int" declared at line 4 [style_checks:r]
+main.adb:8:08: reserved words must be all lower case [keywords|style_checks:k]
