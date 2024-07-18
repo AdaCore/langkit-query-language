@@ -2849,8 +2849,7 @@ package body Gnatcheck.Diagnoses is
      (Text           : String;
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
-      Rule           : Rule_Id := No_Rule_Id;
-      Justification  : Unbounded_String := Null_Unbounded_String)
+      Rule           : Rule_Id := No_Rule_Id)
    is
       Matches : Match_Array (0 .. 5);
       Sloc    : Source_Location;
@@ -2872,8 +2871,7 @@ package body Gnatcheck.Diagnoses is
          Message        => Text (Matches (5).First .. Matches (5).Last),
          Diagnosis_Kind => Diagnosis_Kind,
          SF             => SF,
-         Rule           => Rule,
-         Justification  => Justification);
+         Rule           => Rule);
    end Store_Diagnosis;
 
    procedure Store_Diagnosis
@@ -2882,8 +2880,7 @@ package body Gnatcheck.Diagnoses is
       Sloc           : Source_Location;
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
-      Rule           : Rule_Id := No_Rule_Id;
-      Justification  : Unbounded_String := Null_Unbounded_String)
+      Rule           : Rule_Id := No_Rule_Id)
    is
       use Ada.Directories;
 
@@ -2897,7 +2894,7 @@ package body Gnatcheck.Diagnoses is
         (Text           => To_Unbounded_String (Message),
          Sloc           => Sloc,
          File           => File_Name,
-         Justification  => Justification,
+         Justification  => Null_Unbounded_String,
          Diagnosis_Kind => Diagnosis_Kind,
          Rule           => Rule,
          SF             => SF);
@@ -2914,16 +2911,6 @@ package body Gnatcheck.Diagnoses is
          elsif Diagnosis_Kind = Internal_Error then
             Set_Source_Status (SF, Error_Detected);
          end if;
-
-         if Justification /= Null_Unbounded_String
-           and then Exemption_Sections.Contains (Rule)
-         then
-            --  Here we count detections for non-parametric exemption
-            --  sections only
-
-            Exemption_Sections (Rule).Detected := @ + 1;
-         end if;
-
          All_Error_Messages.Insert (Tmp, Unused_Position, Unused_Inserted);
       end if;
    end Store_Diagnosis;
