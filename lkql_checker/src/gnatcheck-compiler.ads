@@ -179,6 +179,11 @@ package Gnatcheck.Compiler is
    -- Routines for parametrized exemptions --
    ------------------------------------------
 
+   function Is_Restriction_Active (Restriction_Name : String) return Boolean;
+   --  Get whether the given restriction is active or not. If the
+   --  ``Restriction_Name`` doesn't correspond to any restriction, this
+   --  function returns False.
+
    function Is_Restriction_Exemption_Par (Par : String) return Boolean;
    --  Checks if Par can be used as a restriction rule parameter in the
    --  definition of exemption section. Assumes that Par is all lowercase and
