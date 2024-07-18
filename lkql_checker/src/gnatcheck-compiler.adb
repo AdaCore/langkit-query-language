@@ -10,6 +10,7 @@ with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
 with GNAT.Case_Util;
+with GNAT.Regpat; use GNAT.Regpat;
 with GNAT.Strings;
 with GNAT.String_Split;
 
@@ -24,6 +25,8 @@ with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
 with GNATCOLL.VFS; use GNATCOLL.VFS;
+
+with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
 package body Gnatcheck.Compiler is
 
@@ -244,6 +247,7 @@ package body Gnatcheck.Compiler is
    ----------------------------
 
    procedure Analyze_Output (File_Name : String; Errors : out Boolean) is
+      Out_File : constant String := File_Name & ".out";
       Line     : String (1 .. 1024);
       Line_Len : Natural;
       File     : File_Type;
@@ -257,16 +261,14 @@ package body Gnatcheck.Compiler is
       ------------------
 
       procedure Analyze_Line (Msg : String) is
-         SF      : SF_Id;
-         Discard : Natural;
-
+         Matches      : Match_Array (0 .. 5);
+         Sloc         : Source_Location;
+         SF           : SF_Id;
+         Kind         : Diagnosis_Kinds := Rule_Violation;
          Message_Kind : Message_Kinds := Not_A_Message;
 
-         First_Idx : constant Natural := Msg'First;
-         Idx       : Natural := First_Idx;
-         File_Idx  : Natural;
-         Word_End  : Natural := 0;
-         Kind      : Diagnosis_Kinds := Rule_Violation;
+         Msg_Start    : Natural;
+         Msg_End      : Natural;
 
          procedure Format_Error;
          --  Emit an error about an unexpected format encountered and set
@@ -283,8 +285,8 @@ package body Gnatcheck.Compiler is
          end Format_Error;
 
       begin
+         --  Skip all empty lines
          if Msg'Last = 0 then
-            --  An empty line?
             return;
          end if;
 
@@ -293,81 +295,55 @@ package body Gnatcheck.Compiler is
          --
          --  If this format is violated we display the line as unparasable.
 
-         Idx := Index (Msg (Idx .. Msg'Last), ":");
-
-         if Idx = 0 then
+         --  Try to match the diagnostic to extract information
+         Match (Match_Diagnosis, Msg, Matches);
+         if Matches (0) = No_Match then
             Format_Error;
             return;
          end if;
 
-         File_Idx := Idx;
-         SF := File_Find (Msg (First_Idx .. Idx - 1), Use_Short_Name => True);
+         SF := File_Find
+           (Msg (Matches (1).First .. Matches (1).Last),
+            Use_Short_Name => True);
+         Sloc.Line := Line_Number'Value
+           (Msg (Matches (3).First .. Matches (3).Last));
+         Sloc.Column := Column_Number'Value
+           (Msg (Matches (4).First .. Matches (4).Last));
 
-         Word_End := Index (Msg (Idx + 1 .. Msg'Last), ":");
-
-         if Word_End = 0 then
-            Format_Error;
-            return;
-         end if;
-
-         begin
-            Discard := Positive'Value (Msg (Idx + 1 .. Word_End - 1));
-         exception
-            when others =>
-               Format_Error;
-               return;
-         end;
-
-         Idx := Word_End;
-         Word_End := Index (Msg (Idx + 1 .. Msg'Last), ":");
-
-         if Word_End = 0 then
-            Format_Error;
-            return;
-         end if;
-
-         begin
-            Discard := Positive'Value (Msg (Idx + 1 .. Word_End - 1));
-         exception
-            when others =>
-               Format_Error;
-               return;
-         end;
+         Msg_Start := Matches (5).First;
+         Msg_End   := Matches (5).Last;
 
          --  Test if the provided sources is present and is not ignored
          if not Present (SF) or else Source_Info (SF) = Ignore_Unit then
-            --  This source should be ignored
+            --  This diagnostic should be ignored
             return;
          end if;
 
-         Idx := Word_End + 2;
-
-         --  A gnatcheck message emitted by a child process via --subprocess
-
-         if Msg (Idx .. Idx + 6) = "check: " then
-            if Msg (Msg'Last) /= ']' then
+         --  A gnatcheck message emitted by the worker
+         if Msg (Msg_Start .. Msg_Start + 6) = "check: " then
+            if Msg (Msg_End) /= ']' then
                Format_Error;
                return;
             end if;
 
             declare
                Last : constant Natural :=
-                 Index (Source  => Msg (Msg'First .. Msg'Last - 1),
+                 Index (Source  => Msg (Msg_Start .. Msg_End),
                         Pattern => "[",
                         Going   => Backward);
                Name_Split : constant Natural :=
-                 Index (Source  => Msg (Last + 1 .. Msg'Last - 1),
+                 Index (Source  => Msg (Last + 1 .. Msg_End),
                         Pattern => "|");
 
                Rule_Name : constant String :=
-                 (if Name_Split /= 0 then
-                    Msg (Name_Split + 1 .. Msg'Last - 1)
-                  elsif Last /= 0 then
-                    Msg (Last + 1 .. Msg'Last - 1)
+                 (if Name_Split /= 0
+                  then Msg (Name_Split + 1 .. Msg_End - 1)
+                  elsif Last /= 0
+                  then Msg (Last + 1 .. Msg_End - 1)
                   else "");
                Instance_Name : constant String :=
-                 (if Name_Split /= 0 then
-                    Msg (Last + 1 .. Name_Split - 1)
+                 (if Name_Split /= 0
+                  then Msg (Last + 1 .. Name_Split - 1)
                   else "");
 
                Id : Rule_Id := No_Rule_Id;
@@ -376,25 +352,26 @@ package body Gnatcheck.Compiler is
                   Format_Error;
                   return;
                end if;
-
-               --  Get the rule information and save the diagnosis about it.
                Id := Get_Rule (Rule_Name);
                Store_Diagnosis
-                 (Text           => Gnatcheck.Source_Table.File_Name (SF) &
-                                    Msg (File_Idx .. Idx - 1) &
-                                    Msg (Idx + 7 .. Last - 2) &
+                 (Full_File_Name => Gnatcheck.Source_Table.File_Name (SF),
+                  Message        => Msg (Msg_Start + 7 .. Last - 2) &
                                     Annotate_Rule
                                       (All_Rules (Id), Instance_Name),
+                  Sloc           => Sloc,
                   Diagnosis_Kind => Rule_Violation,
                   SF             => SF,
                   Rule           => Id);
                return;
             end;
-         elsif Msg (Idx .. Idx + 6) = "error: " then
+
+         --  An error message has been emitted
+         elsif Msg (Msg_Start .. Msg_Start + 6) = "error: " then
             Message_Kind := Error;
 
-            if Msg'Last - Idx > 21
-               and then Msg (Idx + 7 .. Idx + 20) = "internal error"
+            if Msg_End - Msg_Start > 21
+               and then Msg
+                 (Msg_Start + 7 .. Msg_Start + 20) = "internal error"
             then
                Kind := Internal_Error;
             else
@@ -403,53 +380,51 @@ package body Gnatcheck.Compiler is
 
             Errors := True;
 
-         elsif Msg (Idx .. Idx + 8) = "warning: " then
-            if Index (Msg (Idx .. Msg'Last), ": violation of restriction") /= 0
+         --  A warning has been emitted by gprbuild
+         elsif Msg (Msg_Start .. Msg_Start + 8) = "warning: " then
+            if Index
+              (Msg (Msg_Start .. Msg_End), ": violation of restriction") /= 0
               or else Index
-                (Msg (Idx .. Msg'Last), "violates restriction") /= 0
+                (Msg (Msg_Start .. Msg_End), "violates restriction") /= 0
             then
                Message_Kind := Restriction;
-            elsif Msg (Idx + 9 .. Idx + 19) = "cannot find" then
-               Message_Kind := Warning;
+            elsif Msg (Msg_Start + 9 .. Msg_Start + 19) = "cannot find" then
                Report_Missing_File
                  (Gnatcheck.Source_Table.File_Name (SF),
-                  Msg (Idx + 21 .. Msg'Last));
+                  Msg (Msg_Start + 21 .. Msg_End));
                return;
             else
                Message_Kind := Warning;
             end if;
-         elsif Msg (Idx .. Idx + 6) = "(style)" then
+
+         --  A style check violation has been emitted
+         elsif Msg (Msg_Start .. Msg_Start + 6) = "(style)" then
             Message_Kind := Style;
+
+         --  Ignore anything else
          else
-            --  Ignore anything else
             return;
          end if;
 
+         --  Skip restriction message not coming from the GNATcheck config file
          if Message_Kind = Restriction
            and then Path_Index (Msg, Gnatcheck_Config_File.all) = 0
          then
-            --  This means that the diagnoses correspond to some pragma that
-            --  is not from the configuration file created from rule
-            --  options, so we should not file it.
-
             return;
          end if;
 
          --  Use File_Name to always use the same filename (including proper
          --  casing for case insensitive systems).
-
          Store_Diagnosis
-           (Text           => Adjust_Message
-                                (Gnatcheck.Source_Table.File_Name (SF) &
-                                 Msg (File_Idx .. Msg'Last),
-                                 Message_Kind),
+           (Full_File_Name => Gnatcheck.Source_Table.File_Name (SF),
+            Sloc           => Sloc,
+            Message        => Adjust_Message
+                                (Msg (Msg_Start .. Msg_End), Message_Kind),
             Diagnosis_Kind => Kind,
             SF             => SF,
             Rule           => (if Message_Kind = Error then No_Rule_Id
                                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
-
-      Out_File : constant String := File_Name & ".out";
 
    --  Start of processing for Analyze_Builder_Output
 
@@ -512,10 +487,10 @@ package body Gnatcheck.Compiler is
                   if Is_Argument_Source (SF) then
                      Errors := True;
                      Store_Diagnosis
-                       (Text           =>
-                          Adjust_Message
-                            (Source_Table.File_Name (SF) &
-                             ":1:01: fatal compiler error", Error),
+                       (Full_File_Name => Source_Table.File_Name (SF),
+                        Sloc           => (1, 1),
+                        Message        =>
+                          Adjust_Message ("fatal compiler error", Error),
                         Diagnosis_Kind => Compiler_Error,
                         SF             => SF);
                   end if;

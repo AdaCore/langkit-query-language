@@ -17,7 +17,6 @@ with Ada.Text_IO;             use Ada.Text_IO;
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.Case_Util;
 with GNAT.OS_Lib;
-with GNAT.Regpat;               use GNAT.Regpat;
 
 with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
 with Gnatcheck.Options;            use Gnatcheck.Options;
@@ -38,23 +37,6 @@ package body Gnatcheck.Diagnoses is
    use all type Ada.Containers.Count_Type;
 
    package LCO renames Libadalang.Common;
-
-   Match_Diagnosis : constant Pattern_Matcher :=
-     Compile ("^(([A-Z]:)?[^:]*):(\d+):(\d+): (.*)$");
-   --  Matcher for a diagnostic
-
-   Match_Rule_Name : constant Pattern_Matcher :=
-     Compile ("^""([^\s:]+)\s*(?::\s*(.*))?""$");
-   --  Matcher for a rule name and potential arguments
-
-   Match_Rule_Param : constant Pattern_Matcher :=
-     Compile ("([^,]+)?\s*,?\s*");
-
-   Match_Rule_Warning_Param : constant Pattern_Matcher :=
-     Compile ("(\.?\w)");
-
-   Match_Exempt_Comment : constant Pattern_Matcher :=
-     Compile ("--##\s*rule\s+(line\s+)?(on|off)\s+([^\s]+)[^#]*(?:##(.*))?");
 
    -----------------------
    -- Diagnoses storage --
@@ -631,14 +613,15 @@ package body Gnatcheck.Diagnoses is
          Rule := Exemption_Sections_Map.Key (Cursor);
          if Is_Exempted (Rule) then
             Store_Diagnosis
-              (Text               =>
-                 File_Name (SF) & ':' &
-                 Sloc_Image (Exemption_Sections (Rule).Line_Start,
-                             Exemption_Sections (Rule).Col_Start) &
-                 ": no matching 'exempt_OFF' annotation for rule " &
+              (Full_File_Name => File_Name (SF),
+               Sloc           =>
+                 (Line_Number (Exemption_Sections (Rule).Line_Start),
+                  Column_Number (Exemption_Sections (Rule).Col_Start)),
+               Message        =>
+                 "no matching 'exempt_OFF' annotation for rule " &
                  Rule_Name (Rule),
-               Diagnosis_Kind     => Exemption_Warning,
-               SF                 => SF);
+               Diagnosis_Kind => Exemption_Warning,
+               SF             => SF);
             To_Turn_Off.Append (Rule);
          end if;
       end loop;
@@ -665,16 +648,17 @@ package body Gnatcheck.Diagnoses is
 
             while Has_Element (Next_Section) loop
                Store_Diagnosis
-                 (Text               =>
-                    Short_Source_Name (SF) & ':'                    &
-                    Sloc_Image (Parametrized_Exemption_Sections.Element
-                                  (Next_Section).Exempt_Info.Line_Start,
-                                Parametrized_Exemption_Sections.Element
-                                  (Next_Section).Exempt_Info.Col_Start) &
-                    ": no matching 'exempt_OFF' annotation for rule " &
+                 (Full_File_Name => Short_Source_Name (SF),
+                  Sloc           =>
+                    (Line_Number (Parametrized_Exemption_Sections.Element
+                       (Next_Section).Exempt_Info.Line_Start),
+                     Column_Number (Parametrized_Exemption_Sections.Element
+                       (Next_Section).Exempt_Info.Col_Start)),
+                  Message        =>
+                    "no matching 'exempt_OFF' annotation for rule " &
                     Rule_Name (Rule),
-                  Diagnosis_Kind     => Exemption_Warning,
-                  SF                 => SF);
+                  Diagnosis_Kind => Exemption_Warning,
+                  SF             => SF);
                Turn_Off_Parametrized_Exemption
                  (Rule, Next_Section, Sloc, SF);
                Next_Section := First
@@ -2618,12 +2602,14 @@ package body Gnatcheck.Diagnoses is
             while Next_Postponed_Section /= null loop
                if Next_Postponed_Section.Exemption_Section.Detected = 0 then
                   Store_Diagnosis
-                    (Text           =>
-                       File_Name (SF) & ':' &
-                       Sloc_Image
-                         (Next_Postponed_Section.Exemption_Section.Line_End,
-                          Next_Postponed_Section.Exemption_Section.Col_End) &
-                       ": no detection for " & Rule_Name (Current_Rule) &
+                    (Full_File_Name => File_Name (SF),
+                     Sloc           =>
+                       (Line_Number
+                          (Next_Postponed_Section.Exemption_Section.Line_End),
+                        Column_Number
+                          (Next_Postponed_Section.Exemption_Section.Col_End)),
+                     Message        =>
+                       "no detection for " & Rule_Name (Current_Rule) &
                        " rule in exemption section starting at line" &
                        Next_Postponed_Section.Exemption_Section.Line_Start'Img,
                      Diagnosis_Kind => Exemption_Warning,
@@ -2651,12 +2637,14 @@ package body Gnatcheck.Diagnoses is
 
                   if Next_Par_S_Info.Exempt_Info.Detected = 0 then
                      Store_Diagnosis
-                       (Text           =>
-                          File_Name (SF) & ':' &
-                          Sloc_Image
-                            (Next_Par_S_Info.Exempt_Info.Line_End,
-                             Next_Par_S_Info.Exempt_Info.Col_End) &
-                          ": no detection for '" &
+                       (Full_File_Name => File_Name (SF),
+                        Sloc           =>
+                          (Line_Number
+                             (Next_Par_S_Info.Exempt_Info.Line_End),
+                           Column_Number
+                             (Next_Par_S_Info.Exempt_Info.Col_End)),
+                        Message        =>
+                          "no detection for '" &
                           Rule_Name (Current_Rule) & ": " &
                           Params_Img (Next_Par_S_Info.Params, Current_Rule) &
                           "' rule in exemption section starting " & "at line" &
