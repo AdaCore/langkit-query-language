@@ -20,7 +20,6 @@ with GNAT.Task_Lock;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;              use Gnatcheck.Ids;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
@@ -1385,17 +1384,14 @@ package body Gnatcheck.Source_Table is
          exception
             when E : others =>
                if Arg.Debug_Mode.Get then
-                  declare
-                     Msg : constant String :=
-                       File_Name (Next_SF) & ":1:01: internal error: " &
-                       Strip_LF (Exception_Information (E));
-                  begin
-                     Store_Diagnosis
-                       (Text           => Msg,
-                        Diagnosis_Kind => Internal_Error,
-                        SF             => Next_SF,
-                        Rule           => No_Rule_Id);
-                  end;
+                  Store_Diagnosis
+                    (Full_File_Name => File_Name (Next_SF),
+                     Sloc           => (1, 1),
+                     Message        =>
+                        "internal error: " &
+                        Strip_LF (Exception_Information (E)),
+                     Diagnosis_Kind => Internal_Error,
+                     SF             => Next_SF);
                end if;
          end;
       end loop;
