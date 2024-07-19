@@ -3,8 +3,15 @@ format: brief
 show_rule: True
 input_sources:
   - main.adb
-rules:
+
+tests:
+- label: With valid options
+  rules:
   - +R:subprogram_access:Restrictions:No_Access_Subprograms
   - +R:no_use_of:Restrictions:No_Use_Of_Entity => Ada.Text_IO.Put_Line
   - +R:maximum_entry_num:Restrictions:Max_Task_Entries => 2
   - +RRestrictions:No_Calendar
+- label: With same restriction on multiple instances
+  rules:
+  - +RRestrictions:No_Calendar
+  - +R:no_calendar:Restrictions:No_Calendar

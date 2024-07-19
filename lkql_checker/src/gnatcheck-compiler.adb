@@ -535,8 +535,10 @@ package body Gnatcheck.Compiler is
          when Warning =>
             if Parameter = "" then
                return " [warnings]";
-            elsif Warning_Tags_Map.Contains (Parameter) then
-               return " [" & Warning_Tags_Map.Element (Parameter) &
+            elsif Warning_To_Instance.Contains (Parameter)
+              and then Warning_To_Instance (Parameter) /= "warnings"
+            then
+               return " [" & Warning_To_Instance (Parameter) &
                       "|warnings:" & Parameter & "]";
             else
                return " [warnings:" & Parameter & "]";
@@ -545,16 +547,20 @@ package body Gnatcheck.Compiler is
          when Style =>
             if Parameter = "" then
                return " [style_checks]";
-            elsif Style_Tags_Map.Contains (Parameter) then
-               return " [" & Style_Tags_Map.Element (Parameter) &
+            elsif Style_To_Instance.Contains (Parameter)
+              and then Style_To_Instance (Parameter) /= "style_checks"
+            then
+               return " [" & Style_To_Instance (Parameter) &
                       "|style_checks:" & Parameter & "]";
             else
                return " [style_checks:" & Parameter & "]";
             end if;
 
          when Restriction =>
-            if Restriction_Tags_Map.Contains (Parameter) then
-               return " [" & Restriction_Tags_Map (Parameter) &
+            if Restriction_To_Instance.Contains (Parameter)
+              and then Restriction_To_Instance (Parameter) /= "restrictions"
+            then
+               return " [" & Restriction_To_Instance (Parameter) &
                       "|restrictions]";
             else
                return " [restrictions]";
@@ -996,12 +1002,16 @@ package body Gnatcheck.Compiler is
    is
       Param        : constant String  := Trim (Parameter, Both);
       First_Idx    : constant Natural := Param'First;
+      I_Name       : constant String  := Instance_Name (Instance.all);
       Last_Idx     :          Natural := Param'Last;
       Arg_Present  :          Boolean := False;
       R_Id         :          Restriction_Id := Not_A_Restriction_Id;
       Special_R_Id :          Special_Restriction_Id :=
         Not_A_Special_Restriction_Id;
       R_Val        :          Option_Parameter;
+
+      Success : Boolean;
+      Cursor  : String_Maps.Cursor;
    begin
       --  Param should have the format
       --
@@ -1018,25 +1028,34 @@ package body Gnatcheck.Compiler is
          end if;
       end loop;
 
-      Get_Restriction_Id (Param (First_Idx .. Last_Idx), R_Id, Special_R_Id);
+      declare
+         Rest_Name       : constant String := Param (First_Idx .. Last_Idx);
+         Lower_Rest_Name : constant String := To_Lower (Rest_Name);
+      begin
+         Get_Restriction_Id (Rest_Name, R_Id, Special_R_Id);
 
-      if R_Id = Not_A_Restriction_Id
-        and then
-         Special_R_Id = Not_A_Special_Restriction_Id
-      then
-         Error ("wrong restriction identifier : " &
-                 Param (First_Idx .. Last_Idx) & ", ignored");
-         Bad_Rule_Detected := True;
-         return;
-      end if;
+         if R_Id = Not_A_Restriction_Id
+         and then
+            Special_R_Id = Not_A_Special_Restriction_Id
+         then
+            Error
+              ("wrong restriction identifier : " & Rest_Name & ", ignored");
+            Bad_Rule_Detected := True;
+            return;
+         end if;
 
-      --  Add the restriction lowered name as a tag associated to the current
-      --  instance, if it is an alias.
-      if Instance.Is_Alias then
-         Restriction_Tags_Map.Insert
-           (To_Lower (Param (First_Idx .. Last_Idx)),
-            Ada.Strings.Unbounded.To_String (Instance.Alias_Name));
-      end if;
+         --  Add the restriction lowered name as a tag associated to the
+         --  current instance, if it is an alias.
+         Restriction_To_Instance.Insert
+           (Lower_Rest_Name, I_Name, Cursor, Success);
+         if not Success and then Restriction_To_Instance (Cursor) /= I_Name
+         then
+            Error ("cannot enable the same restriction in different rule " &
+                   "instances : " & Rest_Name);
+            Bad_Rule_Detected := True;
+            return;
+         end if;
+      end;
 
       --  Check if we have a restriction_parameter_argument, and if we do,
       --  set First_Idx to the first character after '=>'
@@ -1248,46 +1267,53 @@ package body Gnatcheck.Compiler is
       Name : constant String := Instance_Name (Instance.all);
       C : Character;
       I : Integer;
+
+      Success : Boolean;
+      Cursor  : String_Maps.Cursor;
    begin
+      --  Special arguments "all_checks" enables all style checks
+      if Param = "all_checks" then
+         for C of String'("0aAbcefhiklmnprst") loop
+            Style_To_Instance.Include ([C], Name);
+         end loop;
+
+      --  Else, process the argument as a sequence of "gnaty" parameters.
+      else
+         I := Param'First;
+         while I <= Param'Last loop
+            C := Param (I);
+            case C is
+               --  -gnaty[1-9] is represented by "0"
+               when '1' .. '9' =>
+                  C := '0';
+
+               --  -gnatyLxx and -gnatyMxxx are represented respectively by
+               --  "L" and "M". Skip all digits directly after the flag.
+               when 'L' | 'M' =>
+                  while I < Param'Last and then Param (I + 1) in '0' .. '9'
+                  loop
+                     I := I + 1;
+                  end loop;
+
+               when others => null;
+            end case;
+
+            Style_To_Instance.Insert ([C], Name, Cursor, Success);
+            if not Success and then Style_To_Instance (Cursor) /= Name then
+               Error ("cannot enable the same style check in different " &
+                      "rule instances : " & C);
+               Bad_Rule_Detected := True;
+               return;
+            end if;
+
+            I := I + 1;
+         end loop;
+      end if;
+
       if To_Lower (Param) = "all_checks" then
          Process_Style_Options ("y");
       else
          Process_Style_Options (Param);
-      end if;
-
-      --  If the associated instance has an alias, add it in the tags map
-      if Instance.Is_Alias then
-         --  Special arguments "all_checks" enables all style checks
-         if Param = "all_checks" then
-            for C of String'("0aAbcefhiklmnprst") loop
-               Style_Tags_Map.Include ([C], Name);
-            end loop;
-
-         --  Else, process the argument as a sequence of "gnaty" parameters.
-         else
-            I := Param'First;
-            while I <= Param'Last loop
-               C := Param (I);
-               case C is
-                  --  -gnaty[1-9] is represented by "0"
-                  when '1' .. '9' =>
-                     Style_Tags_Map.Include ("0", Name);
-
-                  --  -gnatyLxx and -gnatyMxxx are represented respectively by
-                  --  "L" and "M". Skip all digits directly after the flag.
-                  when 'L' | 'M' =>
-                     Style_Tags_Map.Include ([C], Name);
-                     while I < Param'Last and then Param (I + 1) in '0' .. '9'
-                     loop
-                        I := I + 1;
-                     end loop;
-
-                  when others =>
-                     Style_Tags_Map.Include ([C], Name);
-               end case;
-               I := I + 1;
-            end loop;
-         end if;
       end if;
    end Process_Style_Check_Param;
 
@@ -1337,6 +1363,10 @@ package body Gnatcheck.Compiler is
       Name : constant String := Instance_Name (Instance.all);
       C : Character;
       I : Integer;
+      J : Integer;
+
+      Success : Boolean;
+      Cursor  : String_Maps.Cursor;
    begin
       --  Checking for 'e' and 's' that should not be supplied for gnatcheck
       --  Warnings rule.
@@ -1353,28 +1383,31 @@ package body Gnatcheck.Compiler is
          end if;
       end loop;
 
+      --  If the current instance has an alias name, add it to the tags map
+      I := Param'First;
+      while I <= Param'Last loop
+         C := Param (I);
+         J := I;
+
+         --  If the parameter starts by "_" or ".", it has two characters
+         if C in '.' | '_' then
+            J := J + 1;
+         end if;
+
+         Warning_To_Instance.Insert (Param (I .. J), Name, Cursor, Success);
+         if not Success and then Warning_To_Instance (Cursor) /= Name then
+            Error ("cannot enable the same warning in different rule " &
+                   "instances : " & Param (I .. J));
+            Bad_Rule_Detected := True;
+            return;
+         end if;
+
+         I := J + 1;
+      end loop;
+
       Use_gnatw_Option := True;
       Free (Warning_Options_String);
       Warning_Options_String := new String'(New_Options);
-
-      --  If the current instance has an alias name, add it to the tags map
-      if Instance.Is_Alias then
-         I := Param'First;
-         while I <= Param'Last loop
-            C := Param (I);
-
-            --  If the parameter starts by "_" or ".", it has two characters
-            if C in '.' | '_' then
-               Warning_Tags_Map.Include (Param (I .. I + 1), Name);
-               I := I + 1;
-
-            --  All other parameters are single characters
-            else
-               Warning_Tags_Map.Include ([C], Name);
-            end if;
-            I := I + 1;
-         end loop;
-      end if;
    end Process_Warning_Param;
 
    ----------------------

@@ -197,12 +197,12 @@ package body Gnatcheck.Rules.Rule_Table is
          return Restrictions_Id;
 
       elsif Try_Id = Style_Checks_Id
-        or else Has_Element (Style_Tags_Map, Normalized_Rule_Name)
+        or else Has_Element (Style_To_Instance, Normalized_Rule_Name)
       then
          return Style_Checks_Id;
 
       elsif Try_Id = Warnings_Id
-        or else Has_Element (Warning_Tags_Map, Normalized_Rule_Name)
+        or else Has_Element (Warning_To_Instance, Normalized_Rule_Name)
       then
          return Warnings_Id;
       end if;
