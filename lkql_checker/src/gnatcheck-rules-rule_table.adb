@@ -165,6 +165,25 @@ package body Gnatcheck.Rules.Rule_Table is
          ", specify one unit to check"" separator=""=&gt;""/>");
    end Exception_Cases;
 
+   ----------------
+   -- Insert_Tag --
+   ----------------
+
+   function Insert_Tag
+     (Tags_Map : in out String_Maps.Map;
+      Tag      : String;
+      Value    : String) return Boolean is
+   begin
+      if Tags_Map.Contains (Tag) then
+         if Tags_Map (Tag) /= Value then
+            return False;
+         end if;
+      else
+         Tags_Map.Insert (Tag, Value);
+      end if;
+      return True;
+   end Insert_Tag;
+
    --------------
    -- Get_Rule --
    --------------

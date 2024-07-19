@@ -130,6 +130,15 @@ package Gnatcheck.Rules.Rule_Table is
    --  To associate each compiler-based rules "parameter" to its corresponding
    --  instance, we create maps going from tags to their instance identifier.
 
+   function Insert_Tag
+     (Tags_Map : in out String_Maps.Map;
+      Tag      : String;
+      Value    : String) return Boolean;
+   --  Associates ``Tag`` to ``Value`` in the given ``Tags_Map`` if it is not
+   --  already in the map, then return True.
+   --  Else, if ``Value`` is the same as the one already associated to ``Tag``
+   --  then do nothing and return True, else return False.
+
    function Get_Rule (Rule_Name : String) return Rule_Id;
    --  Returns the identifier for the provided rule name. This identifier is
    --  associated to the rule information access in `All_Rules` map. This

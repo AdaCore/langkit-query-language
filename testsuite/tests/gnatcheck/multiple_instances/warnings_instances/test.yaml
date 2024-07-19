@@ -3,7 +3,13 @@ format: brief
 show_rule: True
 input_sources:
   - main.adb
-rules:
+tests:
+- label: With valid options
+  rules:
   - +R:hiding:Warnings:h
   - +R:unreferenced_formal:Warnings:f
   - +RWarnings:m
+- label: With same warning on multiple instances
+  rules:
+  - +RWarnings:mh
+  - +R:hiding:Warnings:h
