@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.exception;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
+import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -25,10 +26,14 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
 
     @Serial private static final long serialVersionUID = 8401390548003855662L;
 
+    /** The state of the call stack when the exception has been raised. */
+    public final CallStack callStack;
+
     // ----- Constructors -----
 
     private LKQLRuntimeException(String message, Node location) {
         super(message, location);
+        this.callStack = LKQLLanguage.getContext(null).callStack.clone();
     }
 
     // ----- Exception creation methods -----
@@ -382,6 +387,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
                 "positional argument after named argument", location);
     }
 
+    // ----- Instance methods -----
+
     public SourceLocation getSourceLoc() {
         var loc = getLocation();
         return loc != null ? new SourceSectionWrapper(getLocation().getSourceSection()) : null;
@@ -407,9 +414,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     @Override
     public String getMessage() {
         var loc = getSourceLoc();
-        return LKQLLanguage.getContext(null)
-                .getDiagnosticEmitter()
-                .diagnostic(
-                        CheckerUtils.MessageKind.ERROR, this.getErrorMessage(), null, loc, null);
+        var diagEmitter = LKQLLanguage.getContext(null).getDiagnosticEmitter();
+        return diagEmitter.diagnostic(
+                        CheckerUtils.MessageKind.ERROR, this.getErrorMessage(), null, loc, null)
+                + (this.callStack.isEmpty() ? "" : "\n" + diagEmitter.callStack(this.callStack));
     }
 }

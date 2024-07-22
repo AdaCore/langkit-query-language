@@ -5,3 +5,4 @@
 script.lkql:6:7: error: Invalid index: 0
 6 | print(l.sublist(0, 5))
   |       ^^^^^^^^^^^^^^^
+ in sublist (called at script.lkql:6:7)
