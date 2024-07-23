@@ -414,15 +414,15 @@ LKQL rule options file
 You can configure GNATcheck rules using an LKQL file, provided with the ``-from-lkql``
 command-line option. This file must be a valid LKQL file that exports at least a
 ``rules`` top-level symbol. This symbol must refer to an object value containing rules
-configuration; keys are GNATcheck rules to enable; and values are lists of objects
-containing rule parameter. An rule parameter value can be a boolean, an integer,
-a string or an list of strings.
+configuration; keys are GNATcheck rules to enable; and values are objects containing
+rule parameters. An rule parameter value can be a boolean, an integer, a string or
+a list of strings.
 
 ::
 
   val rules = @{
     gnatcheck_rule_1,
-    gnatcheck_rule_2: [{param_1: "Hello", param_2: "World"}]
+    gnatcheck_rule_2: {param_1: "Hello", param_2: "World"}
   }
 
 You can map a boolean parameter from a ``+R`` option to an LKQL rule options file by
@@ -437,7 +437,7 @@ maps to:
 ::
 
   val rules = @{
-    Goto_Statements: [{Only_Unconditional: true}]
+    Goto_Statements: {Only_Unconditional: true}
   }
 
 .. attention::
@@ -449,11 +449,12 @@ maps to:
 
     val rules = @{
       gnatcheck_rule_1,
-      gnatcheck_rule_1: [{param_1: "Hello", param_2: "World"}]
+      gnatcheck_rule_1: {param_1: "Hello", param_2: "World"}
     }
 
-You can use the ``instance_name`` key in an argument object to define a name for the
-created rule instance.
+If you want to create many instances of the same rule, you can associate a list
+to the rule name and add an ``instance_name`` key in argument objects to define
+their names.
 
 ::
 
@@ -479,7 +480,7 @@ only on SPARK code. Those symbols must also refer to an object value formatted l
 
   # Rules to run only on Ada code
   val ada_rules = @{
-    gnatcheck_rule_2: [{param_1: 42}]
+    gnatcheck_rule_2: {param_1: 42}
   }
 
   # Rules to run only on SPARK code

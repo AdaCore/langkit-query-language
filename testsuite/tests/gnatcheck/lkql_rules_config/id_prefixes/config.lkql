@@ -1,3 +1,3 @@
 val rules = @{
-    identifier_prefixes: [{type: "Type_", access: "Access_", derived: ["Main.My_Base:Based_"]}]
+    identifier_prefixes: {type: "Type_", access: "Access_", derived: ["Main.My_Base:Based_"]}
 }

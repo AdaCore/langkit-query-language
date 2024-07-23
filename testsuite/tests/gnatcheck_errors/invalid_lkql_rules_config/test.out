@@ -29,10 +29,18 @@ gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
-Not indexable arguments
-=======================
+Not valid arguments
+===================
 
-gnatcheck: error raised by the worker: Rule arguments must be an indexable value (not_indexable_args.lkql)
+gnatcheck: error raised by the worker: Rule arguments must be an object or indexable value (not_valid_args.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Not valid arguments element
+===========================
+
+gnatcheck: error raised by the worker: Arguments should be in an object value (not_valid_args_elem.lkql)
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

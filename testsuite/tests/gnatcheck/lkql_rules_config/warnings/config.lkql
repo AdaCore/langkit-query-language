@@ -1,3 +1,3 @@
 val rules = @{
-    warnings: [{arg: "u"}]
+    warnings: {arg: "u"}
 }

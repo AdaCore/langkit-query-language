@@ -1,3 +1,3 @@
 val rules = @{
-    my_rule: [{value: 50}]
+    my_rule: {value: 50}
 }
