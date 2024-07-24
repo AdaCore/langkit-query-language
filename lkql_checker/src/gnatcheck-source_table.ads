@@ -194,12 +194,6 @@ package Gnatcheck.Source_Table is
    function Create_Context return Checker_App.Lkql_Context;
    --  Create the LKQL context
 
-   procedure Add_Sources_To_Context
-     (Ctx     : Checker_App.Lkql_Context;
-      Project : Arg_Project_Type'Class);
-   --  Add all sources from Project to Ctx
-   --  TODO: MAYBEREMOVE
-
    procedure Process_Sources
      (Ctx : Checker_App.Lkql_Context);
    --  Procedure all sources. Only process pragma Annotate if Annotate_Only
