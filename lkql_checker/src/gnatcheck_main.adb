@@ -461,15 +461,9 @@ begin
       Gnatcheck.Projects.Aggregate.Process_Aggregated_Projects (Gnatcheck_Prj);
 
    else
-      --  The call to Create_Context above was made before sources are computed
-      --  by Check_Parameters, so reset them now.
-
-      Add_Sources_To_Context (Ctx, Gnatcheck_Prj);
-
       --  Implement -j via multiple processes
       --  In the default (-j1, no custom worker) mode, process all sources in
       --  the main process.
-
       Schedule_Files;
 
       Generate_Qualification_Report;

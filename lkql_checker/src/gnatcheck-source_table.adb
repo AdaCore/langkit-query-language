@@ -26,16 +26,14 @@ with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
-with GPR2.Build.Source.Sets;
+with GPR2.Build.Source;
 with GPR2.Path_Name;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
 
-with Langkit_Support.Generic_API.Analysis;
 with Langkit_Support.Generic_API.Introspection;
 
 with Libadalang.Analysis;         use Libadalang.Analysis;
-with Libadalang.Helpers;          use Libadalang.Helpers;
 with Libadalang.Auto_Provider;    use Libadalang.Auto_Provider;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
@@ -47,10 +45,7 @@ with Liblkqllang.Analysis;
 
 package body Gnatcheck.Source_Table is
 
-   package LK renames Langkit_Support.Generic_API.Analysis;
    package LKI renames Langkit_Support.Generic_API.Introspection;
-
-   type LK_Unit_Array is array (Positive range <>) of LK.Lk_Unit;
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
 
@@ -228,54 +223,6 @@ package body Gnatcheck.Source_Table is
    procedure Set_Source_Name       (SF : SF_Id; N : String);
    procedure Set_Short_Source_Name (SF : SF_Id; N : String);
    procedure Set_Suffixless_Name   (SF : SF_Id; N : String);
-
-   ----------------------------
-   -- Add_Sources_To_Context --
-   ----------------------------
-
-   procedure Add_Sources_To_Context
-     (Ctx     : Checker_App.Lkql_Context;
-      Project : Arg_Project_Type'Class)
-   is
-      use GPR2;
-      use GPR2.Project.View;
-      use GPR2.Build.Source.Sets;
-      Units : Unit_Vectors.Vector;
-
-   begin
-      --  If no project specified, register all files listed explicitly.
-
-      if not Project.Tree.Is_Defined then
-         for J in First_SF_Id .. Last_Argument_Source loop
-            Units.Append (Ctx.Analysis_Ctx.Get_From_File (Source_Name (J)));
-         end loop;
-      else
-         --  We want to add all sources from the project and not just the
-         --  sources from Source_Name, so that global queries are complete.
-
-         for View of Project.Tree loop
-            for Src of View.Sources loop
-               if Src.Language = GPR2.Ada_Language then
-                  Units.Append
-                    (Ctx.Analysis_Ctx.Get_From_File
-                       (Src.Path_Name.String_Value));
-               end if;
-            end loop;
-         end loop;
-      end if;
-
-      declare
-         use LK;
-         Lk_Units : LK_Unit_Array (Units.First_Index .. Units.Last_Index);
-      begin
-         for I in Lk_Units'Range loop
-            Lk_Units (I) := To_Generic_Unit (Units (I));
-         end loop;
-
-         --  Set_Units (Ctx.Eval_Ctx, Lk_Units);
-         --  TODO: Useless ?
-      end;
-   end Add_Sources_To_Context;
 
    ---------------------------
    -- Add_Source_To_Process --
