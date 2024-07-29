@@ -796,7 +796,7 @@ package body Gnatcheck.Source_Table is
    procedure Output_Source (SF : SF_Id) is
       N : constant String := Natural'Image (Sources_Left);
    begin
-      if Progress_Indicator_Mode then
+      if Arg.Progress_Indicator_Mode.Get then
          declare
             Current : constant Integer := Total_Sources - Sources_Left + 1;
             Percent : String :=
@@ -813,7 +813,7 @@ package body Gnatcheck.Source_Table is
          Info_No_EOL ("[" & N (2 .. N'Last) & "] ");
          Info (Short_Source_Name (SF));
 
-      elsif not (Quiet_Mode or Progress_Indicator_Mode) then
+      elsif not (Arg.Quiet_Mode or Arg.Progress_Indicator_Mode.Get) then
          Info_No_EOL ("Units remaining:");
          Info_No_EOL (N);
          Info_No_EOL ("     " & ASCII.CR);
@@ -1087,7 +1087,8 @@ package body Gnatcheck.Source_Table is
       --  Only warn if no sources are specified explicitly
 
       elsif not (File_List_Specified
-                 or else (Argument_File_Specified and then not U_Option_Set))
+                 or else (Argument_File_Specified
+                          and then not Arg.Transitive_Closure.Get))
       then
          Gnatcheck.Output.Warning
            ("exemption: source " & Fname & " not found");
@@ -1383,7 +1384,7 @@ package body Gnatcheck.Source_Table is
             Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
          exception
             when E : others =>
-               if Debug_Mode then
+               if Arg.Debug_Mode.Get then
                   declare
                      Msg : constant String :=
                        File_Name (Next_SF) & ":1:01: internal error: " &
@@ -1492,6 +1493,8 @@ package body Gnatcheck.Source_Table is
          end;
       end Add_Runtime_Files;
 
+      Charset : constant String := To_String (Arg.Charset.Get);
+
    begin
       --  If no project specified, create an auto provider with all the source
       --  files listed in the command line, stored in Temporary_File_Storage,
@@ -1522,9 +1525,9 @@ package body Gnatcheck.Source_Table is
             Temp_Storage_Iterate (Add_File'Access);
             Add_Runtime_Files;
             Ctx.Analysis_Ctx := Create_Context
-              (Charset       => Charset.all,
+              (Charset       => Charset,
                Unit_Provider => Create_Auto_Provider_Reference
-                                  (Files (1 .. Last), Charset.all),
+                                  (Files (1 .. Last), Charset),
                Event_Handler => EHR_Object);
             Unchecked_Free (Files);
          end;
@@ -1542,7 +1545,7 @@ package body Gnatcheck.Source_Table is
          --  aggregate projects, which are handled specially in lalcheck.adb
 
          Ctx.Analysis_Ctx := Create_Context
-           (Charset       => Charset.all,
+           (Charset       => Charset,
             Unit_Provider => Partition (Partition'First).Provider,
             Event_Handler => EHR_Object);
 

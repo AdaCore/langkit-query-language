@@ -6,15 +6,18 @@
 --  This package defines options that are supposed to be of a common interest
 --  for all the tools.
 
-with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Directories;  use Ada.Directories;
+with Ada.Command_Line;      use Ada.Command_Line;
+with Ada.Directories;       use Ada.Directories;
 with Ada.Environment_Variables;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib;
 
 with Gnatcheck.Projects;
 
-with Rules_Factory; use Rules_Factory;
+with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
+
+with GPR2.Options;
 
 package Gnatcheck.Options is
 
@@ -43,21 +46,15 @@ package Gnatcheck.Options is
       else Default_Worker);
    --  The name of the worker to use.
 
-   RTS_Path : GNAT.OS_Lib.String_Access := new String'("");
+   RTS_Path : Unbounded_String := Null_Unbounded_String;
    --  Runtime as specified via --RTS= or Runtime attribute
 
-   Target : GNAT.OS_Lib.String_Access := new String'("");
+   Target : Unbounded_String := Null_Unbounded_String;
    --  Target as it is specified by the command-line '--target=...' option, or
    --  by the 'Target attribute in the argument project file.
 
-   Charset : GNAT.OS_Lib.String_Access := new String'("iso-8859-1");
-   --  Charset to use for parsing source files
-
    Global_Report_Dir : GNAT.OS_Lib.String_Access := new String'("./");
    --  The name of the directory to place the global results into
-
-   Additional_Rules_Dirs : Path_Vector;
-   --  Additional rules directories specified via --rules-dir
 
    Fatal_Error : exception;
    --  This exception should be raised when there is no sense any more to do
@@ -86,35 +83,10 @@ package Gnatcheck.Options is
    --  The verbose mode.
    --  '-v'
 
-   Quiet_Mode       : Boolean := False;
-   --  Quiet mode, do not emit messages on stderr
-   --  '-q'
-
-   Brief_Mode       : Boolean := False;
-   --  Brief mode: like quiet mode except that messages are emitted on stderr
-   --  '--brief'
-
-   Debug_Mode       : Boolean := False;
-   --  Internal debug mode
-   --  '-d'
-
-   Progress_Indicator_Mode : Boolean := False;
-   --  Generate the output to be used for GPS progress indicator.
-   --  '-dd'
-
    Generate_XML_Help : Boolean := False;
    --  If this file is ON, the tool generates the XML description of the tool
    --  parameters to be used for creating the GUI in GPS.
    --  '-hx'.
-
-   Compute_Timing : Boolean := False;
-   --  If this flag is ON, the total execution time (wall clock) of the tool
-   --  is computed and printed out.
-   --  '-t'
-
-   Check_Semantic : Boolean := False;
-   --  If True, run the compiler to check the semantic of each source file.
-   --  --check-semantic
 
    Legacy : Boolean := False;
    --  If True, run in legacy mode, with no support for additional rule files.
@@ -143,30 +115,12 @@ package Gnatcheck.Options is
    --  such units either are not processed or the tool does not generate
    --  results for them).
 
-   Aggregated_Project : Boolean := False;
-   --  '-A <project_file>
-   --  True if this is a tool call spawned from an original tool call with
-   --  aggregated project as a parameter. In this mode the tool processes only
-   --  one (non-aggregate) project from the projects being aggregated.
-
    In_Aggregate_Project : Boolean := False;
    --  True if the tool is called for an aggregate project that aggregates more
    --  than one (non-aggregate) project/
 
    Files_Switch_Used : Boolean := False;
    --  True if the files= switch was used
-
-   Process_Num : Natural := 1;
-   --  The maximal number of cores used
-   --  -jN
-
-   J_Specified : Boolean := False;
-   --  True if the -jN option was given. This is used to distinguish -j0 on a
-   --  uniprocessor from no -j switch.
-
-   Ignore_Project_Switches : Boolean := False;
-   --  True if --ignore-project-switches was used.
-   --  Ignore gnatcheck switches from the project file if set.
 
    ----------------------------------------
    -- Flags computed from other settings --
@@ -210,12 +164,6 @@ package Gnatcheck.Options is
    --  Generate the rules help information (note, that we can do it only after
    --  registering the rules)
 
-   Check_Param_Redefinition : Boolean := False;
-   --  '--check-redefinition'
-   --  Check if for parametrized rule the rule parameter is defined more than
-   --  once (may happen if gnatcheck has several rule files as parameters, or
-   --  when a rule is activated both in the command line and in the rule file.
-
    Active_Rule_Present : Boolean := False;
    --  Flag indicating if the tool has an activated rule to check. It does not
    --  take into account compiler check, use
@@ -245,19 +193,11 @@ package Gnatcheck.Options is
    -- Controlling the gnatcheck report --
    --------------------------------------
 
-   Short_Report : Boolean := False;
-   --  '-s'
-   --  Print the short version of the report file.
-   --  Only diagnoses are included in the report file.
-
    Max_Diagnoses : Natural := 0;
    --  '-m'
    --  Maximum number of diagnoses to print out into Stdout. Zero means that
    --  there is no limitation on the number of diagnoses to be printed out into
    --  Stderr.
-
-   Mapping_Mode : Boolean := False;
-   --  If this flag is ON, a rule name is added to the text of each diagnosis.
 
    User_Info_File           : GNAT.OS_Lib.String_Access;
    User_Info_File_Full_Path : GNAT.OS_Lib.String_Access;
@@ -294,5 +234,216 @@ package Gnatcheck.Options is
    ---------------------
 
    Gnatcheck_Prj : aliased Gnatcheck.Projects.Arg_Project_Type;
+
+   type Gnatcheck_Error_Handler is new Error_Handler with null record;
+
+   procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String);
+   procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String);
+
+   function Jobs_Convert (Arg : String) return Natural;
+
+   package Arg is
+      Parser : Argument_Parser := Create_Argument_Parser
+        (Help                 => "GNATcheck help",
+         Incremental          => True,
+         Generate_Help_Flag   => False,
+         Custom_Error_Handler =>
+           Create (Gnatcheck_Error_Handler'(null record)),
+         Print_Help_On_Error  => False);
+
+      package Check_Semantic is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--check-semantic",
+         Help   => "check semantic validity of the source files");
+
+      package No_Subprojects is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--no-subprojects",
+         Help   => "process only sources of root project");
+
+      package Transitive_Closure is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-U",
+         Name   => "Closure",
+         Help   => "process all units of the closure rooted in the mains "
+                   & "passed as arguments (or mains of the project if list "
+                   & "is empty)");
+
+      package Charset is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--charset",
+         Arg_Type    => Unbounded_String,
+         Default_Val => To_Unbounded_String ("iso-8859-1"),
+         Help        => "specify the charset of the source files (default is "
+                        & "latin-1)");
+
+      package Rules_Dirs is new Parse_Option_List
+        (Parser     => Parser,
+         Long       => "--rules-dir",
+         Arg_Type   => Unbounded_String,
+         Accumulate => True,
+         Enabled    => not Legacy,
+         Help       => "specify an alternate directory containing rule files");
+
+      package Project_File is new Parse_Option
+        (Parser      => Parser,
+         Short       => "-P",
+         Long        => "--project",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "project file to use");
+
+      package Scenario_Vars is new Parse_Option_List
+        (Parser     => Parser,
+         Short      => "-X",
+         Name       => "Scenario variable",
+         Arg_Type   => Unbounded_String,
+         Accumulate => True,
+         Help       => "scenario variables to pass to the project file");
+
+      package Config_File is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--config",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "name of the configuration project file. If passed, "
+                        & "this file must exist and neither --target nor --RTS"
+                        & "must be passed.");
+
+      package Target is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--target",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "name of the target to use when loading the project");
+
+      package RTS is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--RTS",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "name of the runtime (RTS) to use when loading the "
+                        & "project");
+
+      package Debug_Mode is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-d",
+         Name   => "Debug mode",
+         Help   => "activate debug mode");
+
+      package Progress_Indicator_Mode is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-dd",
+         Name   => "Progress indicator mode",
+         Help   => "activate progress indicator mode");
+
+      --  TODO: This needs to be private (undocumented)
+      package Aggregate_Subproject is new Parse_Option
+        (Parser      => Parser,
+         Short       => "-A",
+         Name        => "Aggregate project",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "private flag - used when processing a subproject of "
+                        & "a root aggregate project");
+
+      package Follow_Symbolic_Links is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-eL",
+         Name   => "Follow symbolic links",
+         Help   => "follow all symbolic links when processing project files");
+
+      function Aggregated_Project return Boolean
+      is (Aggregate_Subproject.Get /= Null_Unbounded_String);
+
+      package Quiet is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-q",
+         Name   => "Quiet mode",
+         Help   => "quiet mode, do not emit messages on stderr");
+
+      package Brief is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--brief",
+         Help   => "brief mode: like quiet mode except that messages are "
+                   & "emitted on stderr");
+
+      package Short is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-s",
+         Name   => "Short report",
+         Help   => "print the short version of the report file");
+
+      package Time is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-t",
+         Name   => "Compute timing",
+         Help   => "print the total execution time (wall clock) on stderr");
+
+      package Show_Rule is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--show-rule",
+         Help   => "append rule names to diagnoses generated");
+
+      package Check_Redefinition is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--check-redefinition",
+         Help   => "issue warning if a rule parameter is redefined");
+
+      package No_Object_Dir is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--no_objects_dir",
+         Help   => "issue warning if a rule parameter is redefined");
+
+      package Print_Gpr_Registry is new Parse_Flag
+        (Parser => Parser,
+         Long   => GPR2.Options.Print_GPR_Registry_Option,
+         Help   => "TODO");
+
+      package Ignore_Project_Switches_Opt is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--ignore-project-switches",
+         Help   => "ignore switches specified in the project file");
+
+      package Include_File is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--include-file",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "add the content of filename into generated report");
+
+      package Subdirs is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--subdirs",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "specify subdirectory to place the result files into");
+
+      package Ignore_Files is new Parse_Option
+        (Parser      => Parser,
+         Long        => "--ignore",
+         Arg_Type    => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help        => "do not process sources listed in filename");
+
+      package Jobs is new Parse_Option
+        (Parser      => Parser,
+         Short       => "-j",
+         Name        => "Jobs",
+         Arg_Type    => Natural,
+         Default_Val => 1,
+         Convert     => Jobs_Convert,
+         Help        => "the maximal number of processes");
+
+      function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
+
+      function Short_Report return Boolean is (Brief.Get or else Short.Get);
+
+      function Brief_Mode return Boolean is (Brief.Get);
+
+      function Ignore_Project_Switches return Boolean is
+        (Ignore_Project_Switches_Opt.Get or Gnatkp_Mode);
+
+   end Arg;
 
 end Gnatcheck.Options;

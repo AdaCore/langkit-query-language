@@ -591,7 +591,7 @@ package body Gnatcheck.Diagnoses is
          Prj_Out_Dot := Prj_Out_Dot - 1;
       end if;
 
-      if Aggregated_Project then
+      if Arg.Aggregated_Project then
          --  in case of aggregated project we have to move the index in the
          --  Prj_Out_File after S. That is, we do not need
          --  gnatcheck_1-source-list.out, we need gnatcheck-source-list_1.out
@@ -863,7 +863,7 @@ package body Gnatcheck.Diagnoses is
 
          if Gnatcheck_Prj.Is_Specified then
             XML_Report (" project=""" &
-              (if Aggregated_Project then
+              (if Arg.Aggregated_Project then
                   Get_Aggregated_Project
                else
                   Gnatcheck_Prj.Source_Prj) & """>");
@@ -874,7 +874,7 @@ package body Gnatcheck.Diagnoses is
 
       --  OVERVIEW
 
-      if not Short_Report then
+      if not Arg.Short_Report then
          Print_Report_Header;
          Print_Active_Rules_File;
          Print_File_List_File;
@@ -912,12 +912,12 @@ package body Gnatcheck.Diagnoses is
             Report ("no exempted violations detected", 1);
          end if;
 
-         if not Short_Report and then XML_Report_ON then
+         if not Arg.Short_Report and then XML_Report_ON then
             XML_Report ("no exempted violations detected", 1);
          end if;
       end if;
 
-      if not Short_Report then
+      if not Arg.Short_Report then
          if Text_Report_ON then
             Report_EOL;
             Report ("3. Non-exempted Coding Standard Violations");
@@ -938,12 +938,12 @@ package body Gnatcheck.Diagnoses is
             Report ("no non-exempted violations detected", 1);
          end if;
 
-         if not Short_Report and then XML_Report_ON then
+         if not Arg.Short_Report and then XML_Report_ON then
             XML_Report ("no non-exempted violations detected", 1);
          end if;
       end if;
 
-      if not Short_Report then
+      if not Arg.Short_Report then
          if Text_Report_ON then
             Report_EOL;
             Report ("4. Rule exemption problems");
@@ -963,13 +963,13 @@ package body Gnatcheck.Diagnoses is
             Report ("no rule exemption problems detected", 1);
          end if;
 
-         if not Short_Report and then XML_Report_ON then
+         if not Arg.Short_Report and then XML_Report_ON then
             XML_Report ("no rule exemption problems detected", 1);
          end if;
 
       end if;
 
-      if not Short_Report then
+      if not Arg.Short_Report then
          if Text_Report_ON then
             Report_EOL;
             Report ("5. Language violations");
@@ -989,12 +989,12 @@ package body Gnatcheck.Diagnoses is
             Report ("no language violations detected", 1);
          end if;
 
-         if not Short_Report and then XML_Report_ON then
+         if not Arg.Short_Report and then XML_Report_ON then
             XML_Report ("no language violations detected", 1);
          end if;
       end if;
 
-      if not Short_Report then
+      if not Arg.Short_Report then
          if Text_Report_ON then
             Report_EOL;
             Report ("6. Gnatcheck internal errors");
@@ -1014,14 +1014,14 @@ package body Gnatcheck.Diagnoses is
             Report ("no internal error detected", 1);
          end if;
 
-         if not Short_Report and then XML_Report_ON then
+         if not Arg.Short_Report and then XML_Report_ON then
             XML_Report ("no internal error detected", 1);
          end if;
       end if;
 
       --  User-defined part
 
-      if not Short_Report then
+      if not Arg.Short_Report then
          if XML_Report_ON then
             XML_Report ("</violations>");
          end if;
@@ -1058,7 +1058,7 @@ package body Gnatcheck.Diagnoses is
 
       --  Sending the diagnoses into Stderr
 
-      if Brief_Mode or not Quiet_Mode then
+      if Arg.Brief_Mode or not Arg.Quiet_Mode then
          Print_Out_Diagnoses;
       end if;
    end Generate_Qualification_Report;
@@ -1594,7 +1594,7 @@ package body Gnatcheck.Diagnoses is
             end if;
 
             if XML_Report_ON then
-               XML_Report_Diagnosis (Diag, Short_Report);
+               XML_Report_Diagnosis (Diag, Arg.Short_Report);
             end if;
          end if;
       end Print_Specified_Diagnoses;
@@ -1805,7 +1805,7 @@ package body Gnatcheck.Diagnoses is
 
       function Preprocess_Diag (Diag : String) return String is
       begin
-         if Progress_Indicator_Mode then
+         if Arg.Progress_Indicator_Mode.Get then
             declare
                Idx : constant Natural := Index (Diag, ": ");
             begin
@@ -1952,11 +1952,11 @@ package body Gnatcheck.Diagnoses is
 
    procedure Print_Runtime (XML : Boolean := False) is
    begin
-      if RTS_Path.all /= "" then
+      if RTS_Path /= Null_Unbounded_String then
          if XML then
-            XML_Report (RTS_Path.all);
+            XML_Report (To_String (RTS_Path));
          else
-            Report (RTS_Path.all);
+            Report (To_String (RTS_Path));
          end if;
       else
          if XML then
@@ -2683,20 +2683,14 @@ package body Gnatcheck.Diagnoses is
    ---------------------------
 
    procedure Process_User_Filename (Fname : String) is
-      use all type GNAT.OS_Lib.String_Access;
    begin
       if GNAT.OS_Lib.Is_Regular_File (Fname) then
-         if User_Info_File /= null then
-            Error ("--include-file option can be given only once, " &
-                   "all but first ignored");
-         else
-            User_Info_File           := new String'(Fname);
-            User_Info_File_Full_Path := new String'
-              (GNAT.OS_Lib.Normalize_Pathname
-                 (Fname,
-                  Resolve_Links  => False,
-                  Case_Sensitive => False));
-         end if;
+         User_Info_File           := new String'(Fname);
+         User_Info_File_Full_Path := new String'
+           (GNAT.OS_Lib.Normalize_Pathname
+              (Fname,
+               Resolve_Links  => False,
+               Case_Sensitive => False));
       else
          Error (Fname & " not found, --include-file option ignored");
       end if;

@@ -172,7 +172,7 @@ package Gnatcheck.Rules is
       --  Access to the function required to process a given parameter. This
       --  function updates the global instances map according to the
       --  provided `Param` and `Enable` values. This function also check for
-      --  parameter redefinition if the flobal flag `Check_Param_Redefinition`
+      --  parameter redefinition if the flobal flag `Check_Redefinition`
       --  is on.
       --
       --  The `Instance_Name` is the name of the instance to create or update.

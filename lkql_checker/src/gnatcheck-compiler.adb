@@ -188,7 +188,7 @@ package body Gnatcheck.Compiler is
          Last_Idx := Last_Idx - 5;
       end if;
 
-      if Mapping_Mode then
+      if Arg.Show_Rule.Get then
          if Message_Kind in Warning | Style then
             Diag_End := Index (Source  => Result (Result'First .. Last_Idx),
                                Pattern => (if Message_Kind = Warning
@@ -1134,7 +1134,7 @@ package body Gnatcheck.Compiler is
                       (Trim (Param (Last_Idx .. Param'Last), Both));
 
                   if not Restriction_Setting (R_Id).Param.Is_Empty
-                    and then Gnatcheck.Options.Check_Param_Redefinition
+                    and then Arg.Check_Redefinition.Get
                   then
                      Restriction_Setting (R_Id).Param.Clear;
                      Last_Idx := Index (Param, "=", Backward) - 1;
@@ -1524,11 +1524,12 @@ package body Gnatcheck.Compiler is
    ----------------
 
    function Gnatls_Exec return String is
+      use Ada.Strings.Unbounded;
    begin
       if Has_Access_To_Codepeer then
          return "codepeer-gnatls";
-      elsif Target.all /= "" then
-         return Target.all & "-gnatls";
+      elsif To_String (Target) /= "" then
+         return To_String (Target) & "-gnatls";
       else
          return "gnatls";
       end if;
@@ -1578,6 +1579,7 @@ package body Gnatcheck.Compiler is
       Args          : Argument_List (1 .. 128);
       Num_Args      : Integer := 0;
 
+      use Ada.Strings.Unbounded;
    begin
       --  Split the worker command into the name of the executable plus its
       --  arguments. We do that because the call to Non_Blocking_Spawn expects
@@ -1604,13 +1606,13 @@ package body Gnatcheck.Compiler is
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);
 
-         if Ignore_Project_Switches then
+         if Arg.Ignore_Project_Switches then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--ignore-project-switches");
          end if;
       end if;
 
-      if Aggregated_Project then
+      if Arg.Aggregated_Project then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-A");
          Num_Args := @ + 1;
@@ -1618,14 +1620,14 @@ package body Gnatcheck.Compiler is
       end if;
 
       if CGPR = "" then
-         if RTS_Path.all /= "" then
+         if RTS_Path /= Null_Unbounded_String then
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--RTS=" & RTS_Path.all);
+            Args (Num_Args) := new String'("--RTS=" & To_String (RTS_Path));
          end if;
 
-         if Target.all /= "" then
+         if Target /= Null_Unbounded_String then
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--target=" & Target.all);
+            Args (Num_Args) := new String'("--target=" & To_String (Target));
          elsif Has_Access_To_Codepeer then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--target=codepeer");
@@ -1636,19 +1638,21 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("--config=" & CGPR);
       end if;
 
-      if Debug_Mode then
+      if Arg.Debug_Mode.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-d");
       end if;
 
-      if Follow_Symbolic_Links then
+      if Arg.Follow_Symbolic_Links.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-eL");
       end if;
 
-      for Dir of Additional_Rules_Dirs loop
+      for Dir of Arg.Rules_Dirs.Get loop
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--rules-dir=" & Dir);
+         Args (Num_Args)
+           := new String'
+             ("--rules-dir=" & Ada.Strings.Unbounded.To_String (Dir));
       end loop;
 
       Num_Args := @ + 1;
@@ -1659,7 +1663,7 @@ package body Gnatcheck.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("--rules-from=" & Rule_File);
 
-      if Debug_Mode then
+      if Arg.Debug_Mode.Get then
          --  For debug purposes, we don't want to put the full path to the
          --  worker command, if it is a full path. We just want the base name
          Put (Base_Name (Worker.all));
@@ -1723,7 +1727,7 @@ package body Gnatcheck.Compiler is
       Args (Num_Args) := new String'(LKQL_RF_Name);
 
       --  Output the called command if in debug mode
-      if Debug_Mode then
+      if Arg.Debug_Mode.Get then
          Put (Base_Name (Worker.all));
          for J in 1 .. Num_Args loop
             Put (" " & Args (J).all);
@@ -1765,7 +1769,7 @@ package body Gnatcheck.Compiler is
       Args (2) := new String'("-s");
       Args (3) := new String'("-k");
       Args (4) := new String'("-q");
-      Args (5) := new String'("--subdirs=" & Subdir_Name.all);
+      Args (5) := new String'("--subdirs=" & Subdir_Name);
 
       Args (6) := new String'("--no-object-check");
       Args (7) := new String'("--complete-output");
@@ -1777,9 +1781,9 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("--target=codepeer");
       end if;
 
-      if Process_Num > 1 then
+      if Arg.Jobs.Get > 1 then
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-j" & Image (Process_Num));
+         Args (Num_Args) := new String'("-j" & Image (Arg.Jobs.Get));
       end if;
 
       if Prj /= "" then
@@ -1787,14 +1791,14 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-P" & Prj);
       end if;
 
-      if Follow_Symbolic_Links then
+      if Arg.Follow_Symbolic_Links.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-eL");
       end if;
 
       --  If files are specified explicitly, only compile these files
 
-      if (Argument_File_Specified and then not U_Option_Set)
+      if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
         or else File_List_Specified
       then
          Num_Args := @ + 1;
@@ -1805,7 +1809,7 @@ package body Gnatcheck.Compiler is
             Args (Num_Args) := new String'(Short_Source_Name (SF));
          end loop;
       else
-         if U_Option_Set then
+         if Arg.Transitive_Closure.Get then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("-U");
          end if;
@@ -1820,7 +1824,7 @@ package body Gnatcheck.Compiler is
 
       Append_Variables (Args, Num_Args);
 
-      if Debug_Mode then
+      if Arg.Debug_Mode.Get then
          Put (GPRbuild_Exec);
 
          for J in 1 .. Num_Args loop
@@ -1855,8 +1859,8 @@ package body Gnatcheck.Compiler is
    function Style_Rule_Parameter (Diag : String) return String is
       First_Idx        : Natural;
       String_To_Search : constant String :=
-        (if Gnatcheck.Options.Mapping_Mode then "[style_checks:"
-         else                                   "[-gnaty");
+        (if Arg.Show_Rule.Get then "[style_checks:"
+         else                      "[-gnaty");
 
    begin
       --  This function returns non-empty result only if .d parameter is
@@ -1880,8 +1884,8 @@ package body Gnatcheck.Compiler is
    function Warning_Rule_Parameter (Diag : String) return String is
       First_Idx, Last_Idx :          Natural;
       String_To_Search    : constant String :=
-        (if Gnatcheck.Options.Mapping_Mode then "[warnings:"
-         else                                   "[-gnatw");
+        (if Arg.Show_Rule.Get then "[warnings:"
+         else                      "[-gnatw");
 
    begin
       --  This function returns non-empty result only if .d parameter is

@@ -855,7 +855,7 @@ package body Gnatcheck.Rules.Rule_Table is
       Map_JSON_Object (Config_JSON.Value, Rule_Object_Mapper'Access);
 
       --  Delete the temporary JSON files if not it debug mode
-      if not Debug_Mode then
+      if not Arg.Debug_Mode.Get then
          Delete_File (JSON_Config_File_Name, Success);
          Delete_File (Error_File_Name, Success);
       end if;
@@ -1362,8 +1362,8 @@ package body Gnatcheck.Rules.Rule_Table is
                    (Match (KP_Version.all, All_Rules (Rule).Impact.all)
                     and then
                       (All_Rules (Rule).Target = null
-                       or else Target.all = ""
-                       or else Match (Target.all,
+                       or else To_String (Target) = ""
+                       or else Match (To_String (Target),
                                       All_Rules (Rule).Target.all)))
                then
                   Set.Include (All_Rules (Rule));
@@ -1615,7 +1615,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
       Ctx.All_Rules :=
         Rules_Factory.All_Rules
-          (Ctx.LKQL_Analysis_Context, Additional_Rules_Dirs);
+          (Ctx.LKQL_Analysis_Context, Path_Array (Arg.Rules_Dirs.Get));
 
       for R of Ctx.All_Rules loop
          declare

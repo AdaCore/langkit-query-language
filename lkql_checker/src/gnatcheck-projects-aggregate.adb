@@ -290,7 +290,7 @@ package body Gnatcheck.Projects.Aggregate is
                                        else
                                           ""));
 
-         if Debug_Mode then
+         if Arg.Debug_Mode.Get then
             Put (Full_Tool_Name.all);
 
             for Arg of Prj_Args loop

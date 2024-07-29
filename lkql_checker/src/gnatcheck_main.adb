@@ -7,11 +7,11 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Checker_App;
 
-with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
@@ -128,8 +128,8 @@ procedure Gnatcheck_Main is
    procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes) is
       Mode_String : constant String :=
         (case Mode is
-            when General => "rules",
-            when Ada_Only => "ada_rules",
+            when General    => "rules",
+            when Ada_Only   => "ada_rules",
             when Spark_Only => "spark_rules");
 
       First : Boolean := True;
@@ -158,6 +158,7 @@ procedure Gnatcheck_Main is
       File          : Ada.Text_IO.File_Type;
       Status        : Boolean;
       Total_Jobs    : Natural;
+      Process_Num   : Natural := Arg.Jobs.Get;
    begin
       --  Compute number of files
 
@@ -195,7 +196,7 @@ procedure Gnatcheck_Main is
       Total_Jobs := Num_Jobs +
                       (if Analyze_Compiler_Output then 1 else 0);
 
-      if not Quiet_Mode and not Progress_Indicator_Mode then
+      if not Arg.Quiet_Mode and not Arg.Progress_Indicator_Mode.Get then
          Info_No_EOL ("Jobs remaining:");
          Info_No_EOL (Integer'Image (Total_Jobs) & ASCII.CR);
       end if;
@@ -236,7 +237,7 @@ procedure Gnatcheck_Main is
 
                Current := @ + 1;
 
-               if Progress_Indicator_Mode then
+               if Arg.Progress_Indicator_Mode.Get then
                   declare
                      Percent : String :=
                        Integer'Image ((Current * 100) / Total_Jobs);
@@ -246,7 +247,7 @@ procedure Gnatcheck_Main is
                            & " out of" & Integer'Image (Total_Jobs) & " "
                            & Percent & "%)...");
                   end;
-               elsif not Quiet_Mode then
+               elsif not Arg.Quiet_Mode then
                   Info_No_EOL ("Jobs remaining:");
                   Info_No_EOL (Integer'Image (Total_Jobs - Current));
                   Info_No_EOL ("     " & ASCII.CR);
@@ -263,7 +264,7 @@ procedure Gnatcheck_Main is
                         Analyze_Output (File_Name ("out", Job), Status);
                         Process_Found := True;
 
-                        if not Debug_Mode then
+                        if not Arg.Debug_Mode.Get then
                            Delete_File (File_Name ("out", Job), Status);
                            Delete_File (File_Name ("files", Job), Status);
                         end if;
@@ -338,18 +339,16 @@ procedure Gnatcheck_Main is
             Wait_Gnatcheck;
          end loop;
 
-         if not Debug_Mode then
+         if not Arg.Debug_Mode.Get then
             Delete_File (File_Name ("rules", 0), Status);
          end if;
       end;
    end Schedule_Files;
 
+   use Ada.Strings.Unbounded;
 begin
    Initialize_Environment;
 
-   Initialize_Option_Scan
-     (Stop_At_First_Non_Switch => False,
-      Section_Delimiters       => "cargs rules");
    Gnatcheck_Prj.Scan_Arguments (First_Pass => True);
 
    if Print_Version then
@@ -361,13 +360,39 @@ begin
       OS_Exit (E_Success);
    end if;
 
-   --  Register GNATcheck GPR attributes
+   --  Store project file
+   if Arg.Project_File.Get /= Null_Unbounded_String then
+      Gnatcheck_Prj.Store_Project_Source (To_String (Arg.Project_File.Get));
+   end if;
 
+   --  Store aggregate subproject file
+   if Arg.Aggregate_Subproject.Get /= Null_Unbounded_String then
+      Gnatcheck.Projects.Aggregate.Store_Aggregated_Project
+        (To_String (Arg.Aggregate_Subproject.Get));
+   end if;
+
+   --  Store scenario variables
+   for Var of Arg.Scenario_Vars.Get loop
+      Store_External_Variable (To_String (Var));
+   end loop;
+
+   --  Store .cgpr
+   if Arg.Config_File.Get /= Null_Unbounded_String then
+      Gnatcheck_Prj.Store_CGPR_Source (To_String (Arg.Config_File.Get));
+   end if;
+
+   --  Store target from project file
+   Gnatcheck.Options.Target := Arg.Target.Get;
+
+   --  Store target from project file
+   Gnatcheck.Options.RTS_Path := Arg.RTS.Get;
+
+   --  Register GNATcheck GPR attributes
    Register_Tool_Attributes (Gnatcheck_Prj);
 
    --  Print GPR registered and exit if requested
 
-   if Print_Gpr_Registry then
+   if Arg.Print_Gpr_Registry.Get then
       --  Print GPR registry
 
       GPR2.Project.Registry.Exchange.Export (Output => Put'Access);
@@ -400,27 +425,36 @@ begin
 
    Ctx := Gnatcheck.Source_Table.Create_Context;
 
-   --  Ignore project switches when running as gnatkp
-
-   if Gnatkp_Mode then
-      Ignore_Project_Switches := True;
-   end if;
-
    --  Analyze relevant project properties if needed
 
    if Gnatcheck_Prj.Is_Specified
      and then not In_Aggregate_Project
-     and then not Ignore_Project_Switches
+     and then not Arg.Ignore_Project_Switches
    then
       Extract_Tool_Options (Gnatcheck_Prj);
    end if;
 
    --  Then analyze the command-line parameters
 
-   Initialize_Option_Scan
-     (Stop_At_First_Non_Switch => False,
-      Section_Delimiters       => "cargs rules");
    Gnatcheck_Prj.Scan_Arguments;
+
+   --  Process the include file
+   if Arg.Include_File.Get /= Null_Unbounded_String then
+      Gnatcheck.Diagnoses.Process_User_Filename
+        (To_String (Arg.Include_File.Get));
+   end if;
+
+   --  Set up ignore list
+   if Arg.Ignore_Files.Get /= Null_Unbounded_String then
+      if Is_Regular_File (To_String (Arg.Ignore_Files.Get)) then
+         Exempted_Units :=
+           new String'(Normalize_Pathname
+                         (To_String (Arg.Ignore_Files.Get)));
+      else
+         Error (To_String (Arg.Ignore_Files.Get) & " not found");
+         raise Parameter_Error;
+      end if;
+   end if;
 
    --  Setup LKQL_RULES_PATH to point on built-in rules
 
@@ -476,7 +510,7 @@ begin
 
    Gnatcheck.Projects.Clean_Up (Gnatcheck.Options.Gnatcheck_Prj);
 
-   if Compute_Timing then
+   if Arg.Time.Get then
       Info ("Execution time:" &
             Duration'Image (Ada.Calendar.Clock - Time_Start));
    end if;
@@ -499,7 +533,7 @@ begin
 
             elsif (Detected_Non_Exempted_Violations > 0
                 or else Detected_Compiler_Error > 0)
-                 and then not Brief_Mode
+                 and then not Arg.Brief_Mode
             then E_Violation
             else E_Success);
 

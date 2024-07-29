@@ -89,7 +89,6 @@
 --  and 3 above. For step 2, see the procedure Process_Project_File
 --  that combines all the steps of loading and analyzing the project file.
 
-with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with GPR2.Containers;
@@ -100,12 +99,6 @@ package Gnatcheck.Projects is
    ------------------------------
    -- Project-specific options --
    ------------------------------
-
-   ---------------------------------------------------------------------
-   -- -eL  : Follow all symbolic links when processing project files. --
-   ---------------------------------------------------------------------
-
-   Follow_Symbolic_Links : Boolean := False;
 
    ------------------------------------------------------
    -- -vPn  : verbosity level on project file analysis --
@@ -123,15 +116,6 @@ package Gnatcheck.Projects is
    --  Indicates if '-files=...' option is specified. We need to know this when
    --  getting the list of files from the project - '-U' should be  ignored if
    --  '-files=...' is specified.
-
-   Recursive_Sources : Boolean := True;
-   --  Indicates that all sources of all projects should be processed
-   --  as opposed to sources of the root project only.
-
-   U_Option_Set : Boolean := False;
-   --  Indicates if -U option is specified for the project (to process all the
-   --  units of the closure of the argument project or to process the closure
-   --  of the main unit if the main unit is set)
 
    Main_Unit : GPR2.Containers.Filename_Set;
    --  If the tool is called with "... Pproj -U main_unit1 main_unit2 ...",
@@ -164,26 +148,8 @@ package Gnatcheck.Projects is
       Last : in out Natural);
    --  Append a "-XVAR=value" string for each stored external variable
 
-   --------------------------------------------------------------------------
-   -- --subdirs=<d>  : <d> is subdirectories to place the tool output into --
-   --------------------------------------------------------------------------
-
-   Subdir_Name : String_Access := new String'("gnatcheck");
-   --  If Subdir_Name is null, no special subdirectory is used for tool
-   --  results.
-
-   procedure Set_Subdir_Name (S : String);
-   --  Sets Subdir_Name to S (if Subdir_Name is not null, frees the old value).
-   --  We may have '--subdirs=<d>' option both in command line and in the list
-   --  of values of Default_Switches and Switches attributes in the tool
-   --  package in the project file.
-
-   ----------------------------------------------------------------
-   -- --no_object_dir : do not place the results into object dir --
-   ----------------------------------------------------------------
-
-   No_Object_Dir : Boolean := False;
-   --  If this flag is ON, the output files are placed in the current directory
+   function Subdir_Name return String;
+   --  Return the subdir name to use, if one was set explicitly.
 
    ----------------------------------------------------------------
    -- --print-gpr-registry : print gnatcheck attributes and exit --
@@ -269,10 +235,9 @@ package Gnatcheck.Projects is
    --  Process all the rule options found as part of scanning arguments
 
    procedure Scan_Arguments
-     (My_Project  : in out Arg_Project_Type;
-      First_Pass  : Boolean    := False;
-      Parser      : Opt_Parser := Command_Line_Parser;
-      In_Switches : Boolean    := False);
+     (My_Project : in out Arg_Project_Type;
+      First_Pass : Boolean    := False;
+      Args       : GNAT.OS_Lib.Argument_List_Access := null);
    --  This procedure should be redefined for each tool project type. It
    --  should be called immediately after the call to Initialize_Option_Scan
    --  that should create the Parser for it. The procedure defines the loop

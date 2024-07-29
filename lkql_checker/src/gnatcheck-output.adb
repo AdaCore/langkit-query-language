@@ -142,7 +142,7 @@ package body Gnatcheck.Output is
 
       Idx_1, Idx_2 : Natural;
    begin
-      if not Aggregated_Project then
+      if not Arg.Aggregated_Project then
          return "";
       end if;
 
@@ -412,7 +412,7 @@ package body Gnatcheck.Output is
    procedure Report_Unhandled_Exception (Ex : Exception_Occurrence) is
    begin
       Error (Exception_Message (Ex));
-      if not Debug_Mode then
+      if not Arg.Debug_Mode.Get then
          Put_Line
            (Standard_Error,
             GNAT.Traceback.Symbolic.Symbolic_Traceback_No_Hex (Ex));
@@ -477,7 +477,7 @@ package body Gnatcheck.Output is
       Mode    : constant File_Mode := Out_File;
       Ignored : Boolean;
    begin
-      if not Aggregated_Project then
+      if not Arg.Aggregated_Project then
          if Report_File_Name /= null
            and then
             Is_Absolute_Path (Report_File_Name.all)
@@ -521,7 +521,7 @@ package body Gnatcheck.Output is
       Mode    : constant File_Mode := Out_File;
       Ignored : Boolean;
    begin
-      if not Aggregated_Project then
+      if not Arg.Aggregated_Project then
          if XML_Report_File_Name /= null
            and then Is_Absolute_Path (XML_Report_File_Name.all)
          then
@@ -654,6 +654,7 @@ package body Gnatcheck.Output is
    -- Brief_Help --
    ----------------
 
+   --  TODO: Transition this help message to Opt_Parse's one
    procedure Brief_Help is
    begin
       pragma Style_Checks ("M200"); -- Allow long lines
@@ -688,7 +689,6 @@ package body Gnatcheck.Output is
          Info (" --charset=<charset>    - specify the charset of the source files");
          Info (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
          Info ("");
-
          Info (" -from=filename    - read kp options from filename");
          Info (" +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
          Info ("   where <kp_id>   - ID of one of the currently implemented");
@@ -732,10 +732,8 @@ package body Gnatcheck.Output is
       Info (" -xml - generate report in XML format");
       Info (" -nt  - do not generate text report (enforces '-xml')");
       Info ("");
-
       Info (" --show-rule - append rule names to diagnoses generated");
       Info ("");
-
       Info (" --brief              - brief mode, only report detections in Stderr");
       Info (" --check-redefinition - issue warning if a rule parameter is redefined");
       Info (" --check-semantic     - check semantic validity of the source files");
@@ -747,20 +745,16 @@ package body Gnatcheck.Output is
 
       Info ("");
       Info (" --include-file=filename - add the content of filename into generated report");
-
       Info ("");
-
       Info (" -o filename   - specify the name of the text report file");
       Info (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
       Info ("");
-
       Info ("filename                 - the name of the Ada source file to be analyzed.");
       Info ("                           Wildcards are allowed");
       Info ("-files=filename          - the name of the text file containing a list of Ada");
       Info ("                           source files to analyze");
       Info ("--ignore=filename        - do not process sources listed in filename");
       Info ("");
-
       Info ("rule_switches          - a list of the following switches");
       Info ("   -from=filename      - read rule options from filename");
       Info ("   -from-lkql=filename - read rule options from the given LKQL file");

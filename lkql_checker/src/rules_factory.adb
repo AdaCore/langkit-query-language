@@ -7,9 +7,18 @@ with Ada.Environment_Variables;
 
 with GNAT.OS_Lib;
 
+with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
+with GNATCOLL.Strings;   use GNATCOLL.Strings;
 with GNATCOLL.Utils;
+with GNATCOLL.VFS;       use GNATCOLL.VFS;
 
 package body Rules_Factory is
+
+   type Virtual_File_Array is array (Positive range <>) of Virtual_File;
+
+   function Get_Rules_Directories
+     (Dirs : Path_Array) return Virtual_File_Array;
+   --  Return the absolute path of the directory containing the LKQL programs
 
    ---------------
    -- All_Rules --
@@ -17,7 +26,7 @@ package body Rules_Factory is
 
    function All_Rules
      (Ctx  : L.Analysis_Context;
-      Dirs : Path_Vector := Path_Vectors.Empty_Vector) return Rule_Vector
+      Dirs : Path_Array := No_Paths) return Rule_Vector
    is
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
       Rules      : Rule_Vector := Rule_Vectors.Empty_Vector;
@@ -65,15 +74,15 @@ package body Rules_Factory is
    ---------------------------
 
    function Get_Rules_Directories
-     (Dirs : Path_Vector) return Virtual_File_Array
+     (Dirs : Path_Array) return Virtual_File_Array
    is
       function Add_Rules_Path (Path : String) return Boolean;
 
-      Lkql_Rules_Paths : Path_Vector;
+      Lkql_Rules_Paths : XString_Vector;
 
       function Add_Rules_Path (Path : String) return Boolean is
       begin
-         Lkql_Rules_Paths.Append (Path);
+         Lkql_Rules_Paths.Append (To_XString (Path));
          return True;
       end Add_Rules_Path;
    begin
@@ -86,17 +95,17 @@ package body Rules_Factory is
 
       declare
          Custom_Checkers_Dirs : Virtual_File_Array
-           (1 .. Integer (Dirs.Length) + Integer (Lkql_Rules_Paths.Length));
+           (1 .. Integer (Dirs'Length) + Integer (Lkql_Rules_Paths.Length));
 
          Index                : Positive := 1;
       begin
          for Dir of Dirs loop
-            Custom_Checkers_Dirs (Index) := Create (+Dir);
+            Custom_Checkers_Dirs (Index) := Create (+To_String (Dir));
             Index := @ + 1;
          end loop;
 
          for Dir of Lkql_Rules_Paths loop
-            Custom_Checkers_Dirs (Index) := Create (+Dir);
+            Custom_Checkers_Dirs (Index) := Create (+To_String (Dir));
             Index := @ + 1;
          end loop;
 
