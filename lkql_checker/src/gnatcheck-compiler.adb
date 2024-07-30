@@ -1426,21 +1426,20 @@ package body Gnatcheck.Compiler is
    ---------------------------------
 
    function Restriction_Rule_Parameter (Diag : String) return String is
-      R_Name_Start :          Natural := 0;
-      R_Name_End   :          Natural;
-      Par_End      :          Natural;
-      Sep_Idx      :          Natural;
-      Diag_End     : constant Positive := Diag'Last;
-      R_Id         :          Restriction_Id         := Not_A_Restriction_Id;
-      Special_R_Id :          Special_Restriction_Id :=
-        Not_A_Special_Restriction_Id;
+      R_Name_Start : Natural := 0;
+      R_Name_End   : Natural;
+      Par_End      : Natural;
+      Sep_Idx      : Natural;
+      R_Id         : Restriction_Id         := Not_A_Restriction_Id;
+      Special_R_Id : Special_Restriction_Id := Not_A_Special_Restriction_Id;
 
    begin
       --  Get the position of the restriction name in the diagnostic
-      if Index (Diag, "of restriction ") /= 0 then
-         R_Name_Start := Index (Diag, "of restriction ") + 16;
-         R_Name_End := Index (Diag (R_Name_Start .. Diag_End), """") - 1;
-         Sep_Idx := Index (Diag (R_Name_Start .. Diag_End), "=");
+      R_Name_Start := Index (Diag, "of restriction ");
+      if R_Name_Start /= 0 then
+         R_Name_Start := @ + 16;
+         R_Name_End := Index (Diag (R_Name_Start .. Diag'Last), """") - 1;
+         Sep_Idx := Index (Diag (R_Name_Start .. Diag'Last), "=");
 
          if Sep_Idx /= 0 then
             Par_End := R_Name_End;
@@ -1451,10 +1450,23 @@ package body Gnatcheck.Compiler is
             end loop;
          end if;
 
-      elsif Index (Diag, "violates restriction ") /= 0 then
-         R_Name_Start := Index (Diag, "violates restriction ") + 21;
-         R_Name_End := Index (Diag (R_Name_Start .. Diag'Last), " at") - 1;
-         Par_End := R_Name_End;
+      else
+         R_Name_Start := Index (Diag, "violates restriction ");
+         if R_Name_Start /= 0 then
+            R_Name_Start := @ + 21;
+            R_Name_End := Index (Diag (R_Name_Start .. Diag'Last), " at");
+            if R_Name_End /= 0 then
+               R_Name_End := @ - 1;
+            else
+               R_Name_End := Index (Diag (R_Name_Start .. Diag'Last), " [");
+               if R_Name_End /= 0 then
+                  R_Name_End := @ - 1;
+               else
+                  R_Name_End := Diag'Last;
+               end if;
+            end if;
+            Par_End := R_Name_End;
+         end if;
 
       end if;
       pragma Assert (R_Name_Start /= 0);
@@ -1830,7 +1842,7 @@ package body Gnatcheck.Compiler is
    function Style_Rule_Parameter (Diag : String) return String is
       First_Idx        : Natural;
       String_To_Search : constant String :=
-        (if Arg.Show_Rule.Get then "[style_checks:"
+        (if Arg.Show_Rule.Get then "style_checks:"
          else                      "[-gnaty");
 
    begin
@@ -1855,7 +1867,7 @@ package body Gnatcheck.Compiler is
    function Warning_Rule_Parameter (Diag : String) return String is
       First_Idx, Last_Idx :          Natural;
       String_To_Search    : constant String :=
-        (if Arg.Show_Rule.Get then "[warnings:"
+        (if Arg.Show_Rule.Get then "warnings:"
          else                      "[-gnatw");
 
    begin
