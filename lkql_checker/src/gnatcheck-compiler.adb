@@ -346,22 +346,25 @@ package body Gnatcheck.Compiler is
                   then Msg (Last + 1 .. Name_Split - 1)
                   else "");
 
-               Id : Rule_Id := No_Rule_Id;
+               Instance : Rule_Instance_Access := null;
             begin
                if Last = 0 then
                   Format_Error;
                   return;
                end if;
-               Id := Get_Rule (Rule_Name);
+               Instance := Get_Instance
+                 (if Instance_Name = ""
+                  then To_Lower (Rule_Name)
+                  else To_Lower (Instance_Name));
                Store_Diagnosis
                  (Full_File_Name => Gnatcheck.Source_Table.File_Name (SF),
                   Message        => Msg (Msg_Start + 7 .. Last - 2) &
-                                    Annotate_Rule
-                                      (All_Rules (Id), Instance_Name),
+                                    Instance.Annotate_Diag,
                   Sloc           => Sloc,
                   Diagnosis_Kind => Rule_Violation,
                   SF             => SF,
-                  Rule           => Id);
+                  Rule           => Instance.Rule,
+                  Instance       => Instance);
                return;
             end;
 

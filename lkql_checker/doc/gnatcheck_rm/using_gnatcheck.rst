@@ -664,23 +664,22 @@ justification are documented in a special section of the report file that
 
 .. _Using_pragma_Annotate_to_Control_Rule_Exemption:
 
-Using pragma ``Annotate`` to Control Rule Exemption
----------------------------------------------------
+Using pragma ``Annotate`` to control rule and instance exemption
+----------------------------------------------------------------
 
-.. index:: Using pragma Annotate to control rule exemption
+.. index:: using pragma Annotate to control rule and instance exemption
 
-Rule exemption is controlled by pragma ``Annotate`` when its first
-argument is 'gnatcheck'. The syntax of ``gnatcheck``'s
-exemption control annotations is as follows:
-
+Rule and instance exemption is controlled by pragma ``Annotate`` when its first
+argument is 'gnatcheck'. The syntax of ``gnatcheck``'s exemption control
+annotations is as follows:
 
 ::
 
-  <pragma_exemption>  ::= pragma Annotate (gnatcheck, <exemption_control>, <rule_name> [, <justification>]);
+  <pragma_exemption>  ::= pragma Annotate (gnatcheck, <exemption_control>, <exempted_name> [, <justification>]);
 
   <exemption_control> ::= Exempt_On | Exempt_Off
 
-  <rule_name>         ::= <string_literal>
+  <exempted_name>     ::= <string_literal>
 
   <justification>     ::= <expression>
 
@@ -694,12 +693,19 @@ issues a warning and ignores the additional arguments.  If the arguments do not
 follow the syntax above, ``gnatcheck`` emits a warning and ignores the
 annotation.
 
-The ``rule_name`` argument should be the name of some existing ``gnatcheck``
-rule, or the name of a synonym for a rule.  Otherwise a warning message is
-generated and the pragma is ignored. If ``rule_name`` denotes a rule that is
-not activated by the given ``gnatcheck`` call, the pragma is ignored and no
-warning is issued. The exception from this rule is that exemption sections for
-``Warnings`` rule are fully processed when ``Restrictions`` rule is activated.
+The ``exempted_name`` argument should be the name of some existing ``gnatcheck``
+rule, or the name of a rule instance.  Otherwise a warning message is generated
+and the pragma is ignored. If ``exempted_name`` doesn't denote an activated rule
+or a valid instance in the given ``gnatcheck`` call, the pragma is ignored and
+no warning is issued. The exception from this rule is that exemption sections
+for ``Warnings`` rule are fully processed when ``Restrictions`` rule is
+activated.
+
+.. attention::
+
+  Please not that for now it isn't possible to provide an exempted name which
+  designates an instance of a compiler-based rule (``Warnings``,
+  ``Style_Checks`` and ``Restrictions``).
 
 A source code section where an exemption is active for a given rule is
 delimited by an ``exempt_on`` and ``exempt_off`` annotation pair:
@@ -710,9 +716,14 @@ delimited by an ``exempt_on`` and ``exempt_off`` annotation pair:
   -- source code section
   pragma Annotate (gnatcheck, Exempt_Off, "Rule_Name");
 
-For some rules it is possible specify rule parameter(s) when defining
-an exemption section for a rule. This means that only the checks
-corresponding to the given rule parameter(s) are exempted in this section:
+Using such annotations will exempt all violations of the rule designated by
+``Rule_Name`` inside the exempted source section. But you can also provide the
+name of a rule instance to only exempt violations raised by this instance.
+
+For some rules it is possible specify rule parameter(s) when defining an
+exemption section for a rule or an instance of it. This means that only the
+checks corresponding to the given rule parameter(s) are exempted in this
+section:
 
 .. code-block:: ada
 
@@ -765,7 +776,7 @@ GNATcheck Annotations Rules
 
 * A matching 'Exempt_Off' annotation pragma for an 'Exempt_On' pragma
   that defines a parametric exemption section is the pragma that contains
-  exactly the same set of rule parameters for the same rule.
+  exactly the same set of rule parameters for the same exempted name.
 
 * Parametric exemption sections for the same rule with different parameters
   can intersect or overlap in case if the parameter sets for such sections
@@ -775,7 +786,7 @@ GNATcheck Annotations Rules
   the corresponding rule exemptions are ignored.
 
 * When an exempted source code section does not contain at least one violation
-  of the exempted rule, a warning is emitted on :file:`stderr`.
+  of the exempted name, a warning is emitted on :file:`stderr`.
 
 * If an 'Exempt_On' annotation pragma does not have a matching
   'Exempt_Off' annotation pragma in the same compilation unit, a warning is
@@ -785,17 +796,17 @@ GNATcheck Annotations Rules
 
 .. _using_comments_to_control_rule_exemption:
 
-Using comments to control rule exemption
-----------------------------------------
+Using comments to control rule and instance exemption
+-----------------------------------------------------
 
-.. index:: using comments to control rule exemption
+.. index:: using comments to control rule and instance exemption
 
 As an alternative to the ``pragma Annotate`` syntax, it is also possible to use
 a syntax based on comments, with the following syntax:
 
 ::
 
-  <comment_exemption> ::= --## rule (on | off) <rule_name> [## <rule_justification>]
+  <comment_exemption> ::= --## rule (on | off) <exempted_name> [## <exemption_justification>]
 
 Here is an example:
 
@@ -815,7 +826,7 @@ The rules mentioned in :ref:`gnatcheck_Annotations_Rules` are relaxed, in
 particular:
 
 * Justifications are not checked and are optional;
-* Anything between the rule name and ``##`` will be ignored;
+* Anything between the exempted name and ``##`` will be ignored;
 * Rules regarding parametric exemption do not apply, as per the notice above.
 
 The ``rule on`` marker corresponds to ``Exempt_Off`` and ``rule off`` corresponds
@@ -825,7 +836,7 @@ in a similar fashion as the ones described above.
 
 In addition, a shorthand syntax is available to exempt a rule just for one line::
 
-    <line_comment_exemption> ::= --## rule line off <rule_name> [## <rule_justification>]
+    <line_comment_exemption> ::= --## rule line off <exempted_name> [## <rule_justification>]
 
 For instance, from the previous example:
 
@@ -833,8 +844,8 @@ For instance, from the previous example:
 
     procedure Bar (A : Integer); --## rule line off implicit_in ## Exemption justification
 
-This will exempt the given rule only for the line on which this comment is
-placed, and automatically turn it back on on the next line.
+This will exempt the given rule or instance only for the line on which this
+comment is placed, and automatically turn it back on on the next line.
 
 .. _Using_GNATcheck_as_a_KP_Detector:
 

@@ -13,6 +13,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with GNAT.Regpat; use GNAT.Regpat;
 
 with Gnatcheck.Ids;          use Gnatcheck.Ids;
+with Gnatcheck.Rules;        use Gnatcheck.Rules;
 with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
@@ -65,7 +66,8 @@ package Gnatcheck.Diagnoses is
      (Text           : String;
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
-      Rule           : Rule_Id := No_Rule_Id);
+      Rule           : Rule_Id := No_Rule_Id;
+      Instance       : Rule_Instance_Access := null);
    --  Stores a diagnosis expressed in ``Text`` with the other precisions.
    --  This function use the other ``Store_Diagnosis`` to save the generated
    --  diagnosis in the internal data structure.
@@ -76,7 +78,8 @@ package Gnatcheck.Diagnoses is
       Sloc           : Source_Location;
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
-      Rule           : Rule_Id := No_Rule_Id);
+      Rule           : Rule_Id := No_Rule_Id;
+      Instance       : Rule_Instance_Access := null);
    --  Stores the diagnosis in the internal data structure. The same procedure
    --  is used for all diagnosis kinds, in case of Exemption_Warning,
    --  Compiler_Error and Internal_Error, Rule should be set to No_Rule_Id.

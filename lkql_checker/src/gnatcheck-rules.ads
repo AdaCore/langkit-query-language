@@ -225,12 +225,6 @@ package Gnatcheck.Rules is
    --  Prints configuration of the compiler rule identified by
    --  ``Compiler_Rule`` in the LKQL rule fiel format.
 
-   function Annotate_Rule
-     (Rule : Rule_Info;
-      Alias_Name : String) return String;
-   --  If Gnatcheck.Options.Mapping_Mode is ON returns the rule annotation
-   --  to be inserted into diagnosis, otherwise returns an empty string.
-
    -----------------------------------------------------------------
    -- Operations that may be redefined by specific rule instances --
    -----------------------------------------------------------------
@@ -279,6 +273,9 @@ package Gnatcheck.Rules is
    function Instance_Name (Instance : Rule_Instance'Class) return String;
    --  Returns the name of the instance; user defined alias if the instance
    --  is an alias, rule name else.
+
+   function Annotate_Diag (Instance : Rule_Instance'Class) return String;
+   --  Return a string to annotate a diagnostic about the rule instance
 
    procedure Free is new Ada.Unchecked_Deallocation
      (Rule_Instance'Class, Rule_Instance_Access);

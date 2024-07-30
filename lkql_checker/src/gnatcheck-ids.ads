@@ -13,13 +13,17 @@ with Langkit_Support.Text;    use Langkit_Support.Text;
 
 package Gnatcheck.Ids is
 
-   -----------------------------------
-   -- Internal rule id symbol table --
-   -----------------------------------
+   -------------------------------
+   -- Internal id symbol tables --
+   -------------------------------
 
    All_Rule_Ids : constant Langkit_Support.Symbols.Symbol_Table :=
      Create_Symbol_Table;
    --  This table contains all created rule identifiers
+
+   All_Exemption_Ids : constant Langkit_Support.Symbols.Symbol_Table :=
+     Create_Symbol_Table;
+   --  This table contains all created exemption identifiers
 
    ------------------
    -- Rule id type --
@@ -34,9 +38,9 @@ package Gnatcheck.Ids is
      (Index_Type => Natural, Element_Type => Rule_Id);
    --  A simple vector to store rule identifiers
 
-   ------------------
-   -- Constant ids --
-   ------------------
+   -----------------------
+   -- Constant rule ids --
+   -----------------------
 
    No_Rule_Id : constant Rule_Id := Find (All_Rule_Ids, To_Text (""));
    --  The empty identifier, used to express "no rule"
@@ -49,9 +53,9 @@ package Gnatcheck.Ids is
      Find (All_Rule_Ids, To_Text ("warnings"));
    --  Fake identifiers, used to represent the compiler checks
 
-   ---------------------------
-   -- Operation on rule ids --
-   ---------------------------
+   ----------------------------
+   -- Operations on rule ids --
+   ----------------------------
 
    function Find_Rule_Id (Rule_Name : String) return Rule_Id is
      (Find (All_Rule_Ids, To_Lower (To_Text (Rule_Name)), True));
@@ -74,5 +78,30 @@ package Gnatcheck.Ids is
    function Hash (Id : Rule_Id) return Ada.Containers.Hash_Type is
      (Hash (To_Symbol (All_Rule_Ids, Thin_Symbol (Id))));
    --  Shortcut fonction to hash a rule identifier
+
+   -----------------------
+   -- Exemption id type --
+   -----------------------
+
+   type Exemption_Id is new Thin_Symbol;
+   --  Define the exemption identifier as a thin symbol. This symbol represents
+   --  the normalized name of the exempted object (rule or instance).
+
+   package Exemption_Id_Vec is new Ada.Containers.Indefinite_Vectors
+     (Index_Type => Natural, Element_Type => Exemption_Id);
+   --  A simple vector of exemption ids
+
+   ---------------------------------
+   -- Operations on exemption ids --
+   ---------------------------------
+
+   function Find_Exemption_Id (Exempted_Name : String) return Exemption_Id is
+     (Find (All_Exemption_Ids, To_Lower (To_Text (Exempted_Name)), True));
+   --  Get an exemption id for the given ``Exempted_Name``. The given name is
+   --  normalized before being put in the symbol table.
+
+   function Hash (Id : Exemption_Id) return Ada.Containers.Hash_Type is
+     (Hash (To_Symbol (All_Exemption_Ids, Thin_Symbol (Id))));
+   --  Hash an exemption identifier
 
 end Gnatcheck.Ids;
