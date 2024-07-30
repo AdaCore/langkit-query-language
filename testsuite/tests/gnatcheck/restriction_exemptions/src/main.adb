@@ -1,3 +1,5 @@
+with Ada.Text_IO;
+
 package body Main is
 
    --------------------
@@ -15,7 +17,7 @@ package body Main is
    pragma Annotate (GNATcheck, Exempt_On, "Restrictions: No_Access_Subprograms, Max_Protected_Entries", "testing");
    procedure Test is
    begin
-      null;
+      Ada.Text_IO.Put_Line ("Test");  --  FLAG
    end Test;
    pragma Annotate (GNATcheck, Exempt_Off, "Restrictions: No_Access_Subprograms, Max_Protected_Entries");  --  FLAG because "Max_Protected_Entries" is active
 

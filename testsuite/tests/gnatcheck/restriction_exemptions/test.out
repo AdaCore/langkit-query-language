@@ -1,13 +1,13 @@
 1. Summary
 
-   fully compliant sources               : 1
+   fully compliant sources               : 0
    sources with exempted violations only : 1
-   sources with non-exempted violations  : 0
+   sources with non-exempted violations  : 1
    unverified sources                    : 0
    total sources                         : 2
    ignored sources                       : 0
 
-   non-exempted violations               : 0
+   non-exempted violations               : 1
    rule exemption warnings               : 1
    compilation errors                    : 0
    exempted violations                   : 1
@@ -20,11 +20,11 @@ main.ads:5:07: violation of restriction "Max_Protected_Entries = 0"
 
 3. Non-exempted Coding Standard Violations
 
-   no non-exempted violations detected
+main.adb:20:18: reference to "Ada.Text_IO.Put_Line" violates restriction No_Use_Of_Entity
 
 4. Rule exemption problems
 
-main.adb:20:106: no detection for 'restrictions: Max_Protected_Entries, No_Access_Subprograms' rule in exemption section starting at line 15
+main.adb:22:106: no detection for 'restrictions: Max_Protected_Entries, No_Access_Subprograms' rule in exemption section starting at line 17
 
 5. Language violations
 
