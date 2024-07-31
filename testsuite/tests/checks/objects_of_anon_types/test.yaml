@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - anon.ads
 rule_name: Objects_Of_Anonymous_Types
-input_sources: ['anon.ads']

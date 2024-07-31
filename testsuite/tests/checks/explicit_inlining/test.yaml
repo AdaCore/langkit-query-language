@@ -1,3 +1,5 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - complex.ads
+  - complex.adb
 rule_name: Explicit_Inlining
-input_sources: ['complex.ads', 'complex.adb']

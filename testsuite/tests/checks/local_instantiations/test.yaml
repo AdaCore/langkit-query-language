@@ -1,5 +1,5 @@
-driver: 'checker'
+driver: checker
+project: prj.gpr
 rule_name: Local_Instantiations
-project: 'prj.gpr'
 rule_arguments:
-   local_instantiations.packages: '["p.generic1", "p.generic3"]'
+  local_instantiations.packages: '["p.generic1", "p.generic3"]'

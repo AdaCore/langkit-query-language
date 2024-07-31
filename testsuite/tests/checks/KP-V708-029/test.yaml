@@ -1,3 +1,3 @@
-driver: 'checker'
+driver: checker
+project: prj.gpr
 rule_name: KP_V708_029
-project: 'prj.gpr'

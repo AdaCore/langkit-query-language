@@ -3,6 +3,6 @@ description: Testing the error message when there are multiple custom rules with
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 rules_dirs:
-- rules
+  - rules

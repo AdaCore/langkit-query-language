@@ -1,3 +1,4 @@
-driver: 'checker'
-rule_name: 'Min_Identifier_Length'
-input_sources: ['ident.adb']
+driver: checker
+input_sources:
+  - ident.adb
+rule_name: Min_Identifier_Length

@@ -3,4 +3,4 @@ driver: gnatcheck
 project: prj.gpr
 format: brief
 rules:
-- goto_statements
+  - goto_statements

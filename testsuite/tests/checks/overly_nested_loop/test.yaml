@@ -1,6 +1,7 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - nested.adb
 rule_name: Overly_Nested_Control_Structures
-input_sources: ['nested.adb']
 rule_arguments:
-    overly_nested_control_structures.loops_only: "true"
-    overly_nested_control_structures.n: 2
+  overly_nested_control_structures.loops_only: 'true'
+  overly_nested_control_structures.n: 2

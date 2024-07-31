@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - gen.adb
 rule_name: Generics_In_Subprograms
-input_sources: ['gen.adb']

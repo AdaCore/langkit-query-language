@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - address_specifications_for_initialized_objects.ads
 rule_name: Address_Specifications_For_Initialized_Objects
-input_sources: ['address_specifications_for_initialized_objects.ads']

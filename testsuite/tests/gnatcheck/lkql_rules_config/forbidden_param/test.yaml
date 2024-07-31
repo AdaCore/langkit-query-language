@@ -2,9 +2,9 @@ description: Testing LKQL rule file to configure a forbidden param rule
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 tests:
-- label: Simple configuration
-  lkql_rule_file: config.lkql
-- label: All enabled
-  lkql_rule_file: all.lkql
+  - label: Simple configuration
+    lkql_rule_file: config.lkql
+  - label: All enabled
+    lkql_rule_file: all.lkql

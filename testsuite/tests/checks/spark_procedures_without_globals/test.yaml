@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - test.ads
 rule_name: SPARK_Procedures_Without_Globals
-input_sources: ['test.ads']

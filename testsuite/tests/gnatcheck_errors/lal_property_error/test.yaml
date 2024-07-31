@@ -2,7 +2,7 @@ description: Testing the behavior when there is an error in the Libadalang layer
 driver: gnatcheck
 project: prj.gpr
 rules:
-- foo
-- foo_unit
+  - foo
+  - foo_unit
 rules_dirs:
-- rules
+  - rules

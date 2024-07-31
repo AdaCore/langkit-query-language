@@ -1,2 +1,2 @@
-driver: 'interpreter'
-project: 'nested_generics/nested_generics.gpr'
+driver: interpreter
+project: nested_generics/nested_generics.gpr

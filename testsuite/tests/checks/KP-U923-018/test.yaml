@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - p.ads
 rule_name: KP_U923_018
-input_sources: ['p.ads']

@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - num.ads
 rule_name: Number_Declarations
-input_sources: ['num.ads']

@@ -2,7 +2,7 @@ description: Testing the LKQL import path in the GNATcheck context
 driver: gnatcheck
 project: prj.gpr
 rules:
-- bar
+  - bar
 rules_dirs:
-- rules_1
-- rules_2
+  - rules_1
+  - rules_2

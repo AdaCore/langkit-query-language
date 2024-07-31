@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - rep.ads
 rule_name: Incomplete_Representation_Specifications
-input_sources: ['rep.ads']

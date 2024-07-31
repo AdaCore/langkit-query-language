@@ -1,4 +1,4 @@
-
-driver: 'checker'
+driver: checker
+input_sources:
+  - foo.ads
 rule_name: global_variables
-input_sources: ['foo.ads']

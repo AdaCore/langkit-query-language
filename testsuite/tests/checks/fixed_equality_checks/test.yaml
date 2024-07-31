@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - fixed_equality_checks.adb
 rule_name: Fixed_Equality_Checks
-input_sources: ['fixed_equality_checks.adb']

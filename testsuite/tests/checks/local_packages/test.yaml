@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - pack.ads
 rule_name: Local_Packages
-input_sources: ['pack.ads']

@@ -1,5 +1,5 @@
-driver: 'checker'
+driver: checker
+project: prj.gpr
 rule_name: Headers
-project: 'prj.gpr'
 rule_arguments:
-    headers.header: '"--  HEADER"'
+  headers.header: '"--  HEADER"'

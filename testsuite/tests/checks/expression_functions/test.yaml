@@ -1,3 +1,4 @@
-driver: 'checker'
-rule_name: 'Expression_Functions'
-input_sources: ['foo.ads']
+driver: checker
+input_sources:
+  - foo.ads
+rule_name: Expression_Functions

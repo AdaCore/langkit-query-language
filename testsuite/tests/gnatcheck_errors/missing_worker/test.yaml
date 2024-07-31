@@ -3,6 +3,6 @@ driver: gnatcheck
 worker: i_dont_exist
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 rules:
-- goto_statements
+  - goto_statements

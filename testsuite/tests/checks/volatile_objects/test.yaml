@@ -1,3 +1,4 @@
-driver: 'checker'
-rule_name: 'Volatile_Objects_Without_Address_Clauses'
-input_sources: ['foo.ads']
+driver: checker
+input_sources:
+  - foo.ads
+rule_name: Volatile_Objects_Without_Address_Clauses

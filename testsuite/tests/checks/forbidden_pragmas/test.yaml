@@ -1,5 +1,6 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - pragmas.ads
 rule_name: Forbidden_Pragmas
-input_sources: ['pragmas.ads']
 rule_arguments:
-    forbidden_pragmas.forbidden: '["pack", "atomic"]'
+  forbidden_pragmas.forbidden: '["pack", "atomic"]'

@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - small.ads
 rule_name: KP_UB15_001
-input_sources: ['small.ads']

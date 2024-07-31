@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - ret.adb
 rule_name: Improper_Returns
-input_sources: ['ret.adb']

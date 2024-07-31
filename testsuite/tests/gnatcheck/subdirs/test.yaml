@@ -5,4 +5,4 @@ format: short
 subdirs: custom_subdirs
 lkql_rule_file: rules.lkql
 list_dirs:
-- custom_subdirs/gnatcheck
+  - custom_subdirs/gnatcheck

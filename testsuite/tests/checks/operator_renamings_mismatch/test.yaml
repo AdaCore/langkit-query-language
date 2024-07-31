@@ -1,5 +1,5 @@
-driver: 'checker'
-rule_name: 'Operator_Renamings'
-project: 'prj.gpr'
+driver: checker
+project: prj.gpr
+rule_name: Operator_Renamings
 rule_arguments:
-   operator_renamings.name_mismatch: 'true'
+  operator_renamings.name_mismatch: 'true'

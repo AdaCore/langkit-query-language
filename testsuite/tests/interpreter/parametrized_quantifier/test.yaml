@@ -1,2 +1,2 @@
-driver: 'interpreter'
-project: 'aspect_decls/aspect_decls.gpr'
+driver: interpreter
+project: aspect_decls/aspect_decls.gpr

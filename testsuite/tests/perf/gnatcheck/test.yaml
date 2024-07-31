@@ -2,7 +2,7 @@ description: Performance test on GNATCOLL with all rules
 driver: gnatcheck
 project: gnatcoll.gpr
 rules:
-- all
+  - all
 perf:
   default: 1
   profile-time: false

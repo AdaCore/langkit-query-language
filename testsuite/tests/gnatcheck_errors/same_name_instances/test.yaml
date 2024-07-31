@@ -3,7 +3,7 @@ description: Testing the error message when there are multiple instances with th
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 tests:
   - label: In rule options
     old_rules:

@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - dup.adb
 rule_name: Duplicate_Branches
-input_sources: ['dup.adb']

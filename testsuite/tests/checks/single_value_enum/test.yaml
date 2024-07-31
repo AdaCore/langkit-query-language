@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - enum.ads
 rule_name: Single_Value_Enumeration_Types
-input_sources: ['enum.ads']

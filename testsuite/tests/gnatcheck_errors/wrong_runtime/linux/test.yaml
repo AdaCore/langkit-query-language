@@ -3,10 +3,10 @@ description: Testing the behavior when passing a runtime without the 'Ada.Text_I
 driver: gnatcheck
 project: prj.gpr
 extra_args:
-- --RTS=unknown
+  - --RTS=unknown
 rules:
-- recursive_subprograms
+  - recursive_subprograms
 control:
-- - SKIP
-  - os == 'windows'
-  - Disable this test on Windows systems due to target formatting
+  -   - SKIP
+      - os == 'windows'
+      - Disable this test on Windows systems due to target formatting

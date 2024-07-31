@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - nested.adb
 rule_name: Nested_Subprograms
-input_sources: ['nested.adb']

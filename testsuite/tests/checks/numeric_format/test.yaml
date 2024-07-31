@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - num.ads
 rule_name: Numeric_Format
-input_sources: ['num.ads']

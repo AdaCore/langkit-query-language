@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - anonymous_arrays.ads
 rule_name: Anonymous_Arrays
-input_sources: ['anonymous_arrays.ads']

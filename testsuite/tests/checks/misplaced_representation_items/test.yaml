@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - rep.ads
 rule_name: Misplaced_Representation_Items
-input_sources: ['rep.ads']

@@ -1,4 +1,4 @@
-driver: 'checker'
+driver: checker
+project: prj.gpr
 rule_name: integer_types_as_enum
-project: 'prj.gpr'
 keep_going_on_missing_file: true

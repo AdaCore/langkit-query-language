@@ -3,6 +3,6 @@ driver: gnatcheck
 worker: python bogus_lkql.py
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 rules:
-- goto_statements
+  - goto_statements

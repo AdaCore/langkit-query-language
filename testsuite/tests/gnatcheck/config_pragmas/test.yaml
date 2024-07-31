@@ -1,15 +1,15 @@
 driver: gnatcheck
 format: brief
 rules:
-- foo
+  - foo
 rules_dirs:
-- rules
+  - rules
 tests:
-- project: prj.gpr
-- input_sources:
-  - main.adb
-- jobs: 2
-  project: prj.gpr
-- jobs: 2
-  input_sources:
-  - main.adb
+  - project: prj.gpr
+  - input_sources:
+      - main.adb
+  - jobs: 2
+    project: prj.gpr
+  - jobs: 2
+    input_sources:
+      - main.adb

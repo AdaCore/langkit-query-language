@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - inv.ads
 rule_name: Specific_Type_Invariants
-input_sources: ['inv.ads']

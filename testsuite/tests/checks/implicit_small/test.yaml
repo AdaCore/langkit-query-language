@@ -1,3 +1,4 @@
-driver: 'checker'
-rule_name: 'Implicit_Small_For_Fixed_Point_Types'
-input_sources: ['decls.ads']
+driver: checker
+input_sources:
+  - decls.ads
+rule_name: Implicit_Small_For_Fixed_Point_Types

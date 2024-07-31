@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - for_loop_constraint_error.adb
 rule_name: KP_UB22_022
-input_sources: ['for_loop_constraint_error.adb']

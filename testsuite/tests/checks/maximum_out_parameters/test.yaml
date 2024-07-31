@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - max.ads
 rule_name: Maximum_Out_Parameters
-input_sources: ['max.ads']

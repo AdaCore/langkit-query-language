@@ -2,8 +2,8 @@ description: Testing the error message when passing a parameter to a -R rule opt
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 show_rule: true
 old_rules:
-- +R:my_instance:goto_statements:Only_Unconditional
-- -R:my_instance:goto_statements:Only_Unconditional
+  - +R:my_instance:goto_statements:Only_Unconditional
+  - -R:my_instance:goto_statements:Only_Unconditional

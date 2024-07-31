@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - repr.ads
 rule_name: Representation_Specifications
-input_sources: ['repr.ads']

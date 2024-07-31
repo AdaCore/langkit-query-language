@@ -2,8 +2,8 @@ description: Testing the '-m' command-line option
 driver: gnatcheck
 format: brief
 input_sources:
-- test.adb
+  - test.adb
 extra_args:
-- -m1
+  - -m1
 rules:
-- suspicious_equalities
+  - suspicious_equalities

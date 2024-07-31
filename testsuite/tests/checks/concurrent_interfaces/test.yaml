@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - interfaces.ads
 rule_name: concurrent_interfaces
-input_sources: ['interfaces.ads']

@@ -2,6 +2,6 @@ description: Testing the behavior when passing an unknown target
 driver: gnatcheck
 project: prj.gpr
 extra_args:
-- --target=wrong
+  - --target=wrong
 rules:
-- recursive_subprograms
+  - recursive_subprograms

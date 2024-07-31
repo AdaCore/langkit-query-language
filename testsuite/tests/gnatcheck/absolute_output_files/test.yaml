@@ -1,13 +1,13 @@
 description: Test the GNATcheck output files options with absolute paths
 driver: gnatcheck
 input_sources:
-- main.adb
+  - main.adb
 rules:
-- goto_statements
+  - goto_statements
 tests:
-- format: short
-  output_file: custom_output_file.out
-- format: xml
-  output_file: custom_output_file.xml
-  extra_args:
-  - -s
+  - format: short
+    output_file: custom_output_file.out
+  - format: xml
+    output_file: custom_output_file.xml
+    extra_args:
+      - -s

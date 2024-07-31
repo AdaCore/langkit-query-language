@@ -1,6 +1,5 @@
-driver: 'checker'
+driver: checker
+project: prj.gpr
 rule_name: use_for_loops
-project: 'prj.gpr'
 rule_arguments:
-    use_for_loops.no_exit: 'true'
-
+  use_for_loops.no_exit: 'true'

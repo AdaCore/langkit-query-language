@@ -3,7 +3,7 @@ driver: gnatcheck
 project: prj.gpr
 format: brief
 tests:
-- label: Valid run
-  lkql_rule_file: config.lkql
-- label: Missing parameter
-  lkql_rule_file: missing_param.lkql
+  - label: Valid run
+    lkql_rule_file: config.lkql
+  - label: Missing parameter
+    lkql_rule_file: missing_param.lkql

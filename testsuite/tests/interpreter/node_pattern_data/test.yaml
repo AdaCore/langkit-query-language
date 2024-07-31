@@ -1,2 +1,2 @@
-driver: 'interpreter'
-project: 'access_decls/access_decls.gpr'
+driver: interpreter
+project: access_decls/access_decls.gpr
