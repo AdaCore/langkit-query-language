@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - slices.adb
 rule_name: Slices
-input_sources: ['slices.adb']

@@ -1,5 +1,6 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - cond.adb
 rule_name: Conditional_Expressions
-input_sources: ['cond.adb']
 rule_arguments:
-    conditional_expressions.except_assertions: "true"
+  conditional_expressions.except_assertions: 'true'

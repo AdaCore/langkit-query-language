@@ -1,3 +1,6 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - foo.ads
+  - foo-child.ads
+  - foo-child-grandchild.ads
 rule_name: Final_Package
-input_sources: ['foo.ads', 'foo-child.ads', 'foo-child-grandchild.ads']

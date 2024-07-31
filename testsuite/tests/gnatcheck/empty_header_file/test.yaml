@@ -2,5 +2,5 @@ description: Testing the behavior of 'headers' rule when providing an empty file
 driver: gnatcheck
 format: short
 input_sources:
-- main.adb
+  - main.adb
 lkql_rule_file: rules.lkql

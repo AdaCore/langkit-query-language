@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - membership.adb
 rule_name: Membership_Tests
-input_sources: ['membership.adb']

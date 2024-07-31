@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - conv.ads
 rule_name: Unchecked_Address_Conversions
-input_sources: ['conv.ads']

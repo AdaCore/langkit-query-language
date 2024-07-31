@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - overlay.adb
 rule_name: Non_Constant_Overlays
-input_sources: ['overlay.adb']

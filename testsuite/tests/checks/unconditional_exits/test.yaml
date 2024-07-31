@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - exits.adb
 rule_name: Unconditional_Exits
-input_sources: ['exits.adb']

@@ -1,3 +1,4 @@
-driver: 'checker'
-rule_name: 'Downward_View_Conversions'
-input_sources: ['test_downwardconv.adb']
+driver: checker
+input_sources:
+  - test_downwardconv.adb
+rule_name: Downward_View_Conversions

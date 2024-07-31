@@ -1,3 +1,5 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - overloaded_operators.ads
+  - overloaded_operators.adb
 rule_name: Overloaded_Operators
-input_sources: ['overloaded_operators.ads', 'overloaded_operators.adb']

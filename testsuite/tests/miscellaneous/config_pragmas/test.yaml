@@ -1,4 +1,5 @@
-driver: 'checker'
-rule_name: 'test_config_pragmas'
+driver: checker
 project: test.gpr
-input_sources: [test.adb]
+input_sources:
+  - test.adb
+rule_name: test_config_pragmas

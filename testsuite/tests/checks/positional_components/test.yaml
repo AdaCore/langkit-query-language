@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - pos.ads
 rule_name: Positional_Components
-input_sources: ['pos.ads']

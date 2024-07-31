@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - cons.ads
 rule_name: Constructors
-input_sources: ['cons.ads']

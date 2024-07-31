@@ -2,6 +2,6 @@ description: Testing the GNATcheck rule instances system
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 lkql_rule_file: rules.lkql
 show_rule: true

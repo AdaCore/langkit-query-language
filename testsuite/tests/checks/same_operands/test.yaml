@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - same.adb
 rule_name: Same_Operands
-input_sources: ['same.adb']

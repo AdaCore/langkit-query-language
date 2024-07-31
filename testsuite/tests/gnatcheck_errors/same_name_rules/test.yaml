@@ -3,6 +3,6 @@ description: Testing the error message emitted when there are multiple rules wit
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 rules_dirs:
-- rules
+  - rules

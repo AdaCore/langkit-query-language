@@ -2,5 +2,5 @@ description: Testing an LKQL rule file to configure a custom param rule
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 lkql_rule_file: config.lkql

@@ -1,3 +1,5 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - proc.adb
+  - proc2.adb
 rule_name: Boolean_Negations
-input_sources: ['proc.adb', 'proc2.adb']

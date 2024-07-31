@@ -1,5 +1,5 @@
-driver: 'checker'
-rule_name: 'Deeply_Nested_Generics'
-project: 'prj.gpr'
+driver: checker
+project: prj.gpr
+rule_name: Deeply_Nested_Generics
 rule_arguments:
-    deeply_nested_generics.n: 0
+  deeply_nested_generics.n: 0

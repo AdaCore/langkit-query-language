@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - tasks.adb
 rule_name: exception_propagation_from_tasks
-input_sources: ['tasks.adb']

@@ -3,6 +3,6 @@ description: Testing the error message when a rule has the same name as a compil
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 rules_dirs:
-- rules
+  - rules

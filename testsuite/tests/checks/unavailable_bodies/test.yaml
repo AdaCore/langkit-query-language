@@ -1,5 +1,6 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - calls.adb
 rule_name: Unavailable_Body_Calls
-input_sources: ['calls.adb']
 rule_arguments:
-    unavailable_body_calls.indirect_calls: 'true'
+  unavailable_body_calls.indirect_calls: 'true'

@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - scope.adb
 rule_name: Variable_Scoping
-input_sources: ['scope.adb']

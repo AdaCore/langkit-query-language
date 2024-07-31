@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - dummy.adb
 rule_name: do_bug
-input_sources: ['dummy.adb']

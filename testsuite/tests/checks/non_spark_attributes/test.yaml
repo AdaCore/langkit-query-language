@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - spark.adb
 rule_name: non_spark_attributes
-input_sources: ['spark.adb']

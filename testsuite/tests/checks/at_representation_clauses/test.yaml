@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - p.ads
 rule_name: at_representation_clauses
-input_sources: ['p.ads']

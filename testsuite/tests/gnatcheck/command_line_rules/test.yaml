@@ -1,5 +1,5 @@
+description: Check the '-r' option behavior
 driver: gnatcheck
-description: Check '-r' and '--rule' options behavior
 format: brief
 input_sources:
   - main.adb

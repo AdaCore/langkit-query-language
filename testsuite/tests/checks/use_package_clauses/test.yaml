@@ -1,3 +1,5 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - pack1.ads
+  - pack2.ads
 rule_name: Use_Package_Clauses
-input_sources: ['pack1.ads', 'pack2.ads']

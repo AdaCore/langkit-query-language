@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - expr.adb
 rule_name: Quantified_Expressions
-input_sources: ['expr.adb']

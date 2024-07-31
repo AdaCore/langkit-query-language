@@ -2,14 +2,14 @@ description: Testing that scenario variables are taken into account by GNATcheck
 driver: gnatcheck
 project: prj.gpr
 rules:
-- implicit_in_mode_parameters
-- display_units
+  - implicit_in_mode_parameters
+  - display_units
 rules_dirs:
-- rules
+  - rules
 tests:
-- scenario_variables:
-    SRC_DIR: src_1
-- scenario_variables:
-    SRC_DIR: src_2
-- scenario_variables:
-    SRC_DIR: invalid
+  - scenario_variables:
+      SRC_DIR: src_1
+  - scenario_variables:
+      SRC_DIR: src_2
+  - scenario_variables:
+      SRC_DIR: invalid

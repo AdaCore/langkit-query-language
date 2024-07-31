@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - stmt.adb
 rule_name: Use_If_Expressions
-input_sources: ['stmt.adb']

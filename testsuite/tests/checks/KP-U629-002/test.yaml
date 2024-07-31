@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - eq_test.adb
 rule_name: KP_U629_002
-input_sources: ['eq_test.adb']

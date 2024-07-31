@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - exc.adb
 rule_name: Separate_Numeric_Error_Handlers
-input_sources: ['exc.adb']

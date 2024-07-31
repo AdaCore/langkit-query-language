@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - blocks.adb
 rule_name: Unnamed_Blocks_And_Loops
-input_sources: ['blocks.adb']

@@ -1,5 +1,5 @@
-driver: 'checker'
+driver: checker
+project: prj.gpr
 rule_name: Annotated_Comments
-project: 'prj.gpr'
 rule_arguments:
-    annotated_comments.s: '["#"]'
+  annotated_comments.s: '["#"]'

@@ -1,7 +1,6 @@
 driver: checker
 project: gnatcoll.gpr
-rule_name: recursive_subprograms
-
 perf:
   default: 1
   profile-time: true
+rule_name: recursive_subprograms

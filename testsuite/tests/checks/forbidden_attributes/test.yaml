@@ -1,5 +1,6 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - attr.adb
 rule_name: Forbidden_Attributes
-input_sources: ['attr.adb']
 rule_arguments:
-    forbidden_attributes.forbidden: '["range", "first", "last"]'
+  forbidden_attributes.forbidden: '["range", "first", "last"]'

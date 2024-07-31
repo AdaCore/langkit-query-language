@@ -1,8 +1,8 @@
 description: Testing the error message when multiple LKQL rule files are provided
 driver: gnatcheck
 input_sources:
-- main.adb
+  - main.adb
 lkql_rule_file: rules_1.lkql
 extra_rule_options:
-- -from-lkql
-- rules_2.lkql
+  - -from-lkql
+  - rules_2.lkql

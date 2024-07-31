@@ -1,5 +1,6 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - lines.adb
 rule_name: Maximum_Subprogram_Lines
-input_sources: ['lines.adb']
 rule_arguments:
-    maximum_subprogram_lines.n: 4
+  maximum_subprogram_lines.n: 4

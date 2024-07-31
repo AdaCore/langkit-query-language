@@ -2,9 +2,9 @@ description: Testing the 'Warnings' rule configuration through an LKQL rule file
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 tests:
-- label: Classic argument object
-  lkql_rule_file: config.lkql
-- label: Shortcut argument
-  lkql_rule_file: short.lkql
+  - label: Classic argument object
+    lkql_rule_file: config.lkql
+  - label: Shortcut argument
+    lkql_rule_file: short.lkql

@@ -4,8 +4,8 @@ driver: gnatcheck
 project: prj.gpr
 format: brief
 rules:
-- goto_statements
+  - goto_statements
 control:
-- - SKIP
-  - os != 'windows'
-  - Disable this test on non-Windows systems due to path formatting
+  -   - SKIP
+      - os != 'windows'
+      - Disable this test on non-Windows systems due to path formatting

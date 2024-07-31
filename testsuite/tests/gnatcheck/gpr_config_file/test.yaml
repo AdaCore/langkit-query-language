@@ -4,8 +4,8 @@ driver: gnatcheck
 project: prj.gpr
 format: brief
 rules:
-- goto_statements
+  - goto_statements
 tests:
-- label: Without config file
-- label: With config file
-  gpr_config_file: config.cgpr
+  - label: Without config file
+  - label: With config file
+    gpr_config_file: config.cgpr

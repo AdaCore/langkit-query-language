@@ -1,5 +1,5 @@
-driver: 'checker'
-rule_name: 'Default_Parameters'
-project: 'prj.gpr'
+driver: checker
+project: prj.gpr
+rule_name: Default_Parameters
 rule_arguments:
-    default_parameters.n: 2
+  default_parameters.n: 2

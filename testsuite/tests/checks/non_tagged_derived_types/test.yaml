@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - deriv.ads
 rule_name: Non_Tagged_Derived_Types
-input_sources: ['deriv.ads']

@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - float_equality_checks.adb
 rule_name: Float_Equality_Checks
-input_sources: ['float_equality_checks.adb']

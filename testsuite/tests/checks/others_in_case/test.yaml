@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - other.adb
 rule_name: others_in_case_statements
-input_sources: ['other.adb']

@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - other.ads
 rule_name: others_in_aggregates
-input_sources: ['other.ads']

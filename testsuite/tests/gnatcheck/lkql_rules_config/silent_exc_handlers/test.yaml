@@ -2,5 +2,5 @@ description: Testing 'silent_exc_handlers' configuration through an LKQL rule fi
 driver: gnatcheck
 format: brief
 input_sources:
-- main.adb
+  - main.adb
 lkql_rule_file: config.lkql

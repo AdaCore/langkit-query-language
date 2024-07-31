@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - bit.ads
 rule_name: Bit_Records_Without_Layout_Definition
-input_sources: ['bit.ads']

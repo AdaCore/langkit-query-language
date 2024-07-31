@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - ranges.adb
 rule_name: use_ranges
-input_sources: ['ranges.adb']

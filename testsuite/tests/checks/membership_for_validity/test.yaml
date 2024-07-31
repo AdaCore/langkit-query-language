@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - valid.adb
 rule_name: Membership_For_Validity
-input_sources: ['valid.adb']

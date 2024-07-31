@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - aggr.ads
 rule_name: Non_Qualified_Aggregates
-input_sources: ['aggr.ads']

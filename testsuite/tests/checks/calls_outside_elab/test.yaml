@@ -1,5 +1,5 @@
-driver: 'checker'
-rule_name: 'Calls_Outside_Elaboration'
-project: 'prj.gpr'
+driver: checker
+project: prj.gpr
+rule_name: Calls_Outside_Elaboration
 rule_arguments:
-   calls_outside_elaboration.forbidden: '["p.create"]'
+  calls_outside_elaboration.forbidden: '["p.create"]'

@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - test.ads
 rule_name: Anonymous_Type_Decl
-input_sources: [test.ads]

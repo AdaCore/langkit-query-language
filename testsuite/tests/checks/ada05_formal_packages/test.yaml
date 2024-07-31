@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - formal.adb
 rule_name: ada05_formal_packages
-input_sources: ['formal.adb']

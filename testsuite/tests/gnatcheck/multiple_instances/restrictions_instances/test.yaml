@@ -1,6 +1,6 @@
 driver: gnatcheck
 format: brief
-show_rule: True
 input_sources:
-- main.adb
+  - main.adb
 lkql_rule_file: rules.lkql
+show_rule: true

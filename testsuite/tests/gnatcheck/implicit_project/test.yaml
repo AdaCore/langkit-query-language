@@ -2,4 +2,4 @@ description: Testing the '_default.gpr' project loading
 driver: gnatcheck
 format: brief
 rules:
-- goto_statements
+  - goto_statements

@@ -1,3 +1,4 @@
-driver: 'checker'
+driver: checker
+input_sources:
+  - slice.adb
 rule_name: Use_Array_Slices
-input_sources: ['slice.adb']
