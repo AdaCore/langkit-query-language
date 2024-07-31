@@ -1,0 +1,4 @@
+main.adb:4:7: rule violation: possible occurrence of KP 19447
+4 |    if I'Finalization_Size > 0 then null; end if;  --  FLAG
+  |       ^^^^^^^^^^^^^^^^^^^
+
