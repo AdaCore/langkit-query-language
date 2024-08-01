@@ -2907,7 +2907,7 @@ package body Gnatcheck.Diagnoses is
 
       File_Name : constant Unbounded_String :=
          To_Unbounded_String
-           (if Full_Source_Locations
+           (if Arg.Full_Source_Locations.Get
             then Full_File_Name
             else Simple_Name (Full_File_Name));
 

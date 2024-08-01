@@ -425,7 +425,7 @@ package body Gnatcheck.Output is
 
    procedure Report_Missing_File (From_File, Missing_File : String) is
       function Format_Filename (F : String) return String is
-        (if Full_Source_Locations then F else Base_Name (F));
+        (if Arg.Full_Source_Locations.Get then F else Base_Name (F));
       --  Formats filename
    begin
       Warning

@@ -1118,7 +1118,7 @@ package body Gnatcheck.Projects is
               "-kp-version= "               &
               "o= "                         &
               "ox= "                        &
-              "l log "                      &
+              "log "                        &
               "-subprocess "                &
               "-version -help "             &
               "nt xml",
@@ -1183,9 +1183,7 @@ package body Gnatcheck.Projects is
 
             when 'l' =>
                if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "l" then
-                     Full_Source_Locations := True;
-                  elsif Full_Switch (Parser => Parser) = "log" then
+                  if Full_Switch (Parser => Parser) = "log" then
                      Log_Mode := True;
                   end if;
                end if;
