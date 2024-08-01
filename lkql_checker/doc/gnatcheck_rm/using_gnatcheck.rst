@@ -116,10 +116,7 @@ The following switches control the general ``gnatcheck`` behavior
   .. index:: -l
 
 ``-l``
-  Use full source locations references in the report file. For a construct from
-  a generic instantiation a full source location is a chain from the location
-  of this construct in the generic unit to the place where this unit is
-  instantiated.
+  Use full source locations references in the report file.
 
   .. index:: -log
 
