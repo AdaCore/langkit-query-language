@@ -1,0 +1,20 @@
+gnatcheck: error when calling gprbuild:
+
+   compilation of main.adb failed
+
+gprbuild: *** compilation phase failed
+<?xml version="1.0"?>
+<gnatcheck-report>
+   <violation file="main.adb" line="3" column="4" rule-id="goto_statements">
+      <message>goto statement</message>
+   </violation>
+   <compiler-error file="main.adb" line="7" column="11">
+      <message>extra &quot;;&quot; ignored</message>
+   </compiler-error>
+   <compiler-error file="main.adb" line="8" column="1">
+      <message>&quot;end if;&quot; expected for &quot;if&quot; at line 5</message>
+   </compiler-error>
+   <compiler-error file="main.adb" line="8" column="10">
+      <message>missing &quot;end Main;&quot;</message>
+   </compiler-error>
+</gnatcheck-report>
