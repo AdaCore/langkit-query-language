@@ -133,6 +133,8 @@ public final class LKQLContext {
 
     @CompilerDirectives.CompilationFinal private Boolean keepGoingOnMissingFile = null;
 
+    @CompilerDirectives.CompilationFinal private Boolean showInstantiationChain = null;
+
     /** The project file to analyse. */
     @CompilerDirectives.CompilationFinal private String projectFile = null;
 
@@ -251,6 +253,15 @@ public final class LKQLContext {
                     this.env.getOptions().get(LKQLLanguage.keepGoingOnMissingFile);
         }
         return this.keepGoingOnMissingFile;
+    }
+
+    /** Get whether to display instantiation chain in diagnostics. */
+    public boolean showInstantiationChain() {
+        if (this.showInstantiationChain == null) {
+            this.showInstantiationChain =
+                    this.env.getOptions().get(LKQLLanguage.showInstantiationChain);
+        }
+        return this.showInstantiationChain;
     }
 
     /**

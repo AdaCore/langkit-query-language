@@ -732,7 +732,8 @@ package body Gnatcheck.Output is
       Info (" -xml - generate report in XML format");
       Info (" -nt  - do not generate text report (enforces '-xml')");
       Info ("");
-      Info (" --show-rule - append rule names to diagnoses generated");
+      Info (" --show-rule                - append rule names to diagnoses generated");
+      Info (" --show-instantiation-chain - show instantiation chain for reported generic construct");
       Info ("");
       Info (" --brief              - brief mode, only report detections in Stderr");
       Info (" --check-redefinition - issue warning if a rule parameter is redefined");

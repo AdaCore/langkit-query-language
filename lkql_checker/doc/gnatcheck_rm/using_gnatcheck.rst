@@ -182,6 +182,12 @@ The following switches control the general ``gnatcheck`` behavior
   user-defined rule names are used as rule annotation:
   ``[user_synonym|gnatcheck_rule_name]``.
 
+  .. index:: --show-instantiation-chain
+
+``--show-instantiation-chain``
+For reported generic instantiation constructs, display a chain of source
+location going from the generic unit to the instantiation.
+
   .. index:: --brief
 
 ``--brief``
