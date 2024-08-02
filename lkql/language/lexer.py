@@ -66,6 +66,7 @@ class Token(LexerToken):
     Pipe = WithText()
     LArrow = WithText()
     BigRArrow = WithText()
+    BigLongRArrow = WithText()
     Box = WithText()
     SubBlockLiteral = WithText()
 
@@ -111,6 +112,7 @@ lkql_lexer.add_rules(
     (Literal("|"),                                Token.Pipe),
     (Literal("<-"),                               Token.LArrow),
     (Literal("=>"),                               Token.BigRArrow),
+    (Literal("==>"),                              Token.BigLongRArrow),
     (Literal("<>"),                               Token.Box),
     (Literal("let"),                              Token.Let),
     (Literal("select"),                           Token.SelectTok),

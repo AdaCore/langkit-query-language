@@ -25,6 +25,13 @@ categorize them by AdaCore GNATcheck release.
 25.0
 ----
 
+New logical implication operator
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can now use ``==>`` as a logical implication binary operator. Thus, you
+can rewrite all logical expressions such as ``not <expr1> or <expr2>`` into
+``<expr1> ==> <expr2>``.
+
 Syntax of pattern details (breaking)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -74,8 +74,8 @@ class Op(LkqlNode):
     """
     enum_node = True
     alternatives = [
-        'plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq', 'concat',
-        'lt', 'leq', 'gt', 'geq', 'not'
+        'plus', 'minus', 'mul', 'div', 'and', 'or', 'imply', 'eq', 'neq',
+        'concat', 'lt', 'leq', 'gt', 'geq', 'not'
     ]
 
 
@@ -1173,7 +1173,7 @@ lkql_grammar.add_rules(
     expr=Or(
         BinOp(
             G.expr,
-            Or(Op.alt_and("and"), Op.alt_or("or")),
+            Or(Op.alt_and("and"), Op.alt_or("or"), Op.alt_imply("==>")),
             G.not_expr
         ),
         G.not_expr,

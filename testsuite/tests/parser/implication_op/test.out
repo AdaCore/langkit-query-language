@@ -1,0 +1,7 @@
+BinOp
+|f_left:
+|  BoolLiteralTrue
+|f_op:
+|  OpImply
+|f_right:
+|  BoolLiteralFalse

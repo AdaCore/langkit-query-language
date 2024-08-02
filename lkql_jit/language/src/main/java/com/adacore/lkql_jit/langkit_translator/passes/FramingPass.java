@@ -595,6 +595,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
+    public Void visit(Liblkqllang.OpImply opImply) {
+        traverseChildren(opImply);
+        return null;
+    }
+
+    @Override
     public Void visit(Liblkqllang.OpLeq opLeq) {
         traverseChildren(opLeq);
         return null;
