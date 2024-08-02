@@ -215,6 +215,16 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             stability = OptionStability.STABLE)
     static final OptionKey<Boolean> keepGoingOnMissingFile = new OptionKey<>(false);
 
+    /**
+     * The option to control whether to display the instantiation chains when reporting something on
+     * a generic construct.
+     */
+    @Option(
+            help = "If true, display generic instantiation chain",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<Boolean> showInstantiationChain = new OptionKey<>(false);
+
     /** The option to specify the files to ignore during the checking. */
     @Option(
             help = "Files to ignore during the analysis",

@@ -1586,6 +1586,11 @@ package body Gnatcheck.Compiler is
          raise Fatal_Error;
       end if;
 
+      if Arg.Show_Instantiation_Chain.Get then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--show-instantiation-chain");
+      end if;
+
       if Prj /= "" then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);

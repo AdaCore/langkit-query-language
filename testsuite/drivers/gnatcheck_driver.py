@@ -145,6 +145,10 @@ class GnatcheckDriver(BaseDriver):
           the '--config' option.
         - ``scenario_variables`` (dict[str, str]): Dict containing key to value
           associations to pass as scenario variables to GNATcheck.
+        - ``show_rule`` (bool): Whether to add the rule at the end of
+          diagnostics.
+        - ``show_instantiation_chain`` (bool): whether to add instantiation
+          chain in diagnostics concerning generic constructs.
         - ``extra_args`` (list[str]): Extra arguments to pass to GNATcheck.
 
         - ``rules`` (list[str]): A list of rules with their arguments, in the
@@ -279,6 +283,10 @@ class GnatcheckDriver(BaseDriver):
             # Set the "--show-rule" flag according to the test
             if test_data.get('show_rule', False):
                 args.append('--show-rule')
+
+            # Set the "--show-instantiation-chain" flag according to the data
+            if test_data.get('show_instantiation_chain', False):
+                args.append('--show-instantiation-chain')
 
             # Set the number of wanted jobs
             if test_data.get('jobs', None):

@@ -385,6 +385,11 @@ package Gnatcheck.Options is
          Long   => "--show-rule",
          Help   => "append rule names to diagnoses generated");
 
+      package Show_Instantiation_Chain is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--show-instantiation-chain",
+         Help   => "show instantiation chain for reported generic construct");
+
       package Check_Redefinition is new Parse_Flag
         (Parser => Parser,
          Long   => "--check-redefinition",
