@@ -3029,24 +3029,11 @@ package body Gnatcheck.Diagnoses is
    is
       Indentation : constant Natural := (if Short_Report then 1 else 2);
       Exempted    : constant Boolean :=
-        Diag.Diagnosis_Kind = Rule_Violation and then
-        Diag.Justification /= Null_Unbounded_String;
-      Message     : constant String  := Strip_Tag (Image (Diag));
-      L_Idx       :          Natural := Message'First;
-      R_Idx       :          Natural := Index (Message, ":");
-      Last_Idx    : constant Natural := Message'Last;
-
+        Diag.Diagnosis_Kind = Rule_Violation
+          and then Diag.Justification /= Null_Unbounded_String;
+      Message     : constant String  := Strip_Tag (To_String (Diag.Text));
+      M_Start     : Natural := Message'First;
    begin
-      --  Correct R_Idx in case of Windows-style full file name
-      --  (starts from <dik_letter>:\ )
-
-      if R_Idx = L_Idx + 1
-        and then
-         Message (R_Idx + 1) = '\'
-      then
-         R_Idx := Index (Message (R_Idx + 1 .. Last_Idx), ":");
-      end if;
-
       XML_Report_No_EOL
         ((if Diag.Diagnosis_Kind = Exemption_Warning then
              "<exemption-problem"
@@ -3060,31 +3047,39 @@ package body Gnatcheck.Diagnoses is
          Indent_Level => Indentation);
 
       XML_Report_No_EOL
-        (" file=" & """" & Escape_XML (Message (L_Idx .. R_Idx - 1)) & """ ");
-
-      L_Idx := R_Idx + 1;
-      R_Idx := Index (Message (L_Idx .. Last_Idx), ":");
+        (" file=""" & Escape_XML (To_String (Diag.File)) & """ ");
 
       XML_Report_No_EOL
-        ("line=" & """" & Message (L_Idx .. R_Idx - 1) & """ ");
-
-      L_Idx := R_Idx + 1;
-      R_Idx := Index (Message (L_Idx .. Last_Idx), ":");
-
-      while Message (L_Idx) = '0' loop
-         L_Idx := @ + 1;
-      end loop;
+        ("line=""" &
+         Ada.Strings.Fixed.Trim
+           (Line_Number'Image (Diag.Sloc.Line), Left) &
+         """ ");
 
       XML_Report_No_EOL
-        ("column=" & """" & Message (L_Idx .. R_Idx - 1) & """");
+        ("column=""" &
+         Ada.Strings.Fixed.Trim
+           (Column_Number'Image (Diag.Sloc.Column), Left) &
+         """");
 
       if Diag.Diagnosis_Kind = Rule_Violation then
          XML_Report_No_EOL (" rule-id=""" & Rule_Name (Diag.Rule) & '"');
       end if;
 
       XML_Report (">");
+
+      --  Strip the "error: " tag from the diagnostic message if it is a
+      --  compiler error.
+      if Diag.Diagnosis_Kind = Compiler_Error then
+         M_Start := Index (Message, "error: ");
+         if M_Start = 0 then
+            M_Start := Message'First;
+         else
+            M_Start := @ + 7;
+         end if;
+      end if;
+
       XML_Report
-        ("<message>" & Escape_XML (Message (R_Idx + 2 .. Last_Idx)) &
+        ("<message>" & Escape_XML (Message (M_Start .. Message'Last)) &
          "</message>",
          Indent_Level => Indentation + 1);
 
