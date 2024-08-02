@@ -1,17 +1,48 @@
-IfThenElse
-|f_condition:
-|  FunCall
-|  |f_name:
-|  |  DotAccess
-|  |  |f_receiver:
-|  |  |  Identifier: node
-|  |  |f_member:
-|  |  |  Identifier: property
-|  |f_has_safe:
-|  |  SafeAbsent
-|  |f_arguments:
-|  |  ArgList: <empty list>
-|f_then_expr:
-|  IntegerLiteral: 1
-|f_else_expr:
-|  IntegerLiteral: 0
+TopLevelList
+|  ValDecl
+|  |f_annotation: <null>
+|  |f_doc_node: <null>
+|  |f_identifier:
+|  |  Identifier: a
+|  |f_value:
+|  |  CondExpr
+|  |  |f_condition:
+|  |  |  FunCall
+|  |  |  |f_name:
+|  |  |  |  DotAccess
+|  |  |  |  |f_receiver:
+|  |  |  |  |  Identifier: node
+|  |  |  |  |f_member:
+|  |  |  |  |  Identifier: property
+|  |  |  |f_has_safe:
+|  |  |  |  SafeAbsent
+|  |  |  |f_arguments:
+|  |  |  |  ArgList: <empty list>
+|  |  |f_then_expr:
+|  |  |  IntegerLiteral: 1
+|  |  |f_else_expr:
+|  |  |  IntegerLiteral: 0
+|  ValDecl
+|  |f_annotation: <null>
+|  |f_doc_node: <null>
+|  |f_identifier:
+|  |  Identifier: b
+|  |f_value:
+|  |  CondExpr
+|  |  |f_condition:
+|  |  |  RelBinOp
+|  |  |  |f_left:
+|  |  |  |  Identifier: a
+|  |  |  |f_op:
+|  |  |  |  OpEq
+|  |  |  |f_right:
+|  |  |  |  IntegerLiteral: 1
+|  |  |f_then_expr:
+|  |  |  FunCall
+|  |  |  |f_name:
+|  |  |  |  Identifier: implication
+|  |  |  |f_has_safe:
+|  |  |  |  SafeAbsent
+|  |  |  |f_arguments:
+|  |  |  |  ArgList: <empty list>
+|  |  |f_else_expr: <null>

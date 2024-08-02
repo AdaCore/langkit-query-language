@@ -1,3 +1,7 @@
 if true then print("then_expr") else print("else_expr")
 
 if false then print("then_expr") else print("else_expr")
+
+print(if true then "Hello!")
+
+print(if false then "World!")

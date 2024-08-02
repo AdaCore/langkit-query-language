@@ -16,7 +16,7 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class IfThenElse extends Expr {
+public final class CondExpr extends Expr {
 
     // ----- Children -----
 
@@ -45,7 +45,7 @@ public final class IfThenElse extends Expr {
      * @param consequence The consequence expression.
      * @param alternative The alternative expression.
      */
-    public IfThenElse(SourceSection location, Expr condition, Expr consequence, Expr alternative) {
+    public CondExpr(SourceSection location, Expr condition, Expr consequence, Expr alternative) {
         super(location);
         this.condition = condition;
         this.consequence = consequence;
@@ -74,8 +74,10 @@ public final class IfThenElse extends Expr {
         // Execute the correct branching
         if (conditionValue) {
             return this.consequence.executeGeneric(frame);
-        } else {
+        } else if (this.alternative != null) {
             return this.alternative.executeGeneric(frame);
+        } else {
+            return true;
         }
     }
 

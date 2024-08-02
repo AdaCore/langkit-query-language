@@ -1,2 +1,2 @@
 driver: parser
-rule: if_then_else
+rule: main_rule
