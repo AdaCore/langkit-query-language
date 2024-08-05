@@ -77,189 +77,189 @@ Builtin methods
 
 Methods for `Any`
 """""""""""""""""
-.. method:: Any.doc(obj)
+.. method:: Any.doc(this)
 
     Given any object, return the documentation associated with it
 
-.. method:: Any.img(val)
+.. method:: Any.img(this)
 
     Return a string representation of an object
 
-.. method:: Any.print(val, new_line)
+.. method:: Any.print(this, new_line)
 
     Built-in print function. Prints whatever is passed as an argument
 
 Methods for `AnalysisUnit`
 """"""""""""""""""""""""""
-.. method:: AnalysisUnit.name(unit)
+.. method:: AnalysisUnit.name(this)
 
     Return the name of this unit
 
-.. method:: AnalysisUnit.root(unit)
+.. method:: AnalysisUnit.root(this)
 
     Return the root for this unit
 
-.. method:: AnalysisUnit.text(unit)
+.. method:: AnalysisUnit.text(this)
 
     Return the text of the analysis unit
 
-.. method:: AnalysisUnit.tokens(unit)
+.. method:: AnalysisUnit.tokens(this)
 
     Return the tokens of the unit
 
 Methods for `LazyList`
 """"""""""""""""""""""
-.. method:: LazyList.length(iterable)
+.. method:: LazyList.length(this)
 
     Get the length of the iterable element
 
-.. method:: LazyList.reduce(indexable, fn, init)
+.. method:: LazyList.reduce(this, fn, init)
 
     Given a collection, a reduction function, and an initial value reduce the result
 
-.. method:: LazyList.to_list(iterable)
+.. method:: LazyList.to_list(this)
 
     Transform an iterator into a list
 
 Methods for `List`
 """"""""""""""""""
-.. method:: List.length(iterable)
+.. method:: List.length(this)
 
     Get the length of the iterable element
 
-.. method:: List.reduce(indexable, fn, init)
+.. method:: List.reduce(this, fn, init)
 
     Given a collection, a reduction function, and an initial value reduce the result
 
-.. method:: List.sublist(list, low_bound, high_bound)
+.. method:: List.sublist(this, low_bound, high_bound)
 
     Return a sublist of `list` from `low_bound` to `high_bound`
 
-.. method:: List.to_list(iterable)
+.. method:: List.to_list(this)
 
     Transform an iterator into a list
 
-.. method:: List.unique(indexable)
+.. method:: List.unique(this)
 
     Given collection, remove all identical elements in order to have only one instance of each
 
 Methods for `Node`
 """"""""""""""""""
-.. method:: Node.children(node)
+.. method:: Node.children(this)
 
     Given a node, get the list of all its children
 
-.. method:: Node.children_count(node)
+.. method:: Node.children_count(this)
 
     Given a node, return the count of its children
 
-.. method:: Node.dump(node)
+.. method:: Node.dump(this)
 
     Given an ast node, return a structured dump of the subtree
 
-.. method:: Node.image(node)
+.. method:: Node.image(this)
 
     Given an ast node, return its image
 
-.. method:: Node.kind(node)
+.. method:: Node.kind(this)
 
     Return the kind of this node, as a string
 
-.. method:: Node.parent(node)
+.. method:: Node.parent(this)
 
     Given a node, get the parent of it
 
-.. method:: Node.same_tokens(node, other)
+.. method:: Node.same_tokens(this, other)
 
     Return whether two nodes have the same tokens, ignoring trivias
 
-.. method:: Node.text(node)
+.. method:: Node.text(this)
 
     Given an ast node, return its text
 
-.. method:: Node.tokens(node)
+.. method:: Node.tokens(this)
 
     Given a node, return an iterator on its tokens
 
-.. method:: Node.unit(node)
+.. method:: Node.unit(this)
 
     Given an ast node, return its analysis unit
 
 Methods for `SelectorList`
 """"""""""""""""""""""""""
-.. method:: SelectorList.length(iterable)
+.. method:: SelectorList.length(this)
 
     Get the length of the iterable element
 
-.. method:: SelectorList.reduce(indexable, fn, init)
+.. method:: SelectorList.reduce(this, fn, init)
 
     Given a collection, a reduction function, and an initial value reduce the result
 
-.. method:: SelectorList.to_list(iterable)
+.. method:: SelectorList.to_list(this)
 
     Transform an iterator into a list
 
 Methods for `Str`
 """""""""""""""""
-.. method:: Str.base_name(str)
+.. method:: Str.base_name(this)
 
     Given a string that represents a file name, returns the basename
 
-.. method:: Str.contains(str, to_find)
+.. method:: Str.contains(this, to_find)
 
     Search for to_find in the given string. Return whether a match is found. to_find can be either a pattern or a string
 
-.. method:: Str.ends_with(str, suffix)
+.. method:: Str.ends_with(this, suffix)
 
     Given a string, returns whether it ends with the given suffix
 
-.. method:: Str.find(str, to_find)
+.. method:: Str.find(this, to_find)
 
     Search for to_find in the given string. Return position of the match, or -1 if no match. to_find can be either a pattern or a string
 
-.. method:: Str.is_lower_case(str)
+.. method:: Str.is_lower_case(this)
 
     Return whether the given string contains lower case characters only
 
-.. method:: Str.is_mixed_case(str)
+.. method:: Str.is_mixed_case(this)
 
     Return whether the given string is written in mixed case, that is, with only lower case characters except the first one and every character following an underscore
 
-.. method:: Str.is_upper_case(str)
+.. method:: Str.is_upper_case(this)
 
     Return whether the given string contains upper case characters only
 
-.. method:: Str.length(str)
+.. method:: Str.length(this)
 
     Given a string, return the length of it in character
 
-.. method:: Str.split(str, separator)
+.. method:: Str.split(this, separator)
 
     Given a string, return an iterator on the words contained by str separated by separator
 
-.. method:: Str.starts_with(str, prefix)
+.. method:: Str.starts_with(this, prefix)
 
     Given a string, returns whether it starts with the given prefix
 
-.. method:: Str.substring(str, from, to)
+.. method:: Str.substring(this, from, to)
 
     Given a string and two indices (from and to), return the substring contained between indices from and to (both included)
 
-.. method:: Str.to_lower_case(str)
+.. method:: Str.to_lower_case(this)
 
     Return the given string written with lower case characters only
 
-.. method:: Str.to_upper_case(str)
+.. method:: Str.to_upper_case(this)
 
     Return the given string written with upper case characters only
 
 Methods for `Token`
 """""""""""""""""""
-.. method:: Token.end_column(token)
+.. method:: Token.end_column(this)
 
     Return the column end
 
-.. method:: Token.end_line(token)
+.. method:: Token.end_line(this)
 
     Return the line end
 
@@ -267,35 +267,35 @@ Methods for `Token`
 
     Return whether two tokens are structurally equivalent
 
-.. method:: Token.is_trivia(token)
+.. method:: Token.is_trivia(this)
 
     Return whether this token is a trivia
 
-.. method:: Token.kind(token)
+.. method:: Token.kind(this)
 
     Return the kind of the token
 
-.. method:: Token.next(token, exclude_trivia)
+.. method:: Token.next(this, exclude_trivia)
 
     Return the next token
 
-.. method:: Token.previous(token, exclude_trivia)
+.. method:: Token.previous(this, exclude_trivia)
 
     Return the previous token
 
-.. method:: Token.start_column(token)
+.. method:: Token.start_column(this)
 
     Return the column start
 
-.. method:: Token.start_line(token)
+.. method:: Token.start_line(this)
 
     Return the line start
 
-.. method:: Token.text(token)
+.. method:: Token.text(this)
 
     Return the text of the token
 
-.. method:: Token.unit(token)
+.. method:: Token.unit(this)
 
     Return the unit for this token
 
