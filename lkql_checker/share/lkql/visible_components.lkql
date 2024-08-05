@@ -26,5 +26,5 @@ fun visible_components(node, tagged_only=false) =
             f_has_private: PrivateAbsent))),
             all parent: not PrivatePart)
     when node.p_is_record_type()
-      and ((not tagged_only) or node.p_is_tagged_type())
+      and (if tagged_only then node.p_is_tagged_type())
       and has_visible_components(node.f_type_def)

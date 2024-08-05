@@ -43,9 +43,9 @@ fun misplaced_node(n, decl) =
                             misplaced_node(r, decl)
     | a@AtClause         => a.f_name.p_referenced_decl() != decl or
                             misplaced_node(a, decl)
-    | p@PragmaNode       => (not is_rep_pragma(p.f_id)) or
-                            associated_decl(p) != decl or
-                            misplaced_node(p, decl)
+    | p@PragmaNode       => if is_rep_pragma(p.f_id)
+                            then associated_decl(p) != decl or
+                                 misplaced_node(p, decl)
     | *                  => true
 
 @check(message="misplaced representation item",

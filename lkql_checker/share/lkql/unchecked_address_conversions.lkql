@@ -33,7 +33,7 @@ fun unchecked_address_conversions(node, all=false, no_instantiations=false) =
      and stdlib.is_unchecked_conversion(node)
      and node.f_params is params@AssocList
          when params.children_count == 2
-          and if not params[1].f_designator or
+          and if (not params[1].f_designator) or
                  params[1].f_designator.p_name_is("source")
               then check_uc_params(params[1], params[2], all)
               else check_uc_params(params[2], params[1], all)
