@@ -1519,22 +1519,6 @@ package body Gnatcheck.Compiler is
       end if;
    end GPRbuild_Exec;
 
-   ----------------
-   -- Gnatls_Exec --
-   ----------------
-
-   function Gnatls_Exec return String is
-      use Ada.Strings.Unbounded;
-   begin
-      if Has_Access_To_Codepeer then
-         return "codepeer-gnatls";
-      elsif To_String (Target) /= "" then
-         return To_String (Target) & "-gnatls";
-      else
-         return "gnatls";
-      end if;
-   end Gnatls_Exec;
-
    -------------------------
    -- Set_Compiler_Checks --
    -------------------------
