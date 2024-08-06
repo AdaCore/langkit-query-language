@@ -64,7 +64,10 @@ public class SourceSectionWrapper implements SourceLocation {
 
     @Override
     public String fileName() {
-        return Paths.get(sourceSection.getSource().getPath()).getFileName().toString();
+        if (sourceSection.getSource().getPath() != null) {
+            return Paths.get(sourceSection.getSource().getPath()).getFileName().toString();
+        }
+        return sourceSection.getSource().getName();
     }
 
     @Override
