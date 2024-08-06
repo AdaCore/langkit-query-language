@@ -1,0 +1,13 @@
+With a non-existing source file
+===============================
+
+gnatcheck: not_a_file.adb not found
+gnatcheck: No existing file to process
+>>>program returned status code 3
+
+With a file not in the project closure
+======================================
+
+gnatcheck: src/proc2.adb is not in the analysed project closure (Default)
+gnatcheck: No existing file to process
+>>>program returned status code 3

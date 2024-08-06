@@ -1,0 +1,12 @@
+driver: gnatcheck
+description: Test the behavior when providing a invalid source
+format: brief
+rules:
+  - +RGoto_Statements
+tests:
+  - label: With a non-existing source file
+    input_sources:
+      - not_a_file.adb
+  - label: With a file not in the project closure
+    input_sources:
+      - src/proc2.adb

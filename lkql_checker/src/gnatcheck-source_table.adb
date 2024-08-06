@@ -234,6 +234,9 @@ package body Gnatcheck.Source_Table is
       Duplication_Report : Boolean := True;
       Status             : SF_Status := Waiting)
    is
+      use GPR2;
+      use GPR2.Project.Tree;
+
       Old_SF : SF_Id;
       New_SF : SF_Id;
 
@@ -242,63 +245,53 @@ package body Gnatcheck.Source_Table is
       First_Idx : Natural;
       Last_Idx  : Natural;
 
-      use GPR2;
-      use GPR2.Project.Tree;
+      Root : constant GPR2.Project.View.Object :=
+        Arg_Project.Tree.Namespace_Root_Projects.First_Element;
+      Res : constant GPR2.Build.Source.Object :=
+        Root.View_Db.Visible_Source
+          (GPR2.Path_Name.Simple_Name (Filename_Type (Fname)));
    begin
       Free (Full_Source_Name_String);
       Free (Short_Source_Name_String);
 
-      if Arg_Project.Tree.Is_Defined then
-         declare
-            Root : constant GPR2.Project.View.Object :=
-                     Arg_Project.Tree.Namespace_Root_Projects.First_Element;
-            Res : constant GPR2.Build.Source.Object :=
-                     Root.View_Db.Visible_Source
-                       (GPR2.Path_Name.Simple_Name (Filename_Type (Fname)));
-         begin
-            if not Res.Is_Defined then
-               Free (Short_Source_Name_String);
-            else
-               Short_Source_Name_String :=
-                 new String'(Res.Path_Name.String_Value);
-            end if;
-         end;
-      end if;
-
-      if Short_Source_Name_String = null then
-         Warning (Fname & " not found");
+      if not Res.Is_Defined then
+         if Is_Regular_File (Fname) then
+            Warning (Fname & " is not in the analysed project closure (" &
+                     String (Arg_Project.Tree.Root_Project.Name) & ")");
+         else
+            Warning (Fname & " not found");
+         end if;
          Missing_File_Detected := True;
          return;
       else
-         Full_Source_Name_String := new String'
-           (Normalize_Pathname
-              (Short_Source_Name_String.all,
-               Resolve_Links  => False,
-               Case_Sensitive => True));
-
-         Free (Short_Source_Name_String);
+         Short_Source_Name_String :=
+           new String'(Res.Path_Name.String_Value);
       end if;
+
+      Full_Source_Name_String := new String'
+        (Normalize_Pathname
+           (Short_Source_Name_String.all,
+            Resolve_Links  => False,
+            Case_Sensitive => True));
+      Free (Short_Source_Name_String);
 
       Short_Source_Name_String := new String'(Base_Name (Fname));
       Hash_Index := Hash (To_Lower (Short_Source_Name_String.all));
 
       --  Check if we already have a file with the same short name:
-
       if Present (Hash_Table (Hash_Index)) then
          Old_SF := File_Find (Full_Source_Name_String.all);
 
+         --  Check if we already stored exactly the same file.
          if Present (Old_SF) then
-            --  This means that we have already stored exactly the same file.
-
             if Duplication_Report then
                Error (Short_Source_Name_String.all & " duplicated");
             end if;
-
             return;
 
+         --  Else, look for files with the same name but with a difference path
          else
             Old_SF := Same_Name_File_Find (Full_Source_Name_String.all);
-
             if Present (Old_SF) then
                Error ("more than one version of "
                  & Short_Source_Name_String.all & " processed");
@@ -307,7 +300,6 @@ package body Gnatcheck.Source_Table is
       end if;
 
       --  If we are here, we have to store the file in the table
-
       Source_File_Table.Append (New_SF_Record);
       Last_Arg_Source := Source_File_Table.Last;
       New_SF          := Last_Arg_Source;
