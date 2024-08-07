@@ -189,6 +189,10 @@ package Gnatcheck.Options is
    --  This variable should contain a full list of compilation options to be
    --  passed to gcc.
 
+   Instance_Help_Emitted : Boolean := False;
+   --  Whether the help message about the new instance system has already been
+   --  emitted. This message should be removed in 26.0.
+
    --------------------------------------
    -- Controlling the gnatcheck report --
    --------------------------------------
