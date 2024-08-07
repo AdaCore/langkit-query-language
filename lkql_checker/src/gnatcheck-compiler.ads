@@ -26,9 +26,6 @@ package Gnatcheck.Compiler is
    function GPRbuild_Exec return String;
    --  Return the executable name to use in order to spawn a GPRBuild process
 
-   function Gnatls_Exec return String;
-   --  Return the executable name to use in order to spawn a GNATLS process
-
    --------------------------------------------------------
    -- Using in GNATCHECK checks performed by the compiler --
    --------------------------------------------------------

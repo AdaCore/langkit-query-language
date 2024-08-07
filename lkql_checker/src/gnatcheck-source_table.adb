@@ -12,19 +12,14 @@ with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
 with Ada.Text_IO;             use Ada.Text_IO;
 
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
-with GNAT.Expect;                use GNAT.Expect;
 with GNAT.OS_Lib;                use GNAT.OS_Lib;
-with GNAT.String_Split;          use GNAT.String_Split;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
-with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;              use Gnatcheck.Ids;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
-
-with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 with GPR2.Build.Source;
 with GPR2.Path_Name;
@@ -34,7 +29,6 @@ with GPR2.Project.View;
 with Langkit_Support.Generic_API.Introspection;
 
 with Libadalang.Analysis;         use Libadalang.Analysis;
-with Libadalang.Auto_Provider;    use Libadalang.Auto_Provider;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
 with Libadalang.Generic_API;      use Libadalang.Generic_API;
@@ -234,6 +228,9 @@ package body Gnatcheck.Source_Table is
       Duplication_Report : Boolean := True;
       Status             : SF_Status := Waiting)
    is
+      use GPR2;
+      use GPR2.Project.Tree;
+
       Old_SF : SF_Id;
       New_SF : SF_Id;
 
@@ -242,63 +239,53 @@ package body Gnatcheck.Source_Table is
       First_Idx : Natural;
       Last_Idx  : Natural;
 
-      use GPR2;
-      use GPR2.Project.Tree;
+      Root : constant GPR2.Project.View.Object :=
+        Arg_Project.Tree.Namespace_Root_Projects.First_Element;
+      Res : constant GPR2.Build.Source.Object :=
+        Root.View_Db.Visible_Source
+          (GPR2.Path_Name.Simple_Name (Filename_Type (Fname)));
    begin
       Free (Full_Source_Name_String);
       Free (Short_Source_Name_String);
 
-      if Arg_Project.Tree.Is_Defined then
-         declare
-            Root : constant GPR2.Project.View.Object :=
-                     Arg_Project.Tree.Namespace_Root_Projects.First_Element;
-            Res : constant GPR2.Build.Source.Object :=
-                     Root.View_Db.Visible_Source
-                       (GPR2.Path_Name.Simple_Name (Filename_Type (Fname)));
-         begin
-            if not Res.Is_Defined then
-               Free (Short_Source_Name_String);
-            else
-               Short_Source_Name_String :=
-                 new String'(Res.Path_Name.String_Value);
-            end if;
-         end;
-      end if;
-
-      if Short_Source_Name_String = null then
-         Warning (Fname & " not found");
+      if not Res.Is_Defined then
+         if Is_Regular_File (Fname) then
+            Warning (Fname & " is not in the analysed project closure (" &
+                     String (Arg_Project.Tree.Root_Project.Name) & ")");
+         else
+            Warning (Fname & " not found");
+         end if;
          Missing_File_Detected := True;
          return;
       else
-         Full_Source_Name_String := new String'
-           (Normalize_Pathname
-              (Short_Source_Name_String.all,
-               Resolve_Links  => False,
-               Case_Sensitive => True));
-
-         Free (Short_Source_Name_String);
+         Short_Source_Name_String :=
+           new String'(Res.Path_Name.String_Value);
       end if;
+
+      Full_Source_Name_String := new String'
+        (Normalize_Pathname
+           (Short_Source_Name_String.all,
+            Resolve_Links  => False,
+            Case_Sensitive => True));
+      Free (Short_Source_Name_String);
 
       Short_Source_Name_String := new String'(Base_Name (Fname));
       Hash_Index := Hash (To_Lower (Short_Source_Name_String.all));
 
       --  Check if we already have a file with the same short name:
-
       if Present (Hash_Table (Hash_Index)) then
          Old_SF := File_Find (Full_Source_Name_String.all);
 
+         --  Check if we already stored exactly the same file.
          if Present (Old_SF) then
-            --  This means that we have already stored exactly the same file.
-
             if Duplication_Report then
                Error (Short_Source_Name_String.all & " duplicated");
             end if;
-
             return;
 
+         --  Else, look for files with the same name but with a difference path
          else
             Old_SF := Same_Name_File_Find (Full_Source_Name_String.all);
-
             if Present (Old_SF) then
                Error ("more than one version of "
                  & Short_Source_Name_String.all & " processed");
@@ -307,7 +294,6 @@ package body Gnatcheck.Source_Table is
       end if;
 
       --  If we are here, we have to store the file in the table
-
       Source_File_Table.Append (New_SF_Record);
       Last_Arg_Source := Source_File_Table.Last;
       New_SF          := Last_Arg_Source;
@@ -1408,134 +1394,11 @@ package body Gnatcheck.Source_Table is
    Partition : GPR2_Provider_And_Projects_Array_Access;
 
    function Create_Context return Checker_App.Lkql_Context is
-      Ctx   : Checker_App.Lkql_Context;
-      Files : File_Array_Access;
-      Last  : Natural := 0;
-
-      procedure Add_Runtime_Files;
-      --  Add to Files all the GNAT native runtime files, if found
-
-      -----------------------
-      -- Add_Runtime_Files --
-      -----------------------
-
-      procedure Add_Runtime_Files is
-         Gnatls  : String_Access := Locate_Exec_On_Path (Gnatls_Exec);
-         Verbose : aliased String := "-v";
-         Status  : aliased Integer;
-
-      begin
-         if Gnatls = null then
-            return;
-         end if;
-
-         --  Spawn gnatls -v
-
-         declare
-            use Ada.Directories;
-
-            Output : constant String :=
-              Get_Command_Output (Gnatls.all,
-                                  [Verbose'Unchecked_Access],
-                                  "", Status'Unchecked_Access, True);
-            Lines : String_List_Access;
-            Ada_Include_Path : String_Access;
-            Found : Boolean := False;
-
-            procedure Add_File (Dir : Directory_Entry_Type);
-            --  Add the given directory entry Dir to Files
-
-            --------------
-            -- Add_File --
-            --------------
-
-            procedure Add_File (Dir : Directory_Entry_Type) is
-            begin
-               Last := @ + 1;
-               Files (Last) := Create (+Full_Name (Dir));
-            end Add_File;
-
-         begin
-            if Status /= 0 then
-               Free (Gnatls);
-               return;
-            end if;
-
-            --  and look for the line containing "adainclude"
-
-            for Line of Create (Output, [ASCII.LF, ASCII.CR], Multiple)
-            loop
-               Found := Has_Suffix (Line, "adainclude");
-
-               if Found then
-                  Ada_Include_Path :=
-                    new String'(Remove_Spaces (Line));
-                  exit;
-               end if;
-            end loop;
-
-            Free (Lines);
-
-            if not Found then
-               Free (Gnatls);
-               return;
-            end if;
-
-            --  We then list all the *.ads files.
-            --  We only need to process spec files, runtime body files are not
-            --  needed to analyze user code and will slow down the startup
-            --  phase.
-
-            Search (Ada_Include_Path.all, "*.ads",
-                    Process => Add_File'Access);
-            Free (Ada_Include_Path);
-            Free (Gnatls);
-         end;
-      end Add_Runtime_Files;
-
       Charset : constant String := To_String (Arg.Charset.Get);
-
+      Ctx     : Checker_App.Lkql_Context;
    begin
-      --  If no project specified, create an auto provider with all the source
-      --  files listed in the command line, stored in Temporary_File_Storage,
-      --  as well as all runtime files, these are needed for proper name
-      --  resolution.
-
-      if not Gnatcheck_Prj.Is_Specified then
-         declare
-            procedure Add_File (File_Name : String);
-            --  Add File_Name to Files
-
-            --------------
-            -- Add_File --
-            --------------
-
-            procedure Add_File (File_Name : String) is
-            begin
-               Last := @ + 1;
-               Files (Last) := Create (+File_Name);
-            end Add_File;
-
-         begin
-            Files := new File_Array
-                      (1 .. Natural (Length (Temporary_File_Storage)) + 4096);
-            --  Enough to hold all files on the command line and all runtime
-            --  files.
-
-            Temp_Storage_Iterate (Add_File'Access);
-            Add_Runtime_Files;
-            Ctx.Analysis_Ctx := Create_Context
-              (Charset       => Charset,
-               Unit_Provider => Create_Auto_Provider_Reference
-                                  (Files (1 .. Last), Charset),
-               Event_Handler => EHR_Object);
-            Unchecked_Free (Files);
-         end;
-
-      --  Otherwise use a project unit provider
-
-      elsif  Gnatcheck_Prj.Tree.Is_Defined and then not In_Aggregate_Project
-      then
+      --  Use a project unit provider, even with the implicit project
+      if not In_Aggregate_Project then
          if Partition = null then
             Partition :=
               Create_Project_Unit_Providers (Gnatcheck_Prj.Tree);
