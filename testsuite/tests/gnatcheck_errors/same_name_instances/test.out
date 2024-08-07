@@ -1,4 +1,5 @@
 gnatcheck: rule instance with the same name already exists: "same_alias" previously instantiated at command line
+gnatcheck: if you want to pass multiple parameters to a rule you should use the comma separated notation: e.g. +RMy_Rule:Param1,Param2
 gnatcheck: rule instance with the same name already exists: "comp_check" previously instantiated at command line
 gnatcheck: rule instance with the same name already exists: "comp_check" previously instantiated at command line
 >>>program returned status code 5
