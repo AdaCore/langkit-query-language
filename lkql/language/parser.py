@@ -561,7 +561,7 @@ class Query(Expr):
 
 class ListCompAssoc(LkqlNode):
     """
-    Arrow association of the form: id <- expr.
+    Arrow association of the form: id in expr.
     This construction is meant to be used a part of a list comprehension
     """
 
@@ -1230,9 +1230,9 @@ lkql_grammar.add_rules(
         Unwrap(G.value_expr, "!!"),
 
         DotAccess(G.value_expr, ".", c(), G.id),
-        SafeAccess(G.value_expr, "?.", c(), G.id),
+        SafeAccess(G.value_expr, "?", ".", c(), G.id),
         Indexing(G.value_expr, "[", c(), G.expr, "]"),
-        SafeIndexing(G.value_expr, "?[", c(), G.expr, "]"),
+        SafeIndexing(G.value_expr, "?", "[", c(), G.expr, "]"),
         G.selector_expr,
         FunCall(
             G.value_expr, Safe("?"),

@@ -1,142 +1,130 @@
-from langkit.lexer import Lexer, LexerToken, WithText, WithSymbol, Pattern,\
-                            Literal, WithTrivia
+from langkit.lexer import (
+    Lexer, LexerToken, WithText, WithSymbol, Pattern, Literal, WithTrivia
+)
 
 
 class Token(LexerToken):
     Identifier = WithSymbol()
     UpperIdentifier = WithSymbol()
-    String = WithText()
-    Integer = WithText()
+    String = WithText(tm_scope="string.quoted.double")
+    Integer = WithText(tm_scope="constant.numeric", tm_bounded=True)
 
-    Let = WithSymbol()
-    SelectTok = WithSymbol()
-    FromTok = WithSymbol()
-    ThroughTok = WithSymbol()
-    When = WithSymbol()
-    Match = WithSymbol()
-    Val = WithSymbol()
-    Fun = WithSymbol()
-    Selector = WithSymbol()
-    Match = WithSymbol()
+    SelectTok = WithSymbol(tm_scope="keyword.other.query", tm_bounded=True)
+    FromTok = WithSymbol(tm_scope="keyword.other.query", tm_bounded=True)
+    ThroughTok = WithSymbol(tm_scope="keyword.other.query", tm_bounded=True)
+    When = WithSymbol(tm_scope="keyword.control", tm_bounded=True)
+    Match = WithSymbol(tm_scope="keyword.control", tm_bounded=True)
+    Val = WithSymbol(tm_scope="storage.type", tm_bounded=True)
+    Fun = WithSymbol(tm_scope="storage.type", tm_bounded=True)
+    Selector = WithSymbol(tm_scope="storage.type", tm_bounded=True)
     Rec = WithSymbol()
-    For = WithSymbol()
-    Skip = WithSymbol()
-    Is = WithSymbol()
-    In = WithSymbol()
-    TrueLit = WithSymbol()
-    FalseLit = WithSymbol()
-    If = WithSymbol()
-    Then = WithSymbol()
-    Else = WithSymbol()
-    Not = WithSymbol()
-    Null = WithSymbol()
-    Import = WithSymbol()
+    For = WithSymbol(tm_scope="keyword.control", tm_bounded=True)
+    Is = WithSymbol(tm_scope="keyword.operator", tm_bounded=True)
+    In = WithSymbol(tm_scope="keyword.operator", tm_bounded=True)
+    TrueLit = WithSymbol(tm_scope="constant.language", tm_bounded=True)
+    FalseLit = WithSymbol(tm_scope="constant.language", tm_bounded=True)
+    If = WithSymbol(tm_scope="keyword.control", tm_bounded=True)
+    Then = WithSymbol(tm_scope="keyword.control", tm_bounded=True)
+    Else = WithSymbol(tm_scope="keyword.control", tm_bounded=True)
+    Not = WithSymbol(tm_scope="keyword.operator", tm_bounded=True)
+    Null = WithSymbol(tm_scope="constant.language", tm_bounded=True)
+    Import = WithSymbol(tm_scope="keyword.control", tm_bounded=True)
 
     Dot = WithText()
     DotDotDot = WithText()
-    QuestionDot = WithText()
-    QuestionBrack = WithText()
     Question = WithText()
     Coma = WithText()
     SemiCol = WithText()
     Colon = WithText()
     UnderScore = WithText()
     Eq = WithText()
-    EqEq = WithText()
-    Neq = WithText()
+    EqEq = WithText(tm_scope="keyword.operator")
+    Neq = WithText(tm_scope="keyword.operator")
     ExclExcl = WithText()
-    Lt = WithText()
-    LEq = WithText()
-    Gt = WithText()
-    GEq = WithText()
-    And = WithText()
-    Or = WithText()
-    Plus = WithText()
-    Minus = WithText()
-    Mul = WithText()
-    Div = WithText()
-    Amp = WithText()
-    LPar = WithText()
-    RPar = WithText()
-    LBrack = WithText()
-    RBrack = WithText()
-    LCurl = WithText()
-    RCurl = WithText()
+    Lt = WithText(tm_scope="keyword.operator")
+    LEq = WithText(tm_scope="keyword.operator")
+    Gt = WithText(tm_scope="keyword.operator")
+    GEq = WithText(tm_scope="keyword.operator")
+    And = WithText(tm_scope="keyword.operator")
+    Or = WithText(tm_scope="keyword.operator")
+    Plus = WithText(tm_scope="keyword.operator")
+    Minus = WithText(tm_scope="keyword.operator")
+    Mul = WithText(tm_scope="keyword.operator")
+    Div = WithText(tm_scope="keyword.operator")
+    Amp = WithText(tm_scope="keyword.operator")
+    LPar = WithText(start_tm_rule="Parented", tm_scope="punctuation.paren.open", content_tm_patterns=["#all_rules"])
+    RPar = WithText(end_tm_rule="Parented", tm_scope="punctuation.paren.close")
+    LBrack = WithText(start_tm_rule="Bracketed", tm_scope="punctuation.brack.open", content_tm_patterns=["#all_rules"])
+    RBrack = WithText(end_tm_rule="Bracketed", tm_scope="punctuation.brack.close")
+    LCurl = WithText(start_tm_rule="Curled", tm_scope="punctuation.curl.open", content_tm_patterns=["#all_rules"])
+    RCurl = WithText(end_tm_rule="Curled", tm_scope="punctuation.curl.close")
     At = WithText()
-    Pipe = WithText()
-    LArrow = WithText()
-    BigRArrow = WithText()
-    Box = WithText()
-    SubBlockLiteral = WithText()
+    Pipe = WithText(tm_scope="keyword.operator")
+    BigRArrow = WithText(tm_scope="keyword.operator")
+    SubBlockLiteral = WithText(tm_scope="comment.block.documentation")
 
-    Comment = WithTrivia()
+    Comment = WithTrivia(tm_scope="comment.line.number-sign")
     Whitespace = WithTrivia()
 
 
 lkql_lexer = Lexer(Token)
 lkql_lexer.add_rules(
-    (Pattern(r"[ \t\n\r]"),                       Token.Whitespace),
-    (Literal("."),                                Token.Dot),
-    (Literal("..."),                              Token.DotDotDot),
-    (Literal("?."),                               Token.QuestionDot),
-    (Literal("?["),                               Token.QuestionBrack),
-    (Literal("?"),                                Token.Question),
-    (Literal(","),                                Token.Coma),
-    (Literal(";"),                                Token.SemiCol),
-    (Literal(":"),                                Token.Colon),
-    (Literal("_"),                                Token.UnderScore),
-    (Literal("="),                                Token.Eq),
-    (Literal("=="),                               Token.EqEq),
-    (Literal("!="),                               Token.Neq),
-    (Literal("!!"),                               Token.ExclExcl),
-    (Literal("<"),                                Token.Lt),
-    (Literal("<="),                               Token.LEq),
-    (Literal(">"),                                Token.Gt),
-    (Literal(">="),                               Token.GEq),
-    (Literal("and"),                              Token.And),
-    (Literal("or"),                               Token.Or),
-    (Literal("+"),                                Token.Plus),
-    (Literal("-"),                                Token.Minus),
-    (Literal("*"),                                Token.Mul),
-    (Literal("/"),                                Token.Div),
-    (Literal("&"),                                Token.Amp),
-    (Literal("("),                                Token.LPar),
-    (Literal(")"),                                Token.RPar),
-    (Literal("{"),                                Token.LCurl),
-    (Literal("}"),                                Token.RCurl),
-    (Literal("["),                                Token.LBrack),
-    (Literal("]"),                                Token.RBrack),
-    (Literal("@"),                                Token.At),
-    (Pattern(r"\|\"(.?)+"),                       Token.SubBlockLiteral),
-    (Literal("|"),                                Token.Pipe),
-    (Literal("<-"),                               Token.LArrow),
-    (Literal("=>"),                               Token.BigRArrow),
-    (Literal("<>"),                               Token.Box),
-    (Literal("let"),                              Token.Let),
-    (Literal("select"),                           Token.SelectTok),
-    (Literal("from"),                             Token.FromTok),
-    (Literal("through"),                          Token.ThroughTok),
-    (Literal("when"),                             Token.When),
-    (Literal("val"),                              Token.Val),
-    (Literal("fun"),                              Token.Fun),
-    (Literal("import"),                           Token.Import),
-    (Literal("selector"),                         Token.Selector),
-    (Literal("match"),                            Token.Match),
-    (Literal("rec"),                              Token.Rec),
-    (Literal("for"),                              Token.For),
-    (Literal("skip"),                             Token.Skip),
-    (Literal("is"),                               Token.Is),
-    (Literal("in"),                               Token.In),
-    (Literal("true"),                             Token.TrueLit),
-    (Literal("false"),                            Token.FalseLit),
-    (Literal("if"),                               Token.If),
-    (Literal("else"),                             Token.Else),
-    (Literal("then"),                             Token.Then),
-    (Literal("not"),                              Token.Not),
-    (Literal("null"),                             Token.Null),
-    (Pattern("[0-9]+"),                           Token.Integer),
-    (Pattern("[a-z][A-Za-z0-9_]*"),               Token.Identifier),
-    (Pattern("[A-Za-z][A-Za-z0-9_]*"),            Token.UpperIdentifier),
-    (Pattern(r'"(\\.|[^"])*"'),                   Token.String),
-    (Pattern(r"#(.?)+"),                          Token.Comment)
+    (Pattern(r"[ \t\n\r]"),            Token.Whitespace),
+    (Literal("..."),                   Token.DotDotDot),
+    (Literal("?"),                     Token.Question),
+    (Literal("."),                     Token.Dot),
+    (Literal(","),                     Token.Coma),
+    (Literal(";"),                     Token.SemiCol),
+    (Literal(":"),                     Token.Colon),
+    (Literal("!!"),                    Token.ExclExcl),
+    (Literal("_"),                     Token.UnderScore),
+    (Literal("=>"),                    Token.BigRArrow),
+    (Literal("=="),                    Token.EqEq),
+    (Literal("!="),                    Token.Neq),
+    (Literal("<="),                    Token.LEq),
+    (Literal(">="),                    Token.GEq),
+    (Literal("<"),                     Token.Lt),
+    (Literal(">"),                     Token.Gt),
+    (Literal("="),                     Token.Eq),
+    (Literal("and"),                   Token.And),
+    (Literal("or"),                    Token.Or),
+    (Literal("+"),                     Token.Plus),
+    (Literal("-"),                     Token.Minus),
+    (Literal("*"),                     Token.Mul),
+    (Literal("/"),                     Token.Div),
+    (Literal("&"),                     Token.Amp),
+    (Literal("("),                     Token.LPar),
+    (Literal(")"),                     Token.RPar),
+    (Literal("{"),                     Token.LCurl),
+    (Literal("}"),                     Token.RCurl),
+    (Literal("["),                     Token.LBrack),
+    (Literal("]"),                     Token.RBrack),
+    (Literal("@"),                     Token.At),
+    (Pattern(r"\|\"(.?)+"),            Token.SubBlockLiteral),
+    (Literal("|"),                     Token.Pipe),
+    (Literal("select"),                Token.SelectTok),
+    (Literal("from"),                  Token.FromTok),
+    (Literal("through"),               Token.ThroughTok),
+    (Literal("when"),                  Token.When),
+    (Literal("val"),                   Token.Val),
+    (Literal("fun"),                   Token.Fun),
+    (Literal("import"),                Token.Import),
+    (Literal("selector"),              Token.Selector),
+    (Literal("match"),                 Token.Match),
+    (Literal("rec"),                   Token.Rec),
+    (Literal("for"),                   Token.For),
+    (Literal("is"),                    Token.Is),
+    (Literal("in"),                    Token.In),
+    (Literal("true"),                  Token.TrueLit),
+    (Literal("false"),                 Token.FalseLit),
+    (Literal("if"),                    Token.If),
+    (Literal("else"),                  Token.Else),
+    (Literal("then"),                  Token.Then),
+    (Literal("not"),                   Token.Not),
+    (Literal("null"),                  Token.Null),
+    (Pattern("[0-9]+"),                Token.Integer),
+    (Pattern("[a-z][A-Za-z0-9_]*"),    Token.Identifier),
+    (Pattern("[A-Za-z][A-Za-z0-9_]*"), Token.UpperIdentifier),
+    (Pattern(r'"(\\.|[^"])*"'),        Token.String),
+    (Pattern(r"#(.?)+"),               Token.Comment),
 )
