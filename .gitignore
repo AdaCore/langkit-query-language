@@ -56,4 +56,5 @@ asis/
 
 # Documentation build artifacts
 user_manual/build/
+user_manual/generated/
 lkql_checker/doc/build/
