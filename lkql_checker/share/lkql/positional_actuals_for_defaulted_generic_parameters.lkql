@@ -24,8 +24,14 @@ fun check_generic(n, node) =
 fun positional_actuals_for_defaulted_generic_parameters(node) =
     node is ParamAssoc(f_designator: null, parent: l@AssocList)
     when match l.parent
-          | p@GenericSubpInstantiation    =>
-              check_generic(p.f_generic_subp_name, node)
-          | p@GenericPackageInstantiation =>
-              check_generic(p.f_generic_pkg_name, node)
-          | *                             => false
+         | p@GenericSubpInstantiation    =>
+              check_generic(
+                  stdlib.ultimate_generic_alias(p.f_generic_subp_name),
+                  node
+              )
+         | p@GenericPackageInstantiation =>
+              check_generic(
+                  stdlib.ultimate_generic_alias(p.f_generic_pkg_name),
+                  node
+              )
+         | *                             => false

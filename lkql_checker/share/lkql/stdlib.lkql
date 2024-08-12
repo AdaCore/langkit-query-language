@@ -134,6 +134,13 @@ fun ultimate_subprogram_alias(name) =
     else name
 
 @memoized
+fun ultimate_generic_alias(name) =
+    |" Return the ultimately designated ``GenericDecl``, going through renamings
+    match name.p_referenced_decl()
+    | r@GenericRenamingDecl => ultimate_generic_alias(r.f_renames.f_renamed_object)
+    | *                     => name
+
+@memoized
 fun has_local_scope(n) =
     |" Return ``true`` if ``n`` is enclosed in a local scope
     n.parent is GenericFormalObjDecl or
