@@ -28,37 +28,45 @@ endif
 ADDITIONAL_MANAGE_ARGS=
 
 # WARNING: Note that for some reason parallelizing the build still doesn't work
-all: lkql gnatcheck build_lkql_native_jit doc
+# --- General targets
+all: liblkqllang gnatcheck lkql_native_jit doc
 
-lkql: build/bin/liblkqllang_parse
-
-doc: build_lkql_native_jit
-	cd user_manual && make clean html
-
-gnatcheck: lkql
-	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
-
-build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
-	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java --maven-executable $(MAVEN) $(ADDITIONAL_MANAGE_ARGS)
+clean: clean_lkql clean_lkql_jit clean_doc
 
 test:
 	testsuite/testsuite.py -Edtmp
 
-clean: clean_lkql clean_lkql_jit
+# --- Liblkqllang targets
+liblkqllang: lkql/language/parser.py lkql/language/lexer.py
+	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java --maven-executable $(MAVEN) $(ADDITIONAL_MANAGE_ARGS)
 
 clean_lkql:
 	rm lkql/build -rf
 
-clean_lkql_jit:
-	cd lkql_jit && $(MAVEN) clean
-
-build_lkql_jit: lkql
+# --- LKQL JIT targets
+lkql_jit: liblkqllang
 	$(MAVEN) -f lkql/build/java/ install
 	$(MAVEN) -f lkql_jit/ clean install
 
-build_lkql_native_jit: lkql
+lkql_native_jit: liblkqllang
 	$(MAVEN) -f lkql/build/java/ install
 	$(MAVEN) -f lkql_jit/ clean install -P native,$(BUILD_MODE)
+
+clean_lkql_jit:
+	cd lkql_jit && $(MAVEN) clean
+
+# --- GNATcheck targets
+gnatcheck: liblkqllang
+	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
+
+# --- Documentation targets
+doc: lkql_native_jit
+	cd user_manual && make html
+	cd lkql_checker/doc && make all-html
+
+clean_doc:
+	cd user_manual && make clean
+	cd lkql_checker/doc && make clean
 
 .PHONY: lkql_checker
 
