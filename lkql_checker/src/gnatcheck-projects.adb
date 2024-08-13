@@ -380,8 +380,8 @@ package body Gnatcheck.Projects is
       for C in Agg_Context.Iterate loop
          Project_Options.Add_Switch
            (GPR2.Options.X,
-            String (Name_Value_Map_Package.Key (C)) & "=" &
-              Name_Value_Map_Package.Element (C));
+            String (External_Name_Value_Map_Package.Key (C)) & "=" &
+            External_Name_Value_Map_Package.Element (C));
       end loop;
 
       if not My_Project.Tree.Load (Project_Options,
@@ -678,7 +678,9 @@ package body Gnatcheck.Projects is
       --  Set GPR_TOOL, if needed
 
       for Cursor in Project_Options.Context.Iterate loop
-         if Containers.Name_Value_Map_Package.Key (Cursor) = "GPR_TOOL" then
+         if
+           Containers.External_Name_Value_Map_Package.Key (Cursor) = "GPR_TOOL"
+         then
             GPR_TOOL_Set := True;
             exit;
          end if;
