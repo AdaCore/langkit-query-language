@@ -227,7 +227,31 @@ class GnatcheckDriver(BaseDriver):
                 for project_dir in project_path
             ])
 
-        globs, locs = {}, {}
+        def cat(
+            filename: str,
+            sort: bool = False,
+            trim_start: int = 0,
+            trim_end: int = 0
+        ):
+            """
+            Add the content of ``filename`` to the test output if it is readable.
+            This filename must be relative to the test working dir.
+
+            :param sort: Whether to sort the content of the file.
+            :param trim_start: Count of lines to trim from the file start.
+            :param trim_end: Count of lines to trim from the file end.
+            """
+            try:
+                with open(self.working_dir(filename), 'r') as f:
+                    lines = f.readlines()
+                    lines = lines[trim_start:len(lines) - trim_end]
+                    if sort:
+                        lines.sort()
+                    self.output += f"testsuite_driver: Content of {filename}\n{''.join(lines)}"
+            except FileNotFoundError:
+                self.output += f"testsuite_driver: Cannot find the file {filename}\n"
+
+        globs, locs = {'cat': cat}, {}
         global_python = self.test_env.get("global_python", None)
         if global_python:
             exec(global_python, globs, locs)

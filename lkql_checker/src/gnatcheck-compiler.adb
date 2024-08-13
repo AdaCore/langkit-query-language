@@ -745,15 +745,6 @@ package body Gnatcheck.Compiler is
       end if;
    end Path_Index;
 
-   ----------------------------------
-   -- Get_Specified_Warning_Option --
-   ----------------------------------
-
-   function Get_Specified_Warning_Option return String is
-   begin
-      return Warning_Options_String (7 .. Warning_Options_String'Last);
-   end Get_Specified_Warning_Option;
-
    ----------------------
    -- Get_Style_Option --
    ----------------------
@@ -920,20 +911,45 @@ package body Gnatcheck.Compiler is
       return Result;
    end Is_Warning_Exemption_Par;
 
-   -------------------------------
-   -- Print_Active_Restrictions --
-   -------------------------------
+   -----------------------------
+   -- Active_Restriction_List --
+   -----------------------------
 
-   procedure Print_Active_Restrictions (Ident_Level : Natural := 0) is
+   function Active_Restrictions_List
+     (Separator    : String;
+      Elem_Prefix  : String;
+      Elem_Postfix : String) return String
+   is
+      use Ada.Strings.Unbounded;
+
+      Res : Unbounded_String;
+      First_Elem : Boolean := True;
+
+      procedure Append_Elem (Elem : String);
+      --  Append an element in the result, formatted as required
+
+      procedure Append_Elem (Elem : String) is
+      begin
+         if First_Elem then
+            First_Elem := False;
+         else
+            Append (Res, Separator);
+         end if;
+         Append (Res, Elem_Prefix);
+         Append (Res, Elem);
+         Append (Res, Elem_Postfix);
+      end Append_Elem;
+
    begin
       for R in Restriction_Setting'Range loop
          if Restriction_Setting (R).Active then
             if R in All_Boolean_Restrictions then
-               Report (To_Mixed (R'Img), Ident_Level);
+               Append_Elem (To_Mixed (R'Img));
             else
                for J in Restriction_Setting (R).Param.Iterate loop
-                  Report_No_EOL (To_Mixed (R'Img), Ident_Level);
-                  Report (" =>"  & Restriction_Setting (R).Param (J));
+                  Append_Elem
+                    (To_Mixed (R'Img) & " => " &
+                     Restriction_Setting (R).Param (J));
                end loop;
             end if;
          end if;
@@ -941,41 +957,47 @@ package body Gnatcheck.Compiler is
 
       for R in Special_Restriction_Setting'Range loop
          if Special_Restriction_Setting (R) then
-            Report_No_EOL (To_Mixed (R'Img), Ident_Level);
-
             case R is
                when No_Dependence =>
                   Forbidden_Units_Dictionary.Reset_Iterator;
-
                   while not Forbidden_Units_Dictionary.Done loop
-                     Report
+                     Append_Elem
                        ("No_Dependence => " &
-                        Forbidden_Units_Dictionary.Next_Entry,
-                           Ident_Level);
+                        Forbidden_Units_Dictionary.Next_Entry);
                   end loop;
 
                when No_Use_Of_Entity =>
                   Forbidden_Entities_Dictionary.Reset_Iterator;
-
                   while not Forbidden_Entities_Dictionary.Done loop
-                     Report
+                     Append_Elem
                        ("No_Use_Of_Entity => " &
-                        Forbidden_Entities_Dictionary.Next_Entry,
-                        Ident_Level);
+                        Forbidden_Entities_Dictionary.Next_Entry);
                   end loop;
 
                when No_Specification_Of_Aspect =>
                   Forbidden_Aspects_Dictionary.Reset_Iterator;
-
                   while not Forbidden_Aspects_Dictionary.Done loop
-                     Report
+                     Append_Elem
                        ("No_Specification_Of_Aspect => " &
-                        Forbidden_Aspects_Dictionary.Next_Entry,
-                        Ident_Level);
+                        Forbidden_Aspects_Dictionary.Next_Entry);
                   end loop;
             end case;
          end if;
       end loop;
+
+      return To_String (Res);
+   end Active_Restrictions_List;
+
+   -------------------------------
+   -- Print_Active_Restrictions --
+   -------------------------------
+
+   procedure Print_Active_Restrictions (Ident_Level : Natural := 0) is
+   begin
+      Report (Active_Restrictions_List
+        (Separator => ASCII.LF & (Ident_Level * Indent_String),
+         Elem_Prefix => "",
+         Elem_Postfix => ""));
    end Print_Active_Restrictions;
 
    ---------------------------------------
@@ -984,55 +1006,10 @@ package body Gnatcheck.Compiler is
 
    procedure Print_Active_Restrictions_To_File (Rule_File : File_Type) is
    begin
-      for R in Restriction_Setting'Range loop
-         if Restriction_Setting (R).Active then
-            if R in All_Boolean_Restrictions then
-               Put_Line (Rule_File, "+RRestrictions : " & To_Mixed (R'Img));
-            else
-               for J in Restriction_Setting (R).Param.Iterate loop
-                  Put (Rule_File, "+RRestrictions : " & To_Mixed (R'Img));
-                  Put_Line (Rule_File,
-                            " =>"  & Restriction_Setting (R).Param (J));
-               end loop;
-            end if;
-         end if;
-      end loop;
-
-      for R in Special_Restriction_Setting'Range loop
-         if Special_Restriction_Setting (R) then
-            case R is
-               when No_Dependence =>
-                  Forbidden_Units_Dictionary.Reset_Iterator;
-
-                  while not Forbidden_Units_Dictionary.Done loop
-                     Put      (Rule_File, "+RRestrictions : ");
-                     Put      (Rule_File, To_Mixed (R'Img) & " => ");
-                     Put_Line (Rule_File,
-                               Forbidden_Units_Dictionary.Next_Entry);
-                  end loop;
-
-               when No_Use_Of_Entity =>
-                  Forbidden_Entities_Dictionary.Reset_Iterator;
-
-                  while not Forbidden_Entities_Dictionary.Done loop
-                     Put      (Rule_File, "+RRestrictions : ");
-                     Put      (Rule_File, To_Mixed (R'Img) & " => ");
-                     Put_Line (Rule_File,
-                               Forbidden_Entities_Dictionary.Next_Entry);
-                  end loop;
-
-               when No_Specification_Of_Aspect =>
-                  Forbidden_Aspects_Dictionary.Reset_Iterator;
-
-                  while not Forbidden_Aspects_Dictionary.Done loop
-                     Put      (Rule_File, "+RRestrictions : ");
-                     Put      (Rule_File, To_Mixed (R'Img) & " => ");
-                     Put_Line (Rule_File,
-                               Forbidden_Aspects_Dictionary.Next_Entry);
-                  end loop;
-            end case;
-         end if;
-      end loop;
+      Put_Line (Rule_File, Active_Restrictions_List
+        (Separator => [ASCII.LF],
+         Elem_Prefix => "+RRestrictions : ",
+         Elem_Postfix => ""));
    end Print_Active_Restrictions_To_File;
 
    -------------------------------

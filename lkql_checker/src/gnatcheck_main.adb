@@ -17,6 +17,7 @@ with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;              use Gnatcheck.Ids;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.Projects;         use Gnatcheck.Projects;
@@ -61,9 +62,17 @@ procedure Gnatcheck_Main is
    --  libraries to find their dependencies without requiring users to
    --  explicitly set these paths.
 
-   procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes);
+   procedure Print_LKQL_Rules
+     (File                   : File_Type;
+      Mode                   : Source_Modes;
+      Include_Compiler_Rules : Boolean := False;
+      For_Worker             : Boolean := True);
    --  Print the rule configuration of the given source mode into the given
    --  file using the LKQL rule config file format.
+   --  If ``Include_Compiler_Rules`` is True, the compiler based rules options
+   --  is included in the emitted LKQL config.
+   --  ``For_Worker`` gives the information whether this procedure should emit
+   --  an LKQL file formatted for the worker.
 
    procedure Schedule_Files;
    --  Schedule jobs per set of files
@@ -126,24 +135,40 @@ procedure Gnatcheck_Main is
    -- Print_LKQL_Rules --
    ----------------------
 
-   procedure Print_LKQL_Rules (File : File_Type; Mode : Source_Modes) is
-      Mode_String : constant String :=
-        (case Mode is
-            when General    => "rules",
-            when Ada_Only   => "ada_rules",
-            when Spark_Only => "spark_rules");
-
+   procedure Print_LKQL_Rules
+     (File                   : File_Type;
+      Mode                   : Source_Modes;
+      Include_Compiler_Rules : Boolean := False;
+      For_Worker             : Boolean := True)
+   is
       First : Boolean := True;
    begin
-      Put_Line (File, "val " & Mode_String & " = @{");
+      --  Always emit the "rules" object, otherwise the LKQL config file is
+      --  invalid.
+      if Mode = General then
+         Put_Line (File, "val rules = @{");
+      end if;
+
+      --  Write the configuration of all rules instance
       for Rule in All_Rules.Iterate loop
          if Is_Enabled (All_Rules (Rule)) then
             Print_Rule_Instances_To_LKQL_File
-              (All_Rules (Rule), File, Mode, First);
+              (All_Rules (Rule), File, Mode, For_Worker, First);
          end if;
       end loop;
-      New_Line (File);
-      Put_Line (File, "}");
+
+      --  If required, emit the configuration of the compiler based rules
+      if Include_Compiler_Rules and then Mode = General then
+         Print_Compiler_Rule_To_LKQL_File (Style_Checks_Id, File, First);
+         Print_Compiler_Rule_To_LKQL_File (Warnings_Id, File, First);
+         Print_Compiler_Rule_To_LKQL_File (Restrictions_Id, File, First);
+      end if;
+
+      --  Close the rule config object
+      if not First or Mode = General then
+         New_Line (File);
+         Put_Line (File, "}");
+      end if;
    end Print_LKQL_Rules;
 
    --------------------
@@ -506,6 +531,33 @@ begin
 
    if Analyze_Compiler_Output then
       Create_Restriction_Pragmas_File;
+   end if;
+
+   --  If required, export the current rule configuration to the
+   --  'rules.lkql' file.
+   if Arg.Emit_LKQL_Rule_File.Get then
+      --  Ensure that the 'rules.lkql' file doesn't exists
+      if Is_Regular_File (Default_LKQL_Rule_Options_File) then
+         Error ("Cannot emit the LKQL rule file, " &
+                Default_LKQL_Rule_Options_File & "already exists");
+         OS_Exit (E_Error);
+      end if;
+
+      declare
+         File : Ada.Text_IO.File_Type;
+      begin
+         Create (File, Out_File, Default_LKQL_Rule_Options_File);
+
+         Print_LKQL_Rules
+           (File                   => File,
+            Mode                   => General,
+            Include_Compiler_Rules => True,
+            For_Worker             => False);
+         Print_LKQL_Rules (File, Ada_Only, For_Worker => True);
+         Print_LKQL_Rules (File, Spark_Only, For_Worker => True);
+
+         Close (File);
+      end;
    end if;
 
    if No_Detectors_For_KP_Version then

@@ -456,6 +456,12 @@ package Gnatcheck.Options is
          Default_Val => Null_Unbounded_String,
          Help => "read rule configuration from the given LKQL file");
 
+      package Emit_LKQL_Rule_File is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--emit-lkql-rule-file",
+         Help   => "emit a 'rules.lkql' file containing the rules "
+                   & "configuration");
+
       function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
 
       function Short_Report return Boolean is (Brief.Get or else Short.Get);
