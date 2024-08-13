@@ -1088,6 +1088,14 @@ package body Gnatcheck.Projects is
                         Free (Rule_File_Name);
                      end if;
                   else
+                     --  Display a message about the rules deprecation
+                     if not Rules_Warning_Emitted then
+                        Warning
+                          ("'-rules' section is deprecated, please prefer " &
+                           "the usage of '--rule-file' to provide an LKQL " &
+                           "rule configuration file");
+                        Rules_Warning_Emitted := True;
+                     end if;
                      Add_LKQL_Rule_File (Parameter (Parser => Parser));
                   end if;
 

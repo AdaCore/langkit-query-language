@@ -193,6 +193,10 @@ package Gnatcheck.Options is
    --  Whether the help message about the new instance system has already been
    --  emitted. This message should be removed in 26.0.
 
+   Rules_Warning_Emitted : Boolean := False;
+   --  Whether the warning message about the '-rules' section has already been
+   --  emitted.
+
    --------------------------------------
    -- Controlling the gnatcheck report --
    --------------------------------------
