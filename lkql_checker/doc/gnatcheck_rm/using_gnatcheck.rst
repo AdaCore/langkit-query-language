@@ -868,7 +868,7 @@ Transition from ASIS-based GNATcheck
 
 Originally ``gnatcheck`` was implemented on top of the ASIS technology and
 starting with version 23, it was re-implemented on top of the libadalang
-technology. This reimplementation has kept most of the old gnatcheck interface
+technology. This new implementation has kept most of the old gnatcheck interface
 and functionality, so transition from the old ``gnatcheck`` to the current
 version should be smooth and transparent, except possibly for a few aspects to
 be taken into account by users of the old technology.
@@ -895,6 +895,64 @@ The following switches from the old ``gnatcheck`` are no longer supported:
 ``--write-rules=template_file``
   This switch is no longer supported. You can use the GNAT Studio rule editor
   instead to create a coding standard file.
+
+.. _New_Instance_System
+
+The new rule instance system
+----------------------------
+
+The new ``gnatcheck`` implementation is introducing a new rule instance system
+which allows you to instantiate a rule multiple times under different names,
+and with potentially different rule parameters.
+You can now define more that one "alias" for the same rule to map your coding
+standard on the ``gnatcheck`` rules.
+However, rules aren't mutable anymore, which means that you cannot modify
+parameters of a rule once it has been created (instantiated).
+For example:
+
+.. code-block:: ada
+
+  --  The rule "Goto_Statements" is instantiated here
+  +RGoto_Statements
+
+  --  We try to create a new instance of the "Goto_Statements", this will fail
+  +RGoto_Statements:Only_Unconditional
+
+While with the old system this rule file would just mutate the previously
+enabled "Goto_Statements" rule, with the new instance system, this will cause
+an error during the ``gnatcheck`` run, telling you that the "goto_statement"
+instance already exists.
+To correct this error, you have define a custom name for the second
+"Goto_Statements" instance:
+
+.. code-block:: ada
+
+  --  The rule "Goto_Statements" is instantiated here
+  +RGoto_Statements
+
+  --  The rule "Goto_Statements" is also instantiated here,
+  --  under the "Uncond_Goto" name.
+  +R:Uncond_Goto:Goto_Statements:Only_Unconditional
+
+The same way, you have to rewrite rule options such as:
+
+.. code-block:: ada
+
+  +RForbidden_Pragmas:GNAT
+  +RForbidden_Pragmas:Annotate
+  +RForbidden_Pragmas:Assert
+
+into a single rule option using the comma separated notation, like:
+
+.. code-block:: ada
+
+  +RForbidden_Pragmas:GNAT,
+                      Annotate,
+                      Assert
+
+This new instance system also suppress the possibility to disable a rule (or
+an instance) with a parameter. Thus, the ``-R`` rule option doesn't accept
+parameters anymore.
 
 .. _Rule_Aliases_No_Longer_Supported:
 
