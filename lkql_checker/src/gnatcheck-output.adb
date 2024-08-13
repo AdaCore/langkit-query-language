@@ -757,6 +757,7 @@ package body Gnatcheck.Output is
       Info (" --ignore=filename        - do not process sources listed in filename");
       Info (" --rule-file=filename     - read rule configuration from the given LKQL file");
       Info (" -r [rule_names]          - enable the given rules during the GNATcheck run");
+      Info (" --emit-lkql-rule-file    - emit a 'rules.lkql' file containing the rules configuration");
       Info ("");
       Info ("rule_switches          - a list of the following switches");
       Info ("   -from=filename      - read rule options from filename");

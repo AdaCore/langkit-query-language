@@ -126,13 +126,27 @@ package Gnatcheck.Compiler is
    --  function used the style check parameters saved as is, without any
    --  checks.
 
+   function Get_Specified_Style_Option return String is
+     (Get_Style_Option (7 .. Get_Style_Option'Last));
+   --  Returns parameters of all the 'Style_Checks' rules specified for the
+   --  given gnatcheck call, without adding anything to it and with no leading
+   --  -gnaty.
+
    function Get_Warning_Option return String;
    --  Returns the '-gnatwxxx' option to be used in the compiler call.
 
-   function Get_Specified_Warning_Option return String;
+   function Get_Specified_Warning_Option return String is
+     (Get_Warning_Option (7 .. Get_Warning_Option'Last));
    --  Returns parameters of all the 'Warnings' rules specified for the given
    --  gnatcheck call, without adding anything to it and with no leading
    --  -gnatw.
+
+   function Active_Restrictions_List
+     (Separator    : String;
+      Elem_Prefix  : String;
+      Elem_Postfix : String) return String;
+   --  Get the string representation of the active restriction list, formatted
+   --  as required.
 
    procedure Print_Active_Restrictions (Ident_Level : Natural := 0);
    --  Prints out the Restriction Identifiers of the checks that are set active

@@ -209,10 +209,21 @@ package Gnatcheck.Rules is
      (Rule       : Rule_Info;
       Rule_File  : File_Type;
       Mode       : Source_Modes;
+      For_Worker : Boolean;
       First_Rule : in out Boolean);
    --  Prints information about all instances of the rule into the specified
    --  file with the LKQL rule options file syntax. This function will only
    --  prints instance with the provided `Mode`.
+   --  The ``For_Worker`` boolean tells whether this procedure should emit an
+   --  LKQL rule configuration file for the worker or for it to be used by
+   --  another GNATcheck run.
+
+   procedure Print_Compiler_Rule_To_LKQL_File
+     (Compiler_Rule : Rule_Id;
+      Rule_File     : File_Type;
+      First_Rule    : in out Boolean);
+   --  Prints configuration of the compiler rule identified by
+   --  ``Compiler_Rule`` in the LKQL rule fiel format.
 
    function Annotate_Rule
      (Rule : Rule_Info;
@@ -487,7 +498,8 @@ package Gnatcheck.Rules is
       Constant_Casing,
       Exception_Casing,
       Others_Casing,
-      Exclude : Unbounded_Wide_Wide_String :=
+      Exclude,
+      Exclude_File : Unbounded_Wide_Wide_String :=
         Null_Unbounded_Wide_Wide_String;
    end record;
    --  Represents an instance of a rule about identifiers casing

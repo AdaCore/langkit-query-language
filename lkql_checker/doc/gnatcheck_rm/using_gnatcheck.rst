@@ -233,6 +233,14 @@ The following switches control the general ``gnatcheck`` behavior
 ``--include-file=file``
   Append the content of the specified text file to the report file
 
+  .. index:: --emit-lkql-rule-file
+
+``--emit-lkql-rule-file``
+  Emit a file named ``rules.lkql`` containing the rule configuration of the
+  current GNATcheck run. This file is emitted besides the given project file
+  if there is one, otherwise, it is generated in the current directory.
+  Be careful, if a ``rules.lkql`` file already exists, it will be overwritten.
+
   .. index:: -t
 
 ``-t``
