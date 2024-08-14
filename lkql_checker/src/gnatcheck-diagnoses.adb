@@ -497,21 +497,6 @@ package body Gnatcheck.Diagnoses is
         Equivalent_Keys => "=");
    Postponed_Param_Exempt_Sections : Per_Rule_Postponed_Param_Exemp_Map.Map;
 
-   --------------------------------------------
-   -- Debug routines for exemption mechanism --
-   --------------------------------------------
-
-   procedure Parametrized_Exem_Section_Debug_Image
-     (S : Parametrized_Exemption_Sections.Cursor);
-   --  Prints out the debug image of the information stored for a parametric
-   --  exemption section.
-
-   procedure Rule_Parametrized_Exem_Sections_Debug_Image (Rule : Rule_Id);
-   pragma Unreferenced (Rule_Parametrized_Exem_Sections_Debug_Image);
-   --  Prints out the debug image of the current state of the information about
-   --  parametric exemption sections stored for Rule in
-   --  Rule_Param_Exempt_Sections
-
    ------------------------------------
    -- Allowed_As_Exemption_Parameter --
    ------------------------------------
@@ -1276,50 +1261,6 @@ package body Gnatcheck.Diagnoses is
          Section := @.Next_Exemption_Section;
       end loop;
    end Map_On_Postponed_Check_Exemption;
-
-   -------------------------------------------
-   -- Parametrized_Exem_Section_Debug_Image --
-   -------------------------------------------
-
-   procedure Parametrized_Exem_Section_Debug_Image
-     (S : Parametrized_Exemption_Sections.Cursor)
-   is
-      ES_Info : Parametrized_Exemption_Info;
-   begin
-      if Parametrized_Exemption_Sections.Has_Element (S) then
-         ES_Info := Parametrized_Exemption_Sections.Element (S);
-
-         Info ("+++++++++++++++++++++++++++++++++++++++++++++++");
-         Info_No_EOL ("parametric exemption section for rule");
-         Info (ES_Info.Rule'Img & "(" & Rule_Name (ES_Info.Rule) & ")");
-         Info ("in file SF=" & ES_Info.SF'Img &
-               "(" & Short_Source_Name (ES_Info.SF) & ")");
-         Info ("Parameters:");
-
-         if ES_Info.Params.Is_Empty then
-            Info ("   Empty parameter list!");
-         else
-            for El of ES_Info.Params loop
-               Info (">>" & El & "<<");
-            end loop;
-         end if;
-
-         Info ("Span: " & ES_Info.Exempt_Info.Line_Start'Img & ":" &
-                ES_Info.Exempt_Info.Col_Start'Img & " -"  &
-                ES_Info.Exempt_Info.Line_End'Img & ":" &
-                ES_Info.Exempt_Info.Col_End'Img);
-         Info ("Detected :" & ES_Info.Exempt_Info.Detected'Img);
-         Info_No_EOL ("Justification: ");
-
-         if ES_Info.Exempt_Info.Justification = Null_Unbounded_String then
-            Info ("IS NOT SET!!!");
-         else
-            Info (">>" & To_String (ES_Info.Exempt_Info.Justification) & "<<");
-         end if;
-      else
-         Info ("No parametric exemption section");
-      end if;
-   end Parametrized_Exem_Section_Debug_Image;
 
    ----------------
    -- Params_Img --
@@ -2694,26 +2635,6 @@ package body Gnatcheck.Diagnoses is
          return All_Rules (Rule).Rule_Param_From_Diag (Diag);
       end if;
    end Rule_Parameter;
-
-   -------------------------------------------------
-   -- Rule_Parametrized_Exem_Sections_Debug_Image --
-   -------------------------------------------------
-
-   procedure Rule_Parametrized_Exem_Sections_Debug_Image (Rule : Rule_Id) is
-   begin
-      Info ("** PARAMETRIC EXEMPTION SECTIONS FOR RULE" & Rule'Img &
-            " (" & Rule_Name (Rule) & ") **");
-
-      if Parametrized_Exemption_Sections.Is_Empty
-        (Rule_Param_Exempt_Sections (Rule))
-      then
-         Info ("   No parametric exemption sections");
-      else
-         Parametrized_Exemption_Sections.Iterate
-           (Container => Rule_Param_Exempt_Sections (Rule),
-            Process   => Parametrized_Exem_Section_Debug_Image'Access);
-      end if;
-   end Rule_Parametrized_Exem_Sections_Debug_Image;
 
    -----------------------------------
    -- Find_Same_Parameter_Exemption --
