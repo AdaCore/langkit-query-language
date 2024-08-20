@@ -239,6 +239,10 @@ Functions
 
     Return the ultimately designated ``ExceptionDecl``, going through renamings
 
+.. function:: ultimate_generic_alias(name)
+
+    Return the ultimately designated ``GenericDecl``, going through renamings
+
 .. function:: ultimate_prefix(n)
 
     Return ``n.f_prefix`` as long as ``n`` is a ``DottedName`` and
