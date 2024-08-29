@@ -1,6 +1,6 @@
 with Interfaces, System, System.Storage_Elements;
 
-package Foo is
+package Aspect_Decls is
     Variable: Interfaces.Unsigned_8
         with Address => System.Storage_Elements.to_Address (0), Volatile;
 
@@ -13,4 +13,4 @@ package Foo is
 
     Variable4 : My_Int
         with Address => Variable3'Address;
-end Foo;
+end Aspect_Decls;

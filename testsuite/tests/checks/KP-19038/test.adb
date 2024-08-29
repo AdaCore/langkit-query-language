@@ -1,6 +1,6 @@
 with Ada.Text_IO;
 
-procedure Excl1 is
+procedure Test is
    protected type PT with Exclusive_Functions is   -- FLAG
       function Unlock return Boolean;
       procedure Unlock;
@@ -57,4 +57,4 @@ begin
       delay 2.0;
       Ada.Text_IO.Put_Line ("Entry call timed out");
    end select;
-end;
+end Test;

@@ -1,5 +1,5 @@
 with System;
-procedure Bad_Agg_Init_With_Address_Clause is
+procedure Main is
    pragma Assertion_Policy (Check);
 
    Buff : aliased String (1 .. 100);
@@ -59,4 +59,4 @@ begin
    exception
       when Constraint_Error => null;
    end;
-end Bad_Agg_Init_With_Address_Clause;
+end Main;

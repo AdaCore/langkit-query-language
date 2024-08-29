@@ -1,4 +1,4 @@
-procedure Main is
+procedure Transitive is
    procedure Foo;  --  FLAG
    procedure Bar;  --  FLAG
    procedure Baz;  --  FLAG
@@ -19,4 +19,4 @@ procedure Main is
    end Baz;
 begin
    null;
-end Main;
+end Transitive;

@@ -14,6 +14,7 @@ import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
+import java.util.List;
 import org.graalvm.collections.EconomicMap;
 
 /**
@@ -150,7 +151,6 @@ public class CheckerUtils {
 
         /** Shortcut to emit a "file not found" message. */
         default void emitFileNotFound(SourceLocation from, String fileName, boolean isError) {
-
             this.emitDiagnostic(
                     isError ? MessageKind.ERROR : MessageKind.WARNING,
                     "File "
@@ -159,6 +159,17 @@ public class CheckerUtils {
                     from,
                     null,
                     null);
+        }
+
+        /** Method used to report an error array returned by a project loading. */
+        default void emitProjectErrors(String projectFileName, List<String> errorMessages) {
+            final LKQLContext context = LKQLLanguage.getContext(null);
+            if (!errorMessages.isEmpty()) {
+                context.println("Error(s) when opening project file: " + projectFileName);
+                for (String errorMessage : errorMessages) {
+                    context.println(" - " + errorMessage);
+                }
+            }
         }
 
         default boolean useFullFilePath() {
@@ -294,13 +305,18 @@ public class CheckerUtils {
 
         @Override
         public void emitFileNotFound(SourceLocation from, String fileName, boolean isError) {
-
             this.emitDiagnostic(
                     isError ? MessageKind.ERROR : MessageKind.WARNING,
                     "cannot find " + (FileUtils.baseName(fileName)),
                     from,
                     null,
                     null);
+        }
+
+        @Override
+        public void emitProjectErrors(String projectFileName, List<String> errorMessages) {
+            // Do nothing on purpose, project errors has already been reported by the GNATcheck
+            // driver.
         }
     }
 }
