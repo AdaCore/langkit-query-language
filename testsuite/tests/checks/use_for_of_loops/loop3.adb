@@ -1,6 +1,6 @@
 with Ada.Text_IO; use Ada.Text_IO;
 
-procedure Main is
+procedure Loop3 is
     type Int_Array is array (Natural range <>) of Integer;
     type Int_List (Length, Other : Natural := 10) is record
         Dep_Content : Int_Array (1 .. Length);
@@ -75,4 +75,4 @@ procedure Main is
     end Cond_Component;
 begin
     null;
-end Main;
+end Loop3;

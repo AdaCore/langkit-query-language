@@ -1,12 +1,12 @@
-src.adb:7:4: rule violation: explicit raise of a predefined exception
+raise_builtin.adb:7:4: rule violation: explicit raise of a predefined exception
 7 |    raise Program_Error with "Message";  --  FLAG
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-src.adb:9:4: rule violation: explicit raise of a predefined exception
+raise_builtin.adb:9:4: rule violation: explicit raise of a predefined exception
 9 |    raise Ren;                           --  FLAG
   |    ^^^^^^^^^^
 
-src.adb:13:7: rule violation: explicit raise of a predefined exception
+raise_builtin.adb:13:7: rule violation: explicit raise of a predefined exception
 13 |       raise Ren2;                       --  FLAG
    |       ^^^^^^^^^^^
 

@@ -499,8 +499,8 @@ public final class LKQLContext {
         }
 
         // Get the project file and use it if there is one
-        String projectFileName = this.getProjectFile();
-        if (projectFileName != null && !projectFileName.isEmpty() && !projectFileName.isBlank()) {
+        final String projectFileName = this.getProjectFile();
+        if (!projectFileName.isBlank()) {
             this.projectManager =
                     Libadalang.ProjectManager.create(
                             projectFileName,
@@ -511,8 +511,10 @@ public final class LKQLContext {
 
             // Forward the project diagnostics if there are some
             if (!this.projectManager.getDiagnostics().isEmpty()) {
-                throw LKQLRuntimeException.fromMessage(
-                        "Error(s) during project opening: " + this.projectManager.getDiagnostics());
+                this.getDiagnosticEmitter()
+                        .emitProjectErrors(
+                                new File(projectFileName).getName(),
+                                this.projectManager.getDiagnostics());
             }
 
             // Get the subproject provided by the user
