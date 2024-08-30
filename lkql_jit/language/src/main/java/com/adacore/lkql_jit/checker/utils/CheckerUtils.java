@@ -244,7 +244,7 @@ public class CheckerUtils {
                 Libadalang.AdaNode[] genericInstantiations,
                 LKQLContext context) {
             // Append generic instantiation information to the message
-            if (genericInstantiations.length > 0) {
+            if (context.showInstantiationChain() && genericInstantiations.length > 0) {
                 StringBuilder messageBuilder = new StringBuilder(message);
                 for (int i = 0; i < genericInstantiations.length; ++i) {
                     if (i > 0) {

@@ -116,10 +116,7 @@ The following switches control the general ``gnatcheck`` behavior
   .. index:: -l
 
 ``-l``
-  Use full source locations references in the report file. For a construct from
-  a generic instantiation a full source location is a chain from the location
-  of this construct in the generic unit to the place where this unit is
-  instantiated.
+  Use full source locations references in the report file.
 
   .. index:: -log
 
@@ -184,6 +181,12 @@ The following switches control the general ``gnatcheck`` behavior
   violation.  If the rule has a user-defined synonym, both gnatcheck and
   user-defined rule names are used as rule annotation:
   ``[user_synonym|gnatcheck_rule_name]``.
+
+  .. index:: --show-instantiation-chain
+
+``--show-instantiation-chain``
+For reported generic instantiation constructs, display a chain of source
+location going from the generic unit to the instantiation.
 
   .. index:: --brief
 

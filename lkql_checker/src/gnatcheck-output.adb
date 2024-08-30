@@ -425,7 +425,7 @@ package body Gnatcheck.Output is
 
    procedure Report_Missing_File (From_File, Missing_File : String) is
       function Format_Filename (F : String) return String is
-        (if Full_Source_Locations then F else Base_Name (F));
+        (if Arg.Full_Source_Locations.Get then F else Base_Name (F));
       --  Formats filename
    begin
       Warning
@@ -732,7 +732,8 @@ package body Gnatcheck.Output is
       Info (" -xml - generate report in XML format");
       Info (" -nt  - do not generate text report (enforces '-xml')");
       Info ("");
-      Info (" --show-rule - append rule names to diagnoses generated");
+      Info (" --show-rule                - append rule names to diagnoses generated");
+      Info (" --show-instantiation-chain - show instantiation chain for reported generic construct");
       Info ("");
       Info (" --brief              - brief mode, only report detections in Stderr");
       Info (" --check-redefinition - issue warning if a rule parameter is redefined");

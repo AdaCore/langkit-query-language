@@ -92,15 +92,17 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         @CommandLine.Option(names = "--files-from", description = "The file containing the files")
         public String filesFrom = null;
 
-        @CommandLine.Option(names = "--out-file", description = "The output report file")
-        public String outputFile = null;
-
         @CommandLine.Option(
                 names = "--ignore-project-switches",
                 description =
                         "Process all units in the project tree, excluding externally built"
                                 + " projects")
         public boolean ignoreProjectSwitches;
+
+        @CommandLine.Option(
+                names = "--show-instantiation-chain",
+                description = "Show instantiation chain in reported generic construct")
+        public boolean showInstantiationChain;
 
         @Override
         public Integer call() {
@@ -245,6 +247,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         if (!this.args.rulesDirs.isEmpty()) {
             contextBuilder.option(
                     "lkql.rulesDirs", String.join(File.pathSeparator, this.args.rulesDirs));
+        }
+
+        // Set the generic instantiation displaying parameter
+        if (this.args.showInstantiationChain) {
+            contextBuilder.option("lkql.showInstantiationChain", "true");
         }
 
         // Set the rule instances

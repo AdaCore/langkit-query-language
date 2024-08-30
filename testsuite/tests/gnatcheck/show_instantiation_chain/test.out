@@ -1,0 +1,1 @@
+main.adb:5:14: recursive subprogram [instance at main.adb:10]

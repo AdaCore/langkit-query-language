@@ -223,16 +223,6 @@ package Gnatcheck.Options is
    --  Contains the name of the LKQL file to use for rule configuration if
    --  one has been provided, otherwise is null.
 
-   Full_Source_Locations : Boolean := False;
-   --  '-l'
-   --  If this flag is set ON, gnatcheck adds full source locations in the
-   --  report file. In case of an entity declared in the expanded generic
-   --  code the full location indicates the location of a construct in the
-   --  template and then - the location of the corresponding instantiation of
-   --  the template (long location chains are used in case of nested
-   --  instantiations). Short location shows only the location of the
-   --  corresponding construct in the instantiation.
-
    ---------------------
    -- Project support --
    ---------------------
@@ -329,6 +319,12 @@ package Gnatcheck.Options is
          Help        => "name of the runtime (RTS) to use when loading the "
                         & "project");
 
+      package Full_Source_Locations is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-l",
+         Name   => "Full source locations",
+         Help   => "full pathname for file locations");
+
       package Debug_Mode is new Parse_Flag
         (Parser => Parser,
          Short  => "-d",
@@ -388,6 +384,11 @@ package Gnatcheck.Options is
         (Parser => Parser,
          Long   => "--show-rule",
          Help   => "append rule names to diagnoses generated");
+
+      package Show_Instantiation_Chain is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--show-instantiation-chain",
+         Help   => "show instantiation chain for reported generic construct");
 
       package Check_Redefinition is new Parse_Flag
         (Parser => Parser,

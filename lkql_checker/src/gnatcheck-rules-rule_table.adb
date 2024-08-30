@@ -1148,7 +1148,7 @@ package body Gnatcheck.Rules.Rule_Table is
       pragma Unreferenced (Instance_Id);
 
       Output_Rule_File : constant String :=
-        (if Full_Source_Locations
+        (if Arg.Full_Source_Locations.Get
          then LKQL_Rule_File_Name
          else Base_Name (LKQL_Rule_File_Name));
       Rule_Name : constant String := Instance_Object.Get ("ruleName");

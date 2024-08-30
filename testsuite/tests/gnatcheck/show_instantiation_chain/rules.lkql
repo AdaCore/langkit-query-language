@@ -1,0 +1,3 @@
+val rules = @{
+    recursive_subprograms
+}
