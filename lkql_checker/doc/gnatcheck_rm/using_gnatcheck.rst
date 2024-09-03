@@ -515,6 +515,12 @@ to simplify mapping your coding standard requirements onto
     ...
     bar.ads:17:3: this is not good [My_Coding_Rule_N|Gnatcheck_Rule_N]
 
+.. attention::
+
+  A custom coding rule name can be any sequence of non-whitespace characters.
+  Moreover, the ":" (colon) character is forbidden in those names for parsing
+  purposes.
+
 .. _gnatcheck_Exit_Codes:
 
 GNATcheck Exit Codes
