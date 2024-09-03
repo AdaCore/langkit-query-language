@@ -273,8 +273,8 @@ class GnatcheckDriver(BaseDriver):
             # and target
             if exe == "gnatkp" and test_data.get('gnatkp_autoconfig', True):
                 if not self.is_codepeer:
-                    args.append(f"--target={self.env.build.platform}")
-                args.append("--RTS=native")
+                    args.append(f"--target={self.env.host.triplet}")
+                args.append("--RTS=default")
 
             # Set the codepeer target if needed
             if self.is_codepeer:
