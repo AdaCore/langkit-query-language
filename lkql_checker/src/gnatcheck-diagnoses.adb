@@ -44,7 +44,7 @@ package body Gnatcheck.Diagnoses is
    --  Matcher for a diagnostic
 
    Match_Rule_Name : constant Pattern_Matcher :=
-     Compile ("^""(\w+)\s*(?::\s*(.*))?""$");
+     Compile ("^""([^\s:]+)\s*(?::\s*(.*))?""$");
    --  Matcher for a rule name and potential arguments
 
    Match_Rule_Param : constant Pattern_Matcher :=
