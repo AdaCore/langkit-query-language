@@ -1,5 +1,7 @@
 driver: gnatcheck
 format: brief
 project: prj.gpr
+control:
+  - [XFAIL, "True", "Wait for #325 to be resolved"]
 rules:
   - +RGOTO_Statements
