@@ -23,5 +23,6 @@ fun decls_not_only_operator(pkg) =
 fun use_clauses(unit, exempt_operator_packages=false) = [
     {message: "use clause", loc: p}
     for p in concat([use.f_packages.children
-                    for use in from unit.root select UsePackageClause].to_list)
-        if not exempt_operator_packages or decls_not_only_operator(p)]
+                     for use in from unit.root select UsePackageClause].to_list)
+    if (not exempt_operator_packages) or decls_not_only_operator(p)
+]

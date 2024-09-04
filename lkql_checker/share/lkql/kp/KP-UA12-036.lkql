@@ -24,7 +24,7 @@ fun check_type(node, alignment) = {
 
 fun message(n, alignment) = {
     val params = n.f_params;
-    val type = (if not params[1].f_designator or
+    val type = (if (not params[1].f_designator) or
                    params[1].f_designator.p_name_is("object")
                 then params[1] else params[2]).f_r_expr.p_referenced_decl();
     val res = if stdlib.is_classwide_type(type) then
@@ -42,7 +42,7 @@ fun kp_ua12_036(unit, alignment: int = 16) = [
     when stdlib.is_unchecked_deallocation(node)
      and node.f_params is params@AssocList
          when params.children_count == 2
-          and if not params[1].f_designator or
+          and if (not params[1].f_designator) or
                  params[1].f_designator.p_name_is("object")
               then check_type(params[1], alignment)
               else check_type(params[2], alignment)]

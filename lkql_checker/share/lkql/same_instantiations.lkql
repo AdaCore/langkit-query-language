@@ -47,7 +47,7 @@ fun same_non_null_params(i1, i2) = {
 @memoized
 fun insts(library_only) =
     select i@GenericPackageInstantiation
-    when not library_only or not stdlib.has_local_scope(i)
+    when if library_only then not stdlib.has_local_scope(i)
 
 @memoized
 fun same_instance(node, library_only) =
@@ -64,5 +64,5 @@ fun same_instantiations(unit, library_level_only = false) =
                stdlib.sloc_image(same_instance(n, library_level_only)), loc: n}
      for n in from unit.root
               select GenericPackageInstantiation
-     if (not library_level_only or not stdlib.has_local_scope(n)) and
+     if (if library_level_only then not stdlib.has_local_scope(n)) and
          same_instance(n, library_level_only)]

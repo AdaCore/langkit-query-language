@@ -165,10 +165,10 @@ fun identifier_prefixes(unit,
       when p is not SingleTaskTypeDecl and concurrent != "-"
     =>
         p.p_previous_part() is (null | IncompleteTypeDecl) and
-        ((not node.f_name.text.starts_with(concurrent)) or
-         check_exclusive(node.f_name.text,
-                         exclusive=exclusive,
-                         concurrent_exclusive=false))
+        (if node.f_name.text.starts_with(concurrent)
+         then check_exclusive(node.f_name.text,
+                              exclusive=exclusive,
+                              concurrent_exclusive=false))
 
     # 'Class access
     | (p@TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
@@ -179,10 +179,10 @@ fun identifier_prefixes(unit,
       when class_access != "-"
     =>
         p?.p_previous_part() is (null | IncompleteTypeDecl) and
-        ((not node.f_name.text.starts_with(class_access)) or
-         check_exclusive(node.f_name.text,
-                         exclusive=exclusive,
-                         class_access_exclusive=false))
+        (if node.f_name.text.starts_with(class_access)
+         then check_exclusive(node.f_name.text,
+                              exclusive=exclusive,
+                              class_access_exclusive=false))
 
     # Subprogram access
     | (p@TypeDecl(f_type_def: AccessToSubpDef) |
@@ -191,10 +191,10 @@ fun identifier_prefixes(unit,
       when subprogram_access != "-"
     =>
         p?.p_previous_part() is (null | IncompleteTypeDecl) and
-        ((not node.f_name.text.starts_with(subprogram_access)) or
-         check_exclusive(node.f_name.text,
-                         exclusive=exclusive,
-                         subprogram_access_exclusive=false))
+        (if node.f_name.text.starts_with(subprogram_access)
+         then check_exclusive(node.f_name.text,
+                              exclusive=exclusive,
+                              subprogram_access_exclusive=false))
 
     # Other access types
     | (p@TypeDecl(f_type_def: AccessDef) |
@@ -202,15 +202,15 @@ fun identifier_prefixes(unit,
       when access != "-"
     =>
         p?.p_previous_part() is (null | IncompleteTypeDecl) and
-        ((not node.f_name.text.starts_with(access)) or
-         check_exclusive(node.f_name.text,
-                         exclusive=exclusive,
-                         access_exclusive=false,
-                         # If both an Access prefix and a Type prefix are
-                         # set and the type prefix is a prefix of the access
-                         # prefix, we don't want to flag this access because
-                         # it broke the exclusivity of the type prefix.
-                         type_exclusive=false))
+        (if node.f_name.text.starts_with(access)
+         then check_exclusive(node.f_name.text,
+                              exclusive=exclusive,
+                              access_exclusive=false,
+                              # If both an Access prefix and a Type prefix are
+                              # set and the type prefix is a prefix of the access
+                              # prefix, we don't want to flag this access because
+                              # it broke the exclusivity of the type prefix.
+                              type_exclusive=false))
 
     # (Sub)Types derived from `derived`
     | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
@@ -265,7 +265,7 @@ fun identifier_prefixes(unit,
         # Check all other defining names for exclusion except for completions
         # and renaming-as-body
         | p2 =>
-            (not p2 is (BodyNode | SubpRenamingDecl) or not p2.p_previous_part()) and
-            (not p2 is ObjectDecl or not node.p_previous_part()) and
+            (if p2 is (BodyNode | SubpRenamingDecl) then not p2.p_previous_part()) and
+            (if p2 is ObjectDecl then not node.p_previous_part()) and
             check_exclusive(node.f_name.text, exclusive=exclusive)]
 }

@@ -376,18 +376,22 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     /**
      * Visit an "if then else" node.
      *
-     * @param ifThenElse The "if then else" node from Langkit.
+     * @param condExpr The "if then else" node from Langkit.
      * @return The "if then else" node for Truffle.
      */
     @Override
-    public LKQLNode visit(Liblkqllang.IfThenElse ifThenElse) {
+    public LKQLNode visit(Liblkqllang.CondExpr condExpr) {
         // Translate the if then else fields
-        final Expr condition = (Expr) ifThenElse.fCondition().accept(this);
-        final Expr consequence = (Expr) ifThenElse.fThenExpr().accept(this);
-        final Expr alternative = (Expr) ifThenElse.fElseExpr().accept(this);
+        final Expr condition = (Expr) condExpr.fCondition().accept(this);
+        final Expr consequence = (Expr) condExpr.fThenExpr().accept(this);
+        final Liblkqllang.Expr elseNode = condExpr.fElseExpr();
+        Expr alternative = null;
+        if (!elseNode.isNone()) {
+            alternative = (Expr) elseNode.accept(this);
+        }
 
         // Return the if then else node
-        return new IfThenElse(loc(ifThenElse), condition, consequence, alternative);
+        return new CondExpr(loc(condExpr), condition, consequence, alternative);
     }
 
     // --- Unwrap node

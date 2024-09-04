@@ -199,7 +199,7 @@ fun is_predefined_op(op, follow_renamings=false) =
     val ref = op.p_referenced_decl();
     val real_ref = if follow_renamings then ultimate_subprogram_alias(ref) else ref;
     # TODO: remove null check once all operators are synthesized (UB16-053)
-    not real_ref or real_ref is SyntheticSubpDecl
+    if real_ref then real_ref is SyntheticSubpDecl
 }
 
 fun is_standard_numeric(n) =

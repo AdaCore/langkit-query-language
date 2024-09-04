@@ -66,6 +66,7 @@ class Token(LexerToken):
     Pipe = WithText()
     LArrow = WithText()
     BigRArrow = WithText()
+    BigLongRArrow = WithText()
     Box = WithText()
     SubBlockLiteral = WithText()
 

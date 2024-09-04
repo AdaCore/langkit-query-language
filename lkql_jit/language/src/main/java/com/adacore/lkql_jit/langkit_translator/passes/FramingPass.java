@@ -517,8 +517,8 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
-    public Void visit(Liblkqllang.IfThenElse ifThenElse) {
-        traverseChildren(ifThenElse);
+    public Void visit(Liblkqllang.CondExpr condExpr) {
+        traverseChildren(condExpr);
         return null;
     }
 

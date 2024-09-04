@@ -25,6 +25,19 @@ categorize them by AdaCore GNATcheck release.
 25.0
 ----
 
+Conditional expression alternatives are now optional
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now you can write a conditional expression without providing any alternative
+expression. This way, if the condition is evaluated as ``true``, then the
+consequence expression is evaluated, else the ``true`` value is returned.
+You can use this feature to express logical implication when performing
+boolean operation, example:
+
+.. code-block:: lkql
+
+    if node.p_has_something() then node.p_check_something_else()
+
 Syntax of pattern details (breaking)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -615,19 +628,23 @@ functional, replaces traditional for loops.
 If Expression
 ^^^^^^^^^^^^^
 
-.. lkql_doc_class:: IfThenElse
+.. lkql_doc_class:: CondExpr
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/if_then_else.svg
 
 If expressions are traditional conditional expressions composed of a condition,
 an expression executed when the condition is true, and and expression executed
-when the condition is false.
+when the condition is false. The latter is optional and its default value is
+``true`` when no explicit expression is provided.
 
 .. code-block:: lkql
 
    # No parentheses required
-   val a = if b < 12 then c() else d()
+   val x = if b < 12 then c() else d()
+
+   # Without "else"
+   val y = if b < 12 then a == 0
 
 Match Expression
 ^^^^^^^^^^^^^^^^

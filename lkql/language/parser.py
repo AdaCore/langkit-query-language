@@ -74,8 +74,8 @@ class Op(LkqlNode):
     """
     enum_node = True
     alternatives = [
-        'plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq', 'concat',
-        'lt', 'leq', 'gt', 'geq', 'not'
+        'plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq',
+        'concat', 'lt', 'leq', 'gt', 'geq', 'not'
     ]
 
 
@@ -159,7 +159,7 @@ class SubBlockLiteral(LkqlNode):
     pass
 
 
-class IfThenElse(Expr):
+class CondExpr(Expr):
     """
     Expression of the form: ``if CONDITION then EXPR1 else EXPR2``
     """
@@ -1326,7 +1326,7 @@ lkql_grammar.add_rules(
 
     match_arm=MatchArm("|", G.pattern, "=>", G.expr),
 
-    if_then_else=IfThenElse("if", G.expr, "then", G.expr, "else", G.expr),
+    if_then_else=CondExpr("if", G.expr, "then", G.expr, Opt("else", G.expr)),
 
     id=Identifier(Token.Identifier),
     upper_id=Identifier(Token.UpperIdentifier),
