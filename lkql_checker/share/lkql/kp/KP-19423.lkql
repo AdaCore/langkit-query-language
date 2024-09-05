@@ -1,0 +1,10 @@
+@check(help="possible occurrence of KP 19423",
+       message="possible occurrence of KP 19423",
+       impact="22.*,23.*,24.*")
+fun kp_19423(node) =
+    |" Flag all "for ... in" loops which iterate over expressions of the
+    |" form "F'Range", where F is a function call.
+    node is ForLoopStmt(f_spec: spec@ForLoopSpec(f_loop_type: IterTypeIn))
+    when spec.f_iter_expr is ref@AttributeRef
+        when ref.f_attribute?.p_canonical_text() == "range"
+        and ref.f_prefix.p_is_call()
