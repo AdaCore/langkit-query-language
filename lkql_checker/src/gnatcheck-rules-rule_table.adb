@@ -1549,6 +1549,7 @@ package body Gnatcheck.Rules.Rule_Table is
             for Rule of Rule_Set loop
                Rule.XML_Rule_Help (Rule, Level + 1);
             end loop;
+            Rule_Set.Clear;
          end;
 
          Info (Level * Indent_String & "</category>");
