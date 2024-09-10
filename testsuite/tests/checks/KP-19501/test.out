@@ -1,0 +1,12 @@
+main.adb:64:4: rule violation: possible occurrence of KP 19501
+64 |    Process_Dyn_Int (C_S'Length);        --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:72:4: rule violation: possible occurrence of KP 19501
+72 |    Process_Dyn_Pred_Int (C_S'Length);   --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:76:4: rule violation: possible occurrence of KP 19501
+76 |    Process_Multiple (C_S'Length, C_S'Size);  --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,31 @@
+import stdlib
+
+fun is_static_int_attr_ref(expr) =
+    |" Returns whether the given expression is an attribute reference which
+    |" value is a static (compilation known) universal integer.
+    expr is AttributeRef
+    when expr.p_expression_type() == expr.p_universal_int_type()
+     and expr.p_is_static_expr()
+
+fun is_dynamic_subtype_formal(formal) =
+    |" Returns whether the given formal parameter DefiningName has a dynamic
+    |" subtype.
+    formal is DefiningName(p_basic_decl(): decl@BasicDecl)
+    when decl.f_type_expr is (SubtypeIndication | Name)(
+        p_is_static_subtype(): false
+    )
+
+@check(help="possible occurrence of KP 19501",
+       message="possible occurrence of KP 19501",
+       impact="7.1.*,7.2.*,7.3.*,7.4.*,17.*,18.*,19.*,20.*,21.*,22.*,23.*,24.*")
+fun kp_19501(node) =
+    |" Flag all call expressions which include at least one known problematic
+    |" formal/actual parameter pair.
+    node is CallExpr(p_is_call(): true)
+    when stdlib.any(
+        [
+            is_static_int_attr_ref(p.actual) and
+            is_dynamic_subtype_formal(p.param)
+            for p in node.p_call_params()
+        ]
+    )
