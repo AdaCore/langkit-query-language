@@ -1094,6 +1094,17 @@ package body Gnatcheck.Projects is
                   Add_Rule_Option (Full_Switch (Parser => Parser));
                   Individual_Rules_Set := True;
             end case;
+            if not Mixed_Style_Warning_Emitted then
+               if Arg.Rules.Get'Length > 0
+                 or else Arg.Rule_File.Get /= Null_Unbounded_String
+               then
+                  Warning
+                    ("The '-rules' section usage is discouraged from now, " &
+                     "you should only use the '--rules' and '--rule-file' " &
+                     "command-line options");
+               end if;
+               Mixed_Style_Warning_Emitted := True;
+            end if;
          end loop;
       end Process_Sections;
 
