@@ -10,6 +10,8 @@ with Ada.Strings.Hash;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
+with GNATCOLL.Utils; use GNATCOLL.Utils;
+
 package Gnatcheck.String_Utilities is
 
    --  String-related utilities
@@ -40,6 +42,11 @@ package Gnatcheck.String_Utilities is
    function Remove_Quotes (S : String) return String;
    --  Removes surrounding quotes or double-quotes from the provided string
    --  if any, else just return the string.
+
+   function Escape_Quotes (S : String) return String is
+     (Replace (S, """", "\"""));
+   --  Escape all quotes in the given string by adding a '\` before each of
+   --  them.
 
    function Is_White_Space (Ch : Character) return Boolean is
      (Ch in ' ' | ASCII.HT);

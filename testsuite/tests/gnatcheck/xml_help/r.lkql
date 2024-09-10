@@ -1,0 +1,7 @@
+val rules = @{
+    Goto_Statements: [{}, {instance_name: "Uncond_Goto", only_unconditional: true}],
+    Redundant_Null_Statements,
+    Too_Many_Parents: {n: 10},
+    Calls_In_Exception_Handlers: {subprograms: ["this", "that"]},
+    Identifier_Prefixes: [{type: "_T"}, {instance_name: "Access_Prefix", access: "_Ptr"}]
+}
