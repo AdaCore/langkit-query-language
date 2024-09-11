@@ -323,7 +323,7 @@ This file must be a valid LKQL file that exports at least a ``rules`` top-level
 symbol. This symbol must refer to an object value containing rules
 configuration; keys are GNATcheck rules to enable; and values are objects
 containing rule parameters. A rule parameter value can be a boolean, an
-integer, a string or a list of strings.
+integer, a string, or a list of strings.
 
 ::
 
