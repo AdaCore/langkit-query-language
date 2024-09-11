@@ -1,0 +1,18 @@
+main.adb:7:4: rule violation: possible occurrence of KP 19423
+7 |     for I in F'Range loop      --  FLAG
+  | ____^
+  ||
+  || ~~~ 1 other lines ~~~
+  ||
+9 ||    end loop;
+  ||____________^
+
+main.adb:15:4: rule violation: possible occurrence of KP 19423
+15 |     for I in G (0)'Range loop  --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+17 ||    end loop;
+   ||____________^
+
