@@ -15,15 +15,24 @@ It can also be used as a static analysis tool to detect potential errors
 
 A number of rules are predefined in ``gnatcheck`` and are described
 in :ref:`Predefined_Rules`. In addition, it is possible to write new rules
-as described in :ref:`Writing_Your_Own_Rules`
-using a dedicated pattern matching language called `LKQL`,
-used to implement all the predefined rules.
+as described in :ref:`Writing_Your_Own_Rules` using a dedicated pattern
+matching language called `LKQL`, used to implement all the predefined rules.
 
 Invoking ``gnatcheck`` on the command line has the form::
 
   $ gnatcheck [switches] {filename}
         [-files=arg_list_filename]
-        -rules rule_options [-cargs gcc_switches]
+        [-r rule_names]
+        [--rules=lkql_rule_filename]
+        [-cargs gcc_switches]
+
+
+or the deprecated form::
+
+  $ gnatcheck [switches] {filename}
+        [-files=arg_list_filename]
+        -rules rule_options
+        [-cargs gcc_switches]
 
 where
 
@@ -35,6 +44,12 @@ where
 * `arg_list_filename` is the name (including the extension) of a text
   file containing the names of the source files to process, separated by spaces
   or line breaks.
+
+* `rules_names` is a list of rule to enable for the GNATcheck run.
+
+* `lkql_rule_filename` is the name (including the extension) of an LKQL rule
+  configuration file used to control and configure the enabled rules for the
+  GNATcheck run (see :ref:`LKQL_options_file` for more information about it).
 
 * `rule_options` is a list of options for controlling a set of
   rules to be checked by ``gnatcheck`` (:ref:`gnatcheck_Rule_Options`).
@@ -66,30 +81,31 @@ project file named :file:`gnatcheck_example.gpr` with the following content:
      for Main use ("main.adb");
 
      package Check is
-        for Default_Switches ("ada") use ("-rules", "-from=coding_standard");
+        for Default_Switches ("ada") use ("--rules", "coding_standard.lkql");
      end Check;
 
   end Gnatcheck_Example;
 
 
-And the file named :file:`coding_standard` is also located in the current
-directory and has the following content::
+And the file named :file:`coding_standard.lkql` is also located in the current
+directory and has the following content
 
-  -----------------------------------------------------
-  -- This is a sample gnatcheck coding standard file --
-  -----------------------------------------------------
+.. code-block:: lkql
 
-  --  First, turning on rules, that are directly implemented in gnatcheck
-  +RAbstract_Type_Declarations
-  +RAnonymous_Arrays
-  +RLocal_Packages
-  +RFloat_Equality_Checks
-  +REXIT_Statements_With_No_Loop_Name
+   # This is a sample gnatcheck coding standard file
 
-  --  Then, activating compiler checks of interest:
-  +RStyle_Checks:e
-  --  This style check checks if a unit name is present on END keyword that
-  --  is the end of the unit declaration
+   # The 'rules' value must be an object value containing rule configs
+   val rules = @{
+      # Turning on rules directly implemented in GNATcheck
+      Abstract_Type_Declarations,
+      Anonymous_Arrays,
+      Local_Packages,
+      Float_Equality_Checks,
+      EXIT_Statements_With_No_Loop_Name,
+
+      # Turning on a compiler check
+      Style_Checks: [{arg: "e"}]
+   }
 
 
 And the subdirectory :file:`src` contains the following Ada sources:
@@ -158,9 +174,9 @@ the project file as the only parameter of the call::
 
 As a result, ``gnatcheck`` is called to check all the files from the
 project :file:`gnatcheck_example.gpr` using the coding standard defined by
-the file :file:`coding_standard`. The ``gnatcheck``
-report file named :file:`gnatcheck.out` will be created in the ``obj``
-directory, and it will have the following content::
+the file :file:`coding_standard.lkql`. The ``gnatcheck`` report file named
+:file:`gnatcheck.out` will be created in the ``obj`` directory, and it will
+have the following content::
 
     GNATCheck report
 

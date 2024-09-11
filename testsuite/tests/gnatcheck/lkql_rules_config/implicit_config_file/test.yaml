@@ -1,0 +1,13 @@
+driver: gnatcheck
+format: brief
+
+tests:
+  - label: Without project file
+    input_sources:
+      - main.adb
+  - label: With project file
+    project: project/prj.gpr
+  - label: With other rule options
+    project: project/prj.gpr
+    rules:
+      - +RRedundant_Null_Statements

@@ -156,12 +156,14 @@ class GnatcheckDriver(BaseDriver):
           instead decide to pass rules via the project file.
         - ``rule_file`` (str): If passed, will be forwarded as `-from` to
           gnatcheck.
-        - ``lkql_rule_file`` (str): If passed, will be forwarded as `--from-lkql`
+        - ``lkql_rule_file`` (str): If passed, will be forwarded as `--rule-file`
           to gnatcheck.
         - ``rules_dirs`` (list[str]): A list of directories to pass to gnatcheck
           as rule containing directories.
         - ``rule_list_file``: If provided, read the given rule file and add its
           sorted content to the test output.
+        - ``extra_rule_options`` (list[str]): Extra arguments for the rules
+          section.
 
         - ``pre_python``/``post_python`` (str): Python code to be executed
           before/after the test.
@@ -225,7 +227,31 @@ class GnatcheckDriver(BaseDriver):
                 for project_dir in project_path
             ])
 
-        globs, locs = {}, {}
+        def cat(
+            filename: str,
+            sort: bool = False,
+            trim_start: int = 0,
+            trim_end: int = 0
+        ):
+            """
+            Add the content of ``filename`` to the test output if it is readable.
+            This filename must be relative to the test working dir.
+
+            :param sort: Whether to sort the content of the file.
+            :param trim_start: Count of lines to trim from the file start.
+            :param trim_end: Count of lines to trim from the file end.
+            """
+            try:
+                with open(self.working_dir(filename), 'r') as f:
+                    lines = f.readlines()
+                    lines = lines[trim_start:len(lines) - trim_end]
+                    if sort:
+                        lines.sort()
+                    self.output += f"testsuite_driver: Content of {filename}\n{''.join(lines)}"
+            except FileNotFoundError:
+                self.output += f"testsuite_driver: Cannot find the file {filename}\n"
+
+        globs, locs = {'cat': cat}, {}
         global_python = self.test_env.get("global_python", None)
         if global_python:
             exec(global_python, globs, locs)
@@ -338,6 +364,10 @@ class GnatcheckDriver(BaseDriver):
             for rule_dir in test_data.get('rules_dirs', []):
                 args.append(f'--rules-dir={rule_dir}')
 
+            # Add the LKQL rule file
+            if test_data.get('lkql_rule_file', None):
+                args.append(f"--rule-file={test_data['lkql_rule_file']}")
+
             # Finally add all extra arguments given in the test
             for extra_arg in test_data.get('extra_args', []):
                 args.append(extra_arg)
@@ -347,18 +377,20 @@ class GnatcheckDriver(BaseDriver):
 
             # Add the rule configuration arguments
             rule_file = test_data.get('rule_file', None)
-            lkql_rule_file = test_data.get('lkql_rule_file', None)
             if rule_file:
                 abs_rule_file = self.working_dir(rule_file)
                 rule_file = (abs_rule_file
                              if P.isfile(abs_rule_file) else
                              rule_file)
                 args += ['-from', rule_file]
-            if lkql_rule_file:
-                args += ['-from-lkql', lkql_rule_file]
-            elif test_data.get('rules', None):
-                for r in test_data.get('rules', []):
-                    args.append(r)
+
+            # Add all rules options, add it to the command-line
+            for r in test_data.get('rules', []):
+                args.append(r)
+
+            # Finally, add the extra rule options
+            for arg in test_data.get('extra_rule_options', []):
+                args.append(arg)
 
             # Run the interpreter
             # TODO: For the moment, not trying to do anything with the error code,

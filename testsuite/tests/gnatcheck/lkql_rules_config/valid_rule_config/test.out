@@ -1,3 +1,4 @@
+gnatcheck: The '-rules' section usage is discouraged from now, you should only use the '--rules' and '--rule-file' command-line options
 ada_code.adb:2:09: Int does not end with type suffix _T [first_convention|identifier_suffixes]
 ada_code.adb:5:09: Int_A does not end with access suffix _PTR [first_convention|identifier_suffixes]
 ada_code.adb:6:09: Int_PTR does not end with access suffix _A [other_convention|identifier_suffixes]

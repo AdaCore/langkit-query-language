@@ -1,0 +1,14 @@
+Without project file
+====================
+
+main.adb:3:04: goto statement
+
+With project file
+=================
+
+s.adb:4:04: goto statement
+
+With other rule options
+=======================
+
+s.adb:3:04: redundant null statement

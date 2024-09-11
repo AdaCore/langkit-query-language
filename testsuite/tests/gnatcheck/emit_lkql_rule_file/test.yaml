@@ -1,0 +1,16 @@
+driver: gnatcheck
+description: Test the '--emit-lkql-rule-file' flag and the warning message about the '-rules' section
+rules:
+  - +RGoto_Statements
+  - +RHeaders:header.txt
+  - +RName_Clashes:names.txt
+  - +RIdentifier_Suffixes:access_suffix=_Acc(_Acc_Acc)
+  - +RIdentifier_Casing:exclude=exclude.txt
+  - +RSilent_Exception_Handlers:"This\.Regex\..*",Fully.Qualified.Name,"Another\.Regex\..*",Other.Name
+  - +R:my_instance:Goto_Statements:Only_Unconditional
+  - +RStyle_Checks:xz
+  - +RWarnings:u
+  - +RRestrictions:No_Abort_Statements,No_Use_Of_Attribute=>Image,No_Use_Of_Entity=>Ada.Text_IO.Put_Line
+extra_args:
+  - --emit-lkql-rule-file
+post_python: "cat('rules.lkql', sort=True, trim_start=1, trim_end=1)"

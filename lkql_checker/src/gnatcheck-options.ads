@@ -193,6 +193,10 @@ package Gnatcheck.Options is
    --  Whether the help message about the new instance system has already been
    --  emitted. This message should be removed in 26.0.
 
+   Mixed_Style_Warning_Emitted : Boolean := False;
+   --  Whether the message about usage of and new and legacy rule options for
+   --  the same GNATcheck run.
+
    --------------------------------------
    -- Controlling the gnatcheck report --
    --------------------------------------
@@ -219,9 +223,8 @@ package Gnatcheck.Options is
    --  If More_Then_One_Rule_File_Set is OFF and if a rule file has been
    --  processed, keeps the name of this file, otherwise is null.
 
-   LKQL_Rule_File_Name : GNAT.OS_Lib.String_Access;
-   --  Contains the name of the LKQL file to use for rule configuration if
-   --  one has been provided, otherwise is null.
+   LKQL_Rule_File_Name : Unbounded_String := Null_Unbounded_String;
+   --  Name of the LKQL file to process as a rule file.
 
    ---------------------
    -- Project support --
@@ -439,6 +442,29 @@ package Gnatcheck.Options is
          Default_Val => 1,
          Convert     => Jobs_Convert,
          Help        => "the maximal number of processes");
+
+      package Rules is new Parse_Option_List
+        (Parser                    => Parser,
+         Short                     => "-r",
+         Long                      => "--rule",
+         Arg_Type                  => Unbounded_String,
+         Accumulate                => True,
+         Allow_Collated_Short_Form => False,
+         Help                      =>
+           "enable the given rules for the GNATcheck run");
+
+      package Rule_File is new Parse_Option
+        (Parser => Parser,
+         Long => "--rule-file",
+         Arg_Type => Unbounded_String,
+         Default_Val => Null_Unbounded_String,
+         Help => "read rule configuration from the given LKQL file");
+
+      package Emit_LKQL_Rule_File is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--emit-lkql-rule-file",
+         Help   => "emit a 'rules.lkql' file containing the rules "
+                   & "configuration");
 
       function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
 

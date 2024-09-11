@@ -53,6 +53,15 @@ package Gnatcheck.String_Utilities is
      new Ada.Containers.Indefinite_Vectors (Positive, String);
    subtype String_Vector is String_Vectors.Vector;
 
+   function Split
+     (S          : String;
+      Sep        : Character;
+      Trim_Elems : Boolean := False) return String_Vector;
+   --  Split the given ``S`` into multiple pieces, separating those when
+   --  encountering ``Sep``.
+   --  ``Trim_Elems`` sets whether this method should trim heading and trailing
+   --  whitespaces from the result elements.
+
    function Join (V : String_Vector; Sep : String) return String;
    --  Join all element of the given vector `V` with `Sep`.
 

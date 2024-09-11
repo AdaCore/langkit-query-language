@@ -1,0 +1,10 @@
+driver: gnatcheck
+description: Check '-r' and '--rule' options behavior
+format: brief
+input_sources:
+  - main.adb
+extra_args:
+  - -r
+  - goto_statements
+  - --rule
+  - Redundant_Null_Statements

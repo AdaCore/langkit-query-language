@@ -301,7 +301,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * Read the given LKQL file and parse it as a rule configuration file to return the extracted
      * instances.
      */
-    private static Map<String, RuleInstance> parseLKQLRuleFile(final String lkqlRuleFile) {
+    private static Map<String, RuleInstance> parseLKQLRuleFile(final String lkqlRuleFileName) {
+        final File lkqlFile = new File(lkqlRuleFileName);
+        final String lkqlFileBasename = lkqlFile.getName();
         final Map<String, RuleInstance> res = new HashMap<>();
         try (Context context =
                 Context.newBuilder()
@@ -309,14 +311,14 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                         .allowIO(true)
                         .build()) {
             // Parse the LKQL rule configuration file with a polyglot context
-            final Source source = Source.newBuilder("lkql", new File(lkqlRuleFile)).build();
+            final Source source = Source.newBuilder("lkql", lkqlFile).build();
             final Value executable = context.parse(source);
             final Value topLevel = executable.execute(false);
 
             // Get the mandatory general instances object and populate the result with it
             if (topLevel.hasMember("rules")) {
                 processInstancesObject(
-                        lkqlRuleFile,
+                        lkqlFileBasename,
                         topLevel.getMember("rules"),
                         RuleInstance.SourceMode.GENERAL,
                         res);
@@ -324,27 +326,28 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 // Then get the optional Ada and SPARK instances
                 if (topLevel.hasMember("ada_rules")) {
                     processInstancesObject(
-                            lkqlRuleFile,
+                            lkqlFileBasename,
                             topLevel.getMember("ada_rules"),
                             RuleInstance.SourceMode.ADA,
                             res);
                 }
                 if (topLevel.hasMember("spark_rules")) {
                     processInstancesObject(
-                            lkqlRuleFile,
+                            lkqlFileBasename,
                             topLevel.getMember("spark_rules"),
                             RuleInstance.SourceMode.SPARK,
                             res);
                 }
             } else {
                 errorInLKQLRuleFile(
-                        lkqlRuleFile,
+                        lkqlFileBasename,
                         "LKQL config file must define a 'rules' top level object value");
             }
         } catch (IOException e) {
-            errorInLKQLRuleFile(lkqlRuleFile, "Could not read file");
+            errorInLKQLRuleFile(lkqlFileBasename, "Could not read file");
         } catch (Exception e) {
-            errorInLKQLRuleFile(lkqlRuleFile, "Error during file processing: " + e.getMessage());
+            errorInLKQLRuleFile(
+                    lkqlFileBasename, "Error during file processing: " + e.getMessage());
         }
         return res;
     }
@@ -472,10 +475,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     public static final String checkerSource =
             """
-            val analysis_units = specified_units()
-            val roots = [unit.root for unit in analysis_units]
+        val analysis_units = specified_units()
+        val roots = [unit.root for unit in analysis_units]
 
-            map(roots, (root) => node_checker(root))
-            map(analysis_units, (unit) => unit_checker(unit))
-            """;
+        map(roots, (root) => node_checker(root))
+        map(analysis_units, (unit) => unit_checker(unit))
+        """;
 }

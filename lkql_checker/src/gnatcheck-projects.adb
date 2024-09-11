@@ -347,6 +347,23 @@ package body Gnatcheck.Projects is
       return My_Project.Source_Prj /= null;
    end Is_Specified;
 
+   -------------------------------
+   -- Get_Project_Relative_File --
+   -------------------------------
+
+   function Get_Project_Relative_File
+     (My_Project : Arg_Project_Type;
+      Filename   : String) return String is
+   begin
+      if Gnatcheck.Options.Gnatcheck_Prj.Is_Specified then
+         return Normalize_Pathname
+           (GNAT.Directory_Operations.Dir_Name
+              (Gnatcheck.Options.Gnatcheck_Prj.Source_Prj.all) & Filename);
+      else
+         return Normalize_Pathname (Filename);
+      end if;
+   end Get_Project_Relative_File;
+
    -----------------------------
    -- Load_Aggregated_Project --
    -----------------------------
@@ -918,7 +935,7 @@ package body Gnatcheck.Projects is
    -- Process_Rule_Options --
    --------------------------
 
-   type Option_Kind is (File, LKQL_File, Option);
+   type Option_Kind is (File, Option);
 
    type Option_Record is record
       Kind  : Option_Kind;
@@ -933,18 +950,68 @@ package body Gnatcheck.Projects is
    procedure Process_Rule_Options is
       use Ada.Strings.Unbounded;
    begin
+      --  First of all, process the provided LKQL rule file
+      if LKQL_Rule_File_Name /= Null_Unbounded_String then
+         Process_LKQL_Rule_File (To_String (LKQL_Rule_File_Name));
+      end if;
+
+      --  Then process the legacy rule options
       for O of Rule_Options loop
          case O.Kind is
             when File =>
                Process_Rule_File (To_String (O.Value));
-            when LKQL_File =>
-               Process_LKQL_Rule_File (To_String (O.Value));
             when Option =>
                Process_Rule_Option (To_String (O.Value), Defined_At => "");
          end case;
       end loop;
       Process_Compiler_Instances;
    end Process_Rule_Options;
+
+   ---------------------
+   -- Add_Rule_Option --
+   ---------------------
+
+   procedure Add_Rule_Option
+     (Opt     : String;
+      Prepend : Boolean := False)
+   is
+      use Ada.Strings.Unbounded;
+
+      Opt_Rec : constant Option_Record :=
+        (Option, To_Unbounded_String (Trim (Opt, Both)));
+   begin
+      if Prepend then
+         Rule_Options.Prepend (Opt_Rec);
+      else
+         Rule_Options.Append (Opt_Rec);
+      end if;
+   end Add_Rule_Option;
+
+   ------------------------
+   -- Set_LKQL_Rule_File --
+   ------------------------
+
+   procedure Set_LKQL_Rule_File (File : String) is
+      use Ada.Strings.Unbounded;
+   begin
+      if LKQL_Rule_File_Name = Null_Unbounded_String then
+         LKQL_Rule_File_Name := To_Unbounded_String (File);
+      else
+         Error ("only one LKQL configuration file is allowed");
+         Rule_Option_Problem_Detected := True;
+      end if;
+   end Set_LKQL_Rule_File;
+
+   ---------------------------
+   -- Is_Rule_Options_Empty --
+   ---------------------------
+
+   function Is_Rule_Options_Empty return Boolean is
+      use Ada.Strings.Unbounded;
+   begin
+      return Rule_Options.Is_Empty
+        and then LKQL_Rule_File_Name = Null_Unbounded_String;
+   end Is_Rule_Options_Empty;
 
    --------------------
    -- Scan_Arguments --
@@ -1006,47 +1073,38 @@ package body Gnatcheck.Projects is
 
          loop
             case GNAT.Command_Line.Getopt
-              ("* from= from-lkql=", Parser => Parser) is
+              ("* from=", Parser => Parser) is
             --  We do not want to depend on the set of the currently
             --  implemented rules
                when ASCII.NUL =>
                   exit;
                when 'f' =>
-                  if Full_Switch (Parser => Parser) = "from" then
-                     Rule_Options.Append
-                       (Option_Record'(File,
-                         To_Unbounded_String (Parameter (Parser => Parser))));
-                     if not More_Then_One_Rule_File_Set then
-                        Rule_File_Name :=
-                        new String'(Parameter (Parser => Parser));
-                        More_Then_One_Rule_File_Set := True;
-                     else
-                        Free (Rule_File_Name);
-                     end if;
+                  Rule_Options.Append
+                     (Option_Record'(File,
+                        To_Unbounded_String (Parameter (Parser => Parser))));
+                  if not More_Then_One_Rule_File_Set then
+                     Rule_File_Name :=
+                     new String'(Parameter (Parser => Parser));
+                     More_Then_One_Rule_File_Set := True;
                   else
-                     Rule_Options.Append
-                       (Option_Record'(LKQL_File,
-                         To_Unbounded_String (Parameter (Parser => Parser))));
-                     if LKQL_Rule_File_Name = null then
-                        LKQL_Rule_File_Name :=
-                        new String'(Parameter (Parser => Parser));
-                     else
-                        Error ("only one LKQL configuration file is allowed");
-                        Rule_Option_Problem_Detected := True;
-                     end if;
+                     Free (Rule_File_Name);
                   end if;
 
                when others =>
-                  Rule_Options.Append
-                    (Option_Record'(Option,
-                      To_Unbounded_String
-                        (Ada.Strings.Fixed.Trim
-                           (Full_Switch (Parser => Parser),
-                         Ada.Strings.Both))));
-                  --  We use the call to Trim here because there can be a rule
-                  --  option in quotation marks
+                  Add_Rule_Option (Full_Switch (Parser => Parser));
                   Individual_Rules_Set := True;
             end case;
+            if not Mixed_Style_Warning_Emitted then
+               if Arg.Rules.Get'Length > 0
+                 or else Arg.Rule_File.Get /= Null_Unbounded_String
+               then
+                  Warning
+                    ("The '-rules' section usage is discouraged from now, " &
+                     "you should only use the '--rules' and '--rule-file' " &
+                     "command-line options");
+               end if;
+               Mixed_Style_Warning_Emitted := True;
+            end if;
          end loop;
       end Process_Sections;
 
@@ -1088,6 +1146,8 @@ package body Gnatcheck.Projects is
             Disallow (Arg.Transitive_Closure.This, In_Project_Msg);
             Disallow (Arg.Scenario_Vars.This, In_Project_Msg);
             Disallow (Arg.Follow_Symbolic_Links.This, In_Project_Msg);
+            Disallow (Arg.Rules.This, In_Project_Msg);
+            Disallow (Arg.Rule_File.This, In_Project_Msg);
          end;
       end if;
 
@@ -1109,6 +1169,8 @@ package body Gnatcheck.Projects is
          Allow (Arg.Aggregate_Subproject.This);
          Allow (Arg.Project_File.This);
          Allow (Arg.Follow_Symbolic_Links.This);
+         Allow (Arg.Rules.This);
+         Allow (Arg.Rule_File.This);
       end if;
 
       loop
