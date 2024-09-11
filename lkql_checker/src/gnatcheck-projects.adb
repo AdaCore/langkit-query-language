@@ -67,6 +67,8 @@ package body Gnatcheck.Projects is
 
    Default_Switches_Attr : constant GPR2.Q_Attribute_Id :=
      (GPR2."+"("Check"), GPR2."+"("Default_Switches"));
+   Switches_Attr         : constant GPR2.Q_Attribute_Id :=
+     (GPR2."+"("Check"), GPR2."+"("Switches"));
    File_Patterns_Attr    : constant GPR2.Q_Attribute_Id :=
      (GPR2."+"("CodePeer"), GPR2."+"("File_Patterns"));
 
@@ -177,8 +179,8 @@ package body Gnatcheck.Projects is
       Command_Line     : GNAT.OS_Lib.Argument_List_Access;
 
    begin
-      if Proj.Has_Attribute (Default_Switches_Attr, Ada_Idx) then
-         Attr := Proj.Attribute (Default_Switches_Attr, Ada_Idx);
+      if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
+         Attr := Proj.Attribute (Switches_Attr, Ada_Idx);
 
          if Attr.Kind = Single then
             Error
@@ -659,11 +661,19 @@ package body Gnatcheck.Projects is
            "that all the other options belong to the -rules section of " &
            "the parameters to 'gnatcheck'.");
       Add
-        (Default_Switches_Attr,
+        (Switches_Attr,
          Index_Type           => Language_Index,
          Value                => List,
          Value_Case_Sensitive => True,
          Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
+        (Switches_Attr,
+         "Index is a language name. Value is a " &
+           "list of switches to be used when invoking 'gnatcheck' for a " &
+           "source of the language, if there is no applicable attribute " &
+           "Switches.");
+      Add_Alias (Name     => Default_Switches_Attr,
+                 Alias_Of => Switches_Attr);
       GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
         (Default_Switches_Attr,
          "Index is a language name. Value is a " &
