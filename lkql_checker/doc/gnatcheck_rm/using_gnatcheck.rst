@@ -201,8 +201,8 @@ The following switches control the general ``gnatcheck`` behavior
   .. index:: --show-instantiation-chain
 
 ``--show-instantiation-chain``
-For reported generic instantiation constructs, display a chain of source
-location going from the generic unit to the instantiation.
+  For reported generic instantiation constructs, display a chain of source
+  location going from the generic unit to the instantiation.
 
   .. index:: --brief
 
@@ -323,7 +323,7 @@ This file must be a valid LKQL file that exports at least a ``rules`` top-level
 symbol. This symbol must refer to an object value containing rules
 configuration; keys are GNATcheck rules to enable; and values are objects
 containing rule parameters. A rule parameter value can be a boolean, an
-integer, a string or a list of strings.
+integer, a string, or a list of strings.
 
 ::
 
@@ -948,7 +948,7 @@ The following switches from the old ``gnatcheck`` are no longer supported:
   This switch is no longer supported. You can use the GNAT Studio rule editor
   instead to create a coding standard file.
 
-.. _New_Instance_System
+.. _New_Instance_System:
 
 The new rule instance system
 ----------------------------
