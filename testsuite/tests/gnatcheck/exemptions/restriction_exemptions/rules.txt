@@ -1,0 +1,1 @@
++Rrestrictions:Max_Protected_Entries => 0, No_Use_Of_Entity => Ada.Text_IO.Put_Line

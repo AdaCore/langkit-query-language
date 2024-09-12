@@ -3022,24 +3022,6 @@ package body Gnatcheck.Rules is
       Put (Rule_File, "}]");
    end Print_Compiler_Rule_To_LKQL_File;
 
-   -------------------
-   -- Annotate_Rule --
-   -------------------
-
-   function Annotate_Rule
-     (Rule : Rule_Info;
-      Alias_Name : String) return String is
-   begin
-      if not Arg.Show_Rule.Get then
-         return "";
-      else
-         return
-           " [" &
-           (if Alias_Name /= "" then Alias_Name & "|" else "") &
-           Rule_Name (Rule) & "]";
-      end if;
-   end Annotate_Rule;
-
    --  == Generic operations on rule instances
 
    ---------------
@@ -3061,6 +3043,23 @@ package body Gnatcheck.Rules is
               then To_String (Instance.Alias_Name)
               else Rule_Name (Instance));
    end Instance_Name;
+
+   -------------------
+   -- Annotate_Diag --
+   -------------------
+
+   function Annotate_Diag (Instance : Rule_Instance'Class) return String is
+   begin
+      if Arg.Show_Rule.Get then
+         return " [" &
+                (if Instance.Is_Alias
+                 then To_String (Instance.Alias_Name) & "|"
+                 else "") &
+                Rule_Name (Instance) & "]";
+      else
+         return "";
+      end if;
+   end Annotate_Diag;
 
    --  == Overriding operations on rule instances
 

@@ -124,11 +124,11 @@ package Gnatcheck.Rules.Rule_Table is
    --  name to their address. This map also contains instances for
    --  compiler-based rules.
 
-   Restriction_Tags_Map : String_Maps.Map;
-   Warning_Tags_Map     : String_Maps.Map;
-   Style_Tags_Map       : String_Maps.Map;
-   --  To associate each compiler-based rules "parameter" to its corresponding
-   --  instance, we create maps going from tags to their instance identifier.
+   Restriction_To_Instance : String_Maps.Map;
+   Warning_To_Instance     : String_Maps.Map;
+   Style_To_Instance       : String_Maps.Map;
+   --  To associate each compiler-based rules "identifier" to its corresponding
+   --  instance.
 
    function Get_Rule (Rule_Name : String) return Rule_Id;
    --  Returns the identifier for the provided rule name. This identifier is

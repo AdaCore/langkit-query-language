@@ -1,0 +1,9 @@
+val rules = @{
+    goto_statements: [
+        {instance_name: "GOTO"},
+        {instance_name: "UNCOND_GOTO", only_unconditional: true}
+    ],
+    identifier_suffixes: [{instance_name: "ID_SUF", type_suffix: "_T", constant_suffix: "_C"}],
+    redundant_null_statements: [{instance_name: "NULL"}],
+    style_checks: [{arg: "xz", instance_name: "STYLE"}]
+}

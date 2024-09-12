@@ -34,10 +34,10 @@ main.adb:20:16: expression function
 
 4. Rule exemption problems
 
-c.adb:1:01: no matching 'exempt_OFF' annotation for rule goto_statements
-c.adb:6:07: no detection for goto_statements rule in exemption section starting at line 1
-main.adb:24:07: no matching 'exempt_OFF' annotation for rule expression_functions
-main.adb:29:04: rule expr_func is already exempted at line 24
+c.adb:1:01: no matching 'exempt_OFF' annotation for Goto_Statements
+c.adb:6:07: no detection for Goto_Statements rule in exemption section starting at line 1
+main.adb:24:07: no matching 'exempt_OFF' annotation for expression_functions
+main.adb:29:04: rule expression_functions is already exempted at line 24
 main.adb:33:41: State should be "off" for line exemption
 
 5. Language violations

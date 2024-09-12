@@ -3,7 +3,14 @@ format: brief
 show_rule: True
 input_sources:
   - main.adb
-rules:
+
+tests:
+- label: With valid options
+  rules:
   - +R:extra_par:Style_Checks:xz
   - +R:keywords:Style_Checks:k
   - +RStyle_Checks:r
+- label: With same style check on multiple instances
+  rules:
+  - +RStyle_Checks:x
+  - +R:extra_par:Style_Checks:xz
