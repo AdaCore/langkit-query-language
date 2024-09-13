@@ -2560,7 +2560,7 @@ package body Gnatcheck.Diagnoses is
                        To_String (Next_Postponed_Section
                                   .Exemption_Section
                                   .Exempted_Name) &
-                       " rule in exemption section starting at line" &
+                       " in exemption section starting at line" &
                        Next_Postponed_Section.Exemption_Section.Line_Start'Img,
                      Diagnosis_Kind => Exemption_Warning,
                      SF             => SF);
@@ -2598,7 +2598,7 @@ package body Gnatcheck.Diagnoses is
                             (Next_Par_S_Info.Exempt_Info.Exempted_Name) &
                           ": " & Params_Img
                             (Next_Par_S_Info.Params, Next_Par_S_Info.Rule) &
-                          "' rule in exemption section starting " & "at line" &
+                          "' in exemption section starting at line" &
                           Next_Par_S_Info.Exempt_Info.Line_Start'Img,
                         Diagnosis_Kind => Exemption_Warning,
                         SF             => SF);
@@ -2730,7 +2730,7 @@ package body Gnatcheck.Diagnoses is
                   Store_Diagnosis
                     (Text           => File_Name (SF) & ":" & SLOC &
                                        ": parameter " & Param &
-                                       " duplicated in rule exemption",
+                                       " duplicated in exemption",
                      Diagnosis_Kind => Exemption_Warning,
                      SF             => SF);
                end if;

@@ -63,10 +63,10 @@ main.adb:27:04: wrong rule or instance name in exemption (Not_Existant), ignored
 main.adb:29:04: cannot exempt a specific instance of a compiler rule (style_checks), ignored
 main.adb:59:04: rule goto_statements is already exempted at line 58
 main.adb:60:04: rule goto_statements is already exempted at line 58
-main.adb:61:65: no detection for Goto_Statements rule in exemption section starting at line 58
+main.adb:61:65: no detection for Goto_Statements in exemption section starting at line 58
 main.adb:65:04: instance GOTO is already exempted at line 63
-main.adb:66:58: no detection for Goto_Statements rule in exemption section starting at line 64
-main.adb:67:58: no detection for GOTO rule in exemption section starting at line 63
+main.adb:66:58: no detection for Goto_Statements in exemption section starting at line 64
+main.adb:67:58: no detection for GOTO in exemption section starting at line 63
 main.adb:71:04: rule Style_Checks is already exempted with parameter(s) at line 69
 main.adb:72:04: rule Style_Checks is already exempted with parameter 'x' at line 69
 main.adb:73:04: rule Style_Checks is already exempted with the same parameter(s) at line 69
