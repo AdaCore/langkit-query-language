@@ -1,0 +1,62 @@
+import stdlib
+
+fun contains_dynamic_bounds(agg) =
+    |" Returns whether the given Aggregate node has dynamic bounds.
+    |" Recurse on association expressions whose value is an Aggregate.
+    agg is Aggregate
+    when stdlib.any(
+        [
+            match assoc
+            | IteratedAssoc  => true
+            | AggregateAssoc =>
+                stdlib.any(
+                    [
+                        match design
+                        | BinOp                                    =>
+                            not design.f_left.p_is_static_expr() or
+                            not design.f_right.p_is_static_expr()
+                        | AttributeRef                             =>
+                            design.f_attribute.p_name_is("Range") and
+                            (
+                                match design.f_prefix
+                                | tn@Name(p_name_designated_type(): not null) =>
+                                    not tn.p_is_static_subtype()
+                                | n@Name                                      =>
+                                    n.p_referenced_decl()?.p_type_expression() is SubtypeIndication(
+                                        p_is_static_subtype(): false
+                                    )
+                            )
+                        | Name(p_name_designated_type(): not null) =>
+                            not design.p_is_static_subtype()
+                        for design in assoc.f_designators.children
+                    ]
+                )
+            for assoc in agg.f_assocs.children
+        ]
+    ) or stdlib.any(
+        [
+            contains_dynamic_bounds(assoc.f_r_expr)
+            for assoc in agg.f_assocs.children
+            if assoc.f_r_expr is Aggregate
+        ]
+    )
+
+@check(help="possible occurrence of KP 19279",
+       message="possible occurrence of KP 19279",
+       impact="23.*,24.*")
+fun kp_19279(node) =
+    |" Flag object intialization / assignment where the assigned expression is a
+    |" multi-dimention array aggregate with one of the sub-aggregate having
+    |" dynamic bounds.
+    node is Aggregate(p_expression_type(): t@BaseTypeDecl)
+    when t.p_root_type().f_type_def is arr@ArrayTypeDef
+        when match arr.f_indices
+             | c@ConstrainedArrayIndices   => c.f_list.children_count > 1
+             | u@UnconstrainedArrayIndices => u.f_types.children_count > 1
+        and stdlib.any(
+            [
+                contains_dynamic_bounds(assoc.f_r_expr)
+                for assoc in node.f_assocs.children
+                if assoc.f_r_expr is Aggregate
+            ]
+        )

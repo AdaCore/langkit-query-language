@@ -1,0 +1,52 @@
+main.adb:27:37: rule violation: possible occurrence of KP 19279
+27 |    M_2 : Matrix (0 .. 2, 0 .. 2) := (0 .. 2 => (Id (3) .. Id (5) => 42));  --  FLAG
+   |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:29:6: rule violation: possible occurrence of KP 19279
+29 |      ((for I in Id (3) .. Id (5) => I), (42, 42, 42), (42, 42, 42));       --  FLAG
+   |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:30:37: rule violation: possible occurrence of KP 19279
+30 |    M_4 : Matrix (0 .. 2, 0 .. 2) := (0 .. 2 => (U'Range => 42));           --  FLAG
+   |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:32:37: rule violation: possible occurrence of KP 19279
+32 |    M_6 : Matrix (0 .. 2, 0 .. 2) := (0 .. 2 => (A_2'Range => 42));         --  FLAG
+   |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:33:37: rule violation: possible occurrence of KP 19279
+33 |    M_7 : Matrix (0 .. 2, 0 .. 2) := (0 .. 2 => (U => 42));                 --  FLAG
+   |                                     ^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:35:26: rule violation: possible occurrence of KP 19279
+35 |    S_M_1 : Sub_Matrix := (0 .. 2 => (Id (3) .. Id (5) => 42));             --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:36:26: rule violation: possible occurrence of KP 19279
+36 |    S_M_2 : Sub_Matrix := (0 .. 2 => (3 .. Id (5) => 42));                  --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:38:26: rule violation: possible occurrence of KP 19279
+38 |    D_M_1 : Der_Matrix := (0 .. 2 => (Id (3) .. Id (5) => 42));             --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:43:6: rule violation: possible occurrence of KP 19279
+43 |      (0 .. 2 => (0 .. 2 => (Id (3) .. Id (5) => 42)));                     --  FLAG
+   |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:44:26: rule violation: possible occurrence of KP 19279
+44 |    S_T_1 : Sub_Tensor := (0 .. 2 => (0 .. 2 => (Id (3) .. Id (5) => 42))); --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:45:26: rule violation: possible occurrence of KP 19279
+45 |    S_T_2 : Sub_Tensor := (0 .. 2 => (Id (3) .. Id (5) => (0 .. 2 => 42))); --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:47:26: rule violation: possible occurrence of KP 19279
+47 |    D_T_1 : Der_Tensor := (0 .. 2 => (0 .. 2 => (Id (3) .. Id (5) => 42))); --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:49:35: rule violation: possible occurrence of KP 19279
+49 |    Process_Sub_Matrix (Sub_Matrix'(0 .. 2 => (Id (3) .. Id (5) => 42)));   --  FLAG
+   |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
