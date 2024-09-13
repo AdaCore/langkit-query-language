@@ -1089,24 +1089,18 @@ package body Gnatcheck.Diagnoses is
    function Get_Exemption_Kind
      (Image : Wide_Wide_String) return Exemption_Kinds
    is
-      Result : Exemption_Kinds;
+      Norm_Image : constant Wide_Wide_String := To_Lower
+        (if Image (Image'First) = '"'
+         then Image (Image'First + 1 .. Image'Last - 1)
+         else Image);
    begin
-      if Image (Image'First) = '"' then
-
-         --  Old format of Annotate pragma. We have to cut out quotation marks
-
-         Result :=
-           Exemption_Kinds'Wide_Wide_Value
-             (Image (Image'First + 1 .. Image'Last - 1));
+      if Norm_Image = "exempt_on" then
+         return Exempt_On;
+      elsif Norm_Image = "exempt_off" then
+         return Exempt_Off;
       else
-         Result := Exemption_Kinds'Wide_Wide_Value (Image);
-      end if;
-
-      return Result;
-
-   exception
-      when Constraint_Error =>
          return Not_An_Exemption;
+      end if;
    end Get_Exemption_Kind;
 
    -----------------------------
