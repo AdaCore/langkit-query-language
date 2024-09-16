@@ -12,14 +12,16 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
+import com.adacore.lkql_jit.built_ins.SpecializedBuiltInBody;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import java.util.Map;
 
 /**
@@ -40,7 +42,14 @@ public final class TokenMethods {
                             "Return whether two tokens are structurally equivalent",
                             new String[] {"other"},
                             new Expr[] {null},
-                            new IsEquivalentExpr()),
+                            new SpecializedBuiltInBody<>(
+                                    TokenMethodsFactory.IsEquivalentExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executeIsEquivalent(
+                                            LKQLTypeSystemGen.asToken(args[0]), args[1]);
+                                }
+                            }),
                     createAttribute(
                             "is_trivia",
                             "Return whether this token is a trivia",
@@ -50,13 +59,27 @@ public final class TokenMethods {
                             "Return the next token",
                             new String[] {"exclude_trivia"},
                             new Expr[] {new BooleanLiteral(null, false)},
-                            new NextExpr()),
+                            new SpecializedBuiltInBody<>(
+                                    TokenMethodsFactory.NextExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executeNext(
+                                            LKQLTypeSystemGen.asToken(args[0]), args[1]);
+                                }
+                            }),
                     createMethod(
                             "previous",
                             "Return the previous token",
                             new String[] {"exclude_trivia"},
                             new Expr[] {new BooleanLiteral(null, false)},
-                            new PrevExpr()),
+                            new SpecializedBuiltInBody<>(
+                                    TokenMethodsFactory.PrevExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executePrev(
+                                            LKQLTypeSystemGen.asToken(args[0]), args[1]);
+                                }
+                            }),
                     createAttribute("unit", "Return the unit for this token", new UnitExpr()),
                     createAttribute("text", "Return the text of the token", new TextExpr()),
                     createAttribute("kind", "Return the kind of the token", new KindExpr()));
@@ -109,22 +132,20 @@ public final class TokenMethods {
     }
 
     /** Expression of the "is_equivalent" method. */
-    public static final class IsEquivalentExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the other token to compare
-            Libadalang.Token other;
-            try {
-                other = LKQLTypeSystemGen.expectToken(frame.getArguments()[1]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.TOKEN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]);
-            }
+    abstract static class IsEquivalentExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
-            // Return the comparison
-            return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).isEquivalent(other);
+        public abstract boolean executeIsEquivalent(Libadalang.Token receiver, Object other);
+
+        @Specialization
+        protected boolean onValid(Libadalang.Token receiver, Libadalang.Token other) {
+            return receiver.isEquivalent(other);
+        }
+
+        @Fallback
+        protected boolean onInvalid(
+                @SuppressWarnings("unused") Libadalang.Token receiver, Object other) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.TOKEN, LKQLTypesHelper.fromJava(other), this.body.argNode(0));
         }
     }
 
@@ -137,54 +158,62 @@ public final class TokenMethods {
     }
 
     /** Expression of the "next" method. */
-    public static final class NextExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get if the trivia tokens should be ignored
-            boolean ignoreTrivia;
-            try {
-                ignoreTrivia = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]);
-            }
+    abstract static class NextExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
-            Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).next();
+        public abstract Libadalang.Token executeNext(
+                Libadalang.Token receiver, Object ignoreTrivia);
+
+        @Specialization
+        protected Libadalang.Token onValid(Libadalang.Token receiver, boolean ignoreTrivia) {
+            // Skip trivia if required
+            Libadalang.Token res = receiver.next();
             if (ignoreTrivia) {
                 while (!res.isNone() && res.triviaIndex != 0) {
                     res = res.next();
                 }
             }
 
+            // Return the result
             return res;
+        }
+
+        @Fallback
+        protected Libadalang.Token onInvalid(
+                @SuppressWarnings("unused") Libadalang.Token receiver, Object ignoreTrivia) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(ignoreTrivia),
+                    this.body.argNode(0));
         }
     }
 
     /** Expression of the "previous" method. */
-    public static final class PrevExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get if the trivia tokens should be ignored
-            boolean ignoreTrivia;
-            try {
-                ignoreTrivia = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]);
-            }
+    abstract static class PrevExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
-            Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).previous();
+        public abstract Libadalang.Token executePrev(
+                Libadalang.Token receiver, Object ignoreTrivia);
+
+        @Specialization
+        protected Libadalang.Token onValid(Libadalang.Token receiver, boolean ignoreTrivia) {
+            // Skip trivia if required
+            Libadalang.Token res = receiver.previous();
             if (ignoreTrivia) {
                 while (!res.isNone() && res.triviaIndex != 0) {
                     res = res.previous();
                 }
             }
 
+            // Return the result
             return res;
+        }
+
+        @Fallback
+        protected Libadalang.Token onInvalid(
+                @SuppressWarnings("unused") Libadalang.Token receiver, Object ignoreTrivia) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(ignoreTrivia),
+                    this.body.argNode(0));
         }
     }
 
