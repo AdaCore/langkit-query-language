@@ -24,6 +24,8 @@ with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 with Rule_Commands; use Rule_Commands;
 with Rules_Factory; use Rules_Factory;
 
@@ -1503,6 +1505,7 @@ package body Gnatcheck.Rules.Rule_Table is
       Rule_Set     : Rule_Sets.Set;
       Previous     : Rule_Info;
       Has_Previous : Boolean := False;
+      Args         : Rule_Argument_Vectors.Vector;
    begin
       Info ("<?xml version=""1.0""?>");
       Info ("<gnatcheck>");
@@ -1549,6 +1552,7 @@ package body Gnatcheck.Rules.Rule_Table is
             for Rule of Rule_Set loop
                Rule.XML_Rule_Help (Rule, Level + 1);
             end loop;
+            Rule_Set.Clear;
          end;
 
          Info (Level * Indent_String & "</category>");
@@ -1563,6 +1567,47 @@ package body Gnatcheck.Rules.Rule_Table is
       --  What about warnings and style checks???
 
       Restrictions_Help (Level => 1);
+
+      --  Display all rule instances
+      Info (Indent_String & "<instances>");
+
+      --  Use the rule ordered set to sort the rules by their name
+      for Rule of All_Rules loop
+         Rule_Set.Include (Rule);
+      end loop;
+
+      for Rule of Rule_Set loop
+         if not Rule.Instances.Is_Empty then
+            Info
+              (2 * Indent_String & "<rule name=""" & Rule_Name (Rule) & """>");
+
+            for Instance of Rule.Instances loop
+               Instance.Map_Parameters (Args);
+               Info
+                 (3 * Indent_String & "<instance name=""" &
+                  Instance_Name (Instance.all) & """" &
+                  (if Args.Is_Empty then " />" else ">"));
+
+               if not Args.Is_Empty then
+                  for Arg of Args loop
+                     Info
+                       (4 * Indent_String & "<arg name=""" &
+                        To_String (To_Text (Arg.Name)) & """ value=""" &
+                        Escape_Quotes (To_String (To_Text (Arg.Value))) &
+                        """ />");
+                  end loop;
+                  Info (3 * Indent_String & "</instance>");
+               end if;
+               Args.Clear;
+            end loop;
+
+            Info (2 * Indent_String & "</rule>");
+         end if;
+      end loop;
+
+      Info (Indent_String & "</instances>");
+
+      --  Close the XML help
       Info ("</gnatcheck>");
    end XML_Help;
 
