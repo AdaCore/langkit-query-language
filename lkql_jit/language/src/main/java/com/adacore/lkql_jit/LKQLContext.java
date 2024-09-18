@@ -600,7 +600,7 @@ public final class LKQLContext {
         if (this.ruleInstances == null) {
             try {
                 this.ruleInstances =
-                        JsonUtils.deserializeInstances(
+                        JSONUtils.deserializeInstances(
                                 this.env.getOptions().get(LKQLLanguage.ruleInstances));
             } catch (Exception e) {
                 // Since the LKQL option is internal, the user cannot provide a raw value so this
