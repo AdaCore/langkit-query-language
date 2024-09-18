@@ -192,7 +192,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * </pre>
      *
      * The default value if this option is an empty object. See the {@link
-     * com.adacore.lkql_jit.options.RuleInstance RuleInstance} class for more information about rule
+     * com.adacore.lkql_jit.RuleInstance RuleInstance} class for more information about rule
      * instance JSON encoding.
      */
     @Option(

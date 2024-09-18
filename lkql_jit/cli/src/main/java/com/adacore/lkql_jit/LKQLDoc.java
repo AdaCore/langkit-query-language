@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.drivers;
+package com.adacore.lkql_jit;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
