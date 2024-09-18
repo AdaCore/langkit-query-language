@@ -223,7 +223,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         // Pass the rule instances to the LKQL engine
         try {
             contextBuilder.option(
-                    "lkql.ruleInstances", JsonUtils.serializeInstances(this.getRuleInstances()));
+                    "lkql.ruleInstances", JSONUtils.serializeInstances(this.getRuleInstances()));
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
