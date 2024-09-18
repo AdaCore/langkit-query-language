@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 /** This class contains all util functions to handle JSON */
-public final class JsonUtils {
+public final class JSONUtils {
 
     /** Serialize the given rule instance map to a JSON string. */
     public static String serializeInstances(final Map<String, RuleInstance> instances) {

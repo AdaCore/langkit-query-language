@@ -179,7 +179,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // If a LKQL rule config file has been provided, parse it and display the result
         if (this.args.lkqlConfigFile != null) {
             System.out.println(
-                    JsonUtils.serializeInstances(parseLKQLRuleFile(this.args.lkqlConfigFile)));
+                    JSONUtils.serializeInstances(parseLKQLRuleFile(this.args.lkqlConfigFile)));
             return 0;
         }
 
@@ -259,7 +259,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 instances.putAll(parseLKQLRuleFile(rulesFrom));
             }
         }
-        contextBuilder.option("lkql.ruleInstances", JsonUtils.serializeInstances(instances));
+        contextBuilder.option("lkql.ruleInstances", JSONUtils.serializeInstances(instances));
 
         contextBuilder.engine(
                 Engine.newBuilder()
