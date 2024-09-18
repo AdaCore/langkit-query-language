@@ -224,6 +224,8 @@ package body Gnatcheck.Projects is
 
       function Only_Ada_Mains
         (Prj : GPR2.Project.View.Object) return Boolean;
+      --  Returns whether the provided ``Prj`` project view defines only Ada
+      --  mains.
 
       procedure Store_Source (Unit : GPR2.Build.Compilation_Unit.Object);
       --  Callback used to store sources
