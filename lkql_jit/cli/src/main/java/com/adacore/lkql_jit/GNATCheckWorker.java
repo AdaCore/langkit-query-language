@@ -3,10 +3,8 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.drivers;
+package com.adacore.lkql_jit;
 
-import com.adacore.lkql_jit.options.JsonUtils;
-import com.adacore.lkql_jit.options.RuleInstance;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

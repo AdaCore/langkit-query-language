@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.options;
+package com.adacore.lkql_jit; //
 
 import java.util.Map;
 import java.util.stream.Collectors;

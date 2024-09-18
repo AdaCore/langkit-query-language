@@ -38,7 +38,7 @@
                                 <includes>
                                     <include>com.adacore:liblkqllang</include>
                                     <include>com.adacore:libadalang</include>
-                                    <include>com.adacore:cli</include>
+                                    <include>com.adacore:options</include>
                                     <include>org.json:json</include>
                                 </includes>
                             </artifactSet>
@@ -99,7 +99,7 @@
 
         <dependency>
             <groupId>com.adacore</groupId>
-            <artifactId>cli</artifactId>
+            <artifactId>options</artifactId>
             <version>0.1.0</version>
         </dependency>
 

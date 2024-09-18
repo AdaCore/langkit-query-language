@@ -5,10 +5,6 @@
 
 package com.adacore.lkql_jit;
 
-import com.adacore.lkql_jit.drivers.GNATCheckWorker;
-import com.adacore.lkql_jit.drivers.LKQLChecker;
-import com.adacore.lkql_jit.drivers.LKQLDoc;
-import com.adacore.lkql_jit.drivers.LKQLLauncher;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
