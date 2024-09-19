@@ -17,7 +17,6 @@ import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.enums.DiagnosticOutputMode;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Option;
@@ -87,164 +86,12 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     // ----- Options -----
 
-    // --- Language options
-
-    /** The option to define if the language is verbose. */
+    /** The JSON encoded LKQL engine options. */
     @Option(
             help = "If the language should be verbose",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<Boolean> verbose = new OptionKey<>(false);
-
-    // --- LKQL options
-
-    /** The option to define the charset of the LKQL sources. */
-    @Option(
-            help = "The LKQL source charset",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> charset = new OptionKey<>("");
-
-    /** The option to define the project file to analyze. */
-    @Option(
-            help = "The GPR project file to load",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> projectFile = new OptionKey<>("");
-
-    /** The name of the subproject to analyze. If empty, use the root project instead */
-    @Option(
-            help = "The name of the subproject to analyze.",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> subprojectFile = new OptionKey<>("");
-
-    /** The runtime to load the project with */
-    @Option(
-            help = "The runtime to pass to GPR",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> runtime = new OptionKey<>("");
-
-    /** The target to load the project with */
-    @Option(
-            help = "The hardware target to pass to GPR",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> target = new OptionKey<>("");
-
-    /** The config GPR file to pass during project loading. */
-    @Option(
-            help = "The config file for GPR project loading",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> configFile = new OptionKey<>("");
-
-    /**
-     * The scenario variables to load the project file with, where "key=value" variable
-     * specifications are encoded as Base64 and separated by semicolons.
-     */
-    @Option(
-            help = "The scenario variables to load the project file with",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> scenarioVars = new OptionKey<>("");
-
-    /** The option to define the files to analyze. */
-    @Option(
-            help = "The ada files to analyze in LKQL",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> files = new OptionKey<>("");
-
-    /** The option to define the jobs. */
-    @Option(
-            help = "The number of parallel jobs in the LKQL interpreter",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<Integer> jobs = new OptionKey<>(0);
-
-    // --- Checker options
-
-    /** The option to define the checker debug mode. */
-    @Option(
-            help = "If the checker is in debug mode",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<Boolean> checkerDebug = new OptionKey<>(false);
-
-    /** The option to define the directories to look the rules from. */
-    @Option(
-            help = "The directories to search rules in",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> rulesDirs = new OptionKey<>("");
-
-    /**
-     * Option to specify rules that the user instantiated for a run. The provided value must follow
-     * the JSON encoding standard for rule instances:
-     *
-     * <pre>
-     * {
-     *     "instance_id_1": {...},
-     *     "instance_id_2": {...}
-     * }
-     * </pre>
-     *
-     * The default value if this option is an empty object. See the {@link
-     * com.adacore.lkql_jit.RuleInstance RuleInstance} class for more information about rule
-     * instance JSON encoding.
-     */
-    @Option(
-            help = "The JSON encoded rule instances, the value must be a JSON object",
             category = OptionCategory.INTERNAL,
             stability = OptionStability.STABLE)
-    public static final OptionKey<String> ruleInstances = new OptionKey<>("{}");
-
-    /** The option to control what should be done when no rules are provided */
-    @Option(
-            help = "If true, consider that an empty value for 'rules' means to run all the rules",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<Boolean> fallbackToAllRules = new OptionKey<>(true);
-
-    /** The option to control what should be done when a source file cannot be found. */
-    @Option(
-            help = "If true, do not stop the engine when a source file cannot be found",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<Boolean> keepGoingOnMissingFile = new OptionKey<>(false);
-
-    /**
-     * The option to control whether to display the instantiation chains when reporting something on
-     * a generic construct.
-     */
-    @Option(
-            help = "If true, display generic instantiation chain",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<Boolean> showInstantiationChain = new OptionKey<>(false);
-
-    /** The option to specify the files to ignore during the checking. */
-    @Option(
-            help = "Files to ignore during the analysis",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> ignores = new OptionKey<>("");
-
-    /** The option to specify the error recovery mode. */
-    @Option(
-            help = "The mode of error recovery in the checker",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<String> errorMode = new OptionKey<>("");
-
-    @Option(
-            help = "The message emitter",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE)
-    static final OptionKey<DiagnosticOutputMode> diagnosticOutputMode =
-            new OptionKey<>(DiagnosticOutputMode.PRETTY);
+    static final OptionKey<String> options = new OptionKey<>("{}");
 
     Liblkqllang.AnalysisContext lkqlAnalysisContext;
 
