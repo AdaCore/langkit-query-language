@@ -1,3 +1,4 @@
+import com.adacore.lkql_jit.LKQLOptions;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 
@@ -7,7 +8,15 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Context context = Context.newBuilder("lkql").build();
+        Context context = Context
+            .newBuilder("lkql")
+            .option(
+                "lkql.options", new LKQLOptions.Builder()
+                    .projectFile("default_project/default.gpr")
+                    .build()
+                    .toJson()
+                    .toString()
+            ).build();
         Value executable = context.parse("lkql", "val list = [1, \"Hello\", [1, 2]]");
 
         Value namespace = executable.execute(false);
