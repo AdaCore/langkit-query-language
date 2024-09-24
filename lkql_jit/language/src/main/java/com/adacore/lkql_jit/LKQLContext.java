@@ -437,7 +437,8 @@ public final class LKQLContext {
                             this.getScenarioVars(),
                             this.getTarget(),
                             this.getRuntime(),
-                            this.getConfigFile());
+                            this.getConfigFile(),
+                            true);
 
             // Forward the project diagnostics if there are some
             if (!this.projectManager.getDiagnostics().isEmpty()) {
@@ -493,7 +494,7 @@ public final class LKQLContext {
             // Load the implicit project
             this.projectManager =
                     Libadalang.ProjectManager.createImplicit(
-                            this.getTarget(), this.getRuntime(), this.getConfigFile());
+                            this.getTarget(), this.getRuntime(), this.getConfigFile(), true);
             this.allSourceFiles.addAll(
                     Arrays.stream(
                                     this.projectManager.getFiles(
