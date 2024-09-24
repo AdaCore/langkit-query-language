@@ -1,0 +1,3 @@
+void other() {
+    // null
+}
