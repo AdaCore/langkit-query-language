@@ -1,0 +1,32 @@
+main.adb:30:10: rule violation: possible occurrence of KP 19529
+30 |          S_3 := S_1;    --  FLAG
+   |          ^^^^^^^^^^^
+
+main.adb:31:10: rule violation: possible occurrence of KP 19529
+31 |          S_3 := S_4;    --  FLAG
+   |          ^^^^^^^^^^^
+
+main.adb:32:10: rule violation: possible occurrence of KP 19529
+32 |          S_2 := S_3;    --  FLAG
+   |          ^^^^^^^^^^^
+
+main.adb:38:7: rule violation: possible occurrence of KP 19529
+38 |       S_2 := S_1;       --  FLAG
+   |       ^^^^^^^^^^^
+
+main.adb:41:7: rule violation: possible occurrence of KP 19529
+41 |       I_A_2 := I_A_1;   --  FLAG
+   |       ^^^^^^^^^^^^^^^
+
+main.adb:42:7: rule violation: possible occurrence of KP 19529
+42 |       R_2 := R_1;       --  FLAG
+   |       ^^^^^^^^^^^
+
+main.adb:43:7: rule violation: possible occurrence of KP 19529
+43 |       R_A_1.A := I_A_1; --  FLAG
+   |       ^^^^^^^^^^^^^^^^^
+
+main.adb:48:10: rule violation: possible occurrence of KP 19529
+48 |          S_2 := S_1;    --  FLAG
+   |          ^^^^^^^^^^^
+
