@@ -40,7 +40,7 @@ pragma Warnings (On);
 with GPR2.Context;
 with GPR2.KB;
 with GPR2.Log;
-with GPR2.Message.Reporter;
+with GPR2.Message;
 with GPR2.Options;
 with GPR2.Path_Name;
 with GPR2.Project.Attribute;
@@ -51,6 +51,7 @@ with GPR2.Project.Registry.Attribute.Description;
 with GPR2.Project.Registry.Pack;
 with GPR2.Project.Registry.Pack.Description;
 with GPR2.Project.View;
+with GPR2.Reporter.Console;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
@@ -78,26 +79,35 @@ package body Gnatcheck.Projects is
 
    X_Vars : GPR2.Containers.Value_Set;
 
-   type Gnatcheck_Reporter is new GPR2.Message.Reporter.Object with
+   ----------------------------
+   -- GPR2 messages reporter --
+   ----------------------------
+
+   type Gnatcheck_Reporter is new GPR2.Reporter.Object with
      null record;
 
-   overriding procedure Report
-     (Self    : Gnatcheck_Reporter;
+   overriding procedure Internal_Report
+     (Self    : in out Gnatcheck_Reporter;
       Message : GPR2.Message.Object);
 
-   overriding procedure Report
-     (Self    : Gnatcheck_Reporter;
-      Message : String);
+   overriding function Verbosity
+     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level;
 
    Gpr2_Reporter : Gnatcheck_Reporter;
    --  Make libgpt2 report messages using the proper gnatcheck.Output API
+
+   function Report_Missing_File (Log : String) return Boolean is
+     (Index (Log, "source file") /= 0
+     and then
+      Index (Log, "not found") /= 0);
+   --  Checks if Log reports about a missing source file.
 
    ------------
    -- Report --
    ------------
 
-   overriding procedure Report
-     (Self    : Gnatcheck_Reporter;
+   overriding procedure Internal_Report
+     (Self    : in out Gnatcheck_Reporter;
       Message : GPR2.Message.Object)
    is
    begin
@@ -105,21 +115,29 @@ package body Gnatcheck.Projects is
          when GPR2.Message.Error =>
             Error (Message.Format);
          when GPR2.Message.Warning =>
-            Warning (Message.Format);
+            if Verbose_Mode then
+               Warning (Message.Format);
+            end if;
+
+            if not Missing_File_Detected
+              and then Report_Missing_File (Message.Message)
+            then
+               Missing_File_Detected := True;
+            end if;
          when others =>
             null;
       end case;
-   end Report;
+   end Internal_Report;
 
-   overriding procedure Report
-     (Self    : Gnatcheck_Reporter;
-      Message : String)
-   is
-      pragma Unreferenced (Self, Message);
+   ---------------
+   -- Verbosity --
+   ---------------
+
+   overriding function Verbosity
+     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level is
    begin
-      --  Info (Message);
-      null;
-   end Report;
+      return GPR2.Reporter.Regular;
+   end Verbosity;
 
    -----------------------
    -- Local subprograms --
@@ -140,12 +158,6 @@ package body Gnatcheck.Projects is
    --  unloads it and loads in the same environment the project passes as a
    --  parameter of '-A option' (which is supposed to be a (non-aggregate)
    --  project aggregated by My_Project
-
-   function Report_Missing_File (Log : String) return Boolean is
-     (Index (Log, "source file") /= 0
-     and then
-      Index (Log, "not found") /= 0);
-   --  Checks if Log reports about a missing source file.
 
    --------------
    -- Clean_Up --
@@ -440,19 +452,7 @@ package body Gnatcheck.Projects is
       use GPR2;
       use GPR2.Containers;
       use Ada.Strings.Unbounded;
-
-      Log       : GPR2.Log.Object;
-      Has_Error : Boolean;
    begin
-      --  Set reporting verbosity when loading the project tree and the sources
-      if Verbose_Mode then
-         GPR2.Project.Tree.Verbosity := GPR2.Project.Tree.Warnings_And_Errors;
-      else
-         GPR2.Project.Tree.Verbosity := GPR2.Project.Tree.Errors;
-      end if;
-
-      GPR2.Message.Reporter.Register_Reporter (Gpr2_Reporter);
-
       --  In case of autoconf, restrict to the Ada language
 
       My_Project.Tree.Restrict_Autoconf_To_Languages
@@ -486,12 +486,27 @@ package body Gnatcheck.Projects is
          Project_Options.Add_Switch (GPR2.Options.Resolve_Links);
       end if;
 
-      if not My_Project.Tree.Load (Project_Options, With_Runtime => True) then
+      if not My_Project.Tree.Load (Project_Options,
+                                   Reporter         => Gpr2_Reporter,
+                                   Absent_Dir_Error => GPR2.No_Error,
+                                   With_Runtime     => True)
+      then
          raise Parameter_Error;
       end if;
 
-      if not My_Project.Tree.Has_Runtime_Project  then
-         My_Project.Tree.Log_Messages.Output_Messages (Information => False);
+      if not My_Project.Tree.Languages.Contains (GPR2.Ada_Language) then
+         Error
+           (""""
+            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
+            & """ has no Ada sources, processing failed");
+
+         raise Parameter_Error;
+
+      elsif not My_Project.Tree.Has_Runtime_Project  then
+         --  Issue with the configuration of Ada
+         for Msg of My_Project.Tree.Configuration.Log_Messages loop
+            Warning (Msg.Format);
+         end loop;
          Error
            (""""
             & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
@@ -521,25 +536,7 @@ package body Gnatcheck.Projects is
             Target := To_Unbounded_String (String (My_Project.Tree.Target));
          end if;
 
-         My_Project.Tree.Update_Sources (Messages => Log);
-
-         for Msg_Cur in Log.Iterate
-           (Information => False,
-            Warning     => False)
-         loop
-            Missing_File_Detected :=
-              Report_Missing_File (GPR2.Log.Element (Msg_Cur).Format);
-
-            exit when Missing_File_Detected;
-         end loop;
-
-         Has_Error := Log.Has_Element
-           (Error       => True,
-            Warning     => False,
-            Information => False,
-            Read        => True);
-
-         if Has_Error then
+         if not My_Project.Tree.Update_Sources then
             raise Parameter_Error;
          end if;
       end if;
