@@ -2319,6 +2319,7 @@ package body Gnatcheck.Rules is
         Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : Custom_Instance renames
         Custom_Instance (Instance.all);
+      R_Name          : constant String := Rule_Name (Rule);
       First_Equal     : Natural;
       Found           : Boolean := False;
    begin
@@ -2332,6 +2333,27 @@ package body Gnatcheck.Rules is
       --  Else, the parameter is not empty. If the command line is enabling the
       --  instance then process the parameter.
       elsif Enable then
+         --  Special case for the "USE_Clauses" rule
+         if R_Name = "use_clauses" then
+            if To_Lower (Param) = "exempt_operator_packages" then
+               if Arg.Check_Redefinition.Get
+                 and then not Tagged_Instance.Arguments.Is_Empty
+               then
+                  Emit_Redefining (Instance, Param, Defined_At);
+               else
+                  Instance.Defined_At := To_Unbounded_String (Defined_At);
+                  Tagged_Instance.Arguments.Append
+                    (Rule_Argument'
+                       (To_Unbounded_Text ("exempt_operator_packages"),
+                        To_Unbounded_Text ("true")));
+               end if;
+            else
+               Emit_Wrong_Parameter (Instance, Param);
+               Turn_Instance_Off (Instance);
+            end if;
+            return;
+         end if;
+
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
          --  Get the first "=" index, if this index is 0 then there is an error
@@ -2745,7 +2767,11 @@ package body Gnatcheck.Rules is
                Res.Process_Rule_Parameter := Forbidden_Param_Process'Access;
 
             else
-               Res.XML_Rule_Help := No_Param_XML_Help'Access;
+               if Rule_Name = "use_clauses" then
+                  Res.XML_Rule_Help := Bool_Param_XML_Help'Access;
+               else
+                  Res.XML_Rule_Help := No_Param_XML_Help'Access;
+               end if;
                Res.Create_Instance := Create_Custom_Instance'Access;
                Res.Process_Rule_Parameter := Custom_Param_Process'Access;
             end if;

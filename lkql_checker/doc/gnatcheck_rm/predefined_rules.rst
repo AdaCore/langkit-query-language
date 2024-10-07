@@ -5235,6 +5235,18 @@ LKQL rule options files:
    If ``true``, do not flag a package name in a package use clause if it refers
    to a package that only declares operators in its visible part.
 
+.. note::
+   This rule has another parameter, only available when using an LKQL rule
+   options file: ``allowed``. It is a list of Ada names describing packages
+   to exempt from begin flagged when used in "use" clauses. Strings in this
+   list are case insensitive. Example:
+
+   .. code-block:: lkql
+
+      val rules = @{
+         Use_Clauses: {Allowed: ["Ada.Strings.Unbounded", "Other.Package"]}
+      }
+
 .. rubric:: Example
 
 .. code-block:: ada
@@ -5249,8 +5261,8 @@ LKQL rule options files:
    end Operator_Pack;
 
    with Pack, Operator_Pack;
-   use Pack;                   --  FLAG
-   use Operator_Pack;          --  FLAG only if Exempt_Operator_Packages is not set
+   use Pack;                   --  FLAG if "Pack" is not in Allowed
+   use Operator_Pack;          --  FLAG only if Exempt_Operator_Packages is false
 
 
 
