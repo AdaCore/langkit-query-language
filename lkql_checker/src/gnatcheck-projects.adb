@@ -429,10 +429,13 @@ package body Gnatcheck.Projects is
      (My_Project : Arg_Project_Type;
       Filename   : String) return String is
    begin
-      if Gnatcheck.Options.Gnatcheck_Prj.Is_Specified then
+      if Gnatcheck.Options.Gnatcheck_Prj.Is_Specified
+        and then Gnatcheck.Options.Gnatcheck_Prj.Tree.Is_Defined
+      then
          return Normalize_Pathname
            (GNAT.Directory_Operations.Dir_Name
-              (Gnatcheck.Options.Gnatcheck_Prj.Source_Prj.all) & Filename);
+              (Gnatcheck_Prj.Tree.Root_Project.Path_Name.String_Value) &
+            Filename);
       else
          return Normalize_Pathname (Filename);
       end if;
