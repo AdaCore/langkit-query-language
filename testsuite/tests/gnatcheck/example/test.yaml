@@ -1,0 +1,4 @@
+driver: gnatcheck
+format: brief
+project: simple
+check_flags: False
