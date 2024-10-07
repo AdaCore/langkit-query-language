@@ -50,10 +50,4 @@ Project Simple is
       --  This attribute contains the switches used for "diners" only
    end Builder;
 
-   package Check is
-      for Default_Switches ("ada") use ("-rules", "-from=coding_standard.rules");
-      --  This attribute contains the switches used by the coding standard
-      --  verifier
-   end Check;
-
 end Simple;
