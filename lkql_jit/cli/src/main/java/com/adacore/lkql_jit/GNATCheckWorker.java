@@ -3,22 +3,22 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.drivers;
+package com.adacore.lkql_jit;
 
-import com.adacore.lkql_jit.options.JsonUtils;
-import com.adacore.lkql_jit.options.RuleInstance;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
+import org.json.JSONObject;
 import picocli.CommandLine;
 
 /**
@@ -168,106 +168,67 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * @return The exit code of the script.
      */
     protected int executeScript(Context.Builder contextBuilder) {
-        // Set the builder common options
+        // Create the LKQL options object builder
+        final var optionsBuilder = new LKQLOptions.Builder();
+
+        // Set the common configuration
         contextBuilder.allowIO(true);
-        contextBuilder.option("lkql.diagnosticOutputMode", "GNATCHECK");
-
-        // If no rules are provided, don't do anything
-        contextBuilder.option("lkql.fallbackToAllRules", "false");
-
-        // Do not stop the worker's execution when a source file is missing
-        contextBuilder.option("lkql.keepGoingOnMissingFile", "true");
+        contextBuilder.engine(
+                Engine.newBuilder()
+                        .allowExperimentalOptions(true)
+                        .option("engine.Compilation", "false")
+                        .build());
+        optionsBuilder
+                .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
+                .fallbackToAllRules(false)
+                .keepGoingOnMissingFile(true);
 
         // If a LKQL rule config file has been provided, parse it and display the result
         if (this.args.lkqlConfigFile != null) {
             System.out.println(
-                    JsonUtils.serializeInstances(parseLKQLRuleFile(this.args.lkqlConfigFile)));
+                    new JSONObject(
+                            parseLKQLRuleFile(this.args.lkqlConfigFile).entrySet().stream()
+                                    .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
+                                    .collect(
+                                            Collectors.toMap(
+                                                    Map.Entry::getKey, Map.Entry::getValue))));
             return 0;
         }
 
-        // Set the context options
-        if (this.args.verbose) {
-            contextBuilder.option("lkql.verbose", "true");
-        }
+        // Forward the command line options to the options object builder
+        optionsBuilder
+                .verbose(this.args.verbose)
+                .projectFile(this.args.project)
+                .subprojectFile(this.args.subProject)
+                .scenarioVariables(this.args.scenarioVariables)
+                .target(this.args.target)
+                .runtime(this.args.RTS)
+                .configFile(this.args.configFile)
+                .charset(this.args.charset)
+                .rulesDir(this.args.rulesDirs)
+                .showInstantiationChain(this.args.showInstantiationChain)
+                .checkerDebug(this.args.debug);
 
-        // Set the project file
-        if (this.args.project != null) {
-            contextBuilder.option("lkql.projectFile", this.args.project);
-        }
-
-        if (this.args.subProject != null) {
-            contextBuilder.option("lkql.subprojectFile", this.args.subProject);
-        }
-
-        if (this.args.debug) {
-            contextBuilder.option("lkql.checkerDebug", "true");
-        }
-
-        if (!this.args.scenarioVariables.isEmpty()) {
-            StringBuilder scenarioVars = new StringBuilder();
-            Base64.Encoder encoder = Base64.getEncoder();
-            this.args.scenarioVariables.forEach(
-                    (key, val) -> {
-                        scenarioVars.append(
-                                new String(encoder.encode((key + "=" + val).getBytes())));
-                        scenarioVars.append(";");
-                    });
-            contextBuilder.option("lkql.scenarioVars", scenarioVars.toString());
-        }
-
-        if (this.args.target != null) {
-            contextBuilder.option("lkql.target", this.args.target);
-        }
-
-        if (this.args.RTS != null) {
-            contextBuilder.option("lkql.runtime", this.args.RTS);
-        }
-
-        if (this.args.configFile != null) {
-            contextBuilder.option("lkql.configFile", this.args.configFile);
-        }
-
-        // Set the files
+        // Read the list of sources to analyze provided by GNATcheck driver
         if (this.args.filesFrom != null) {
             try {
-                final List<String> lines = Files.readAllLines(Paths.get(this.args.filesFrom));
-                final String files = String.join(File.pathSeparator, lines);
-                contextBuilder.option("lkql.files", files);
+                optionsBuilder.files(Files.readAllLines(Paths.get(this.args.filesFrom)));
             } catch (IOException e) {
                 System.err.println("Could not read file: " + this.args.filesFrom);
             }
         }
 
-        // Set the charset
-        if (this.args.charset != null) {
-            contextBuilder.option("lkql.charset", this.args.charset);
-        }
-
-        // Set the rule directories
-        if (!this.args.rulesDirs.isEmpty()) {
-            contextBuilder.option(
-                    "lkql.rulesDirs", String.join(File.pathSeparator, this.args.rulesDirs));
-        }
-
-        // Set the generic instantiation displaying parameter
-        if (this.args.showInstantiationChain) {
-            contextBuilder.option("lkql.showInstantiationChain", "true");
-        }
-
-        // Set the rule instances
+        // Parse the rule instances provided by the GNATcheck driver
         final Map<String, RuleInstance> instances = new HashMap<>();
         for (var rulesFrom : this.args.rulesFroms) {
             if (!rulesFrom.isEmpty()) {
                 instances.putAll(parseLKQLRuleFile(rulesFrom));
             }
         }
-        contextBuilder.option("lkql.ruleInstances", JsonUtils.serializeInstances(instances));
+        optionsBuilder.ruleInstances(instances);
 
-        contextBuilder.engine(
-                Engine.newBuilder()
-                        .allowExperimentalOptions(true)
-                        .option("engine.Compilation", "false")
-                        .build());
+        // Finally, pass the options to the LKQL engine
+        contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
@@ -307,7 +268,14 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         final Map<String, RuleInstance> res = new HashMap<>();
         try (Context context =
                 Context.newBuilder()
-                        .option("lkql.diagnosticOutputMode", "GNATCHECK")
+                        .option(
+                                "lkql.options",
+                                new LKQLOptions.Builder()
+                                        .diagnosticOutputMode(
+                                                LKQLOptions.DiagnosticOutputMode.GNATCHECK)
+                                        .build()
+                                        .toJson()
+                                        .toString())
                         .allowIO(true)
                         .build()) {
             // Parse the LKQL rule configuration file with a polyglot context

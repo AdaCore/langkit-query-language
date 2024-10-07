@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.drivers;
+package com.adacore.lkql_jit;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         @CommandLine.Spec public CommandLine.Model.CommandSpec spec;
 
         @CommandLine.Parameters(description = "Files to analyze")
-        public List<String> files;
+        public List<String> files = new ArrayList<>();
 
         @CommandLine.Option(
                 names = {"-C", "--charset"},
@@ -154,43 +154,24 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
      * @return The exit code of the script.
      */
     protected int executeScript(Context.Builder contextBuilder) {
-        // Set the builder common options
+        // Create the LKQL options object builder
+        final var optionsBuilder = new LKQLOptions.Builder();
+
+        // Set the common configuration
         contextBuilder.allowIO(true);
 
-        // Set the context options
-        if (this.args.verbose) {
-            System.out.println("=== LKQL JIT is in verbose mode ===");
-            contextBuilder.option("lkql.verbose", "true");
-        }
+        // Forward the command line options to the options object builder
+        optionsBuilder
+                .verbose(this.args.verbose)
+                .projectFile(this.args.project)
+                .target(this.args.target)
+                .runtime(this.args.RTS)
+                .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
+                .files(this.args.files)
+                .charset(this.args.charset);
 
-        // Set the project file
-        if (this.args.project != null) {
-            contextBuilder.option("lkql.projectFile", this.args.project);
-        }
-
-        if (this.args.RTS != null) {
-            contextBuilder.option("lkql.runtime", this.args.RTS);
-        }
-
-        if (this.args.target != null) {
-            contextBuilder.option("lkql.target", this.args.target);
-        }
-
-        if (this.args.keepGoingOnMissingFile) {
-            contextBuilder.option("lkql.keepGoingOnMissingFile", "true");
-        }
-
-        // Set the files
-        if (this.args.files != null) {
-            contextBuilder.option("lkql.files", String.join(",", this.args.files));
-        }
-
-        // Set the charset
-        if (this.args.charset != null
-                && !this.args.charset.isEmpty()
-                && !this.args.charset.isBlank()) {
-            contextBuilder.option("lkql.charset", this.args.charset);
-        }
+        // Finally, pass the options to the LKQL engine
+        contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {

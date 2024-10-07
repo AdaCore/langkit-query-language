@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.drivers;
+package com.adacore.lkql_jit;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -32,7 +32,14 @@ public class LKQLDoc implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        Context context = Context.newBuilder("lkql").allowAllAccess(true).build();
+        Context context =
+                Context.newBuilder("lkql")
+                        .allowAllAccess(true)
+                        // Set default LKQL options
+                        .option(
+                                "lkql.options",
+                                new LKQLOptions.Builder().build().toJson().toString())
+                        .build();
         try {
             Files.createDirectories(FileSystems.getDefault().getPath(outputDir));
         } catch (IOException e) {

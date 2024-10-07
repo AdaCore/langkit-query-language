@@ -3,11 +3,8 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.drivers;
+package com.adacore.lkql_jit;
 
-import com.adacore.lkql_jit.options.JsonUtils;
-import com.adacore.lkql_jit.options.RuleInstance;
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.Callable;
 import org.graalvm.launcher.AbstractLanguageLauncher;
@@ -103,7 +100,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         @CommandLine.Option(
                 names = {"-I", "--ignores"},
                 description = "Ada files to ignore during analysis")
-        public String ignores = null;
+        public List<String> ignores = new ArrayList<>();
 
         @CommandLine.Option(
                 names = "--keep-going-on-missing-file",
@@ -176,70 +173,35 @@ public class LKQLChecker extends AbstractLanguageLauncher {
      * @return The exit code of the script.
      */
     protected int executeScript(Context.Builder contextBuilder) {
-        // Set the builder common options
-        contextBuilder.allowIO(true);
+        // Create the LKQL options object builder
+        final var optionsBuilder = new LKQLOptions.Builder();
 
-        contextBuilder.option("lkql.checkerDebug", "true");
+        // Set the common configurations
+        contextBuilder
+                .allowIO(true)
+                // This is needed to make sure that calls to `exitContext` done from within an
+                // isolate thread (e.g. executing a Java callback from Ada code) directly stop
+                // the program instead of going it the normal way by raising a special exception,
+                // as such exceptions won't be handled by the caller when thrown from inside the
+                // isolate thread.
+                .useSystemExit(true);
+        optionsBuilder.checkerDebug(true);
 
-        // Set the context options
-        if (this.args.verbose) {
-            System.out.println("=== LKQL JIT is in verbose mode ===");
-            contextBuilder.option("lkql.verbose", "true");
-        }
+        // Forward the command line options to the options object builder
+        optionsBuilder
+                .verbose(this.args.verbose)
+                .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
+                .projectFile(this.args.project)
+                .files(this.args.files)
+                .ignores(this.args.ignores)
+                .charset(this.args.charset)
+                .target(this.args.target)
+                .runtime(this.args.RTS)
+                .rulesDir(this.args.rulesDirs)
+                .ruleInstances(this.getRuleInstances());
 
-        if (this.args.keepGoingOnMissingFile) {
-            contextBuilder.option("lkql.keepGoingOnMissingFile", "true");
-        }
-
-        // Set the project file
-        if (this.args.project != null) {
-            contextBuilder.option("lkql.projectFile", this.args.project);
-        }
-
-        // Set the files
-        if (!this.args.files.isEmpty()) {
-            contextBuilder.option("lkql.files", String.join(File.pathSeparator, this.args.files));
-        }
-
-        // Set the charset
-        if (this.args.charset != null
-                && !this.args.charset.isEmpty()
-                && !this.args.charset.isBlank()) {
-            contextBuilder.option("lkql.charset", this.args.charset);
-        }
-
-        if (this.args.RTS != null) {
-            contextBuilder.option("lkql.runtime", this.args.RTS);
-        }
-
-        if (this.args.target != null) {
-            contextBuilder.option("lkql.target", this.args.target);
-        }
-
-        // Set the rule directories
-        if (!this.args.rulesDirs.isEmpty()) {
-            contextBuilder.option(
-                    "lkql.rulesDirs", String.join(File.pathSeparator, this.args.rulesDirs));
-        }
-
-        // Pass the rule instances to the LKQL engine
-        try {
-            contextBuilder.option(
-                    "lkql.ruleInstances", JsonUtils.serializeInstances(this.getRuleInstances()));
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-
-        // Set the Ada files to ignore during the analysis
-        if (this.args.ignores != null) {
-            contextBuilder.option("lkql.ignores", this.args.ignores);
-        }
-
-        // This is needed to make sure that calls to `exitContext` done from within an isolate
-        // thread (e.g. executing a Java callback from Ada code) directly stop the program instead
-        // of going it the normal way by raising a special exception, as such exceptions won't be
-        // handled by the caller when thrown from inside the isolate thread.
-        contextBuilder.useSystemExit(true);
+        // Finally, pass the options to the LKQL engine
+        contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
