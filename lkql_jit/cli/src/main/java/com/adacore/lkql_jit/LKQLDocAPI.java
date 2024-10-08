@@ -15,8 +15,10 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "doc", description = "Generate API doc for LKQL modules, in RST format")
-public class LKQLDoc implements Callable<Integer> {
+@CommandLine.Command(
+        name = "doc-api",
+        description = "Generate API doc for LKQL modules, in RST format")
+public class LKQLDocAPI implements Callable<Integer> {
     @CommandLine.Option(
             names = "--std",
             description = "Generate apidoc for the prelude & builtin functions")
