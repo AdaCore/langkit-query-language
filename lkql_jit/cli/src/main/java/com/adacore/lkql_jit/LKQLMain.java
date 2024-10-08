@@ -5,10 +5,7 @@
 
 package com.adacore.lkql_jit;
 
-import com.adacore.lkql_jit.drivers.GNATCheckWorker;
-import com.adacore.lkql_jit.drivers.LKQLChecker;
-import com.adacore.lkql_jit.drivers.LKQLDoc;
-import com.adacore.lkql_jit.drivers.LKQLLauncher;
+import com.adacore.lkql_jit.drivers.*;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -22,7 +19,7 @@ import picocli.CommandLine.Command;
             LKQLChecker.Args.class,
             GNATCheckWorker.Args.class,
             LKQLDoc.class,
-
+            LKQLRefactor.class
         },
         description =
                 "Unified driver for LKQL (Langkit query language). Allows you to run LKQL "

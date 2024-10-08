@@ -121,6 +121,12 @@
             <artifactId>launcher-common</artifactId>
             <version>${graalvm.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>liblkqllang</artifactId>
+            <version>0.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>
