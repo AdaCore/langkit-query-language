@@ -163,6 +163,15 @@ class LKQLTestsuite(Testsuite):
         # Directory that contains GPR files, shared by testcases
         os.environ['GPR_PROJECT_PATH'] = P.pathsep.join([
             P.join(self.root_dir, 'ada_projects'),
+            P.abspath(
+                P.join(
+                    self.root_dir,
+                    '..',
+                    'lkql_checker',
+                    'share',
+                    'examples'
+                )
+            ),
             os.environ.get('GPR_PROJECT_PATH', ''),
         ])
 
