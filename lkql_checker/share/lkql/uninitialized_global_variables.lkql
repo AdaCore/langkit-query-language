@@ -1,14 +1,24 @@
-# Flag an object declaration that does not have an explicit initialization if
-# it is located in a library-level package or generic package or bodies of
-# library-level package or generic package (including packages and generic
-# packages nested in those).
-# Do not flag deferred constant declarations.
-
 import stdlib
 
 @check(message="uninitialized global variable",
        category="Style", subcategory="Programming Practice")
 fun uninitialized_global_variables(node) =
+    |" Flag an object declaration that does not have an explicit initialization if it is
+    |" located in a library-level package or generic package or bodies of library-level package
+    |" or generic package (including packages and generic packages nested in those).
+    |" Do not flag deferred constant declarations.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    package Foo is
+    |"       Var1 : Integer;      --  FLAG
+    |"       Var2 : Integer := 0;
+    |"    end Foo;
     node is ObjectDecl
     when node.f_default_expr == null
          and (not node.f_has_constant?.p_as_bool())

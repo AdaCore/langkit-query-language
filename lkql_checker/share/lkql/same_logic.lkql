@@ -1,6 +1,3 @@
-# Flag a chain of the same boolean operator (and, or, and then, or else)
-# that contains two syntactically equivalent operands.
-
 fun check_list(l) =
     [e for e in l if [f for f in l if e != f and e.same_tokens(f)]]
 
@@ -23,15 +20,28 @@ fun message(node) = {
 
 @unit_check(help="same logic",
             category="Style", subcategory="Programming Practice")
-fun same_logic(unit) = [
-    message (n)
-    for n in from unit.root
-    select node@BinOp(f_op: op@(OpAnd | OpAndThen | OpOr | OpOrElse |
-                                  OpXor))
-    when {
-        val kind = op.kind;
-        not (node.parent is p@BinOp when p.f_op.kind == kind) and
-        check_list(gather_ops(node, kind))
-    }
-]
-
+fun same_logic(unit) =
+    |" Flags expressions that contain a chain of infix calls to the same boolean
+    |" operator (``and``, ``or``, ``and then``, ``or else``, ``xor``) if an expression
+    |" contains syntactically equivalent operands.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    B := Var1 and Var2;            --  NO FLAG
+    |"    return A or else B or else A;  --  FLAG
+    [
+        message (n)
+        for n in from unit.root
+        select node@BinOp(f_op: op@(OpAnd | OpAndThen | OpOr | OpOrElse |
+                                      OpXor))
+        when {
+            val kind = op.kind;
+            not (node.parent is p@BinOp when p.f_op.kind == kind) and
+            check_list(gather_ops(node, kind))
+        }
+    ]

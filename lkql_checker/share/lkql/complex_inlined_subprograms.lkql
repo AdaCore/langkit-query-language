@@ -1,14 +1,3 @@
-# Flag a subprogram (or generic subprogram, or instantiation of a subprogram)
-# if pragma Inline is applied to it and at least one of the following
-# conditions is met:
-# - it contains at least one complex declaration such as a subprogram body,
-#   package, task, protected declaration, or a generic instantiation (except
-#   instantiation of Ada.Unchecked_Conversion);
-# - it contains at least one complex statement such as a loop, a case or an if
-#   statement;
-# - the number of statements exceeds a value specified by the N rule parameter;
-# Subprogram renamings are also considered.
-
 import stdlib
 
 @memoized
@@ -34,20 +23,69 @@ fun is_complex_subp(node, n) =
      [s for s in node?.f_stmts?.f_stmts?.children if s is Stmt].length > n)
 
 @unit_check(help="complex inlined subprograms", category="Feature")
-fun complex_inlined_subprograms(unit, n : int = 5) = [
-    {message: match complex_declaration(stdlib.get_subp_body(nod)?.f_decls)
-              | decl@AdaNode => (
-                  "complex declaration in inlined subprogram (line " &
-                  img(decl?.token_start().start_line) & ")"
-                )
-              | *            => (
-                  match complex_statement(stdlib.get_subp_body(nod)?.f_stmts)
-                  | stmt@Stmt => "branching in inlined subprogram (line " &
-                                 img(stmt?.token_start().start_line) & ")"
-                  | *         => "too many statements in inlined subprogram"
-                ),
-     loc: if nod is SubpRenamingDecl then stdlib.get_subp_body(nod) else nod}
-    for nod in from unit.root
-    select node@(SubpBody | GenericSubpInstantiation | SubpRenamingDecl)
-    when node.p_has_aspect("Inline")
-     and is_complex_subp(stdlib.get_subp_body(node), n)]
+fun complex_inlined_subprograms(unit, n : int = 5) =
+    |" Flag a subprogram (or generic subprogram, or instantiation of a subprogram) if
+    |" pragma Inline is applied to it and at least one of the following
+    |" conditions is met:
+    |"
+    |" *
+    |"   it contains at least one complex declaration such as a subprogram body,
+    |"   package, task, protected declaration, or a generic instantiation
+    |"   (except instantiation of ``Ada.Unchecked_Conversion``);
+    |"
+    |" *
+    |"   it contains at least one complex statement such as a loop, a case
+    |"   or an if statement;
+    |"
+    |" *
+    |"   the number of statements exceeds
+    |"   a value specified by the *N* rule parameter;
+    |"
+    |" Subprogram renamings are also considered.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Positive integer specifying the maximum allowed total number of statements
+    |"    in the subprogram body.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    procedure Swap (I, J : in out Integer) with Inline => True;
+    |"
+    |"    procedure Swap (I, J : in out Integer) is   --  FLAG
+    |"    begin
+    |"
+    |"       if I /= J then
+    |"          declare
+    |"             Tmp : Integer;
+    |"          begin
+    |"             TMP := I;
+    |"             I   := J;
+    |"             J   := Tmp;
+    |"          end;
+    |"       end if;
+    |"
+    |"    end Swap;
+    [
+        {message: match complex_declaration(stdlib.get_subp_body(nod)?.f_decls)
+                  | decl@AdaNode => (
+                      "complex declaration in inlined subprogram (line " &
+                      img(decl?.token_start().start_line) & ")"
+                    )
+                  | *            => (
+                      match complex_statement(stdlib.get_subp_body(nod)?.f_stmts)
+                      | stmt@Stmt => "branching in inlined subprogram (line " &
+                                     img(stmt?.token_start().start_line) & ")"
+                      | *         => "too many statements in inlined subprogram"
+                    ),
+         loc: if nod is SubpRenamingDecl then stdlib.get_subp_body(nod) else nod}
+        for nod in from unit.root
+        select node@(SubpBody | GenericSubpInstantiation | SubpRenamingDecl)
+        when node.p_has_aspect("Inline")
+         and is_complex_subp(stdlib.get_subp_body(node), n)
+    ]

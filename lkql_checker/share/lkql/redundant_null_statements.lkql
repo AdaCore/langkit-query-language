@@ -1,10 +1,20 @@
-# Flag each occurrence of a null statement that serve no purpose and can be
-# removed. When a null statement carries a label, it is considered as serving
-# a purpose.
-
 @check(message="redundant null statement",
        category="Style", subcategory="Programming Practice")
 fun redundant_null_statements(node) =
+    |" Flag null statements that serve no purpose and can be removed. If a null
+    |" statement has a label it is not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"     if I > 0 then
+    |"        null;       --  FLAG
+    |"        pragma Assert (J > 0);
+    |"     end if;
     node is NullStmt
      and node.previous_sibling() is not Label
      and (node.previous_sibling() != null or

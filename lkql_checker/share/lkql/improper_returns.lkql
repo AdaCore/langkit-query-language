@@ -1,16 +1,44 @@
-# Flag each explicit return statement in procedures, and multiple return
-# statements in functions. Diagnostic messages are generated for all return
-# statements in a procedure (thus each procedure must be written so that it
-# returns implicitly at the end of its statement part), and for all return
-# statements in a function after the first one. This rule supports the
-# stylistic convention that each subprogram should have no more than one point
-# of normal return.
-
 import stdlib
 
 @check(message="extra return statement",
        category="Style", subcategory="Programming Practice")
 fun improper_returns(node) =
+    |" Flag each explicit ``return`` statement in procedures, and
+    |" multiple ``return`` statements in functions.
+    |" Diagnostic messages are generated for all ``return`` statements
+    |" in a procedure (thus each procedure must be written so that it
+    |" returns implicitly at the end of its statement part),
+    |" and for all ``return`` statements in a function after the first one.
+    |" This rule supports the stylistic convention that each subprogram
+    |" should have no more than one point of normal return.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4, 15, 19
+    |"
+    |"    procedure Proc (I : in out Integer) is
+    |"    begin
+    |"       if I = 0 then
+    |"          return;                          --  FLAG
+    |"       end if;
+    |"
+    |"       I := I * (I + 1);
+    |"    end Proc;
+    |"
+    |"    function Factorial (I : Natural) return Positive is
+    |"    begin
+    |"       if I = 0 then
+    |"          return 1;
+    |"       else
+    |"          return I * Factorial (I - 1);    --  FLAG
+    |"       end if;
+    |"    exception
+    |"       when Constraint_Error =>
+    |"          return Natural'Last;             --  FLAG
+    |"    end Factorial;
     node is ReturnStmt
      and stdlib.enclosing_body(node) is body@BaseSubpBody
         when match body.f_subp_spec.f_subp_kind

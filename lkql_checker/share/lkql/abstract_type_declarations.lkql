@@ -1,9 +1,23 @@
-# Flag all declarations of abstract types, including generic formal types. For
-# an abstract private type, the full type declarations is flagged only if it is
-# itself declared as abstract. Interface types are not flagged.
-
 @check(message="declaration of abstract type", help="abstract types",
        category="Feature")
 fun abstract_type_declarations(node) =
+    |" Flag all declarations of abstract types, including generic formal types.
+    |" For an abstract private type, the full type declarations is flagged
+    |" only if it is itself declared as abstract. Interface types are not
+    |" flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2, 5
+    |"
+    |"    package Foo is
+    |"       type Figure is abstract tagged private;              --  FLAG
+    |"       procedure Move (X : in out Figure) is abstract;
+    |"    private
+    |"       type Figure is abstract tagged null record;          --  FLAG
+    |"    end Foo;
     node is (RecordTypeDef | DerivedTypeDef | PrivateTypeDef)
     when node.f_has_abstract.p_as_bool()

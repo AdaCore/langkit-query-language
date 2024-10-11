@@ -1,16 +1,3 @@
-# Flag all the type declarations located in the visible part of a library
-# package or a library generic package that can declare a visible component. A
-# visible component can be declared in a record definition which appears on its
-# own or as part of a record extension. The record definition is flagged even
-# if it contains no components.
-#
-# Record definitions located in private parts of library (generic) packages or
-# in local (generic) packages are not flagged. Record definitions in private
-# packages, in package bodies, and in the main subprogram body are not flagged.
-#
-# This rule has the optional parameter Tagged_Only: only declarations of tagged
-# types are flagged.
-
 fun has_visible_components(t) =
     match t
     | RecordTypeDef    => true
@@ -20,6 +7,57 @@ fun has_visible_components(t) =
 @check(message="type defines publicly accessible components",
        category="Style", subcategory="Object Orientation")
 fun visible_components(node, tagged_only=false) =
+    |" Flag all the type declarations located in the visible part of a library
+    |" package or a library generic package that can declare a visible component.
+    |" A visible component can be declared in a *record definition* which appears
+    |" on its own or as part of a record extension.  The *record definition* is
+    |" flagged even if it contains no components.
+    |"
+    |" *Record definitions* located in private parts of library (generic) packages
+    |" or in local (generic) packages are not flagged. *Record definitions* in
+    |" private packages, in package bodies, and in the main subprogram body are not
+    |" flagged.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Tagged_Only: bool*
+    |"    If ``true``, only declarations of tagged types are flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3, 5, 10, 17
+    |"
+    |"    with Types;
+    |"    package Foo is
+    |"       type Null_Record is null record;                                    --  FLAG
+    |"
+    |"       type Not_Null_Record is record                                      --  FLAG
+    |"          I : Integer;
+    |"          B : Boolean;
+    |"       end record;
+    |"
+    |"       type Tagged_Not_Null_Record is tagged record                        --  FLAG
+    |"          I : Integer;
+    |"          B : Boolean;
+    |"       end record;
+    |"
+    |"       type Private_Extension is new Types.Tagged_Private with private;
+    |"
+    |"       type NoN_Private_Extension is new Types.Tagged_Private with record  --  FLAG
+    |"          B : Boolean;
+    |"       end record;
+    |"
+    |"    private
+    |"       type Rec is tagged record
+    |"          I : Integer;
+    |"       end record;
+    |"
+    |"       type Private_Extension is new Types.Tagged_Private with record
+    |"          C : Rec;
+    |"       end record;
+    |"    end Foo;
     node is TypeDecl(any parent(depth=2): PublicPart(
         parent: BasePackageDecl(any parent: LibraryItem(
             f_item: PackageDecl | GenericDecl,

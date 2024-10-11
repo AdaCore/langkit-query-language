@@ -1,19 +1,3 @@
-# Flag each use of a numeric literal except for the following:
-# - a literal occurring in the initialization expression for a constant
-#   declaration or a named number declaration, or
-# - a literal occurring in an aspect definition or in an aspect clause, or
-# - an integer literal that is less than or equal to a value specified by the
-#   N rule parameter.
-# - As the immediate right expression of an infix exponentiation operator
-# - As an indexing of an array attribute
-# - a literal occurring in a declaration in case the Statements_Only rule
-#   parameter is given.
-# This rule has the following parameters:
-# - N: an integer literal used as the maximal value that is not flagged (i.e.,
-#   integer literals not exceeding this value are allowed).
-# - ALL: Ignore parameter N.
-# - Statements_Only: Numeric literals are flagged only when used in statements.
-
 fun check_parents(n, statements_only) =
     match n
     | null            => true
@@ -28,6 +12,60 @@ fun check_parents(n, statements_only) =
 
 @check(message="numeric literal", category="Feature")
 fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
+    |" Flag each use of a numeric literal except for the following:
+    |"
+    |" *
+    |"   a literal occurring in the initialization expression for a constant
+    |"   declaration or a named number declaration, or
+    |"
+    |" *
+    |"   a literal occurring in an aspect definition or in an aspect clause, or
+    |"
+    |" *
+    |"   an integer literal that is less than or equal to a value
+    |"   specified by the *N* rule parameter, or
+    |"
+    |" *
+    |"   an integer literal that is the right operand of an infix call to an
+    |"   exponentiation operator, or
+    |"
+    |" *
+    |"   an integer literal that denotes a dimension in array types attributes
+    |"   ``First``, ``Last`` and ``Length``, or
+    |"
+    |" *
+    |"   a literal occurring in a declaration in case the *Statements_Only*
+    |"   rule parameter is given.
+    |"
+    |" This rule may have the following parameters for the ``+R`` option and for
+    |" LKQL rule options files:
+    |"
+    |" *N: int*
+    |"   An integer literal used as the maximal value that is not flagged
+    |"   (i.e., integer literals not exceeding this value are allowed).
+    |"
+    |"
+    |" *All: bool*
+    |"   If ``true``, all integer literals are flagged.
+    |"
+    |"
+    |" *Statements_Only: bool*
+    |"   If ``true``, numeric literals are flagged only when used in statements.
+    |"
+    |" If no parameters are set, the maximum unflagged value is 1, and the check for
+    |" literals is not limited by statements only.
+    |"
+    |" The last specified check limit (or the fact that there is no limit at
+    |" all) is used when multiple ``+R`` options appear.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    C1 : constant Integer := 10;
+    |"    V1 :          Integer := C1;
+    |"    V2 :          Integer := 20;      --  FLAG
     node is NumLiteral
     # check parameter N if we have an integer literal, unless ALL is set
     when (all or (node is RealLiteral or node.p_denoted_value() > n)

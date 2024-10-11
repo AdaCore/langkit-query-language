@@ -1,12 +1,35 @@
-# Flag each array, record and extension aggregate that includes positional
-# notation.
-
 fun is_array_or_record(n) =
     n is BaseTypeDecl when n?.p_is_array_type() or n?.p_is_record_type()
 
 @check(message="aggregate with a positional component association",
        remediation="EASY", category="Style", subcategory="Programming Practice")
 fun positional_components(node) =
+    |" Flag each array, record and extension aggregate that includes positional
+    |" notation.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 11, 12, 15
+    |"
+    |"    package Foo is
+    |"       type Arr is array (1 .. 10) of Integer;
+    |"
+    |"       type Rec is record
+    |"          C_Int  : Integer;
+    |"          C_Bool : Boolean;
+    |"          C_Char : Character;
+    |"       end record;
+    |"
+    |"       Var_Rec_1 : Rec := (C_Int => 1, C_Bool => True, C_Char => 'a');
+    |"       Var_Rec_2 : Rec := (2, C_Bool => False, C_Char => 'b');   --  FLAG
+    |"       Var_Rec_3 : Rec := (1, True, 'c');                        --  FLAG
+    |"
+    |"       Var_Arr_1 : Arr := (1 => 1, others => 10);
+    |"       Var_Arr_2 : Arr := (1, others => 10);                     --  FLAG
+    |"    end Foo;
     node is Aggregate(f_assocs: *(any children(depth=2): a@AlternativesList
                       when not a[1]))
     when is_array_or_record(node.p_expression_type())

@@ -1,7 +1,21 @@
-# Flag any use of an others choice in an exception handler.
-
 @check(message="OTHERS choice in exception handler",
+       rule_name="OTHERS_In_Exception_Handlers",
        category="Style", subcategory="Programming Practice")
 fun others_in_exception_handlers(node) =
+    |" Flag any use of an ``others`` choice in an exception handler.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    exception
+    |"       when Constraint_Error =>
+    |"          I:= Integer'Last;
+    |"       when others =>                   --  FLAG
+    |"          I := I_Old;
+    |"          raise;
     node is OthersDesignator(parent: AlternativesList(
                              parent: ExceptionHandler))

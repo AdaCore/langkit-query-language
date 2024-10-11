@@ -1,13 +1,3 @@
-# Flag all declarations of controlled types. 
-#
-# * A declaration of a private type is flagged if its full declaration 
-#   declares a controlled type.
-# * A declaration of a derived type is flagged if its ancestor type is
-#   controlled. Subtype declarations are not checked.
-# * A declaration of a type that itself is not a descendant of a type
-#   declared in `Ada.Finalization' but has a controlled component is not
-#   checked.
-
 import stdlib
 
 fun canonical_fully_qualified_name(t) =
@@ -15,6 +5,23 @@ fun canonical_fully_qualified_name(t) =
 
 @check(message="declaration of controlled type", category="Feature")
 fun controlled_type_declarations(node) =
+    |" Flag all declarations of controlled types. A declaration of a private type
+    |" is flagged if its full declaration declares a controlled type. A declaration
+    |" of a derived type is flagged if its ancestor type is controlled. Subtype
+    |" declarations are not checked. A declaration of a type that itself is not a
+    |" descendant of a type declared in ``Ada.Finalization`` but has a controlled
+    |" component is not checked.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    with Ada.Finalization;
+    |"    package Foo is
+    |"       type Resource is new Ada.Finalization.Controlled with private;  --  FLAG
     node is TypeDecl (
         any stdlib.complete_super_types: b
         when canonical_fully_qualified_name(b) == "ada.finalization.controlled"

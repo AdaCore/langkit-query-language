@@ -1,7 +1,3 @@
-# Flag each occurrence of a membership test of the form:
-#   X in Subtype_Of_X
-#   X in Subtype_Of_X'First .. Subtype_Of_X'Last
-
 fun type_of(name) =
     match name.p_referenced_decl()
     | BasicDecl(p_type_expression(): t@TypeExpr) => t.p_designated_type_decl()
@@ -10,6 +6,30 @@ fun type_of(name) =
 @check(message="membership test instead of 'Valid",
        category="Style", subcategory="Portability")
 fun membership_for_validity(node) =
+    |" Flag membership tests that can be replaced by a ``'Valid`` attribute.
+    |" Two forms of membership tests are flagged:
+    |"
+    |" *
+    |"   X in Subtype_Of_X
+    |"
+    |" *
+    |"   X in Subtype_Of_X'First .. Subtype_Of_X'Last
+    |"
+    |" where X is a data object except for a loop parameter, and ``Subtype_Of_X``
+    |" is the subtype of the object as given by the corresponding declaration.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5
+    |"
+    |"       subtype My_Int is Integer range 1 .. 10;
+    |"       X : My_Int;
+    |"       Y : Integer;
+    |"    begin
+    |"       if X in My_Int then                           --  FLAG
     node is MembershipExpr(f_expr: var@Name)
     when not node.f_membership_exprs[2]
      and node.f_membership_exprs[1] is

@@ -1,17 +1,49 @@
-# Flag each unnamed block statement. Flag a unnamed loop statement if this
-# statement is enclosed by another loop statement or if it encloses another
-# loop statement.
-
 @unit_check(help="compound statements naming", remediation="EASY",
        category="Style", subcategory="Programming Practice")
-fun unnamed_blocks_and_loops(unit) = [
-    {message: "non-named " &
-              (if n is BlockStmt then "block"
-               else (if n is BaseLoopStmt(any children: BaseLoopStmt)
-                     then "nesting " else "nested ") & "loop") & " statement",
-     loc: n}
-    for n in from unit.root select node@CompositeStmt
-    when (not node.parent is NamedStmt)
-     and node is (BlockStmt |
-                 BaseLoopStmt (any children: BaseLoopStmt) |
-                 BaseLoopStmt (any parent: BaseLoopStmt))]
+fun unnamed_blocks_and_loops(unit) =
+    |" Flag each unnamed block statement. Flag a unnamed loop statement if this
+    |" statement is enclosed by another loop statement or if it encloses another
+    |" loop statement.
+    |"
+    |" The rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5, 10, 14
+    |"
+    |"    procedure Bar (S : in out String) is
+    |"       I : Integer := 1;
+    |"    begin
+    |"       if S'Length > 10 then
+    |"          declare                                  --  FLAG
+    |"             S1   : String (S'Range);
+    |"             Last : Positive := S1'Last;
+    |"             Idx  : Positive := 0;
+    |"          begin
+    |"             for J in S'Range loop                 --  FLAG
+    |"                S1 (Last - Idx) := S (J);
+    |"                Idx             := Idx + 1;
+    |"
+    |"                for K in S'Range loop              --  FLAG
+    |"                   S (K) := Character'Succ (S (K));
+    |"                end loop;
+    |"
+    |"             end loop;
+    |"
+    |"             S := S1;
+    |"          end;
+    |"       end if;
+    |"    end Bar;
+    [
+        {message: "non-named " &
+                  (if n is BlockStmt then "block"
+                   else (if n is BaseLoopStmt(any children: BaseLoopStmt)
+                         then "nesting " else "nested ") & "loop") & " statement",
+         loc: n}
+        for n in from unit.root select node@CompositeStmt
+        when (not node.parent is NamedStmt)
+         and node is (BlockStmt |
+                     BaseLoopStmt (any children: BaseLoopStmt) |
+                     BaseLoopStmt (any parent: BaseLoopStmt))
+    ]

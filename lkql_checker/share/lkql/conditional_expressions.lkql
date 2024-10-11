@@ -1,10 +1,109 @@
-# Flag use of conditional expression.
-# This rule has the parameter Except_Assertions: Do not flag a conditional
-# expression if it is a subcomponent of the following constructs[...]
-
 import stdlib
 
 @check(message="conditional expression", category="Feature")
 fun conditional_expressions(node, except_assertions=false) =
+    |" Flag use of conditional expression.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Except_Assertions: bool*
+    |"    If ``true``, do not flag a conditional expression if it is a subcomponent
+    |"    of the following constructs:
+    |"
+    |" *argument of the following pragmas*
+    |"
+    |" *Language-defined*
+    |"
+    |" *
+    |"   ``Assert``
+    |"
+    |" *GNAT-specific*
+    |"
+    |" *
+    |"   ``Assert_And_Cut``
+    |"
+    |" *
+    |"   ``Assume``
+    |"
+    |" *
+    |"   ``Contract_Cases``
+    |"
+    |" *
+    |"   ``Debug``
+    |"
+    |" *
+    |"   ``Invariant``
+    |"
+    |" *
+    |"   ``Loop_Invariant``
+    |"
+    |" *
+    |"   ``Loop_Variant``
+    |"
+    |" *
+    |"   ``Postcondition``
+    |"
+    |" *
+    |"   ``Precondition``
+    |"
+    |" *
+    |"   ``Predicate``
+    |"
+    |" *
+    |"   ``Refined_Post``
+    |"
+    |" *definition of the following aspects*
+    |"
+    |" *Language-defined*
+    |"
+    |" *
+    |"   ``Static_Predicate``
+    |"
+    |" *
+    |"   ``Dynamic_Predicate``
+    |"
+    |" *
+    |"   ``Pre``
+    |"
+    |" *
+    |"   ``Pre'Class``
+    |"
+    |" *
+    |"   ``Post``
+    |"
+    |" *
+    |"   ``Post'Class``
+    |"
+    |" *
+    |"   ``Type_Invariant``
+    |"
+    |" *
+    |"   ``Type_Invariant'Class``
+    |"
+    |" *GNAT-specific*
+    |"
+    |" *
+    |"   ``Contract_Cases``
+    |"
+    |" *
+    |"   ``Invariant``
+    |"
+    |" *
+    |"   ``Invariant'Class``
+    |"
+    |" *
+    |"   ``Predicate``
+    |"
+    |" *
+    |"   ``Refined_Post``
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    Var1 : Integer := (if I > J then 1 else 0);  --  FLAG
+    |"    Var2 : Integer := I + J;
     node is CondExpr
     when not (except_assertions and stdlib.within_assert(node))

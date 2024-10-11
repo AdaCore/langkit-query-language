@@ -1,10 +1,34 @@
-# Flag each occurrence of a goto statement.
-
-@check(message="goto statement",
+@check(message="goto statement", rule_name="GOTO_Statements",
        category="Style", subcategory="Programming Practice")
 fun goto_statements(node, only_unconditional=false) =
-   node is GotoStmt
-   # If unconditional option is true, only flag unconditional goto statements
-   when not only_unconditional
-        or not node.parent.parent
-               is (IfStmt | CaseStmtAlternative | ElsePart | ElsifStmtPart)
+    |" Flag each occurrence of a ``goto`` statement.
+    |"
+    |" This rule has the following optional parameter for the ``+R`` option and for
+    |" LKQL rule options files:
+    |"
+    |" *Only_Unconditional: bool*
+    |"    If ``true``, Only flag unconditional goto statements, that is, goto statements
+    |"    that are not directly enclosed in an if or a case statement.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    for K in 1 .. 10 loop
+    |"       if K = 6 then
+    |"          goto Quit; -- FLAG only if Only_Unconditional is false
+    |"       end if;
+    |"       null;
+    |"    end loop;
+    |"    goto Next; -- FLAG in any case
+    |"    <<Quit>>
+    |"
+    |"    <<Next>>
+    |"    null;
+    |"    return;
+    node is GotoStmt
+    # If unconditional option is true, only flag unconditional goto statements
+    when not only_unconditional
+         or not node.parent.parent
+                is (IfStmt | CaseStmtAlternative | ElsePart | ElsifStmtPart)

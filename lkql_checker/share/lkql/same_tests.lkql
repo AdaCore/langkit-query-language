@@ -1,6 +1,3 @@
-# Flag if statements / expressions that contain several syntactically
-# equivalent conditions.
-
 fun check_list(l) =
     [e for e in l if [f for f in l if e != f and e.same_tokens(f)]]
 
@@ -16,10 +13,31 @@ fun message(node) = {
 
 @unit_check(help="same test",
             category="Style", subcategory="Programming Practice")
-fun same_tests(unit) = [
-    message(n)
-    for n in from unit.root select
-    node@(IfStmt | IfExpr)
-    when check_list([node.f_cond_expr] &
-                    [n.f_cond_expr for n in node.f_alternatives.children].to_list)
-]
+fun same_tests(unit) =
+    |" Flags condition expressions in ``if`` statements or ``if`` expressions if
+    |" a statement or expression contains another condition expression that is
+    |" syntactically equivalent to the first one.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1, 5
+    |"
+    |"    if Str = A then                --  FLAG: same test at line 5
+    |"       Put_Line("Hello, tata!");
+    |"    elsif Str = B then
+    |"       Put_Line("Hello, titi!");
+    |"    elsif Str = A then
+    |"       Put_Line("Hello, toto!");
+    |"    else
+    |"       Put_Line("Hello, world!");
+    |"    end if;
+    [
+        message(n)
+        for n in from unit.root select
+        node@(IfStmt | IfExpr)
+        when check_list([node.f_cond_expr] &
+                        [n.f_cond_expr for n in node.f_alternatives.children].to_list)
+    ]

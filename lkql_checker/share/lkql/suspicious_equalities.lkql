@@ -1,7 +1,3 @@
-# Flag 'or' expressions whose two operands are inequality expressions comparing
-# a same variable against two literals and 'and' expressions whose two operands
-# are equality expressions comparing a same variable against two literals.
-
 import stdlib
 
 fun name_of(bin_op) =
@@ -56,6 +52,27 @@ fun is_sus_eq(bin_op, logic_op_predicate, comp_op_predicate) =
 @check(message="suspicious equality",
        category="Style", subcategory="Programming Practice")
 fun suspicious_equalities(node) =
+    |" Flag 'or' expressions whose left and right operands are unequalities
+    |" referencing the same entity and a literal and 'and' expressions whose left and
+    |" right operands are equalities referencing the same entity and a literal.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4, 7
+    |"
+    |"    procedure tmp is
+    |"       X : Integer := 0;
+    |"    begin
+    |"       if X /= 1 or x /= 2 then -- FLAG
+    |"          null;
+    |"       end;
+    |"       if x = 1 and then X = 2 then -- Flag
+    |"          null;
+    |"       end;
+    |"    end;
     node is BinOp
     when is_sus_eq(node, (op) => op is (OpAnd | OpAndThen), (op) => op is OpEq)
       or is_sus_eq(node, (op) => op is (OpOr | OpOrElse), (op) => op is OpNeq)

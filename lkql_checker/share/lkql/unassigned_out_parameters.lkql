@@ -1,22 +1,3 @@
-# Flag subprogram' out parameters that are not assigned.
-# An out parameter is flagged if the sequence of statements of the subprogram
-# body (before the subprogram body's exception part, if any) contains no
-# assignment to the parameter.
-# An out parameter is also flagged if an exception handler contains neither an
-# assignment to the parameter nor a raise statement nor a call to a procedure
-# marked No_Return.
-# Bodies of generic subprograms are also considered.
-#
-# The following are treated as assignments to an out parameter:
-# - an assignment statement, with the parameter or some component as the target
-# - passing the parameter (or one of its components) as an out or in out
-#   parameter.
-#
-# This rule has an optional parameter:
-# - Ignore_Component_Assignments: ignore component assignments when determining
-#   whether a composite parameter is initialized, only consider full
-#   assignments.
-
 import stdlib
 
 # Return true if `id` matches `param` (the ParamDecl of `name`), taking
@@ -52,23 +33,71 @@ fun check_exception_handler(param, name, h, ignore_comp) =
     check_stmts(param, name, h, ignore_comp)
 
 @unit_check(help="OUT parameters do not get values in subprogram bodies",
-            category="Feature")
-fun unassigned_out_parameters(unit, ignore_component_assignments=false) = [
-    {message: "unassigned OUT parameter " & n.f_name.text, loc: n}
-    for n in from unit.root
-    # Look for out parameters of subprogram bodies only
-    select node@DefiningName(parent: DefiningNameList(parent:
-                decl@ParamSpec(f_mode: ModeOut,
-                               parent: ParamSpecList(parent: Params(parent:
-                               SubpSpec(parent: body@SubpBody))))))
-    when not (
-        check_stmts(decl, node.f_name, body.f_decls,
-                    ignore_component_assignments)
-        or check_stmts(decl, node.f_name, body.f_stmts.f_stmts,
-                       ignore_component_assignments)
-    ) or stdlib.any([
-        m for m in (from body.f_stmts.f_exceptions select h@ExceptionHandler
-        when not check_exception_handler(decl, node.f_name, h,
-                                         ignore_component_assignments))
-    ])
-]
+            rule_name="Unassigned_OUT_Parameters", category="Feature")
+fun unassigned_out_parameters(unit, ignore_component_assignments=false) =
+    |" Flag subprograms' ``out`` parameters that are not assigned.
+    |"
+    |" An ``out`` parameter is flagged if neither the *declarative part* nor the
+    |" *sequence of statements* of the subprogram body (before the subprogram body's
+    |" exception part, if any) contain an assignment to the parameter.
+    |"
+    |" An ``out`` parameter is flagged if an *exception handler* contains neither an
+    |" assignment to the parameter nor a raise statement nor a call to a procedure
+    |" marked No_Return.
+    |"
+    |" Bodies of generic subprograms are also considered.
+    |"
+    |" The following are treated as assignments to an ``out`` parameter:
+    |"
+    |" * an assignment statement, with the parameter or some component as the target
+    |" * passing the parameter (or one of its components) as an ``out`` or
+    |"   ``in out`` parameter.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Ignore_Component_Assignments: bool*
+    |"    Whether to ignore assignments to subcomponents of an ``out`` parameter when
+    |"    detecting if the parameter is assigned.
+    |"
+    |" .. note:: An assignment to a subprogram's parameter can occur in the subprogram
+    |"    body's *declarative part* in the presence of a nested subprogram declaration
+    |"    which itself contains an assignment to the enclosing subprogram's parameter.
+    |"
+    |" .. warning:: This rule only detects the described cases of unassigned variables
+    |"    and doesn't provide a full guarantee that there is no uninitialized access.
+    |"    It is only a partial replacement for the validity checks provided by
+    |"    CodePeer.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    procedure Proc                --  FLAG
+    |"      (I    : Integer;
+    |"       Out1 : out Integer;
+    |"       Out2 : out Integer)
+    |"    is
+    |"    begin
+    |"       Out1 := I + 1;
+    |"    end Proc;
+    [
+        {message: "unassigned OUT parameter " & n.f_name.text, loc: n}
+        for n in from unit.root
+        # Look for out parameters of subprogram bodies only
+        select node@DefiningName(parent: DefiningNameList(parent:
+                    decl@ParamSpec(f_mode: ModeOut,
+                                   parent: ParamSpecList(parent: Params(parent:
+                                   SubpSpec(parent: body@SubpBody))))))
+        when not (
+            check_stmts(decl, node.f_name, body.f_decls,
+                        ignore_component_assignments)
+            or check_stmts(decl, node.f_name, body.f_stmts.f_stmts,
+                           ignore_component_assignments)
+        ) or stdlib.any([
+            m for m in (from body.f_stmts.f_exceptions select h@ExceptionHandler
+            when not check_exception_handler(decl, node.f_name, h,
+                                             ignore_component_assignments))
+        ])
+    ]

@@ -1,16 +1,3 @@
-# Flag each 'Address or 'Access reference to a subprogram whose body may
-# propagate an exception, when this reference is part of one the
-# given subprogram calls and formal parameter name as specified by the
-# parameters.
-# For LKQL: Callbacks is a list of
-# ("fully qualified subprogram name", "parameter name").
-# For gnatcheck: each parameter is of the form
-# "fully.qualified.subprogram.parameter_name".
-# A subprogram is considered as not propagating if:
-# - it has an exception handler with a "when others" choice;
-# - no exception handler contains a raise statement, nor any call to
-#   Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
-
 import stdlib
 
 fun get_uninstantiated_subp(subp) =
@@ -22,41 +9,124 @@ fun get_uninstantiated_subp(subp) =
     | AdaNode => subp.p_get_uninstantiated_node()
     | * => null
 
-
 @check(help="callback may propagate exceptions (global analysis required)",
        message="callback may propagate exceptions",
        category="Style", subcategory="Programming Practice")
 fun exception_propagation_from_callbacks(node, callbacks=[]) =
-   # Select 'Access or 'Address on subprograms in a subprogram call
-   node is AttributeRef(
-       f_attribute: id@Identifier
-           when id.p_name_is("Address") or id.p_name_is("Access"))
-    when node.f_prefix.p_referenced_decl() is
-         subp@(SubpBody | SubpDecl | SubpBodyStub | GenericSubpInstantiation)
-     when (from node through parent
-           select first CallExpr(p_is_call(): true)) is call@CallExpr
-      when {
-          val uninst_subp_name = get_uninstantiated_subp(
-              call.f_name.p_referenced_decl()
-          )?.p_canonical_fully_qualified_name?();
+    |" Flag an ``'Address`` or ``'Access`` attribute if:
+    |"
+    |" * this attribute is a reference to a subprogram;
+    |"
+    |" * this subprogram may propagate an exception;
+    |"
+    |" * this attribute is an actual parameter of a subprogram call, and both the
+    |"   subprogram called and the corresponding formal parameter are specified by a
+    |"   rule parameter.
+    |"
+    |" A subprogram is considered as not propagating an exception if:
+    |"
+    |" * its body has an exception handler with ``others`` exception choice;
+    |"
+    |" * no exception handler in the body contains a raise statement nor a call to
+    |"   ``Ada.Exception.Raise_Exception`` or ``Ada.Exception.Reraise_Occurrence``.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Callbacks: list[string]*
+    |"    A list of strings which should have the following structure
+    |"    ``subprogram_name.parameter``. ``subprogram_name`` should be a full expanded
+    |"    Ada name of a subprogram. ``parameter`` should be a simple name of a
+    |"    parameter of a subprogram defined by the ``subprogram_name`` part of the
+    |"    rule parameter. For such a rule parameter for calls to all the subprograms
+    |"    named as ``subprogram_name`` the rule checks  if a reference to a subprogram
+    |"    that may propagate an exception is passed as an actual for parameter named
+    |"    ``parameter``.
+    |"
+    |" .. note::
+    |"    In LKQL rule options files, the ``Callbacks`` parameter should be a list
+    |"    of two-elements tuples. Mapping ``subprogram_name.parameter`` to
+    |"    ``(<subprogram_name>, <parameter>)``. For example:
+    |"
+    |"    .. code-block:: lkql
+    |"
+    |"       val rules = @{
+    |"          Exception_Propagation_From_Callbacks: {Forbidden: [("P.SubP", "Param")]}
+    |"       }
+    |"
+    |" Note that if a rule parameter does not denote the name of an existing
+    |" subprogram or if its ``parameter`` part does not correspond to any formal
+    |" parameter of any subprogram defined by ``subprogram_name`` part, the
+    |" parameter itself is (silently) ignored and does not have any effect except for
+    |" turning the rule ON.
+    |"
+    |" Be aware that ``subprogram_name`` is the name used in subprogram calls to look
+    |" for callback parameters that may raise an exception, and ``parameter`` is the
+    |" name of a formal parameter that is defined in the declaration that defines
+    |" ``subprogram_name``. This is a user responsibility to provide as the rule
+    |" parameters all needed combinations of subprogram name and parameter name for
+    |" the subprogram of interest in case if renamings are used for this subprogram.
+    |"
+    |" Note also, that the rule does not make any overload resolution, so calls to
+    |" all the subprograms corresponding to ``subprogram_name`` are checked.
+    |"
+    |" .. note:: Note that you can use both fully qualified names to
+    |"    instantiated or non-instantiated generic subprograms, depending on the
+    |"    granularity you wish for. However **you cannot use a mix of the two**, so
+    |"    the names need to be either fully instantiated or fully uninstantiated.
+    |"
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 14
+    |"
+    |"    -- Suppose the rule parameter is P.Take_CB.Param1
+    |"    package P is
+    |"       procedure Good_CB; --  does not propagate an exception
+    |"       procedure Bad_CB;  --  may propagate an exception
+    |"       procedure Take_CB
+    |"         (I : Integer;
+    |"          Param1 : access procedure;
+    |"          Param2 : access procedure);
+    |"    end P;
+    |"
+    |"    with P; use P;
+    |"    procedure Proc is
+    |"    begin
+    |"       Take_CB (1, Bad_CB'Access, Good_CB'Access);   --  FLAG
+    |"       Take_CB (1, Good_CB'Access, Bad_CB'Access);   --  NO FLAG
+    |"    end Proc;
+    # Select 'Access or 'Address on subprograms in a subprogram call
+    node is AttributeRef(
+        f_attribute: id@Identifier
+            when id.p_name_is("Address") or id.p_name_is("Access"))
+     when node.f_prefix.p_referenced_decl() is
+          subp@(SubpBody | SubpDecl | SubpBodyStub | GenericSubpInstantiation)
+      when (from node through parent
+            select first CallExpr(p_is_call(): true)) is call@CallExpr
+       when {
+           val uninst_subp_name = get_uninstantiated_subp(
+               call.f_name.p_referenced_decl()
+           )?.p_canonical_fully_qualified_name?();
 
-          val subp_name = call.f_name.p_referenced_decl()
-                              ?.p_canonical_fully_qualified_name?();
+           val subp_name = call.f_name.p_referenced_decl()
+                               ?.p_canonical_fully_qualified_name?();
 
-          val params = [
-              c[2] for c in callbacks
-              if c[1] == uninst_subp_name
-                 or c[1] == subp_name
-          ].to_list;
+           val params = [
+               c[2] for c in callbacks
+               if c[1] == uninst_subp_name
+                  or c[1] == subp_name
+           ].to_list;
 
-          params.length != 0 and
-          [p for p in call.p_call_params()
-           if p.actual == node and [param for param in params
-                                    if p.param.p_name_is(param)]] and
-          stdlib.propagate_exceptions(
-              match subp
-              | SubpBody                 => subp
-              | GenericSubpInstantiation =>
-                  subp.p_designated_subp().p_body_part_for_decl()
-              | *                        => subp.p_body_part_for_decl())
-      }
+           params.length != 0 and
+           [p for p in call.p_call_params()
+            if p.actual == node and [param for param in params
+                                     if p.param.p_name_is(param)]] and
+           stdlib.propagate_exceptions(
+               match subp
+               | SubpBody                 => subp
+               | GenericSubpInstantiation =>
+                   subp.p_designated_subp().p_body_part_for_decl()
+               | *                        => subp.p_body_part_for_decl())
+       }

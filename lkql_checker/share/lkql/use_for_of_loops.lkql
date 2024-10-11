@@ -1,15 +1,3 @@
-# Flag for ... in loops which could be replaced by a for ... of loop,
-# that is, where the loop index is used only for indexing a single variable
-# on a one dimension array.
-#
-# This rule recognizes loops of the form:
-#      for Index in <array>'Range loop
-#         [all references to Index are of the form <array> (Index)]
-#      end loop;
-#
-# This rule has one parameter N: specifies the minimal number of references
-# that will trigger the detection (defaults to 1).
-
 import stdlib
 
 fun num_indices(type) =
@@ -37,6 +25,40 @@ fun is_same_object(a, b) =
 @check(message="FOR loop may be replaced by a FOR OF loop",
        category="Style", subcategory="Programming Practice")
 fun use_for_of_loops(node, n : int = 1, ignore = false) =
+    |" Flag ``for ... in`` loops which could be replaced by a ``for ... of`` loop,
+    |" that is, where the loop index is used only for indexing a single object
+    |" on a one dimension array.
+    |"
+    |" The rule detects the following code patterns:
+    |"
+    |" .. code-block:: ada
+    |"
+    |"    for Index in <array>'Range loop
+    |"       --  where <array> is an array object
+    |"       [all references to Index are of the form <array> (Index)]
+    |"    end loop;
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Non-negative integer, indicates the minimal number of references of the form
+    |"    ``<array> (Index)`` in the loop to make the loop to be flagged.
+    |"
+    |" If no parameter is used for the rule, this corresponds to the parameter value 1.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    for J in Arr'Range loop    --  FLAG
+    |"       Sum := Sum + Arr (J);
+    |"    end loop;
+    |"
+    |"    for K in Left'Range loop
+    |"       Res := Left (J) + Right (J);
+    |"    end loop;
     # Look for "for <index> in <array>'Range" loops
     node is ForLoopStmt(
         f_spec: spec@ForLoopSpec(

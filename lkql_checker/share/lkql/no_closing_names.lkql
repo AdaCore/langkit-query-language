@@ -1,9 +1,25 @@
-# Flag each program unit that is longer than N lines and does not repeat its
-# name after the "end".
-
 @check(message="no closing name", remediation="TRIVIAL",
        category="Style", subcategory="Programming Practice")
 fun no_closing_names(node, n : int = 0) =
+    |" Flag any program unit that is longer than N lines where N is a rule parameter
+    |" and does not repeat its name after the trailing ``END`` keyword.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"   Positive integer specifying the maximal allowed number of lines in the
+    |"   program unit that allows not to repeat the unit name at the end.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    procedure Proc (I : in out Integer) is -- FLAG is rule parameter is 3 or less
+    |"    begin
+    |"       I := I + 1;
+    |"    end;
     node is (SubpBody | PackageBody | BasePackageDecl |
             TaskTypeDecl | TaskBody |
             ProtectedTypeDecl | SingleProtectedDecl | ProtectedBody)

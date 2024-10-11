@@ -1,12 +1,26 @@
-# Flag any declaration of a primitive function of a tagged type that has a
-# controlling result and no controlling parameter. If a declaration is a
-# completion of another declaration then it is not flagged.
-
 import stdlib
 
 @check(message="declaration of constructor function",
        category="Style", subcategory="Object Orientation")
 fun constructors(node) =
+    |" Flag any declaration of a primitive function of a tagged type that has a
+    |" controlling result and no controlling parameter. If a declaration is a
+    |" completion of another declaration then it is not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5-7
+    |"
+    |"    type T is tagged record
+    |"       I : Integer;
+    |"    end record;
+    |"
+    |"    function Fun (I : Integer) return T;                -- FLAG
+    |"    function Bar (J : Integer) return T renames Fun;    -- FLAG
+    |"    function Foo (K : Integer) return T is ((I => K));  -- FLAG
     node is (BasicSubpDecl |
              BaseSubpBody(p_previous_part(): null) |
              SubpBodyStub(p_previous_part(): null))

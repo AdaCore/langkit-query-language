@@ -1,13 +1,26 @@
-# Flag derived type declaration if the ultimate ancestor type is a predefined
-# Ada type. Do not flag record extensions and private extensions. The rule is
-# checked inside expanded generics.
-
 import stdlib
 
 @check(message="deriving from predefined type",
        follow_generic_instantiations=true,
        category="Style", subcategory="Programming Practice")
 fun deriving_from_predefined_type(node) =
+    |" Flag derived type declaration if the ultimate ancestor type is a
+    |" predefined Ada type. Do not flag record extensions and private
+    |" extensions. The rule is checked inside expanded generics.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3, 5
+    |"
+    |"    package Foo is
+    |"       type T is private;
+    |"       type My_String is new String;  --  FLAG
+    |"    private
+    |"       type T is new Integer;         --  FLAG
+    |"    end Foo;
     node is DerivedTypeDef(f_has_with_private: WithPrivateAbsent,
                            f_record_extension: null)
     when stdlib.is_predefined_type(node.f_subtype_indication.f_name)

@@ -1,4 +1,21 @@
-# Flag each block statement.
-
 @check(message="block statement", category="Feature")
-fun blocks(node) = node is BlockStmt
+fun blocks(node) =
+    |" Flag each block statement.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    if I /= J then
+    |"       declare             --  FLAG
+    |"          Tmp : Integer;
+    |"       begin
+    |"          TMP := I;
+    |"          I   := J;
+    |"          J   := Tmp;
+    |"       end;
+    |"    end if;
+    node is BlockStmt

@@ -1,5 +1,23 @@
-# Flag each Ada 83 representation clauses "use at" and "at mod".
-
 @check(message="AT representation clause", category="Feature")
 fun at_representation_clauses(node) =
+    |" Flag at clauses and mod clauses (treated as obsolescent features in
+    |" the Ada Standard).
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2, 9
+    |"
+    |"    Id : Integer;
+    |"    for Id use at Var'Address;   --  FLAG
+    |"
+    |"    type Rec is record
+    |"       Field : Integer;
+    |"    end record;
+    |"
+    |"    for Rec use
+    |"       record at mod 2;          --  FLAG
+    |"    end record;
     node is (AtClause | RecordRepClause(f_at_expr: not null))

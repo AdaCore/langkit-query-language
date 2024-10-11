@@ -1,34 +1,54 @@
-# Flag expressions of the form xxx'First .. xxx'Last and xxx'Range that could be
-# replaced by xxx'Range or xxx.
-
 @unit_check(help="simplifiable 'First .. 'Last and 'Range",
             category="Style", subcategory="Programming Practice")
-fun use_ranges(unit) = [
-    {message: "expression may be replaced by " &
-              (if n is AttributeRef
-               then n.f_prefix.text
-               else if n.f_left.f_prefix.p_referenced_decl() is BaseTypeDecl
-               then n.f_left.f_prefix.text
-               else n.f_left.f_prefix.text & "'Range"),
-     loc: n}
-    for n in from unit.root select
-    # Find 'Range in membership tests, for loop spec or case statements/expr
-    (AttributeRef(
-        f_attribute: Identifier(
-            p_name_is("Range"): true),
-        parent: ForLoopSpec |
-            ExprAlternativesList |
-            AlternativesList(
-                parent: CaseStmtAlternative | CaseExprAlternative),
-        f_prefix: Name(
-            p_referenced_decl(): BaseTypeDecl(
-                p_is_discrete_type(): true))) |
-    # Find T'First .. T'Last
-    BinOp(f_op: OpDoubleDot,
-          f_left: AttributeRef(
-              f_attribute: Identifier(p_name_is("First"): true),
-              f_prefix: name@Name),
-          f_right: AttributeRef(
-              f_attribute: Identifier(p_name_is("Last"): true),
-              f_prefix: Name(p_name_matches(name): true))))
-]
+fun use_ranges(unit) =
+    |" Flag expressions of the form ``Name'First .. Name'Last`` that can be replaced
+    |" by ``Name'Range`` or simply ``Name``. Also flag expressions of the form
+    |" ``Name'Range`` that can be replaced with ``Name``.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3, 5
+    |"
+    |"    procedure Proc (S : String; I : in out Integer) is
+    |"    begin
+    |"       for J in Integer'First .. Integer'Last loop   --  FLAG
+    |"
+    |"          if I in Natural'Range then                 --  FLAG
+    |"             for K in S'Range loop                   --  NO FLAG
+    |"                I := I + K;
+    |"             end loop;
+    |"          end if;
+    |"       end loop;
+    |"    end Proc;
+    [
+        {message: "expression may be replaced by " &
+                  (if n is AttributeRef
+                   then n.f_prefix.text
+                   else if n.f_left.f_prefix.p_referenced_decl() is BaseTypeDecl
+                   then n.f_left.f_prefix.text
+                   else n.f_left.f_prefix.text & "'Range"),
+         loc: n}
+        for n in from unit.root select
+        # Find 'Range in membership tests, for loop spec or case statements/expr
+        (AttributeRef(
+            f_attribute: Identifier(
+                p_name_is("Range"): true),
+            parent: ForLoopSpec |
+                ExprAlternativesList |
+                AlternativesList(
+                    parent: CaseStmtAlternative | CaseExprAlternative),
+            f_prefix: Name(
+                p_referenced_decl(): BaseTypeDecl(
+                    p_is_discrete_type(): true))) |
+        # Find T'First .. T'Last
+        BinOp(f_op: OpDoubleDot,
+              f_left: AttributeRef(
+                  f_attribute: Identifier(p_name_is("First"): true),
+                  f_prefix: name@Name),
+              f_right: AttributeRef(
+                  f_attribute: Identifier(p_name_is("Last"): true),
+                  f_prefix: Name(p_name_matches(name): true))))
+    ]

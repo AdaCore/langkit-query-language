@@ -1,8 +1,20 @@
-# Flag each expression function declared in a package specification (including
-# specification of local packages and generic package specifications).
-
 @check(message="expression function", category="Feature")
 fun expression_functions(node) =
+    |" Flag each expression function declared in a package specification
+    |" (including specification of local packages and generic package
+    |" specifications).
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    package Foo is
+    |"
+    |"       function F (I : Integer) return Integer is   --  FLAG
+    |"         (if I > 0 then I - 1 else I + 1);
     node is ExprFunction
     when node.p_semantic_parent() is BasePackageDecl or
          (node.p_semantic_parent() is PrivatePart and

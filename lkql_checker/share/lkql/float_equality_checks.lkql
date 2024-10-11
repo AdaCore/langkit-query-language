@@ -1,10 +1,3 @@
-# Flag all explicit calls to the predefined equality operations for
-# floating-point types and private types whose completions are floating-point
-# types. Both '=' and '/=' operations are checked. User-defined equality
-# operations are not flagged. Also, the '=' and '/=' operations for fixed-point
-# types are not flagged. Uses of operators that are renamings of the predefined
-# equality operations will be flagged if `follow_renamings` is true.
-
 import stdlib
 
 fun is_float(n) =
@@ -13,6 +6,36 @@ fun is_float(n) =
 
 @check(message="use of equality operation for float values", category="Feature")
 fun float_equality_checks(node, follow_renamings=false) =
+    |" Flag all explicit calls to the predefined equality operations for
+    |" floating-point types and private types whose completions are floating-point
+    |" types. Both '=' and '/=' operations are checked. User-defined equality
+    |" operations are not flagged. Also, the '=' and '/=' operations for fixed-point
+    |" types are not flagged. Uses of operators that are renamings of the predefined
+    |" equality operations will be flagged if `Follow_Renamings` is true.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Follow_Renamings: bool*
+    |"    Whether to take renamings of predefined equality operations into account.
+    |"
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 11
+    |"
+    |"    package Pack is
+    |"         type Speed is digits 0.01 range 0.0 .. 10_000.0;
+    |"         function Get_Speed return Speed;
+    |"    end Pack;
+    |"
+    |"    with Pack; use Pack;
+    |"    procedure Process is
+    |"         Speed1 : Speed := Get_Speed;
+    |"         Speed2 : Speed := Get_Speed;
+    |"
+    |"         Flag : Boolean := Speed1 = Speed2;     --  FLAG
     node is ((
         RelationOp(f_op: op@(OpEq | OpNeq))
         when stdlib.is_predefined_op(op, follow_renamings) and is_float(node.f_left)

@@ -1,5 +1,21 @@
-# Flag each occurrence of a simple loop statement, excluding while and for
-# loops.
-
 @check(message="simple loop statement", category="Feature")
-fun simple_loop_statements(node) = node is LoopStmt
+fun simple_loop_statements(node) =
+    |" Flags simple loop statements (loop statements that do not
+    |" have iteration schemes).
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    loop                    --  FLAG
+    |"       I := I + 1;
+    |"       exit when I > 10;
+    |"    end loop;
+    |"
+    |"    while I > 0 loop        --  NO FLAG
+    |"       I := I - 1;
+    |"    end loop;
+    node is LoopStmt

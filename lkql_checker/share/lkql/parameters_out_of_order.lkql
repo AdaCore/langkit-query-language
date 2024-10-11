@@ -1,13 +1,3 @@
-# Flag each formal parameter not ordered according to the specified scheme
-# among the following categories:
-# - in parameters
-# - access parameters
-# - in out parameters
-# - out parameters
-# - in parameters with default initialization expressions
-#
-# The `order` parameter defines the order required.
-
 fun index(order, str) =
     [n for n in [1, 2, 3, 4, 5] if order[n] == str].to_list[1]
 
@@ -27,6 +17,40 @@ fun priority(spec, order) =
 fun parameters_out_of_order(node,
                             order = ["in", "access", "in_out",
                                      "out", "defaulted_in"]) =
+    |" Flag each parameter specification if it does not follow the required
+    |" ordering of parameter specifications in a formal part. The required
+    |" order may be specified by the following rule parameters:
+    |"
+    |" *in*
+    |"   ``in`` non-access parameters without initialization expressions;
+    |"
+    |" *access*
+    |"   ``access`` parameters  without initialization expressions;
+    |"
+    |" *in_out*
+    |"   ``in out`` parameters;
+    |"
+    |" *out*
+    |"   ``out`` parameters;
+    |"
+    |" *defaulted_in*
+    |"   parameters with initialization expressions (the order of ``access``
+    |"   and non-access parameters is not checked.
+    |"
+    |" When the rule is used with parameters, all the five parameters should
+    |" be given, and each parameter should be specified only once.
+    |"
+    |" The rule can be called without parameters, in this case it checks the
+    |" default ordering that corresponds to the order in which the
+    |" rule parameters are listed above.
+    |"
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    procedure Proc1 (I : in out Integer; B : Boolean) is    --  FLAG
     node is ParamSpec(any parent(depth=3): not EntryCompletionFormalParams)
     when ({
         val prio = priority(node, order);

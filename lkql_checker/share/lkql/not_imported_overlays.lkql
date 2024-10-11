@@ -1,13 +1,34 @@
-# Flag a 'Address attribute definition clause or Address aspect specification
-# that has the form [for Overlaying'Address use] Overlaid'Address; where
-# Overlaying and Overlaid are identifiers both defined by object declarations
-# if Overlaying is not marked as imported.
-
 import stdlib
 
 @check(message="not imported overlay",
        category="Style", subcategory="Programming Practice")
 fun not_imported_overlays(node) =
+    |" Flag an attribute definition clause that defines 'Address attribute and
+    |" has the form ``for Overlaying'Address use Overlaid'Address;`` where
+    |" ``Overlaying`` and ``Overlaid`` are identifiers
+    |" both defined by object declarations if ``Overlaying`` is not marked as
+    |" imported. Flag an Address aspect specification if this aspect specification
+    |" is a part of an object declaration of the object ``Overlaying`` and
+    |" if the aspect value has the form ``Overlaid'Address`` where ``Overlaid``
+    |" is an identifier defined by an object declaration if the object ``Overlaying``
+    |" is not marked as imported.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    package Pack is
+    |"       I : Integer;
+    |"
+    |"       J : Integer with Address => I'Address;            --  FLAG
+    |"
+    |"       L : Integer;
+    |"       for L'Address use I'Address;                      --  NO FLAG
+    |"       pragma Import (C, L);
+    |"    end Pack;
     node is ((
       AspectAssoc(f_id: Identifier(p_name_is("Address"): true),
                   any parent(depth=3): o@ObjectDecl

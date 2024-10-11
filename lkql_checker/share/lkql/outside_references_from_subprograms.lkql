@@ -1,8 +1,3 @@
-# Within a subprogram body or an expression function flag any identifier that
-# denotes a non global data object declared outside this body.
-# This rule analyzes generic instantiations and ignores generic packages to
-# avoid flagging all references to formal objects.
-
 import stdlib
 
 fun outside_refs(body) = {
@@ -23,9 +18,30 @@ fun outside_refs(body) = {
 
 @unit_check(message="outside references from subprogram",
             category="Style", subcategory="Program Structure")
-fun outside_references_from_subprograms(unit) = [
-    {message: "outside references from subprogram", loc: n}
-    for n in concat([outside_refs(body)
-                     for body in from unit.root through follow_generics
-                     select subp@BaseSubpBody
-                     when not stdlib.in_generic_template(subp)].to_list)]
+fun outside_references_from_subprograms(unit) =
+    |" Within a subprogram body or an expression function flag any identifier that
+    |" denotes a non global data object declared outside this body.
+    |"
+    |" This rule analyzes generic instantiations and ignores generic packages to
+    |" avoid flagging all references to formal objects.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6
+    |"
+    |"    procedure Enclosing is
+    |"       Var : Integer;
+    |"
+    |"       procedure Proc (I : in out Integer) is
+    |"       begin
+    |"          I := I + Var;      --  FLAG
+    [
+        {message: "outside references from subprogram", loc: n}
+        for n in concat([outside_refs(body)
+                         for body in from unit.root through follow_generics
+                         select subp@BaseSubpBody
+                         when not stdlib.in_generic_template(subp)].to_list)
+    ]

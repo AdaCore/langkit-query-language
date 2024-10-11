@@ -1,7 +1,22 @@
-# Flag each exit statement with no name directly within a named loop.
-
 @check(message="unnamed exit statement", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun unnamed_exits(node) =
+    |" Flags exit statements with no loop names that exit from named loops.
+    |"
+    |" The rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 7
+    |"
+    |"    Named: for I in 1 .. 10 loop
+    |"        while J < 0 loop
+    |"           J := J + K;
+    |"           exit when J = L;  --  NO FLAG
+    |"        end loop;
+    |"
+    |"        exit when J > 10;    --  FLAG
+    |"    end loop Named;
     node is ExitStmt(f_loop_name: null)
     when (from node through parent select first BaseLoopStmt)?.f_end_name is EndName

@@ -1,13 +1,3 @@
-# Flag each declarative construct whose nesting level exceeds the value
-# provided in the rule parameter n.
-# The declaration constructs checked are the following:
-# - package decl and body
-# - subprogram decl and body
-# - task decl and body
-# - protected decl and body
-# - entry body
-# - blocks
-
 fun check_decl_parent(node, n) =
     |" Return true if node and its parents contain more than n decl constructs
     if node == null then false
@@ -22,6 +12,55 @@ fun check_decl_parent(node, n) =
 @check(message="nesting level of scopes too deep",
        category="Style", subcategory="Programming Practice")
 fun overly_nested_scopes(node, n: int = 10) =
+    |" Flag a nested scope if the nesting level of this scope is more than the
+    |" rule parameter. The following declarations are considered as scopes by this
+    |" rule:
+    |"
+    |" *
+    |"   package and generic package declarations and bodies;
+    |"
+    |" *
+    |"   subprogram and generic subprogram declarations and bodies;
+    |"
+    |" *
+    |"   task type and single task declarations and bodies;
+    |"
+    |" *
+    |"   protected type and single protected declarations and bodies;
+    |"
+    |" *
+    |"   entry bodies;
+    |"
+    |" *
+    |"   block statements;
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Non-negative integer specifying the maximal allowed depth of scope
+    |"    constructs.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 8
+    |"
+    |"    with P; use P;
+    |"    package Pack is
+    |"       package Pack1 is
+    |"          package Pack2 is
+    |"             generic
+    |"             package Pack_G is
+    |"                procedure P;            --  FLAG if rule parameter is 3 or less
+    |"
+    |"                package Inner_Pack is   --  FLAG if rule parameter is 3 or less
+    |"                   I : Integer;
+    |"                end Inner_Pack;
+    |"             end Pack_G;
+    |"          end Pack2;
+    |"       end Pack1
+    |"    end Pack;
     node is (BasePackageDecl | PackageBody | BasicSubpDecl | BaseSubpBody |
              TaskTypeDecl | SingleTaskDecl | TaskBody |
              ProtectedTypeDecl | SingleProtectedDecl | ProtectedBody |

@@ -1,11 +1,20 @@
-# Flag each occurrence of a formal_package_declaration which is not allowed in
-# Ada 95.
-# In other words, each formal_package_declaration when the box symbol (<>) is
-# used except when used alone with no designator and no other parameter.
-
 @check(message="Ada 2005 formal package declaration",
        category="Style", subcategory="Programming Practice")
 fun ada05_formal_packages(node) =
+    |" Flag formal package declarations that are not allowed in Ada 95. Ada 95 allows
+    |" the box symbol ``(<>)`` to be used alone as a whole formal package actual
+    |" part only.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    generic
+    |"       with package NP is new P (T => <>);  --  FLAG
+    |"    package Pack_G is
     node is GenericPackageInstantiation(parent: GenericFormalPackage)
     when {
         val num_box = [p for p in node.f_params.children

@@ -1,10 +1,28 @@
-# Use clauses that are not parts of compilation unit context clause are
-# flagged. The rule has a parameter Except_USE_TYPE_Clauses: do not flag local
-# use type clauses.
-
-@check(message="local use clause",
+@check(message="local use clause", rule_name="Local_USE_Clauses",
        category="Style", subcategory="Programming Practice")
 fun local_use_clauses(node, except_use_type_clauses = false) =
+    |" Use clauses that are not parts of compilation unit context clause are
+    |" flagged.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Except_USE_TYPE_Clauses: bool*
+    |"    If ``true``, do not flag local use type clauses.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4, 7
+    |"
+    |"    with Pack1;
+    |"    with Pack2;
+    |"    procedure Proc is
+    |"       use Pack1;               --  FLAG
+    |"
+    |"       procedure Inner is
+    |"          use type Pack2.T;     --  FLAG (if Except_USE_TYPE_Clauses is not set)
+    |"       ...
     node is UseClause
     when node.parent.parent is not CompilationUnit
      and not (except_use_type_clauses and node is UseTypeClause)

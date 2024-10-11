@@ -1,13 +1,29 @@
-# Flag any variable declaration that appears immediately within the
-# specification of a library package or library generic package. Variable
-# declarations in nested packages and inside package instantiations are not
-# flagged.
-# This rule has parameter Only_Public: Do not flag variable declarations in
-# private library (generic) packages and in package private parts.
-
 @check(message="declaration of global variable",
        category="Style", subcategory="Programming Practice")
 fun global_variables(node, only_public=false) =
+    |" Flag any variable declaration that appears immediately within the
+    |" specification of a library package or library generic package. Variable
+    |" declarations in nested packages and inside package instantiations are
+    |" not flagged.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Only_Public: bool*
+    |"    If ``true``, do not flag variable declarations in private library (generic)
+    |"    packages and in package private parts.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2, 5
+    |"
+    |"    package Foo is
+    |"        Var1 : Integer;    --  FLAG
+    |"        procedure Proc;
+    |"    private
+    |"        Var2 : Boolean;    --  FLAG
+    |"    end Foo;
     node is ObjectDecl(p_is_constant_object(): false,
                        p_semantic_parent(): s when {
 

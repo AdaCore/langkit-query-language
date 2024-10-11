@@ -1,21 +1,35 @@
-# Flags each body with declarations and a statement part that does not
-# include a trailing comment on the line containing the begin keyword; this
-# trailing comment needs to specify the entity name and nothing else. The
-# begin is not flagged if the body does not contain any declarations.
-
 import stdlib
 
 @unit_check(help="BEGIN not marked with entity name comment",
-            remediation="EASY", category="Style", subcategory="Readability")
-fun uncommented_begin(unit) = [
-    {message: "mark BEGIN with -- " & n.parent.p_defining_name().text,
-     loc: n.token_start().previous(exclude_trivia=true)}
-    for n in from unit.root
-    select node@HandledStmts(parent: p@(PackageBody | SubpBody |
-                                          EntryBody | ProtectedBody |
-                                          TaskBody))
-    when p.f_decls.f_decls is l
-         when l[1]
-          and not stdlib.find_comment(node.token_start().previous(),
-                                      p.p_defining_name().text)
-]
+            rule_name="Uncommented_BEGIN", remediation="EASY",
+            category="Style", subcategory="Readability")
+fun uncommented_begin(unit) =
+    |" Flags ``BEGIN`` keywords in program unit bodies if the body contains
+    |" both declarations and a statement part and if there is no trailing
+    |" comment just after the keyword (on the same line) with the unit
+    |" name as the only content of the comment, the casing of the unit
+    |" name in the comment should be the same as the casing of the defining
+    |" unit name in the unit body declaration.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    procedure Proc (I : out Integer) is
+    |"       B : Boolean;
+    |"    begin
+    |"       I := Var;
+    |"    end Proc;
+    [
+        {message: "mark BEGIN with -- " & n.parent.p_defining_name().text,
+         loc: n.token_start().previous(exclude_trivia=true)}
+        for n in from unit.root
+        select node@HandledStmts(parent: p@(PackageBody | SubpBody |
+                                              EntryBody | ProtectedBody |
+                                              TaskBody))
+        when p.f_decls.f_decls is l
+             when l[1]
+              and not stdlib.find_comment(node.token_start().previous(),
+                                          p.p_defining_name().text)
+    ]

@@ -1,10 +1,26 @@
-# Flag each fixed point type declaration that lacks an explicit representation
-# clause to define its 'Small value. Since 'Small can be defined only for
-# ordinary fixed point types, decimal fixed point type declarations are not
-# checked.
-
 @check(message="fixed point type declaration with no 'Small clause",
+       rule_name="Implicit_SMALL_For_Fixed_Point_Types",
        category="Style", subcategory="Portability")
 fun implicit_small_for_fixed_point_types(node) =
-   node is TypeDecl(any children: OrdinaryFixedPointDef,
-                    p_has_aspect("Small"): false)
+    |" Flag each fixed point type declaration that lacks an explicit
+    |" representation  clause to define its ``'Small`` value.
+    |" Since ``'Small`` can be  defined only for ordinary fixed point types,
+    |" decimal fixed point type declarations are not checked.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    package Foo is
+    |"       type Fraction is delta 0.01 range -1.0 .. 1.0;
+    |"       type Fraction1 is delta 0.01 range -1.0 .. 1.0; --  FLAG
+    |"
+    |"       type Money is delta 0.01 digits 15;
+    |"
+    |"       for Fraction'Small use 0.01;
+    |"    end Foo;
+    node is TypeDecl(any children: OrdinaryFixedPointDef,
+                     p_has_aspect("Small"): false)

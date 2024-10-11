@@ -1,77 +1,3 @@
-# Flag each defining identifier that does not have a prefix corresponding to
-# the kind of declaration it is defined by. The defining names in the following
-# kinds of declarations are checked:
-# - type and subtype declarations (task, protected and access types are treated
-#   separately);
-# - enumeration literal specifications (not including character literals) and
-#   function renaming declarations if the renaming entity is an enumeration
-#   literal;
-# - exception declarations and exception renaming declarations;
-# - constant and number declarations (including object renaming declarations if
-#   the renamed object is a constant).
-#
-# Defining names declared by single task declarations or single protected
-# declarations are not checked by this rule.
-# The defining name from the full type declaration corresponding to a private
-# type declaration or a private extension declaration is never flagged. A
-# defining name from an incomplete type declaration is never flagged.
-# The defining name from a subprogram renaming-as-body declaration is never
-# flagged.
-# For a deferred constant, the defining name in the corresponding full constant
-# declaration is never flagged.
-# The defining name from a body that is a completion of a program unit
-# declaration or a proper body of a subunit is never flagged.
-# The defining name from a body stub that is a completion of a program unit
-# declaration is never flagged.
-#
-# Note that the rule checks only defining names. Usage name occurrence are not
-# checked and are never flagged.
-#
-# The rule may have the following parameters:
-# - Type=string
-#   Specifies the prefix for a type or subtype name.
-# - Concurrent=string
-#   Specifies the prefix for a task and protected type/subtype name. If this
-#   parameter is set, it overrides for task and protected types the prefix set
-#   by the Type parameter.
-# - Access=string
-#   Specifies the prefix for an access type/subtype name. If this parameter is
-#   set, it overrides for access types the prefix set by the Type parameter.
-# - Class_Access=string
-#   Specifies the prefix for the name of an access type/subtype that points to
-#   some class-wide type. If this parameter is set, it overrides for such
-#   access types and subtypes the prefix set by the Type or Access parameter.
-# - Subprogram_Access=string
-#   Specifies the prefix for the name of an access type/subtype that points to
-#   a subprogram. If this parameter is set, it overrides for such access
-#   types/subtypes the prefix set by the Type or Access parameter.
-# - Derived=[list of string1:string2]
-#   Specifies the prefixes for types that are directly derived from a given type
-#   or from a subtype thereof. string1 should be a full expanded Ada name of
-#   an ancestor type (starting from the full expanded compilation unit name),
-#   string2 defines the prefix to check. If this parameter is set, it overrides
-#   for types that are directly derived from the given type the prefix set by
-#   the Type parameter.
-# - Constant=string
-#   Specifies the prefix for defining names from constants and named number
-#   declarations, including the object renaming declaration if the renamed
-#   object is a constant
-# - Enum=string
-#   Specifies the prefix for defining enumeration literals and for the defining
-#   names in a function renaming declarations if the renamed entity is an
-#   enumeration literal.
-# - Exception=string
-#   Specifies the prefix for defining names from exception declarations and
-#   exception renaming declarations.
-# - Exclusive
-#   Check that only those kinds of names for which specific prefix is defined
-#   have that prefix (e.g., only type/subtype names have prefix T_, but not
-#   variable or package names), and flag all defining names that have any of
-#   the specified prefixes but do not belong to the kind of entities this
-#   prefix is defined for.
-#
-# All checks for name prefixes are case-sensitive
-
 import stdlib
 
 fun get_derived(t, derived) = {
@@ -95,177 +21,342 @@ fun identifier_prefixes(unit,
                         constant="-",
                         exception="-",
                         enum="-",
-                        exclusive=true) = {
-    fun check_exclusive(str, exclusive,
-                        type_exclusive=true, concurrent_exclusive=true,
-                        access_exclusive=true, class_access_exclusive=true,
-                        subprogram_access_exclusive=true,
-                        constant_exclusive=true, exception_exclusive=true,
-                        enum_exclusive=true) =
-        exclusive and
-        ((type_exclusive and str.starts_with(type)) or
-         (concurrent_exclusive and str.starts_with(concurrent)) or
-         (access_exclusive and str.starts_with(access)) or
-         (class_access_exclusive and str.starts_with(class_access)) or
-         (subprogram_access_exclusive and str.starts_with(subprogram_access)) or
-         (constant_exclusive and str.starts_with(constant)) or
-         (exception_exclusive and str.starts_with(exception)) or
-         (enum_exclusive and str.starts_with(enum)));
+                        exclusive=true) =
+    |" Flag each defining identifier that does not have a prefix corresponding
+    |" to the kind of declaration it is defined by. The defining names in the
+    |" following kinds of declarations are checked:
+    |"
+    |" *
+    |"   type and subtype declarations (task, protected and access types are treated
+    |"   separately);
+    |"
+    |" *
+    |"   enumeration literal specifications (not including character literals)
+    |"   and function renaming declarations if the renaming entity is an
+    |"   enumeration literal;
+    |"
+    |" *
+    |"   exception declarations and exception renaming declarations;
+    |"
+    |" *
+    |"   constant and number declarations (including object renaming
+    |"   declarations if the renamed object is a constant).
+    |"
+    |" Defining names declared by single task declarations or single protected
+    |" declarations are not checked by this rule.
+    |"
+    |" The defining name from the full type declaration corresponding to a
+    |" private type declaration or a private extension declaration is never
+    |" flagged. A defining name from an incomplete type declaration is never
+    |" flagged.
+    |"
+    |" The defining name from a subprogram renaming-as-body declaration is
+    |" never flagged.
+    |"
+    |" For a deferred constant, the defining name in the corresponding full
+    |" constant declaration is never flagged.
+    |"
+    |" The defining name from a body that is a completion of a program unit
+    |" declaration or a proper body of a subunit is never flagged.
+    |"
+    |" The defining name from a body stub that is a completion of a program
+    |" unit declaration is never flagged.
+    |"
+    |" Note that the rule checks only defining names. Usage name occurrence are
+    |" not checked and are never flagged.
+    |"
+    |" The rule may have the following parameters for the ``+R`` option and for LKQL
+    |" rule options files:
+    |"
+    |" *Type: string*
+    |"    Specifies the prefix for a type or subtype name.
+    |"
+    |" *Concurrent: string*
+    |"    Specifies the prefix for a task and protected type/subtype name. If this
+    |"    parameter is set, it overrides for task and protected types the prefix set by
+    |"    the Type parameter.
+    |"
+    |" *Access: string*
+    |"    Specifies the prefix for an access type/subtype name. If this parameter is
+    |"    set, it overrides for access types the prefix set by the ``Type``
+    |"    parameter.
+    |"
+    |" *Class_Access: string*
+    |"    Specifies the prefix for the name of an access type/subtype that points to some
+    |"    class-wide type. If this parameter is set, it overrides for such access types
+    |"    and subtypes the prefix set by the ``Type`` or ``Access`` parameter.
+    |"
+    |" *Subprogram_Access: string*
+    |"    Specifies the prefix for the name of an access type/subtype that points to a
+    |"    subprogram. If this parameter is set, it overrides for such access
+    |"    types/subtypes the prefix set by the ``Type`` or ``Access`` parameter.
+    |"
+    |" *Derived: string*
+    |"    Specifies the prefix for a type that is directly derived from a given type or
+    |"    from a subtype thereof. The parameter must have the ``string1:string2`` format
+    |"    where *string1* should be a full expanded Ada name of the ancestor type
+    |"    (starting from the full expanded compilation unit name) and *string2* defines
+    |"    the prefix to check. If this parameter is set, it overrides for types that
+    |"    are directly derived from the given type the prefix set by the ``Type``
+    |"    parameter.
+    |"
+    |" *Constant: string*
+    |"    Specifies the prefix for defining names from constants and named number
+    |"    declarations, including the object renaming declaration if the
+    |"    renamed object is a constant
+    |"
+    |" *Enum: string*
+    |"    Specifies the prefix for defining enumeration literals and for the
+    |"    defining names in a function renaming declarations if the renamed
+    |"    entity is an enumeration literal.
+    |"
+    |" *Exception: string*
+    |"    Specifies the prefix for defining names from exception declarations
+    |"    and exception renaming declarations.
+    |"
+    |" *Exclusive: bool*
+    |"    If ``true``, check that only those kinds of names for which specific prefix
+    |"    is defined have that prefix (e.g., only type/subtype names have prefix *T_*,
+    |"    but not variable or package names), and flag all defining names that have any
+    |"    of the specified prefixes but do not belong to the kind of entities this
+    |"    prefix is defined for. By default the exclusive check mode is ON.
+    |"
+    |" You have to use the ``param_name=value`` formatting to pass arguments through
+    |" the ``+R`` options. Example: ``+RIdentifier_Prefixes:Type=Type_,Enum=Enum_``.
+    |"
+    |" The ``+RIdentifier_Prefixes`` option (with no parameter) does not create a new
+    |" instance for the rule; thus, it has no effect on the current GNATcheck run.
+    |"
+    |" There is no default prefix setting for this rule. All checks for
+    |" name prefixes are case-sensitive
+    |"
+    |" If any error is detected in a rule parameter, that parameter is ignored.
+    |" In such a case the options that are set for the rule are not specified.
+    |"
+    |" The rule allows parametric exemption, the parameters that are allowed in
+    |" the definition of exemption sections are:
+    |"
+    |" *Type*
+    |"   Exempts check for type and subtype name prefixes
+    |"
+    |" *Concurrent*
+    |"   Exempts check for task and protected type/subtype name prefixes
+    |"
+    |" *Access*
+    |"   Exempts check for access type/subtype name prefixes
+    |"
+    |" *Class_Access*
+    |"   Exempts check for names of access types/subtypes that point to
+    |"   some class-wide types
+    |"
+    |" *Subprogram_Access*
+    |"   Exempts check for names of access types/subtypes that point to
+    |"   subprograms
+    |"
+    |" *Derived*
+    |"   Exempts check for derived type name prefixes
+    |"
+    |"
+    |" *Constant*
+    |"   Exempts check for constant and number name prefixes
+    |"
+    |" *Exception*
+    |"   Exempts check for exception name prefixes
+    |"
+    |" *Enum*
+    |"   Exempts check for enumeration literal name prefixes
+    |"
+    |" *Exclusive*
+    |"   Exempts check that only names of specific kinds of entities have prefixes
+    |"   specified for these kinds
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4, 7, 10
+    |"
+    |"    --  if the rule is activated as '+RIdentifier_Prefixes:Type=Type_,Constant=Const_,ExceptioN=X_'
+    |"    package Foo is
+    |"       type Type_Enum_1 is (A1, B1, C1);
+    |"       type Enum_2      is (A2, B2, C2);         --  FLAG
+    |"
+    |"       Const_C1 : constant Type_Enum_1 := A1;
+    |"       Const2   : constant Enum_2      := A2;    --  FLAG
+    |"
+    |"       X_Exc_1 : exception;
+    |"       Exc_2   : exception;                      --  FLAG
+    |"    end Foo;
+    {
+        fun check_exclusive(str, exclusive,
+                            type_exclusive=true, concurrent_exclusive=true,
+                            access_exclusive=true, class_access_exclusive=true,
+                            subprogram_access_exclusive=true,
+                            constant_exclusive=true, exception_exclusive=true,
+                            enum_exclusive=true) =
+            exclusive and
+            ((type_exclusive and str.starts_with(type)) or
+             (concurrent_exclusive and str.starts_with(concurrent)) or
+             (access_exclusive and str.starts_with(access)) or
+             (class_access_exclusive and str.starts_with(class_access)) or
+             (subprogram_access_exclusive and str.starts_with(subprogram_access)) or
+             (constant_exclusive and str.starts_with(constant)) or
+             (exception_exclusive and str.starts_with(exception)) or
+             (enum_exclusive and str.starts_with(enum)));
 
-    fun check_enum(str) =
-        (enum != "-" and not str.starts_with(enum)) or
-        check_exclusive(str, exclusive=exclusive, enum_exclusive=false);
+        fun check_enum(str) =
+            (enum != "-" and not str.starts_with(enum)) or
+            check_exclusive(str, exclusive=exclusive, enum_exclusive=false);
 
-    val str_prefix = " does not start with ";
+        val str_prefix = " does not start with ";
 
-    [{message: n.text &
-      (match n.parent
-       | p@(TaskTypeDecl | ProtectedTypeDecl |
-            SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
-         when p is not SingleTaskTypeDecl and concurrent != "-"
-       => str_prefix & "concurrent prefix " & concurrent
-       | (TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
-          AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
-          SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
-                      TypeAccessDef(f_subtype_indication: *(f_name:
-          AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
-         when class_access != "-" => str_prefix & "access-to-class prefix " & class_access
-       | (TypeDecl(f_type_def: AccessToSubpDef) |
-          SubtypeDecl(p_canonical_type():
-                      TypeDecl(f_type_def: AccessToSubpDef)))
-         when subprogram_access != "-" =>
-           str_prefix & "access-to-subprogram prefix " & subprogram_access
-       | (TypeDecl(f_type_def: AccessDef) |
-          SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
-         when access != "-" => str_prefix & "access prefix " & access
+        [{message: n.text &
+          (match n.parent
+           | p@(TaskTypeDecl | ProtectedTypeDecl |
+                SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
+             when p is not SingleTaskTypeDecl and concurrent != "-"
+           => str_prefix & "concurrent prefix " & concurrent
+           | (TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
+              AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
+              SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
+                          TypeAccessDef(f_subtype_indication: *(f_name:
+              AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
+             when class_access != "-" => str_prefix & "access-to-class prefix " & class_access
+           | (TypeDecl(f_type_def: AccessToSubpDef) |
+              SubtypeDecl(p_canonical_type():
+                          TypeDecl(f_type_def: AccessToSubpDef)))
+             when subprogram_access != "-" =>
+               str_prefix & "access-to-subprogram prefix " & subprogram_access
+           | (TypeDecl(f_type_def: AccessDef) |
+              SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
+             when access != "-" => str_prefix & "access prefix " & access
 
-       | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
-         when derived != [] and
-              p.p_canonical_type().p_base_type() is t@BaseTypeDecl
-              when get_derived(t, derived) != ""
-       => {
-            val t = p.p_canonical_type().p_base_type();
-            str_prefix & "derived prefix " & get_derived(t, derived)
-              .split(":")[2]
-          }
+           | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
+             when derived != [] and
+                  p.p_canonical_type().p_base_type() is t@BaseTypeDecl
+                  when get_derived(t, derived) != ""
+           => {
+                val t = p.p_canonical_type().p_base_type();
+                str_prefix & "derived prefix " & get_derived(t, derived)
+                  .split(":")[2]
+              }
 
-       | BaseTypeDecl    => str_prefix & "subtype prefix " & type
-       | EnumLiteralDecl => str_prefix & "enumeration prefix " & enum
-       | p => match p.parent
-                | (ObjectDecl | NumberDecl) =>
-                    str_prefix & "constant prefix " & constant
-                | SubpRenamingDecl         => str_prefix & "enumeration prefix " & enum
-                | ExceptionDecl            => str_prefix & "exception prefix " & exception
-                | * => " does not have an exclusive prefix"),
-      loc: n}
-    for n in from unit.root select node@DefiningName when match node.parent
-    # Concurrent types
-    | p@(TaskTypeDecl | ProtectedTypeDecl | TaskBody | ProtectedBody |
-         SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
-      when p is not SingleTaskTypeDecl and concurrent != "-"
-    =>
-        p.p_previous_part() is (null | IncompleteTypeDecl) and
-        (if node.f_name.text.starts_with(concurrent)
-         then check_exclusive(node.f_name.text,
-                              exclusive=exclusive,
-                              concurrent_exclusive=false))
-
-    # 'Class access
-    | (p@TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
-       AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
-       p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
-                     TypeAccessDef(f_subtype_indication: *(f_name:
-       AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
-      when class_access != "-"
-    =>
-        p?.p_previous_part() is (null | IncompleteTypeDecl) and
-        (if node.f_name.text.starts_with(class_access)
-         then check_exclusive(node.f_name.text,
-                              exclusive=exclusive,
-                              class_access_exclusive=false))
-
-    # Subprogram access
-    | (p@TypeDecl(f_type_def: AccessToSubpDef) |
-       p@SubtypeDecl(p_canonical_type():
-                     TypeDecl(f_type_def: AccessToSubpDef)))
-      when subprogram_access != "-"
-    =>
-        p?.p_previous_part() is (null | IncompleteTypeDecl) and
-        (if node.f_name.text.starts_with(subprogram_access)
-         then check_exclusive(node.f_name.text,
-                              exclusive=exclusive,
-                              subprogram_access_exclusive=false))
-
-    # Other access types
-    | (p@TypeDecl(f_type_def: AccessDef) |
-       p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
-      when access != "-"
-    =>
-        p?.p_previous_part() is (null | IncompleteTypeDecl) and
-        (if node.f_name.text.starts_with(access)
-         then check_exclusive(node.f_name.text,
-                              exclusive=exclusive,
-                              access_exclusive=false,
-                              # If both an Access prefix and a Type prefix are
-                              # set and the type prefix is a prefix of the access
-                              # prefix, we don't want to flag this access because
-                              # it broke the exclusivity of the type prefix.
-                              type_exclusive=false))
-
-    # (Sub)Types derived from `derived`
-    | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
-      when derived != [] and
-           p.p_canonical_type().p_base_type() is t@BaseTypeDecl
-           when get_derived(t, derived) != ""
-    => {
-         val t = p.p_canonical_type().p_base_type();
-         p.p_previous_part() is (null | IncompleteTypeDecl) and
-         not node.f_name.text.starts_with(get_derived(t, derived)
-           .split(":")[2])
-       }
-
-    # Exclude IncompleteTypeDecl
-    | IncompleteTypeDecl => false
-
-    # Other types and subtypes
-    | p@BaseTypeDecl when p is not SingleTaskTypeDecl =>
-        p.p_previous_part() is (null | IncompleteTypeDecl) and
-        ((type != "-" and not node.f_name.text.starts_with(type)) or
-         check_exclusive(node.f_name.text,
-                         exclusive=exclusive,
-                         type_exclusive=false))
-
-    # Enums
-    | EnumLiteralDecl => check_enum(node.f_name.text)
-
-    # Look one level up for remaining cases
-    | p => match p.parent
-        # Constants
-        | ((ObjectDecl(p_is_constant_object(): true) when not node.p_previous_part())
-          | NumberDecl)
+           | BaseTypeDecl    => str_prefix & "subtype prefix " & type
+           | EnumLiteralDecl => str_prefix & "enumeration prefix " & enum
+           | p => match p.parent
+                    | (ObjectDecl | NumberDecl) =>
+                        str_prefix & "constant prefix " & constant
+                    | SubpRenamingDecl         => str_prefix & "enumeration prefix " & enum
+                    | ExceptionDecl            => str_prefix & "exception prefix " & exception
+                    | * => " does not have an exclusive prefix"),
+          loc: n}
+        for n in from unit.root select node@DefiningName when match node.parent
+        # Concurrent types
+        | p@(TaskTypeDecl | ProtectedTypeDecl | TaskBody | ProtectedBody |
+             SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
+          when p is not SingleTaskTypeDecl and concurrent != "-"
         =>
-            (constant != "-" and not node.f_name.text.starts_with(constant)) or
-            check_exclusive(node.f_name.text,
-                            exclusive=exclusive,
-                            constant_exclusive=false)
+            p.p_previous_part() is (null | IncompleteTypeDecl) and
+            (if node.f_name.text.starts_with(concurrent)
+             then check_exclusive(node.f_name.text,
+                                  exclusive=exclusive,
+                                  concurrent_exclusive=false))
+
+        # 'Class access
+        | (p@TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
+           AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
+           p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
+                         TypeAccessDef(f_subtype_indication: *(f_name:
+           AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
+          when class_access != "-"
+        =>
+            p?.p_previous_part() is (null | IncompleteTypeDecl) and
+            (if node.f_name.text.starts_with(class_access)
+             then check_exclusive(node.f_name.text,
+                                  exclusive=exclusive,
+                                  class_access_exclusive=false))
+
+        # Subprogram access
+        | (p@TypeDecl(f_type_def: AccessToSubpDef) |
+           p@SubtypeDecl(p_canonical_type():
+                         TypeDecl(f_type_def: AccessToSubpDef)))
+          when subprogram_access != "-"
+        =>
+            p?.p_previous_part() is (null | IncompleteTypeDecl) and
+            (if node.f_name.text.starts_with(subprogram_access)
+             then check_exclusive(node.f_name.text,
+                                  exclusive=exclusive,
+                                  subprogram_access_exclusive=false))
+
+        # Other access types
+        | (p@TypeDecl(f_type_def: AccessDef) |
+           p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
+          when access != "-"
+        =>
+            p?.p_previous_part() is (null | IncompleteTypeDecl) and
+            (if node.f_name.text.starts_with(access)
+             then check_exclusive(node.f_name.text,
+                                  exclusive=exclusive,
+                                  access_exclusive=false,
+                                  # If both an Access prefix and a Type prefix are
+                                  # set and the type prefix is a prefix of the access
+                                  # prefix, we don't want to flag this access because
+                                  # it broke the exclusivity of the type prefix.
+                                  type_exclusive=false))
+
+        # (Sub)Types derived from `derived`
+        | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
+          when derived != [] and
+               p.p_canonical_type().p_base_type() is t@BaseTypeDecl
+               when get_derived(t, derived) != ""
+        => {
+             val t = p.p_canonical_type().p_base_type();
+             p.p_previous_part() is (null | IncompleteTypeDecl) and
+             not node.f_name.text.starts_with(get_derived(t, derived)
+               .split(":")[2])
+           }
+
+        # Exclude IncompleteTypeDecl
+        | IncompleteTypeDecl => false
+
+        # Other types and subtypes
+        | p@BaseTypeDecl when p is not SingleTaskTypeDecl =>
+            p.p_previous_part() is (null | IncompleteTypeDecl) and
+            ((type != "-" and not node.f_name.text.starts_with(type)) or
+             check_exclusive(node.f_name.text,
+                             exclusive=exclusive,
+                             type_exclusive=false))
+
+        # Enums
+        | EnumLiteralDecl => check_enum(node.f_name.text)
+
+        # Look one level up for remaining cases
+        | p => match p.parent
+            # Constants
+            | ((ObjectDecl(p_is_constant_object(): true) when not node.p_previous_part())
+              | NumberDecl)
+            =>
+                (constant != "-" and not node.f_name.text.starts_with(constant)) or
+                check_exclusive(node.f_name.text,
+                                exclusive=exclusive,
+                                constant_exclusive=false)
 
 
-        # Function renaming an enum literal
-        | r@SubpRenamingDecl
-          when r.f_renames?.f_renamed_object?.p_referenced_decl() is EnumLiteralDecl
-        => check_enum(node.f_name.text)
+            # Function renaming an enum literal
+            | r@SubpRenamingDecl
+              when r.f_renames?.f_renamed_object?.p_referenced_decl() is EnumLiteralDecl
+            => check_enum(node.f_name.text)
 
-        # Exceptions
-        | ExceptionDecl =>
-            (exception != "-" and not node.f_name.text.starts_with(exception)) or
-            check_exclusive(node.f_name.text,
-                            exclusive=exclusive,
-                            exception_exclusive=false)
+            # Exceptions
+            | ExceptionDecl =>
+                (exception != "-" and not node.f_name.text.starts_with(exception)) or
+                check_exclusive(node.f_name.text,
+                                exclusive=exclusive,
+                                exception_exclusive=false)
 
-        # Check all other defining names for exclusion except for completions
-        # and renaming-as-body
-        | p2 =>
-            (if p2 is (BodyNode | SubpRenamingDecl) then not p2.p_previous_part()) and
-            (if p2 is ObjectDecl then not node.p_previous_part()) and
-            check_exclusive(node.f_name.text, exclusive=exclusive)]
-}
+            # Check all other defining names for exclusion except for completions
+            # and renaming-as-body
+            | p2 =>
+                (if p2 is (BodyNode | SubpRenamingDecl) then not p2.p_previous_part()) and
+                (if p2 is ObjectDecl then not node.p_previous_part()) and
+                check_exclusive(node.f_name.text, exclusive=exclusive)]
+    }

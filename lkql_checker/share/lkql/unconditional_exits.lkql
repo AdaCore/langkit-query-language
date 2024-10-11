@@ -1,5 +1,23 @@
-# Flag unconditional exit statements.
-
 @check(message="exit statement does not contain condition", category="Feature")
 fun unconditional_exits(node) =
+    |" Flag unconditional ``exit`` statements.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 8
+    |"
+    |"    procedure Find_A (S : String; Idx : out Natural) is
+    |"    begin
+    |"       Idx := 0;
+    |"
+    |"       for J in S'Range loop
+    |"          if S (J) = 'A' then
+    |"             Idx := J;
+    |"             exit;             --  FLAG
+    |"          end if;
+    |"       end loop;
+    |"    end Find_A;
     node is ExitStmt when not node.f_cond_expr

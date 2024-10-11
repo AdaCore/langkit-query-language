@@ -1,34 +1,91 @@
-# Flag any exception handler in which there exists an execution path that
-# performs no raise/re-raise and no call to a given list of subprograms
-# (as listed by the parameter subprograms) and subprogram regexps (as listed
-# by subprogram_regexps). For gnatcheck users: each parameter given is a fully
-# qualified name of a subprogram. If the parameter is quoted ("") then it is
-# handled as a case insensitive regular expression as defined in s-regpat.ads,
-# otherwise a case insensitive comparison is performed.
-
 import stdlib
 import control_flow
 
 @check(message="silent exception handler",
        category="Style", subcategory="Programming Practice")
-fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) = {
-    fun is_raise_or_log(stmt) =
-        stmt is (RaiseStmt
-        | n@BaseId(p_is_call(): true)
-            when n.p_referenced_decl() is decl@BasicDecl
-                when match decl.p_canonical_fully_qualified_name()
-                 | "^ada.exceptions.(raise_exception|reraise_occurrence)$" => true
-                 | n => [s for s in subprograms if n == s] or
-                          [r for r in subprogram_regexps
-                           if n.contains(pattern(r, case_sensitive=false))]);
+fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) =
+    |" Flag any exception handler in which there exists at least one an execution path
+    |" that does not raise an exception by a ``raise`` statement or a call to
+    |" ``Ada.Exceptions.Raise_Exception`` or to ``Ada.Exceptions.Reraise_Occurrence``
+    |" nor contains a call to some subprogram specified by the rule parameter
+    |" *Subprograms*.
+    |"
+    |" The rule has the following parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Subprograms: list[string]*
+    |"    List of names of subprograms. An exception handler is not flagged if it
+    |"    contains a call to a subprogram that has a fully expanded Ada names that
+    |"    matches an element of this list.
+    |"    This list may contains fully expanded Ada names *AND* case-insensitive
+    |"    regular expression. From a ``+R`` option, you can specify a regular
+    |"    expression by providing an Ada string literal, and from an LKQL rule options
+    |"    file, you have to append the ``|`` character at the beginning of your regular
+    |"    expression. For example:
+    |"    ::
+    |"
+    |"       +RSilent_Exception_Handlers:My.Expanded.Name,"My\.Regex\..*"
+    |"
+    |"    maps to:
+    |"
+    |"    .. code-block:: lkql
+    |"
+    |"       val rules = @{
+    |"          Silent_Exception_Handlers: {Subprograms: ["My.Expanded.Name", "|My\.Regex\..*"]}
+    |"       }
+    |"
+    |" Note that if you specify the rule with parameters in a command shell, you may
+    |" need to escape its parameters. The best and the safest way of using this rule
+    |" is to place it into a rule file and to use this rule file as a parameter of the
+    |" ``-from=`` option, no escaping is needed in this case.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 12
+    |"
+    |"    with Ada.Exceptions; use Ada.Exceptions;
+    |"
+    |"    procedure Exc is
+    |"       procedure Log (Msg : String) with Import;
+    |"       --  Suppose the rule parameters are:
+    |"      --      ada.exceptions.exception_message,"\.Log$"
+    |"       I : Integer := 0;
+    |"    begin
+    |"       begin
+    |"          I := I + 1;
+    |"       exception
+    |"          when others =>   --  FLAG
+    |"             null;
+    |"       end;
+    |"
+    |"    exception
+    |"       when Constraint_Error =>  --  NO FLAG
+    |"          raise;
+    |"       when Program_Error =>     --  NO FLAG
+    |"          Log ("");
+    |"       when E : others =>        --  NO FLAG
+    |"          I := 0;
+    |"          Log (Exception_Message (E));
+    |"    end Exc;
+    {
+        fun is_raise_or_log(stmt) =
+            stmt is (RaiseStmt
+            | n@BaseId(p_is_call(): true)
+                when n.p_referenced_decl() is decl@BasicDecl
+                    when match decl.p_canonical_fully_qualified_name()
+                     | "^ada.exceptions.(raise_exception|reraise_occurrence)$" => true
+                     | n => [s for s in subprograms if n == s] or
+                              [r for r in subprogram_regexps
+                               if n.contains(pattern(r, case_sensitive=false))]);
 
-    # Run a `must` control-flow analysis on the given exception handler to check
-    # that *all* execution paths contain a raise statement or a call to an
-    # appropriate subprogram, and flag if it is *not* the case.
-    node is ExceptionHandler
-    when not control_flow.analyze(
-        node.f_stmts,
-        is_raise_or_log,
-        control_flow.must
-    )
-}
+        # Run a `must` control-flow analysis on the given exception handler to check
+        # that *all* execution paths contain a raise statement or a call to an
+        # appropriate subprogram, and flag if it is *not* the case.
+        node is ExceptionHandler
+        when not control_flow.analyze(
+            node.f_stmts,
+            is_raise_or_log,
+            control_flow.must
+        )
+    }

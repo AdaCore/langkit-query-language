@@ -1,21 +1,3 @@
-# Flag if statements which could be replaced by an if expression.
-# This rule recognizes if statements of the form:
-#      if ... then
-#         return ...;
-#      [elsif ... then
-#         return ...;]
-#      else
-#         return ...;
-#      end if;
-# and:
-#      if ... then
-#         <LHS> := ...;
-#      [elsif ... then
-#         <LHS> := ...;]
-#      else
-#         <LHS> := ...;
-#      end if;
-
 fun simple_return(l) = l.children_count == 1 and l[1] is ReturnStmt
 fun simple_assignment(l) =
     l.children_count == 1 and l[1] is AssignStmt(f_dest: Name)
@@ -23,6 +5,53 @@ fun simple_assignment(l) =
 @check(message="IF statement may be replaced by an IF expression",
        category="Style", subcategory="Programming Practice")
 fun use_if_expressions(node) =
+    |" Flag ``if`` statements which could be replaced by an ``if`` expression.
+    |" This rule detects the following code patterns:
+    |"
+    |" .. code-block:: ada
+    |"
+    |"    if ... then
+    |"       return ...;
+    |"    elsif ... then    --  optional chain of elsif
+    |"       return ...;
+    |"    else
+    |"       return ...;
+    |"    end if;
+    |"
+    |" and:
+    |"
+    |" .. code-block:: ada
+    |"
+    |"    if ... then
+    |"       <LHS> := ...;
+    |"    elsif ... then    --  optional chain of elsif
+    |"       <LHS> := ...;
+    |"    else
+    |"       <LHS> := ...;  --  same LHS on all branches
+    |"    end if;
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1, 9
+    |"
+    |"    if X = 1 then   --  FLAG
+    |"       return 1;
+    |"    elsif X = 2 then
+    |"       return 2;
+    |"    else
+    |"       return 3;
+    |"    end if;
+    |"
+    |"    if X >= 2 then   --  FLAG
+    |"       X := X + 1;
+    |"    elsif X <= 0 then
+    |"       X := X - 1;
+    |"    else
+    |"       X := 0;
+    |"    end if;
     node is IfStmt
     when (simple_return(node.f_then_stmts) and
           simple_return(node.f_else_part.f_stmts) and
