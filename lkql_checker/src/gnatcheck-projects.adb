@@ -220,9 +220,12 @@ package body Gnatcheck.Projects is
    ------------------------------
 
    procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type) is
+      use type GPR2.Language_Id;
 
       function Only_Ada_Mains
         (Prj : GPR2.Project.View.Object) return Boolean;
+      --  Returns whether the provided ``Prj`` project view defines only Ada
+      --  mains.
 
       procedure Store_Source (Unit : GPR2.Build.Compilation_Unit.Object);
       --  Callback used to store sources
@@ -234,7 +237,6 @@ package body Gnatcheck.Projects is
       function Only_Ada_Mains
         (Prj : GPR2.Project.View.Object) return Boolean
       is
-         use type GPR2.Language_Id;
          Src : GPR2.Build.Source.Object;
          CU  : GPR2.Build.Compilation_Unit.Unit_Location;
 
@@ -333,7 +335,10 @@ package body Gnatcheck.Projects is
             end if;
          else
             for Src of Root.Sources loop
-               Store_Sources_To_Process (String (Src.Path_Name.Simple_Name));
+               if Src.Language = GPR2.Ada_Language then
+                  Store_Sources_To_Process
+                    (String (Src.Path_Name.Simple_Name));
+               end if;
             end loop;
          end if;
       end if;
