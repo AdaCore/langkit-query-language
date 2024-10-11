@@ -1,21 +1,39 @@
-# Flag each use of a range of enumeration literals as a choice in a
-# `case' statement.
-#
-# All forms for specifying a range (explicit ranges such as `A .. B',
-# subtype marks and `'Range' attributes) are flagged.
-#
-# An enumeration range is flagged even if contains exactly one
-# enumeration value or no values at all. A type derived from an
-# enumeration type is considered as an enumeration type.
-#
-# This rule helps prevent maintenance problems arising from adding an
-# enumeration value to a type and having it implicitly handled by an
-# existing `case' statement with an enumeration range that includes the
-# new literal.
-
 @check(message="enumeration range as a choice in a case statement",
+       rule_name="Enumeration_Ranges_In_CASE_Statements",
        category="Style", subcategory="Programming Practice")
 fun enumeration_ranges_in_case_statements(node) =
+    |" Flag each use of a range of enumeration literals as a choice in a
+    |" ``case`` statement.
+    |" All forms for specifying a range (explicit ranges
+    |" such as ``A .. B``, subtype marks and ``'Range`` attributes) are flagged.
+    |" An enumeration range is
+    |" flagged even if contains exactly one enumeration value or no values at all. A
+    |" type derived from an enumeration type is considered as an enumeration type.
+    |"
+    |" This rule helps prevent maintenance problems arising from adding an
+    |" enumeration value to a type and having it implicitly handled by an existing
+    |" ``case`` statement with an enumeration range that includes the new literal.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 8, 10
+    |"
+    |"    procedure Bar (I : in out Integer) is
+    |"       type Enum is (A, B, C, D, E);
+    |"       type Arr is array (A .. C) of Integer;
+    |"
+    |"       function F (J : Integer) return Enum is separate;
+    |"    begin
+    |"       case F (I) is
+    |"          when Arr'Range  =>  --  FLAG
+    |"             I := I + 1;
+    |"          when D .. E =>      --  FLAG
+    |"             null;
+    |"       end case;
+    |"    end Bar;
     node is AlternativesList(
         any parent(depth=3): CaseStmt(
             # case statement over enumeration

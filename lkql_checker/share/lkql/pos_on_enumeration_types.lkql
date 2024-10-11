@@ -1,9 +1,26 @@
-# Flag 'Pos attribute in case if the attribute prefix has an enumeration type
-# (including types derived from enumeration types).
-
 @check(message="prefix of 'POS attribute has enumeration type",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       rule_name="POS_On_Enumeration_Types")
 fun pos_on_enumeration_types(node) =
+    |" Flag ``'Pos`` attribute in case if the attribute prefix has an enumeration
+    |" type (including types derived from enumeration types).
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3, 5, 7
+    |"
+    |"    procedure Bar (Ch1, Ch2 : Character; I : in out Integer) is
+    |"    begin
+    |"       if Ch1'Pos in 32 .. 126           --  FLAG
+    |"         and then
+    |"          Ch2'Pos not in 0 .. 31         --  FLAG
+    |"       then
+    |"          I := (Ch1'Pos + Ch2'Pos) / 2;  --  FLAG (twice)
+    |"       end if;
+    |"    end Bar;
     node is AttributeRef
     when node.f_attribute?.p_name_is("Pos")
      and node.f_prefix?.p_referenced_decl() is t@BaseTypeDecl

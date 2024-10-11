@@ -1,12 +1,24 @@
-# Flag each non-qualified aggregate. A non-qualified aggregate is an aggregate
-# that is not the expression of a qualified expression. A string literal is not
-# considered an aggregate, but an array aggregate of a string type is
-# considered as a normal aggregate. Aggregates of anonymous array types are not
-# flagged.
-
 @check(message="aggregate is not a part of a qualified expression",
        remediation="EASY", category="Feature")
 fun non_qualified_aggregates(node) =
+    |" Flag each non-qualified aggregate.
+    |" A non-qualified aggregate is an
+    |" aggregate that is not the expression of a qualified expression. A
+    |" string literal is not considered an aggregate, but an array
+    |" aggregate of a string type is considered as a normal aggregate.
+    |" Aggregates of anonymous array types are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    type Arr is array (1 .. 10) of Integer;
+    |"
+    |"    Var1 : Arr := (1 => 10, 2 => 20, others => 30);             --  FLAG
+    |"    Var2 : array (1 .. 10) of Integer := (1 => 10, 2 => 20, others => 30);
     node is Aggregate(p_expression_type(): not AnonymousTypeDecl,
                       p_is_subaggregate(): false,
                       all parent: not (QualExpr | AspectClause | Aggregate(

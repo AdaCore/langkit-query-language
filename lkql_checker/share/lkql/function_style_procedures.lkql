@@ -1,15 +1,3 @@
-# Flag each procedure that can be rewritten as a function. A procedure can be
-# converted into a function if it has exactly one parameter of mode out, no
-# parameters of mode in out and no Global aspect or an explicit Global => null.
-# Procedure declarations, formal procedure declarations, and generic procedure
-# declarations are always checked.
-# Procedure bodies and body stubs are flagged only if they do not have
-# corresponding separate declarations. Procedure renamings and procedure
-# instantiations are not flagged.
-# If a procedure can be rewritten as a function, but its out parameter is of a
-# limited type, it is not flagged.
-# Protected procedures are not flagged. Null procedures also are not flagged.
-
 fun in_out_params(s) =
     [p for p in s.p_params() if p.f_mode is ModeInOut]
 
@@ -18,6 +6,31 @@ fun params_out(s) =
 
 @check(message="procedure can be rewritten as function", category="Feature")
 fun function_style_procedures(node) =
+    |" Flag each procedure that can be rewritten as a function. A procedure can be
+    |" converted into a function if it has exactly one parameter of mode ``out``
+    |" and no parameters of mode ``in out``, with no ``Global`` aspect
+    |" specified or with explicit specification that its ``Global`` aspect is set to
+    |" ``null`` (either by aspect specification or by pragma Global). Procedure
+    |" declarations, formal procedure declarations, and generic procedure declarations
+    |" are always checked. Procedure
+    |" bodies and body stubs are flagged only if they do not have corresponding
+    |" separate declarations. Procedure renamings and procedure instantiations are
+    |" not flagged.
+    |"
+    |" If a procedure can be rewritten as a function, but its ``out`` parameter is
+    |" of a limited type, it is not flagged.
+    |"
+    |" Protected procedures are not flagged. Null procedures also are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    procedure Cannot_be_a_function (A, B : out Boolean);
+    |"    procedure Can_be_a_function (A : out Boolean);           --  FLAG
     node is (SubpBody | SubpBodyStub | ClassicSubpDecl | GenericSubpInternal)
     when (node is (ClassicSubpDecl | GenericSubpInternal) or
           not node.p_previous_part())

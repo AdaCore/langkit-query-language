@@ -1,9 +1,3 @@
-# Flag an overlay definition if it has neither the form of an attribute
-# definition clause "for Overlaying'Address use Overlaid'Address;" nor the form
-# of aspect definition "Address => Overlaid'Address", where Overlaid is an
-# identifier defined either by an object declaration or a parameter
-# specification.
-
 import stdlib
 
 fun check_nonoverlay(overlaid) =
@@ -18,6 +12,34 @@ fun check_nonoverlay(overlaid) =
 @check(message="nonoverlay address specification",
        category="Style", subcategory="Programming Practice")
 fun nonoverlay_address_specifications(node) =
+    |" Flag an attribute definition clause that defines ``'Address`` attribute if
+    |" it does not have the form ``for Overlaying'Address use Overlaid'Address;``
+    |" where ``Overlaying`` is an identifier defined by an object declaration
+    |" and ``Overlaid`` is an identifier defined either by an object declaration
+    |" or a parameter specification. Flag an Address aspect specification if
+    |" this aspect specification is not a part of an object declaration and
+    |" if the aspect value does not have the form ``Overlaid'Address``
+    |" where ``Overlaid`` is an identifier defined either by an object
+    |" declaration or a parameter specification.
+    |"
+    |" Address specifications given for program units are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 9
+    |"
+    |"    type Rec is record
+    |"       C : Integer;
+    |"    end record;
+    |"
+    |"    Var_Rec : Rec;
+    |"    Var_Int : Integer;
+    |"
+    |"    Var1 : Integer with Address => Var_Int'Address;
+    |"    Var2 : Integer with Address => Var_Rec.C'Address;  --  FLAG
     node is
         ((AspectAssoc(f_id: id@Identifier, any parent(depth=3): ObjectDecl
          when id.p_name_is("address") and check_nonoverlay (node.f_expr)))

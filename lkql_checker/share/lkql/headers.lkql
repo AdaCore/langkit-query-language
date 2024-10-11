@@ -1,10 +1,20 @@
-# Flag each compilation unit not starting with the given `header`.
-# For gnatcheck: the Header parameter is the name of a file containing the
-# expected header.
-
 @unit_check(help="compilation unit does not start with header",
             category="Style", subcategory="Readability")
 fun headers(unit, header = "") =
+    |" Check that the source text of a compilation unit starts from
+    |" the text fragment specified as a rule parameter.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Header: string*
+    |"    The name of a header file.
+    |"
+    |" A header file is a plain text file. The rule checks that
+    |" the beginning of the compilation unit source text is literally
+    |" the same as the content of the header file. Blank lines and trailing
+    |" spaces are not ignored and are taken into account, casing is important.
+    |" The format of the line breaks (DOS or UNIX) is not important.
     if unit.text.starts_with(header)
     then []
     else [{message: "compilation unit does not start with header",

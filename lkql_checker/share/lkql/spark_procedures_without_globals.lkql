@@ -1,9 +1,32 @@
 import stdlib
 
 @check(message="SPARK procedure doesn't have a Global aspect",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       rule_name="SPARK_Procedures_Without_Globals")
 fun spark_procedures_without_globals(node) =
-    |" Check that every SPARK subprogram has a Global aspect
+    |" Flags SPARK procedures that don't have a global aspect.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"
+    |"    package Test is
+    |"        procedure P with SPARK_Mode => On; -- FLAG
+    |"
+    |"        procedure Q is null; -- NOFLAG
+    |"
+    |"        function Foo return Integer  -- NOFLAG
+    |"        is (12)
+    |"        with SPARK_Mode => On;
+    |"
+    |"        V : Integer;
+    |"
+    |"        procedure T with Global => V;  -- NOFLAG
+    |"
+    |"        function Bar return Integer with SPARK_Mode => On;  -- NOFLAG
+    |"    end Test;
     (node is BasicSubpDecl(p_has_spark_mode_on(): true,
                            p_subp_decl_spec(): BaseSubpSpec(p_return_type(): null)))
     and not node.p_has_aspect("Global")

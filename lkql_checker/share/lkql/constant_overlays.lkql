@@ -1,11 +1,3 @@
-# Flag an overlay definition that has a form of an attribute definition clause
-# for Overlaying'Address use Overlaid'Address; or a form of aspect definition
-# Address => Overlaid'Address, and Overlaid is a data object defined by a
-# constant declaration or a formal or generic formal parameter of mode IN if at
-# least one of the following is true:
-# - the overlaying object is not a constant object;
-# - overlaying object or overlaid object is marked as Volatile;
-
 import stdlib
 
 fun check_overlay(decl, overlaid) =
@@ -29,12 +21,35 @@ fun check_overlay(decl, overlaid) =
 
 @check(message="non-constant object overlays a constant",
        category="Style", subcategory="Programming Practice")
-fun constant_overlays(node) = match node
-    | AspectAssoc(f_id: id@Identifier, any parent(depth=3): o@ObjectDecl
-        when id.p_name_is("address")
-         and check_overlay (o, node.f_expr)) => true
-    | AttributeDefClause(f_attribute_expr: at@AttributeRef
-        when at.f_attribute.p_name_is("address")
-         and check_overlay(at.f_prefix.p_referenced_decl(),
-                           node.f_expr)) => true
-    | * => false
+fun constant_overlays(node) =
+    |" Flag an overlay definition that has a form of an attribute definition
+    |" clause ``for Overlaying'Address use Overlaid'Address;`` or a form of aspect definition
+    |" ``Address => Overlaid'Address``, and ``Overlaid`` is a data object defined by a constant
+    |" declaration  or a formal or generic formal parameter of mode ``IN`` if
+    |" at least one of the following is true:
+    |"
+    |" *
+    |"    the overlaying object is not a constant object;
+    |"
+    |" *
+    |"    overlaying object or overlaid object is marked as Volatile;
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    C : constant Integer := 1;
+    |"    V : Integer;
+    |"    for V'Address use C'Address;    --  FLAG
+    match node
+        | AspectAssoc(f_id: id@Identifier, any parent(depth=3): o@ObjectDecl
+            when id.p_name_is("address")
+             and check_overlay (o, node.f_expr)) => true
+        | AttributeDefClause(f_attribute_expr: at@AttributeRef
+            when at.f_attribute.p_name_is("address")
+             and check_overlay(at.f_prefix.p_referenced_decl(),
+                               node.f_expr)) => true
+        | * => false

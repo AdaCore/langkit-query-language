@@ -1,9 +1,3 @@
-# Flags each record definition that does not include a trailing comment on the
-# line containing the "[end] record" keyword(s) if the record definition is
-# longer than N lines; this trailing comment needs to specify the record name
-# and some extra information can be provided after the name, provided it is
-# separated from the name by a space or a comma.
-
 fun find_comment(token, name, line) =
     |" Return true if `token` is a comment and contains only the given `name`
     |" possibly followed by some extra text after a space or comma, and on
@@ -16,13 +10,49 @@ fun find_comment(token, name, line) =
 
 @unit_check(help="END RECORD not marked with type name comment",
             remediation="EASY", category="Style", subcategory="Readability")
-fun uncommented_end_record(unit, n: int = 10) = [
-    {message: "mark END RECORD with -- " &
-        n.p_semantic_parent().p_defining_name().text,
-     loc: n.token_end()}
-    for n in from unit.root select node@RecordDef
-    when node.token_end().end_line - node.token_start().start_line >= n
-      and not find_comment(node.token_end().next().next().next(),
-                           node.p_semantic_parent().p_defining_name().text,
-                           node.token_end().end_line)
-]
+fun uncommented_end_record(unit, n: int = 10) =
+    |" Flags ``END`` keywords that are trailing keywords in record definitions
+    |" if a record definition is longer than N lines where N is a rule parameter,
+    |" and the line that contains the ``END`` keyword does not contain a trailing
+    |" comment immediately after this ``END``. This trailing comment should start
+    |" with the name of the type that contains this record definition as (a part of)
+    |" its type definition, and it may contain any other information separated from
+    |" the type name by a space or a comma.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Non-negative integer specifying the maximum size (in source code lines)
+    |"    of a record definition that does not require the type name as a trailing
+    |"    comment.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 14
+    |"
+    |"    --  If the rule parameter is 3:
+    |"    type R1 is record
+    |"       I : Integer;
+    |"    end record;       --  NO FLAG
+    |"
+    |"    type R2 is record
+    |"       I : Integer;
+    |"       B : Boolean;
+    |"    end record; -- R2      NO FLAG
+    |"
+    |"    type R3 is record
+    |"       C : Character;
+    |"       F : Float;
+    |"    end record;       -- FLAG
+    [
+        {message: "mark END RECORD with -- " &
+            n.p_semantic_parent().p_defining_name().text,
+         loc: n.token_end()}
+        for n in from unit.root select node@RecordDef
+        when node.token_end().end_line - node.token_start().start_line >= n
+          and not find_comment(node.token_end().next().next().next(),
+                               node.p_semantic_parent().p_defining_name().text,
+                               node.token_end().end_line)
+    ]

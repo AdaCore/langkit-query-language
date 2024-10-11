@@ -1,8 +1,3 @@
-# Flag any raise statement, in a program unit declared in a library package or
-# in a generic library package, for an exception that is neither a predefined
-# exception nor an exception that is also declared (or renamed) in the visible
-# part of the package.
-
 # TODO: share is_predefined_exception with raising_predefined_exception
 fun is_predefined_exception(e) = {
     val name = e.p_defining_name().p_canonical_fully_qualified_name();
@@ -22,6 +17,35 @@ fun check_raise(n, lib) = {
 @check(message="raised exception is not declared in visible part of enclosing library package",
        category="Style", subcategory="Program Structure")
 fun raising_external_exceptions(node) =
+    |" Flag any ``raise`` statement, in a program unit declared in a library
+    |" package or in a generic library package, for an exception that is
+    |" neither a predefined exception nor an exception that is also declared (or
+    |" renamed) in the visible part of the package.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 12
+    |"
+    |"    package Exception_Declarations is
+    |"       Ex : exception;
+    |"    end Exception_Declarations;
+    |"    package Foo is
+    |"       procedure Proc (I : in out Integer);
+    |"    end Foo;
+    |"    with Exception_Declarations;
+    |"    package body Foo is
+    |"       procedure Proc (I : in out Integer) is
+    |"       begin
+    |"          if I < 0 then
+    |"             raise Exception_Declarations.Ex;   --  FLAG
+    |"          else
+    |"             I := I - 1;
+    |"          end if;
+    |"       end Proc;
+    |"    end Foo;
     node is RaiseStmt(f_exception_name: Name, any parent: lib@LibraryItem
     when match lib.f_item
     | BasePackageDecl => check_raise(node, lib)

@@ -1,10 +1,46 @@
-# Check that certain names are not used as defining identifiers. The names that
-# should not be used as identifiers must be listed in the forbidden parameter.
-# The check is not case-sensitive. Only the whole identifiers are checked, not
-# substrings thereof.
-
 @check(message="use of forbidden identifier",
        category="Style", subcategory="Readability")
 fun name_clashes(node, forbidden=[]) =
+    |" Check that certain names are not used as defining identifiers. The names that
+    |" should not be used as identifiers must be listed in a dictionary file that is
+    |" a rule parameter. A defining identifier is flagged if it is included in a
+    |" dictionary file specified as a rule parameter, the check is not case-sensitive.
+    |" Only the whole identifiers are checked, not substrings thereof.
+    |" More than one dictionary file can be specified as the rule parameter, in this
+    |" case the rule checks defining identifiers against the union of all the
+    |" identifiers from all the dictionary files provided as the rule parameters.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Dictionary_File: string*
+    |"    The name of a dictionary file. The name may contain references to environment
+    |"    variables (e.g. $REPOSITORY_ROOT/my_dict.txt), they are replaced by the
+    |"    values of these variables.
+    |"
+    |" A dictionary file is a plain text file. The maximum line length for this file
+    |" is 1024 characters.  If the line is longer than this limit, extra characters
+    |" are ignored.
+    |"
+    |" If the name of the dictionary file does not contain any path information and
+    |" the rule option is specifies in a rule file, first the tool tries to locate
+    |" the dictionary file in the same directory where the rule file is located, and
+    |" if the attempt fails - in the current directory.
+    |"
+    |" Each line can be either an empty line, a comment line, or a line containing
+    |" a list of identifiers separated by space or HT characters.
+    |" A comment is an Ada-style comment (from ``--`` to end-of-line).
+    |" Identifiers must follow the Ada syntax for identifiers.
+    |" A line containing one or more identifiers may end with a comment.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2, 3
+    |"
+    |"    --  If the dictionary file contains names 'One' and 'Two":
+    |"    One          : constant Integer := 1;     --  FLAG
+    |"    Two          : constant Float   := 2.0;   --  FLAG
+    |"    Constant_One : constant Float   := 1.0;
     node is DefiningName
     when [p for p in forbidden if node.p_name_is(p)]

@@ -1,7 +1,3 @@
-# Flag any use of an others choice in a case statement.
-# If the optional parameter N is specified, only flag if the others choice
-# can be determined to span less than N values (0 means no minimum value).
-
 import stdlib
 
 fun choices(list) =
@@ -22,8 +18,31 @@ fun remaining_values(case) =
            0)
 
 @check(message="OTHERS choice in case statement", remediation="EASY",
+       rule_name="OTHERS_In_CASE_Statements",
        category="Style", subcategory="Programming Practice")
 fun others_in_case_statements(node, n : int = 0, ignore = false) =
+    |" Flag any use of an ``others`` choice in a ``case`` statement.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *N: int*
+    |"    If specified, only flag if the others choice can be determined to span less
+    |"    than ``N`` values (0 means no minimum value).
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6
+    |"
+    |"    case J is
+    |"       when 1 =>
+    |"          I := I + 1;
+    |"       when 3 =>
+    |"          J := J + 1;
+    |"       when others =>        --  FLAG
+    |"          null;
+    |"    end case;
     node is OthersDesignator(parent: AlternativesList(
                              parent: alt@CaseStmtAlternative))
     when n == 0 or

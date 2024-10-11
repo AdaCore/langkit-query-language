@@ -1,12 +1,24 @@
-# Flag any defining identifier that has length longer than specified by the
-# rule parameter. Defining identifiers of enumeration literals are not flagged.
-# The rule has a parameter N: the maximal allowed identifier length
-# specification.
-
 @check(message="identifier too long",
        help="maximal identifier length",
        remediation="EASY", category="Style", subcategory="Readability")
 fun max_identifier_length(node, n: int = 20) =
+    |" Flag any defining identifier that has length longer than specified by
+    |" the rule parameter. Defining identifiers of enumeration literals are not
+    |" flagged.
+    |"
+    |" The rule has a mandatory parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *N: int*
+    |"    The maximal allowed identifier length specification.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    type My_Type is range -100 .. 100;
+    |"    My_Variable_With_A_Long_Name : My_Type;  -- FLAG (if rule parameter is 27 or smaller)
     node is DefiningName(parent: not EnumLiteralDecl)
     when (if node.f_name is DottedName
           then node.f_name.f_suffix

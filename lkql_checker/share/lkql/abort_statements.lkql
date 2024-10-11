@@ -1,4 +1,15 @@
-# Flag abort statements.
-
 @check(message="abort statement", category="Feature")
-fun abort_statements(node) = node is AbortStmt
+fun abort_statements(node) =
+    |" Flag abort statements.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    if Flag then
+    |"       abort T;    --  FLAG
+    |"    end if;
+    node is AbortStmt

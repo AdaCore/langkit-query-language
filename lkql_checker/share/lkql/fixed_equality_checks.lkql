@@ -1,13 +1,32 @@
-# Flag all explicit calls to the predefined equality operations for fixed-point
-# types. Both '=' and '/=' operations are checked. User-defined equality
-# operations are not flagged, nor are uses of operators that are renamings of
-# the predefined equality operations. Also, the '=' and '/=' operations for
-# floating-point types are not flagged.
-
 import stdlib
 
 @check(message="use of equality operation for fixed values", category="Feature")
 fun fixed_equality_checks(node) =
+    |" Flag all explicit calls to the predefined equality operations for fixed-point
+    |" types. Both '``=``' and '``/=``' operations are checked.
+    |" User-defined equality operations are not flagged, nor are uses of operators
+    |" that are renamings of the predefined equality operations.
+    |" Also, the '``=``' and '``/=``' operations for floating-point types
+    |" are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 11
+    |"
+    |"    package Pack is
+    |"         type Speed is delta 0.01 range 0.0 .. 10_000.0;
+    |"         function Get_Speed return Speed;
+    |"    end Pack;
+    |"
+    |"    with Pack; use Pack;
+    |"    procedure Process is
+    |"         Speed1 : Speed := Get_Speed;
+    |"         Speed2 : Speed := Get_Speed;
+    |"
+    |"         Flag : Boolean := Speed1 = Speed2;     --  FLAG
     node is ((RelationOp(f_op: op@(OpEq | OpNeq))
              when stdlib.is_predefined_op(op)
               and node.f_left.p_expression_type() is

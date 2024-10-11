@@ -1,18 +1,51 @@
-# Flag any statement, declaration or representation clause if the code
-# line where this construct starts contains some other Ada code symbols
-# preceding or following this construct. The following constructs are not
-# flagged:
-# - enumeration literal specification;
-# - parameter specifications;
-# - discriminant specifications;
-# - loop parameter specification;
-# - entry index specification;
-
 import stdlib
 
 @check(message="more than one construct on the same line", remediation="EASY",
        category="Style", subcategory="Readability")
 fun one_construct_per_line(node) =
+    |" Flag any statement, declaration or representation clause if the code
+    |" line where this construct starts contains some other Ada code symbols
+    |" preceding or following this construct. The following constructs are not
+    |" flagged:
+    |"
+    |" *
+    |"   enumeration literal specification;
+    |"
+    |" *
+    |"   parameter specifications;
+    |"
+    |" *
+    |"   discriminant specifications;
+    |"
+    |" *
+    |"   mod clauses;
+    |"
+    |" *
+    |"   loop parameter specification;
+    |"
+    |" *
+    |"   entry index specification;
+    |"
+    |" *
+    |"   choice parameter specification;
+    |"
+    |" In case if we have two or more declarations/statements/clauses on a
+    |" line and if there is no Ada code preceding the first construct, the
+    |" first construct is flagged
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5
+    |"
+    |"    procedure Swap (I, J : in out Integer) is
+    |"       Tmp : Integer;
+    |"    begin
+    |"       Tmp := I;
+    |"       I := J; J := Tmp;      --  FLAG
+    |"    end Swap;
     # Flag any statement, declaration or representation clause
     node is (Stmt | BasicDecl | AttributeDefClause |
              EnumRepClause | RecordRepClause | AtClause)

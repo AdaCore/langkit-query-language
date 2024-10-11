@@ -1,11 +1,3 @@
-# Flag each integer type which may benefit from being replaced by an
-# enumeration type. All the following criterias are considered:
-# - no use of any arithmetic or bitwise operator
-# - no reference in generic instantiations
-# - no type conversion from or to the given type
-# - no type derivation
-# - no subtype definition
-
 @memoized
 fun arithmetic_ops() =
     |" Return a list of all types referenced in any arithmetic operator
@@ -41,7 +33,47 @@ fun types() =
        message="integer type may be replaced by an enumeration",
        category="Style", subcategory="Programming Practice")
 fun integer_types_as_enum(node) =
-     node is TypeDecl(p_is_int_type(): true)
-     when not [t for t in types() if t == node]
-      and not [t for t in instantiations() if t == node]
-      and not [t for t in arithmetic_ops() if t == node]
+    |" Flag each integer type declaration (including types derived from
+    |" integer types) if this integer type may benefit from
+    |" being replaced by an enumeration type. An integer type is considered
+    |" as being potentially replaceable by an enumeration type if all the
+    |" following conditions are true:
+    |"
+    |" *
+    |"   there is no infix calls to any arithmetic or bitwise operator for objects
+    |"   of this type;
+    |"
+    |" *
+    |"   this type is not referenced in an actual parameter of a generics
+    |"   instantiation;
+    |"
+    |" *
+    |"   there is no type conversion from or to this type;
+    |"
+    |" *
+    |"   no type is derived from this type;
+    |"
+    |" *
+    |"   no subtype is declared for this type.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    procedure Proc is
+    |"       type Enum is range 1 .. 3;    --  FLAG
+    |"       type Int is range 1 .. 3;     --  NO FLAG
+    |"
+    |"       X : Enum := 1;
+    |"       Y : Int := 1;
+    |"    begin
+    |"       X := 2;
+    |"       Y := Y + 1;
+    |"    end Proc;
+    node is TypeDecl(p_is_int_type(): true)
+    when not [t for t in types() if t == node]
+     and not [t for t in instantiations() if t == node]
+     and not [t for t in arithmetic_ops() if t == node]

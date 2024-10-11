@@ -1,12 +1,46 @@
-# Flag each occurrence of a non library level instantiation.
-# If parameter packages is specified, only instantiations of the given
-# packages are flagged.
-
 import stdlib
 
 @check(message="local instantiation",
        category="Style", subcategory="Programming Practice")
 fun local_instantiations(node, packages=[]) =
+    |" Non library-level generic instantiations are flagged.
+    |"
+    |" The rule has an optional parameter(s) for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Packages: list[string]*
+    |"    A list of fully expanded Ada names of generic units to flag local instantiations
+    |"    of.
+    |"
+    |" If the rule is activated without parameters, all local instantiations
+    |" are flagged, otherwise only instantiations of the generic units which names
+    |" are listed as rule parameters are flagged. Note that a rule parameter should
+    |" be a generic unit name but not the name defined by generic renaming declaration.
+    |" Note also, that if a rule parameter does not denote an existing generic unit
+    |" or if it denotes a name defined by generic renaming declaration, the parameter
+    |" itself is (silently) ignored and does not have any effect, but the presence of at
+    |" least one of such a parameter already means that the rule will not flag any
+    |" instantiation if the full expanded Ada name of the instantiated generic unit is
+    |" listed as a rule parameter.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 11
+    |"
+    |"    generic
+    |"    package Pack_G is
+    |"       I : Integer;
+    |"    end Pack_G;
+    |"
+    |"    with Pack_G;
+    |"    package Pack_I is new Pack_G;   --  NO FLAG
+    |"
+    |"    with Pack_G;
+    |"    procedure Proc is
+    |"       package Inst is new Pack_G;  --  FLAG
+    |"    begin
+    |"       ...
     node is (GenericPackageInstantiation(f_generic_pkg_name: name@Name) |
              GenericSubpInstantiation(f_generic_subp_name: name@Name))
     when stdlib.has_local_scope(node)

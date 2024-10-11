@@ -1,8 +1,21 @@
-# Flag all local packages declared in package and generic package specs. Local
-# packages in bodies are not flagged.
-
 @check(message="declaration of local package",
        category="Style", subcategory="Program Structure")
 fun local_packages(node) =
+    |" Flag all local packages declared in package and generic package
+    |" specs.
+    |" Local packages in bodies are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    package Foo is
+    |"       package Inner is    --  FLAG
+    |"          I : Integer;
+    |"       end Inner;
+    |"    end Foo;
     node is PackageDecl(any parent: PackageDecl | GenericPackageDecl)
      and not node is *(any parent: PackageBody)

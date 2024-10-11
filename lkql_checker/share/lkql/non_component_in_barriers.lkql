@@ -1,6 +1,3 @@
-# Flag each occurrence of a protected entry barrier referencing variables
-# other than components of the protected object.
-
 fun is_protected_component(id, decl, names) = {
     val name = decl.p_defining_name();
     [n for n in names if n == name] or
@@ -10,17 +7,55 @@ fun is_protected_component(id, decl, names) = {
 
 @unit_check(help="barrier references non component variable",
             category="Style", subcategory="Programming Practice")
-fun non_component_in_barriers(unit) = [
-    {message: "barrier references non component variable", loc: n.f_barrier}
-    for n in from unit.root select node@EntryBody(
-        any parent: b@ProtectedBody
-        when {
-            val names = from b.p_decl_part()?.f_definition?.f_private_part?.f_decls
-                        select DefiningName;
-            [id for id in (from node.f_barrier select Identifier)
-             if id.p_referenced_decl() is
-                (ObjectDecl | ParamSpec |
-                d@ComponentDecl when not is_protected_component(id, d, names))]
-        }
-    )
-]
+fun non_component_in_barriers(unit) =
+    |" Flag a barrier condition expression in an entry body declaration
+    |" if this expression contains a reference to a data object that is
+    |" not a (sub)component of the enclosing record the entry belongs to.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 21
+    |"
+    |"    protected Obj is
+    |"       entry E1;
+    |"       entry E2;
+    |"    private
+    |"       Value  : Integer;
+    |"       Is_Set : Boolean := False;
+    |"    end Obj;
+    |"
+    |"    Global_Bool : Boolean := False;
+    |"
+    |"    protected body Obj is
+    |"
+    |"       entry E1
+    |"          when Is_Set and then Value > 0 is  --  NO FLAG
+    |"       begin
+    |"          Value  := Value - 1;
+    |"          Is_Set := False;
+    |"       end E1;
+    |"
+    |"       entry E2
+    |"          when Global_Bool is                --  FLAG
+    |"       begin
+    |"          Is_Set := True;
+    |"       end E2;
+    |"
+    |"    end Obj;
+    [
+        {message: "barrier references non component variable", loc: n.f_barrier}
+        for n in from unit.root select node@EntryBody(
+            any parent: b@ProtectedBody
+            when {
+                val names = from b.p_decl_part()?.f_definition?.f_private_part?.f_decls
+                            select DefiningName;
+                [id for id in (from node.f_barrier select Identifier)
+                 if id.p_referenced_decl() is
+                    (ObjectDecl | ParamSpec |
+                    d@ComponentDecl when not is_protected_component(id, d, names))]
+            }
+        )
+    ]

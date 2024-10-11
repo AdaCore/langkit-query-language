@@ -1,20 +1,3 @@
-# Flag while loops which could be replaced by a for loop
-# This rule recognizes while loops of the form:
-#      Id : ...;
-#      [no write reference to Id]
-#   begin
-#      [...]
-#      while Id <relation op> <expression> loop
-#         [no write reference to Id]
-#         Id := Id +/- 1;
-#      end loop;
-#      [no reference to Id]
-#
-# This rule has two parameters:
-# - no_exit: flag only loops that do not include an exit statement that applies
-#   to them.
-# - no_function: <expression> must not contain any non-operator function call.
-
 import stdlib
 
 fun write_references(node, id) =
@@ -50,6 +33,53 @@ fun enclosing_scope(node) = {
 @check(message="WHILE loop may be replaced by a FOR loop",
        category="Style", subcategory="Programming Practice")
 fun use_for_loops(node, no_exit = false, no_function = false) =
+    |" Flag ``while`` loops which could be replaced by a ``for`` loop. The rule detects
+    |" the following code patterns:
+    |"
+    |" .. code-block:: ada
+    |"
+    |"       ...
+    |"       Id : Some_Integer_Type ...;
+    |"       ... -- no write reference to Id
+    |"    begin
+    |"       ...
+    |"       while Id <relation_operator> <expression> loop
+    |"          ...  -- no write reference to Id
+    |"          Id := Id <increment_operator> 1;
+    |"       end loop;
+    |"       ...  -- no reference to Id
+    |"    end;
+    |"
+    |" where relation operator in the loop condition should be some predefined
+    |" relation operator, and increment_operator should be a predefined "+" or
+    |" "-" operator.
+    |"
+    |" Note, that the rule only informs about a possibility to replace a
+    |" ``while`` loop by a ``for``, but does not guarantee that this is
+    |" really possible, additional human analysis is required for all the
+    |" loops marked by the rule.
+    |"
+    |" This rule has the following (optional) parameters for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *No_Exit: bool*
+    |"    If ``true``, flag only loops that do not include an exit statement that
+    |"    applies to them.
+    |"
+    |" *No_Function: bool*
+    |"    If ``true``, <expression> must not contain any non-operator function call.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"       Idx : Integer := 1;
+    |"    begin
+    |"       while Idx <= 10 loop    --  FLAG
+    |"          Idx := Idx + 1;
+    |"       end loop;
+    |"    end;
     # Find while loops of the form: while Id <relation op> ... loop
     node is WhileLoopStmt(f_spec: WhileLoopSpec(f_expr:
                           rel@RelationOp(f_left: id@Identifier)

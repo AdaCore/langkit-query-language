@@ -1,7 +1,3 @@
-# Flag each generic instantiation containing a chain of nested generic
-# instantiations in the specification part exceeding the threshold specified
-# by the `n` rule parameter.
-
 fun check_instantiations(node, n : int) =
     |" Return true if node has a chain of at least n instantiations
     n == 0 or
@@ -19,4 +15,48 @@ fun check_instantiations(node, n : int) =
 @check(message="deeply nested instantiation",
        category="Style", subcategory="Program Structure")
 fun deeply_nested_instantiations(node, n : int = 3) =
+    |" Flag a generic package instantiation if it contains another instantiation
+    |" in its specification and this nested instantiation also contains another
+    |" instantiation in its specification and so on, and the length of these
+    |" nested instantiations is more than N where N is a rule parameter.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Non-negative integer specifying the maximum nesting level for instantiations.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 27
+    |"
+    |"    procedure Proc is
+    |"
+    |"       generic
+    |"       procedure D;
+    |"
+    |"       procedure D is
+    |"       begin
+    |"          null;
+    |"       end D;
+    |"
+    |"       generic
+    |"       package C is
+    |"          procedure Inst is new D;
+    |"       end C;
+    |"
+    |"       generic
+    |"       package B is
+    |"          package Inst is new C;
+    |"       end B;
+    |"
+    |"       generic
+    |"       package A is
+    |"           package Inst is new B;
+    |"       end A;
+    |"
+    |"       package P is
+    |"          package Inst is new A;   --  FLAG
+    |"       end P;
     node is GenericInstantiation when check_instantiations(node, n)

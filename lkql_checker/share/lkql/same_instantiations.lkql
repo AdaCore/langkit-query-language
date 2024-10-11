@@ -1,18 +1,3 @@
-# Flag each generic package instantiation when it can be determined that it has
-# the same actual parameters as another generic instantiation.
-# This determination is conservative and will check for a match on:
-# - integer, character, and string literals
-# - identifier names other than function calls (e.g. types, variables,
-#   subprogram names).
-# Generic packages that have no parameters are ignored.
-#
-# If the parameter `library_level_only` is set, only check library level
-# instantiations.
-#
-# Note that no verification is made to check if the instantiation declares
-# global variables or have non trivial elaboration code (if they do, removing
-# the flagged duplicates will likely not be possible).
-
 import stdlib
 
 fun same_exprs(e1, e2) =
@@ -60,9 +45,57 @@ fun same_instance(node, library_only) =
 @unit_check(help="duplicate generic package instantiations (global analysis required)",
             category="Style", subcategory="Program Structure")
 fun same_instantiations(unit, library_level_only = false) =
+    |" Flag each generic package instantiation when it can be determined that a set of
+    |" the ``gnatcheck`` argument sources contains another instantiation of the same
+    |" generic with the same actual parameters.
+    |" This determination is conservative, it checks currently for the following matching
+    |" parameters:
+    |"
+    |" * integer, character, and string literals;
+    |"
+    |" * Ada names that denote the same entity.
+    |"
+    |" Generic packages that have no parameters are ignored.
+    |"
+    |" If some instantiation is marked by the rule, additional investigation
+    |" is required to decide if one of the duplicated instantiations can be
+    |" removed to simplify the code. In particular, the rule does not check if
+    |" these instantiations declare any global variable or perform some
+    |" non-trivial actions as a part of their elaboration.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Library_Level_Only: bool*
+    |"    If ``true``, only check library level instantiations.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 10, 17
+    |"
+    |"    generic
+    |"       type T is private;
+    |"       X : Integer;
+    |"    package Gen is
+    |"    end Gen;
+    |"
+    |"    with Gen;
+    |"
+    |"    package Inst1 is
+    |"       package Inst_1 is new Gen (Integer, 2);  --  FLAG
+    |"       package Inst_2 is new Gen (Integer, 3);  --  NO FLAG
+    |"    end Inst1;
+    |"
+    |"    with Gen;
+    |"
+    |"    package Inst2 is
+    |"       package Inst_3 is new Gen (Integer, 2);  --  FLAG
+    |"    end Inst2;
     [{message: "same instantiation found at " &
                stdlib.sloc_image(same_instance(n, library_level_only)), loc: n}
      for n in from unit.root
               select GenericPackageInstantiation
      if (if library_level_only then not stdlib.has_local_scope(n)) and
-         same_instance(n, library_level_only)]
+         same_instance(n, library_level_only)
+    ]

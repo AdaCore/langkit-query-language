@@ -1,5 +1,14 @@
-# Flag enumeration representation clauses.
-
 @check(message="enumeration representation clause", category="Feature")
 fun enumeration_representation_clauses(node) = 
-   node is EnumRepClause
+    |" Flag enumeration representation clauses.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    type Enum1 is (A1, B1, C1);
+    |"    for Enum1 use (A1 => 1, B1 => 11, C1 => 111);     --  FLAG
+    node is EnumRepClause

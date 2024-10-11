@@ -1,15 +1,3 @@
-# Given a list of (Entity, Formal, Actual), flag each occurrence of
-# association lists coming from a subprogram call where Actual is used as
-# Formal parameter on Entity.
-# Actual is a fully qualified name and denotes an object or subprogram, ignoring
-# any parens, type conversion or type qualification.
-# (internal LKQL only) If Actual starts with "|" then the rest of the string
-# is used as a regular expression as defined in s-regpat.ads with a case
-# insensitive match.
-# For GNATcheck: if Actual is within quotes ("") then the string is used as a
-# regular expression as defined in s-regpat.ads with a case insensitive match.
-# Entity, Formal and Actual are compared in a case insensitive manner.
-
 fun strip(node) =
     match node
     # Strip parenthesis
@@ -35,6 +23,80 @@ fun check_actual(name, expected) =
 @check(message="actual parameter mismatch",
        category="Style", subcategory="Programming Practice")
 fun actual_parameters(node, forbidden=[]) =
+    |" Flag situations when a specific actual parameter is passed for a specific formal
+    |" parameter in the call to a specific subprogram. Subprograms, formal parameters and
+    |" actual parameters to check are specified by the rule parameters.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Forbidden: list[string]*
+    |"    A list of strings formatted as following: ``subprogram:formal:actual`` where
+    |"    ``subprogram`` should be a full expanded Ada name of a subprogram, ``formal``
+    |"    should be an identifier, it is treated as the name of a formal parameter of
+    |"    the ``subprogram`` and ``actual`` should be a full expanded Ada name of a
+    |"    function or a data object declared by object declaration, number declaration,
+    |"    parameter specification, generic object declaration or object renaming
+    |"    declaration.
+    |"
+    |" .. note::
+    |"    In LKQL rule options files, the ``Forbidden`` parameter should be a list
+    |"    of three-elements tuples. Mapping ``subprogram:formal:actual`` to
+    |"    ``(<subprogram>, <formal>, <actual>)``. For example:
+    |"
+    |"    .. code-block:: lkql
+    |"
+    |"       val rules = @{
+    |"          Actual_Parameters: {Forbidden: [("P.SubP", "Param", "Value")]}
+    |"       }
+    |"
+    |" For all the calls to ``subprogram`` the rule checks if the called subprogram
+    |" has a formal parameter named as ``formal``, and if it does, it checks
+    |" if the actual for this parameter is either a call to a function denoted by
+    |" ``actual`` or a reference to the data object denoted by ``actual``
+    |" or one of the above in parenthesis, or a type conversion or a qualified
+    |" expression applied to one of the above. References to object components or
+    |" explicit dereferences are not checked.
+    |"
+    |" Be aware that the rule does not follow renamings. The rule checks only calls that
+    |" use the ``subprogram`` part of the rule parameter as a called name, and if this
+    |" name is declared by a subprogram renaming, the rule does not pay attention to
+    |" the calls that use subprogram name being renamed. When looking for the parameter
+    |" to check, the rule assumes that a formal parameter denoted by the ``formal``
+    |" part of the rule parameter is declared as a part of the declaration of
+    |" ``subprogram``. The same for the ``actual`` part of the rule parameter - only
+    |" those actual parameters that use ``actual`` as the name of a called function
+    |" are considered. This is a user responsibility to provide as the rule
+    |" parameters all needed combinations of subprogram name and formal parameter name for
+    |" the subprogram of interest in case if renamings are used for the subprogram,
+    |" and all possible aliases if renaming is used for a function of interest if
+    |" its calls may be used as actuals.
+    |"
+    |" Note also, that the rule does not make any overload resolution, so it will consider
+    |" all possible subprograms denoted by the ``subprogram`` part of the rule parameter,
+    |" and all possible function denoted by the ``actual`` part.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 16
+    |"
+    |"    -- Suppose the rule parameter is P.Proc:Par2:Q.Var
+    |"    package P is
+    |"       procedure Proc (B : Boolean; I : Integer);
+    |"       procedure Proc (Par1 : Character; Par2 : Integer);
+    |"    end P;
+    |"
+    |"    package Q is
+    |"       Var : Integer;
+    |"    end Q;
+    |"
+    |"    with P; use P;
+    |"    with Q; use Q;
+    |"    procedure Main is
+    |"    begin
+    |"       Proc (True, Var);   -- NO FLAG
+    |"       Proc (1, Var);      -- FLAG
     node is AssocList(parent: call@CallExpr(p_is_call(): true))
     when {
         val n = call.f_name.p_referenced_decl()

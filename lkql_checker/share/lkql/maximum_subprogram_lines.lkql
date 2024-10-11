@@ -1,15 +1,36 @@
-# Flag handled sequences of statements of subprogram bodies exceeding N textual
-# lines. Lines are counted from the beginning of the first to
-# the end of the last statement, including blank and comment lines.
-
 fun count_lines(node) =
     node.token_end().end_line - node.token_start().start_line + 1
 
 @unit_check(help="maximum number of lines in a subprogram",
             category="Style", subcategory="Program Structure")
-fun maximum_subprogram_lines(unit, n: int = 1000) = [
-    {message: "too many lines in subprogram body: " & img(count_lines(n)),
-     loc: n.token_start().previous(exclude_trivia=true)}
-    for n in from unit.root
-    select node@HandledStmts(parent: SubpBody) when count_lines(node) > n
-]
+fun maximum_subprogram_lines(unit, n: int = 1000) =
+    |" Flag handled sequences of statements of subprogram bodies exceeding *N* textual
+    |" lines (*N* is the rule parameter). Lines are counted from the beginning of the
+    |" first to the end of the last statement, including blank and comment lines
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Positive integer specifying the maximum allowed number of lines in the
+    |"    subprogram statement sequence.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    --  If the rule parameter is 3
+    |"    procedure P (I : in out Integer) is
+    |"    begin
+    |"       I := I + 1;   --  FLAG
+    |"       I := I + 2;
+    |"       I := I + 3;
+    |"       I := I + 4;
+    |"    end P;
+    [
+        {message: "too many lines in subprogram body: " & img(count_lines(n)),
+         loc: n.token_start().previous(exclude_trivia=true)}
+        for n in from unit.root
+        select node@HandledStmts(parent: SubpBody) when count_lines(node) > n
+    ]

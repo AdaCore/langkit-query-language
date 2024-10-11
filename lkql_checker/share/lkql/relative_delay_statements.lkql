@@ -1,6 +1,18 @@
-# Relative delay statements are flagged. Delay until statements are not
-# flagged.
-
 @check(message="relative delay statement", category="Feature")
 fun relative_delay_statements(node) =
-   node is DelayStmt(f_has_until: UntilAbsent)
+    |" Relative delay statements are flagged. Delay until statements are not
+    |" flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    if I > 0 then
+    |"       delay until Current_Time + Big_Delay;
+    |"    else
+    |"       delay Small_Delay;                      --  FLAG
+    |"    end if;
+    node is DelayStmt(f_has_until: UntilAbsent)

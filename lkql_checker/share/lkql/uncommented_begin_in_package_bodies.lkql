@@ -1,18 +1,44 @@
-# Flags each package body with declarations and a statement part that does not
-# include a trailing comment on the line containing the begin keyword; this
-# trailing comment needs to specify the package name and nothing else. The
-# begin is not flagged if the package body does not contain any declarations.
-
 import stdlib
 
 @unit_check(help="BEGIN in package bodies not marked with package name comment",
+            rule_name="Uncommented_BEGIN_In_Package_Bodies",
             remediation="EASY", category="Style", subcategory="Readability")
-fun uncommented_begin_in_package_bodies(unit) = [
-    {message: "mark BEGIN with package name",
-     loc: n.token_start().previous(exclude_trivia=true)}
-    for n in from unit.root
-    select node@HandledStmts(parent: p@PackageBody(f_decls: *(f_decls: l)))
-    when l[1]
-     and not stdlib.find_comment(node.token_start().previous(),
-                                 p.f_package_name.text)
-]
+fun uncommented_begin_in_package_bodies(unit) =
+    |" Flags ``BEGIN`` keywords in package bodies if the body contains
+    |" both declarations and a statement part and if there is no trailing
+    |" comment just after the keyword (on the same line) with the package
+    |" name as the only content of the comment, the casing of the package
+    |" name in the comment should be the same as the casing of the defining
+    |" unit name in the package body.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 15
+    |"
+    |"    package body Foo is
+    |"       procedure Proc (I : out Integer) is
+    |"       begin
+    |"          I := Var;
+    |"       end Proc;
+    |"
+    |"       package body Inner is
+    |"          procedure Inner_Proc (I : out Integer) is
+    |"          begin
+    |"             I := Inner_Var;
+    |"          end  ;
+    |"       begin  -- Inner
+    |"          Inner_Var := 1;
+    |"       end Inner;
+    |"    begin                 --  FLAG
+    |"       Var := Inner.Inner_Var + 1;
+    |"    end Foo;
+    [
+        {message: "mark BEGIN with package name",
+         loc: n.token_start().previous(exclude_trivia=true)}
+        for n in from unit.root
+        select node@HandledStmts(parent: p@PackageBody(f_decls: *(f_decls: l)))
+        when l[1]
+         and not stdlib.find_comment(node.token_start().previous(),
+                                     p.f_package_name.text)
+    ]

@@ -1,11 +1,29 @@
-# Flag any exit statement if it transfers the control out of a for loop or a
-# while loop. This includes cases when the exit statement applies to a FOR or
-# while loop, and cases when it is enclosed in some for or while loop, but
-# transfers the control from some outer (unconditional) loop statement.
-
 @check(message="exit from conditional loop",
        category="Style", subcategory="Programming Practice")
 fun exits_from_conditional_loops(node) =
+    |" Flag any exit statement if it transfers the control out of a ``for`` loop
+    |" or a ``while`` loop. This includes cases when the ``exit`` statement
+    |" applies to a ``for`` or ``while`` loop, and cases when it is enclosed
+    |" in some ``for`` or ``while`` loop, but transfers the control from some
+    |" outer (unconditional) ``loop`` statement.
+    |"
+    |" The rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5
+    |"
+    |"    function Bar (S : String) return Natural is
+    |"       Result : Natural := 0;
+    |"    begin
+    |"       for J in S'Range loop
+    |"          exit when S (J) = '@';  --  FLAG
+    |"          Result := Result + J;
+    |"       end loop;
+    |"
+    |"       return 0;
+    |"    end Bar;
     node is ExitStmt
     when [l for l in node.parents(include_self=false)
           if l is BaseLoopStmt][1] is (ForLoopStmt | WhileLoopStmt)

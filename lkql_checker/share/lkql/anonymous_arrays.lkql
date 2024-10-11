@@ -1,8 +1,18 @@
-# Flag all anonymous array type definitions (by Ada semantics these can
-# only occur in object declarations).
-
 @check(message="anonymous array type",
        category="Style", subcategory="Programming Practice")
 fun anonymous_arrays(node) =
+    |" Flag all anonymous array type definitions (by Ada semantics these can only
+    |" occur in object declarations).
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    type Arr is array (1 .. 10) of Integer;
+    |"    Var1 : Arr;
+    |"    Var2 : array (1 .. 10) of Integer;      --  FLAG
     node is AnonymousTypeDecl(any parent: ObjectDecl,
                               f_type_def: ArrayTypeDef)

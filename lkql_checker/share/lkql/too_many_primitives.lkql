@@ -1,22 +1,57 @@
-# Flag any tagged type declaration that has more than N user-defined primitive
-# operations (counting both inherited and not overridden and explicitly
-# declared, not counting predefined operators). Only types declared in visible
-# parts of packages, generic packages and package instantiations are flagged.
-# This rule has the parameter N: Positive integer specifying the maximal number
-# of primitives when the type is not flagged.
-
 @memoized
 fun num_primitives(t) = t.p_get_primitives().length
 
 @unit_check(help="tagged type has too many primitives",
             remediation="MAJOR",
             category="Style", subcategory="Object Orientation")
-fun too_many_primitives(unit, n : int = 5) = [
-    {message: "tagged type has too many primitives (" &
-              img(num_primitives(n)) & ")",
-     loc: n.p_defining_name()}
-    for n in from unit.root through follow_generics
-    select node@TypeDecl
-    when node.p_is_tagged_type() and node.parent.parent is PublicPart
-     and num_primitives(node) > n
-]
+fun too_many_primitives(unit, n : int = 5) =
+    |" Flag any tagged type declaration that has more than N user-defined
+    |" primitive operations (counting both inherited and not overridden and
+    |" explicitly declared, not counting predefined operators). Only types
+    |" declared in visible parts of packages, generic packages and package
+    |" instantiations are flagged.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Positive integer specifying the maximal number of primitives when
+    |"    the type is not flagged.
+    |"
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2, 14
+    |"
+    |"    package Foo is
+    |"       type PT is tagged private;     --  FLAG (if rule parameter is 3 or less)
+    |"
+    |"       procedure P1 (X : in out PT);
+    |"       procedure P2 (X : in out PT) is null;
+    |"       function F1 (X : PT) return Integer;
+    |"       function F2 (X : PT) return Integer is (F1 (X) + 1);
+    |"
+    |"       type I1 is interface;
+    |"
+    |"       procedure P1 (X : in out I1) is abstract;
+    |"       procedure P2 (X : in out I1) is null;
+    |"
+    |"       type I2 is interface and I1;   --  FLAG (if rule parameter is 3 or less)
+    |"       function F1 (X : I2) return Integer is abstract;
+    |"       function F2 (X : I2) return Integer is abstract;
+    |"
+    |"    private
+    |"       type PT is tagged record
+    |"          I : Integer;
+    |"       end record;
+    |"    end Foo;
+    [
+        {message: "tagged type has too many primitives (" &
+                  img(num_primitives(n)) & ")",
+         loc: n.p_defining_name()}
+        for n in from unit.root through follow_generics
+        select node@TypeDecl
+        when node.p_is_tagged_type() and node.parent.parent is PublicPart
+         and num_primitives(node) > n
+    ]

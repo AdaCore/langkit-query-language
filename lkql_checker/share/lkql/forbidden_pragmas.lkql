@@ -1,12 +1,78 @@
-# Flag each use of the specified pragmas. The pragmas to be detected are named
-# in the parameter ``forbidden``. If the ``all`` parameter is true, all pragmas
-# by default are flagged, except the pragmas listed in the ``allowed``
-# parameter.
-
 @unit_check(help="usage of specified pragmas", parametric_exemption=true,
             category="Style", subcategory="Portability")
-fun forbidden_pragmas(unit, all=false, forbidden=[], allowed=[]) = [
-    {message: "use of pragma " & node.f_id.text, loc: node}
-    for node in from unit.root select PragmaNode(f_id: id@Identifier)
-    when (all or [p for p in forbidden if id.p_name_is(p)])
-     and not [p for p in allowed if id.p_name_is(p)]]
+fun forbidden_pragmas(unit, all=false, forbidden=[], allowed=[]) =
+    |" Flag each use of the specified pragmas.  The pragmas to be detected
+    |" are named in the rule's  parameters.
+    |"
+    |" This rule has the following parameters for the ``+R`` option and for LKQL
+    |" rule options file:
+    |"
+    |" *Forbidden: list[string]*
+    |"    Adds the specified pragmas to the set of pragmas to be checked and sets
+    |"    the checks for all the specified pragmas ON. An element of this list
+    |"    is treated as a name of a pragma. If it does not correspond to any pragma name
+    |"    defined in the Ada standard or to the name of a GNAT-specific pragma defined
+    |"    in the GNAT Reference Manual, it is treated as the name of unknown pragma.
+    |"    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
+    |"    pragmas are added to the set of attributes to be detected.
+    |"
+    |" *Allowed: string*
+    |"    A semi-colon separated list of pragmas to remove from the set of pragmas to
+    |"    be detected. You have to use the named parameter formatting to specify it.
+    |"
+    |" *All: bool*
+    |"    If ``true``, all pragmas are detected; this sets the rule ON.
+    |"
+    |" Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
+    |" does not have the syntax of an Ada identifier and therefore can not be
+    |" considered as a pragma name, a diagnostic message is generated and the
+    |" corresponding parameter is ignored.
+    |"
+    |" The ``+R`` option with no parameters doesn't create any instance for the rule,
+    |" thus, it has no effect.
+    |"
+    |" Note that in case when the rule is enabled with *All* parameter, then
+    |" the rule will flag also pragmas ``Annotate`` used to exempt rules, see
+    |" :ref:`Rule_exemption`. Even if you exempt this *Forbidden_Pragmas* rule
+    |" then the pragma ``Annotate`` that closes the exemption section will be
+    |" flagged as non-exempted. To avoid this, remove the pragma ``Annotate``
+    |" from the "to be flagged" list by using ``+RForbidden_Pragmas:ALL,Allowed=Annotate``
+    |" rule option.
+    |"
+    |" .. note::
+    |"    In LKQL rule options files, you can specify a named ``Allowed`` parameter
+    |"    as a list of strings. This way you can exempt some pragmas from being
+    |"    flagged. Example:
+    |"
+    |"    .. code-block:: lkql
+    |"
+    |"       val rules = @{
+    |"          Forbidden_Pragmas: {Forbidden: ["gnat"], Allowed: ["Annotate"]}
+    |"       }
+    |"
+    |" The rule allows parametric exemption, the parameters that are allowed in the
+    |" definition of exemption sections are pragma names. Each
+    |" name used as a rule exemption parameter should denote
+    |" a predefined or GNAT-specific pragma.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5
+    |"
+    |"    --  if the rule is activated as +RForbidden_Pragmas:Pack
+    |"    package Foo is
+    |"
+    |"       type Arr is array (1 .. 8) of Boolean;
+    |"       pragma Pack (Arr);                      --  FLAG
+    |"
+    |"       I : Integer;
+    |"       pragma Atomic (I);
+    |"
+    |"    end Foo;
+    [
+        {message: "use of pragma " & node.f_id.text, loc: node}
+        for node in from unit.root select PragmaNode(f_id: id@Identifier)
+        when (all or [p for p in forbidden if id.p_name_is(p)])
+         and not [p for p in allowed if id.p_name_is(p)]
+    ]

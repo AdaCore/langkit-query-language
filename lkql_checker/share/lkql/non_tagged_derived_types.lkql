@@ -1,6 +1,18 @@
-# Flag all derived type declarations that do not have a record extension part.
-
 @check(message="derived type that is not a type extension", category="SPARK")
 fun non_tagged_derived_types(node) =
+    |" Flag all derived type declarations that do not have a record extension part.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5
+    |"
+    |"    type Coordinates is record
+    |"       X, Y, Z : Float;
+    |"    end record;
+    |"
+    |"    type Hidden_Coordinates is new Coordinates;   --  FLAG
     node is DerivedTypeDef(f_record_extension: null,
                            f_has_with_private: WithPrivateAbsent)

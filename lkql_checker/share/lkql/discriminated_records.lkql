@@ -1,14 +1,3 @@
-# Flag all declarations of record types with discriminants. Only the
-# declarations of record and record extension types are checked.
-#
-# Incomplete, formal, private and private extension type
-# declarations are not checked.
-#
-# Task and protected type declarations also are not checked.
-#
-# Derived type declaration are flagged if they are not using
-# the discriminant in the type derivation.
-
 # Check wether the given Identifier or string is present as a
 # BaseId in the list elements.
 #
@@ -42,10 +31,37 @@ fun is_using_discriminant_in_declaration(type_decl) =
 
 @check(message="declaration of discriminated record", category="Feature")
 fun discriminated_records(node) =
-   node is TypeDecl(
-      any children(depth=2): DiscriminantSpecList
-      when not (
-         node.f_type_def is PrivateTypeDef
-         or is_using_discriminant_in_declaration(node)
-      )
-   )
+    |" Flag all declarations of record types with discriminants. Only the
+    |" declarations of record and record extension types are checked. Incomplete,
+    |" formal, private, derived and private extension type declarations are not
+    |" checked. Task and protected type declarations also are not checked.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5, 9
+    |"
+    |"    type Idx is range 1 .. 100;
+    |"    type Arr is array (Idx range <>) of Integer;
+    |"    subtype Arr_10 is Arr (1 .. 10);
+    |"
+    |"    type Rec_1 (D : Idx) is record        --  FLAG
+    |"       A : Arr (1 .. D);
+    |"    end record;
+    |"
+    |"    type Rec_2 (D : Idx) is record        --  FLAG
+    |"       B : Boolean;
+    |"    end record;
+    |"
+    |"    type Rec_3 is record
+    |"       B : Boolean;
+    |"    end record;
+    node is TypeDecl(
+       any children(depth=2): DiscriminantSpecList
+       when not (
+          node.f_type_def is PrivateTypeDef
+          or is_using_discriminant_in_declaration(node)
+       )
+    )

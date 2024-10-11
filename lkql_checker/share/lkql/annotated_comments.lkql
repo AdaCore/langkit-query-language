@@ -1,18 +1,83 @@
-# Flags comments that are used as annotations or as special sentinels/markers.
-# Such comments have the following structure:
-# --<special_character> *<comment_marker>
-
 import stdlib
 
 @unit_check(help="use of comment annotations", remediation="EASY",
             category="SPARK")
-fun annotated_comments(unit, s=[]) = if not s then [] else [
-    {message: "annotated comment", loc: tok}
-    for tok in unit.tokens
-    if tok.kind == "comment" and
-       [str for str in s if
-        tok.text.starts_with("--" & str.substring(1, 1)) and
-        tok.text
-           .substring(stdlib.first_non_blank(tok.text, 4), tok.text.length)
-           .starts_with(str.substring(2, str.length))]
-]
+fun annotated_comments(unit, s=[]) =
+    |" Flags comments that are used as annotations or as
+    |" special sentinels/markers. Such comments have the following
+    |" structure::
+    |"
+    |"     --<special_character> <comment_marker>
+    |"
+    |" where
+    |"
+    |" *<special_character>* is a character (such as '#', '$', '|' etc.)
+    |"   indicating that the comment is used for a specific purpose
+    |"
+    |" *<comment_marker>* is a word identifying the annotation or special usage
+    |"   (word here is any sequence of characters except white space)
+    |"
+    |" There may be any amount of white space (including none at all) between
+    |" ``<special_character>`` and ``<comment_marker>``, but no white space
+    |" is permitted between ``'--'`` and ``<special_character>``. (A
+    |" white space here is either a space character or horizontal tabulation)
+    |"
+    |" ``<comment_marker>`` must not contain any white space.
+    |"
+    |" ``<comment_marker>`` may be empty, in which case the rule
+    |" flags each comment that starts with ``--<special_character>`` and
+    |" that does not contain any other character except white space
+    |"
+    |" The rule has the following mandatory parameter for the ``+R`` option and for
+    |" LKQL rule options files:
+    |"
+    |" *S: list[string]*
+    |"    List of string with the following interpretation: the first character
+    |"    is the special comment character, and the rest is the comment marker.
+    |"    Items must not contain any white space.
+    |"
+    |" The rule is case-sensitive.
+    |"
+    |" Example:
+    |"
+    |" The rule
+    |"
+    |" ::
+    |"
+    |"   +RAnnotated_Comments:#hide
+    |"
+    |" will flag the following comment lines
+    |"
+    |" .. code-block:: ada
+    |"
+    |"   --#hide
+    |"   --# hide
+    |"   --#           hide
+    |"
+    |"      I := I + 1; --# hide
+    |"
+    |" But the line
+    |"
+    |" .. code-block:: ada
+    |"
+    |"   -- # hide
+    |"
+    |" will not be flagged, because of the space between '--' and '#'.
+    |"
+    |" The line
+    |"
+    |" .. code-block:: ada
+    |"
+    |"   --#Hide
+    |"
+    |" will not be flagged, because the string parameter is case sensitive.
+    if not s then [] else [
+        {message: "annotated comment", loc: tok}
+        for tok in unit.tokens
+        if tok.kind == "comment" and
+           [str for str in s if
+            tok.text.starts_with("--" & str.substring(1, 1)) and
+            tok.text
+               .substring(stdlib.first_non_blank(tok.text, 4), tok.text.length)
+               .starts_with(str.substring(2, str.length))]
+    ]

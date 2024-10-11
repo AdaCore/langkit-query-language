@@ -1,6 +1,3 @@
-# Flag each generic actual parameter corresponding to a generic formal
-# parameter with a default initialization, if positional notation is used.
-
 import stdlib
 
 fun get_formal(decls, pos, n: int = 1) =
@@ -22,6 +19,43 @@ fun check_generic(n, node) =
 @check(message="use named notation when passing actual to defaulted generic parameter",
        remediation="EASY", category="Style", subcategory="Programming Practice")
 fun positional_actuals_for_defaulted_generic_parameters(node) =
+    |" Flag each generic actual parameter corresponding to a generic formal
+    |" parameter with a default initialization, if positional notation is used.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 23-25
+    |"
+    |"    package Foo is
+    |"       function Fun_1 (I : Integer) return Integer;
+    |"       function Fun_2 (I : Integer) return Integer;
+    |"
+    |"       generic
+    |"          I_Par1 : Integer;
+    |"          I_Par2 : Integer := 1;
+    |"          with function Fun_1 (I : Integer) return Integer is <>;
+    |"          with function Fun_3 (I : Integer) return Integer is Fun_2;
+    |"       package Pack_G is
+    |"          Var_1 : Integer := I_Par1;
+    |"          Var_2 : Integer := I_Par2;
+    |"          Var_3 : Integer := Fun_1 (Var_1);
+    |"          Var_4 : Integer := Fun_3 (Var_2);
+    |"       end Pack_G;
+    |"
+    |"       package Pack_I_1 is new Pack_G (1);
+    |"
+    |"       package Pact_I_2 is new Pack_G
+    |"         (2, I_Par2 => 3, Fun_1 => Fun_2, Fun_3 => Fun_1);
+    |"
+    |"       package Pack_I_3 is new Pack_G (1,
+    |"                                       2,            --  FLAG
+    |"                                       Fun_2,        --  FLAG
+    |"                                       Fun_1);       --  FLAG
+    |"
+    |"    end Foo;
     node is ParamAssoc(f_designator: null, parent: l@AssocList)
     when match l.parent
          | p@GenericSubpInstantiation    =>

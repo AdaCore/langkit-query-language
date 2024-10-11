@@ -1,6 +1,3 @@
-# Flag each positional actual generic parameter except for the case when the
-# generic unit being instantiated has exactly one generic formal parameter.
-
 fun check_generic(n) =
     |" Return true if the generic decl corresponding to n contains more than 1
     |" formal parameter.
@@ -13,6 +10,29 @@ fun check_generic(n) =
 @check(message="positional generic association", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun positional_generic_parameters(node) =
+    |" Flag each positional actual generic parameter except for the case when
+    |" the generic unit being instantiated has exactly one generic formal
+    |" parameter.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 10
+    |"
+    |"    with Ada.Text_IO; use Ada.Text_IO;
+    |"    with Ada.Unchecked_Conversion;
+    |"    procedure Bar (I : in out Integer) is
+    |"       type My_Int is range -12345 .. 12345;
+    |"
+    |"       function To_My_Int is new Ada.Unchecked_Conversion
+    |"         (Source => Integer, Target => My_Int);
+    |"
+    |"       function To_Integer is new Ada.Unchecked_Conversion
+    |"         (My_Int, Integer);                                --  FLAG (twice)
+    |"
+    |"       package My_Int_IO is new  Ada.Text_IO.Integer_IO (My_Int);
     node is ParamAssoc(f_designator: null,
                        parent: l@AssocList(parent: g@GenericInstantiation))
     when l.children_count > 1

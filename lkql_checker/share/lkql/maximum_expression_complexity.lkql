@@ -1,12 +1,3 @@
-# Flag any expression not directly part of another expression which contains
-# more than N expressions of the following kind (each count for 1):
-# - Identifiers
-# - Literals
-# - Conditional expressions
-# - Quantified expressions
-# - Aggregates
-# - @ symbols
-
 fun num_expr(node) =
     |" Return the number of relevant expressions as defined above of a given
     |" node.
@@ -15,14 +6,53 @@ fun num_expr(node) =
 
 @unit_check(help="maximum complexity of an expression",
             category="Style", subcategory="Program Structure")
-fun maximum_expression_complexity(unit, n: int = 10) = [
-    {message: "expression has too many sub-expressions (" &
-              img(num_expr(node)) & ")", loc: node}
-    for node in from unit.root select
-    # Note: using "all parent is not Expr" would be more accurate but would
-    # slow down this rule significantly and checking one level is good enough
-    # in practice.
-    # Exclude standalone identifiers which are not expressions per se.
-    expr@Expr(parent: not Expr)
-    when expr is not (Identifier | DefiningName | EndName)
-     and num_expr(expr) > n]
+fun maximum_expression_complexity(unit, n: int = 10) =
+    |" Flag any expression that is not directly a part of another expression
+    |" which contains more than *N* expressions of the following kinds (each count for 1)
+    |" as its subcomponents, *N* is a rule parameter:
+    |"
+    |" *
+    |"   Identifiers;
+    |"
+    |" *
+    |"   Numeric, string or character literals;
+    |"
+    |" *
+    |"   Conditional expressions;
+    |"
+    |" *
+    |"   Quantified expressions;
+    |"
+    |" *
+    |"   Aggregates;
+    |"
+    |" *
+    |"   @ symbols (target names).
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Positive integer specifying the maximum allowed number of expression
+    |"    subcomponents.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1-3
+    |"
+    |"    I := 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10;  --  FLAG if N < 10
+    |"    I := F (I);   --  FLAG if N < 2
+    |"    I := F5 (1 + 2 + 3 + 4 + 5, 2, 3, 4, 5);   --  FLAG (twice) if N < 5
+    [
+        {message: "expression has too many sub-expressions (" &
+                  img(num_expr(node)) & ")", loc: node}
+        for node in from unit.root select
+        # Note: using "all parent is not Expr" would be more accurate but would
+        # slow down this rule significantly and checking one level is good enough
+        # in practice.
+        # Exclude standalone identifiers which are not expressions per se.
+        expr@Expr(parent: not Expr)
+        when expr is not (Identifier | DefiningName | EndName)
+         and num_expr(expr) > n
+    ]

@@ -1,55 +1,96 @@
-# Flag constructs leading to the possibility of propagating an exception out of
-# the scope in which the exception is declared. Two cases are detected:
-# - An exception declaration in a subprogram body, task body or block statement
-#   is flagged if the body or statement does not contain a handler for that
-#   exception or a handler with an others choice.
-# - A raise statement in an exception handler of a subprogram body, task body
-#   or block statement is flagged if it (re)raises a locally declared exception.
-#   This may occur under the following circumstances:
-#   - it explicitly raises a locally declared exception, or
-#   - it does not specify an exception name (i.e., it is simply raise;) and the
-#     enclosing handler contains a locally declared exception in its exception
-#     choices.
-# Renamings of local exceptions are not flagged.
-
 import stdlib
 
 @unit_check(help="potential propagations of non-visible exceptions",
             category="Style", subcategory="Program Structure")
-fun non_visible_exceptions(unit) = [
-    {message: if n is Identifier
-              then "local exception not handled locally"
-              else "propagates local exception" &
-                   (if n.f_exception_name
-                    then " declared at line " &
-                         img(n.f_exception_name.p_referenced_decl()
-                              .token_start().start_line)
-                    else "") & " outside its visibility",
-     loc: n}
-    for n in from unit.root select
-    # Find exception identifiers part of an ExceptionDecl and not a renaming...
-    node@(Identifier(parent: DefiningName(parent: DefiningNameList(parent:
-                                            e@ExceptionDecl(f_renames: null)
-    # ...declared in a subprogram body, task body or block
-    when e.p_semantic_parent() is p@(SubpBody | TaskBody | DeclBlock)
-       # with either no exception handler
-       when not p.f_stmts.f_exceptions
-         # or no handler referencing node or "others"
-         or not p.f_stmts.f_exceptions is
-            AdaNodeList(any children(depth=3):
-                OthersDesignator |
-                (id@(Identifier | DottedName)
-                 when stdlib.ultimate_exception_alias(id) == e)))))
-    # Find also raise statements in an exception handler of a subprogram body,
-    # task body or block statement
-    | RaiseStmt(any parent: h@ExceptionHandler
-        when h.p_semantic_parent() is p@(SubpBody | TaskBody | DeclBlock)
-         when
-           # raises a locally declared exception
-           if node.f_exception_name
-           then node.f_exception_name.p_referenced_decl()?.parent?.parent
-                == p.f_decls
-           # does not specify an exception name and the enclosing handler
-           # contains a locally declared exception in its choices
-           else h.f_handled_exceptions is *(any children: id@Identifier
-                when id.p_referenced_decl()?.p_semantic_parent?() == p)))]
+fun non_visible_exceptions(unit) =
+    |" Flag constructs leading to the possibility of propagating an exception
+    |" out of the scope in which the exception is declared.
+    |" Two cases are detected:
+    |"
+    |" *
+    |"   An exception declaration located immediately within a subprogram body, task
+    |"   body or block statement is flagged if the body or statement does not contain
+    |"   a handler for that exception or a handler with an ``others`` choice.
+    |"
+    |" *
+    |"   A ``raise`` statement in an exception handler of a subprogram body,
+    |"   task body or block statement is flagged if it (re)raises a locally
+    |"   declared exception.  This may occur under the following circumstances:
+    |"
+    |"   *
+    |"     it explicitly raises a locally declared exception, or
+    |"   *
+    |"     it does not specify an exception name (i.e., it is simply ``raise;``)
+    |"     and the enclosing handler contains a locally declared exception in its
+    |"     exception choices.
+    |"
+    |" Renamings of local exceptions are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5, 18
+    |"
+    |"    procedure Bar is
+    |"       Var : Integer :=- 13;
+    |"
+    |"       procedure Inner (I : in out Integer) is
+    |"          Inner_Exception_1 : exception;          --  FLAG
+    |"          Inner_Exception_2 : exception;
+    |"       begin
+    |"          if I = 0 then
+    |"             raise Inner_Exception_1;
+    |"          elsif I = 1 then
+    |"             raise Inner_Exception_2;
+    |"          else
+    |"             I := I - 1;
+    |"          end if;
+    |"       exception
+    |"          when Inner_Exception_2 =>
+    |"             I := 0;
+    |"             raise;                               --  FLAG
+    |"       end Inner;
+    |"
+    |"    begin
+    |"       Inner (Var);
+    |"    end Bar;
+    [
+        {message: if n is Identifier
+                  then "local exception not handled locally"
+                  else "propagates local exception" &
+                       (if n.f_exception_name
+                        then " declared at line " &
+                             img(n.f_exception_name.p_referenced_decl()
+                                  .token_start().start_line)
+                        else "") & " outside its visibility",
+         loc: n}
+        for n in from unit.root select
+        # Find exception identifiers part of an ExceptionDecl and not a renaming...
+        node@(Identifier(parent: DefiningName(parent: DefiningNameList(parent:
+                                                e@ExceptionDecl(f_renames: null)
+        # ...declared in a subprogram body, task body or block
+        when e.p_semantic_parent() is p@(SubpBody | TaskBody | DeclBlock)
+           # with either no exception handler
+           when not p.f_stmts.f_exceptions
+             # or no handler referencing node or "others"
+             or not p.f_stmts.f_exceptions is
+                AdaNodeList(any children(depth=3):
+                    OthersDesignator |
+                    (id@(Identifier | DottedName)
+                     when stdlib.ultimate_exception_alias(id) == e)))))
+        # Find also raise statements in an exception handler of a subprogram body,
+        # task body or block statement
+        | RaiseStmt(any parent: h@ExceptionHandler
+            when h.p_semantic_parent() is p@(SubpBody | TaskBody | DeclBlock)
+             when
+               # raises a locally declared exception
+               if node.f_exception_name
+               then node.f_exception_name.p_referenced_decl()?.parent?.parent
+                    == p.f_decls
+               # does not specify an exception name and the enclosing handler
+               # contains a locally declared exception in its choices
+               else h.f_handled_exceptions is *(any children: id@Identifier
+                    when id.p_referenced_decl()?.p_semantic_parent?() == p)))
+    ]

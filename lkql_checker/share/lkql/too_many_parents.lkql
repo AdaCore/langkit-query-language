@@ -1,16 +1,37 @@
-# Flag any tagged type declaration, interface type declaration, single task
-# declaration or single protected declaration that has more than n
-# parents. A parent here is either a (sub)type denoted by the subtype mark from
-# the parent_subtype_indication (in case of a derived type declaration), or any
-# of the progenitors from the interface list (if any).
-# This rule has the following parameter: n: Positive integer
-# specifying the maximal allowed number of parents/progenitors.
-
 import stdlib
 
 @check(message="type has too many parents", remediation="MAJOR",
        category="Style", subcategory="Object Orientation")
 fun too_many_parents(node, n : int = 5) =
+    |" Flag any tagged type declaration, interface type declaration, single task
+    |" declaration or single protected declaration that has more than *N*
+    |" *parents*, where *N* is a parameter of the rule.
+    |" A *parent* here is either a (sub)type denoted by the subtype mark from the
+    |" parent_subtype_indication (in case of a derived type declaration), or
+    |" any of the progenitors from the interface list (if any).
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Positive integer specifying the maximal allowed number of parents/progenitors.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 11
+    |"
+    |"    type I1 is interface;
+    |"    type I2 is interface;
+    |"    type I3 is interface;
+    |"    type I4 is interface;
+    |"
+    |"    type T_Root is tagged private;
+    |"
+    |"    type T_1 is new T_Root with private;
+    |"    type T_2 is new T_Root and I1 with private;
+    |"    type T_3 is new T_Root and I1 and I2 with private;
+    |"    type T_4 is new T_Root and I1 and I2 and I3 with private; -- FLAG (if rule parameter is 3 or less)
     node is (TypeDecl(p_is_tagged_type(): true) |
              TaskTypeDecl | ProtectedTypeDecl | SingleProtectedDecl)
     when ({

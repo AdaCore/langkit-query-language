@@ -1,10 +1,23 @@
-# Flag any 'Size attribute reference if its prefix denotes a type or a subtype.
-# Attribute references that are subcomponents of attribute definition clauses
-# or aspect specifications are not flagged.
-
 @check(message="Size attribute for type",
        category="Style", subcategory="Programming Practice")
 fun size_attribute_for_types(node) =
+    |" Flag any 'Size attribute reference if its prefix denotes a type or a subtype.
+    |" Attribute references that are subcomponents of attribute definition clauses of
+    |" aspect specifications are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6
+    |"
+    |"    type T is record
+    |"       I : Integer;
+    |"       B : Boolean;
+    |"    end record;
+    |"
+    |"    Size_Of_T : constant Integer := T'Size  --  FLAG
     node is AttributeRef
     when node.f_attribute?.p_name_is("Size")
      and node.f_prefix?.p_referenced_decl() is BaseTypeDecl

@@ -1,10 +1,3 @@
-# Flag infix calls to the predefined "=" and "/=" operators when one of
-# the operands is the name of a data object provided as a rule parameter.
-# Rule parameters should be full expanded Ada names of data objects
-# declared by object declaration, number declaration, parameter
-# specification, generic object declaration or object renaming
-# declaration. Any other parameter does not have any effect.
-
 import stdlib
 
 fun match_name(name, actuals) =
@@ -18,6 +11,41 @@ fun match_name(name, actuals) =
 @check(message="direct (in)equality",
        category="Style", subcategory="Programming Practice")
 fun direct_equalities(node, actuals = []) =
+    |" Flag infix calls to the predefined ``=`` and ``/=`` operators when one of the
+    |" operands is a name of a data object provided as a rule parameter.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Actuals: list[string]*
+    |"    A list of full expanded Ada name of a data objects declared by object
+    |"    declaration, number declaration, parameter specification, generic object
+    |"    declaration or object renaming declaration. Any other parameter does not
+    |"    have any effect except of turning the rule ON.
+    |"
+    |" Be aware that the rule does not follow renamings. It checks if an operand of
+    |" an (un)equality operator is exactly the name provided as rule parameter
+    |" (the short name is checked in case of expanded name given as (un)equality
+    |" operator), and that this name is given on its own, but not as a component
+    |" of some other expression or as a call parameter.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 9
+    |"
+    |"    -- suppose the rule parameter is P.Var
+    |"    package P is
+    |"       Var : Integer;
+    |"    end P;
+    |"
+    |"    with P; use P;
+    |"    procedure Proc (I : in out Integer) is
+    |"    begin
+    |"       if Var = I then    --  FLAG
+    |"          I := 0;
+    |"       end if;
+    |"    end Proc;
     node is BinOp(f_op: op@(OpEq | OpNeq))
     when stdlib.is_predefined_op(op)
      and match_name(node.f_left, actuals) or match_name(node.f_right, actuals)

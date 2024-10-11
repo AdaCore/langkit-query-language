@@ -1,12 +1,28 @@
-# Flag a case statement if this statement has only two alternatives, one
-# containing exactly one choice, the other containing exactly one choice
-# or the `OTHERS' choice.
-# This rule has an optional parameter Except_Enums: exclude case statements on
-# enumerated types.
-
 @check(message="CASE statement can be replaced with IF statement",
        category="Style", subcategory="Programming Practice")
 fun binary_case_statements(node, except_enums = false) =
+    |" Flag a case statement if this statement has only two alternatives, one
+    |" containing exactly one choice, the other containing exactly one choice
+    |" or the ``others`` choice.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Except_Enums: bool*
+    |"    If ``true``, do not flag case statements whose selecting expression is of an
+    |"    enumeration type.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    case Var is                   --  FLAG
+    |"       when 1 =>
+    |"          Var := Var + 1;
+    |"       when others =>
+    |"          null;
+    |"    end case;
     node is CaseStmt(
         f_alternatives: CaseStmtAlternativeList(
             all children(depth=1): a@CaseStmtAlternative

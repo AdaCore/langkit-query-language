@@ -1,8 +1,3 @@
-# Flag any infix call to the predefined NOT operator for the predefined
-# Boolean type if its argument is an infix call to a predefined relation
-# operator or another call to the predefined NOT operator. Calls to NOT
-# operators for the types derived from Standard.Boolean are not flagged.
-
 import stdlib
 
 fun strip_parentheses(node) =
@@ -12,6 +7,21 @@ fun strip_parentheses(node) =
 @check(message="negation of boolean operator",
        category="Style", subcategory="Programming Practice")
 fun boolean_negations(node) =
+    |" Flag any infix call to the predefined ``NOT`` operator for the predefined
+    |" Boolean type if its argument is an infix call to a predefined relation
+    |" operator or another call to the predefined ``NOT`` operator. Such expressions
+    |" can be simplified by excluding the outer call to the predefined ``NOT``
+    |" operator. Calls to ``NOT`` operators for the types derived from
+    |" Standard.Boolean are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    Is_Data_Available := not (Buffer_Length = 0);   --  FLAG
     node is UnOp(f_op: op@OpNot when stdlib.is_predefined_op(op))
     when stdlib.is_standard_boolean(node)
      and strip_parentheses(node.f_expr) is

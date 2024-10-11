@@ -1,6 +1,28 @@
-# Flag all objects and components of an anonymous access type.
-
 @check(message="anonymous access type", category="Feature")
 fun anonymous_access(node) =
+    |" Flag object declarations, formal object declarations and component declarations with
+    |" anonymous access type definitions. Discriminant specifications and parameter
+    |" specifications are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 10, 13
+    |"
+    |"    procedure Anon (X : access Some_Type) is   --  NO FLAG
+    |"       type Square
+    |"         (Location : access Coordinate)        --  NO FLAG
+    |"       is record
+    |"          null;
+    |"       end record;
+    |"
+    |"       type Cell is record
+    |"          Some_Data : Integer;
+    |"          Next      : access Cell;             --  FLAG
+    |"       end record;
+    |"
+    |"       Link : access Cell;                     --  FLAG
     node is AnonymousTypeDecl(any parent: ObjectDecl | ComponentDecl,
                               f_type_def: TypeAccessDef)

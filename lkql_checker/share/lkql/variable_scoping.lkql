@@ -1,7 +1,3 @@
-# Flag local object declarations for which all uses are inside the same more
-# nested declare-block in the same subprogram, not part of a loop, and with no
-# initializing expression.
-
 import stdlib
 
 fun get_block(list) =
@@ -27,23 +23,54 @@ fun check_references(list, subp) = {
 
 @unit_check(help="variables that can be moved to an inner block",
             category="Style", subcategory="Programming Practice")
-fun variable_scoping(unit) = [
-    {message: n.text & " can be moved to inner block at line " &
-              img(get_block(n.p_find_refs(stdlib.enclosing_body(n)))
-                              ?.token_start().start_line + 1),
-     loc: n}
+fun variable_scoping(unit) =
+    |" Flag local object declarations that can be moved into declare blocks
+    |" nested into the declaration scope. A declaration is considered as movable
+    |" into a nested scope if:
+    |"
+    |" *
+    |"   The declaration does not contain an initialization expression;
+    |"
+    |" *
+    |"   The declared object is used only in a nested block statement,
+    |"   and this block statement has a declare part;
+    |"
+    |" *
+    |"   the block statement is not enclosed into a loop statement.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    procedure Scope is
+    |"       X : Integer;  --  FLAG
+    |"    begin
+    |"       declare
+    |"          Y : Integer := 42;
+    |"       begin
+    |"          X := Y;
+    |"       end;
+    |"    end;
+    [
+        {message: n.text & " can be moved to inner block at line " &
+                  img(get_block(n.p_find_refs(stdlib.enclosing_body(n)))
+                                  ?.token_start().start_line + 1),
+         loc: n}
 
-    # Look for defining names part of an object declaration with no default
-    # initialization and not a renaming, directly declared in the declarative
-    # part of a subprogram.
+        # Look for defining names part of an object declaration with no default
+        # initialization and not a renaming, directly declared in the declarative
+        # part of a subprogram.
 
-    for n in from unit.root select
-    node@DefiningName(
-        parent: DefiningNameList(
-            parent: decl@ObjectDecl(
-                f_default_expr: null,
-                f_renaming_clause: null,
-                parent: AdaNodeList(
-                    parent: DeclarativePart(parent: subp@SubpBody)))))
-    when check_references(node.p_find_refs(subp), subp)
-]
+        for n in from unit.root select
+        node@DefiningName(
+            parent: DefiningNameList(
+                parent: decl@ObjectDecl(
+                    f_default_expr: null,
+                    f_renaming_clause: null,
+                    parent: AdaNodeList(
+                        parent: DeclarativePart(parent: subp@SubpBody)))))
+        when check_references(node.p_find_refs(subp), subp)
+    ]

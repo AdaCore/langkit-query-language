@@ -1,7 +1,3 @@
-# Flag each actual parameter to a subprogram or entry call where the
-# corresponding formal parameter has a default expression, if positional
-# notation is used.
-
 import stdlib
 
 fun get_param_spec(params, pos, n: int = 1) = {
@@ -24,5 +20,23 @@ fun check_actual(spec, node) =
 @check(message="use named notation when passing actual to defaulted parameter",
        remediation="EASY", category="Style", subcategory="Programming Practice")
 fun positional_actuals_for_defaulted_parameters(node) =
+    |" Flag each actual parameter to a subprogram or entry call where the
+    |" corresponding formal parameter has a default expression, if positional
+    |" notation is used.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 7
+    |"
+    |"       procedure Proc (I : in out Integer; J : Integer := 0) is
+    |"       begin
+    |"          I := I + J;
+    |"       end Proc;
+    |"
+    |"    begin
+    |"       Proc (Var1, Var2);   --  FLAG
     node is ParamAssoc(f_designator: null, parent: l@AssocList)
     when l.parent is c@CallExpr when check_actual(c.p_called_subp_spec(), node)

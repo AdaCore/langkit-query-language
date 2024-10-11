@@ -1,11 +1,3 @@
-# Flag occurrences of calls where it is guaranteed that the same variable is
-# given as an actual to more than one `[in] out` parameter. If `in_parameters`
-# is true, aliasing between `[in] out` and `in` parameters is also considered,
-# unless the `in` parameter is a by-copy type (full view is a non aliased
-# elementary type).
-# Note that this rule will also consider partial aliasing between a record
-# variable and one of its components, and follows renamings.
-
 import stdlib
 
 fun can_eval_as_int(expr) =
@@ -135,11 +127,45 @@ fun param_image(params, in_parameters, canonical_indexes = false) = {
 
 @unit_check(help="parameter aliasing",
             category="Style", subcategory="Programming Practice")
-fun parameters_aliasing(unit, in_parameters = false) = [
-    {message: "parameter aliasing between " &
-              param_image(n.parent.p_call_params(), in_parameters),
-     loc: n.parent}
-    for n in from unit.root select
-    AssocList(parent: call@CallExpr(p_is_call(): true))
-    when params_aliasing(call.p_call_params(), in_parameters)
-]
+fun parameters_aliasing(unit, in_parameters = false) =
+    |" Flags subprogram calls for which it can be statically detected that the same
+    |" variable (or a variable and a subcomponent of this variable) is given as
+    |" an actual to more than one ``OUT`` or ``IN OUT`` parameter. The rule resolves
+    |" object renamings.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *In_Parameters: bool*
+    |"    Whether to consider aliasing between ``OUT``, ``IN OUT`` and ``IN``
+    |"    parameters, except for those ``IN`` parameters that are of a by-copy
+    |"    type, see the definition of by-copy parameters in the Ada Standard.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 15
+    |"
+    |"    package Pack is
+    |"       type Arr is array (1 .. 5) of Integer;
+    |"
+    |"       type Rec is record
+    |"          Comp : Arr;
+    |"       end record;
+    |"
+    |"       procedure Proc (P1 : in out : Rec; P2 : out Integer);
+    |"    end Pack;
+    |"
+    |"    with Pack; use Pack;
+    |"    procedure Test (I : Integer) is
+    |"       Var : Rec;
+    |"    begin
+    |"       Proc (Var, Var.Comp (I));   --  FLAG
+    [
+        {message: "parameter aliasing between " &
+                  param_image(n.parent.p_call_params(), in_parameters),
+         loc: n.parent}
+        for n in from unit.root select
+        AssocList(parent: call@CallExpr(p_is_call(): true))
+        when params_aliasing(call.p_call_params(), in_parameters)
+    ]

@@ -1,5 +1,19 @@
-# Flag all constructs that belong to access_to_subprogram_definition syntax
-# category, and all access definitions that define access to subprogram.
-
 @check(message="access to subprogram definition", category="Feature")
-fun subprogram_access(node) = node is AccessToSubpDef
+fun subprogram_access(node) =
+    |" Flag all constructs that belong to access_to_subprogram_definition
+    |" syntax category, and all access definitions that define access to
+    |" subprogram.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1, 5
+    |"
+    |"    type Proc_A is access procedure ( I : Integer);       --  FLAG
+    |"
+    |"    procedure Proc
+    |"      (I       : Integer;
+    |"       Process : access procedure (J : in out Integer));  --  FLAG
+    node is AccessToSubpDef

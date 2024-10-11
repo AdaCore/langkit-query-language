@@ -1,13 +1,34 @@
-# Flag each occurrence of a subprogram call whose body is not available.
-# Indirect calls are flagged only when Indirect_Calls is enabled.
-# This rule can be useful when using the recursive_subprograms rule to flag
-# potentially missing recursion detection and identify potential missing
-# checks.
-
 @check(help="call to unavailable body (global analysis required)",
        message="call to unavailable body",
        category="Style", subcategory="Programming Practice")
 fun unavailable_body_calls(node, indirect_calls = false) =
+    |" Flag any subprogram call if the set of argument sources does not
+    |" contain a body of the called subprogram because of any reason.
+    |" Calls to formal subprograms in generic bodies are not flagged.
+    |" This rule can be useful as a complementary rule for the
+    |" *Recursive_Subprograms* rule - it flags potentially missing recursion
+    |" detection and identify potential missing checks.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Indirect_Calls: bool*
+    |"    Whether to flag all the indirect calls (that is, calls through
+    |"    access-to-subprogram values).
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 7,8
+    |"
+    |"    procedure Calls is
+    |"       procedure Unknown with Import;
+    |"
+    |"       type Proc_A is access procedure (X : Integer);
+    |"       X : Proc_A := Some_Proc'Access;
+    |"    begin
+    |"       Unknown;     --  FLAG
+    |"       X (1);       --  FLAG (if Indirect_Calls is enabled)
     node is Name
     when (indirect_calls and node.p_is_access_call()) or
          node is BaseId(p_is_static_call(): true,

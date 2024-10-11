@@ -1,10 +1,21 @@
-# Flag each occurrence of a formal parameter with an implicit in mode. Note
-# that access parameters, although they technically behave like in parameters,
-# are not flagged.
-
 @check(message="implicit IN mode in parameter specification",
+       rule_name="Implicit_IN_Mode_Parameters",
        remediation="TRIVIAL", category="Feature")
 fun implicit_in_mode_parameters(node) =
+    |" Flag each occurrence of a formal parameter with an implicit ``in`` mode.
+    |" Note that ``access`` parameters, although they technically behave
+    |" like ``in`` parameters, are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    procedure Proc1 (I :    Integer);          --  FLAG
+    |"    procedure Proc2 (I : in Integer);
+    |"    procedure Proc3 (I :    access Integer);
     node is ParamSpec(f_mode: ModeDefault)
     when not node.f_type_expr is
          AnonymousType(f_type_decl: *(f_type_def: AccessDef))

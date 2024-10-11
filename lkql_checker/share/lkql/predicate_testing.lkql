@@ -1,11 +1,3 @@
-# Flag a membership test if at least one of its membership choice contains a
-# subtype mark denoting a subtype defined with (static or dynamic)
-# subtype predicate.
-# Flags 'Valid attribute reference if the nominal subtype of the attribute
-# prefix has (static or dynamic) subtype predicate.
-# This rule has the parameter Except_Assertions: Do not flag a construct
-# described above if it is a subcomponent of the following constructs[...]
-
 import stdlib
 
 # Return true if t represents a SubtypeDecl with a predicate (directly or via
@@ -22,6 +14,74 @@ fun has_predicate(t) =
 @check(message="expression needs subtype predicate evaluation",
        category="Feature")
 fun predicate_testing(node, except_assertions=false) =
+    |" Flag a membership test if at least one of its membership choice contains a
+    |" subtype mark denoting a subtype defined with (static or dynamic)
+    |" subtype predicate.
+    |"
+    |" Flags 'Valid attribute reference if the nominal subtype of the attribute
+    |" prefix has (static or dynamic) subtype predicate.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Except_Assertions: bool*
+    |"    If ``true``, do not flag the use of non-short-circuit_operators inside
+    |"    assertion-related pragmas or aspect specifications.
+    |"
+    |" A pragma or an aspect is considered as assertion-related if its name
+    |" is from the following list:
+    |"
+    |" *
+    |"   ``Assert``
+    |" *
+    |"   ``Assert_And_Cut``
+    |" *
+    |"   ``Assume``
+    |" *
+    |"   ``Contract_Cases``
+    |" *
+    |"   ``Debug``
+    |" *
+    |"   ``Default_Initial_Condition``
+    |" *
+    |"   ``Dynamic_Predicate``
+    |" *
+    |"   ``Invariant``
+    |" *
+    |"   ``Loop_Invariant``
+    |" *
+    |"   ``Loop_Variant``
+    |" *
+    |"   ``Post``
+    |" *
+    |"   ``Postcondition``
+    |" *
+    |"   ``Pre``
+    |" *
+    |"   ``Precondition``
+    |" *
+    |"   ``Predicate``
+    |" *
+    |"   ``Predicate_Failure``
+    |" *
+    |"   ``Refined_Post``
+    |" *
+    |"   ``Static_Predicate``
+    |" *
+    |"   ``Type_Invariant``
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 7
+    |"
+    |"    with Support; use Support;
+    |"    package Pack is
+    |"       subtype Even is Integer with Dynamic_Predicate => Even mod 2 = 0;
+    |"
+    |"       subtype Small_Even is Even range -100 .. 100;
+    |"
+    |"       B1 : Boolean := Ident (101) in Small_Even;      --  FLAG
     (match node
      # Flags a subtype mark[...] used as a membership choice
      | MembershipExpr =>

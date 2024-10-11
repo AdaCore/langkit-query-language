@@ -1,10 +1,3 @@
-# Flag each call to a predefined relational operator for the predefined Boolean
-# type.
-# Calls to predefined relational operators of any type derived from
-# Standard.Boolean are not detected. Calls to user-defined functions with these
-# designators, and uses of operators that are renamings of the predefined
-# relational operators for Standard.Boolean, are likewise not detected.
-
 import stdlib
 
 fun is_predefined_boolean(n) =
@@ -14,6 +7,26 @@ fun is_predefined_boolean(n) =
 
 @check(message="comparison of Boolean values", category="SPARK")
 fun boolean_relational_operators(node) =
+    |" Flag each call to a predefined relational operator ('<', '>', '<=',
+    |" '>=', '=' and '/=') for the predefined Boolean type.
+    |" (This rule is useful in enforcing the SPARK language restrictions.)
+    |"
+    |" Calls to predefined relational operators of any type derived from
+    |" ``Standard.Boolean`` are not detected.  Calls to user-defined functions
+    |" with these designators, and uses of operators that are renamings
+    |" of the predefined relational operators for ``Standard.Boolean``,
+    |" are likewise not detected.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"       procedure Proc (Flag_1 : Boolean; Flag_2 : Boolean; I : in out Integer) is
+    |"       begin
+    |"          if Flag_1 >= Flag_2 then     --  FLAG
     (node is RelationOp
      when stdlib.is_predefined_op(node.f_op)
       and is_predefined_boolean(node)

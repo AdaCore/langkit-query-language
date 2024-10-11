@@ -1,16 +1,83 @@
-# Flag each use of the specified aspects. The aspects to be detected are named
-# in the parameter ``forbidden``. If the ``all`` parameter is true, all aspects
-# by default are flagged, except the aspects listed in the ``allowed``
-# parameter.
-
 @unit_check(help="usage of specified aspects", parametric_exemption=true,
             category="Style", subcategory="Portability")
-fun forbidden_aspects(unit, all=false, forbidden=[], allowed=[]) = [
-    {message: "use of aspect " & node.f_id.text, loc: node}
-    for node in from unit.root select AspectAssoc(f_id: id@Name)
-    # Note that p_name_is doesn't work on e.g. AttributeRef, so compare strings
-    # directly instead.
-    when {
-        val str = id.text.to_lower_case;
-        (all or [p for p in forbidden if str == p.to_lower_case])
-        and not [p for p in allowed if str == p.to_lower_case]}]
+fun forbidden_aspects(unit, all=false, forbidden=[], allowed=[]) =
+    |" Flag each use of the specified aspects. The aspects to be detected are
+    |" named in the rule's parameters.
+    |"
+    |" This rule has the following parameters for the ``+R`` option and for LKQL
+    |" rule options file:
+    |"
+    |" *Forbidden: list[string]*
+    |"    Adds the specified aspects to the set of aspects to be detected and sets
+    |"    the detection checks for all the specified attributes ON. Note that if some
+    |"    aspect exists also as class-wide aspect, the rule treats its normal
+    |"    and class-wide versions separately. (If you specify ``Pre`` as the rule parameter,
+    |"    the rule will not flag the ``Pre'Class`` aspect, and the other way around -
+    |"    specifying ``Pre'Class`` as the rule parameter does not mean that the rule
+    |"    will flag the ``Pre`` aspect).
+    |"
+    |" *Allowed: string*
+    |"    A semi-colon separated list of aspects to remove from the set of aspects to
+    |"    be detected. You have to use the named parameter formatting to specify it.
+    |"
+    |" *All: bool*
+    |"    If ``true``, all aspects are detected; this sets the rule ON.
+    |"
+    |" Parameters are case insensitive. If an element of *Forbidden* or *Allowed*
+    |" does not have the syntax of an Ada identifier, it is (silently) ignored, but
+    |" if such a parameter is given for the ``+R`` option, this turns the rule ON.
+    |"
+    |" The ``+R`` option with no parameters doesn't create any instance for the rule,
+    |" thus, it has no effect.
+    |"
+    |" .. note::
+    |"    In LKQL rule options files, the ``Allowed`` parameter should be a list of
+    |"    strings:
+    |"
+    |"    .. code-block:: lkql
+    |"
+    |"       val rules = @{
+    |"          Forbidden_Aspects: {Forbidden: ["one", "two"], Allowed: ["two"]}
+    |"       }
+    |"
+    |" The rule allows parametric exemption, the parameters that are allowed in the
+    |" definition of exemption sections are *Forbidden*.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3, 8, 23
+    |"
+    |"    --  if the rule is activated as +RForbidden_Aspects:Pack,Pre
+    |"    package Foo is
+    |"       type Arr is array (1 .. 10) of Integer with Pack;   --  FLAG
+    |"
+    |"       type T is tagged private;
+    |"
+    |"       procedure Proc1 (X : in out T)
+    |"         with Pre => Predicate1;                           --  FLAG
+    |"
+    |"       procedure Proc2 (X : in out T)
+    |"         with Pre'Class => Predicate2;                     --  NO FLAG
+    |"
+    |"    --  if the rule is activated as +RForbidden_Aspects:ALL,Allowed=Pack;Pre
+    |"    package Foo is
+    |"       type Arr is array (1 .. 10) of Integer with Pack;   --  NOFLAG (because of 'Allowed' rule arg)
+    |"
+    |"       type T is tagged private;
+    |"
+    |"       procedure Proc1 (X : in out T)
+    |"         with Pre => Predicate1;                           --  NOFLAG (because of 'Allowed' rule arg)
+    |"
+    |"       procedure Proc2 (X : in out T)
+    |"         with Pre'Class => Predicate2;                     --  FLAG
+    [
+        {message: "use of aspect " & node.f_id.text, loc: node}
+        for node in from unit.root select AspectAssoc(f_id: id@Name)
+        # Note that p_name_is doesn't work on e.g. AttributeRef, so compare strings
+        # directly instead.
+        when {
+            val str = id.text.to_lower_case;
+            (all or [p for p in forbidden if str == p.to_lower_case])
+            and not [p for p in allowed if str == p.to_lower_case]}
+    ]

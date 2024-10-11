@@ -1,13 +1,3 @@
-# Flag any subprogram declaration, subprogram body declaration, expression
-# function declaration, null procedure declaration, subprogram body stub or
-# generic subprogram declaration if the corresponding subprogram has more than
-# N formal [IN] OUT parameters, where N is a parameter of the rule.
-# A subprogram body, an expression function, a null procedure or a subprogram
-# body stub is flagged only if there is no separate declaration for this
-# subprogram. Subprogram renaming declarations and subprogram instantiations,
-# as well as declarations inside expanded generic instantiations are never
-# flagged.
-
 fun num_out_params(node) =
     |" Return the number of out parameters of a subprogram node
     (from node.f_subp_spec?.f_subp_params?.f_params
@@ -15,12 +5,43 @@ fun num_out_params(node) =
      when n.parent.parent.f_mode is (ModeOut | ModeInOut)).length
 
 @unit_check(help="maximum number of subprogram OUT parameters",
-            category="Style", subcategory="Programming Practice")
-fun maximum_out_parameters(unit, n: int = 3) = [
-    {message: "too many formal OUT parameters (" & img(num_out_params(n)) & ")",
-     loc: n.p_defining_name()}
-    for n in from unit.root select
-    node@(SubpBody | ExprFunction | NullSubpDecl | SubpBodyStub |
-          ClassicSubpDecl)
-    when (node is ClassicSubpDecl or not node.p_previous_part())
-     and num_out_params(node) > n]
+            category="Style", subcategory="Programming Practice",
+            rule_name="Maximum_OUT_Parameters")
+fun maximum_out_parameters(unit, n: int = 3) =
+    |" Flag any subprogram declaration, subprogram body declaration, expression
+    |" function declaration, null procedure declaration, subprogram
+    |" body stub or generic subprogram declaration if the corresponding
+    |" subprogram has more than *N* formal parameters of mode ``out`` or
+    |" ``in out``, where *N* is a parameter of the rule.
+    |"
+    |" A subprogram body, an expression function, a null procedure or
+    |" a subprogram body stub is flagged only if there is
+    |" no separate declaration for this subprogram. Subprogram renaming
+    |" declarations and subprogram instantiations, as well as declarations
+    |" inside expanded generic instantiations are never flagged.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"   Positive integer specifying the maximum allowed total number of
+    |"   subprogram formal parameters of modes ``out`` and ``in out``.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    procedure Proc_1 (I : in out Integer);          --  NO FLAG
+    |"    procedure Proc_2 (I, J : in out Integer);       --  NO FLAG
+    |"    procedure Proc_3 (I, J, K : in out Integer);    --  NO FLAG
+    |"    procedure Proc_4 (I, J, K, L : in out Integer); --  FLAG (if rule parameter is 3)
+    [
+        {message: "too many formal OUT parameters (" & img(num_out_params(n)) & ")",
+         loc: n.p_defining_name()}
+        for n in from unit.root select
+        node@(SubpBody | ExprFunction | NullSubpDecl | SubpBodyStub |
+              ClassicSubpDecl)
+        when (node is ClassicSubpDecl or not node.p_previous_part())
+         and num_out_params(node) > n
+    ]

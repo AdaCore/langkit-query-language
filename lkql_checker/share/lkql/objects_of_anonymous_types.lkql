@@ -1,14 +1,38 @@
-# Flag any object declaration located immediately within a package declaration
-# or a package body (including generic packages) if it uses anonymous access or
-# array type definition. Record component definitions and parameter
-# specifications are not flagged. Formal object declarations defined with
-# anonymous access definitions are flagged.
-
 import stdlib
 
 @check(message="object of anonymous type", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun objects_of_anonymous_types(node) =
+    |" Flag any object declaration located immediately within a package
+    |" declaration or a package body (including generic packages) if it uses
+    |" anonymous access or array type definition. Record component definitions
+    |" and parameter specifications are not flagged. Formal object declarations
+    |" defined with anonymous access definitions are flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5, 8, 12
+    |"
+    |"    package Foo is
+    |"       type Arr is array (1 .. 10) of Integer;
+    |"       type Acc is access Integer;
+    |"
+    |"       A : array (1 .. 10) of Integer;  --  FLAG
+    |"       B : Arr;
+    |"
+    |"       C : access Integer;              --  FLAG
+    |"       D : Acc;
+    |"
+    |"       generic
+    |"          F1 : access Integer;          --  FLAG
+    |"          F2 : Acc;
+    |"       procedure Proc_G
+    |"         (P1 : access Integer;
+    |"          P2 : Acc);
+    |"    end Foo;
     node is ObjectDecl(f_type_expr: TypeExpr(p_designated_type_decl():
                                                AnonymousTypeDecl))
     when stdlib.is_in_package_scope(node)

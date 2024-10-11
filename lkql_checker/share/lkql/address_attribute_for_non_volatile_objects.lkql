@@ -1,10 +1,3 @@
-# Flag any 'Address attribute reference if its prefix denotes a data
-# object defined by a variable object declaration and this object is not
-# marked as Volatile.
-#
-# An entity is considered as being marked volatile if it has an aspect Volatile,
-# Atomic or Shared declared for it.
-
 import stdlib
 
 fun is_non_volatile_object(o) =
@@ -16,6 +9,23 @@ fun is_non_volatile_object(o) =
 @check(message="address attribute for non-volatile object",
        category="Style", subcategory="Programming Practice")
 fun address_attribute_for_non_volatile_objects(node) =
+    |" Flag any 'Address attribute reference if its prefix denotes a data
+    |" object defined by a variable object declaration and this object is not
+    |" marked as Volatile. An entity is considered as being marked volatile
+    |" if it has an aspect Volatile, Atomic or Shared declared for it.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5
+    |"
+    |"    Var1 : Integer with Volatile;
+    |"    Var2 : Integer;
+    |"
+    |"    X : Integer with Address => Var1'Address;
+    |"    Y : Integer with Address => Var2'Address;   --  FLAG
     node is AttributeRef
     when node.f_attribute?.p_name_is("Address")
      and (not (node.parent is AttributeDefClause

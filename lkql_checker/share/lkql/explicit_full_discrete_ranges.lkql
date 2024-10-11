@@ -1,5 +1,3 @@
-# Flag each discrete range that has the form `A'First .. A'Last'.
-
 fun full_range(l, r) =
    l is AttributeRef and r is AttributeRef
    and l.f_attribute.p_name_is("First") and r.f_attribute.p_name_is("Last")
@@ -10,4 +8,22 @@ fun full_range(l, r) =
 @check(message="range could be replaced by subtype mark or 'Range",
        category="Feature")
 fun explicit_full_discrete_ranges(node) =
-   node is BinOp(f_op: OpDoubleDot) when full_range(node.f_left, node.f_right)
+    |" Flag each discrete range that has the form ``A'First .. A'Last``.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"       subtype Idx is Integer range 1 .. 100;
+    |"    begin
+    |"       for J in Idx'First .. Idx'Last loop   --  FLAG
+    |"          K := K + J;
+    |"       end loop;
+    |"
+    |"       for J in Idx loop
+    |"          L := L + J;
+    |"       end loop;
+    node is BinOp(f_op: OpDoubleDot) when full_range(node.f_left, node.f_right)

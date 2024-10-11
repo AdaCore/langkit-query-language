@@ -1,11 +1,39 @@
-# Flag a statement sequence that is a component of an IF, CASE or LOOP
-# statement if this sequence consists of NULL statements only.
-# This rule has an optional parameter Except_Enums: exclude case statements on
-# enumerated types.
-
 @check(message="null path", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun null_paths(node, except_enums = false) =
+    |" Flag a statement sequence that is a component of an ``if``, ``case`` or
+    |" ``loop`` statement if this sequences consists of NULL statements only.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Except_Enums: bool*
+    |"    If ``true``, do not flag null paths inside case statements whose selecting
+    |"    expression is of an enumeration type.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4, 13, 17
+    |"
+    |"    if I > 10 then
+    |"       J := 5;
+    |"    elsif I > 0 then
+    |"       null;                 --  FLAG
+    |"    else
+    |"      J := J + 1;
+    |"    end if;
+    |"
+    |"    case J is
+    |"       when 1 =>
+    |"          I := I + 1;
+    |"       when 2 =>
+    |"          null;              --  FLAG
+    |"       when 3 =>
+    |"          J := J + 1;
+    |"       when others =>
+    |"          null;              --  FLAG
+    |"    end case;
     node is StmtList
     when node[1]
      and node is StmtList(any parent:

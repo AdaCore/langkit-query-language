@@ -1,11 +1,3 @@
-# Flag if statements which could be replaced by a case statement.
-# That is, if statements of the form:
-#   if Id <relation op with static-expr> then
-#   elsif Id <relation op static-expr> then
-#   [...]
-#   end if;
-#
-# where <relation op> is a predefined relational operator.
 # TODO: extend with use_membership.check_expr to recognize more cases.
 
 import stdlib
@@ -25,6 +17,35 @@ fun check_alternatives(list, id) =
 @check(message="IF statement may be replaced by a CASE statement",
        category="Style", subcategory="Programming Practice")
 fun use_case_statements(node) =
+    |" Flag an ``if`` statement if this statement could be replaced by a
+    |" ``case`` statement. An ``if`` statement is considered as being
+    |" replaceable by a ``case`` statement if:
+    |"
+    |" *
+    |"   it contains at least one ``elsif`` alternative;
+    |"
+    |" *
+    |"   all the conditions are infix calls to some predefined relation operator,
+    |"   for all of them one operand is the reference to the same variable of some
+    |"   discrete type;
+    |"
+    |" *
+    |"   for calls to relation operator another operand is some static expression;
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    if I = 1 then      --  FLAG
+    |"       I := I + 1;
+    |"    elsif I > 2 then
+    |"       I := I + 2;
+    |"    else
+    |"       I := 0;
+    |"    end if;
     node is IfStmt(
         f_alternatives: l@ElsifStmtPartList when l[1],
         f_cond_expr: r@RelationOp

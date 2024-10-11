@@ -1,9 +1,3 @@
-# Flag each record type declaration, record extension declaration, and untagged
-# derived record type declaration if a record_representation_clause that has at
-# least one component clause applies to it (or an ancestor), but neither the
-# type nor any of its ancestors has an explicitly specified
-# Scalar_Storage_Order aspect.
-
 fun non_empty_rep_clause(n) =
     n.p_get_record_representation_clause() is
     RecordRepClause(f_components: *(any children(depth=1): ComponentClause))
@@ -17,16 +11,51 @@ fun bit_order_image(n) = {
 
 @unit_check(help="Scalar_Storage_Order is not specified", remediation="EASY",
             category="Style", subcategory="Portability")
-fun no_scalar_storage_order_specified(unit) = [
-    {message: "Scalar_Storage_Order is not specified" & bit_order_image(n),
-     loc: n}
-    for n in from unit.root select node@TypeDecl
-    when (node.f_type_def is
-        ((RecordTypeDef when not node.p_has_aspect("Scalar_Storage_Order")) |
-        DerivedTypeDef when not
-            (node.p_has_aspect("Scalar_Storage_Order")
-             or [p for p in node.p_base_types()
-                 if p.p_has_aspect("Scalar_Storage_Order")])))
-     and (non_empty_rep_clause(node) or
-          [p for p in node.p_base_types() if non_empty_rep_clause(p)])
-]
+fun no_scalar_storage_order_specified(unit) =
+    |" Flag each record type declaration, record extension declaration, and
+    |" untagged derived record type declaration if a
+    |" record_representation_clause that has at least one component clause
+    |" applies to it (or an ancestor), but neither the type nor any of its
+    |" ancestors has an explicitly specified Scalar_Storage_Order aspect.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    with System;
+    |"    package Foo is
+    |"
+    |"       type Rec1 is record     --  FLAG
+    |"          I : Integer;
+    |"       end record;
+    |"
+    |"       for Rec1 use record
+    |"          I at 0 range 0 .. 31;
+    |"       end record;
+    |"
+    |"       type Rec2 is record     --  NO FLAG
+    |"          I : Integer;
+    |"       end record
+    |"         with Scalar_Storage_Order => System.Low_Order_First;
+    |"
+    |"       for Rec2 use record
+    |"          I at 0 range 0 .. 31;
+    |"       end record;
+    |"
+    |"    end Foo;
+    [
+        {message: "Scalar_Storage_Order is not specified" & bit_order_image(n),
+         loc: n}
+        for n in from unit.root select node@TypeDecl
+        when (node.f_type_def is
+            ((RecordTypeDef when not node.p_has_aspect("Scalar_Storage_Order")) |
+            DerivedTypeDef when not
+                (node.p_has_aspect("Scalar_Storage_Order")
+                 or [p for p in node.p_base_types()
+                     if p.p_has_aspect("Scalar_Storage_Order")])))
+         and (non_empty_rep_clause(node) or
+              [p for p in node.p_base_types() if non_empty_rep_clause(p)])
+    ]

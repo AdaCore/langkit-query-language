@@ -1,13 +1,28 @@
-# Flag all operator renamings.
-# If name_mismatch is true then only flag when the renamed subprogram is also
-# an operator with a different name.
-
 @check(message="renaming of an operator",
        category="Style", subcategory="Programming Practice")
 fun operator_renamings(node, name_mismatch=false) =
-   node is SubpRenamingDecl
-   when node.f_renames.f_renamed_object?.p_is_operator_name()
-    and (if name_mismatch
-         then (node.p_defining_name().p_is_operator_name() and not
-               node.p_defining_name().p_relative_name().p_name_matches(
-                   node.f_renames.f_renamed_object.p_relative_name())))
+    |" Flag subprogram renaming declarations that have an operator symbol as
+    |" the name of renamed subprogram.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Name_Mismatch: bool*
+    |"    If ``true``, only flag when the renamed subprogram is also an operator with
+    |"    a different name.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    function Foo (I, J : Integer)           --  FLAG
+    |"      return Integer renames Standard."+";
+    |"    function "-" (I, J : Integer)           --  NO FLAG
+    |"      return Integer renames Bar;
+    node is SubpRenamingDecl
+    when node.f_renames.f_renamed_object?.p_is_operator_name()
+     and (if name_mismatch
+          then (node.p_defining_name().p_is_operator_name() and not
+                node.p_defining_name().p_relative_name().p_name_matches(
+                    node.f_renames.f_renamed_object.p_relative_name())))

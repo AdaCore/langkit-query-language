@@ -1,17 +1,37 @@
-# Flag any subprogram declaration, subprogram body declaration, subprogram
-# instantiation, expression function declaration or subprogram body stub that
-# is not a completion of another subprogram declaration and that is declared
-# within subprogram body (including bodies of generic subprograms), task body
-# or entry body directly or indirectly (that is - inside a local nested
-# package). Protected subprograms are not flagged. Null procedure declarations
-# are not flagged. Procedure declarations completed by null procedure
-# declarations are not flagged.
-
 import stdlib
 
 @check(message="subprogram declared in executable body",
        category="Style", subcategory="Programming Practice")
 fun nested_subprograms(node) =
+    |" Flag any subprogram declaration, subprogram body declaration, subprogram
+    |" instantiation, expression function declaration or subprogram body stub
+    |" that is not a completion of another subprogram declaration and that is
+    |" declared within subprogram body (including bodies of generic
+    |" subprograms), task body or entry body directly or indirectly (that is -
+    |" inside a local nested package). Protected subprograms are not flagged.
+    |" Null procedure declarations are not flagged. Procedure declarations
+    |" completed by null procedure declarations are not flagged.
+    |"
+    |" This rule has no parameters.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4, 6
+    |"
+    |"    procedure Bar (I, J : in out Integer) is
+    |"
+    |"       procedure Foo (K : Integer) is null;
+    |"       procedure Proc1;                    --  FLAG
+    |"
+    |"       procedure Proc2 is separate;        --  FLAG
+    |"
+    |"       procedure Proc1 is
+    |"       begin
+    |"          I := I + J;
+    |"       end Proc1;
+    |"
+    |"    begin
     node is (SubpBody | ExprFunction | SubpBodyStub | BasicSubpDecl |
              GenericSubpInstantiation)
     when (node is (BasicSubpDecl | GenericSubpInstantiation) or
