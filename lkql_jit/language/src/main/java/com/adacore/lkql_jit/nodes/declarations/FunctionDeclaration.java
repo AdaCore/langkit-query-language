@@ -27,8 +27,12 @@ public final class FunctionDeclaration extends Declaration {
 
     // ----- Attributes -----
 
-    /** Name of the declared function. */
-    private final String name;
+    /**
+     * Name of the declared function. By default the name is taken from the Lkql FunDecl's name,
+     * except if its annotation has the `rule_name` parameter defined, in which case it takes
+     * precedence over the function's name.
+     */
+    private String name;
 
     /** Local slot to place the function value in. */
     private final int slot;
@@ -122,6 +126,9 @@ public final class FunctionDeclaration extends Declaration {
             if (checkerArguments[i] == null)
                 checkerArguments[i] = Constants.CHECKER_PARAMETER_DEFAULT_VALUES[i];
         }
+
+        // Update name if the rule_name argument has been set for this rule
+        if (!(checkerArguments[10] == null)) this.name = (String) checkerArguments[10];
 
         // Verify the message and help
         if (checkerArguments[0] == null) checkerArguments[0] = this.name;

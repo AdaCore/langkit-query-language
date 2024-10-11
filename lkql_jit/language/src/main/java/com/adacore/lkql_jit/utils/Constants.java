@@ -87,10 +87,13 @@ public class Constants {
                 "execution_cost",
                 "parametric_exemption",
                 "impact",
-                "target"
+                "target",
+                "rule_name"
             };
 
     /** The default values for annotation parameters. */
     public static final Object[] CHECKER_PARAMETER_DEFAULT_VALUES =
-            new Object[] {null, null, false, "Misc", "Misc", "MEDIUM", 0L, false, "", "amd64"};
+            new Object[] {
+                null, null, false, "Misc", "Misc", "MEDIUM", 0L, false, "", "amd64", null
+            };
 }
