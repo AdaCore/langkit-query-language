@@ -971,6 +971,7 @@ Nested Sub Patterns
 """""""""""""""""""
 
 .. lkql_doc_class:: NodePatternDetail
+.. lkql_doc_class:: PatternDetailDelimiter
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/pattern_arg.svg
