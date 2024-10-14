@@ -44,6 +44,8 @@ SelectorDecl
 |  |  |  |  |  NodePatternField
 |  |  |  |  |  |f_identifier:
 |  |  |  |  |  |  Identifier: children
+|  |  |  |  |  |f_pattern_detail_delimiter:
+|  |  |  |  |  |  PatternDetailDelimiterColon
 |  |  |  |  |  |f_expected_value:
 |  |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |  |f_kind_name:

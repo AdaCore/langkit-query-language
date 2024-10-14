@@ -611,6 +611,27 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     }
 
     @Override
+    public LKQLNode visit(Liblkqllang.PatternDetailDelimiterColon patternDetailDelimiterColon) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.PatternDetailDelimiterIs patternDetailDelimiterIs) {
+        var ctx = LKQLLanguage.getContext(null);
+        ctx.getDiagnosticEmitter()
+                .emitDiagnostic(
+                        CheckerUtils.MessageKind.WARNING,
+                        "'is' syntax is deprecated for patterns. Please consider migrating your"
+                                + " code via 'lkql refactor -r IS_TO_COLON"
+                                + patternDetailDelimiterIs.getUnit().getFileName()
+                                + "'.",
+                        null,
+                        SourceSectionWrapper.create(
+                                patternDetailDelimiterIs.getSourceLocationRange(), source));
+        return null;
+    }
+
+    @Override
     public LKQLNode visit(Liblkqllang.OpMinus opMinus) {
         return null;
     }
@@ -1621,6 +1642,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final String name = nodePatternField.fIdentifier().getText();
         final BasePattern expected = (BasePattern) nodePatternField.fExpectedValue().accept(this);
 
+        nodePatternField.fPatternDetailDelimiter().accept(this);
+
         // Return the new node pattern field detail
         return NodePatternFieldNodeGen.create(loc(nodePatternField), name, expected);
     }
@@ -1638,6 +1661,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final ArgList argList = (ArgList) nodePatternProperty.fCall().fArguments().accept(this);
         final BasePattern expected =
                 (BasePattern) nodePatternProperty.fExpectedValue().accept(this);
+
+        nodePatternProperty.fPatternDetailDelimiter().accept(this);
 
         // Return the new node pattern property detail
         return NodePatternPropertyNodeGen.create(
@@ -1663,6 +1688,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Exit the node pattern selector frame
         this.scriptFrames.exitFrame();
+
+        nodePatternSelector.fPatternDetailDelimiter().accept(this);
 
         // Return the new selector node pattern detail
         return new NodePatternSelector(loc(nodePatternSelector), selectorCall, pattern);

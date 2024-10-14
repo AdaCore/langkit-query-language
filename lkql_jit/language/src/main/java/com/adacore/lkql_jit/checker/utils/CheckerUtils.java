@@ -281,10 +281,11 @@ public class CheckerUtils {
                 SourceLocation lkqlErrorLocation,
                 String ruleName) {
 
-            var adaLoc = adaErrorLocation != null ? adaErrorLocation.display(true) + ": " : "";
+            var adaLoc =
+                    adaErrorLocation != null ? adaErrorLocation.display(true) + ": " : "null:0:0: ";
             var lkqlLoc =
                     lkqlErrorLocation != null
-                            ? "internal error at " + lkqlErrorLocation.display(true) + ": "
+                            ? "internal issue at " + lkqlErrorLocation.display(true) + ": "
                             : "";
             var rulePart =
                     ruleName == null || ruleName.isBlank()
