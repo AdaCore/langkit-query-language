@@ -927,12 +927,20 @@ class NodeKindPattern(NodePattern):
     kind_name = Field(type=Identifier)
 
 
+class PatternDetailDelimiter(LkqlNode):
+    """
+    Pattern detail delimiter, either 'is' (old syntax) or ':' (new syntax).
+    """
+    enum_node = True
+    alternatives = ['is', 'colon']
+
+
 @abstract
 class NodePatternDetail(LkqlNode):
     """
     Access to a field, property or selector inside a node pattern.
     """
-    pass
+    pattern_detail_delimiter = AbstractField(type=PatternDetailDelimiter)
 
 
 class NodePatternField(NodePatternDetail):
@@ -940,6 +948,7 @@ class NodePatternField(NodePatternDetail):
     Access to a field in a node pattern.
     """
     identifier = Field(type=Identifier)
+    pattern_detail_delimiter = Field(type=PatternDetailDelimiter)
     expected_value = Field(type=BasePattern)
 
 
@@ -948,6 +957,7 @@ class NodePatternProperty(NodePatternDetail):
     Access to a property in a node pattern.
     """
     call = Field(type=FunCall)
+    pattern_detail_delimiter = Field(type=PatternDetailDelimiter)
     expected_value = Field(type=BasePattern)
 
 
@@ -956,6 +966,7 @@ class NodePatternSelector(NodePatternDetail):
     Use of a selector in a node pattern
     """
     call = Field(type=SelectorCall)
+    pattern_detail_delimiter = Field(type=PatternDetailDelimiter)
     pattern = Field(type=BasePattern)
 
 
@@ -963,11 +974,11 @@ class ExtendedNodePattern(NodePattern):
     """
     Node pattern of the form:
 
-    ``KindName(field=val, prop() is val, any selector is Pattern)``
+    ``KindName(field: Pattern, prop(): Pattern, any selector: Pattern)``
 
     For instance::
 
-        ObjectDecl(children: AspectAssoc)
+        ObjectDecl(any children: AspectAssoc)
     """
     node_pattern = Field(type=ValuePattern)
     details = Field(type=NodePatternDetail.list)
@@ -1114,10 +1125,21 @@ lkql_grammar.add_rules(
     ),
     tuple_pattern=TuplePattern("(", List(G.value_pattern, sep=","), ")"),
 
+    pattern_detail_delimiter=Or(
+        PatternDetailDelimiter.alt_is("is"),
+        PatternDetailDelimiter.alt_colon(":"),
+    ),
+
     pattern_arg=Or(
-        NodePatternSelector(G.selector_call, ":", G.or_pattern),
-        NodePatternField(G.id, ":", c(), G.or_pattern),
-        NodePatternProperty(G.fun_call, ":", c(), G.or_pattern)
+        NodePatternSelector(
+            G.selector_call, G.pattern_detail_delimiter, G.or_pattern
+        ),
+        NodePatternField(
+            G.id, G.pattern_detail_delimiter, c(), G.or_pattern
+        ),
+        NodePatternProperty(
+            G.fun_call, G.pattern_detail_delimiter, c(), G.or_pattern
+        )
     ),
 
     selector_call=SelectorCall(

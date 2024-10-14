@@ -44,6 +44,8 @@ FunDecl
 |  |  |  |  |  |  |  Identifier: c
 |  |  |  |  |  |  |f_selector_call:
 |  |  |  |  |  |  |  Identifier: children
+|  |  |  |  |  |f_pattern_detail_delimiter:
+|  |  |  |  |  |  PatternDetailDelimiterColon
 |  |  |  |  |  |f_pattern:
 |  |  |  |  |  |  ExtendedNodePattern
 |  |  |  |  |  |  |f_node_pattern:
@@ -71,6 +73,8 @@ FunDecl
 |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: depth
 |  |  |  |  |  |  |  |  |  |  |  |  |f_value_expr:
 |  |  |  |  |  |  |  |  |  |  |  |  |  IntegerLiteral: 2
+|  |  |  |  |  |  |  |  |f_pattern_detail_delimiter:
+|  |  |  |  |  |  |  |  |  PatternDetailDelimiterColon
 |  |  |  |  |  |  |  |  |f_pattern:
 |  |  |  |  |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |  |  |  |  |f_kind_name:
@@ -78,6 +82,8 @@ FunDecl
 |  |  |  |  |  NodePatternField
 |  |  |  |  |  |f_identifier:
 |  |  |  |  |  |  Identifier: f_body
+|  |  |  |  |  |f_pattern_detail_delimiter:
+|  |  |  |  |  |  PatternDetailDelimiterColon
 |  |  |  |  |  |f_expected_value:
 |  |  |  |  |  |  FilteredPattern
 |  |  |  |  |  |  |f_pattern:

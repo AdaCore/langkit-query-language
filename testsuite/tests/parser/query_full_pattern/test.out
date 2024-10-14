@@ -33,6 +33,8 @@ ValDecl
 |  |  |  |  |  |  |  |f_binding: <null>
 |  |  |  |  |  |  |  |f_selector_call:
 |  |  |  |  |  |  |  |  Identifier: children
+|  |  |  |  |  |  |f_pattern_detail_delimiter:
+|  |  |  |  |  |  |  PatternDetailDelimiterColon
 |  |  |  |  |  |  |f_pattern:
 |  |  |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |  |  |f_kind_name:
