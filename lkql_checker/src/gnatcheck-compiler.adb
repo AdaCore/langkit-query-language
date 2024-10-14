@@ -293,7 +293,7 @@ package body Gnatcheck.Compiler is
          --  We assume the following format of the message:
          --    filename:line:column: <message body>
          --
-         --  If this format is violated we display the line as unparasable.
+         --  If this format is violated we display the line as unparsable.
 
          --  Try to match the diagnostic to extract information
          Match (Match_Diagnosis, Msg, Matches);
@@ -301,6 +301,9 @@ package body Gnatcheck.Compiler is
             Format_Error;
             return;
          end if;
+
+         Msg_Start := Matches (5).First;
+         Msg_End   := Matches (5).Last;
 
          SF := File_Find
            (Msg (Matches (1).First .. Matches (1).Last),
@@ -310,8 +313,18 @@ package body Gnatcheck.Compiler is
          Sloc.Column := Column_Number'Value
            (Msg (Matches (4).First .. Matches (4).Last));
 
-         Msg_Start := Matches (5).First;
-         Msg_End   := Matches (5).Last;
+         --  Handle internal warnings before any other kind of error, because
+         --  they don't have an Ada source location
+         --
+         --  TODO: We want to refactor this logic and make the logic of
+         --  handling internal errors more general.
+         if Msg_End - Msg_Start > 22
+           and then Msg
+             (Msg_Start .. Msg_Start + 22) = "warning: internal issue"
+         then
+            Warning (Msg (Msg_Start + 27 .. Msg_End));
+            return;
+         end if;
 
          --  Test if the provided sources is present and is not ignored
          if not Present (SF) or else Source_Info (SF) = Ignore_Unit then
@@ -374,7 +387,7 @@ package body Gnatcheck.Compiler is
 
             if Msg_End - Msg_Start > 21
                and then Msg
-                 (Msg_Start + 7 .. Msg_Start + 20) = "internal error"
+                 (Msg_Start + 7 .. Msg_Start + 20) = "internal issue"
             then
                Kind := Internal_Error;
             else
