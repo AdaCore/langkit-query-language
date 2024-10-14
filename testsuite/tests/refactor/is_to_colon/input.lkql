@@ -1,0 +1,3 @@
+@check()
+fun foo(node) =
+   node is AspectAssoc(f_id is "Hello")
