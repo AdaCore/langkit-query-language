@@ -17,7 +17,7 @@ from e3.testsuite.testcase_finder import (
 
 from drivers import (
     checker_driver, gnatcheck_driver, interpreter_driver, parser_driver, java_driver,
-    benchmarks_driver,
+    benchmarks_driver, refactor_driver
 )
 
 class PerfTestFinder(YAMLTestFinder):
@@ -86,7 +86,8 @@ class LKQLTestsuite(Testsuite):
                        'java': java_driver.JavaDriver,
                        'checker': checker_driver.CheckerDriver,
                        'gnatcheck': gnatcheck_driver.GnatcheckDriver,
-                       'benchmarks': benchmarks_driver.BenchmarksDriver,}
+                       'benchmarks': benchmarks_driver.BenchmarksDriver,
+                       'refactor': refactor_driver.RefactorDriver,}
 
     def add_options(self, parser: ArgumentParser) -> None:
         parser.add_argument(
