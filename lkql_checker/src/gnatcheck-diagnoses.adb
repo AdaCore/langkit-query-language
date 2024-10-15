@@ -1913,11 +1913,15 @@ package body Gnatcheck.Diagnoses is
    is
       Pragma_Name : constant Text_Type := To_Lower (El.F_Id.Text);
       Pragma_Args : constant LAL.Analysis.Base_Assoc_List := El.F_Args;
+      Tool_Name   : constant Text_Type :=
+        (if Gnatkp_Mode
+         then "gnatkp"
+         else "gnatcheck");
    begin
       return Pragma_Name in "annotate" | "gnat_annotate"
          and then not Pragma_Args.Is_Null
          and then To_Lower
-           (Pragma_Args.List_Child (1).P_Assoc_Expr.Text) = "gnatcheck";
+           (Pragma_Args.List_Child (1).P_Assoc_Expr.Text) = Tool_Name;
    end Is_Exemption_Pragma;
 
    ---------------------------
@@ -2236,7 +2240,11 @@ package body Gnatcheck.Diagnoses is
          return;
       end if;
 
-      Match (Match_Exempt_Comment, Text, Matches);
+      if Gnatkp_Mode then
+         Match (Match_Kp_Exempt_Comment, Text, Matches);
+      else
+         Match (Match_Rule_Exempt_Comment, Text, Matches);
+      end if;
 
       if Matches (0) = No_Match then
          --  We don't issue a warning here, because, it's possible (however
