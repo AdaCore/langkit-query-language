@@ -960,7 +960,7 @@ combined with the ``--kp-version`` and possibly ``--target`` switches,
 .. attention::
 
   You must provide explicit target and runtime (either through the command-line
-  or with a provided project file) when running GNATKP to ensure the result
+  or with a provided project file) when running GNATkp to ensure the result
   soundness.
 
 You can check via the GNAT Tracker interface which known problems are
