@@ -1,0 +1,12 @@
+driver: gnatcheck
+project: prj.gpr
+format: short
+tests:
+  - label: GNATcheck mode
+    mode: gnatcheck
+    rules:
+      - +Rgoto_statements
+  - label: GNATKP mode
+    mode: gnatkp
+    rules:
+      - +Rkp_19198
