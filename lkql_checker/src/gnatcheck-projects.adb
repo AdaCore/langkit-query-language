@@ -424,6 +424,7 @@ package body Gnatcheck.Projects is
       end loop;
 
       if not My_Project.Tree.Load (Project_Options,
+                                   Reporter     => Gpr2_Reporter,
                                    With_Runtime => True,
                                    Config       => Conf_Obj)
       then
