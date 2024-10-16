@@ -23,7 +23,7 @@ Invoking ``gnatcheck`` on the command line has the form::
   $ gnatcheck [switches] {filename}
         [-files=arg_list_filename]
         [-r rule_names]
-        [--rules=lkql_rule_filename]
+        [--rule-file=lkql_rule_filename]
         [-cargs gcc_switches]
 
 
@@ -81,7 +81,7 @@ project file named :file:`gnatcheck_example.gpr` with the following content:
      for Main use ("main.adb");
 
      package Check is
-        for Default_Switches ("ada") use ("--rules", "coding_standard.lkql");
+        for Default_Switches ("ada") use ("-rules", "-from-lkql", "coding_standard.lkql");
      end Check;
 
   end Gnatcheck_Example;
