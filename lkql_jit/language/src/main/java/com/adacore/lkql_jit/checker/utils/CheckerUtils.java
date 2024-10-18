@@ -280,19 +280,34 @@ public class CheckerUtils {
                 SourceLocation adaErrorLocation,
                 SourceLocation lkqlErrorLocation,
                 String ruleName) {
+            // If there is an Ada location for this diagnostic, emit it as a GNU formatted one
+            if (adaErrorLocation != null) {
+                var adaLoc = adaErrorLocation.display(true) + ": ";
+                var lkqlLoc =
+                        lkqlErrorLocation != null
+                                ? "internal issue at " + lkqlErrorLocation.display(true) + ": "
+                                : "";
+                var rulePart =
+                        ruleName == null || ruleName.isBlank()
+                                ? ""
+                                : " [" + ruleName.toLowerCase() + "]";
 
-            var adaLoc =
-                    adaErrorLocation != null ? adaErrorLocation.display(true) + ": " : "null:0:0: ";
-            var lkqlLoc =
-                    lkqlErrorLocation != null
-                            ? "internal issue at " + lkqlErrorLocation.display(true) + ": "
-                            : "";
-            var rulePart =
-                    ruleName == null || ruleName.isBlank()
-                            ? ""
-                            : " [" + ruleName.toLowerCase() + "]";
+                return adaLoc + kindtoString(messageKind) + ": " + lkqlLoc + message + rulePart;
+            }
 
-            return adaLoc + kindtoString(messageKind) + ": " + lkqlLoc + message + rulePart;
+            // Else, emit a "worker error / warning" one
+            else {
+                var prefix = kindToWorkerPrefix(messageKind);
+                var lkqlLoc =
+                        lkqlErrorLocation != null ? lkqlErrorLocation.display(true) + ": " : "";
+
+                if (messageKind == MessageKind.RULE_VIOLATION) {
+                    prefix = kindToWorkerPrefix(MessageKind.ERROR);
+                    message = "rule violation without Ada location: " + message;
+                }
+
+                return prefix + ": " + lkqlLoc + message;
+            }
         }
 
         @Override
@@ -301,6 +316,14 @@ public class CheckerUtils {
                 case WARNING -> "warning";
                 case ERROR -> "error";
                 case RULE_VIOLATION -> "check";
+            };
+        }
+
+        public static String kindToWorkerPrefix(MessageKind messageKind) {
+            return switch (messageKind) {
+                case WARNING -> "WORKER_WARNING";
+                case ERROR -> "WORKER_ERROR";
+                case RULE_VIOLATION -> "";
             };
         }
 

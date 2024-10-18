@@ -170,8 +170,7 @@ package Gnatcheck.Compiler is
 
    function Spawn_LKQL_Rule_File_Parser
      (LKQL_RF_Name : String;
-      Result_File : String;
-      Error_File : String) return Process_Id;
+      Result_File : String) return Process_Id;
    --  Spawn the executable which handles the LKQL rule config file parsing
    --  with the provided `LKQL_RF_Name` then return the process identifier
    --  associated to it. Redirects all output made by the process in the
