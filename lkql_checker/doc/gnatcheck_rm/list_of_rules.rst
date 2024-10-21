@@ -67,6 +67,7 @@ GNATcheck rules.
 * :ref:`Forbidden_Aspects`
 * :ref:`Forbidden_Attributes`
 * :ref:`Forbidden_Pragmas`
+* :ref:`Function_OUT_Parameters`
 * :ref:`Function_Style_Procedures`
 * :ref:`Generic_IN_OUT_Objects`
 * :ref:`Generics_In_Subprograms`
