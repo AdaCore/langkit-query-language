@@ -55,8 +55,8 @@ GNATcheck rules.
 * :ref:`Exception_Propagation_From_Export`
 * :ref:`Exception_Propagation_From_Tasks`
 * :ref:`Exceptions_As_Control_Flow`
-* :ref:`Exits_From_Conditional_Loops`
 * :ref:`EXIT_Statements_With_No_Loop_Name`
+* :ref:`Exits_From_Conditional_Loops`
 * :ref:`Expanded_Loop_Exit_Names`
 * :ref:`Explicit_Full_Discrete_Ranges`
 * :ref:`Explicit_Inlining`
@@ -112,12 +112,12 @@ GNATcheck rules.
 * :ref:`Non_Component_In_Barriers`
 * :ref:`Non_Constant_Overlays`
 * :ref:`Non_Qualified_Aggregates`
-* :ref:`Nonoverlay_Address_Specifications`
 * :ref:`Non_Short_Circuit_Operators`
 * :ref:`Non_SPARK_Attributes`
 * :ref:`Non_Tagged_Derived_Types`
-* :ref:`Not_Imported_Overlays`
 * :ref:`Non_Visible_Exceptions`
+* :ref:`Nonoverlay_Address_Specifications`
+* :ref:`Not_Imported_Overlays`
 * :ref:`Null_Paths`
 * :ref:`Number_Declarations`
 * :ref:`Numeric_Format`

@@ -96,10 +96,10 @@ GNATcheck's predefined rules' parameters may have the following types:
 
 
 
-Style-Related Rules
-===================
+``Style-Related Rules``
+=======================
 
-.. index:: Style-related rules
+.. index:: Style-Related_Rules
 
 The rules in this section may be used to enforce various feature usages
 consistent with good software engineering, for example
@@ -109,10 +109,10 @@ as described in Ada 95 Quality and Style.
 
 .. _Tasking:
 
-Tasking
--------
+``Tasking``
+-----------
 
-.. index:: Tasking-related rules
+.. index:: Tasking-related_rules
 
 The rules in this subsection may be used to enforce various
 feature usages related to concurrency.
@@ -192,10 +192,10 @@ This rule has no parameters.
 
 .. _Object_Orientation:
 
-Object Orientation
-------------------
+``Object Orientation``
+----------------------
 
-.. index:: Object-Orientation related rules
+.. index:: Object_Orientation-related_rules
 
 The rules in this subsection may be used to enforce various
 feature usages related to Object-Oriented Programming.
@@ -458,49 +458,6 @@ This rule has no parameters.
 
 
 
-.. _Specific_Pre_Post:
-
-``Specific_Pre_Post``
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Specific_Pre_Post
-
-Flag a declaration of a primitive operation of a tagged type if this
-declaration contains specification of Pre or/and Post aspect.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 5, 8, 11, 19
-
-   type T is tagged private;
-   function Check1 (X : T) return Boolean;
-   function Check2 (X : T) return Boolean;
-
-   procedure Proc1 (X : in out T)           --  FLAG
-      with Pre => Check1 (X);
-
-   procedure Proc2 (X : in out T)           --  FLAG
-      with Post => Check2 (X);
-
-   function Fun1 (X : T) return Integer     --  FLAG
-      with Pre  => Check1 (X),
-           Post => Check2 (X);
-
-   function Fun2 (X : T) return Integer
-      with Pre'Class  => Check1 (X),
-           Post'Class => Check2 (X);
-
-   function Fun3 (X : T) return Integer     --  FLAG
-      with Pre'Class  => Check1 (X),
-           Post'Class => Check2 (X),
-           Pre        => Check1 (X),
-           Post       => Check2 (X);
-
-
-
 .. _Specific_Parent_Type_Invariant:
 
 ``Specific_Parent_Type_Invariant``
@@ -547,6 +504,49 @@ This rule has no parameters.
       type N_PT1 is new Pack1.PT1 with null record;
       type N_PT2 is new Pack1.PT2 with null record;
    end Pack2;
+
+
+
+.. _Specific_Pre_Post:
+
+``Specific_Pre_Post``
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Specific_Pre_Post
+
+Flag a declaration of a primitive operation of a tagged type if this
+declaration contains specification of Pre or/and Post aspect.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 5, 8, 11, 19
+
+   type T is tagged private;
+   function Check1 (X : T) return Boolean;
+   function Check2 (X : T) return Boolean;
+
+   procedure Proc1 (X : in out T)           --  FLAG
+      with Pre => Check1 (X);
+
+   procedure Proc2 (X : in out T)           --  FLAG
+      with Post => Check2 (X);
+
+   function Fun1 (X : T) return Integer     --  FLAG
+      with Pre  => Check1 (X),
+           Post => Check2 (X);
+
+   function Fun2 (X : T) return Integer
+      with Pre'Class  => Check1 (X),
+           Post'Class => Check2 (X);
+
+   function Fun3 (X : T) return Integer     --  FLAG
+      with Pre'Class  => Check1 (X),
+           Post'Class => Check2 (X),
+           Pre        => Check1 (X),
+           Post       => Check2 (X);
 
 
 
@@ -737,10 +737,10 @@ for LKQL rule options files:
 
 .. _Portability:
 
-Portability
------------
+``Portability``
+---------------
 
-.. index:: Portability-related rules
+.. index:: Portability-related_rules
 
 The rules in this subsection may be used to enforce various
 feature usages that support program portability.
@@ -936,6 +936,7 @@ a predefined or GNAT-specific attribute.
 
       for J in Arr'Range loop                             --  FLAG
          Arr_Var (J) := Integer'Succ (J);
+
 
 
 .. _Forbidden_Pragmas:
@@ -1273,39 +1274,12 @@ This rule has no parameters.
 
 
 
-.. _Size_Attribute_For_Types:
-
-``Size_Attribute_For_Types``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Size_Attribute_For_Types
-
-Flag any 'Size attribute reference if its prefix denotes a type or a subtype.
-Attribute references that are subcomponents of attribute definition clauses of
-aspect specifications are not flagged.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 6
-
-   type T is record
-      I : Integer;
-      B : Boolean;
-   end record;
-
-   Size_Of_T : constant Integer := T'Size  --  FLAG
-
-
-
 .. _Program_Structure:
 
-Program Structure
------------------
+``Program Structure``
+---------------------
 
-.. index:: Program Structure related rules
+.. index:: Program_Structure-related_rules
 
 The rules in this subsection may be used to enforce feature usages
 related to program structure.
@@ -1465,6 +1439,106 @@ This rule has no parameters.
 
 
 
+.. _Maximum_Expression_Complexity:
+
+``Maximum_Expression_Complexity``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Maximum_Expression_Complexity
+
+Flag any expression that is not directly a part of another expression
+which contains more than *N* expressions of the following kinds (each count for 1)
+as its subcomponents, *N* is a rule parameter:
+
+*
+  Identifiers;
+
+*
+  Numeric, string or character literals;
+
+*
+  Conditional expressions;
+
+*
+  Quantified expressions;
+
+*
+  Aggregates;
+
+*
+  @ symbols (target names).
+
+This rule has the following (mandatory) parameter for the ``+R`` option and
+for LKQL rule options files:
+
+*N: int*
+   Positive integer specifying the maximum allowed number of expression
+   subcomponents.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1-3
+
+   I := 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10;  --  FLAG if N < 10
+   I := F (I);   --  FLAG if N < 2
+   I := F5 (1 + 2 + 3 + 4 + 5, 2, 3, 4, 5);   --  FLAG (twice) if N < 5
+
+
+
+.. _Maximum_Lines:
+
+``Maximum_Lines``
+^^^^^^^^^^^^^^^^^
+
+.. index:: Maximum_Lines
+
+Flags the file containing the source text of a compilation unit if this
+file contains more than N lines where N is a rule parameter
+
+This rule has the following (mandatory) parameter for the ``+R`` option and
+for LKQL rule options files:
+
+*N: int*
+  Positive integer specifying the maximum allowed number of lines in
+  the compilation unit source text.
+
+
+
+.. _Maximum_Subprogram_Lines:
+
+``Maximum_Subprogram_Lines``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Maximum_Subprogram_Lines
+
+Flag handled sequences of statements of subprogram bodies exceeding *N* textual
+lines (*N* is the rule parameter). Lines are counted from the beginning of the
+first to the end of the last statement, including blank and comment lines
+
+This rule has the following (mandatory) parameter for the ``+R`` option and
+for LKQL rule options files:
+
+*N: int*
+   Positive integer specifying the maximum allowed number of lines in the
+   subprogram statement sequence.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 4
+
+   --  If the rule parameter is 3
+   procedure P (I : in out Integer) is
+   begin
+      I := I + 1;   --  FLAG
+      I := I + 2;
+      I := I + 3;
+      I := I + 4;
+   end P;
+
+
+
 .. _Non_Visible_Exceptions:
 
 ``Non_Visible_Exceptions``
@@ -1528,87 +1602,6 @@ This rule has no parameters.
 
 
 
-.. _Maximum_Expression_Complexity:
-
-``Maximum_Expression_Complexity``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Maximum_Expression_Complexity
-
-Flag any expression that is not directly a part of another expression
-which contains more than *N* expressions of the following kinds (each count for 1)
-as its subcomponents, *N* is a rule parameter:
-
-*
-  Identifiers;
-
-*
-  Numeric, string or character literals;
-
-*
-  Conditional expressions;
-
-*
-  Quantified expressions;
-
-*
-  Aggregates;
-
-*
-  @ symbols (target names).
-
-This rule has the following (mandatory) parameter for the ``+R`` option and
-for LKQL rule options files:
-
-*N: int*
-   Positive integer specifying the maximum allowed number of expression
-   subcomponents.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 1-3
-
-   I := 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10;  --  FLAG if N < 10
-   I := F (I);   --  FLAG if N < 2
-   I := F5 (1 + 2 + 3 + 4 + 5, 2, 3, 4, 5);   --  FLAG (twice) if N < 5
-
-
-
-.. _Maximum_Subprogram_Lines:
-
-``Maximum_Subprogram_Lines``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Maximum_Subprogram_Lines
-
-Flag handled sequences of statements of subprogram bodies exceeding *N* textual
-lines (*N* is the rule parameter). Lines are counted from the beginning of the
-first to the end of the last statement, including blank and comment lines
-
-This rule has the following (mandatory) parameter for the ``+R`` option and
-for LKQL rule options files:
-
-*N: int*
-   Positive integer specifying the maximum allowed number of lines in the
-   subprogram statement sequence.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 4
-
-   --  If the rule parameter is 3
-   procedure P (I : in out Integer) is
-   begin
-      I := I + 1;   --  FLAG
-      I := I + 2;
-      I := I + 3;
-      I := I + 4;
-   end P;
-
-
-
 .. _One_Tagged_Type_Per_Package:
 
 ``One_Tagged_Type_Per_Package``
@@ -1632,6 +1625,35 @@ This rule has no parameters.
       type T2 is tagged null record;
 
    end P;
+
+
+
+.. _Outside_References_From_Subprograms:
+
+``Outside_References_From_Subprograms``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Outside_References_From_Subprograms
+
+Within a subprogram body or an expression function flag any identifier that
+denotes a non global data object declared outside this body.
+
+This rule analyzes generic instantiations and ignores generic packages to
+avoid flagging all references to formal objects.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 6
+
+   procedure Enclosing is
+      Var : Integer;
+
+      procedure Proc (I : in out Integer) is
+      begin
+         I := I + Var;      --  FLAG
 
 
 
@@ -1784,10 +1806,10 @@ for LKQL rule options files:
 
 .. _Programming_Practice:
 
-Programming Practice
---------------------
+``Programming Practice``
+------------------------
 
-.. index:: Programming Practice related rules
+.. index:: Programming_Practice-related_rules
 
 The rules in this subsection may be used to enforce feature usages that
 relate to program maintainability.
@@ -2338,6 +2360,33 @@ This rule has no parameters.
 
 
 
+.. _Deriving_From_Predefined_Type:
+
+``Deriving_From_Predefined_Type``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Deriving_From_Predefined_Type
+
+Flag derived type declaration if the ultimate ancestor type is a
+predefined Ada type. Do not flag record extensions and private
+extensions. The rule is checked inside expanded generics.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3, 5
+
+   package Foo is
+      type T is private;
+      type My_String is new String;  --  FLAG
+   private
+      type T is new Integer;         --  FLAG
+   end Foo;
+
+
+
 .. _Direct_Equalities:
 
 ``Direct_Equalities``
@@ -2380,33 +2429,6 @@ of some other expression or as a call parameter.
          I := 0;
       end if;
    end Proc;
-
-
-
-.. _Deriving_From_Predefined_Type:
-
-``Deriving_From_Predefined_Type``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Deriving_From_Predefined_Type
-
-Flag derived type declaration if the ultimate ancestor type is a
-predefined Ada type. Do not flag record extensions and private
-extensions. The rule is checked inside expanded generics.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 3, 5
-
-   package Foo is
-      type T is private;
-      type My_String is new String;  --  FLAG
-   private
-      type T is new Integer;         --  FLAG
-   end Foo;
 
 
 
@@ -2510,27 +2532,6 @@ This rule has no parameters.
             null;
       end case;
    end Bar;
-
-
-
-.. _Enumeration_Representation_Clauses:
-
-``Enumeration_Representation_Clauses``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Enumeration_Representation_Clauses
-
-Flag enumeration representation clauses.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 2
-
-   type Enum1 is (A1, B1, C1);
-   for Enum1 use (A1 => 1, B1 => 11, C1 => 111);     --  FLAG
 
 
 
@@ -2672,7 +2673,7 @@ This rule has no parameters.
 ``Exception_Propagation_From_Tasks``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. index:: Exception_Propagation_From_Export
+.. index:: Exception_Propagation_From_Tasks
 
 Flag a task body if it does not contain and exception handler with ``others``
 exception choice or if it contains an exception handler with a raise statement or
@@ -2730,39 +2731,6 @@ The rule has no parameters.
 
 
 
-.. _Exits_From_Conditional_Loops:
-
-``Exits_From_Conditional_Loops``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Exits_From_Conditional_Loops
-
-Flag any exit statement if it transfers the control out of a ``for`` loop
-or a ``while`` loop. This includes cases when the ``exit`` statement
-applies to a ``for`` or ``while`` loop, and cases when it is enclosed
-in some ``for`` or ``while`` loop, but transfers the control from some
-outer (unconditional) ``loop`` statement.
-
-The rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 5
-
-   function Bar (S : String) return Natural is
-      Result : Natural := 0;
-   begin
-      for J in S'Range loop
-         exit when S (J) = '@';  --  FLAG
-         Result := Result + J;
-      end loop;
-
-      return 0;
-   end Bar;
-
-
-
 .. _EXIT_Statements_With_No_Loop_Name:
 
 ``EXIT_Statements_With_No_Loop_Name``
@@ -2796,10 +2764,45 @@ for LKQL rule options files:
 
 
 
+.. _Exits_From_Conditional_Loops:
+
+``Exits_From_Conditional_Loops``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Exits_From_Conditional_Loops
+
+Flag any exit statement if it transfers the control out of a ``for`` loop
+or a ``while`` loop. This includes cases when the ``exit`` statement
+applies to a ``for`` or ``while`` loop, and cases when it is enclosed
+in some ``for`` or ``while`` loop, but transfers the control from some
+outer (unconditional) ``loop`` statement.
+
+The rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 5
+
+   function Bar (S : String) return Natural is
+      Result : Natural := 0;
+   begin
+      for J in S'Range loop
+         exit when S (J) = '@';  --  FLAG
+         Result := Result + J;
+      end loop;
+
+      return 0;
+   end Bar;
+
+
+
 .. _Final_Package:
 
 ``Final_Package``
 ^^^^^^^^^^^^^^^^^
+
+.. index:: Final_Package
 
 Check that package declarations annotated as final don't have child
 packages
@@ -2892,6 +2895,52 @@ LKQL rule options files:
 
 
 
+.. _Improper_Returns:
+
+``Improper_Returns``
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Improper_Returns
+
+Flag each explicit ``return`` statement in procedures, and
+multiple ``return`` statements in functions.
+Diagnostic messages are generated for all ``return`` statements
+in a procedure (thus each procedure must be written so that it
+returns implicitly at the end of its statement part),
+and for all ``return`` statements in a function after the first one.
+This rule supports the stylistic convention that each subprogram
+should have no more than one point of normal return.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 4, 15, 19
+
+   procedure Proc (I : in out Integer) is
+   begin
+      if I = 0 then
+         return;                          --  FLAG
+      end if;
+
+      I := I * (I + 1);
+   end Proc;
+
+   function Factorial (I : Natural) return Positive is
+   begin
+      if I = 0 then
+         return 1;
+      else
+         return I * Factorial (I - 1);    --  FLAG
+      end if;
+   exception
+      when Constraint_Error =>
+         return Natural'Last;             --  FLAG
+   end Factorial;
+
+
+
 .. _Integer_Types_As_Enum:
 
 ``Integer_Types_As_Enum``
@@ -2939,52 +2988,6 @@ This rule has no parameters.
       X := 2;
       Y := Y + 1;
    end Proc;
-
-
-
-.. _Improper_Returns:
-
-``Improper_Returns``
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Improper_Returns
-
-Flag each explicit ``return`` statement in procedures, and
-multiple ``return`` statements in functions.
-Diagnostic messages are generated for all ``return`` statements
-in a procedure (thus each procedure must be written so that it
-returns implicitly at the end of its statement part),
-and for all ``return`` statements in a function after the first one.
-This rule supports the stylistic convention that each subprogram
-should have no more than one point of normal return.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 4, 15, 19
-
-   procedure Proc (I : in out Integer) is
-   begin
-      if I = 0 then
-         return;                          --  FLAG
-      end if;
-
-      I := I * (I + 1);
-   end Proc;
-
-   function Factorial (I : Natural) return Positive is
-   begin
-      if I = 0 then
-         return 1;
-      else
-         return I * Factorial (I - 1);    --  FLAG
-      end if;
-   exception
-      when Constraint_Error =>
-         return Natural'Last;             --  FLAG
-   end Factorial;
 
 
 
@@ -3065,25 +3068,6 @@ options files:
       procedure Inner is
          use type Pack2.T;     --  FLAG (if Except_USE_TYPE_Clauses is not set)
       ...
-
-
-
-.. _Maximum_Lines:
-
-``Maximum_Lines``
-^^^^^^^^^^^^^^^^^
-
-.. index:: Maximum_Lines
-
-Flags the file containing the source text of a compilation unit if this
-file contains more than N lines where N is a rule parameter
-
-This rule has the following (mandatory) parameter for the ``+R`` option and
-for LKQL rule options files:
-
-*N: int*
-  Positive integer specifying the maximum allowed number of lines in
-  the compilation unit source text.
 
 
 
@@ -3480,44 +3464,6 @@ This rule has no parameters.
 
 
 
-.. _Nonoverlay_Address_Specifications:
-
-``Nonoverlay_Address_Specifications``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Nonoverlay_Address_Specifications
-
-Flag an attribute definition clause that defines ``'Address`` attribute if
-it does not have the form ``for Overlaying'Address use Overlaid'Address;``
-where ``Overlaying`` is an identifier defined by an object declaration
-and ``Overlaid`` is an identifier defined either by an object declaration
-or a parameter specification. Flag an Address aspect specification if
-this aspect specification is not a part of an object declaration and
-if the aspect value does not have the form ``Overlaid'Address``
-where ``Overlaid`` is an identifier defined either by an object
-declaration or a parameter specification.
-
-Address specifications given for program units are not flagged.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 9
-
-   type Rec is record
-      C : Integer;
-   end record;
-
-   Var_Rec : Rec;
-   Var_Int : Integer;
-
-   Var1 : Integer with Address => Var_Int'Address;
-   Var2 : Integer with Address => Var_Rec.C'Address;  --  FLAG
-
-
-
 .. _Non_Short_Circuit_Operators:
 
 ``Non_Short_Circuit_Operators``
@@ -3590,6 +3536,44 @@ is from the following list:
    B2 := I < 0 and then J < 0;
    B3 := I > J or J > 0;        --  FLAG
    B4 := I < J or else I < 0;
+
+
+
+.. _Nonoverlay_Address_Specifications:
+
+``Nonoverlay_Address_Specifications``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Nonoverlay_Address_Specifications
+
+Flag an attribute definition clause that defines ``'Address`` attribute if
+it does not have the form ``for Overlaying'Address use Overlaid'Address;``
+where ``Overlaying`` is an identifier defined by an object declaration
+and ``Overlaid`` is an identifier defined either by an object declaration
+or a parameter specification. Flag an Address aspect specification if
+this aspect specification is not a part of an object declaration and
+if the aspect value does not have the form ``Overlaid'Address``
+where ``Overlaid`` is an identifier defined either by an object
+declaration or a parameter specification.
+
+Address specifications given for program units are not flagged.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 9
+
+   type Rec is record
+      C : Integer;
+   end record;
+
+   Var_Rec : Rec;
+   Var_Int : Integer;
+
+   Var1 : Integer with Address => Var_Int'Address;
+   Var2 : Integer with Address => Var_Rec.C'Address;  --  FLAG
 
 
 
@@ -3897,35 +3881,6 @@ This rule has no parameters.
          end P;
       end P;
    end Pack;
-
-
-
-.. _Outside_References_From_Subprograms:
-
-``Outside_References_From_Subprograms``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Outside_References_From_Subprograms
-
-Within a subprogram body or an expression function flag any identifier that
-denotes a non global data object declared outside this body.
-
-This rule analyzes generic instantiations and ignores generic packages to
-avoid flagging all references to formal objects.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 6
-
-   procedure Enclosing is
-      Var : Integer;
-
-      procedure Proc (I : in out Integer) is
-      begin
-         I := I + Var;      --  FLAG
 
 
 
@@ -4363,35 +4318,6 @@ for LKQL rule options files:
 
 
 
-.. _Profile_Discrepancies:
-
-``Profile_Discrepancies``
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Profile_Discrepancies
-
-Flag subprogram or entry body (or body stub) if its parameter (or
-parameter and result) profile does not follow the lexical structure
-of the profile in the corresponding subprogram or entry declaration.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 8
-
-   package Pack is
-      procedure Proc
-        (I : Integer;
-         J : Integer);
-   end Pack;
-
-   package body Pack is
-      procedure Proc (I, J : Integer) is    --  FLAG
-
-
-
 .. _Recursive_Subprograms:
 
 ``Recursive_Subprograms``
@@ -4825,12 +4751,39 @@ This rule has no parameters.
 
 
 
+.. _Size_Attribute_For_Types:
+
+``Size_Attribute_For_Types``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Size_Attribute_For_Types
+
+Flag any 'Size attribute reference if its prefix denotes a type or a subtype.
+Attribute references that are subcomponents of attribute definition clauses of
+aspect specifications are not flagged.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 6
+
+   type T is record
+      I : Integer;
+      B : Boolean;
+   end record;
+
+   Size_Of_T : constant Integer := T'Size  --  FLAG
+
+
+
 .. _SPARK_Procedures_Without_Globals:
 
 ``SPARK_Procedures_Without_Globals``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. index:: Separates
+.. index:: SPARK_Procedures_Without_Globals
 
 Flags SPARK procedures that don't have a global aspect.
 
@@ -4858,10 +4811,41 @@ This rule has no parameters.
 
 
 
+.. _Suspicious_Equalities:
+
+``Suspicious_Equalities``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Suspicious_Equalities
+
+Flag 'or' expressions whose left and right operands are unequalities
+referencing the same entity and a literal and 'and' expressions whose left and
+right operands are equalities referencing the same entity and a literal.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 4, 7
+
+   procedure tmp is
+      X : Integer := 0;
+   begin
+      if X /= 1 or x /= 2 then -- FLAG
+         null;
+      end;
+      if x = 1 and then X = 2 then -- Flag
+         null;
+      end;
+   end;
+
+
+
 .. _Trivial_Exception_Handlers:
 
 ``Trivial_Exception_Handlers``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: Trivial_Exception_Handlers
 
@@ -4887,6 +4871,7 @@ This rule has no parameters.
       when others =>
          null;
    end;
+
 
 
 .. _Unavailable_Body_Calls:
@@ -5014,36 +4999,6 @@ This rule has no parameters.
    begin
       Ident (UC (Var1), Var2);                              --  FLAG
    end Bar;
-
-
-
-.. _Unconditional_Exits:
-
-``Unconditional_Exits``
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Unconditional_Exits
-
-Flag unconditional ``exit`` statements.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 8
-
-   procedure Find_A (S : String; Idx : out Natural) is
-   begin
-      Idx := 0;
-
-      for J in S'Range loop
-         if S (J) = 'A' then
-            Idx := J;
-            exit;             --  FLAG
-         end if;
-      end loop;
-   end Find_A;
 
 
 
@@ -5215,54 +5170,6 @@ This rule has no parameters.
    else
       I := 0;
    end if;
-
-
-
-.. _USE_Clauses:
-
-``USE_Clauses``
-^^^^^^^^^^^^^^^
-
-.. index:: USE_Clauses
-
-Flag names mentioned in use clauses. Use type clauses and names mentioned
-in them are not flagged.
-
-This rule has the following optional parameter for the ``+R`` option and for
-LKQL rule options files:
-
-*Exempt_Operator_Packages: bool*
-   If ``true``, do not flag a package name in a package use clause if it refers
-   to a package that only declares operators in its visible part.
-
-.. note::
-   This rule has another parameter, only available when using an LKQL rule
-   options file: ``allowed``. It is a list of Ada names describing packages
-   to exempt from begin flagged when used in "use" clauses. Strings in this
-   list are case insensitive. Example:
-
-   .. code-block:: lkql
-
-      val rules = @{
-         Use_Clauses: {Allowed: ["Ada.Strings.Unbounded", "Other.Package"]}
-      }
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 10, 11
-
-   package Pack is
-      I : Integer;
-   end Pack;
-
-   package Operator_Pack is
-      function "+" (L, R : Character) return Character;
-   end Operator_Pack;
-
-   with Pack, Operator_Pack;
-   use Pack;                   --  FLAG if "Pack" is not in Allowed
-   use Operator_Pack;          --  FLAG only if Exempt_Operator_Packages is false
 
 
 
@@ -5734,13 +5641,15 @@ same as the parameters of the rule itself.
 
 .. _Readability:
 
-Readability
------------
+``Readability``
+---------------
 
-.. index:: Readability-related rules
+.. index:: Readability-related_rules
 
 The rules described in this subsection may be used to enforce feature usages
 that contribute towards readability.
+
+
 
 .. _End_Of_Line_Comments:
 
@@ -6137,10 +6046,6 @@ the definition of exemption sections are:
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: Identifier_Suffixes
-.. index:: Misnamed_Identifiers
-
-Because of upward compatibility reasons this rule has a synonym
-``Misnamed_Identifiers``.
 
 Flag the declaration of each identifier that does not have a suffix
 corresponding to the kind of entity being declared.
@@ -6565,6 +6470,35 @@ This rule has no parameters.
 
 
 
+.. _Profile_Discrepancies:
+
+``Profile_Discrepancies``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Profile_Discrepancies
+
+Flag subprogram or entry body (or body stub) if its parameter (or
+parameter and result) profile does not follow the lexical structure
+of the profile in the corresponding subprogram or entry declaration.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 8
+
+   package Pack is
+      procedure Proc
+        (I : Integer;
+         J : Integer);
+   end Pack;
+
+   package body Pack is
+      procedure Proc (I, J : Integer) is    --  FLAG
+
+
+
 .. _Style_Checks:
 
 ``Style_Checks``
@@ -6739,10 +6673,11 @@ for LKQL rule options files:
    end record;       -- FLAG
 
 
-Feature Usage Rules
-===================
 
-.. index:: Feature usage related rules
+``Feature-Related Rules``
+=========================
+
+.. index:: Feature-Related_Rules
 
 The rules in this section can be used to enforce specific
 usage patterns for a variety of language features.
@@ -7301,6 +7236,27 @@ This rule has no parameters.
 
 
 
+.. _Enumeration_Representation_Clauses:
+
+``Enumeration_Representation_Clauses``
+--------------------------------------
+
+.. index:: Enumeration_Representation_Clauses
+
+Flag enumeration representation clauses.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   type Enum1 is (A1, B1, C1);
+   for Enum1 use (A1 => 1, B1 => 11, C1 => 111);     --  FLAG
+
+
+
 .. _Explicit_Full_Discrete_Ranges:
 
 ``Explicit_Full_Discrete_Ranges``
@@ -7360,7 +7316,7 @@ This rule has no parameters.
 .. _Expression_Functions:
 
 ``Expression_Functions``
----------------------------------
+------------------------
 
 .. index:: Expression_Functions
 
@@ -7495,7 +7451,7 @@ This rule has no parameters.
 .. _Generic_IN_OUT_Objects:
 
 ``Generic_IN_OUT_Objects``
----------------------------
+--------------------------
 
 .. index:: Generic_IN_OUT_Objects
 
@@ -7618,7 +7574,7 @@ This rule has no parameters.
 .. _Membership_Tests:
 
 ``Membership_Tests``
----------------------------
+--------------------
 
 .. index:: Membership_Tests
 
@@ -7930,7 +7886,7 @@ rule parameters are listed above.
 .. _Predicate_Testing:
 
 ``Predicate_Testing``
----------------------------
+---------------------
 
 .. index:: Predicate_Testing
 
@@ -8002,90 +7958,6 @@ is from the following list:
       subtype Small_Even is Even range -100 .. 100;
 
       B1 : Boolean := Ident (101) in Small_Even;      --  FLAG
-
-
-
-.. _Relative_Delay_Statements:
-
-``Relative_Delay_Statements``
-----------------------------------
-
-.. index:: Relative_Delay_Statements
-
-Relative delay statements are flagged. Delay until statements are not
-flagged.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 4
-
-   if I > 0 then
-      delay until Current_Time + Big_Delay;
-   else
-      delay Small_Delay;                      --  FLAG
-   end if;
-
-
-
-.. _Renamings:
-
-``Renamings``
--------------
-
-.. index:: Renamings
-
-Flag renaming declarations.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 2
-
-   I : Integer;
-   J : Integer renames I;     --  FLAG
-
-
-
-.. _Representation_Specifications:
-
-``Representation_Specifications``
-----------------------------------
-
-.. index:: Representation_Specifications
-
-Flag each record representation clause, enumeration representation
-clause and representation attribute clause. Flag each aspect definition
-that defines a representation aspect. Also flag any pragma that is
-classified by the Ada Standard as a representation pragma, and the
-definition of the corresponding aspects.
-
-The rule has an optional parameter for the ``+R`` option and for LKQL rule
-options files:
-
-*Record_Rep_Clauses_Only: bool*
-   If ``true``, only record representation clauses are flagged.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 5, 8, 11
-
-   type State         is (A,M,W,P);
-   type Mode          is (Fix, Dec, Exp, Signif);
-
-   type Byte_Mask     is array (0..7)  of Boolean
-     with Component_Size => 1;                                --  FLAG
-
-   type State_Mask    is array (State) of Boolean
-     with Component_Size => 1;                                --  FLAG
-
-   type Mode_Mask     is array (Mode)  of Boolean;
-   for Mode_Mask'Component_Size use 1;                        --  FLAG
 
 
 
@@ -8229,6 +8101,90 @@ This rule has no parameters.
 
 
 
+.. _Relative_Delay_Statements:
+
+``Relative_Delay_Statements``
+-----------------------------
+
+.. index:: Relative_Delay_Statements
+
+Relative delay statements are flagged. Delay until statements are not
+flagged.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 4
+
+   if I > 0 then
+      delay until Current_Time + Big_Delay;
+   else
+      delay Small_Delay;                      --  FLAG
+   end if;
+
+
+
+.. _Renamings:
+
+``Renamings``
+-------------
+
+.. index:: Renamings
+
+Flag renaming declarations.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   I : Integer;
+   J : Integer renames I;     --  FLAG
+
+
+
+.. _Representation_Specifications:
+
+``Representation_Specifications``
+---------------------------------
+
+.. index:: Representation_Specifications
+
+Flag each record representation clause, enumeration representation
+clause and representation attribute clause. Flag each aspect definition
+that defines a representation aspect. Also flag any pragma that is
+classified by the Ada Standard as a representation pragma, and the
+definition of the corresponding aspects.
+
+The rule has an optional parameter for the ``+R`` option and for LKQL rule
+options files:
+
+*Record_Rep_Clauses_Only: bool*
+   If ``true``, only record representation clauses are flagged.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 5, 8, 11
+
+   type State         is (A,M,W,P);
+   type Mode          is (Fix, Dec, Exp, Signif);
+
+   type Byte_Mask     is array (0..7)  of Boolean
+     with Component_Size => 1;                                --  FLAG
+
+   type State_Mask    is array (State) of Boolean
+     with Component_Size => 1;                                --  FLAG
+
+   type Mode_Mask     is array (Mode)  of Boolean;
+   for Mode_Mask'Component_Size use 1;                        --  FLAG
+
+
+
 .. _Separates:
 
 ``Separates``
@@ -8311,37 +8267,6 @@ This rule has no parameters.
    procedure Proc
      (I       : Integer;
       Process : access procedure (J : in out Integer));  --  FLAG
-
-
-
-.. _Suspicious_Equalities:
-
-``Suspicious_Equalities``
--------------------------
-
-.. index:: Suspicious_Equalities
-
-Flag 'or' expressions whose left and right operands are unequalities
-referencing the same entity and a literal and 'and' expressions whose left and
-right operands are equalities referencing the same entity and a literal.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 4, 7
-
-   procedure tmp is
-      X : Integer := 0;
-   begin
-      if X /= 1 or x /= 2 then -- FLAG
-         null;
-      end;
-      if x = 1 and then X = 2 then -- Flag
-         null;
-      end;
-   end;
 
 
 
@@ -8437,6 +8362,36 @@ options files:
 
 
 
+.. _Unconditional_Exits:
+
+``Unconditional_Exits``
+-----------------------
+
+.. index:: Unconditional_Exits
+
+Flag unconditional ``exit`` statements.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 8
+
+   procedure Find_A (S : String; Idx : out Natural) is
+   begin
+      Idx := 0;
+
+      for J in S'Range loop
+         if S (J) = 'A' then
+            Idx := J;
+            exit;             --  FLAG
+         end if;
+      end loop;
+   end Find_A;
+
+
+
 .. _Unconstrained_Array_Returns:
 
 ``Unconstrained_Array_Returns``
@@ -8498,10 +8453,58 @@ This rule has no parameters.
 
 
 
-Metrics-Related Rules
-=====================
+.. _USE_Clauses:
 
-.. index:: Metrics-related rules
+``USE_Clauses``
+---------------
+
+.. index:: USE_Clauses
+
+Flag names mentioned in use clauses. Use type clauses and names mentioned
+in them are not flagged.
+
+This rule has the following optional parameter for the ``+R`` option and for
+LKQL rule options files:
+
+*Exempt_Operator_Packages: bool*
+   If ``true``, do not flag a package name in a package use clause if it refers
+   to a package that only declares operators in its visible part.
+
+.. note::
+   This rule has another parameter, only available when using an LKQL rule
+   options file: ``allowed``. It is a list of Ada names describing packages
+   to exempt from begin flagged when used in "use" clauses. Strings in this
+   list are case insensitive. Example:
+
+   .. code-block:: lkql
+
+      val rules = @{
+         Use_Clauses: {Allowed: ["Ada.Strings.Unbounded", "Other.Package"]}
+      }
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 10, 11
+
+   package Pack is
+      I : Integer;
+   end Pack;
+
+   package Operator_Pack is
+      function "+" (L, R : Character) return Character;
+   end Operator_Pack;
+
+   with Pack, Operator_Pack;
+   use Pack;                   --  FLAG if "Pack" is not in Allowed
+   use Operator_Pack;          --  FLAG only if Exempt_Operator_Packages is false
+
+
+
+``Metrics-Related Rules``
+=========================
+
+.. index:: Metrics-Related_Rules
 
 The rules in this section can be used to enforce compliance with
 specific code metrics, by checking that the metrics computed for a program
@@ -8536,45 +8539,6 @@ use the following option:
 ::
 
   -RMetrics_Cyclomatic_Complexity
-
-
-
-.. _Metrics_Essential_Complexity:
-
-``Metrics_Essential_Complexity``
---------------------------------
-
-.. index:: Metrics_Essential_Complexity
-
-The ``Metrics_Essential_Complexity`` rule takes a positive integer as
-upper bound.  A program unit that is an executable body exceeding this limit will be flagged.
-
-The Ada essential complexity metric is a McCabe cyclomatic complexity metric counted
-for the code that is reduced by excluding all the pure structural Ada control statements.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 2
-
-   --  if the rule parameter is 3 or less
-   procedure Proc (I : in out Integer; S : String) is   --  FLAG
-   begin
-      if I in 1 .. 10 then
-         for J in S'Range loop
-
-            if S (J) = ' ' then
-               if I > 10 then
-                  exit;
-               else
-                  I := 10;
-               end if;
-            end if;
-
-            I := I + Character'Pos (S (J));
-         end loop;
-      end if;
-   end Proc;
 
 
 
@@ -8629,6 +8593,45 @@ of tests needed to satisfy paths coverage testing completeness criterion.
 
 
 
+.. _Metrics_Essential_Complexity:
+
+``Metrics_Essential_Complexity``
+--------------------------------
+
+.. index:: Metrics_Essential_Complexity
+
+The ``Metrics_Essential_Complexity`` rule takes a positive integer as
+upper bound.  A program unit that is an executable body exceeding this limit will be flagged.
+
+The Ada essential complexity metric is a McCabe cyclomatic complexity metric counted
+for the code that is reduced by excluding all the pure structural Ada control statements.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   --  if the rule parameter is 3 or less
+   procedure Proc (I : in out Integer; S : String) is   --  FLAG
+   begin
+      if I in 1 .. 10 then
+         for J in S'Range loop
+
+            if S (J) = ' ' then
+               if I > 10 then
+                  exit;
+               else
+                  I := 10;
+               end if;
+            end if;
+
+            I := I + Character'Pos (S (J));
+         end loop;
+      end if;
+   end Proc;
+
+
+
 .. _Metrics_LSLOC:
 
 ``Metrics_LSLOC``
@@ -8669,10 +8672,10 @@ LKQL rule options files:
 
 
 
-SPARK 2005 Rules
-================
+``SPARK-Related Rules``
+=======================
 
-.. index:: SPARK related rules
+.. index:: SPARK-Related_Rules
 
 The rules in this section can be used to enforce
 compliance with the Ada subset allowed by the SPARK 2005 language.
@@ -9020,3 +9023,6 @@ This rule has no parameters.
 
    S1 : String (L .. 10);
    S2 : String (1 .. 10);     --  FLAG
+
+
+
