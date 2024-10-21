@@ -1,7 +1,7 @@
 import metrics
 
 @unit_check(help="Logical source lines", execution_cost=3,
-            rule_name="Metrics_LSLOC")
+            rule_name="Metrics_LSLOC", category="Metrics")
 fun metrics_lsloc(unit, n : int = 5, subprograms=false) =
     |" The ``Metrics_LSLOC`` rule takes a positive integer as
     |" upper bound.  A program unit declaration or a program unit body exceeding

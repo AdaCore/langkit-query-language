@@ -1,6 +1,6 @@
 import metrics
 
-@unit_check(help="essential complexity", execution_cost=3)
+@unit_check(help="essential complexity", execution_cost=3, category="Metrics")
 fun metrics_essential_complexity(unit, n : int = 3) =
     |" The ``Metrics_Essential_Complexity`` rule takes a positive integer as
     |" upper bound.  A program unit that is an executable body exceeding this limit will be flagged.
