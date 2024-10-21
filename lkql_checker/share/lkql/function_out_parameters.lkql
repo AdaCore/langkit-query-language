@@ -1,0 +1,38 @@
+import stdlib
+
+@check(message="function has output parameter(s)",
+       category="Style",
+       subcategory="Programming Practice",
+       rule_name="Function_OUT_Parameters")
+fun function_out_parameters(node) =
+    |" Flag any function declaration, function body declaration, expression function
+    |" declaration, function body stub, or generic function declaration which has at
+    |" least one formal parameter of mode ``out`` or ``in out``.
+    |"
+    |" A function body declaration or function body stub is only flagged if there is
+    |" no separate declaration for this function.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2, 3, 4
+    |"
+    |"    function F_1 (I : Integer) return Integer;
+    |"    function F_2 (I : out Integer) return Integer;        --  FLAG
+    |"    function F_3 (I : in out Integer) return Integer;     --  FLAG
+    |"    function F_4 (I : in out Integer) return Integer is   --  FLAG
+    |"      (I + 42);
+    |"
+    |"    function F_2 (I : out Integer) return Integer is      --  NOFLAG (declaration has already been flagged)
+    |"    begin
+    |"       return 0;
+    |"    end F_2;
+    node is (SubpBody | ExprFunction | SubpBodyStub | ClassicSubpDecl | GenericSubpInternal)
+    when (if not node is (ClassicSubpDecl | GenericSubpInternal)
+          then not node.p_previous_part())
+    and node.f_subp_spec.f_subp_kind is SubpKindFunction
+    and stdlib.any([
+        p
+        for p in node.f_subp_spec.p_params()
+        if p.f_mode is (ModeInOut | ModeOut)
+    ])
