@@ -17,7 +17,8 @@ import picocli.CommandLine.Command;
             LKQLLauncher.LKQLRun.class,
             LKQLChecker.Args.class,
             GNATCheckWorker.Args.class,
-            LKQLDocAPI.class
+            LKQLDocAPI.class,
+            LKQLDocRules.class
         },
         description =
                 "Unified driver for LKQL (Langkit query language). Allows you to run LKQL "
