@@ -676,8 +676,7 @@ package body Gnatcheck.Projects is
         (Switches_Attr,
          "Index is a language name. Value is a " &
            "list of switches to be used when invoking 'gnatcheck' for a " &
-           "source of the language, if there is no applicable attribute " &
-           "Switches.");
+           "source of the language.");
       Add_Alias (Name     => Default_Switches_Attr,
                  Alias_Of => Switches_Attr);
       GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
