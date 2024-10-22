@@ -307,8 +307,8 @@ case of non-aggregate argument project file.
 
 .. _LKQL_options_file:
 
-LKQL rule options file
-======================
+LKQL Rule Files
+===============
 
 You can configure GNATcheck rules using an LKQL file, provided through the
 ``--rule-file`` command-line option.
