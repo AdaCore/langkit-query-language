@@ -305,6 +305,52 @@ one (non-aggregate) project, the gnatcheck behavior is the same as for the
 case of non-aggregate argument project file.
 
 
+.. _Check_GPR_Package:
+
+The *Check* GPR Package
+=======================
+
+In addition to the command-line options, you can use attributes offered by the
+``Check`` package to configure a GNATcheck run. In order to do this you may add
+the ``Check`` package in the GPR file you're providing to GNATcheck through the
+``-P`` command line options, example given:
+
+.. code-block:: ada
+
+  project My_Project is
+     package Check is
+        ...
+     end Check;
+  end My_Project;
+
+Inside this package you can define the following attributes to configure
+GNATcheck:
+
+* ``Switches``
+  Index is a language name. Value is a list of additional switches to be used
+  when invoking ``gnatcheck``.
+
+  .. attention::
+
+    There are several command-line switches that you cannot pass through the
+    ``Switches`` attribute:
+
+    * ``-P``
+    * ``-U``
+    * ``-Xname=value``
+    * ``-eL``
+    * ``-r, --rule [rule_name]``
+    * ``--rule-file=filename``
+
+    If you're providing one of those switches through the ``Switches`` or the
+    ``Default_Switches`` attribute, GNATcheck will raise an error message and
+    exit with an error code.
+
+* ``Default_Switches``
+  Same as ``Switches``, but provided additional switches will apply only if
+  there is no applicable ``Switches`` attribute.
+
+
 .. _LKQL_options_file:
 
 LKQL Rule Files
