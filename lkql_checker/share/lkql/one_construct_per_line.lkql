@@ -26,7 +26,7 @@ fun one_construct_per_line(node) =
                        LabelDecl | GenericSubpInternal |
                        ConcreteFormalSubpDecl |
                        ExtendedReturnStmtObjectDecl |
-                       NamedStmtDecl))
+                       NamedStmtDecl | AcceptStmtBody))
      and (node.token_end().end_line ==
           stdlib.next_non_blank_token_line(node.token_end())
           or node.token_start().start_line ==
