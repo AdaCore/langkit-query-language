@@ -185,41 +185,38 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         final Liblkqllang.AnalysisUnit unit;
         TopLevelList result;
 
-        {
-            if (request.getSource().getPath() == null) {
-                unit =
-                        lkqlAnalysisContext.getUnitFromBuffer(
-                                request.getSource().getCharacters().toString(), "<command-line>");
-            } else {
-                unit = lkqlAnalysisContext.getUnitFromFile(request.getSource().getPath());
-            }
-
-            // Verify the parsing result
-            final var diagnostics = unit.getDiagnostics();
-            if (diagnostics.length > 0) {
-                var ctx = LKQLLanguage.getContext(null);
-
-                // Iterate over diagnostics
-                for (Liblkqllang.Diagnostic diagnostic : diagnostics) {
-                    ctx.getDiagnosticEmitter()
-                            .emitDiagnostic(
-                                    CheckerUtils.MessageKind.ERROR,
-                                    diagnostic.message.toString(),
-                                    null,
-                                    SourceSectionWrapper.create(
-                                            diagnostic.sourceLocationRange, request.getSource()));
-                }
-                throw LKQLRuntimeException.fromMessage(
-                        "Syntax errors in " + unit.getFileName(false) + ": stopping interpreter");
-            }
-
-            // Get the LKQL langkit AST
-            final Liblkqllang.TopLevelList lkqlLangkitRoot =
-                    (Liblkqllang.TopLevelList) unit.getRoot();
-
-            // Translate the LKQL AST from Langkit to a Truffle AST
-            result = (TopLevelList) translate(lkqlLangkitRoot, request.getSource());
+        if (request.getSource().getPath() == null) {
+            unit =
+                    lkqlAnalysisContext.getUnitFromBuffer(
+                            request.getSource().getCharacters().toString(), "<command-line>");
+        } else {
+            unit = lkqlAnalysisContext.getUnitFromFile(request.getSource().getPath());
         }
+
+        // Verify the parsing result
+        final var diagnostics = unit.getDiagnostics();
+        if (diagnostics.length > 0) {
+            var ctx = LKQLLanguage.getContext(null);
+
+            // Iterate over diagnostics
+            for (Liblkqllang.Diagnostic diagnostic : diagnostics) {
+                ctx.getDiagnosticEmitter()
+                        .emitDiagnostic(
+                                CheckerUtils.MessageKind.ERROR,
+                                diagnostic.message.toString(),
+                                null,
+                                SourceSectionWrapper.create(
+                                        diagnostic.sourceLocationRange, request.getSource()));
+            }
+            throw LKQLRuntimeException.fromMessage(
+                    "Syntax errors in " + unit.getFileName(false) + ": stopping interpreter");
+        }
+
+        // Get the LKQL langkit AST
+        final Liblkqllang.TopLevelList lkqlLangkitRoot = (Liblkqllang.TopLevelList) unit.getRoot();
+
+        // Translate the LKQL AST from Langkit to a Truffle AST
+        result = (TopLevelList) translate(lkqlLangkitRoot, request.getSource());
 
         // Print the Truffle AST if the JIT is in debug mode
         if (getContext(result).isVerbose()) {
@@ -231,7 +228,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         }
 
         // Return the call target
-        return new TopLevelRootNode(result, this).getCallTarget();
+        return new TopLevelRootNode(request.getSource().isInternal(), result, this).getCallTarget();
     }
 
     /**
@@ -255,7 +252,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                                 .getUnitFromBuffer(PRELUDE_SOURCE, "<prelude>")
                                 .getRoot();
                 var preludeRoot = (TopLevelList) translate(root, preludeSource, true);
-                var callTarget = new TopLevelRootNode(preludeRoot, this).getCallTarget();
+                var callTarget = new TopLevelRootNode(true, preludeRoot, this).getCallTarget();
                 global.prelude = (LKQLNamespace) callTarget.call();
                 var preludeMap = global.prelude.asMap();
 
@@ -278,10 +275,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         // Do the translation pass and return the result
         final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
-
-        var res = lkqlLangkitRoot.accept(translationPass);
-
-        return res;
+        return lkqlLangkitRoot.accept(translationPass);
     }
 
     public LKQLNode translate(final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source) {
