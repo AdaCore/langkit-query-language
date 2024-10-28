@@ -3,8 +3,10 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit;
+package com.adacore.lkql_jit.cli;
 
+import com.adacore.lkql_jit.LKQLOptions;
+import com.adacore.lkql_jit.RuleInstance;
 import java.util.*;
 import java.util.concurrent.Callable;
 import org.graalvm.launcher.AbstractLanguageLauncher;
