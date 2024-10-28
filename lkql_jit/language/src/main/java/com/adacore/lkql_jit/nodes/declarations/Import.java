@@ -110,6 +110,7 @@ public final class Import extends LKQLNode {
                                     Constants.LKQL_ID,
                                     context.getEnv()
                                             .getPublicTruffleFile(moduleFile.getAbsolutePath()))
+                            .internal(true)
                             .build();
 
             // Get the current context and parse the file with the internal strategy

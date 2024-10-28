@@ -12,7 +12,6 @@ import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.Value;
 import picocli.CommandLine;
 
 /**
@@ -92,8 +91,7 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
         int exitCode;
         try (Context context = contextBuilder.build()) {
             final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql").build();
-            final Value executable = context.parse(source);
-            executable.executeVoid(true);
+            context.eval(source);
             exitCode = 0;
         } catch (Exception e) {
             if (e instanceof PolyglotException pe && pe.isExit()) {

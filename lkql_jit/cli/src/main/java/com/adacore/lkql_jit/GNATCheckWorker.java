@@ -245,8 +245,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
             final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql").build();
-            final Value executable = context.parse(source);
-            executable.executeVoid(true);
+            context.eval(source);
             return 0;
         } catch (Exception e) {
             System.out.println(e.getMessage());
