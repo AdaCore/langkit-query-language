@@ -22,6 +22,8 @@ tests:
   lkql_rule_file: not_existing.lkql
 - label: Missing mandatory parameter
   lkql_rule_file: missing_param.lkql
+- label: Missing mandatory parameter on instance
+  lkql_rule_file: missing_param_instance.lkql
 - label: Extra parameter
   lkql_rule_file: extra_param.lkql
 - label: Multiple instance with the same name
