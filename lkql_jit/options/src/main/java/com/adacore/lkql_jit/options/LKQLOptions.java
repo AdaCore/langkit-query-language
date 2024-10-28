@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit;
+package com.adacore.lkql_jit.options;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -165,6 +165,32 @@ public record LKQLOptions(
 
         /** Use a GNATCheck-compliant format: "{file}:{line}:{col} check: {message} [{check}]". */
         GNATCHECK
+    }
+
+    /** This enum represents the mode for the auto fixes application. */
+    public enum AutoFixMode {
+        /** Display the patched analysis unit to stdout. */
+        DISPLAY,
+
+        /** Create a new file alongside the original one, containing the patched analysis unit. */
+        NEW_FILE,
+
+        /** Replace the content of the original file with the patched analysis unit. */
+        PATCH_FILE
+    }
+
+    /** Represents the mode the LKQL engine runs on. */
+    public enum EngineMode {
+        /** LKQL engine is just going to run the provided LKQL script, without doing more. */
+        INTERPRETER,
+
+        /** LKQL engine will seek for defined rules and make them accessible. */
+        CHECKER,
+
+        /**
+         * LKQL engine will seek for rules and check that they all define an auto-fixing function.
+         */
+        FIXER
     }
 
     /** Util class to build a new LKQL options object. */

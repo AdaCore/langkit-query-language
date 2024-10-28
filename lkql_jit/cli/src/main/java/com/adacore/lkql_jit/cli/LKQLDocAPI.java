@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.cli;
 
-import com.adacore.lkql_jit.LKQLOptions;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.FileSystems;

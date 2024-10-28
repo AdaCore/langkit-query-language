@@ -114,6 +114,12 @@
             <artifactId>libadalang</artifactId>
             <version>${config.libadalangVersion}</version>
         </dependency>
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>options</artifactId>
+            <version>0.1.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

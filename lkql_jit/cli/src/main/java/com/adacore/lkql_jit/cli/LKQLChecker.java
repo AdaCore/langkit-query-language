@@ -5,8 +5,7 @@
 
 package com.adacore.lkql_jit.cli;
 
-import com.adacore.lkql_jit.EngineMode;
-import com.adacore.lkql_jit.LKQLOptions;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import picocli.CommandLine;
 
 /**
@@ -44,6 +43,9 @@ public class LKQLChecker extends BaseLKQLChecker {
 
     @Override
     protected LKQLOptions getOptions() {
-        return getBaseOptionsBuilder().engineMode(EngineMode.CHECKER).checkerDebug(true).build();
+        return getBaseOptionsBuilder()
+                .engineMode(LKQLOptions.EngineMode.CHECKER)
+                .checkerDebug(true)
+                .build();
     }
 }

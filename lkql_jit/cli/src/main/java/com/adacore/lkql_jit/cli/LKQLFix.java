@@ -5,9 +5,7 @@
 
 package com.adacore.lkql_jit.cli;
 
-import com.adacore.lkql_jit.AutoFixMode;
-import com.adacore.lkql_jit.EngineMode;
-import com.adacore.lkql_jit.LKQLOptions;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import java.util.Arrays;
 import java.util.Iterator;
 import picocli.CommandLine;
@@ -33,7 +31,7 @@ public class LKQLFix extends BaseLKQLChecker {
                         "Mode to apply auto fixes (default is DISPLAY)"
                                 + "%nPossible values: ${COMPLETION-CANDIDATES}",
                 completionCandidates = AutoFixModeCompletion.class)
-        public AutoFixMode autoFixMode = AutoFixMode.DISPLAY;
+        public LKQLOptions.AutoFixMode autoFixMode = LKQLOptions.AutoFixMode.DISPLAY;
 
         @Override
         public Integer call() {
@@ -46,7 +44,7 @@ public class LKQLFix extends BaseLKQLChecker {
     public static class AutoFixModeCompletion implements Iterable<String> {
         @Override
         public Iterator<String> iterator() {
-            return Arrays.stream(AutoFixMode.values()).map(Object::toString).iterator();
+            return Arrays.stream(LKQLOptions.AutoFixMode.values()).map(Object::toString).iterator();
         }
     }
 
@@ -61,7 +59,7 @@ public class LKQLFix extends BaseLKQLChecker {
     @Override
     protected LKQLOptions getOptions() {
         return getBaseOptionsBuilder()
-                .engineMode(EngineMode.FIXER)
+                .engineMode(LKQLOptions.EngineMode.FIXER)
                 .checkerDebug(true)
                 .autoFixMode(((Args) args).autoFixMode)
                 .build();
