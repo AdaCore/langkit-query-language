@@ -1,0 +1,36 @@
+import stdlib
+
+fun is_declared_in_parent_subp(name, subp_body) =
+    |" Returns whether the given name is declared in a parent subprogram of the
+    |" given subprogram body. If the name is declared in a pacakge body, this
+    |" function returns false.
+    stdlib.ultimate_alias(name) is decl@BasicDecl
+    when {
+        val parent = from decl
+                     through stdlib.semantic_parent
+                     select first (BaseSubpBody);
+        parent is BaseSubpBody and parent in stdlib.semantic_parent(subp_body)
+    }
+
+fun is_composite_object(name) =
+    |" Returns whether the given name and its declaration refers to a composite
+    |" object.
+    {
+        val name_expr = name.p_expression_type().p_root_type().p_full_view();
+        name_expr.p_is_array_type() or name_expr.p_is_record_type()
+    }
+
+@check(help="possible occurrence of KP 19529",
+       message="possible occurrence of KP 19529",
+       impact="24.*")
+fun kp_19529(node) =
+    |" Flag assign statement between two composite objects that are declared
+    |" in a subprogram and assigned in a nested sub-program.
+    node is AssignStmt
+    when {
+        val assign_subp = from node through stdlib.semantic_parent select first BaseSubpBody;
+        stdlib.all([
+            n is Name and is_composite_object(n) and is_declared_in_parent_subp(n, assign_subp)
+            for n in [node.f_dest, node.f_expr]
+        ])
+    }
