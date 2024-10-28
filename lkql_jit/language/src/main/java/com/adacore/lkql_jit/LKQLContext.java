@@ -13,6 +13,8 @@ import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.options.LKQLOptions;
+import com.adacore.lkql_jit.options.RuleInstance;
 import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
@@ -250,7 +252,7 @@ public final class LKQLContext {
         return this.options;
     }
 
-    public EngineMode getEngineMode() {
+    public LKQLOptions.EngineMode getEngineMode() {
         return this.getOptions().engineMode();
     }
 
@@ -327,7 +329,7 @@ public final class LKQLContext {
     }
 
     @CompilerDirectives.TruffleBoundary
-    public AutoFixMode getAutoFixMode() {
+    public LKQLOptions.AutoFixMode getAutoFixMode() {
         return this.getOptions().autoFixMode();
     }
 
@@ -709,7 +711,7 @@ public final class LKQLContext {
                 }
 
                 // If the engine is in "fixer" mode, check that the rule has an auto-fixing function
-                if (getEngineMode() == EngineMode.FIXER && checker.autoFix == null) {
+                if (getEngineMode() == LKQLOptions.EngineMode.FIXER && checker.autoFix == null) {
                     throw LKQLRuntimeException.fromMessage(
                             "Rule \""
                                     + instance.ruleName()

@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.cli;
 
-import com.adacore.lkql_jit.LKQLOptions;
-import com.adacore.lkql_jit.RuleInstance;
+import com.adacore.lkql_jit.options.LKQLOptions;
+import com.adacore.lkql_jit.options.RuleInstance;
 import java.util.*;
 import java.util.concurrent.Callable;
 import org.graalvm.launcher.AbstractLanguageLauncher;
