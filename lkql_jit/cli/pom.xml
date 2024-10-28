@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.adacore.lkql_jit.LKQLMain</mainClass>
+                            <mainClass>com.adacore.lkql_jit.cli.LKQLMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

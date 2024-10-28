@@ -93,7 +93,7 @@ if __name__ == "__main__":
         final_cmd = cmd + [
             "-cp",
             os.pathsep.join([language_jar, cli_jar]),
-            f"com.adacore.lkql_jit.LKQLMain",
+            f"com.adacore.lkql_jit.cli.LKQLMain",
             P.join("bin", "lkql"),
         ]
 

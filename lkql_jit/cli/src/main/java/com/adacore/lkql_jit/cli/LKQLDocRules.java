@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit;
+package com.adacore.lkql_jit.cli;
 
 import static com.adacore.liblkqllang.Liblkqllang.*;
 
