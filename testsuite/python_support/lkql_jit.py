@@ -39,5 +39,5 @@ if __name__ == '__main__':
         f'-Djava.library.path={java_library_path}',
         f'-Dtruffle.class.path.append={P.join(lkql_jit_home, "lkql_jit.jar")}',
         '--add-opens=org.graalvm.truffle/com.oracle.truffle.api.strings=ALL-UNNAMED',
-        f'com.adacore.lkql_jit.LKQLMain'
+        'com.adacore.lkql_jit.cli.LKQLMain'
     ] + sys.argv[1:])
