@@ -1062,8 +1062,8 @@ package body Gnatcheck.Rules.Rule_Table is
             return;
          elsif not Enable and then Instance = null then
             Error
-              ("rule instance doesn't exist, therefore, cannot be " &
-               "disabled: """ & To_String (Instance_Name) & """"     &
+              ("""" & To_String (Instance_Name) & """ is not enabled, " &
+               "therefore, cannot be disabled"                          &
                Diag_Defined_At);
             Bad_Rule_Detected := True;
             return;
@@ -1162,8 +1162,11 @@ package body Gnatcheck.Rules.Rule_Table is
         Expect (Instance_Object, "sourceMode");
       Params_Object : JSON_Value := Instance_Object.Get ("arguments");
 
-      function Real_Instance_Name return String is
-        (if Instance_Name /= "" then Instance_Name else Rule_Name);
+      function Precise_Rule_Name return String is
+        ("""" & Rule_Name & """" &
+           (if Instance_Name /= ""
+            then " (instance """ & Instance_Name & """)"
+            else ""));
 
       procedure Error_In_Rule_File (Msg : String);
       --  Emit a GNATcheck error when there is an error during the processing
@@ -1196,7 +1199,7 @@ package body Gnatcheck.Rules.Rule_Table is
          pragma Unreferenced (Arg_Value);
       begin
          Error_In_Rule_File
-           ("extra argument for instance " & Real_Instance_Name &
+           ("extra argument for rule " & Precise_Rule_Name &
             ": '" & Arg_Name & "'");
       end Report_Extra_Arg;
 
@@ -1270,15 +1273,15 @@ package body Gnatcheck.Rules.Rule_Table is
    exception
       when E : Field_Not_Found =>
          Error_In_Rule_File
-           ("missing parameter for instance " & Real_Instance_Name & ": '" &
-            Exception_Message (E) & "'");
+           ("missing '" & Exception_Message (E) & "' parameter for rule " &
+            Precise_Rule_Name);
       when E : Invalid_Type =>
          Error_In_Rule_File
-           ("invalid parameter for instance " & Real_Instance_Name & ": " &
+           ("invalid parameter for rule " & Precise_Rule_Name & ": " &
             Exception_Message (E));
       when E : Invalid_Value =>
          Error_In_Rule_File
-           ("invalid parameter value for instance " & Real_Instance_Name &
+           ("invalid parameter value for rule " & Precise_Rule_Name &
             ": " & Exception_Message (E));
    end Process_Rule_Object;
 
