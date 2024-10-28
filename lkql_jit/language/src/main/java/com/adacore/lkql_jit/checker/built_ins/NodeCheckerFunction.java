@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.checker.built_ins;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.EngineMode;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -17,6 +16,7 @@ import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -171,7 +171,8 @@ public final class NodeCheckerFunction {
             }
 
             // If the engine is in fixing mode and the current unit has some modification
-            if (context.getEngineMode() == EngineMode.FIXER && context.hasRewritingContext()) {
+            if (context.getEngineMode() == LKQLOptions.EngineMode.FIXER
+                    && context.hasRewritingContext()) {
                 // Apply the current rewriting context
                 final var applyRes = context.applyOrCloseRewritingContext();
                 if (!applyRes.success) {
@@ -331,9 +332,10 @@ public final class NodeCheckerFunction {
             }
 
             if (ruleResult) {
-                if (context.getEngineMode() == EngineMode.CHECKER) {
+                if (context.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
                     reportViolation(context, checker, node);
-                } else if (context.getEngineMode() == EngineMode.FIXER && checker.autoFix != null) {
+                } else if (context.getEngineMode() == LKQLOptions.EngineMode.FIXER
+                        && checker.autoFix != null) {
                     callAutoFix(
                             context, context.getRewritingContext(), interopLibrary, checker, node);
                 }

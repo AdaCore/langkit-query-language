@@ -5,8 +5,7 @@
 
 package com.adacore.lkql_jit.cli;
 
-import com.adacore.lkql_jit.EngineMode;
-import com.adacore.lkql_jit.LKQLOptions;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -164,7 +163,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
         // Forward the command line options to the options object builder
         optionsBuilder
-                .engineMode(EngineMode.INTERPRETER)
+                .engineMode(LKQLOptions.EngineMode.INTERPRETER)
                 .verbose(this.args.verbose)
                 .projectFile(this.args.project)
                 .target(this.args.target)
