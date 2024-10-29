@@ -10,7 +10,7 @@
    non-exempted violations               : 3
    rule exemption warnings               : 5
    compilation errors                    : 0
-   exempted violations                   : 5
+   exempted violations                   : 7
    internal errors                       : 0
 
 2. Exempted Coding Standard Violations
@@ -25,6 +25,10 @@ main.adb:30:19: implicit IN mode in parameter specification
    (justify line off --  FLAG in valid exemptions)
 main.adb:33:19: implicit IN mode in parameter specification
    (unjustified)
+main.adb:37:19: implicit IN mode in parameter specification
+   (Because)
+main.adb:41:19: implicit IN mode in parameter specification
+   (Because)
 
 3. Non-exempted Coding Standard Violations
 
