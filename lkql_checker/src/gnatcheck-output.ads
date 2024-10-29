@@ -43,6 +43,10 @@ package Gnatcheck.Output is
    procedure Error_No_Tool_Name (Message : String);
    --  Sends into Stderr the error message with no tool name prefix
 
+   procedure Error_In_Tty (Message : String);
+   --  Same as ``Error`` but send the message only if Stderr is a TTY. Also,
+   --  ``Message`` is not added to the stderr log file.
+
    procedure SLOC_Error
      (Message : String;
       SLOC    : String);
