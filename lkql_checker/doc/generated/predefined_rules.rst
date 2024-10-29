@@ -7927,9 +7927,6 @@ LKQL rule options files:
 The rules in this section can be used to enforce compliance with
 specific code metrics, by checking that the metrics computed for a program
 lie within user-specifiable bounds.
-Depending on the metric, there may be a lower bound, an upper bound, or both.
-A construct is flagged if the value of the metric exceeds the upper bound
-or is less than the lower bound.
 
 The name of any metrics rule consists of the prefix ``Metrics_``
 followed by the name of the corresponding metric:
@@ -7938,25 +7935,6 @@ followed by the name of the corresponding metric:
 (The 'LSLOC' acronym stands for 'Logical Source Lines Of Code'.)
 The meaning and the computed values of the metrics are
 the same as in *gnatmetric*.
-
-For the ``+R`` option, each metrics rule has a numeric parameter
-specifying the bound (integer or real, depending on a metric).
-
-*Example:* the rule
-
-::
-
-  +RMetrics_Cyclomatic_Complexity : 7
-
-
-means that all bodies with cyclomatic complexity exceeding 7 will be flagged.
-
-To turn OFF the check for cyclomatic complexity metric,
-use the following option:
-
-::
-
-  -RMetrics_Cyclomatic_Complexity
 
 
 
@@ -7970,8 +7948,12 @@ use the following option:
 The ``Metrics_Cyclomatic_Complexity`` rule takes a positive integer as
 upper bound.  A program unit that is an executable body exceeding this limit will be flagged.
 
-This rule has the following optional parameter for the ``+R`` option and for
-LKQL rule options files:
+This rule has the following parameters for the ``+R`` option and for LKQL rule
+options files:
+
+*N: int*
+   Maximum cyclomatic complexity a body can have without being flagged, all
+   bodies with a higher index will be flagged.
 
 *Exempt_Case_Statements: bool*
    Whether to count the complexity introduced by ``case`` statement or ``case``
@@ -8018,11 +8000,18 @@ of tests needed to satisfy paths coverage testing completeness criterion.
 
 .. index:: Metrics_Essential_Complexity
 
-The ``Metrics_Essential_Complexity`` rule takes a positive integer as
-upper bound.  A program unit that is an executable body exceeding this limit will be flagged.
+The ``Metrics_Essential_Complexity`` rule takes a positive integer as upper bound.
+A program unit that is an executable body exceeding this limit will be flagged.
 
 The Ada essential complexity metric is a McCabe cyclomatic complexity metric counted
 for the code that is reduced by excluding all the pure structural Ada control statements.
+
+This rule has the following (mandatory) parameter for the ``+R`` option and
+for LKQL rule options files:
+
+*N: int*
+   Maximum essential complexity a body can have without being flagged, all
+   bodies with a higher index will be flagged.
 
 .. rubric:: Example
 
@@ -8057,17 +8046,23 @@ for the code that is reduced by excluding all the pure structural Ada control st
 
 .. index:: Metrics_LSLOC
 
-The ``Metrics_LSLOC`` rule takes a positive integer as
-upper bound.  A program unit declaration or a program unit body exceeding
-this limit will be flagged.
+The ``Metrics_LSLOC`` rule takes a positive integer as upper bound. A program
+unit declaration or a program unit body exceeding this limit will be flagged.
 
-The metric counts the total number of declarations and the total number of statements.
+The metric counts the total number of declarations and the total number of
+statements.
 
-This rule has the following optional parameter for the ``+R`` option and for
-LKQL rule options files:
+This rule has the following parameters for the ``+R`` option and for LKQL rule
+options files:
+
+*N: int*
+   Maximum number of logical source lines a program declaration / body can have
+   without being flagged, all bodies with a higher number of LSLOC will be
+   flagged.
 
 *Subprograms: bool*
-   Whether to check the rule for subprogram bodies only.
+   Optional parameter specifying whether to check the rule for subprogram
+   bodies only.
 
 .. rubric:: Example
 

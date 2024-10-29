@@ -515,9 +515,6 @@ public class LKQLDocRules implements Callable<Integer> {
                 The rules in this section can be used to enforce compliance with
                 specific code metrics, by checking that the metrics computed for a program
                 lie within user-specifiable bounds.
-                Depending on the metric, there may be a lower bound, an upper bound, or both.
-                A construct is flagged if the value of the metric exceeds the upper bound
-                or is less than the lower bound.
 
                 The name of any metrics rule consists of the prefix ``Metrics_``
                 followed by the name of the corresponding metric:
@@ -526,25 +523,6 @@ public class LKQLDocRules implements Callable<Integer> {
                 (The 'LSLOC' acronym stands for 'Logical Source Lines Of Code'.)
                 The meaning and the computed values of the metrics are
                 the same as in *gnatmetric*.
-
-                For the ``+R`` option, each metrics rule has a numeric parameter
-                specifying the bound (integer or real, depending on a metric).
-
-                *Example:* the rule
-
-                ::
-
-                  +RMetrics_Cyclomatic_Complexity : 7
-
-
-                means that all bodies with cyclomatic complexity exceeding 7 will be flagged.
-
-                To turn OFF the check for cyclomatic complexity metric,
-                use the following option:
-
-                ::
-
-                  -RMetrics_Cyclomatic_Complexity
                 """);
 
         printCategory(
