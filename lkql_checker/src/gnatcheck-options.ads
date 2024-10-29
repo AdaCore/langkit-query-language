@@ -193,9 +193,9 @@ package Gnatcheck.Options is
    --  Whether the help message about the new instance system has already been
    --  emitted. This message should be removed in 26.0.
 
-   Mixed_Style_Warning_Emitted : Boolean := False;
-   --  Whether the message about usage of and new and legacy rule options for
-   --  the same GNATcheck run.
+   Rules_Depreciation_Emitted : Boolean := False;
+   --  Whether the message about the ``-rules`` section depreciation has been
+   --  emitted in the TTY.
 
    --------------------------------------
    -- Controlling the gnatcheck report --

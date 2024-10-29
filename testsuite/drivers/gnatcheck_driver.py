@@ -1,7 +1,6 @@
 import os
 import os.path as P
 import re
-import sys
 import xml.etree.ElementTree as ET
 
 from e3.testsuite.driver.diff import (
@@ -130,6 +129,8 @@ class GnatcheckDriver(BaseDriver):
         - ``worker``: Provide a custom worker for the GNATcheck run.
         - ``gnatkp_autoconfig`` (bool): Whether to automatically configure the
           target and runtime when running in "gnatkp" mode. Default is True.
+        - ``in_tty`` (bool): Whether to run GNATcheck in a pseudo TTY using the
+          ``pty`` Python module.
 
         - ``jobs`` (int): The number of jobs to forward to the GNATcheck command.
         - ``project`` (str): GPR build file to use (if any).
@@ -404,10 +405,17 @@ class GnatcheckDriver(BaseDriver):
                 if label:
                     self.output += label + "\n" + ("=" * len(label)) + "\n\n"
 
-                p = self.shell(args, env=gnatcheck_env, catch_error=False, analyze_output=False)
+                # Execute GNATcheck and get its output
+                exec_output = ""
+                status_code = 0
+                if test_data.get("in_tty"):
+                    exec_output, status_code = self.run_in_tty(args, env=gnatcheck_env)
+                else:
+                    p = self.shell(args, env=gnatcheck_env, catch_error=False, analyze_output=False)
+                    exec_output = p.out
+                    status_code = p.status
 
-                # Get the GNATcheck execution output
-                exec_output = p.out
+                # Then read GNATcheck report file if there is one
                 report_file_content = ""
                 parse_output_for_flags = True
                 if output_format in ['full', 'short', 'xml']:
@@ -451,8 +459,8 @@ class GnatcheckDriver(BaseDriver):
                         self.output += ("testsuite_driver: Cannot found the rule "
                                         f"list file '{test_data['rule_list_file']}'")
 
-                if (not brief and p.status not in [0, 1]) or (brief and p.status != 0):
-                    self.output += ">>>program returned status code {}\n".format(p.status)
+                if (not brief and status_code not in [0, 1]) or (brief and status_code != 0):
+                    self.output += ">>>program returned status code {}\n".format(status_code)
 
                 # List the content of directories if needed
                 if test_data.get('list_dirs'):
