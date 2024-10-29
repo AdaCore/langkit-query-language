@@ -1219,9 +1219,7 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       --  Traverse exemption section chain
-      while Section /= null
-        and then For_Line <= Section.Exemption_Section.Line_End
-      loop
+      while Section /= null loop
          if For_Line in
            Section.Exemption_Section.Line_Start ..
            Section.Exemption_Section.Line_End
