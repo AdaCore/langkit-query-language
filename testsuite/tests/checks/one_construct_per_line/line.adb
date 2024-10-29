@@ -1,5 +1,26 @@
 package body Line is
 
+   task type Tsk is
+      entry Start (I : Integer; B : Boolean);               --  NOFLAG
+   end Tsk;
+
+   task type Other_Tsk is
+      entry Start (I : Integer; B : Boolean);               --  NOFLAG
+   end Other_Tsk;
+
+   task body Tsk is
+   begin
+      accept Start (I : Integer; B : Boolean) do            --  NOFLAG
+         null;
+      end Start;
+   end Tsk;
+
+   task body Other_Tsk is
+   begin
+      accept Start (I : Integer; B : Boolean) do null;      --  FLAG
+      end Start;
+   end Other_Tsk;
+
    procedure Proc (I : in out Integer) is
       Tmp : Integer;
 
