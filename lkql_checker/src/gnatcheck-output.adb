@@ -16,6 +16,8 @@ with GNAT.Traceback.Symbolic;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
+with Interfaces.C_Streams; use Interfaces.C_Streams;
+
 package body Gnatcheck.Output is
 
    Report_File_Name     : String_Access;
@@ -120,6 +122,17 @@ package body Gnatcheck.Output is
          Put_Line (Log_File, Message);
       end if;
    end Error_No_Tool_Name;
+
+   ------------------
+   -- Error_In_Tty --
+   ------------------
+
+   procedure Error_In_Tty (Message : String) is
+   begin
+      if isatty (fileno (stderr)) /= 0 then
+         Put_Line (Standard_Error, Executable & ": " & Message);
+      end if;
+   end Error_In_Tty;
 
    -----------------------
    -- Get_Indent_String --
