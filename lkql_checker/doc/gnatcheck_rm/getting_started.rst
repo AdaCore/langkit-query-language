@@ -23,7 +23,7 @@ Invoking ``gnatcheck`` on the command line has the form::
   $ gnatcheck [switches] {filename}
         [-files=arg_list_filename]
         [-r rule_names]
-        [--rules=lkql_rule_filename]
+        [--rule-file=lkql_rule_filename]
         [-cargs gcc_switches]
 
 
@@ -79,10 +79,6 @@ project file named :file:`gnatcheck_example.gpr` with the following content:
      for Source_Dirs use ("src");
      for Object_Dir use "obj";
      for Main use ("main.adb");
-
-     package Check is
-        for Default_Switches ("ada") use ("--rules", "coding_standard.lkql");
-     end Check;
 
   end Gnatcheck_Example;
 
@@ -169,7 +165,7 @@ and :file:`main.adb`:
 And suppose we call ``gnatcheck`` from the current directory using
 the project file as the only parameter of the call::
 
-     gnatcheck -Pgnatcheck_example.gpr
+     gnatcheck -Pgnatcheck_example.gpr --rule-file coding_standard.lkql
 
 
 As a result, ``gnatcheck`` is called to check all the files from the
