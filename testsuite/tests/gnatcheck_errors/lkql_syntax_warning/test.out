@@ -1,4 +1,4 @@
-gnatcheck: foo.lkql:4:29: 'is' syntax is deprecated for patterns. Please consider migrating your code via 'lkql refactor IS_TO_COLON'
+gnatcheck: foo.lkql:4:29: 'is' syntax is deprecated for patterns. Please consider migrating your code via 'lkql refactor -r IS_TO_COLON/rules/foo.lkql'.
 1. Summary
 
    fully compliant sources               : 1

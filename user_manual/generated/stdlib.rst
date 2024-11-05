@@ -45,7 +45,7 @@ Functions
 .. function:: find_comment(token, name)
 
     Return true if a comment token immediately following the previous
-    "begin" keyword is found and containing only the package name.
+    "begin" keyword is found and contains only the provided name.
 
 .. function:: first_non_blank(s, ind=1)
 
