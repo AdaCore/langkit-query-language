@@ -1,0 +1,7 @@
+project Invalid_Value is
+   for Source_Dirs use ("src");
+
+   package Check is
+      for Switches ("Ada") use "--show-rule";
+   end Check;
+end Invalid_Value;

@@ -1,0 +1,17 @@
+Without additional rules
+========================
+
+main.adb:4:04: goto statement
+
+With additional rules
+=====================
+
+main.adb:3:04: redundant null statement
+main.adb:4:04: goto statement
+
+With invalid attribute value
+============================
+
+gnatcheck: invalid.gpr:5:11: error: attribute "Check'Rules" expects a list of values
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

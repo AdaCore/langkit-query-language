@@ -331,27 +331,49 @@ the ``Check`` package in the GPR file you're providing to GNATcheck through the
 Inside this package you can define the following attributes to configure
 GNATcheck:
 
-* ``Switches``
+``Rules``
+  Value is a list of rules to enable when invoking ``gnatcheck`` on this
+  project. Values provided in this attribute behave as the ones provided with
+  the ``--rule`` switch.
+
+  If the ``--rule`` switch is set when calling ``gnatcheck`` on a project file
+  defining this attribute, then, values are concatenated.
+
+``Rule_File``
+  Value is a path to a LKQL rule file. The path is relative to the project
+  file that defines this attribute. See :ref:`LKQL_options_file` for more
+  information.
+
+  If the ``--rule-file`` switch is set when calling ``gnatcheck`` on a project
+  file defining this attribute, then, an error is emitted and ``gnatcheck``
+  will exit with an error code.
+
+``Switches``
   Index is a language name. Value is a list of additional switches to be used
   when invoking ``gnatcheck``.
+
+  If a switch is provided in both command-line and ``Switches`` attribute,
+  then, the value provided through the command-line is used.
 
   .. attention::
 
     There are several command-line switches that you cannot pass through the
     ``Switches`` attribute:
 
+    * ``--version``
+    * ``--help``
     * ``-P``
     * ``-U``
     * ``-Xname=value``
     * ``-eL``
-    * ``-r, --rule [rule_name]``
-    * ``--rule-file=filename``
+    * ``-r, --rule [rule_name]`` (use ``Rules`` attribute instead)
+    * ``--rule-file=filename`` (use ``Rule_File`` attribute instead)
 
     If you're providing one of those switches through the ``Switches`` or the
-    ``Default_Switches`` attribute, GNATcheck will raise an error message and
+    ``Default_Switches`` attribute, GNATcheck will emit an error message and
     exit with an error code.
 
-* ``Default_Switches``
+``Default_Switches``
   Same as ``Switches``, but provided additional switches will apply only if
   there is no applicable ``Switches`` attribute.
 

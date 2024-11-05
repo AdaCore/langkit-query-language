@@ -66,6 +66,10 @@ package body Gnatcheck.Projects is
    Project_File_Set : Boolean := False;
    Project_Options  : GPR2.Options.Object;
 
+   Rules_Attr            : constant GPR2.Q_Attribute_Id :=
+     (GPR2."+"("Check"), GPR2."+"("Rules"));
+   Rule_File_Attr        : constant GPR2.Q_Attribute_Id :=
+     (GPR2."+"("Check"), GPR2."+"("Rule_File"));
    Default_Switches_Attr : constant GPR2.Q_Attribute_Id :=
      (GPR2."+"("Check"), GPR2."+"("Default_Switches"));
    Switches_Attr         : constant GPR2.Q_Attribute_Id :=
@@ -179,39 +183,102 @@ package body Gnatcheck.Projects is
    --------------------------
 
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type) is
-      Proj : constant GPR2.Project.View.Object :=
-               My_Project.Tree.Namespace_Root_Projects.First_Element;
-
       use GPR2;
       use GPR2.Project.Registry.Attribute;
 
-      Ada_Idx          : constant GPR2.Project.Attribute_Index.Object :=
+      Proj     : constant GPR2.Project.View.Object :=
+        My_Project.Tree.Namespace_Root_Projects.First_Element;
+      Ada_Idx  : constant GPR2.Project.Attribute_Index.Object :=
         GPR2.Project.Attribute_Index.Create (Ada_Language);
-      Attr             : GPR2.Project.Attribute.Object;
-      Command_Line     : GNAT.OS_Lib.Argument_List_Access;
+      List_Val : GNAT.OS_Lib.Argument_List_Access;
 
-   begin
-      if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
-         Attr := Proj.Attribute (Switches_Attr, Ada_Idx);
+      function Load_List_Attribute
+        (Attr_Id : GPR2.Q_Attribute_Id;
+         Indexed : Boolean := False) return GNAT.OS_Lib.Argument_List_Access;
+      --  Load the attribute designated by ``Attr_Id`` in the project ``Proj``
+      --  as a list value, allocating and returning an ``Argument_List_Access``
+      --  that the caller must free after usage.
+      --  ``Indexed`` indicates whether the attribute ``Attr_Id`` is an indexed
+      --  attribute, if ``True`` this procedure will look at the "ada" index of
+      --  this attribute. See ``GPR2.Project.Attribute_Index`` package for more
+      --  information about attribute indexes.
 
-         if Attr.Kind = Single then
+      function Load_Single_Attribute
+        (Attr_Id : GPR2.Q_Attribute_Id) return String;
+      --  Load the attribute designated by ``Attr_Id`` in the project ``Proj``
+      --  as a single value, returning is as a ``String``.
+
+      function Load_List_Attribute
+        (Attr_Id : GPR2.Q_Attribute_Id;
+         Indexed : Boolean := False) return GNAT.OS_Lib.Argument_List_Access
+      is
+         Attr    : constant GPR2.Project.Attribute.Object :=
+           (if Indexed
+            then Proj.Attribute (Attr_Id, Ada_Idx)
+            else Proj.Attribute (Attr_Id));
+         Res     : GNAT.OS_Lib.Argument_List_Access;
+      begin
+         if Attr.Kind /= List then
             Error
-              (String (Proj.Path_Name.Simple_Name)
-               & ": Check.Default_Switches value must be a list");
+              (String (Proj.Path_Name.Simple_Name) & ": " & Image (Attr_Id) &
+               " value must be a list");
             raise Parameter_Error;
          end if;
 
-         Command_Line := new String_List
+         Res := new String_List
            (Attr.Values.First_Index .. Attr.Values.Last_Index);
          for J in Attr.Values.First_Index .. Attr.Values.Last_Index loop
-            Command_Line (J) := new String'(Attr.Values.Element (J).Text);
+            Res (J) := new String'(Attr.Values.Element (J).Text);
          end loop;
 
+         return Res;
+      end Load_List_Attribute;
+
+      function Load_Single_Attribute
+        (Attr_Id : GPR2.Q_Attribute_Id) return String
+      is
+         Attr : constant GPR2.Project.Attribute.Object :=
+           Proj.Attribute (Attr_Id);
+      begin
+         if Attr.Kind /= Single then
+            Error
+              (String (Proj.Path_Name.Simple_Name) & ": " & Image (Attr_Id) &
+               " value must be a single value");
+            raise Parameter_Error;
+         end if;
+
+         return Attr.Value.Text;
+      end Load_Single_Attribute;
+
+   begin
+      --  Process the rule list
+      if Proj.Has_Attribute (Rules_Attr) then
+         List_Val := Load_List_Attribute (Rules_Attr);
+         for Rule of List_Val.all loop
+            Add_Rule_By_Name (Rule.all, Prepend => True);
+         end loop;
+         Free (List_Val);
+      end if;
+
+      --  Process the LKQL rule file
+      --  Process the rule list
+      if Proj.Has_Attribute (Rule_File_Attr) then
+         declare
+            Rule_File : constant String :=
+              Load_Single_Attribute (Rule_File_Attr);
+         begin
+            Set_LKQL_Rule_File
+              (My_Project.Get_Project_Relative_File (Rule_File));
+         end;
+      end if;
+
+      --  Process additional GNATcheck switches
+      if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
+         List_Val := Load_List_Attribute (Switches_Attr, Indexed => True);
          Scan_Arguments
            (My_Project => My_Project,
-            Args       => Command_Line);
-
-         Free (Command_Line);
+            Args       => List_Val);
+         Free (List_Val);
       end if;
    end Extract_Tool_Options;
 
@@ -667,6 +734,26 @@ package body Gnatcheck.Projects is
            "that all the other options belong to the -rules section of " &
            "the parameters to 'gnatcheck'.");
       Add
+        (Rules_Attr,
+         Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
+         Value                => List,
+         Value_Case_Sensitive => False,
+         Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
+        (Rules_Attr,
+         "Value is a list of GNATcheck rule names to enable when running " &
+         "GNATcheck on this project.");
+      Add
+        (Rule_File_Attr,
+         Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
+         Value                => Single,
+         Value_Case_Sensitive => True,
+         Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
+        (Rule_File_Attr,
+         "Value is the name of an LKQL rule file to use when running " &
+         "GNATcheck in this project.");
+      Add
         (Switches_Attr,
          Index_Type           => Language_Index,
          Value                => List,
@@ -1001,6 +1088,21 @@ package body Gnatcheck.Projects is
          Rule_Options.Append (Opt_Rec);
       end if;
    end Add_Rule_Option;
+
+   ----------------------
+   -- Add_Rule_By_Name --
+   ----------------------
+
+   procedure Add_Rule_By_Name
+     (Rule_Name : String;
+      Prepend   : Boolean := False)
+   is
+      Lower_Rule : constant String := To_Lower (Rule_Name);
+      Prefix     : constant String :=
+        (if Lower_Rule = "all" then "+" else "+R");
+   begin
+      Add_Rule_Option (Prefix & Lower_Rule, Prepend => Prepend);
+   end Add_Rule_By_Name;
 
    ------------------------
    -- Set_LKQL_Rule_File --

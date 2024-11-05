@@ -1,0 +1,7 @@
+project Disallowed_Switch is
+   for Source_Dirs use ("src");
+
+   package Check is
+      for Switches ("Ada") use ("-r", "goto_statements");
+   end Check;
+end Disallowed_Switch;

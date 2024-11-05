@@ -4,7 +4,6 @@
 --
 
 with Ada.Calendar;
-with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
@@ -468,13 +467,7 @@ begin
    --  second argument parsing to avoid duplicate rule names coming from the
    --  command-line.
    for Rule of Arg.Rules.Get loop
-      declare
-         Lower_Rule : constant String := To_Lower (To_String (Rule));
-         Prefix : constant String :=
-           (if Lower_Rule = "all" then "+" else "+R");
-      begin
-         Add_Rule_Option (Prefix & Lower_Rule, Prepend => True);
-      end;
+      Add_Rule_By_Name (To_String (Rule), Prepend => True);
    end loop;
 
    --  Then analyze the command-line parameters
