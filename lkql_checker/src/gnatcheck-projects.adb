@@ -1253,15 +1253,16 @@ package body Gnatcheck.Projects is
       --  loop
       if Args_From_Project then
          declare
-            In_Project_Msg : constant String := "forbidden in project file";
+            In_Project_Msg : constant String :=
+              " is forbidden in project file";
          begin
-            Disallow (Arg.Aggregate_Subproject.This, In_Project_Msg);
-            Disallow (Arg.Project_File.This, In_Project_Msg);
-            Disallow (Arg.Transitive_Closure.This, In_Project_Msg);
-            Disallow (Arg.Scenario_Vars.This, In_Project_Msg);
-            Disallow (Arg.Follow_Symbolic_Links.This, In_Project_Msg);
-            Disallow (Arg.Rules.This, In_Project_Msg);
-            Disallow (Arg.Rule_File.This, In_Project_Msg);
+            Disallow (Arg.Aggregate_Subproject.This, "-A" & In_Project_Msg);
+            Disallow (Arg.Project_File.This, "-P" & In_Project_Msg);
+            Disallow (Arg.Transitive_Closure.This, "-U" & In_Project_Msg);
+            Disallow (Arg.Scenario_Vars.This, "-Xname=val" & In_Project_Msg);
+            Disallow (Arg.Follow_Symbolic_Links.This, "-eL" & In_Project_Msg);
+            Disallow (Arg.Rules.This, "-r" & In_Project_Msg);
+            Disallow (Arg.Rule_File.This, "--rule-file" & In_Project_Msg);
          end;
       end if;
 
