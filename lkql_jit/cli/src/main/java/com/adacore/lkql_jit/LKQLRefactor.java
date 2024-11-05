@@ -114,7 +114,7 @@ public class LKQLRefactor implements Callable<Integer> {
      * Helper for refactor writers: Returns the first token that satisfies the predicate 'pred',
      * iterating on tokens from 'fromTok' (including 'fromTok').
      *
-     * If no token is found, return the null token.
+     * <p>If no token is found, return the null token.
      */
     public static Token firstWithPred(Token fromTok, Predicate<Token> pred) {
         var curTok = fromTok;
