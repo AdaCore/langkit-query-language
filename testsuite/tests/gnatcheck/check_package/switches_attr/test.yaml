@@ -1,0 +1,11 @@
+driver: gnatcheck
+format: brief
+rules:
+  - +Rgoto_statements
+tests:
+  - label: Without additional switches
+    project: prj.gpr
+  - label: With a disallowed switch
+    project: disallowed_switch.gpr
+  - label: With invalid attribute value
+    project: invalid.gpr

@@ -1,0 +1,9 @@
+driver: gnatcheck
+format: brief
+project: prj.gpr
+tests:
+  - label: Without additional rule file
+  - label: With additional rule file
+    lkql_rule_file: other.lkql
+  - label: With invalid attribute value
+    project: invalid.gpr

@@ -1,0 +1,11 @@
+driver: gnatcheck
+format: brief
+project: prj.gpr
+tests:
+  - label: Without additional rules
+  - label: With additional rules
+    extra_args:
+      - -r
+      - redundant_null_statements
+  - label: With invalid attribute value
+    project: invalid.gpr

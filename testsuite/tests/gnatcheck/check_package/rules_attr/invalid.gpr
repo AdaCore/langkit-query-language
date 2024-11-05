@@ -1,0 +1,7 @@
+project Invalid is
+   for Source_Dirs use ("src");
+
+   package Check is
+      for Rules use "goto_statements";
+   end Check;
+end Invalid;
