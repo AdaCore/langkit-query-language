@@ -1,7 +1,7 @@
 Invalid LKQL semantic
 =====================
 
-gnatcheck: error raised by the worker: Error during file processing: error: internal error at invalid_semantic.lkql:1:25: Type error: expected Int but got Bool (invalid_semantic.lkql)
+gnatcheck: error raised by the worker: Error during file processing: null:0:0: error: internal issue at invalid_semantic.lkql:1:25: Type error: expected Int but got Bool (invalid_semantic.lkql)
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
