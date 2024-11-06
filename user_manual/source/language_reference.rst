@@ -6,6 +6,21 @@ LKQL Language Reference
 LKQL (short for LangKit Query Language) is a query language enabling users to
 run queries on top of source code.
 
+LKQL today is the mixture of two language subsets:
+
+* The first is a dynamically typed, functional, small but general purpose
+  programming language, including function definitions, common expressions,
+  very basic support for numeric types and computations, list comprehensions,
+  etc.
+
+* The second is a tree query language, allowing the user to express very
+  concisely predicates over a node and its syntactic and semantic relatives,
+  and tree traversal logics.
+
+Those two subsets will be documented separately. The general language will be
+documented first, because its knowledge is needed for understanding the tree
+query language.
+
 LKQL is based upon the `langkit <https://github.com/AdaCore/langkit>`_
 technology. As such, it is theoretically capable of running queries on any
 language with a Langkit frontend. In practice for the moment, LKQL is hardwired
@@ -21,22 +36,6 @@ for Ada (and Libadalang).
 
 General Purpose Language Subset
 ===============================
-
-LKQL today is the mixture of two language subsets:
-
-* The first is a dynamically typed, functional, small but general
-  purpose programming language, including function definitions, common
-  expressions, very basic support for numeric types and computations, list
-  comprehensions, etc.
-
-* The second is a tree query language, allowing the user to express
-  very concisely a predicate over a node and its syntactic and semantic
-  relatives. More examples to come.
-
-Those two languages will be documented separately. The general language will be
-documented first, because its knowledge is needed for understanding the tree
-query language.
-
 
 This language subset is composed of a reduced set of declarations and
 expressions that forms a minimal but turing complete language.
