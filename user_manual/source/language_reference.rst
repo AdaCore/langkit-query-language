@@ -34,6 +34,8 @@ for Ada (and Libadalang).
   language ergonomics/fix design mistakes. Read the `Language Changes`_
   section for more information.
 
+
+
 General Purpose Language Subset
 ===============================
 
@@ -43,55 +45,84 @@ expressions that forms a minimal but turing complete language.
 For the time being, *it has no side effects*, which is intended since the
 purpose of LKQL is strictly to express queries.
 
+
+
 Data Types
 ----------
 
 LKQL has a very limited number of data types for the moment. Here are the
 current data types:
 
+
 Basic Data Types
 ^^^^^^^^^^^^^^^^
 
-* Integers: Very often used as parameters in queries, supports simple
+``Unit``
+  A type used to represents empty values.
+
+``Int``
+  Basic integer type, supporting arbitrary sized values. Supports simple
   arithmetic.
 
-* Strings: Built-in string type, that supports concatenation.
+``Str``
+  Built-in string type, that supports concatenation.
 
-* Booleans: Built-in boolean type, that supports the usual expected boolean
+``Bool``
+  Built-in boolean type, that supports the usual expected boolean
   relational operators.
 
-* Nodes: Coming from the queried language (in the common case, Ada), those are
-  the only composite data types for the moment. They correspond to the syntax
-  nodes of the source files being queried. They can be explored as part of the
-  general language subset, through `Field access`_, or via the `Query language subset`_.
+``Node``
+  Coming from the queried language (in the common case, Ada). Nodes
+  correspond to the syntax nodes of the source files being queried. They can
+  be explored as part of the general language subset, through `Field access`_,
+  or via the `Query language subset`_.
 
-* Patterns: Patterns are compiled regular expressions that can be used in a few
-  contexts to match a string against, notably in the string built-in functions
-  ``contains`` and ``find``.
+``Token``
+  Also coming from the queried language. Tokens correspond to lexical
+  units of the queried source files.
+
+``Pattern``
+  Values of this type are compiled regular expressions that can be used in a
+  few contexts to match a string against, notably in the string built-in
+  functions ``contains`` and ``find``.
+
+``Function``
+  LKQL functions are first class citizens, thus, any expression can has this
+  type which represents values that can be called with a `call expression`_.
+
 
 Composite Data Types
 ^^^^^^^^^^^^^^^^^^^^
 
-LKQL has two composite data types, lists and objects.
+``Tuple``
+  Tuples are heterogeneous groups of values with a fixed size. They can be
+  indexed to access inner values, a bit like Python tuples.
 
-* Lists are contiguous sequences of items that can be indexed, a bit like Ada
-  vectors or Python lists.
+  .. attention::
 
-.. attention:: Lists are indexed starting from `1`, like in Lua/R/.., unlike in
-   Python/Java/etc..
+    Tuples are indexed starting from ``1``, like in Lua/R/.., unlike in
+    Python/Java/..
 
-* Objects are heterogeneous records that can contain any number of key to value
+``List``
+  Lists are contiguous immutable sequences of items that can be indexed. Lists
+  also support concatenation.
+
+  .. attention::
+
+    Like tuples, Lists are indexed starting from ``1``.
+
+``Object``
+  Objects are heterogeneous records that can contain any number of key to value
   mappings, where keys are labels and values are any valid LKQL value.
 
-Both have literal representations, which are used to build them, `List
-literals`_ and `Object literals`_. Both are immutable once constructed.
+
 
 Declarations
 ------------
 
 Declarations in LKQL only belong at the top level. There is no support
-currently for nested declarations, except for `Value declarations <Value
-declaration>`_ in the `Block expression`_.
+currently for nested declarations, except in the `block expression`_.
+
 
 Function Declaration
 ^^^^^^^^^^^^^^^^^^^^
@@ -101,40 +132,42 @@ Function Declaration
 .. lkql_doc_class:: ParameterDecl
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/fun_decl.svg
+  :file: ../../lkql/build/railroad-diagrams/fun_decl.svg
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/param.svg
+  :file: ../../lkql/build/railroad-diagrams/param.svg
 
 Allows the user to declare an LKQL function that can be used to factor some
-computation.
+computation:
 
 .. code-block:: lkql
 
-    fun add(x, y) = x + y
+  fun add(x, y) = x + y
 
 The syntax is simple, you only declare argument names and an expression after
 the ``=``.
 
 If you need to declare temporary named values in the body of your function, you
-can use a `Block expression`_.
+can use a `block expression`_:
 
 .. code-block:: lkql
 
-    |" Add two integers
-    fun add(x, y) = {
-        val ret = x + y;
-        ret
-    }
+  fun add(x, y) = {
+      |" Add two integers
+      val ret = x + y;
+      ret
+  }
 
 
-.. note:: Function can have annotations. For the moment, this is used only in
-    the context of LKQL checkers, so not documented further:
+.. note::
 
-    .. code-block:: lkql
+  A function can have annotations. For the moment, this is used only in the
+  context of LKQL checkers:
 
-        @checker
-        fun check_bla() = select Bla
+  .. code-block:: lkql
+
+    @check(message="Bla detected")
+    fun is_bla() = node is Bla
 
 Functions can also be nested in other functions, and closures are allowed, ie.
 you can return a function that references the environment in which it was
@@ -142,31 +175,30 @@ declared:
 
 .. code-block:: lkql
 
-    fun make_closure(closure_var) = {
-        fun use_closure() = closure_var + 1;
-        use_closure
-    }
+  fun make_closure(closure_var) = {
+      fun use_closure() = closure_var + 1;
+      use_closure
+  }
 
-    print(make_closure(12))
+  # This will display the functional value "use_closure"
+  print(make_closure(12))
 
-.. attention:: Due to an implementation problem, closures leak memory for the
-    moment. Be careful about that when using them.
+.. note::
 
+  Functions can be memoized via the @memoized annotation. In a language
+  such as lkql that is purely functional, this will give a way for users to
+  express/optimize computationally expensive things. Here is a simple example:
 
-.. note:: Functions can be memoized via the @memoized annotation. In a language
-   such as lkql that is purely functional, this will give a way for users to
-   express/optimize computationally expensive things. Here is a simple example:
+  .. code-block:: lkql
 
-   .. code-block:: lkql
+    @memoized
+    fun fib(a) =
+        if a == 0 then 0
+        else (if a == 1 then 1
+              else fib(a - 1) + fib (a - 2))
 
-        @memoized
-        fun fib(a) =
-            if a == 0 then 0
-            else (if a == 1 then 1
-                  else fib(a - 1) + fib (a - 2))
+    print(fib(30))
 
-        val fib_30 = fib(30)
-        print(fib_30)
 
 Value Declaration
 ^^^^^^^^^^^^^^^^^
@@ -174,72 +206,73 @@ Value Declaration
 .. lkql_doc_class:: ValDecl
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/val_decl.svg
+  :file: ../../lkql/build/railroad-diagrams/val_decl.svg
 
-
-Declare a named value (often called a variable or constant in other languages).
-The value is immutable.
+Declare a named value (often called a variable or constant in other languages):
 
 .. code-block:: lkql
 
-    val a = 12 + 15
+  val a = 12 + 15
+
+Note that the value is immutable.
 
 Docstrings
 ^^^^^^^^^^
 
-Declarations can have assorted docstrings.
-
-They're part of the AST and are directly attached to the declaration.
+Declarations can have assorted docstrings. They're part of the AST and are
+directly attached to the declaration:
 
 .. code-block:: lkql
 
-    # Docstrings
+  # Docstrings
 
-    |" Make a function that will capture ``closure_var`` and return the sum of
-    |" it plus its first argument
-    fun make_closure(closure_var) = {
-        fun use_closure(x) = closure_var + x;
-        use_closure
-    }
+  fun make_closure(closure_var) =
+  |" Make a function that will capture ``closure_var`` and return the sum of
+  |" it plus its first argument
+  {
+      fun use_closure(x) = closure_var + x;
+      use_closure
+  }
 
-    |" Function that will add 12 to its first argument
-    val adder = make_closure(12)
+  |" Function that will add 12 to its first argument
+  val adder = make_closure(12)
 
-    print(make_closure(12))
+  print(make_closure(12))
 
-.. note:: This part is incomplete, needs to be completed when we have a way to
-   retrieve the documentation programmatically.
+
 
 Expressions
 -----------
 
+
 Block Expression
 ^^^^^^^^^^^^^^^^
-
-.. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/block_expr.svg
 
 .. lkql_doc_class:: BlockExpr
 .. lkql_doc_class:: BlockBodyDecl
 .. lkql_doc_class:: BlockBodyExpr
 
+.. raw:: html
+  :file: ../../lkql/build/railroad-diagrams/block_expr.svg
+
 The block expression is useful to declare temporary named values and execute
 intermediate expressions. This can be useful to share the result of a
 temporary calculation, to name an intermediate value to make the code more
-readable, or to print debug values.
+readable, or to print debug values:
 
 .. code-block:: lkql
 
-    {
-       val x = 40;
-       val y = 2;
-       print("DEBUG : " & (x + y).img);
-       x + y
-    }
+  {
+      val x = 40;
+      val y = 2;
+      print("DEBUG : " & (x + y).img);
+      x + y
+  }
 
 As you can see in the example above, value declarations and intermediate
 expressions are ended by semicolons. After the last one, you write the
 block's result expression, without an ending semicolon.
+
 
 Field Access
 ^^^^^^^^^^^^
@@ -248,47 +281,24 @@ Field Access
 .. lkql_doc_class:: Safe
 
 A field access returns the contents of a field. In the following example, we
-get the content of the  ``type_expr`` syntax field on a node of type
-``ObjectDecl``.
+get the content of the  ``f_type_expr`` syntax field on a node of type
+``ObjectDecl``:
 
 .. code-block:: lkql
 
-    object_decl.type_expr
+  object_decl.f_type_expr
 
-A regular field access on a nullable variable is illegal, which is why field
-access has a variant, which is called a "safe access":
+A regular field access on a nullable variable is illegal and leads to a runtime
+error, which is why field access has a variant, which is called a "safe
+access":
 
 .. code-block:: lkql
 
-    object_decl?.type_expr
+  object_decl?.f_type_expr
 
 The safe access will return null if the left hand side is null. This allows
 users to chain accesses without having to checks for nulls at every step.
 
-For a reference of the existing fields for syntax nodes for Ada, look at the
-`Libadalang API doc
-<https://docs.adacore.com/live/wave/libadalang/html/libadalang_ug/python_api_ref.html>`_.
-
-Property Call
-^^^^^^^^^^^^^
-
-Properties are methods on syntax nodes, returning results of high level
-queries, possibly answering semantic questions about the syntax tree. For a
-reference of the existing properties for Ada, look at the
-`Libadalang API doc
-<https://docs.adacore.com/live/wave/libadalang/html/libadalang_ug/python_api_ref.html>`_.
-
-.. code-block:: lkql
-
-    object_decl.p_is_static_decl()
-
-Just as for field accesses, property calls have their "safe property calls"
-variant that can be used to call a property on a nullable object, and return
-null if the object is null.
-
-.. code-block:: lkql
-
-    object_decl?.p_is_static_decl()
 
 Unwrap Expression
 ^^^^^^^^^^^^^^^^^
@@ -297,55 +307,50 @@ Unwrap Expression
 
 When you have a nullable object and you want to make it non nullable, you can
 use the unwrap expression. This is useful after a chain of safe accesses/calls,
-for example.
+for example:
 
 .. code-block:: lkql
 
-    object_decl?.p_type_expr()?.p_designated_type_decl()!!
+  object_decl?.p_type_expr()?.p_designated_type_decl()!!
 
 Unwrap will raise an error if the value is null.
 
-Call
-^^^^
+
+Call Expression
+^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: FunCall
 .. lkql_doc_class:: SelectorCall
 .. lkql_doc_class:: Arg
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/fun_call.svg
+  :file: ../../lkql/build/railroad-diagrams/fun_call.svg
 
-
-`Functions <Function declaration>`_ defined in LKQL can be called with the
-function call expression.
+LKQL values of the ``Function`` type can be invoked with the call expression:
 
 .. code-block:: lkql
 
-    fun add(a, b) = a + b
+  fun add(a, b) = a + b
 
-    val c = add(12, 15)
-    val d = add(a=12, b=15)
+  val c = add(12, 15)
+  val d = add(a=12, b=15)
 
 Parameters can be passed via positional or named associations.
 
-Functions are first class entities in LKQL, and can be stored in
-variables/passed as parameters.
-
-Like field accesses, calls have a "safe" variant, that will return ``null`` if
-the callee is null:
+Calls have a "safe" variant, that will return ``null`` if the callee is null:
 
 .. code-block:: lkql
 
-    fun add(a, b) = a + b
-    val fn = if true then null else add
-    fn?(1, 2) # Returns null
+  fun add(a, b) = a + b
+  val fn = if true then null else add
+  fn?(1, 2) # Returns null
 
 Additionally, you can also call selectors via the call syntax. Selector calls
-take only one argument, which is the starting point of the selector call chain.
+take only one argument, which is the starting point of the selector call chain:
 
 .. code-block:: lkql
 
-   children(select first AdaNode)
+  children(select first AdaNode)
 
 
 Indexing Expression
@@ -353,144 +358,154 @@ Indexing Expression
 
 .. lkql_doc_class:: Indexing
 
-Indexing expressions allow the user to access elements of a list, array,
-string, or node.
+Indexing expression allows the user to access elements of a ``Tuple``,
+``List``, ``LazyList``, or ``Node``.
 
-For list nodes, it will access the different elements of the list. For regular
-nodes, it will access children in lexical order.
+When using the indexing expression on a node value:
 
-Here are examples of indexing expressions:
+* for list nodes, it will access the different elements of the list
+* for regular nodes, it will access children in lexical order
+
+Here are some examples of indexing expressions:
 
 .. code-block:: lkql
 
-    list[1]
+  # Indexing a tuple
+  (1, 2, 3)[1]
 
-    "foo"[2]
+  # Indexing a list
+  list[1]
 
-    {
-        val x = 2;
-        "foo"[x]
-    }
+  # Indexing a node with an arbitrary index
+  {
+      val x = 2;
+      node[x]
+  }
 
 Indexing also has a safe variant, that will return ``unit`` instead of raising
 when an out of bound access is done:
 
 .. code-block:: lkql
 
-    val lst = [1, 2, 3]
-    print(lst?[5]) # Prints ()
+  val lst = [1, 2, 3]
+
+  # This will display "()"
+  print(lst?[5])
 
 
 Comparison Expression
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/comp_expr.svg
+  :file: ../../lkql/build/railroad-diagrams/comp_expr.svg
 
 Comparison expressions are used to compare an object to another object, or
-pattern.
+pattern. All those constructions are evaluated as booleans.
 
 Membership Expression
 """""""""""""""""""""
 
 .. lkql_doc_class:: InClause
 
-The membership expression verifies that a collection (list/array/string)
-contains the given value.
+The membership expression verifies that a collection (``List``/``LazyList``)
+contains the given value:
 
 .. code-block:: lkql
 
-    12 in list
+  12 in list
 
 Is Expression
 """""""""""""
 
 .. lkql_doc_class:: IsClause
 
-
-The "is" expression verifies if a node object matches a `Pattern`_.
+The ``is`` expression verifies if a value matches a given `pattern`_:
 
 .. code-block:: lkql
 
-   val a = select AdaNode
-   val b = a[1] is ObjectDecl
+  val a = select AdaNode
+  val b = a[1] is ObjectDecl
 
 Comparison Operators
 """"""""""""""""""""
 
 .. lkql_doc_class:: RelBinOp
 
-The usual comparison operators are available. Order dependent operators
-(``<``/``>``/...) are only usable on integers.
+The usual comparison operators are available:
 
 .. code-block:: lkql
 
-   12 < 15
-   a == b
-   b != c
+  12 < 15
+  a == b
+  b != c
 
-Object Literals
-^^^^^^^^^^^^^^^
+Order dependent operators (``<``/``>``/...) are only usable on integers.
+
+
+Object Literal
+^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: ObjectLiteral
 .. lkql_doc_class:: ObjectAssoc
 .. lkql_doc_class:: AtObjectLiteral
 .. lkql_doc_class:: AtObjectAssoc
 
-
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/objectlit.svg
+  :file: ../../lkql/build/railroad-diagrams/objectlit.svg
 
-An object literal is a literal representation of an object value (see
-`Composite data types`_).
+An object literal is a literal representation of an object value:
 
 .. code-block:: lkql
 
-    # Object literal
-    {a: 1, b: "foo", c: null, d: [1, 2, 3, 4]}
+  # Object literal
+  {a: 1, b: "foo", c: null, d: [1, 2, 3, 4]}
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/at_object_lit.svg
+  :file: ../../lkql/build/railroad-diagrams/at_object_lit.svg
 
 "@" preceded object literals are similar to standard object literal with an
-empty list as default value for any key.
+empty list as default value for any key:
 
 .. code-block:: lkql
 
-   # At object literal
-   @{a: 1, b, c: null, d}
+  # At object literal
+  @{a: 1, b, c: null, d}
 
-   # Is similar to
-   {a: 1, b: [], c: null, d: []}
+  # Is similar to
+  {a: 1, b: [], c: null, d: []}
 
 Object keys may contain upper-case characters at declaration, but the LKQL
-engine will lower them. This means that object keys are case-insensitive.
+engine will lower them. This means that object keys are case-insensitive:
 
 ..  code-block:: lkql
 
-    val o = {lower: "Hello", UPPER: "World"}
-    print(o.lower & " " & o.upper) # Will display "Hello World"
+  val o = {lower: "Hello", UPPER: "World"}
+
+  # This will display "Hello World"
+  print(o.lower & " " & o.upper)
 
 Please note that objects are immutable.
 
-List Literals
-^^^^^^^^^^^^^
+
+List Literal
+^^^^^^^^^^^^
 
 .. lkql_doc_class:: ListLiteral
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/listlit.svg
+  :file: ../../lkql/build/railroad-diagrams/listlit.svg
 
-A list literal is simply a literal representation of a list.
+A list literal is simply a literal representation of a list:
 
 .. code-block:: lkql
 
-    # Simple list literal
-    [1, 2, 3, 4]
+  # Simple list literal
+  [1, 2, 3, 4]
 
 Lists being immutable, lists literals are the primary way to create new lists
-from nothing, with list comprehensions being the way to create new lists from
+from nothing, with `list comprehension`_ being the way to create new lists from
 existing lists.
+
 
 List Comprehension
 ^^^^^^^^^^^^^^^^^^
@@ -499,29 +514,44 @@ List Comprehension
 .. lkql_doc_class:: ListCompAssoc
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/listcomp.svg
+  :file: ../../lkql/build/railroad-diagrams/listcomp.svg
 
 A list comprehension allows the user to create a new list by iterating on an
 existing collection, applying a mapping operation, and eventually a filtering
-operation.
+logic:
 
 .. code-block:: lkql
 
-    # Simple list comprehension that'll double every number in int_list if it
-    # is prime
+  # Simple list comprehension that'll double every number in int_list if it
+  # is prime
+  [a * 2 for a in int_list if is_prime(a)]
 
-    [a * 2 for a in int_list if is_prime(a)]
-
-    # Complex example interleaving two collections
-
-    val subtypes = select SubtypeIndication
-    val objects = select ObjectDecl
-    print([o.image & " " & st.image
-           for o in objects, st in subtypes
-           if (o.image & " " & st.image).length != 64])
+  # Complex example interleaving two collections
+  val subtypes = select SubtypeIndication
+  val objects = select ObjectDecl
+  print(
+      [
+          o.image & " " & st.image
+          for o in objects, st in subtypes
+          if (o.image & " " & st.image).length != 64
+      ].to_list
+  )
 
 A list comprehension is a basic language construct, that, since LKQL is purely
-functional, replaces traditional for loops.
+functional, replaces traditional for loops. A list comprehension expression
+returns a value of the ``LazyList`` type, meaning that elements in the result
+aren't computed until queried:
+
+.. code-block:: lkql
+
+  val lazy = [a * 2 for a in int_list if is_prime(a)]
+
+  # This will display "LazyList"
+  print(lazy)
+
+  # To display all elements of a lazy list, you have to convert it to a list
+  print(lazy.to_list)
+
 
 If Expression
 ^^^^^^^^^^^^^
@@ -529,20 +559,25 @@ If Expression
 .. lkql_doc_class:: CondExpr
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/if_then_else.svg
+  :file: ../../lkql/build/railroad-diagrams/if_then_else.svg
 
 If expressions are traditional conditional expressions composed of a condition,
 an expression executed when the condition is true, and and expression executed
-when the condition is false. The latter is optional and its default value is
-``true`` when no explicit expression is provided.
+when the condition is false:
 
 .. code-block:: lkql
 
-   # No parentheses required
-   val x = if b < 12 then c() else d()
+  # No parentheses required
+  val x = if b < 12 then c() else d()
 
-   # Without "else"
-   val y = if b < 12 then a == 0
+The ``else`` branch is optional and its default value is ``true``, this can
+be useful to express an implication logic:
+
+.. code-block:: lkql
+
+  # Without "else" expression
+  val y = if b < 12 then a == 0
+
 
 Match Expression
 ^^^^^^^^^^^^^^^^
@@ -551,60 +586,65 @@ Match Expression
 .. lkql_doc_class:: MatchArm
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/match.svg
+  :file: ../../lkql/build/railroad-diagrams/match.svg
 
 This expression is a pattern matching expression, and reuses the same patterns
 as the query part of the language. Matchers will be evaluated in order against
 the match's target expression. The first matcher to match the object will
-trigger the evaluation of the associated expression in the match arm.
+trigger the evaluation of the associated expression in the match arm:
 
 .. code-block:: lkql
 
-   match nodes[1]
-     | ObjectDecl(p_has_aliased(): aliased @ *) => aliased
-     | ParamSpec(p_has_aliased(): aliased @ *) => aliased
-     | * => false
+  match nodes[1]
+  | ObjectDecl(p_has_aliased(): aliased @ *) => aliased
+  | ParamSpec(p_has_aliased(): aliased @ *) => aliased
+  | * => false
 
-.. note:: For the moment, there is no check that the matcher is complete. A
-   match expression where no arm has matched will raise an exception at
-   runtime.
+.. note::
 
-Tuple Expression
-^^^^^^^^^^^^^^^^
+  For the moment, there is no static check that the matcher is complete. A
+  match expression where no arm has matched will raise an exception at runtime.
 
-.. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/tuple_expr.svg
+
+Tuple Literal
+^^^^^^^^^^^^^
 
 .. lkql_doc_class:: Tuple
 
-The tuple expression is used to create a tuple, which is an anonymous immutable
-data structure composed of several elements of distinct types:
+.. raw:: html
+  :file: ../../lkql/build/railroad-diagrams/tuple_expr.svg
+
+The tuple literal is used to create a value of the ``Tuple`` composite type:
 
 .. code-block:: lkql
 
-    val t = (1, 2)
-    val tt = ("hello", "world")
-    val ttt = (t[1], tt[1])
-    print(t)
-    print(tt)
-    print(ttt)
+  val t = (1, 2)
+  val tt = ("hello", "world")
+  val ttt = (t[1], tt[1])
+  print(t)
+  print(tt)
+  print(ttt)
 
 Tuples are useful as function return values, or to aggregate data, since LKQL
 doesn't have structs yet.
 
-Anonymous Functions
-^^^^^^^^^^^^^^^^^^^
+
+Anonymous Function
+^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: BaseFunction
 
-LKQL has first class functions, and anonymous functions expressions (or
-lambdas). Anonymous functions have the following form:
+.. raw:: html
+  :file: ../../lkql/build/railroad-diagrams/anonymous_function.svg
+
+LKQL supports first class functions, and anonymous functions expressions (or
+lambdas). Thus, you can create anonymous functional values:
 
 .. code-block:: lkql
 
-    fun mul_y(y) = (x) => x * y
-    val mul_2 = mul_y (2)
-    val four = mul_2 (2)
+  fun mul_y(y) = (x) => x * y
+  val mul_2 = mul_y (2)
+  val four = mul_2 (2)
 
 
 Literals and Operators
@@ -615,27 +655,35 @@ Literals and Operators
 .. lkql_doc_class:: ArithBinOp
 .. lkql_doc_class:: UnOp
 
-LKQL has literals for booleans, integers, strings, and null values:
+LKQL has literals for booleans, integers, strings, unit, and null values:
 
 .. code-block:: lkql
 
-    val a = 12
-    val b = true
-    val c = "hello"
-    val d = null
+  val a = true     # Boolean
+  val b = 12       # Integer
+  val c = "hello"  # String
+  val d = ()       # Unit
+  val e = null     # Null
+
+.. note::
+
+  The LKQL ``null`` literal is used to represent a null node value, thus, it is
+  different from the ``()`` (``unit``) value.
 
 LKQL has multi-line string literals, called block-strings but they're a bit
 different than in Python or other languages:
 
 .. code-block:: lkql
 
-   val a = |" Hello
-           |" This is a multi line string
-           |" Bue
+  val a = |" Hello
+          |" This is a multi line string
+          |" Bue
 
-.. note:: The first character after the ``"`` should be a whitespace. This is
-   not enforced at parse-time but at run-time, so ``|"hello`` is still a
-   syntactically valid block-string, but will raise an error when evaluated.
+.. note::
+
+  The first character after the ``"`` should be a whitespace. This is
+  not enforced at parse-time but at run-time, so ``|"hello`` is still a
+  syntactically valid block-string, but will raise an error when evaluated.
 
 LKQL has a few built-in operators available:
 
@@ -643,43 +691,46 @@ LKQL has a few built-in operators available:
 
 .. code-block:: lkql
 
-    val calc = a + 2 * 3 / 4 == b
-    val smaller_or_eq = a <= b
-    val greater_or_eq = b >= c
+  val calc = a + 2 * 3 / 4 == b
+  val smaller_or_eq = a <= b
+  val greater_or_eq = b >= c
 
 - Basic relational operators on booleans
 
 .. code-block:: lkql
 
-    true and false or (a == b) and (not c)
+  true and false or (a == b) and (not c)
 
 - String and list concatenation
 
 .. code-block:: lkql
 
-    "Hello" & name
+  "Hello " & name
 
 .. code-block:: lkql
 
-    [1, 2, 3] & [4, 5, 6]
+  [1, 2, 3] & [4, 5, 6]
 
-Module
-^^^^^^
+
+Module Importation
+^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: Import
 
 LKQL has a very simple module system. Basically every file in LKQL is a module,
-and you can import modules from other files with the ``import`` clause.
+and you can import modules from other files with the ``import`` clause. When
+importing a module, you are associating its name to the namespace produced by
+the evaluation of its source (all declarations in its top-level):
 
 .. code-block:: lkql
 
-   # foo.lkql
-   fun bar() = 12
+  # foo.lkql
+  fun bar() = 12
 
-   # bar.lkql
-   import foo
+  # bar.lkql
+  import foo
 
-   print(foo.bar())
+  print(foo.bar())
 
 LKQL will search for files:
 
@@ -687,8 +738,11 @@ LKQL will search for files:
 2. That are in the ``LKQL_PATH`` environment variable
 
 .. note::
-   There is no way to create hierarchies of modules for now, only flat modules
-   are supported.
+
+  There is no way to create hierarchies of modules for now, only flat modules
+  are supported.
+
+
 
 Query Language Subset
 =====================
