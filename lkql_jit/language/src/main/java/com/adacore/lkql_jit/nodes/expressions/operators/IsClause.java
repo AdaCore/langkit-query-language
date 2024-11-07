@@ -5,12 +5,8 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -47,26 +43,14 @@ public abstract class IsClause extends Expr {
     // ----- Execution methods -----
 
     /**
-     * Execute the is clause when the expression is a node.
+     * Execute the "is" clause on the provided value.
      *
-     * @param frame The frame to execute the pattern in.
-     * @param node The node to verify.
-     * @return The result of the pattern execution.
+     * @param object The value to match against the "is" clause pattern.
+     * @return A boolean, representing whether the given value has been validated by the pattern.
      */
     @Specialization
-    protected boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return this.pattern.executeValue(frame, node);
-    }
-
-    /**
-     * Fallback method if the left operand is not a node.
-     *
-     * @param notNode The object that is not a node.
-     */
-    @Fallback
-    protected void notNode(Object notNode) {
-        throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(notNode), this.getNodeExpr());
+    protected boolean executeValue(VirtualFrame frame, Object object) {
+        return this.pattern.executeValue(frame, object);
     }
 
     // ----- Override methods -----
@@ -78,6 +62,4 @@ public abstract class IsClause extends Expr {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
-    public abstract Expr getNodeExpr();
 }
