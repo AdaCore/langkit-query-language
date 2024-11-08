@@ -960,8 +960,26 @@ combined with the ``--kp-version`` and possibly ``--target`` switches,
 .. attention::
 
   You must provide explicit target and runtime (either through the command-line
-  or with a provided project file) when running GNATKP to ensure the result
+  or with a provided project file) when running GNATkp to ensure the result
   soundness.
+
+.. note::
+
+  The exemption mechanism is available for GNATkp as well but you have to
+  change pragmas and comments a bit to avoid conflict with GNATcheck
+  exemptions. Thus, pragmas annotations' first argument must be ``gnatkp``
+  instead of ``gnatcheck``:
+
+  .. code-block:: ada
+
+    pragma Annotate (gnatkp, Exempt_On, "kp_19198", "Justification");
+
+  And exemption comments' first word must be ``kp`` instead of ``rule``,
+  example:
+
+  .. code-block:: ada
+
+    --## kp off kp_19198 ## Justification
 
 You can check via the GNAT Tracker interface which known problems are
 relevant to your version of GNAT and your target before deciding which
