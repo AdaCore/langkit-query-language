@@ -1,13 +1,22 @@
-# Flag array aggregates with an others choice if the array component type is a
-# record type that has a string subcomponent.
+import stdlib
 
 @check(message="possible occurrence of KP S814-034", impact="17.*,18.*,19.*")
 fun kp_s814_034(node) =
-    node is Aggregate
-    when node.p_expression_type() is t@TypeDecl
-     when t.p_is_array_type()
-      and t.p_comp_type().p_is_record_type()
-      and (from node select first OthersDesignator) != null
-      and [a for a in (from node select AggregateAssoc)
-           if a.f_r_expr.p_expression_type().p_root_type()
-               .p_canonical_fully_qualified_name() == "standard.string"]
+    |" Flag array aggregates with an others choice if the array component type is a
+    |" record type that has a string subcomponent.
+    node is Aggregate(p_is_subaggregate(): false, p_expression_type(): t)
+    when
+        # Check that the aggregate is not a nested array aggregate
+        not node.p_is_subaggregate() and
+        t.p_is_array_type() and
+        stdlib.any([
+            assoc.f_designators is AlternativesList(any children: OthersDesignator)
+            for assoc in node.f_assocs.children
+        ]) and
+
+        # Then, ensure the component type is a record and has a String component
+        t.p_comp_type().p_is_record_type() and
+        stdlib.any([
+            t.p_root_type().p_canonical_fully_qualified_name() == "standard.string"
+            for t in stdlib.component_types(t.p_comp_type())
+        ])
