@@ -1,0 +1,11 @@
+driver: gnatcheck
+format: brief
+in_tty: True
+rules:
+  - +RGoto_Statements
+input_sources:
+  - main.adb
+control:
+  - [SKIP,
+     "os == 'windows'",
+     "Disable this test because 'pty' is not supported on Windows"]

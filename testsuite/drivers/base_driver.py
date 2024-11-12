@@ -1,7 +1,11 @@
+import errno
 import glob
 import os
 import os.path as P
+import pty
 import re
+import select
+import subprocess
 import sys
 from typing import TextIO
 
@@ -270,6 +274,60 @@ class BaseDriver(DiffTestDriver):
             # Else the test mode is invalid
             else:
                 raise TestAbortWithError(f"invalid perf mode: {mode}")
+
+    def run_in_tty(self, args: list[str], **kwargs) -> tuple[str, int]:
+        """
+        Run a process in a pseudo-TTY using the ``pty`` module. Returns a
+        tuple containing the process output and its status code.
+        """
+        # Ensure the current system is not windows, according to the
+        # documentation, the ``pty`` module is not working fine on it (see
+        # https://docs.python.org/fr/3/library/pty.html).
+        if self.env.build.os.name == "windows":
+            raise TestAbortWithError(
+                "Cannot run a pseudo-TTY on Windows systems"
+            )
+
+        # Ensure the process is run in the testsuite working dir
+        if not kwargs.get("cwd"):
+            kwargs["cwd"] = self.working_dir()
+
+        # Open a subprocess with using a pseudo TTY as output
+        m, s = pty.openpty()
+        p = subprocess.Popen(
+            args=args,
+            stdout=s,
+            stderr=s,
+            close_fds=True,
+            **kwargs
+        )
+        os.close(s)
+
+        # Read result of the process execution and get its return code
+        fully_read = False
+        output = b""
+        status_code = 0
+        try:
+            while not fully_read:
+                ready, _, _ = select.select([m], [], [], 0.05)
+                for fd in ready:
+                    try:
+                        data = os.read(fd, 512)
+                    except OSError as e:
+                        if e.errno != errno.EIO:
+                            raise e
+                        fully_read = True
+                    else:
+                        if not data:
+                            fully_read = True
+                        output += data
+        finally:
+            os.close(m)
+            if p.poll() is None:
+                p.kill()
+            status_code = p.wait()
+
+        return (output.decode(), status_code)
 
     def parse_flagged_lines(self, output: str) -> Flags:
         """
