@@ -2,7 +2,6 @@ import errno
 import glob
 import os
 import os.path as P
-import pty
 import re
 import select
 import subprocess
@@ -287,6 +286,10 @@ class BaseDriver(DiffTestDriver):
             raise TestAbortWithError(
                 "Cannot run a pseudo-TTY on Windows systems"
             )
+
+        # Only import ``pty`` after checking that we are not on a Windows
+        # system.
+        import pty
 
         # Ensure the process is run in the testsuite working dir
         if not kwargs.get("cwd"):
