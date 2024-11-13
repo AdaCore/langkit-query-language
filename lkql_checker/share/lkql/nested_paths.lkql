@@ -5,8 +5,8 @@
 # handler); in this case, the other path needs not be nested inside the if
 # statement and is flagged.
 
-fun has_last_breaking_stmt(list) =
-    match list[list.children_count]
+fun has_last_breaking_stmt(stmts) =
+    match stmts[stmts.children_count]
     | (RaiseStmt | ReturnStmt | ExitStmt(f_cond_expr: null) | GotoStmt) => true
     | b@BlockStmt => b.f_stmts.f_exceptions[1] == null and
                      has_last_breaking_stmt(b.f_stmts.f_stmts)
@@ -15,10 +15,18 @@ fun has_last_breaking_stmt(list) =
 @check(message="nested path may be moved outside if statement",
        category="Style", subcategory="Programming Practice")
 fun nested_paths(node) =
-    node is StmtList(parent: if_stmt@IfStmt)
-     when if_stmt.f_alternatives[1] == null
-      and if_stmt.f_else_stmts[1] != null
+    # Match stmt lists that are either the then or the else list of an if stmt
+    node is (StmtList(parent: if_stmt@IfStmt) |
+             StmtList(parent: ElsePart(parent: if_stmt@IfStmt)))
+     when
+
+      # No "elsif" branches
+      if_stmt.f_alternatives[1] == null
+
+      # Has an "else" part
+      and if_stmt.f_else_part.f_stmts[1] != null
+
       and not has_last_breaking_stmt(node)
       and has_last_breaking_stmt(if if_stmt.f_then_stmts == node
-                                 then if_stmt.f_else_stmts
+                                 then if_stmt.f_else_part.f_stmts
                                  else if_stmt.f_then_stmts)

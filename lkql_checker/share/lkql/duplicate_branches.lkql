@@ -20,9 +20,7 @@ fun gather_stmts(node) =
     | IfStmt   =>
         [node.f_then_stmts] &
         [n.f_stmts for n in node.f_alternatives.children].to_list &
-        # The `f_else_stmts` field will be a StmtList even if there is no else
-        # branch in the source code, therefore it is safe to include it.
-        [node.f_else_stmts]
+        (if node.f_else_part then [node.f_else_part.f_stmts] else [])
     | IfExpr   =>
         [node.f_then_expr] &
         [n.f_then_expr for n in node.f_alternatives.children].to_list &

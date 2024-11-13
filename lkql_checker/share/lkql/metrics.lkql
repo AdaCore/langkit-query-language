@@ -40,10 +40,12 @@ fun statement_complexity(body, exempt_case=false) =
         | s@SelectStmt(
             f_guards: guards,
             f_else_stmts: elses_stmts,
-            f_abort_stmts: abort_stmts
+            f_then_abort_part: then_abort_part
         ) => guards.children_count
              + (if elses_stmts.children_count == 0 then 0 else 1)
-             + (if abort_stmts.children_count == 0 then 0 else 1)
+             + (match then_abort_part
+                | ThenAbortPart(f_stmts: stmts) => if stmts.children_count == 0 then 0 else 1
+                | null => 0)
         | * => 0;
 
     reduce(

@@ -29,7 +29,7 @@ fun all_branches(stmt) =
     | IfStmt =>
         [stmt.f_then_stmts]
         & [alt.f_stmts for alt in stmt.f_alternatives.children].to_list
-        & [stmt.f_else_stmts]
+        & [stmt.f_else_part?.f_stmts]
     | CaseStmt =>
         [alt.f_stmts for alt in stmt.f_alternatives.children]
     | BaseLoopStmt =>
