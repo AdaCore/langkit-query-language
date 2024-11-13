@@ -4,8 +4,6 @@ fun incomplete_representation_specifications(node) =
     |" Flag all record types that have a layout representation specification
     |" but without Size and Pack representation specifications.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

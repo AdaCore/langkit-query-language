@@ -78,20 +78,13 @@ fun identifier_casing(unit,
     |" defining names from the following kinds of declarations a special casing scheme
     |" can be defined:
     |"
-    |" *
-    |"   type and subtype declarations;
-    |"
-    |" *
-    |"   enumeration literal specifications (not including character literals)
+    |" * type and subtype declarations;
+    |" * enumeration literal specifications (not including character literals)
     |"   and function renaming declarations if the renaming entity is an
     |"   enumeration literal;
-    |"
-    |" *
-    |"   constant and number declarations (including object renaming
+    |" * constant and number declarations (including object renaming
     |"   declarations if the renamed object is a constant);
-    |"
-    |" *
-    |"   exception declarations and exception renaming declarations.
+    |" * exception declarations and exception renaming declarations.
     |"
     |" The rule may have the following parameters for ``+R`` option and for LKQL rule
     |" options files:

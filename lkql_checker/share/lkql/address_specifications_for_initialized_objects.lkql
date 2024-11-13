@@ -4,8 +4,6 @@ fun address_specifications_for_initialized_objects(node) =
     |" Flag address clauses and address aspect definitions if they are applied
     |" to object declarations with explicit initializations.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

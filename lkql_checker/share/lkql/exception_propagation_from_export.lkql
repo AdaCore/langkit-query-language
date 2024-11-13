@@ -16,14 +16,9 @@ fun exception_propagation_from_export(node) =
     |"
     |" A subprogram is considered as not propagating an exception if:
     |"
-    |" *
-    |"   its body has an exception handler with ``others`` exception choice;
-    |"
-    |" *
-    |"   no exception handler in the body contains a raise statement nor a call to
+    |" * its body has an exception handler with ``others`` exception choice;
+    |" * no exception handler in the body contains a raise statement nor a call to
     |"   ``Ada.Exception.Raise_Exception`` or ``Ada.Exception.Reraise_Occurrence``.
-    |"
-    |" This rule has no parameters.
     |"
     |" .. rubric:: Example
     |"

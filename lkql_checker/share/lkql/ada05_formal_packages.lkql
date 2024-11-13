@@ -5,8 +5,6 @@ fun ada05_formal_packages(node) =
     |" the box symbol ``(<>)`` to be used alone as a whole formal package actual
     |" part only.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

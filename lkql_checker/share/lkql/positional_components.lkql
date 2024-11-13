@@ -7,8 +7,6 @@ fun positional_components(node) =
     |" Flag each array, record and extension aggregate that includes positional
     |" notation.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

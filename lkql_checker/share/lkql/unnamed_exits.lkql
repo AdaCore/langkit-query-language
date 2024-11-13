@@ -3,8 +3,6 @@
 fun unnamed_exits(node) =
     |" Flags exit statements with no loop names that exit from named loops.
     |"
-    |" The rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

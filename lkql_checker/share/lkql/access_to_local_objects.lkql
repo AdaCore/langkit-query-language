@@ -42,8 +42,6 @@ fun access_to_local_objects(node) =
     |" considered as packages. If the attribute prefix is a dereference or
     |" a subcomponent thereof, the attribute reference is not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

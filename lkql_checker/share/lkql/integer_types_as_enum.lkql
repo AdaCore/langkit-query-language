@@ -39,24 +39,13 @@ fun integer_types_as_enum(node) =
     |" as being potentially replaceable by an enumeration type if all the
     |" following conditions are true:
     |"
-    |" *
-    |"   there is no infix calls to any arithmetic or bitwise operator for objects
+    |" * there is no infix calls to any arithmetic or bitwise operator for objects
     |"   of this type;
-    |"
-    |" *
-    |"   this type is not referenced in an actual parameter of a generics
+    |" * this type is not referenced in an actual parameter of a generics
     |"   instantiation;
-    |"
-    |" *
-    |"   there is no type conversion from or to this type;
-    |"
-    |" *
-    |"   no type is derived from this type;
-    |"
-    |" *
-    |"   no subtype is declared for this type.
-    |"
-    |" This rule has no parameters.
+    |" * there is no type conversion from or to this type;
+    |" * no type is derived from this type;
+    |" * no subtype is declared for this type.
     |"
     |" .. rubric:: Example
     |"

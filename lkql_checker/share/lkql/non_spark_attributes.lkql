@@ -55,8 +55,6 @@ fun non_spark_attributes(node) =
     |" * ``'Val``
     |" * ``'Valid``
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -9,8 +9,6 @@ fun volatile_objects_without_address_clauses(node) =
     |" if the GNAT compiler considers this object as volatile because of some
     |" code generation reasons.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

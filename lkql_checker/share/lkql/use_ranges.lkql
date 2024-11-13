@@ -5,8 +5,6 @@ fun use_ranges(unit) =
     |" by ``Name'Range`` or simply ``Name``. Also flag expressions of the form
     |" ``Name'Range`` that can be replaced with ``Name``.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

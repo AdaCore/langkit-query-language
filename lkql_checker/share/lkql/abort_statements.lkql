@@ -2,8 +2,6 @@
 fun abort_statements(node) =
     |" Flag abort statements.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

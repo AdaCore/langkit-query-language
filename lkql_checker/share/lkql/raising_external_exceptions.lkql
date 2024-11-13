@@ -22,8 +22,6 @@ fun raising_external_exceptions(node) =
     |" neither a predefined exception nor an exception that is also declared (or
     |" renamed) in the visible part of the package.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

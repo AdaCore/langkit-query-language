@@ -26,20 +26,13 @@ fun identifier_prefixes(unit,
     |" to the kind of declaration it is defined by. The defining names in the
     |" following kinds of declarations are checked:
     |"
-    |" *
-    |"   type and subtype declarations (task, protected and access types are treated
+    |" * type and subtype declarations (task, protected and access types are treated
     |"   separately);
-    |"
-    |" *
-    |"   enumeration literal specifications (not including character literals)
+    |" * enumeration literal specifications (not including character literals)
     |"   and function renaming declarations if the renaming entity is an
     |"   enumeration literal;
-    |"
-    |" *
-    |"   exception declarations and exception renaming declarations;
-    |"
-    |" *
-    |"   constant and number declarations (including object renaming
+    |" * exception declarations and exception renaming declarations;
+    |" * constant and number declarations (including object renaming
     |"   declarations if the renamed object is a constant).
     |"
     |" Defining names declared by single task declarations or single protected

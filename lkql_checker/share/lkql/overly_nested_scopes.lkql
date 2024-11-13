@@ -16,23 +16,12 @@ fun overly_nested_scopes(node, n: int = 10) =
     |" rule parameter. The following declarations are considered as scopes by this
     |" rule:
     |"
-    |" *
-    |"   package and generic package declarations and bodies;
-    |"
-    |" *
-    |"   subprogram and generic subprogram declarations and bodies;
-    |"
-    |" *
-    |"   task type and single task declarations and bodies;
-    |"
-    |" *
-    |"   protected type and single protected declarations and bodies;
-    |"
-    |" *
-    |"   entry bodies;
-    |"
-    |" *
-    |"   block statements;
+    |" * package and generic package declarations and bodies;
+    |" * subprogram and generic subprogram declarations and bodies;
+    |" * task type and single task declarations and bodies;
+    |" * protected type and single protected declarations and bodies;
+    |" * entry bodies;
+    |" * block statements;
     |"
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:

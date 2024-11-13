@@ -3,8 +3,6 @@
 fun generic_in_out_objects(node) =
     |" Flag declarations of generic formal objects of mode IN OUT.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

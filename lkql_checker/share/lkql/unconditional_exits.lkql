@@ -2,8 +2,6 @@
 fun unconditional_exits(node) =
     |" Flag unconditional ``exit`` statements.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

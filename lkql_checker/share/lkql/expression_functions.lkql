@@ -4,8 +4,6 @@ fun expression_functions(node) =
     |" (including specification of local packages and generic package
     |" specifications).
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -4,8 +4,6 @@ fun specific_pre_post(node) =
     |" Flag a declaration of a primitive operation of a tagged type if this
     |" declaration contains specification of Pre or/and Post aspect.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -5,8 +5,6 @@ fun default_values_for_record_components(node) =
     |" Do not flag record component declarations in protected definitions.
     |" Do not flag discriminant specifications.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

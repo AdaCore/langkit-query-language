@@ -10,8 +10,6 @@ fun full_range(l, r) =
 fun explicit_full_discrete_ranges(node) =
     |" Flag each discrete range that has the form ``A'First .. A'Last``.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

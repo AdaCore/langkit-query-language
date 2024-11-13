@@ -18,8 +18,6 @@ fun same_tests(unit) =
     |" a statement or expression contains another condition expression that is
     |" syntactically equivalent to the first one.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -8,8 +8,6 @@ fun exception_propagation_from_tasks(node) =
     |" a call to ``Ada.Exception.Raise_Exception`` or
     |" ``Ada.Exception.Reraise_Occurrence``.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

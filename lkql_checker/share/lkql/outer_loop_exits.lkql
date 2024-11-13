@@ -3,8 +3,6 @@ fun outer_loop_exits(node) =
     |" Flag each ``exit`` statement containing a loop name that is not the name
     |" of the immediately enclosing ``loop`` statement.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -24,8 +24,6 @@ fun positional_actuals_for_defaulted_parameters(node) =
     |" corresponding formal parameter has a default expression, if positional
     |" notation is used.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

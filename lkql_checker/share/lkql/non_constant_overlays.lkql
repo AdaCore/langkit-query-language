@@ -40,16 +40,9 @@ fun non_constant_overlays(node) =
     |" of mode ``IN OUT`` or ``OUT`` or a generic formal parameter of mode ``IN OUT``
     |" if at least one of the following is true:
     |"
-    |" *
-    |"   the overlaying object is a constant object;
-    |"
-    |" *
-    |"   overlaying object is not marked as Volatile;
-    |"
-    |" *
-    |"   if overlaid object is not a parameter, it is not marked as Volatile;
-    |"
-    |" This rule has no parameters.
+    |" * the overlaying object is a constant object;
+    |" * overlaying object is not marked as Volatile;
+    |" * if overlaid object is not a parameter, it is not marked as Volatile;
     |"
     |" .. rubric:: Example
     |"

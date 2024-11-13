@@ -14,8 +14,6 @@ fun positional_generic_parameters(node) =
     |" the generic unit being instantiated has exactly one generic formal
     |" parameter.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -2,8 +2,6 @@
 fun number_declarations(node) =
     |" Number declarations are flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

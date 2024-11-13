@@ -24,8 +24,6 @@ fun nonoverlay_address_specifications(node) =
     |"
     |" Address specifications given for program units are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

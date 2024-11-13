@@ -12,8 +12,6 @@ fun nested_subprograms(node) =
     |" Null procedure declarations are not flagged. Procedure declarations
     |" completed by null procedure declarations are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

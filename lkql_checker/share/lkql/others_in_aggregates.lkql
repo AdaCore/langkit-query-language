@@ -11,8 +11,6 @@ fun others_in_aggregates(node) =
     |" ``others`` choice is flagged even if the discrete range specifies
     |" exactly one component; for example, ``(1..1 => 0, others => 1)``.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

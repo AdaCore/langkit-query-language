@@ -4,8 +4,6 @@
 fun others_in_exception_handlers(node) =
     |" Flag any use of an ``others`` choice in an exception handler.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

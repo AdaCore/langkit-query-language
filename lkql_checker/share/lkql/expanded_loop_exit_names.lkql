@@ -2,8 +2,6 @@
 fun expanded_loop_exit_names(node) =
     |" Flag all expanded loop names in ``exit`` statements.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

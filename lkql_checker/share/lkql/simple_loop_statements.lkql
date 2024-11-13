@@ -3,8 +3,6 @@ fun simple_loop_statements(node) =
     |" Flags simple loop statements (loop statements that do not
     |" have iteration schemes).
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

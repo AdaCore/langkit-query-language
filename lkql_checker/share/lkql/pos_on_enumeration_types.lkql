@@ -5,8 +5,6 @@ fun pos_on_enumeration_types(node) =
     |" Flag ``'Pos`` attribute in case if the attribute prefix has an enumeration
     |" type (including types derived from enumeration types).
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -16,9 +16,7 @@ fun exception_propagation_from_callbacks(node, callbacks=[]) =
     |" Flag an ``'Address`` or ``'Access`` attribute if:
     |"
     |" * this attribute is a reference to a subprogram;
-    |"
     |" * this subprogram may propagate an exception;
-    |"
     |" * this attribute is an actual parameter of a subprogram call, and both the
     |"   subprogram called and the corresponding formal parameter are specified by a
     |"   rule parameter.
@@ -26,7 +24,6 @@ fun exception_propagation_from_callbacks(node, callbacks=[]) =
     |" A subprogram is considered as not propagating an exception if:
     |"
     |" * its body has an exception handler with ``others`` exception choice;
-    |"
     |" * no exception handler in the body contains a raise statement nor a call to
     |"   ``Ada.Exception.Raise_Exception`` or ``Ada.Exception.Reraise_Occurrence``.
     |"

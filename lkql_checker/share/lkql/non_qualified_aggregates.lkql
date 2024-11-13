@@ -8,8 +8,6 @@ fun non_qualified_aggregates(node) =
     |" aggregate of a string type is considered as a normal aggregate.
     |" Aggregates of anonymous array types are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -5,8 +5,6 @@ fun same_operands(node) =
     |" ``<``, ``<=``, ``-``, ``mod``, ``rem`` (except when operating on floating
     |" point types) if operands of a call are syntactically equivalent.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

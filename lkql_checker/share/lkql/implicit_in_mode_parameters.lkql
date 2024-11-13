@@ -6,8 +6,6 @@ fun implicit_in_mode_parameters(node) =
     |" Note that ``access`` parameters, although they technically behave
     |" like ``in`` parameters, are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

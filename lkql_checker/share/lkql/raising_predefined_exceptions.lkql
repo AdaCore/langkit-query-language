@@ -18,8 +18,6 @@ fun raising_predefined_exceptions(node) =
     |" (i.e., one of the exceptions ``Constraint_Error``, ``Numeric_Error``,
     |" ``Program_Error``, ``Storage_Error``, or ``Tasking_Error``).
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

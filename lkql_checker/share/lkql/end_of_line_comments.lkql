@@ -6,8 +6,6 @@ fun end_of_line_comments(unit) =
     |" Flags comments that are located in the source lines that
     |" contains Ada code.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

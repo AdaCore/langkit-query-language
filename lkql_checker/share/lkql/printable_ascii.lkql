@@ -5,8 +5,6 @@ fun printable_ascii(unit) =
     |" Flag source code text characters that are not part of the printable
     |" ASCII character set, a line feed, or a carriage return character (i.e.
     |" values 10, 13 and 32 .. 126 of the ASCII Character set).
-    |"
-    |" This rule has no parameters.
     [
         {message: "non printable ASCII character", loc: tok}
         for tok in unit.tokens

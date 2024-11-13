@@ -22,8 +22,6 @@ fun positional_actuals_for_defaulted_generic_parameters(node) =
     |" Flag each generic actual parameter corresponding to a generic formal
     |" parameter with a default initialization, if positional notation is used.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

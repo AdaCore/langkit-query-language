@@ -7,8 +7,6 @@ fun implicit_small_for_fixed_point_types(node) =
     |" Since ``'Small`` can be  defined only for ordinary fixed point types,
     |" decimal fixed point type declarations are not checked.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

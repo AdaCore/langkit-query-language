@@ -8,32 +8,17 @@ fun one_construct_per_line(node) =
     |" preceding or following this construct. The following constructs are not
     |" flagged:
     |"
-    |" *
-    |"   enumeration literal specification;
-    |"
-    |" *
-    |"   parameter specifications;
-    |"
-    |" *
-    |"   discriminant specifications;
-    |"
-    |" *
-    |"   mod clauses;
-    |"
-    |" *
-    |"   loop parameter specification;
-    |"
-    |" *
-    |"   entry index specification;
-    |"
-    |" *
-    |"   choice parameter specification;
+    |" * enumeration literal specification;
+    |" * parameter specifications;
+    |" * discriminant specifications;
+    |" * mod clauses;
+    |" * loop parameter specification;
+    |" * entry index specification;
+    |" * choice parameter specification;
     |"
     |" In case if we have two or more declarations/statements/clauses on a
     |" line and if there is no Ada code preceding the first construct, the
     |" first construct is flagged
-    |"
-    |" This rule has no parameters.
     |"
     |" .. rubric:: Example
     |"

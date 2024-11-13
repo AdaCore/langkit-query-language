@@ -38,31 +38,14 @@ fun misplaced_representation_items(node) =
     |" in the context of this rule is either a representation clause or one of
     |" the following representation pragmas:
     |"
-    |" *
-    |"   Atomic   J.15.8(9/3)
-    |"
-    |" *
-    |"   Atomic_Components   J.15.8(9/3)
-    |"
-    |" *
-    |"   Independent   J.15.8(9/3)
-    |"
-    |" *
-    |"   Independent_Components   J.15.8(9/3)
-    |"
-    |" *
-    |"   Pack   J.15.3(1/3)
-    |"
-    |" *
-    |"   Unchecked_Union   J.15.6(1/3)
-    |"
-    |" *
-    |"   Volatile   J.15.8(9/3)
-    |"
-    |" *
-    |"   Volatile_Components   J.15.8(9/3)
-    |"
-    |" This rule has no parameters.
+    |" * Atomic   J.15.8(9/3)
+    |" * Atomic_Components   J.15.8(9/3)
+    |" * Independent   J.15.8(9/3)
+    |" * Independent_Components   J.15.8(9/3)
+    |" * Pack   J.15.3(1/3)
+    |" * Unchecked_Union   J.15.6(1/3)
+    |" * Volatile   J.15.8(9/3)
+    |" * Volatile_Components   J.15.8(9/3)
     |"
     |" .. rubric:: Example
     |"

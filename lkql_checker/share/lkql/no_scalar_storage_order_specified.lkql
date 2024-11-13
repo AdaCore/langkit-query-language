@@ -18,8 +18,6 @@ fun no_scalar_storage_order_specified(unit) =
     |" applies to it (or an ancestor), but neither the type nor any of its
     |" ancestors has an explicitly specified Scalar_Storage_Order aspect.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

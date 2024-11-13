@@ -2,8 +2,6 @@
 fun renamings(node) =
     |" Flag renaming declarations.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

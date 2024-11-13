@@ -6,8 +6,6 @@ import stdlib
 fun spark_procedures_without_globals(node) =
     |" Flags SPARK procedures that don't have a global aspect.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

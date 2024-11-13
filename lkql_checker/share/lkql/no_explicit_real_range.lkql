@@ -18,8 +18,6 @@ fun no_explicit_real_range(node) =
     |" type, including types derived from them if no explicit range
     |" specification is provided for the type.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

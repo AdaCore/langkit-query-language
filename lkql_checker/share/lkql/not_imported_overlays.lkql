@@ -13,8 +13,6 @@ fun not_imported_overlays(node) =
     |" is an identifier defined by an object declaration if the object ``Overlaying``
     |" is not marked as imported.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -28,13 +28,8 @@ fun constant_overlays(node) =
     |" declaration  or a formal or generic formal parameter of mode ``IN`` if
     |" at least one of the following is true:
     |"
-    |" *
-    |"    the overlaying object is not a constant object;
-    |"
-    |" *
-    |"    overlaying object or overlaid object is marked as Volatile;
-    |"
-    |" This rule has no parameters.
+    |" * the overlaying object is not a constant object;
+    |" * overlaying object or overlaid object is marked as Volatile;
     |"
     |" .. rubric:: Example
     |"

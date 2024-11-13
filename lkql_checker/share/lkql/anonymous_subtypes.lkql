@@ -22,14 +22,11 @@ fun is_self_referencing(expr, type_decl) =
 fun anonymous_subtypes(node) =
     |" Flag all uses of anonymous subtypes except for the following:
     |"
-    |" *
-    |"   when the subtype indication depends on a discriminant, this includes the
+    |" * when the subtype indication depends on a discriminant, this includes the
     |"   cases of a record component definitions when a component depends on a
     |"   discriminant, and using the discriminant of the derived type to
     |"   constraint the parent type;
-    |"
-    |" *
-    |"   when a self-referenced data structure is defined, and a discriminant
+    |" * when a self-referenced data structure is defined, and a discriminant
     |"   is constrained by the reference to the current instance of a type;
     |"
     |" A use of an anonymous subtype is
@@ -62,8 +59,6 @@ fun anonymous_subtypes(node) =
     |"    for I in S loop        --  NO FLAG
     |"       ...
     |"    end loop;
-    |"
-    |" This rule has no parameters.
     node is ((SubtypeIndication(f_constraint: constraint@Constraint)
          when (not (constraint is
                     CompositeConstraint(p_is_discriminant_constraint(): true)

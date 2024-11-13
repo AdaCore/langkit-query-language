@@ -14,8 +14,6 @@ fun enumeration_ranges_in_case_statements(node) =
     |" enumeration value to a type and having it implicitly handled by an existing
     |" ``case`` statement with an enumeration range that includes the new literal.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

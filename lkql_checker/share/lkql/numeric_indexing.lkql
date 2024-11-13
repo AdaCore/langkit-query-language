@@ -7,8 +7,6 @@ fun numeric_indexing(node) =
     |" Literals that are subcomponents of index expressions are not flagged
     |" (other than the aforementioned case of unary minus).
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

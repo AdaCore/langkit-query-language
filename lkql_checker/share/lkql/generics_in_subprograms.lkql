@@ -7,8 +7,6 @@ fun generics_in_subprograms(node) =
     |" declared in a local package that is declared in a subprogram body, the
     |" generic unit is flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

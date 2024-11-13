@@ -14,20 +14,14 @@ fun positional_parameters(node, all=false) =
     |" Flag each positional parameter notation in a subprogram or entry call,
     |" except for the following:
     |"
-    |" *
-    |"   Parameters of calls to attribute subprograms are not flagged;
-    |" *
-    |"   Parameters of prefix or infix calls to operator functions are not flagged;
-    |" *
-    |"   If the called subprogram or entry has only one formal parameter,
+    |" * Parameters of calls to attribute subprograms are not flagged;
+    |" * Parameters of prefix or infix calls to operator functions are not flagged;
+    |" * If the called subprogram or entry has only one formal parameter,
     |"   the parameter of the call is not flagged;
-    |" *
-    |"   If a subprogram call uses the *Object.Operation* notation, then
+    |" * If a subprogram call uses the *Object.Operation* notation, then
+    |"   * the first parameter (that is, *Object*) is not flagged;
     |"
-    |"   *
-    |"     the first parameter (that is, *Object*) is not flagged;
-    |"   *
-    |"     if the called subprogram has only two parameters, the second parameter
+    |"   * if the called subprogram has only two parameters, the second parameter
     |"     of the call is not flagged;
     |"
     |" This rule has the following (optional) parameter for the ``+R`` option and

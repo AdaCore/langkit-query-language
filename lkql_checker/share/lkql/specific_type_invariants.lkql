@@ -7,8 +7,6 @@ fun specific_type_invariants(node) =
     |" Type_Invariant aspect that are parts of declarations of non-tagged types
     |" are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -5,8 +5,6 @@ fun overloaded_operators(node) =
     |" does not have a separate spec. Formal functions are also checked. For a
     |" renaming declaration, only renaming-as-declaration is checked.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

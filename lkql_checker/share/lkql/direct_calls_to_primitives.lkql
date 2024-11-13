@@ -16,14 +16,10 @@ fun is_parent_primitive(body, decl, parent_type) =
 fun direct_calls_to_primitives(node, except_constructors=false) =
     |" Flag any non-dispatching call to a dispatching primitive operation, except for:
     |"
-    |"
-    |" *
-    |"   a call to the corresponding primitive of the parent type.  (This
+    |" * a call to the corresponding primitive of the parent type.  (This
     |"   occurs in the common idiom where a primitive subprogram for a tagged type
     |"   directly calls the same primitive subprogram of the parent type.)
-    |"
-    |" *
-    |"   a call to a primitive of an untagged private type, even though the full type
+    |" * a call to a primitive of an untagged private type, even though the full type
     |"   may be tagged, when the call is made at a place where the view of the type is
     |"   untagged.
     |"

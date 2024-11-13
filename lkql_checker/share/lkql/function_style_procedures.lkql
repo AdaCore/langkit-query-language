@@ -22,8 +22,6 @@ fun function_style_procedures(node) =
     |"
     |" Protected procedures are not flagged. Null procedures also are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

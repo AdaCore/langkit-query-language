@@ -4,8 +4,6 @@ fun declarations_in_blocks(node) =
     |" block with an empty *declarative_part* or with a *declarative part*
     |" containing only pragmas and/or ``use`` clauses is not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

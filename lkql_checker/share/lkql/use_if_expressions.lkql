@@ -30,8 +30,6 @@ fun use_if_expressions(node) =
     |"       <LHS> := ...;  --  same LHS on all branches
     |"    end if;
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

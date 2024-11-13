@@ -31,44 +31,25 @@ fun predicate_testing(node, except_assertions=false) =
     |" A pragma or an aspect is considered as assertion-related if its name
     |" is from the following list:
     |"
-    |" *
-    |"   ``Assert``
-    |" *
-    |"   ``Assert_And_Cut``
-    |" *
-    |"   ``Assume``
-    |" *
-    |"   ``Contract_Cases``
-    |" *
-    |"   ``Debug``
-    |" *
-    |"   ``Default_Initial_Condition``
-    |" *
-    |"   ``Dynamic_Predicate``
-    |" *
-    |"   ``Invariant``
-    |" *
-    |"   ``Loop_Invariant``
-    |" *
-    |"   ``Loop_Variant``
-    |" *
-    |"   ``Post``
-    |" *
-    |"   ``Postcondition``
-    |" *
-    |"   ``Pre``
-    |" *
-    |"   ``Precondition``
-    |" *
-    |"   ``Predicate``
-    |" *
-    |"   ``Predicate_Failure``
-    |" *
-    |"   ``Refined_Post``
-    |" *
-    |"   ``Static_Predicate``
-    |" *
-    |"   ``Type_Invariant``
+    |" * ``Assert``
+    |" * ``Assert_And_Cut``
+    |" * ``Assume``
+    |" * ``Contract_Cases``
+    |" * ``Debug``
+    |" * ``Default_Initial_Condition``
+    |" * ``Dynamic_Predicate``
+    |" * ``Invariant``
+    |" * ``Loop_Invariant``
+    |" * ``Loop_Variant``
+    |" * ``Post``
+    |" * ``Postcondition``
+    |" * ``Pre``
+    |" * ``Precondition``
+    |" * ``Predicate``
+    |" * ``Predicate_Failure``
+    |" * ``Refined_Post``
+    |" * ``Static_Predicate``
+    |" * ``Type_Invariant``
     |"
     |" .. rubric:: Example
     |"

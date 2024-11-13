@@ -6,8 +6,6 @@ fun trivial_exception_handlers(node) =
     |" statements also contains a handler with ``OTHERS`` exception choice that
     |" starts with any statement but not a raise statement with no exception name.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

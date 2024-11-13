@@ -2,8 +2,6 @@
 fun blocks(node) =
     |" Flag each block statement.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

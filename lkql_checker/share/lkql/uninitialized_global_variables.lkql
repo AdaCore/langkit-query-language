@@ -8,8 +8,6 @@ fun uninitialized_global_variables(node) =
     |" or generic package (including packages and generic packages nested in those).
     |" Do not flag deferred constant declarations.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

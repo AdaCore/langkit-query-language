@@ -28,17 +28,10 @@ fun variable_scoping(unit) =
     |" nested into the declaration scope. A declaration is considered as movable
     |" into a nested scope if:
     |"
-    |" *
-    |"   The declaration does not contain an initialization expression;
-    |"
-    |" *
-    |"   The declared object is used only in a nested block statement,
+    |" * The declaration does not contain an initialization expression;
+    |" * The declared object is used only in a nested block statement,
     |"   and this block statement has a declare part;
-    |"
-    |" *
-    |"   the block statement is not enclosed into a loop statement.
-    |"
-    |" This rule has no parameters.
+    |" * the block statement is not enclosed into a loop statement.
     |"
     |" .. rubric:: Example
     |"

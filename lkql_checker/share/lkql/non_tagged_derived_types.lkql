@@ -2,8 +2,6 @@
 fun non_tagged_derived_types(node) =
     |" Flag all derived type declarations that do not have a record extension part.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

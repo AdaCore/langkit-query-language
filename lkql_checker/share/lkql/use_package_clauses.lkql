@@ -4,8 +4,6 @@ fun use_package_clauses(node) =
     |" Flag all ``use`` clauses for packages; ``use type`` clauses are
     |" not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -49,8 +49,6 @@ fun profile_discrepancies(unit) =
     |" parameter and result) profile does not follow the lexical structure
     |" of the profile in the corresponding subprogram or entry declaration.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

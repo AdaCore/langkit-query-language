@@ -7,8 +7,6 @@ fun outbound_protected_assignments(node) =
     |" variable name in the left part of the statement denotes an object
     |" declared outside this protected type or object.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

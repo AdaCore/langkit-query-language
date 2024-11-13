@@ -6,8 +6,6 @@ fun abstract_type_declarations(node) =
     |" only if it is itself declared as abstract. Interface types are not
     |" flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

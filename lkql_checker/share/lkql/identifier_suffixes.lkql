@@ -17,32 +17,21 @@ fun identifier_suffixes(unit,
     |" corresponding to the kind of entity being declared.
     |" The following declarations are checked:
     |"
-    |" *
-    |"   type declarations
-    |"
-    |" *
-    |"   subtype declarations
-    |"
-    |" *
-    |"   object declarations (variable and constant declarations, but not number,
+    |" * type declarations
+    |" * subtype declarations
+    |" * object declarations (variable and constant declarations, but not number,
     |"   declarations, record component declarations, parameter specifications,
     |"   extended return object declarations, formal object declarations)
-    |"
-    |" *
-    |"   package renaming declarations (but not generic package renaming
+    |" * package renaming declarations (but not generic package renaming
     |"   declarations)
     |"
     |" The default checks (enforced by the *Default* rule parameter) are:
     |"
-    |" *
-    |"   type-defining names end with ``_T``, unless the type is an access type,
+    |" * type-defining names end with ``_T``, unless the type is an access type,
     |"   in which case the suffix must be ``_A``
-    |" *
-    |"   constant names end with ``_C``
-    |" *
-    |"   names defining package renamings end with ``_R``
-    |" *
-    |"   the check for access type objects is not enabled
+    |" * constant names end with ``_C``
+    |" * names defining package renamings end with ``_R``
+    |" * the check for access type objects is not enabled
     |"
     |" Defining identifiers from incomplete type declarations are never flagged.
     |"
@@ -60,23 +49,12 @@ fun identifier_suffixes(unit,
     |" Check for the suffix of access type data objects is applied to the
     |" following kinds of declarations:
     |"
-    |" *
-    |"   variable and constant declaration
-    |"
-    |" *
-    |"   record component declaration
-    |"
-    |" *
-    |"   return object declaration
-    |"
-    |" *
-    |"   parameter specification
-    |"
-    |" *
-    |"   extended return object declaration
-    |"
-    |" *
-    |"   formal object declaration
+    |" * variable and constant declaration
+    |" * record component declaration
+    |" * return object declaration
+    |" * parameter specification
+    |" * extended return object declaration
+    |" * formal object declaration
     |"
     |" If both checks for constant suffixes and for access object suffixes are
     |" enabled, and if different suffixes are defined for them, then for constants

@@ -12,8 +12,6 @@ fun improper_returns(node) =
     |" This rule supports the stylistic convention that each subprogram
     |" should have no more than one point of normal return.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

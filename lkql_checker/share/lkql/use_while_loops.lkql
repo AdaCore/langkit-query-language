@@ -5,8 +5,6 @@ fun use_while_loops(node) =
     |" execution of such a loop as the first statement in their sequence of
     |" statements. Such loop statements can be replaced by ``WHILE`` loops.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -8,8 +8,6 @@ fun deriving_from_predefined_type(node) =
     |" predefined Ada type. Do not flag record extensions and private
     |" extensions. The rule is checked inside expanded generics.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

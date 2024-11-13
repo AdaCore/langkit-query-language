@@ -9,8 +9,6 @@ fun bit_records_without_layout_definition(node) =
     |" type and the record type is packed but does not have a record representation clause
     |" applied to it.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

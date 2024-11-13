@@ -4,8 +4,6 @@ fun use_simple_loops(node) =
     |" Flag ``while`` loop statements that have a condition statically known
     |" to be ``TRUE``. Such loop statements can be replaced by simple loops.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

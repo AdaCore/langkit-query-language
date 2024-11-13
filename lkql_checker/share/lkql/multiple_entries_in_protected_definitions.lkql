@@ -7,8 +7,6 @@ fun multiple_entries_in_protected_definitions(node) =
     |" except the first one. An entry family is counted as one entry. Entries from
     |" the private part of the protected definition are also checked.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

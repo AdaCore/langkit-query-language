@@ -6,8 +6,6 @@ fun object_declarations_out_of_order(unit) =
     |" Flag any object declaration that is located in a library unit body if
     |" this is preceding by a declaration of a program unit spec, stub or body.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

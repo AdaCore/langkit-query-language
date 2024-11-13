@@ -4,8 +4,6 @@ fun anonymous_access(node) =
     |" anonymous access type definitions. Discriminant specifications and parameter
     |" specifications are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -26,8 +26,6 @@ fun nested_paths(node) =
     |" statement without an exception handler with the enclosed sequence of
     |" statements that ends with some breaking statement.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -14,8 +14,6 @@ fun boolean_negations(node) =
     |" operator. Calls to ``NOT`` operators for the types derived from
     |" Standard.Boolean are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

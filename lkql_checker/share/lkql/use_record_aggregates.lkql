@@ -18,8 +18,6 @@ fun use_record_aggregates(node) =
     |" as an expression being assigned, there is no guarantee that it detects all
     |" such sequences.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

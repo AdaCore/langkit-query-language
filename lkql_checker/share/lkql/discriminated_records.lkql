@@ -36,8 +36,6 @@ fun discriminated_records(node) =
     |" formal, private, derived and private extension type declarations are not
     |" checked. Task and protected type declarations also are not checked.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

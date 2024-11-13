@@ -20,8 +20,6 @@ fun is_tagged(typ) =
 fun downward_view_conversions(node) =
     |" Flag downward view conversions.
     |"
-    |" This rule has no parameters.
-    |"
     |" This rule will also flag downward view conversions done through access types.
     |"
     |" .. rubric:: Example

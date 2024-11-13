@@ -14,8 +14,6 @@ fun address_attribute_for_non_volatile_objects(node) =
     |" marked as Volatile. An entity is considered as being marked volatile
     |" if it has an aspect Volatile, Atomic or Shared declared for it.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

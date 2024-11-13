@@ -25,8 +25,6 @@ fun same_logic(unit) =
     |" operator (``and``, ``or``, ``and then``, ``or else``, ``xor``) if an expression
     |" contains syntactically equivalent operands.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

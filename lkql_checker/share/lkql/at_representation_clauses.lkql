@@ -3,8 +3,6 @@ fun at_representation_clauses(node) =
     |" Flag at clauses and mod clauses (treated as obsolescent features in
     |" the Ada Standard).
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

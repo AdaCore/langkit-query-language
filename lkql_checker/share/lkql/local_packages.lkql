@@ -5,8 +5,6 @@ fun local_packages(node) =
     |" specs.
     |" Local packages in bodies are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

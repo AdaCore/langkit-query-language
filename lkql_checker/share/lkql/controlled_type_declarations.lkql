@@ -12,8 +12,6 @@ fun controlled_type_declarations(node) =
     |" descendant of a type declared in ``Ada.Finalization`` but has a controlled
     |" component is not checked.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

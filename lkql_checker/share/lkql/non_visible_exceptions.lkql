@@ -7,26 +7,19 @@ fun non_visible_exceptions(unit) =
     |" out of the scope in which the exception is declared.
     |" Two cases are detected:
     |"
-    |" *
-    |"   An exception declaration located immediately within a subprogram body, task
+    |" * An exception declaration located immediately within a subprogram body, task
     |"   body or block statement is flagged if the body or statement does not contain
     |"   a handler for that exception or a handler with an ``others`` choice.
-    |"
-    |" *
-    |"   A ``raise`` statement in an exception handler of a subprogram body,
+    |" * A ``raise`` statement in an exception handler of a subprogram body,
     |"   task body or block statement is flagged if it (re)raises a locally
     |"   declared exception.  This may occur under the following circumstances:
+    |"   * it explicitly raises a locally declared exception, or
     |"
-    |"   *
-    |"     it explicitly raises a locally declared exception, or
-    |"   *
-    |"     it does not specify an exception name (i.e., it is simply ``raise;``)
+    |"   * it does not specify an exception name (i.e., it is simply ``raise;``)
     |"     and the enclosing handler contains a locally declared exception in its
     |"     exception choices.
     |"
     |" Renamings of local exceptions are not flagged.
-    |"
-    |" This rule has no parameters.
     |"
     |" .. rubric:: Example
     |"

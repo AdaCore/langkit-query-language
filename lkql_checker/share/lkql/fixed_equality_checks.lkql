@@ -9,8 +9,6 @@ fun fixed_equality_checks(node) =
     |" Also, the '``=``' and '``/=``' operations for floating-point types
     |" are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

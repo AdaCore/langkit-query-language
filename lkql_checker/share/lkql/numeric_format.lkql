@@ -4,23 +4,14 @@ fun numeric_format(node) =
     |" Flag each numeric literal which does not satisfy at least one of the
     |" following requirements:
     |"
-    |" *
-    |"   the literal is given in the conventional decimal notation given,
+    |" * the literal is given in the conventional decimal notation given,
     |"   or, if its base is specified explicitly, this base should be
     |"   2, 8, 10 or 16 only;
-    |"
-    |" *
-    |"   if the literal base is 8 or 10, an underscore should separate groups
+    |" * if the literal base is 8 or 10, an underscore should separate groups
     |"   of 3 digits starting from the right end of the literal;
-    |"
-    |" *
-    |"   if the literal base is 2 or 16, an underscore should separate groups
+    |" * if the literal base is 2 or 16, an underscore should separate groups
     |"   of 4 digits starting from the right end of the literal;
-    |"
-    |" *
-    |"   all letters (exponent symbol and digits above 9) should be in upper case.
-    |"
-    |" This rule has no parameters.
+    |" * all letters (exponent symbol and digits above 9) should be in upper case.
     |"
     |" .. rubric:: Example
     |"

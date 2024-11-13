@@ -2,8 +2,6 @@
 fun slices(node) =
     |" Flag all uses of array slicing
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

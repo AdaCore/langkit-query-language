@@ -4,8 +4,6 @@ fun subprogram_access(node) =
     |" syntax category, and all access definitions that define access to
     |" subprogram.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

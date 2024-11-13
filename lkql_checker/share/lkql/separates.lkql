@@ -2,8 +2,6 @@
 fun separates(node) =
     |" Flags subunits.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

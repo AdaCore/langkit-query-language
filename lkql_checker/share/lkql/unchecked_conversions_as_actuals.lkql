@@ -7,8 +7,6 @@ fun unchecked_conversions_as_actuals(unit) =
     |" procedure or entry call or if it is a default value in a subprogram or
     |" entry parameter specification.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

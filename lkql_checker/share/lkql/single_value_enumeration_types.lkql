@@ -4,8 +4,6 @@ fun single_value_enumeration_types(node) =
     |" Flag an enumeration type definition if it contains a single enumeration
     |" literal specification
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

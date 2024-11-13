@@ -56,8 +56,6 @@ fun suspicious_equalities(node) =
     |" referencing the same entity and a literal and 'and' expressions whose left and
     |" right operands are equalities referencing the same entity and a literal.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

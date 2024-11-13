@@ -5,8 +5,6 @@ fun address_specifications_for_local_objects(node) =
     |" to data objects declared in local subprogram bodies. Data objects
     |" declared in library subprogram bodies are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

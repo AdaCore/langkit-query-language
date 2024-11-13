@@ -25,8 +25,6 @@ fun predefined_numeric_types(node) =
     |" predefined packages (such as ``System.Any_Priority`` or
     |" ``Ada.Text_IO.Count``) is not flagged
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

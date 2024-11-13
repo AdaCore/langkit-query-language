@@ -16,8 +16,6 @@ fun use_array_slices(node) =
     |" be replaced by a single assignment statement with array slices or
     |" array objects as the source and the target of the assignment.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

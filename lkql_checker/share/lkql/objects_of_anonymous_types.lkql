@@ -9,8 +9,6 @@ fun objects_of_anonymous_types(node) =
     |" and parameter specifications are not flagged. Formal object declarations
     |" defined with anonymous access definitions are flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

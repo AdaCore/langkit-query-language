@@ -2,8 +2,6 @@
 fun unconstrained_arrays(node) =
     |" Unconstrained array definitions are flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

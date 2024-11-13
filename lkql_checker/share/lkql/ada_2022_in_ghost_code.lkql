@@ -56,8 +56,6 @@ fun ada_2022_in_ghost_code(node) =
     |" https://learn.adacore.com/courses/whats-new-in-ada-2022/index.html for a quick
     |" overview of the new features of Ada 2022.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

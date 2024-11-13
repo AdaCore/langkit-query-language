@@ -10,8 +10,6 @@ fun universal_ranges(node) =
     |" bound of a specific type (such as ``1 .. N``, where ``N`` is a variable
     |" or an expression of non-universal type) are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

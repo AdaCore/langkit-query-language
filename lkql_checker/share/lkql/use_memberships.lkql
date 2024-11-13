@@ -38,13 +38,9 @@ fun use_memberships(node, short_circuit = false) =
     |" operation(s), each relation that is an operand of the ``or`` expression is
     |" a comparison of the same variable of one of following forms:
     |"
-    |" *
-    |"   a call to a predefined ``=`` operator, the variable is the left operand
+    |" * a call to a predefined ``=`` operator, the variable is the left operand
     |"   of this call;
-    |"
-    |" *
-    |"   a membership test applied to this variable;
-    |"
+    |" * a membership test applied to this variable;
     |" * a range test of the form ``Var >= E1 and Var <= E2`` where ``Var`` is
     |"   the variable in question and ``>=``, ``and`` and ``<=`` are predefined
     |"   operators;

@@ -10,8 +10,6 @@ fun separate_numeric_error_handlers(node) =
     |" that contains the choice for ``Numeric_Error``, but does not contain the
     |" choice for ``Constraint_Error``.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

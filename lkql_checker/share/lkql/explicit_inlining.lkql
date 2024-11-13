@@ -6,8 +6,6 @@ fun explicit_inlining(node) =
     |" has an Inline aspect specified or pragma Inline applied, then only
     |" generic subprogram declaration is flagged but not its instantiations.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

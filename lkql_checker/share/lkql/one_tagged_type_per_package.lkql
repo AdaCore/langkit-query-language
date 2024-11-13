@@ -4,8 +4,6 @@ fun one_tagged_type_per_package(node) =
     |" Flag all package declarations with more than one tagged type declaration
     |" in the visible part.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

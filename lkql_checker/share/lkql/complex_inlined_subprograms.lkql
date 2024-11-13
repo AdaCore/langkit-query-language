@@ -28,17 +28,12 @@ fun complex_inlined_subprograms(unit, n : int = 5) =
     |" pragma Inline is applied to it and at least one of the following
     |" conditions is met:
     |"
-    |" *
-    |"   it contains at least one complex declaration such as a subprogram body,
+    |" * it contains at least one complex declaration such as a subprogram body,
     |"   package, task, protected declaration, or a generic instantiation
     |"   (except instantiation of ``Ada.Unchecked_Conversion``);
-    |"
-    |" *
-    |"   it contains at least one complex statement such as a loop, a case
+    |" * it contains at least one complex statement such as a loop, a case
     |"   or an if statement;
-    |"
-    |" *
-    |"   the number of statements exceeds
+    |" * the number of statements exceeds
     |"   a value specified by the *N* rule parameter;
     |"
     |" Subprogram renamings are also considered.

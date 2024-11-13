@@ -12,8 +12,6 @@ fun non_component_in_barriers(unit) =
     |" if this expression contains a reference to a data object that is
     |" not a (sub)component of the enclosing record the entry belongs to.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -3,8 +3,6 @@ fun relative_delay_statements(node) =
     |" Relative delay statements are flagged. Delay until statements are not
     |" flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

@@ -2,8 +2,6 @@
 fun enumeration_representation_clauses(node) = 
     |" Flag enumeration representation clauses.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

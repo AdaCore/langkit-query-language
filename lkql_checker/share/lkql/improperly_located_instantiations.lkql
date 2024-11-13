@@ -8,8 +8,6 @@ fun improperly_located_instantiations(unit) =
     |" Instantiations in task and entry bodies are not flagged. Instantiations in the
     |" bodies of protected subprograms are flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

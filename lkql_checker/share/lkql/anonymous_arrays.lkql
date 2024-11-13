@@ -4,8 +4,6 @@ fun anonymous_arrays(node) =
     |" Flag all anonymous array type definitions (by Ada semantics these can only
     |" occur in object declarations).
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

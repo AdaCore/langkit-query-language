@@ -17,8 +17,6 @@ fun boolean_relational_operators(node) =
     |" of the predefined relational operators for ``Standard.Boolean``,
     |" are likewise not detected.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

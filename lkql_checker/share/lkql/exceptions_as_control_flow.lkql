@@ -18,8 +18,6 @@ fun exceptions_as_control_flow(node) =
     |" same subprogram body. A ``raise`` statement in an exception handler,
     |" package body, task body or entry body is not flagged.
     |"
-    |" The rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

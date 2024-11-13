@@ -24,88 +24,42 @@ fun membership_tests(node, multi_alternative_only=false, float_types_only=false,
     |"
     |" *Language-defined*
     |"
-    |" *
-    |"   ``Assert``
+    |" * ``Assert``
     |"
     |" *GNAT-specific*
     |"
-    |" *
-    |"   ``Assert_And_Cut``
-    |"
-    |" *
-    |"   ``Assume``
-    |"
-    |" *
-    |"   ``Contract_Cases``
-    |"
-    |" *
-    |"   ``Debug``
-    |"
-    |" *
-    |"   ``Invariant``
-    |"
-    |" *
-    |"   ``Loop_Invariant``
-    |"
-    |" *
-    |"   ``Loop_Variant``
-    |"
-    |" *
-    |"   ``Postcondition``
-    |"
-    |" *
-    |"   ``Precondition``
-    |"
-    |" *
-    |"   ``Predicate``
-    |"
-    |" *
-    |"   ``Refined_Post``
+    |" * ``Assert_And_Cut``
+    |" * ``Assume``
+    |" * ``Contract_Cases``
+    |" * ``Debug``
+    |" * ``Invariant``
+    |" * ``Loop_Invariant``
+    |" * ``Loop_Variant``
+    |" * ``Postcondition``
+    |" * ``Precondition``
+    |" * ``Predicate``
+    |" * ``Refined_Post``
     |"
     |" *definition of the following aspects*
     |"
     |" *Language-defined*
     |"
-    |" *
-    |"   ``Static_Predicate``
-    |"
-    |" *
-    |"   ``Dynamic_Predicate``
-    |"
-    |" *
-    |"   ``Pre``
-    |"
-    |" *
-    |"   ``Pre'Class``
-    |"
-    |" *
-    |"   ``Post``
-    |"
-    |" *
-    |"   ``Post'Class``
-    |"
-    |" *
-    |"   ``Type_Invariant``
-    |"
-    |" *
-    |"   ``Type_Invariant'Class``
+    |" * ``Static_Predicate``
+    |" * ``Dynamic_Predicate``
+    |" * ``Pre``
+    |" * ``Pre'Class``
+    |" * ``Post``
+    |" * ``Post'Class``
+    |" * ``Type_Invariant``
+    |" * ``Type_Invariant'Class``
     |"
     |" *GNAT-specific*
     |"
-    |" *
-    |"   ``Contract_Cases``
-    |"
-    |" *
-    |"   ``Invariant``
-    |"
-    |" *
-    |"   ``Invariant'Class``
-    |"
-    |" *
-    |"   ``Predicate``
-    |"
-    |" *
-    |"   ``Refined_Post``
+    |" * ``Contract_Cases``
+    |" * ``Invariant``
+    |" * ``Invariant'Class``
+    |" * ``Predicate``
+    |" * ``Refined_Post``
     |"
     |" These three parameters are independent on each other.
     |"

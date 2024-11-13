@@ -7,8 +7,6 @@ fun constructors(node) =
     |" controlling result and no controlling parameter. If a declaration is a
     |" completion of another declaration then it is not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

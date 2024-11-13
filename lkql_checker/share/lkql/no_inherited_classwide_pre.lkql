@@ -9,8 +9,6 @@ fun no_inherited_classwide_pre(unit) =
     |" have (explicitly defined or inherited) Pre'Class aspect defined for
     |" it.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

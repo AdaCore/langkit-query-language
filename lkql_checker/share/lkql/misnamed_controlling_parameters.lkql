@@ -12,8 +12,6 @@ fun misnamed_controlling_parameters(node) =
     |" body stub is flagged only if it is not a completion of a prior subprogram
     |" declaration.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

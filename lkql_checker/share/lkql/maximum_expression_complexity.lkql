@@ -11,23 +11,12 @@ fun maximum_expression_complexity(unit, n: int = 10) =
     |" which contains more than *N* expressions of the following kinds (each count for 1)
     |" as its subcomponents, *N* is a rule parameter:
     |"
-    |" *
-    |"   Identifiers;
-    |"
-    |" *
-    |"   Numeric, string or character literals;
-    |"
-    |" *
-    |"   Conditional expressions;
-    |"
-    |" *
-    |"   Quantified expressions;
-    |"
-    |" *
-    |"   Aggregates;
-    |"
-    |" *
-    |"   @ symbols (target names).
+    |" * Identifiers;
+    |" * Numeric, string or character literals;
+    |" * Conditional expressions;
+    |" * Quantified expressions;
+    |" * Aggregates;
+    |" * @ symbols (target names).
     |"
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:

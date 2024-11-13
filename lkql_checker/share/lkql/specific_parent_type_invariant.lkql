@@ -12,8 +12,6 @@ fun specific_parent_type_invariant(node) =
     |" extension definition is not flagged if it is a part of a completion of a
     |" private extension declaration.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

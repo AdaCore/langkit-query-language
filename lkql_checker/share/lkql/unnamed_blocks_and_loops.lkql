@@ -5,8 +5,6 @@ fun unnamed_blocks_and_loops(unit) =
     |" statement is enclosed by another loop statement or if it encloses another
     |" loop statement.
     |"
-    |" The rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

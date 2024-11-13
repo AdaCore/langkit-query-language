@@ -5,8 +5,6 @@ fun size_attribute_for_types(node) =
     |" Attribute references that are subcomponents of attribute definition clauses of
     |" aspect specifications are not flagged.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

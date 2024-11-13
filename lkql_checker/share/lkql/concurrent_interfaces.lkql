@@ -3,8 +3,6 @@
 fun concurrent_interfaces(node) =
     |" Flag synchronized, task, and protected interfaces.
     |"
-    |" This rule has no parameters.
-    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada

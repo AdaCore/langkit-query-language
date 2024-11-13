@@ -14,27 +14,16 @@ fun check_parents(n, statements_only) =
 fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
     |" Flag each use of a numeric literal except for the following:
     |"
-    |" *
-    |"   a literal occurring in the initialization expression for a constant
+    |" * a literal occurring in the initialization expression for a constant
     |"   declaration or a named number declaration, or
-    |"
-    |" *
-    |"   a literal occurring in an aspect definition or in an aspect clause, or
-    |"
-    |" *
-    |"   an integer literal that is less than or equal to a value
+    |" * a literal occurring in an aspect definition or in an aspect clause, or
+    |" * an integer literal that is less than or equal to a value
     |"   specified by the *N* rule parameter, or
-    |"
-    |" *
-    |"   an integer literal that is the right operand of an infix call to an
+    |" * an integer literal that is the right operand of an infix call to an
     |"   exponentiation operator, or
-    |"
-    |" *
-    |"   an integer literal that denotes a dimension in array types attributes
+    |" * an integer literal that denotes a dimension in array types attributes
     |"   ``First``, ``Last`` and ``Length``, or
-    |"
-    |" *
-    |"   a literal occurring in a declaration in case the *Statements_Only*
+    |" * a literal occurring in a declaration in case the *Statements_Only*
     |"   rule parameter is given.
     |"
     |" This rule may have the following parameters for the ``+R`` option and for
