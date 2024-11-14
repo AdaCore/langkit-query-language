@@ -616,28 +616,6 @@ package body Gnatcheck.Output is
       end if;
    end Set_XML_Report_File_Name;
 
-   ----------------
-   -- SLOC_Error --
-   ----------------
-
-   procedure SLOC_Error
-     (Message : String;
-      SLOC    : String) is
-   begin
-      Put (Standard_Error, SLOC & ": ");
-      if Log_Mode and then Is_Open (Log_File) then
-         Put (Log_File, SLOC & ": ");
-      end if;
-
-      Put (Standard_Error, Executable & ": ");
-
-      if Log_Mode and then Is_Open (Log_File) then
-         Put (Log_File, Executable & ": ");
-      end if;
-
-      Error_No_Tool_Name (Message);
-   end SLOC_Error;
-
    -------------
    -- Warning --
    -------------
