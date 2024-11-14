@@ -194,12 +194,14 @@ fun param_pos(n, pos: int = 0) =
 
 # TODO: move this in LAL
 fun is_predefined_op(op, follow_renamings=false) =
-    |" Return true if ``op`` is a predefined operator
+    |" Return true if ``op`` is a predefined operator; ``op`` can be an Op or
+    |" a CallExpr.
 {
-    val ref = op.p_referenced_decl();
-    val real_ref = if follow_renamings then ultimate_subprogram_alias(ref) else ref;
-    # TODO: remove null check once all operators are synthesized (UB16-053)
-    if real_ref then real_ref is SyntheticSubpDecl
+    val ref = if follow_renamings
+              then ultimate_subprogram_alias(op.p_referenced_decl())
+              else op.p_referenced_decl();
+    op is (Op | CallExpr(p_is_call(): true)) and
+    if ref then ref.p_is_predefined_operator()
 }
 
 fun is_standard_numeric(n) =
