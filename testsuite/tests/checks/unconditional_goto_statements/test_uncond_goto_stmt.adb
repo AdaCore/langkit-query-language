@@ -46,6 +46,12 @@ begin
       end loop;
    end if;
 
+   if X > 25 then
+      X := 25;
+   elsif X > 26 then
+      goto Label0; -- NOFLAG: directly contained within if/elsif/else
+   end if;
+
    <<Label0>>
    Ada.Text_IO.Put_Line(Integer'Image(X));
 end Main;

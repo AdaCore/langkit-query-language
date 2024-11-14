@@ -6,4 +6,5 @@ fun goto_statements(node, only_unconditional=false) =
    node is GotoStmt
    # If unconditional option is true, only flag unconditional goto statements
    when not only_unconditional
-        or not node.parent.parent is (IfStmt | CaseStmtAlternative)
+        or not node.parent.parent
+               is (IfStmt | CaseStmtAlternative | ElsePart | ElsifStmtPart)
