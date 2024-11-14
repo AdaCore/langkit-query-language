@@ -47,12 +47,6 @@ package Gnatcheck.Output is
    --  Same as ``Error`` but send the message only if Stderr is a TTY. Also,
    --  ``Message`` is not added to the stderr log file.
 
-   procedure SLOC_Error
-     (Message : String;
-      SLOC    : String);
-   --  Sends to Stderr the error message in the following format:
-   --  'SLOC:Tool_Name:Message', where SLOC is the GNAT-style source location.
-
    procedure Warning (Message : String);
    --  Same as Error, but do nothing if Warning_Mode = Quiet.
 
