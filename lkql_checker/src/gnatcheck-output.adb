@@ -427,7 +427,7 @@ package body Gnatcheck.Output is
    procedure Report_Unhandled_Exception (Ex : Exception_Occurrence) is
    begin
       Error (Exception_Message (Ex));
-      if not Arg.Debug_Mode.Get then
+      if Arg.Debug_Mode.Get then
          Put_Line
            (Standard_Error,
             GNAT.Traceback.Symbolic.Symbolic_Traceback_No_Hex (Ex));
