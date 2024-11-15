@@ -30,7 +30,16 @@ procedure Main is
    procedure Poo (A : Integer) is null; --## rule line off implicit_in ## justify line off --  FLAG in valid exemptions
 
    --  Check that there is a warning for "rule line on"
-   procedure Poo (A : Integer) is null; --## rule line on implicit_in --  FLAG (2)
+   procedure Roo (A : Integer) is null; --## rule line on implicit_in --  FLAG (2)
+
+   --  Check that exempting with a comment after exempting with a pragma is working as expected
+   --## rule off implicit_in ## Because
+   procedure Zoo (A : Integer) is null;  --  FLAG
+   --## rule on implicit_in
+
+   pragma Annotate (Gnatcheck, Exempt_On, "implicit_in", "Because");
+   procedure Woo (A : Integer) is null;  --  FLAG
+   pragma Annotate (Gnatcheck, Exempt_Off, "implicit_in");
 begin
    null;
 end Main;
