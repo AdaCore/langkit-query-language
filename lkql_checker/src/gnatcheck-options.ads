@@ -466,6 +466,12 @@ package Gnatcheck.Options is
          Help   => "emit a 'rules.lkql' file containing the rules "
                    & "configuration");
 
+      package Warnings_As_Errors is new Parse_Flag
+        (Parser => Parser,
+         Long   => "--warnings-as-errors",
+         Short  => "-W",
+         Help   => "Treat warning messages as errors");
+
       function Quiet_Mode return Boolean is (Quiet.Get or else Brief.Get);
 
       function Short_Report return Boolean is (Brief.Get or else Short.Get);
