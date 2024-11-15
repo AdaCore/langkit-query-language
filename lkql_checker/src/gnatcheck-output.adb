@@ -563,8 +563,13 @@ package body Gnatcheck.Output is
 
    procedure Warning (Message : String) is
    begin
-      if Warning_Mode /= Quiet then
+      if Arg.Warnings_As_Errors.Get or else Warning_Mode /= Quiet then
          Error (Message);
+      end if;
+
+      --  Force a non-zero return code when "warnings as errors" is enabled
+      if Arg.Warnings_As_Errors.Get then
+         Error_From_Warning := True;
       end if;
    end Warning;
 
@@ -613,11 +618,12 @@ package body Gnatcheck.Output is
          Put_Line (" --target=targetname - specify a target for cross platforms");
          Put_Line (" --RTS=<runtime>     - use runtime <runtime>");
          Put_Line ("");
-         Put_Line (" -h   - print out the list of the available kp detectors");
-         Put_Line (" -jn  - n is the maximal number of processes");
-         Put_Line (" -q   - quiet mode (do not report detections in Stderr)");
-         Put_Line (" -v   - verbose mode");
-         Put_Line (" -l   - full pathname for file locations");
+         Put_Line (" -h                       - print out the list of the available kp detectors");
+         Put_Line (" -jn                      - n is the maximal number of processes");
+         Put_Line (" -q                       - quiet mode (do not report detections in Stderr)");
+         Put_Line (" -v                       - verbose mode");
+         Put_Line (" -W, --warnings-as-errors - treat warning messages as errors");
+         Put_Line (" -l                       - full pathname for file locations");
          Put_Line ("");
          Put_Line (" --brief                - brief mode, only report detections in Stderr");
          Put_Line (" --check-semantic       - check semantic validity of the source files");
@@ -656,18 +662,19 @@ package body Gnatcheck.Output is
       Put_Line (" --RTS=<runtime>           - use runtime <runtime>");
       Put_Line (" --config=<cgpr>           - use configuration project <cgpr>");
       Put_Line ("");
-      Put_Line (" -h   - print out the list of the currently implemented rules");
-      Put_Line (" -mn  - n is the maximal number of diagnoses in Stderr");
-      Put_Line ("        (n in 0 .. 1000, 0 means no limit); default is 0");
-      Put_Line (" -jn  - n is the maximal number of processes");
-      Put_Line (" -q   - quiet mode (do not report detections in Stderr)");
-      Put_Line (" -t   - report execution time in Stderr");
-      Put_Line (" -v   - verbose mode");
-      Put_Line (" -l   - full pathname for file locations");
-      Put_Line (" -log - duplicate all the messages sent to Stderr in gnatcheck.log");
-      Put_Line (" -s   - short form of the report file");
-      Put_Line (" -xml - generate report in XML format");
-      Put_Line (" -nt  - do not generate text report (enforces '-xml')");
+      Put_Line (" -h                       - print out the list of the currently implemented rules");
+      Put_Line (" -mn                      - n is the maximal number of diagnoses in Stderr");
+      Put_Line ("                            (n in 0 .. 1000, 0 means no limit); default is 0");
+      Put_Line (" -jn                      - n is the maximal number of processes");
+      Put_Line (" -q                       - quiet mode (do not report detections in Stderr)");
+      Put_Line (" -t                       - report execution time in Stderr");
+      Put_Line (" -v                       - verbose mode");
+      Put_Line (" -W, --warnings-as-errors - treat warning messages as errors");
+      Put_Line (" -l                       - full pathname for file locations");
+      Put_Line (" -log                     - duplicate all the messages sent to Stderr in gnatcheck.log");
+      Put_Line (" -s                       - short form of the report file");
+      Put_Line (" -xml                     - generate report in XML format");
+      Put_Line (" -nt                      - do not generate text report (enforces '-xml')");
       Put_Line ("");
       Put_Line (" --show-rule                - append rule names to diagnoses generated");
       Put_Line (" --show-instantiation-chain - show instantiation chain for reported generic construct");
@@ -688,9 +695,9 @@ package body Gnatcheck.Output is
       Put_Line (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
       Put_Line ("");
       Put_Line (" filename                 - the name of the Ada source file to be analyzed.");
-      Put_Line ("                           Wildcards are allowed");
+      Put_Line ("                            Wildcards are allowed");
       Put_Line (" -files=filename          - the name of the text file containing a list of Ada");
-      Put_Line ("                           source files to analyze");
+      Put_Line ("                            source files to analyze");
       Put_Line (" --ignore=filename        - do not process sources listed in filename");
       Put_Line (" --rule-file=filename     - read rule configuration from the given LKQL file");
       Put_Line (" -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)");
