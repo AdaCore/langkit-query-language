@@ -1212,13 +1212,14 @@ package body Gnatcheck.Projects is
                   Individual_Rules_Set := True;
             end case;
             if not Rules_Depreciation_Emitted then
-               Error_In_Tty
+               Info_In_Tty
                  ("The '-rules' section is now deprecated. You should only " &
                   "use the '--rule' and '--rule-file' command-line options.");
-               Error_In_Tty
+               Info_In_Tty
                  ("You can use the '--emit-lkql-rule-file' flag to " &
                   "automatically translate your rule configuration to the " &
                   "new LKQL format.");
+               Rules_Depreciation_Emitted := True;
             end if;
          end loop;
       end Process_Sections;
