@@ -46,26 +46,12 @@ package Gnatcheck.Output is
    procedure Warning (Message : String);
    --  Same as Error, but do nothing if Warning_Mode = Quiet.
 
-   procedure Info
-     (Message  : String;
-      Line_Len : Natural := 0;
-      Spacing  : Natural := 0);
-   --  Sends Message as a separate line(s) into Stderr (with no tool name
-   --  prefix). If Line_Len is set to some positive value, it is treated as a
-   --  maximal length of the text to be placed into one output line, and if the
-   --  length of Message exceeds Line_Len, this procedure tries to split
-   --  Message treating spaces as word separators and prints the rest of the
-   --  Message on the next line(s). Each continuation line starts from Spacing
-   --  number of space characters. Message can be split only on borders of
-   --  words.
+   procedure Info (Message : String);
+   --  Sends Message into Stderr (with no tool name prefix).
 
-   procedure Info_No_EOL
-     (Message  : String;
-      Line_Len : Natural := 0;
-      Spacing  : Natural := 0);
-   --  The same as Info, but does not "close" the last line being printed out,
-   --  that is, the last line does not contain a (platform-specific) EOL
-   --  character(s).
+   procedure Info_No_EOL (Message : String);
+   --  The same as ``Info``, but does not output a (platform-specific) EOL
+   --  character(s) after ``Message``.
 
    procedure Info_In_Tty (Message : String);
    --  Same as ``Info`` but send the message only if Stderr is a TTY. Also,

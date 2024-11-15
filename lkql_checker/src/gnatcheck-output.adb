@@ -202,13 +202,10 @@ package body Gnatcheck.Output is
    -- Info --
    ----------
 
-   procedure Info
-     (Message  : String;
-      Line_Len : Natural := 0;
-      Spacing  : Natural := 0) is
+   procedure Info (Message : String) is
    begin
-      Info_No_EOL (Message, Line_Len, Spacing);
-      New_Line (Current_Error);
+      Info_No_EOL (Message);
+      New_Line (Standard_Error);
 
       if Log_Mode and then Is_Open (Log_File) then
          New_Line (Log_File);
@@ -219,87 +216,12 @@ package body Gnatcheck.Output is
    -- Info_No_EOL --
    -----------------
 
-   procedure Info_No_EOL
-     (Message  : String;
-      Line_Len : Natural := 0;
-      Spacing  : Natural := 0)
-   is
-      Start_Idx   : constant Natural := Message'First;
-      End_Idx     : Natural := Message'Last;
-      Start_From  : Positive;
-
+   procedure Info_No_EOL (Message : String) is
    begin
-      if Line_Len = 0
-        or else
-         End_Idx - Start_Idx + 1 <= Line_Len
-      then
-         Put (Current_Error, Message);
+      Put (Standard_Error, Message);
 
-         if Log_Mode and then Is_Open (Log_File) then
-            Put (Log_File, Message);
-         end if;
-
-      else
-         --  Define which part of the Message can be placed into one line:
-         while End_Idx >= Start_Idx
-             and then
-               not (Message (End_Idx) = ' '
-                  and then
-                    End_Idx - Start_Idx + 1 <= Line_Len)
-         loop
-            End_Idx := End_Idx - 1;
-         end loop;
-
-         if End_Idx < Start_Idx then
-            --  Cannot split Message, so:
-            Put (Current_Error, Message);
-
-            if Log_Mode and then Is_Open (Log_File) then
-               Put (Log_File, Message);
-            end if;
-
-         else
-            --  Index of the beginning of the remaining part of Message
-            Start_From := End_Idx + 1;
-
-            --  Now move End_Idx to the left to skip spaces:
-
-            while End_Idx >= Start_Idx
-                 and then
-                  Message (End_Idx) = ' '
-            loop
-               End_Idx := End_Idx - 1;
-            end loop;
-
-            Put (Current_Error, Message (Start_Idx .. End_Idx));
-
-            if Log_Mode and then Is_Open (Log_File) then
-               Put (Log_File, Message (Start_Idx .. End_Idx));
-            end if;
-
-            --  Skip spaces in the remaining part of the message, if any:
-            End_Idx := Message'Last;
-
-            while Start_From <= End_Idx
-                 and then
-                  Message (Start_From) = ' '
-            loop
-               Start_From := Start_From + 1;
-            end loop;
-
-            if Start_From <= End_Idx then
-               New_Line (Current_Error);
-
-               if Log_Mode and then Is_Open (Log_File) then
-                  New_Line (Log_File);
-               end if;
-
-               Info_No_EOL
-                 (Message  => Spacing * ' ' & Message (Start_From .. End_Idx),
-                  Line_Len => Line_Len,
-                  Spacing  => Spacing);
-            end if;
-         end if;
+      if Log_Mode and then Is_Open (Log_File) then
+         Put (Log_File, Message);
       end if;
    end Info_No_EOL;
 
@@ -673,117 +595,117 @@ package body Gnatcheck.Output is
       pragma Style_Checks ("M200"); -- Allow long lines
 
       if Gnatkp_Mode then
-         Info ("gnatkp: the GNAT known problem detector");
-         Info ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
-         Info ("options:");
-         Info (" --version - Display version and exit");
-         Info (" --help    - Display usage and exit");
-         Info ("");
-         Info (" -Pproject        - Use project file project. Only one such switch can be used");
-         Info (" -U               - check all sources of the argument project");
-         Info (" -U main          - check the closure of units rooted at unit main");
-         Info (" --no-subprojects - process only sources of root project");
-         Info (" -Xname=value     - specify an external reference for argument project file");
-         Info (" --subdirs=dir    - specify subdirectory to place the result files into");
-         Info (" -eL              - follow all symbolic links when processing project files");
-         Info (" -o filename      - specify the name of the report file");
-         Info ("");
-         Info (" --target=targetname - specify a target for cross platforms");
-         Info (" --RTS=<runtime>     - use runtime <runtime>");
-         Info ("");
-         Info (" -h   - print out the list of the available kp detectors");
-         Info (" -jn  - n is the maximal number of processes");
-         Info (" -q   - quiet mode (do not report detections in Stderr)");
-         Info (" -v   - verbose mode");
-         Info (" -l   - full pathname for file locations");
-         Info ("");
-         Info (" --brief                - brief mode, only report detections in Stderr");
-         Info (" --check-semantic       - check semantic validity of the source files");
-         Info (" --charset=<charset>    - specify the charset of the source files");
-         Info (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
-         Info (" --rule-file=filename   - read kp configuration from the given LKQL file");
-         Info (" -r, --rule [kp_id]     - enable the given kp detector during the GNATKP run (this option is cumulative)");
-         Info ("");
-         Info (" -from=filename    - read kp options from filename");
-         Info (" +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
-         Info ("   where <kp_id>   - ID of one of the currently implemented");
-         Info ("                     detectors, use '-h' for the full list");
-         Info ("");
-         Info ("KP detectors must be specified either implicitly via --kp-version ");
-         Info ("(and optionally --target), or explicitly via -rules");
+         Put_Line ("gnatkp: the GNAT known problem detector");
+         Put_Line ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
+         Put_Line ("options:");
+         Put_Line (" --version - Display version and exit");
+         Put_Line (" --help    - Display usage and exit");
+         Put_Line ("");
+         Put_Line (" -Pproject        - Use project file project. Only one such switch can be used");
+         Put_Line (" -U               - check all sources of the argument project");
+         Put_Line (" -U main          - check the closure of units rooted at unit main");
+         Put_Line (" --no-subprojects - process only sources of root project");
+         Put_Line (" -Xname=value     - specify an external reference for argument project file");
+         Put_Line (" --subdirs=dir    - specify subdirectory to place the result files into");
+         Put_Line (" -eL              - follow all symbolic links when processing project files");
+         Put_Line (" -o filename      - specify the name of the report file");
+         Put_Line ("");
+         Put_Line (" --target=targetname - specify a target for cross platforms");
+         Put_Line (" --RTS=<runtime>     - use runtime <runtime>");
+         Put_Line ("");
+         Put_Line (" -h   - print out the list of the available kp detectors");
+         Put_Line (" -jn  - n is the maximal number of processes");
+         Put_Line (" -q   - quiet mode (do not report detections in Stderr)");
+         Put_Line (" -v   - verbose mode");
+         Put_Line (" -l   - full pathname for file locations");
+         Put_Line ("");
+         Put_Line (" --brief                - brief mode, only report detections in Stderr");
+         Put_Line (" --check-semantic       - check semantic validity of the source files");
+         Put_Line (" --charset=<charset>    - specify the charset of the source files");
+         Put_Line (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
+         Put_Line (" --rule-file=filename   - read kp configuration from the given LKQL file");
+         Put_Line (" -r, --rule [kp_id]     - enable the given kp detector during the GNATKP run (this option is cumulative)");
+         Put_Line ("");
+         Put_Line (" -from=filename    - read kp options from filename");
+         Put_Line (" +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
+         Put_Line ("   where <kp_id>   - ID of one of the currently implemented");
+         Put_Line ("                     detectors, use '-h' for the full list");
+         Put_Line ("");
+         Put_Line ("KP detectors must be specified either implicitly via --kp-version ");
+         Put_Line ("(and optionally --target), or explicitly via -rules");
          return;
       end if;
 
-      Info ("gnatcheck: the GNAT rule checking tool");
-      Info ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");
-      Info ("options:");
-      Info (" --version - Display version and exit");
-      Info (" --help    - Display usage and exit");
-      Info ("");
-      Info (" -Pproject        - Use project file project. Only one such switch can be used");
-      Info (" -U               - check all sources of the argument project");
-      Info (" -U main          - check the closure of units rooted at unit main");
-      Info (" --no-subprojects - process only sources of root project");
-      Info (" -Xname=value     - specify an external reference for argument project file");
-      Info (" --subdirs=dir    - specify subdirectory to place the result files into");
-      Info (" --no_objects_dir - place results into current dir instead of project dir");
-      Info (" -eL              - follow all symbolic links when processing project files");
-      Info ("");
-      Info (" --ignore-project-switches - ignore switches specified in the project file");
-      Info (" --target=targetname       - specify a target for cross platforms");
-      Info (" --RTS=<runtime>           - use runtime <runtime>");
-      Info (" --config=<cgpr>           - use configuration project <cgpr>");
-      Info ("");
-      Info (" -h   - print out the list of the currently implemented rules");
-      Info (" -mn  - n is the maximal number of diagnoses in Stderr");
-      Info ("        (n in 0 .. 1000, 0 means no limit); default is 0");
-      Info (" -jn  - n is the maximal number of processes");
-      Info (" -q   - quiet mode (do not report detections in Stderr)");
-      Info (" -t   - report execution time in Stderr");
-      Info (" -v   - verbose mode");
-      Info (" -l   - full pathname for file locations");
-      Info (" -log - duplicate all the messages sent to Stderr in gnatcheck.log");
-      Info (" -s   - short form of the report file");
-      Info (" -xml - generate report in XML format");
-      Info (" -nt  - do not generate text report (enforces '-xml')");
-      Info ("");
-      Info (" --show-rule                - append rule names to diagnoses generated");
-      Info (" --show-instantiation-chain - show instantiation chain for reported generic construct");
-      Info ("");
-      Info (" --brief              - brief mode, only report detections in Stderr");
-      Info (" --check-redefinition - issue warning if a rule parameter is redefined");
-      Info (" --check-semantic     - check semantic validity of the source files");
-      Info (" --charset=<charset>  - specify the charset of the source files");
+      Put_Line ("gnatcheck: the GNAT rule checking tool");
+      Put_Line ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");
+      Put_Line ("options:");
+      Put_Line (" --version - Display version and exit");
+      Put_Line (" --help    - Display usage and exit");
+      Put_Line ("");
+      Put_Line (" -Pproject        - Use project file project. Only one such switch can be used");
+      Put_Line (" -U               - check all sources of the argument project");
+      Put_Line (" -U main          - check the closure of units rooted at unit main");
+      Put_Line (" --no-subprojects - process only sources of root project");
+      Put_Line (" -Xname=value     - specify an external reference for argument project file");
+      Put_Line (" --subdirs=dir    - specify subdirectory to place the result files into");
+      Put_Line (" --no_objects_dir - place results into current dir instead of project dir");
+      Put_Line (" -eL              - follow all symbolic links when processing project files");
+      Put_Line ("");
+      Put_Line (" --ignore-project-switches - ignore switches specified in the project file");
+      Put_Line (" --target=targetname       - specify a target for cross platforms");
+      Put_Line (" --RTS=<runtime>           - use runtime <runtime>");
+      Put_Line (" --config=<cgpr>           - use configuration project <cgpr>");
+      Put_Line ("");
+      Put_Line (" -h   - print out the list of the currently implemented rules");
+      Put_Line (" -mn  - n is the maximal number of diagnoses in Stderr");
+      Put_Line ("        (n in 0 .. 1000, 0 means no limit); default is 0");
+      Put_Line (" -jn  - n is the maximal number of processes");
+      Put_Line (" -q   - quiet mode (do not report detections in Stderr)");
+      Put_Line (" -t   - report execution time in Stderr");
+      Put_Line (" -v   - verbose mode");
+      Put_Line (" -l   - full pathname for file locations");
+      Put_Line (" -log - duplicate all the messages sent to Stderr in gnatcheck.log");
+      Put_Line (" -s   - short form of the report file");
+      Put_Line (" -xml - generate report in XML format");
+      Put_Line (" -nt  - do not generate text report (enforces '-xml')");
+      Put_Line ("");
+      Put_Line (" --show-rule                - append rule names to diagnoses generated");
+      Put_Line (" --show-instantiation-chain - show instantiation chain for reported generic construct");
+      Put_Line ("");
+      Put_Line (" --brief              - brief mode, only report detections in Stderr");
+      Put_Line (" --check-redefinition - issue warning if a rule parameter is redefined");
+      Put_Line (" --check-semantic     - check semantic validity of the source files");
+      Put_Line (" --charset=<charset>  - specify the charset of the source files");
 
       if not Legacy then
-         Info (" --rules-dir=<dir>    - specify an alternate directory containing rule files");
+         Put_Line (" --rules-dir=<dir>    - specify an alternate directory containing rule files");
       end if;
 
-      Info ("");
-      Info (" --include-file=filename - add the content of filename into generated report");
-      Info ("");
-      Info (" -o filename   - specify the name of the text report file");
-      Info (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
-      Info ("");
-      Info (" filename                 - the name of the Ada source file to be analyzed.");
-      Info ("                           Wildcards are allowed");
-      Info (" -files=filename          - the name of the text file containing a list of Ada");
-      Info ("                           source files to analyze");
-      Info (" --ignore=filename        - do not process sources listed in filename");
-      Info (" --rule-file=filename     - read rule configuration from the given LKQL file");
-      Info (" -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)");
-      Info (" --emit-lkql-rule-file    - emit a 'rules.lkql' file containing the rules configuration");
-      Info ("");
-      Info ("rule_switches          - a list of the following switches");
-      Info ("   -from=filename      - read rule options from filename");
-      Info ("   +R<rule_id>[:param] - turn ON a given rule [with given parameter]");
-      Info ("   -R<rule_id>         - turn OFF a given rule");
-      Info ("   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,");
-      Info ("                         depending on the specified parameter");
-      Info ("where <rule_id> - ID of one of the currently implemented");
-      Info ("                  rules, use '-h' for the full list");
-      Info ("      param     - string representing parameter(s) of a given rule, more than ");
-      Info ("                  one parameter can be set separated by ','");
+      Put_Line ("");
+      Put_Line (" --include-file=filename - add the content of filename into generated report");
+      Put_Line ("");
+      Put_Line (" -o filename   - specify the name of the text report file");
+      Put_Line (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
+      Put_Line ("");
+      Put_Line (" filename                 - the name of the Ada source file to be analyzed.");
+      Put_Line ("                           Wildcards are allowed");
+      Put_Line (" -files=filename          - the name of the text file containing a list of Ada");
+      Put_Line ("                           source files to analyze");
+      Put_Line (" --ignore=filename        - do not process sources listed in filename");
+      Put_Line (" --rule-file=filename     - read rule configuration from the given LKQL file");
+      Put_Line (" -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)");
+      Put_Line (" --emit-lkql-rule-file    - emit a 'rules.lkql' file containing the rules configuration");
+      Put_Line ("");
+      Put_Line ("rule_switches          - a list of the following switches");
+      Put_Line ("   -from=filename      - read rule options from filename");
+      Put_Line ("   +R<rule_id>[:param] - turn ON a given rule [with given parameter]");
+      Put_Line ("   -R<rule_id>         - turn OFF a given rule");
+      Put_Line ("   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,");
+      Put_Line ("                         depending on the specified parameter");
+      Put_Line ("where <rule_id> - ID of one of the currently implemented");
+      Put_Line ("                  rules, use '-h' for the full list");
+      Put_Line ("      param     - string representing parameter(s) of a given rule, more than ");
+      Put_Line ("                  one parameter can be set separated by ','");
 
       pragma Style_Checks ("M79");
    end Brief_Help;
@@ -794,7 +716,6 @@ package body Gnatcheck.Output is
 
    procedure Print_Gnatcheck_Usage is
    begin
-      Set_Error (Standard_Output);
       Brief_Help;
       New_Line;
       Put_Line ("Report bugs to report@adacore.com");
