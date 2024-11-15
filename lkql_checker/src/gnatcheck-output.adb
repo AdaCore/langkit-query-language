@@ -123,17 +123,6 @@ package body Gnatcheck.Output is
       end if;
    end Error_No_Tool_Name;
 
-   ------------------
-   -- Error_In_Tty --
-   ------------------
-
-   procedure Error_In_Tty (Message : String) is
-   begin
-      if isatty (fileno (stderr)) /= 0 then
-         Put_Line (Standard_Error, Executable & ": " & Message);
-      end if;
-   end Error_In_Tty;
-
    -----------------------
    -- Get_Indent_String --
    -----------------------
@@ -313,6 +302,17 @@ package body Gnatcheck.Output is
          end if;
       end if;
    end Info_No_EOL;
+
+   -----------------
+   -- Info_In_Tty --
+   -----------------
+
+   procedure Info_In_Tty (Message : String) is
+   begin
+      if isatty (fileno (stderr)) /= 0 then
+         Put_Line (Standard_Error, Message);
+      end if;
+   end Info_In_Tty;
 
    ------------------------
    -- Print_Tool_Version --
