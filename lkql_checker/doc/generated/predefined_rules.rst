@@ -8,8 +8,9 @@ Predefined Rules
 
 The description of the rules currently implemented in ``gnatcheck`` is
 given in this chapter.
-The rule identifier is used as a parameter of ``gnatcheck``'s ``+R`` or ``-R``
-switches.
+The rule identifier is used as a key for LKQL rule configuration objects (see
+:ref:`LKQL rule file<LKQL_options_file>`), and as first parameter of
+``gnatcheck``'s ``+R`` or ``-R`` switches.
 
 Be aware that most of these rules apply to specialized coding
 requirements developed by individual users and may well not make sense in
@@ -4467,8 +4468,8 @@ options files:
 
 Note that if you specify the rule with parameters in a command shell, you may
 need to escape its parameters. The best and the safest way of using this rule
-is to place it into a rule file and to use this rule file as a parameter of the
-``-from=`` option, no escaping is needed in this case.
+is to place it into an LKQL rule file and to use this rule file with the
+``--rule-file`` switch, no escaping is needed in this case.
 
 .. rubric:: Example
 
