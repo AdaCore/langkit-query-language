@@ -18,6 +18,10 @@ package Gnatcheck.Output is
    Custom_XML_Report_File  : Boolean := False;
    --  Undicate if custom name is specified for text or XML output file
 
+   Error_From_Warning : Boolean;
+   --  Whether a warning message has been emitted while "warnings as errors"
+   --  mode is enabled. This ensure the return code of GNATcheck is not 0.
+
    procedure Print_Version_Info (Released_At : Positive);
    --  Prints into Stderr the tool version information in the following format:
    --

@@ -1,0 +1,10 @@
+driver: gnatcheck
+format: brief
+input_sources:
+  - main.adb
+lkql_rule_file: rules.lkql
+tests:
+  - label: Without "warnings as errors"
+  - label: With "warnings as errors"
+    extra_args:
+      - -W

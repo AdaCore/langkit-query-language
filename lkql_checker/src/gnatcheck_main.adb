@@ -604,22 +604,25 @@ begin
    Gnatcheck.Rules.Rule_Table.Clean_Up;
    Close_Log_File;
 
-   OS_Exit (if Tool_Failures /= 0 or else Detected_Internal_Error /= 0
-            then                                    E_Error
-            elsif Missing_Rule_File_Detected   then E_Missing_Rule_File
-            elsif Bad_Rule_Detected            then E_Missing_Rule
-            elsif Rule_Option_Problem_Detected then E_Bad_Rules
-            elsif Missing_File_Detected        then E_Missing_Source
+   OS_Exit
+     (if Tool_Failures /= 0
+        or else Detected_Internal_Error /= 0
+        or else Error_From_Warning
+      then                                    E_Error
+      elsif Missing_Rule_File_Detected   then E_Missing_Rule_File
+      elsif Bad_Rule_Detected            then E_Missing_Rule
+      elsif Rule_Option_Problem_Detected then E_Bad_Rules
+      elsif Missing_File_Detected        then E_Missing_Source
 
-            --  If we are here, no problem with gnatcheck execution or rule
-            --  option or missing file definition is detected, so we can trust
-            --  gnatcheck results.
+      --  If we are here, no problem with gnatcheck execution or rule
+      --  option or missing file definition is detected, so we can trust
+      --  gnatcheck results.
 
-            elsif (Detected_Non_Exempted_Violations > 0
-                or else Detected_Compiler_Error > 0)
-                 and then not Arg.Brief_Mode
-            then E_Violation
-            else E_Success);
+      elsif (Detected_Non_Exempted_Violations > 0
+      or else Detected_Compiler_Error > 0)
+      and then not Arg.Brief_Mode
+      then E_Violation
+      else E_Success);
 
 exception
    when Parameter_Error =>
