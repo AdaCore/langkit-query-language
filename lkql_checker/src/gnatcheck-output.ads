@@ -43,10 +43,6 @@ package Gnatcheck.Output is
    procedure Error_No_Tool_Name (Message : String);
    --  Sends into Stderr the error message with no tool name prefix
 
-   procedure Error_In_Tty (Message : String);
-   --  Same as ``Error`` but send the message only if Stderr is a TTY. Also,
-   --  ``Message`` is not added to the stderr log file.
-
    procedure Warning (Message : String);
    --  Same as Error, but do nothing if Warning_Mode = Quiet.
 
@@ -70,6 +66,10 @@ package Gnatcheck.Output is
    --  The same as Info, but does not "close" the last line being printed out,
    --  that is, the last line does not contain a (platform-specific) EOL
    --  character(s).
+
+   procedure Info_In_Tty (Message : String);
+   --  Same as ``Info`` but send the message only if Stderr is a TTY. Also,
+   --  ``Message`` is not added to the current ``Log_File``.
 
    Indent_String : constant String := "   ";
    --  Used as indentation element in various output
