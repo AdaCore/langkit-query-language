@@ -229,4 +229,3 @@ have the following content::
     6. Gnatcheck internal errors
 
        no internal error detected
-
