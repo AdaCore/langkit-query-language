@@ -2804,11 +2804,9 @@ package body Gnatcheck.Rules is
    procedure Print_Rule_Help (Rule : Rule_Info) is
    begin
       Info
-        (Message  =>
-           " " & Rule_Name (Rule) & " - " &
-           To_String (Rule.Help_Info) & " - " &
-           Rule.Remediation_Level'Img,
-         Line_Len => 0, Spacing => 0);
+        (" " & Rule_Name (Rule) & " - " &
+         To_String (Rule.Help_Info) & " - " &
+         Rule.Remediation_Level'Img);
    end Print_Rule_Help;
 
    ---------------------------------------
