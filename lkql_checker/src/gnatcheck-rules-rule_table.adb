@@ -1052,9 +1052,9 @@ package body Gnatcheck.Rules.Rule_Table is
                 then To_String (Instance.Defined_At)
                 else "command line") & Diag_Defined_At);
             if not Instance_Help_Emitted then
-               Warning
+               Info
                  ("if you want to pass multiple parameters to a rule you " &
-                  "should use the comma separated notation: e.g. " &
+                  "should use the comma separated notation: e.g. "         &
                   "+RMy_Rule:Param1,Param2");
                Instance_Help_Emitted := True;
             end if;
