@@ -1,0 +1,4 @@
+val rules = @{
+    goto_statements,
+    restrictions: {arg: ["No_Recursion"]}
+}
