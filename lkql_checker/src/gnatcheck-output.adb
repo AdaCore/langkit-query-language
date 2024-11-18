@@ -321,18 +321,17 @@ package body Gnatcheck.Output is
    procedure Print_Tool_Version (Released_At : Positive) is
    begin
       if Gnatkp_Mode then
-         Put ("GNATKP " & Date);
+         Put_Line ("GNATKP " & Date);
       else
-         Put ("GNATCHECK " & Version_String);
+         Put_Line ("GNATCHECK " & Version_String);
       end if;
-      New_Line;
 
-      Put ("Copyright (C) ");
-      Put (Image (Released_At));
-      Put ('-');
-      Put (Current_Year);
-      Put (", AdaCore.");
-      New_Line;
+      Put_Line
+        ("Copyright (C) "    &
+         Image (Released_At) &
+         '-'                 &
+         Current_Year        &
+         ", AdaCore.");
    end Print_Tool_Version;
 
    ------------------------
