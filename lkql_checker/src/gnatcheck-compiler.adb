@@ -280,7 +280,7 @@ package body Gnatcheck.Compiler is
 
          procedure Format_Error is
          begin
-            Error ("Unparsable line: " & Msg);
+            Error ("unparsable worker output: """ & Msg & """");
             Errors := True;
          end Format_Error;
 
