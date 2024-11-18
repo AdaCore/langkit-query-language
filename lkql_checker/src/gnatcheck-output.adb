@@ -324,12 +324,12 @@ package body Gnatcheck.Output is
       Put (Version_String);
       New_Line;
 
-      Put ("Copyright (C) ");
-      Put (Image (Released_At));
-      Put ('-');
-      Put (Current_Year);
-      Put (", AdaCore.");
-      New_Line;
+      Put_Line
+        ("Copyright (C) "    &
+         Image (Released_At) &
+         '-'                 &
+         Current_Year        &
+         ", AdaCore.");
    end Print_Tool_Version;
 
    ------------------------
