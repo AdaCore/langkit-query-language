@@ -48,7 +48,7 @@ package Gnatcheck.Output is
    --  Sends into Stderr the error message with no tool name prefix
 
    procedure Warning (Message : String);
-   --  Same as Error, but do nothing if Warning_Mode = Quiet.
+   --  Same as ``Error``
 
    procedure Info (Message : String);
    --  Sends Message into Stderr (with no tool name prefix).
