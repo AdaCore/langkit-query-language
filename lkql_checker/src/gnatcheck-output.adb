@@ -563,9 +563,7 @@ package body Gnatcheck.Output is
 
    procedure Warning (Message : String) is
    begin
-      if Arg.Warnings_As_Errors.Get or else Warning_Mode /= Quiet then
-         Error (Message);
-      end if;
+      Error (Message);
 
       --  Force a non-zero return code when "warnings as errors" is enabled
       if Arg.Warnings_As_Errors.Get then
