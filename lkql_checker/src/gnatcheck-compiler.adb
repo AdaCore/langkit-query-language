@@ -520,6 +520,7 @@ package body Gnatcheck.Compiler is
             and then Line (1 .. 14) = "WORKER_ERROR: "
          then
             Error (Line (15 .. Line_Len));
+            Detected_Internal_Error := @ + 1;
             Errors := True;
          else
             Analyze_Line (Line (1 .. Line_Len));
