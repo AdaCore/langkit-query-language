@@ -95,33 +95,54 @@ package body Gnatcheck.Output is
       end if;
    end Close_Report_Files;
 
+   ------------------
+   -- Emit_Message --
+   ------------------
+
+   procedure Emit_Message
+     (Message     : String;
+      Tag         : Message_Tags := None;
+      Tool_Name   : Boolean := False;
+      New_Line    : Boolean := False;
+      Log_Message : Boolean := False)
+   is
+      Final_Message : constant String :=
+        (if Tool_Name then Executable & ": " else "")
+        & (case Tag is
+           when Info => "info: ",
+           when Warning => "warning: ",
+           when Error => "error: ",
+           when None => "")
+        & Message;
+   begin
+      --  Display the message in the standard error
+      Put (Standard_Error, Final_Message);
+      if New_Line then
+         Ada.Text_IO.New_Line (Standard_Error);
+      end if;
+
+      --  If required, log the message
+      if Log_Message and then Log_Mode and then Is_Open (Log_File) then
+         Put (Log_File, Final_Message);
+         if New_Line then
+            Ada.Text_IO.New_Line (Log_File);
+         end if;
+      end if;
+   end Emit_Message;
+
    -----------
    -- Error --
    -----------
 
    procedure Error (Message : String) is
    begin
-      Put (Standard_Error, Executable & ": ");
-
-      if Log_Mode and then Is_Open (Log_File) then
-         Put (Log_File, Executable & ": ");
-      end if;
-
-      Error_No_Tool_Name (Message);
+      Emit_Message
+        (Message,
+         Tag         => Error,
+         Tool_Name   => True,
+         New_Line    => True,
+         Log_Message => True);
    end Error;
-
-   ------------------------
-   -- Error_No_Tool_Name --
-   ------------------------
-
-   procedure Error_No_Tool_Name (Message : String) is
-   begin
-      Put_Line (Standard_Error, Message);
-
-      if Log_Mode and then Is_Open (Log_File) then
-         Put_Line (Log_File, Message);
-      end if;
-   end Error_No_Tool_Name;
 
    -----------------------
    -- Get_Indent_String --
@@ -204,26 +225,17 @@ package body Gnatcheck.Output is
 
    procedure Info (Message : String) is
    begin
-      Info_No_EOL (Message);
-      New_Line (Standard_Error);
-
-      if Log_Mode and then Is_Open (Log_File) then
-         New_Line (Log_File);
-      end if;
+      Emit_Message
+        (Message,
+         Tag         => Info,
+         Tool_Name   => True,
+         New_Line    => True,
+         Log_Message => True);
    end Info;
 
    -----------------
    -- Info_No_EOL --
    -----------------
-
-   procedure Info_No_EOL (Message : String) is
-   begin
-      Put (Standard_Error, Message);
-
-      if Log_Mode and then Is_Open (Log_File) then
-         Put (Log_File, Message);
-      end if;
-   end Info_No_EOL;
 
    -----------------
    -- Info_In_Tty --
@@ -232,9 +244,26 @@ package body Gnatcheck.Output is
    procedure Info_In_Tty (Message : String) is
    begin
       if isatty (fileno (stderr)) /= 0 then
-         Put_Line (Standard_Error, Message);
+         Emit_Message
+           (Message,
+            Tag         => Info,
+            Tool_Name   => True,
+            New_Line    => True,
+            Log_Message => False);
       end if;
    end Info_In_Tty;
+
+   -----------
+   -- Print --
+   -----------
+
+   procedure Print
+     (Message : String;
+      New_Line, Log_Message : Boolean := True)
+   is
+   begin
+      Emit_Message (Message, New_Line => New_Line, Log_Message => Log_Message);
+   end Print;
 
    ------------------------
    -- Print_Tool_Version --
@@ -262,12 +291,14 @@ package body Gnatcheck.Output is
 
    procedure Print_Version_Info (Released_At : Positive) is
    begin
-      Info (Executable & " " & Version_String);
-      Info_No_EOL ("Copyright ");
-      Info_No_EOL (Image (Released_At));
-      Info_No_EOL ("-");
-      Info_No_EOL (Current_Year);
-      Info        (", AdaCore.");
+      Print (Executable & " " & Version_String, Log_Message => False);
+      Print
+        ("Copyright "
+         & Image (Released_At)
+         & '-'
+         & Current_Year
+         & ", AdaCore.",
+         Log_Message => False);
    end Print_Version_Info;
 
    ------------
@@ -350,9 +381,7 @@ package body Gnatcheck.Output is
    begin
       Error (Exception_Message (Ex));
       if Arg.Debug_Mode.Get then
-         Put_Line
-           (Standard_Error,
-            GNAT.Traceback.Symbolic.Symbolic_Traceback_No_Hex (Ex));
+         Print (GNAT.Traceback.Symbolic.Symbolic_Traceback_No_Hex (Ex));
       end if;
    end Report_Unhandled_Exception;
 
@@ -543,11 +572,16 @@ package body Gnatcheck.Output is
 
    procedure Warning (Message : String) is
    begin
-      Error (Message);
-
-      --  Force a non-zero return code when "warnings as errors" is enabled
       if Arg.Warnings_As_Errors.Get then
+         Error (Message);
          Error_From_Warning := True;
+      else
+         Emit_Message
+           (Message,
+            Tag         => Warning,
+            Tool_Name   => True,
+            New_Line    => True,
+            Log_Message => True);
       end if;
    end Warning;
 

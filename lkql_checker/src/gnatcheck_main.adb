@@ -226,8 +226,10 @@ procedure Gnatcheck_Main is
                       (if Analyze_Compiler_Output then 1 else 0);
 
       if not Arg.Quiet_Mode and not Arg.Progress_Indicator_Mode.Get then
-         Info_No_EOL ("Jobs remaining:");
-         Info_No_EOL (Integer'Image (Total_Jobs) & ASCII.CR);
+         Print
+           ("Jobs remaining:" & Integer'Image (Total_Jobs) & ASCII.CR,
+            New_Line => False,
+            Log_Message => False);
       end if;
 
       --  Process each job with all rules and a different subset of files
@@ -259,8 +261,9 @@ procedure Gnatcheck_Main is
 
                   Current := Total_Jobs;
                   Tool_Failures := @ + 1;
-                  Info ("Error while waiting for gnatcheck process, output " &
-                        "may be incomplete.");
+                  Error
+                    ("error while waiting for gnatcheck process, output may " &
+                     "be incomplete.");
                   return;
                end if;
 
@@ -272,14 +275,20 @@ procedure Gnatcheck_Main is
                        Integer'Image ((Current * 100) / Total_Jobs);
                   begin
                      Percent (1) := '(';
-                     Info ("completed" & Integer'Image (Current)
-                           & " out of" & Integer'Image (Total_Jobs) & " "
-                           & Percent & "%)...");
+                     Print
+                       ("completed" & Integer'Image (Current)
+                        & " out of" & Integer'Image (Total_Jobs) & " "
+                        & Percent & "%)...",
+                        Log_Message => False);
                   end;
                elsif not Arg.Quiet_Mode then
-                  Info_No_EOL ("Jobs remaining:");
-                  Info_No_EOL (Integer'Image (Total_Jobs - Current));
-                  Info_No_EOL ("     " & ASCII.CR);
+                  Print
+                    (Message =>
+                       "Jobs remaining:"
+                       & Integer'Image (Total_Jobs - Current)
+                       & "     " & ASCII.CR,
+                     New_Line => False,
+                     Log_Message => False);
                end if;
 
                if Pid = GPRbuild_Pid then
@@ -303,7 +312,7 @@ procedure Gnatcheck_Main is
                   end loop;
 
                   if not Process_Found then
-                     Info ("Error while waiting for gprbuild process.");
+                     Error ("error while waiting for gprbuild process.");
                   end if;
 
                   exit;
@@ -546,8 +555,9 @@ begin
    if Arg.Emit_LKQL_Rule_File.Get then
       --  Ensure that the 'rules.lkql' file doesn't exists
       if Is_Regular_File (Default_LKQL_Rule_Options_File) then
-         Error ("Cannot emit the LKQL rule file, " &
-                Default_LKQL_Rule_Options_File & "already exists");
+         Error
+           ("cannot emit the LKQL rule file, " &
+            Default_LKQL_Rule_Options_File & "already exists");
          OS_Exit (E_Error);
       end if;
 
@@ -590,15 +600,15 @@ begin
       Gnatcheck.Output.Close_Report_Files;
 
       if Tool_Failures > 0 then
-         Info ("Total gnatcheck failures:" & Tool_Failures'Img);
+         Print ("Total gnatcheck failures:" & Tool_Failures'Img);
       end if;
    end if;
 
    Gnatcheck.Projects.Clean_Up (Gnatcheck.Options.Gnatcheck_Prj);
 
    if Arg.Time.Get then
-      Info ("Execution time:" &
-            Duration'Image (Ada.Calendar.Clock - Time_Start));
+      Print
+        ("Execution time:" & Duration'Image (Ada.Calendar.Clock - Time_Start));
    end if;
 
    Gnatcheck.Rules.Rule_Table.Clean_Up;
@@ -627,7 +637,9 @@ begin
 exception
    when Parameter_Error =>
       --  The diagnosis is already generated
-      Info ("try """ & Executable & " --help"" for more information.");
+      Print
+        ("try """ & Executable & " --help"" for more information.",
+         Log_Message => False);
       OS_Exit (E_Error);
 
    when Fatal_Error =>

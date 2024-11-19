@@ -1,4 +1,4 @@
-gnatcheck: (my_instance) no parameter allowed for -R
-gnatcheck: No rule to check specified
+gnatcheck: error: (my_instance) no parameter allowed for -R
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

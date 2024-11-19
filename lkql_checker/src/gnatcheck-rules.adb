@@ -658,12 +658,12 @@ package body Gnatcheck.Rules is
    procedure No_Param_XML_Help
      (Rule : Rule_Info; Indent_Level : Natural) is
    begin
-      Info (Indent_Level * Indent_String &
-            "<check switch=""+R"         &
-            Rule_Name (Rule)             &
-            """ label="""                &
-            To_String (Rule.Help_Info)   &
-            """/>");
+      Print (Indent_Level * Indent_String &
+             "<check switch=""+R"         &
+             Rule_Name (Rule)             &
+             """ label="""                &
+             To_String (Rule.Help_Info)   &
+             """/>");
    end No_Param_XML_Help;
 
    ------------------------
@@ -673,16 +673,16 @@ package body Gnatcheck.Rules is
    procedure Int_Param_XML_Help
      (Rule : Rule_Info; Indent_Level : Natural) is
    begin
-      Info (Indent_Level * Indent_String &
-            "<spin switch=""+R"          &
-            Rule_Name (Rule)             &
-            """ label="""                &
-            To_String (Rule.Help_Info)   &
-            """ min=""0"""               &
-            " max=""99999"""             &
-            " default=""-1"""            &
-            " separator="":"""           &
-            "/>");
+      Print (Indent_Level * Indent_String &
+             "<spin switch=""+R"          &
+             Rule_Name (Rule)             &
+             """ label="""                &
+             To_String (Rule.Help_Info)   &
+             """ min=""0"""               &
+             " max=""99999"""             &
+             " default=""-1"""            &
+             " separator="":"""           &
+             "/>");
    end Int_Param_XML_Help;
 
    -------------------------
@@ -692,20 +692,20 @@ package body Gnatcheck.Rules is
    procedure Bool_Param_XML_Help
      (Rule : Rule_Info; Indent_Level : Natural) is
    begin
-      Info (Indent_Level * Indent_String &
-            "<field switch=""+R"         &
-            Rule_Name (Rule)             &
-            """ separator="":"""         &
-            " label="""                  &
-            To_String (Rule.Help_Info)   &
-            """/>");
-      Info (Indent_Level * Indent_String     &
-            "<check switch=""+R"             &
-            Rule_Name (Rule) & ":"           &
-            Param_Name (Rule, 2) &
-            """ label="""                    &
-            To_String (Rule.Help_Info)       &
-            """/>");
+      Print (Indent_Level * Indent_String &
+             "<field switch=""+R"         &
+             Rule_Name (Rule)             &
+             """ separator="":"""         &
+             " label="""                  &
+             To_String (Rule.Help_Info)   &
+             """/>");
+      Print (Indent_Level * Indent_String     &
+             "<check switch=""+R"             &
+             Rule_Name (Rule) & ":"           &
+             Param_Name (Rule, 2)             &
+             """ label="""                    &
+             To_String (Rule.Help_Info)       &
+             """/>");
    end Bool_Param_XML_Help;
 
    ---------------------------
@@ -715,13 +715,13 @@ package body Gnatcheck.Rules is
    procedure String_Param_XML_Help
      (Rule : Rule_Info; Indent_Level : Natural) is
    begin
-      Info (Indent_Level * Indent_String &
-            "<field switch=""+R"         &
-            Rule_Name (Rule)             &
-            """ separator="":"""         &
-            " label="""                  &
-            To_String (Rule.Help_Info)   &
-            """/>");
+      Print (Indent_Level * Indent_String &
+             "<field switch=""+R"         &
+             Rule_Name (Rule)             &
+             """ separator="":"""         &
+             " label="""                  &
+             To_String (Rule.Help_Info)   &
+             """/>");
    end String_Param_XML_Help;
 
    ------------------------------
@@ -731,75 +731,75 @@ package body Gnatcheck.Rules is
    procedure Id_Suffix_Param_XML_Help
      (Rule : Rule_Info; Indent_Level : Natural)
    is
-      procedure Print (Param : String; Help : String);
+      procedure Print_Help (Param : String; Help : String);
       --  Print XML help for parameter Param
 
       -----------
       -- Print --
       -----------
 
-      procedure Print (Param : String; Help : String) is
+      procedure Print_Help (Param : String; Help : String) is
       begin
-         Info (Indent_Level * Indent_String       &
-               "<field switch=""+R"               &
-               Rule_Name (Rule)                   &
-               ":" & Param & '"'                  &
-               " label="""                        &
-               "suffix for " & Help & " names"    &
-               " (empty string disables check)""" &
-               " separator=""="""                 &
-               " switch-off=""-R"                 &
-               Rule_Name (Rule)                   &
-               ":" & Param & '"'                  &
-               "/>");
-      end Print;
+         Print (Indent_Level * Indent_String       &
+                "<field switch=""+R"               &
+                Rule_Name (Rule)                   &
+                ":" & Param & '"'                  &
+                " label="""                        &
+                "suffix for " & Help & " names"    &
+                " (empty string disables check)""" &
+                " separator=""="""                 &
+                " switch-off=""-R"                 &
+                Rule_Name (Rule)                   &
+                ":" & Param & '"'                  &
+                "/>");
+      end Print_Help;
    begin
-      Info (Indent_Level * Indent_String          &
-            "<check switch=""+R"                  &
-            Rule_Name (Rule)                      &
-            ":Default"""                          &
-            " label="""                           &
-            "identifiers use standard suffixes""" &
-            "/>");
+      Print (Indent_Level * Indent_String          &
+             "<check switch=""+R"                  &
+             Rule_Name (Rule)                      &
+             ":Default"""                          &
+             " label="""                           &
+             "identifiers use standard suffixes""" &
+             "/>");
 
-      Print ("Type_Suffix", "type");
-      Print ("Access_Suffix", "access type");
-      Print ("Constant_Suffix", "constant");
-      Print ("Renaming_Suffix", "package renaming");
-      Print ("Access_Obj_Suffix", "access object");
-      Print ("Interrupt_Suffix", "interrupt handler");
+      Print_Help ("Type_Suffix", "type");
+      Print_Help ("Access_Suffix", "access type");
+      Print_Help ("Constant_Suffix", "constant");
+      Print_Help ("Renaming_Suffix", "package renaming");
+      Print_Help ("Access_Obj_Suffix", "access object");
+      Print_Help ("Interrupt_Suffix", "interrupt handler");
 
       --  Specifying the dependencies between the default suffixes and the
       --  content of the fields for specific suffixes
 
-      Info (Indent_Level * Indent_String                  &
-           "<default-value-dependency master-switch=""+R" &
-            Rule_Name (Rule)                              &
-            ":Default"""                                  &
-            " slave-switch=""+R"                          &
-            Rule_Name (Rule)                              &
-            ":Type_Suffix=_T""/>");
-      Info (Indent_Level * Indent_String                  &
-           "<default-value-dependency master-switch=""+R" &
-            Rule_Name (Rule)                              &
-            ":Default"""                                  &
-            " slave-switch=""+R"                          &
-            Rule_Name (Rule)                              &
-            ":Access_Suffix=_A""/>");
-      Info (Indent_Level * Indent_String                  &
-           "<default-value-dependency master-switch=""+R" &
-            Rule_Name (Rule)                              &
-            ":Default"""                                  &
-            " slave-switch=""+R"                          &
-            Rule_Name (Rule)                              &
-            ":Constant_Suffix=_C""/>");
-      Info (Indent_Level * Indent_String                  &
-           "<default-value-dependency master-switch=""+R" &
-            Rule_Name (Rule)                              &
-            ":Default"""                                  &
-            " slave-switch=""+R"                          &
-            Rule_Name (Rule)                              &
-            ":Renaming_Suffix=_R""/>");
+      Print (Indent_Level * Indent_String                   &
+             "<default-value-dependency master-switch=""+R" &
+             Rule_Name (Rule)                               &
+             ":Default"""                                   &
+             " slave-switch=""+R"                           &
+             Rule_Name (Rule)                               &
+             ":Type_Suffix=_T""/>");
+      Print (Indent_Level * Indent_String                   &
+             "<default-value-dependency master-switch=""+R" &
+             Rule_Name (Rule)                               &
+             ":Default"""                                   &
+             " slave-switch=""+R"                           &
+             Rule_Name (Rule)                               &
+             ":Access_Suffix=_A""/>");
+      Print (Indent_Level * Indent_String                   &
+             "<default-value-dependency master-switch=""+R" &
+             Rule_Name (Rule)                               &
+             ":Default"""                                   &
+             " slave-switch=""+R"                           &
+             Rule_Name (Rule)                               &
+             ":Constant_Suffix=_C""/>");
+      Print (Indent_Level * Indent_String                   &
+             "<default-value-dependency master-switch=""+R" &
+             Rule_Name (Rule)                               &
+             ":Default"""                                   &
+             " slave-switch=""+R"                           &
+             Rule_Name (Rule)                               &
+             ":Renaming_Suffix=_R""/>");
    end Id_Suffix_Param_XML_Help;
 
    ------------------------------
@@ -809,44 +809,44 @@ package body Gnatcheck.Rules is
    procedure Id_Prefix_Param_XML_Help
      (Rule : Rule_Info; Indent_Level : Natural)
    is
-      procedure Print (Param : String; Help : String);
+      procedure Print_Help (Param : String; Help : String);
       --  Print XML help for parameter Param
 
       -----------
       -- Print --
       -----------
 
-      procedure Print (Param : String; Help : String) is
+      procedure Print_Help (Param : String; Help : String) is
       begin
-         Info (Indent_Level * Indent_String       &
-               "<field switch=""+R"               &
-               Rule_Name (Rule)                   &
-               ":" & Param & '"'                  &
-               " label="""                        &
-               "prefix for " & Help               &
-               " (empty string disables check)""" &
-               " separator=""="""                 &
-               " switch-off=""-R"                 &
-               Rule_Name (Rule)                   &
-               ":" & Param & '"'                  &
-               "/>");
-      end Print;
+         Print (Indent_Level * Indent_String       &
+                "<field switch=""+R"               &
+                Rule_Name (Rule)                   &
+                ":" & Param & '"'                  &
+                " label="""                        &
+                "prefix for " & Help               &
+                " (empty string disables check)""" &
+                " separator=""="""                 &
+                " switch-off=""-R"                 &
+                Rule_Name (Rule)                   &
+                ":" & Param & '"'                  &
+                "/>");
+      end Print_Help;
 
    begin
-      Print ("Type", "type names");
-      Print ("Concurrent", "task and protected type names");
-      Print ("Access", "access type names");
-      Print ("Class_Access", "class access type names");
-      Print ("Subprogram_Access", "access-to-subprogram type names");
-      Print ("Derived", "derived type names");
-      Print ("Constant", "constant names");
-      Print ("Exception", "exception names");
-      Print ("Enum", "enumeration literals");
-      Info (Indent_Level * Indent_String &
-            "<check switch=""+R"         &
-            Rule_Name (Rule)             &
-            ":Exclusive"""               &
-            " label=""strong check mode""/>");
+      Print_Help ("Type", "type names");
+      Print_Help ("Concurrent", "task and protected type names");
+      Print_Help ("Access", "access type names");
+      Print_Help ("Class_Access", "class access type names");
+      Print_Help ("Subprogram_Access", "access-to-subprogram type names");
+      Print_Help ("Derived", "derived type names");
+      Print_Help ("Constant", "constant names");
+      Print_Help ("Exception", "exception names");
+      Print_Help ("Enum", "enumeration literals");
+      Print (Indent_Level * Indent_String &
+             "<check switch=""+R"         &
+             Rule_Name (Rule)             &
+             ":Exclusive"""               &
+             " label=""strong check mode""/>");
    end Id_Prefix_Param_XML_Help;
 
    ------------------------------
@@ -865,17 +865,17 @@ package body Gnatcheck.Rules is
 
       procedure Print_Combo (Par : String; Descr : String) is
       begin
-         Info (Indent_Level * Indent_String           &
-               "<combo switch=""+RIdentifier_Casing:" &
-               Par & '"' & " label=""" & Descr        &
-               " casing"" separator=""="">");
-         Info ((Indent_Level + 1) * Indent_String &
-              "<combo-entry value=""upper"" />");
-         Info ((Indent_Level + 1) * Indent_String &
-              "<combo-entry value=""lower"" />");
-         Info ((Indent_Level + 1) * Indent_String &
-              "<combo-entry value=""mixed"" />");
-         Info (Indent_Level * Indent_String & "</combo>");
+         Print (Indent_Level * Indent_String           &
+                "<combo switch=""+RIdentifier_Casing:" &
+                Par & '"' & " label=""" & Descr        &
+                " casing"" separator=""="">");
+         Print ((Indent_Level + 1) * Indent_String &
+                "<combo-entry value=""upper"" />");
+         Print ((Indent_Level + 1) * Indent_String &
+                "<combo-entry value=""lower"" />");
+         Print ((Indent_Level + 1) * Indent_String &
+                "<combo-entry value=""mixed"" />");
+         Print (Indent_Level * Indent_String & "</combo>");
       end Print_Combo;
 
    begin
@@ -885,14 +885,14 @@ package body Gnatcheck.Rules is
       Print_Combo ("Exception", "exception name");
       Print_Combo ("Others", "other name");
 
-      Info (Indent_Level * Indent_String        &
-            "<field switch=""+R"                &
-            Rule_Name (Rule)                    &
-            ":Exclude"""                        &
-            " label="""                         &
-            "dictionary of casing exceptions""" &
-            " separator=""="""                  &
-            "/>");
+      Print (Indent_Level * Indent_String        &
+             "<field switch=""+R"                &
+             Rule_Name (Rule)                    &
+             ":Exclude"""                        &
+             " label="""                         &
+             "dictionary of casing exceptions""" &
+             " separator=""="""                  &
+             "/>");
    end Id_Casing_Param_XML_Help;
 
    ------------------------------
@@ -905,33 +905,33 @@ package body Gnatcheck.Rules is
       Name : constant String := Rule_Name (Rule);
       Str  : constant String := Name (11 .. Name'Last);
    begin
-      Info (Indent_Level * Indent_String &
-            "<check switch=""+R" & Name  &
-            ":ALL"""                     &
-            " label="""                  &
-            "detect all " & Str          &
-            " except explicitly disabled""/>");
+      Print (Indent_Level * Indent_String &
+             "<check switch=""+R" & Name  &
+             ":ALL"""                     &
+             " label="""                  &
+             "detect all " & Str          &
+             " except explicitly disabled""/>");
 
-      Info (Indent_Level * Indent_String &
-            "<check switch=""+R" & Name  &
-            ":GNAT"""                    &
-            " label="""                  &
-            "detect all GNAT " & Str     &
-            " except explicitly disabled""/>");
+      Print (Indent_Level * Indent_String &
+             "<check switch=""+R" & Name  &
+             ":GNAT"""                    &
+             " label="""                  &
+             "detect all GNAT " & Str     &
+             " except explicitly disabled""/>");
 
-      Info (Indent_Level * Indent_String &
-            "<field switch=""+R" & Name  &
-            """ label="""                &
-            "detect specified " & Str    &
-            " (use ',' as separator)"""  &
-            " separator="":""/>");
+      Print (Indent_Level * Indent_String &
+             "<field switch=""+R" & Name  &
+             """ label="""                &
+             "detect specified " & Str    &
+             " (use ',' as separator)"""  &
+             " separator="":""/>");
 
-      Info (Indent_Level * Indent_String     &
-            "<field switch=""-R"  & Name     &
-            """ label="""                    &
-            "do not detect specified " & Str &
-            " (use ',' as separator)"""      &
-            " separator="":""/>");
+      Print (Indent_Level * Indent_String     &
+             "<field switch=""-R"  & Name     &
+             """ label="""                    &
+             "do not detect specified " & Str &
+             " (use ',' as separator)"""      &
+             " separator="":""/>");
    end Forbidden_Param_XML_Help;
 
    ---------------------------------------
@@ -941,13 +941,13 @@ package body Gnatcheck.Rules is
    procedure Silent_Exc_Handler_Param_XML_Help
      (Rule : Rule_Info; Indent_Level : Natural) is
    begin
-      Info (Indent_Level * Indent_String &
-            "<field switch=""+R"         &
-            Rule_Name (Rule)             &
-            """ separator="":"""         &
-            " label="""                  &
-            To_String (Rule.Help_Info)   &
-            """/>");
+      Print (Indent_Level * Indent_String &
+             "<field switch=""+R"         &
+             Rule_Name (Rule)             &
+             """ separator="":"""         &
+             " label="""                  &
+             To_String (Rule.Help_Info)   &
+             """/>");
    end Silent_Exc_Handler_Param_XML_Help;
 
    --  == Parameter name from diagnosis
@@ -1331,9 +1331,10 @@ package body Gnatcheck.Rules is
    begin
       --  If there is a provided param display an error
       if Param /= "" then
-         Error ("no parameter can be set for rule " &
-                Gnatcheck.Rules.Instance_Name (Instance) & ", " &
-                Param & " ignored");
+         Error
+           ("no parameter can be set for rule " &
+            Gnatcheck.Rules.Instance_Name (Instance) & ", " &
+            Param & " ignored");
          Bad_Rule_Detected := True;
 
       --  Just enable the instance following the command line
@@ -2360,8 +2361,9 @@ package body Gnatcheck.Rules is
          --  in the parameter syntax.
          First_Equal := Index (Param, "=");
          if First_Equal = 0 then
-            Error ("(" & Gnatcheck.Rules.Instance_Name (Instance) &
-                     ") missing = in parameter argument: " & Param);
+            Error
+              ("(" & Gnatcheck.Rules.Instance_Name (Instance) &
+               ") missing = in parameter argument: " & Param);
             Bad_Rule_Detected := True;
             Turn_Instance_Off (Instance);
             return;
@@ -2393,8 +2395,9 @@ package body Gnatcheck.Rules is
 
             --  Else, display an error and disable the instance
             else
-               Error ("(" & Gnatcheck.Rules.Instance_Name (Instance) &
-                      ") unknown parameter: " & Param_Name);
+               Error
+                 ("(" & Gnatcheck.Rules.Instance_Name (Instance) &
+                  ") unknown parameter: " & Param_Name);
                Bad_Rule_Detected := True;
                Turn_Instance_Off (Instance);
             end if;
@@ -2526,8 +2529,9 @@ package body Gnatcheck.Rules is
 
       procedure Error is
       begin
-         Error ("(" & Instance_Name (Instance) & ") wrong parameter: " &
-                To_String (Instance.Param));
+         Gnatcheck.Output.Error
+           ("(" & Instance_Name (Instance) & ") wrong parameter: " &
+            To_String (Instance.Param));
          Turn_Instance_Off (Instance_Name (Instance));
          Bad_Rule_Detected := True;
       end Error;
@@ -2566,8 +2570,9 @@ package body Gnatcheck.Rules is
         and then Last /= 0
         and then Slice_Count (Create (To_String (Instance.Param), ",")) /= 5
       then
-         Error ("(" & Instance_Name (Instance) &
-                ") requires 5 parameters, got: " & To_String (Instance.Param));
+         Error
+           ("(" & Instance_Name (Instance) & ") requires 5 parameters, got: " &
+            To_String (Instance.Param));
          Bad_Rule_Detected := True;
          Turn_Instance_Off (Instance_Name (Instance));
          return;
@@ -2803,9 +2808,8 @@ package body Gnatcheck.Rules is
 
    procedure Print_Rule_Help (Rule : Rule_Info) is
    begin
-      Info
-        (" " & Rule_Name (Rule) & " - " &
-         To_String (Rule.Help_Info) & " - " &
+      Print
+        (" " & Rule_Name (Rule) & " - " & To_String (Rule.Help_Info) & " - " &
          Rule.Remediation_Level'Img);
    end Print_Rule_Help;
 

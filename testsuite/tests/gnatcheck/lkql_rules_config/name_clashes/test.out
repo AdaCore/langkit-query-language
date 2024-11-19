@@ -6,7 +6,7 @@ main.adb:3:04: use of forbidden identifier
 Missing parameter
 =================
 
-gnatcheck: missing 'dictionary_file' parameter for rule "name_clashes" (missing_param.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: missing 'dictionary_file' parameter for rule "name_clashes" (missing_param.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

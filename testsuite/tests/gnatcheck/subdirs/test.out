@@ -1,4 +1,4 @@
-gnatcheck: error when calling gprbuild:
+gnatcheck: error: error when calling gprbuild, raw output:
 
    compilation of main.adb failed
 

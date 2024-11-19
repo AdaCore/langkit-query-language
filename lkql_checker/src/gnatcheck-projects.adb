@@ -117,10 +117,10 @@ package body Gnatcheck.Projects is
    begin
       case Message.Level is
          when GPR2.Message.Error =>
-            Error (Message.Format);
+            Print (Message.Format);
          when GPR2.Message.Warning =>
             if Verbose_Mode then
-               Warning (Message.Format);
+               Print (Message.Format);
             end if;
 
             if not Missing_File_Detected
@@ -581,12 +581,12 @@ package body Gnatcheck.Projects is
       elsif not My_Project.Tree.Has_Runtime_Project  then
          --  Issue with the configuration of Ada
          for Msg of My_Project.Tree.Configuration.Log_Messages loop
-            Warning (Msg.Format);
+            Print (Msg.Format);
          end loop;
          Error
-           (""""
-            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
-            & """ processing failed");
+           (""""                                                        &
+            String (My_Project.Tree.Root_Project.Path_Name.Simple_Name) &
+            """ processing failed");
 
          raise Parameter_Error;
       end if;
@@ -640,9 +640,9 @@ package body Gnatcheck.Projects is
 
       if Aggregate.Num_Of_Aggregated_Projects > 1 then
          if not Main_Unit.Is_Empty then
-            Error ("'-U main' cannot be used if aggregate project");
-            Error_No_Tool_Name
-              ("aggregates more than one non-aggregate project");
+            Error
+              ("'-U main' cannot be used if aggregate project " &
+               "aggregates more than one non-aggregate project");
 
             raise Parameter_Error;
          end if;
@@ -1562,7 +1562,7 @@ package body Gnatcheck.Projects is
       Nothing_To_Do := Last_Source < First_SF_Id;
 
       if Nothing_To_Do then
-         Error ("No existing file to process");
+         Error ("no existing file to process");
          return;
       end if;
 
@@ -1611,15 +1611,13 @@ package body Gnatcheck.Projects is
                   then
                      if not Arg.Quiet_Mode then
                         Info
-                          ("info: " &
-                           Ada.Strings.Unbounded.To_String (Rule.Name) &
+                          (Ada.Strings.Unbounded.To_String (Rule.Name) &
                            " disabled, target does not match");
                      end if;
                   else
                      if not Arg.Quiet_Mode then
                         Info
-                          ("info: " &
-                           Ada.Strings.Unbounded.To_String (Rule.Name) &
+                          (Ada.Strings.Unbounded.To_String (Rule.Name) &
                            " enabled");
                      end if;
 
@@ -1637,11 +1635,11 @@ package body Gnatcheck.Projects is
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
          if Gnatkp_Mode and then KP_Version /= null then
-            Error ("No rule for the given kp-version");
+            Error ("no rule for the given kp-version");
             No_Detectors_For_KP_Version := True;
             return;
          else
-            Error ("No rule to check specified");
+            Error ("no rule to check specified");
             raise Parameter_Error;
          end if;
       end if;
@@ -1653,7 +1651,7 @@ package body Gnatcheck.Projects is
       Total_Sources := Total_Sources_To_Process;
 
       if Total_Sources = 0 then
-         Error ("No existing file to process");
+         Error ("no existing file to process");
          Nothing_To_Do := True;
          return;
       end if;
