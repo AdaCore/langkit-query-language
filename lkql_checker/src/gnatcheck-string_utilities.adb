@@ -5,7 +5,8 @@
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
-with Ada.Text_IO;
+
+with Gnatcheck.Output; use Gnatcheck.Output;
 
 package body Gnatcheck.String_Utilities is
 
@@ -309,19 +310,16 @@ package body Gnatcheck.String_Utilities is
 
       procedure Print_Dictionary is
          Next_Item : Dictionaries.Cursor;
-         use Ada.Text_IO;
       begin
-         Put_Line (Standard_Error, "Content of dictionary " & Dictionary_Name);
+         Print ("Content of dictionary " & Dictionary_Name);
 
          if Is_Empty then
-            Put_Line (Standard_Error, "Empty");
+            Print ("Empty");
          else
             Next_Item := Dictionaries.First (Dictionary);
 
             while Dictionaries.Has_Element (Next_Item) loop
-               Put      (Standard_Error, ">>");
-               Put      (Standard_Error, Dictionaries.Element (Next_Item));
-               Put_Line (Standard_Error, "<<");
+               Print (">>" & Dictionaries.Element (Next_Item) & "<<");
                Next_Item := Dictionaries.Next (Next_Item);
             end loop;
          end if;

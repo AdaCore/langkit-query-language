@@ -451,12 +451,12 @@ package body Gnatcheck.Compiler is
       --  them.
 
       if Is_Regular_File (Out_File) and then Size (Out_File) /= 0 then
-         Error ("error when calling gprbuild:");
+         Error ("error when calling gprbuild, raw output:");
 
          declare
             Str : String_Access := Read_File (Out_File);
          begin
-            Error_No_Tool_Name (Str (Str'First .. Str'Last - 1));
+            Print (Str (Str'First .. Str'Last - 1));
             Free (Str);
          end;
 
@@ -474,7 +474,7 @@ package body Gnatcheck.Compiler is
                     and then Line (1 .. 29) = "gnat1: invalid switch: -gnatw")
          then
             Error ("wrong parameter specified for compiler-related rule:");
-            Error_No_Tool_Name (Line (1 .. Line_Len));
+            Print (Line (1 .. Line_Len));
             Errors := True;
 
          elsif Index (Line (1 .. Line_Len), "BUG DETECTED") /= 0 then
