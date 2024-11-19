@@ -761,7 +761,7 @@ package body Gnatcheck.Diagnoses is
          Error ("cannot copy information from " & User_Info_File.all &
                 " into report file");
 
-         Error_No_Tool_Name (Ada.Exceptions.Exception_Information (E));
+         Print (Ada.Exceptions.Exception_Information (E));
    end Copy_User_Info;
 
    ----------------
@@ -1717,17 +1717,17 @@ package body Gnatcheck.Diagnoses is
                Diagnoses_Reported >= Max_Diagnoses
             then
                Limit_Exceeded := True;
-               Info ("Maximum diagnoses reached, " &
-                     "see the report file for full details");
+               Info
+                 ("maximum diagnoses reached, see the report file for " &
+                  "full details");
             else
                if Error_Messages_Storage.Element (Position).Justification
                     = Null_Unbounded_String
                then
                   Diagnoses_Reported := @ + 1;
-                  Info
+                  Print
                     (Preprocess_Diag
-                      (Image
-                         (Error_Messages_Storage.Element (Position))));
+                      (Image (Error_Messages_Storage.Element (Position))));
                end if;
             end if;
          end if;

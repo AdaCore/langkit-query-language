@@ -1,3 +1,3 @@
-The '-rules' section is now deprecated. You should only use the '--rule' and '--rule-file' command-line options.
-You can use the '--emit-lkql-rule-file' flag to automatically translate your rule configuration to the new LKQL format.
+gnatcheck: info: The '-rules' section is now deprecated. You should only use the '--rule' and '--rule-file' command-line options.
+gnatcheck: info: You can use the '--emit-lkql-rule-file' flag to automatically translate your rule configuration to the new LKQL format.
 main.adb:3:04: goto statement

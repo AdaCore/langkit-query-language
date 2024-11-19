@@ -1,4 +1,4 @@
-gnatcheck: main.adb: cannot find pouet.ads
+gnatcheck: warning: main.adb: cannot find pouet.ads
 1. Summary
 
    fully compliant sources               : 1

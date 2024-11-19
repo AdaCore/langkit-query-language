@@ -76,7 +76,7 @@ bar.ads:2:17: implicit IN mode in parameter specification
    no internal error detected
 
 
-gnatcheck: prj.gpr:4:04: error: value "invalid" is illegal for typed string "Src_Dir"
+prj.gpr:4:04: error: value "invalid" is illegal for typed string "Src_Dir"
 try "gnatcheck --help" for more information.
 1. Summary
 

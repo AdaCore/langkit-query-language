@@ -44,25 +44,51 @@ package Gnatcheck.Output is
    procedure Error (Message : String);
    --  Sends into Stderr the error message in the form 'Tool_Name: Message'
 
-   procedure Error_No_Tool_Name (Message : String);
-   --  Sends into Stderr the error message with no tool name prefix
-
    procedure Warning (Message : String);
    --  Same as ``Error``
 
    procedure Info (Message : String);
    --  Sends Message into Stderr (with no tool name prefix).
 
-   procedure Info_No_EOL (Message : String);
-   --  The same as ``Info``, but does not output a (platform-specific) EOL
-   --  character(s) after ``Message``.
-
    procedure Info_In_Tty (Message : String);
    --  Same as ``Info`` but send the message only if Stderr is a TTY. Also,
    --  ``Message`` is not added to the current ``Log_File``.
 
+   procedure Print (Message : String; New_Line : Boolean := True);
+   --  Send the given message to ``Standard_Error`` and to the ``Log_File``,
+   --  eventually adding a newline following ``New_Line``.
+
+   procedure Print_No_Log (Message : String; New_Line : Boolean := True);
+   --  Send the given message to ``Standard_Error``, eventually adding a
+   --  newline following ``New_Line``. Important, this procedure doesn't
+   --  send the message to the ``Log_File``.
+
    Indent_String : constant String := "   ";
    --  Used as indentation element in various output
+
+   ---------------------------
+   -- Tool message emission --
+   ---------------------------
+
+   type Message_Tags is (Info, Warning, Error, None);
+   --  Possible tags when displaying a message to the user
+
+   procedure Emit_Message
+     (Message     : String;
+      Tag         : Message_Tags := None;
+      Tool_Name   : Boolean := False;
+      New_Line    : Boolean := False;
+      Log_Message : Boolean := False);
+   --  Common procedure to emit a message to the user in ``Standard_Error``,
+   --  controlling the format of the message.
+   --
+   --  ``Tag``: Tag to add to the message when emitting it
+   --  ``Tool_Name``: Whether to include the tool name at the start of the
+   --                 message (ex: "gnatcheck: ...")
+   --  ``New_Line``: Whether to add a end-of-line character at the end of the
+   --                message
+   --  ``Log_Message``: Whether to log this message in the current ``Log_File``
+   --                   if ``Log_Mode`` is ``True``
 
    ----------------------
    -- Tool report file --
