@@ -109,10 +109,15 @@ The following switches control the general ``gnatcheck`` behavior
 
 ``-j``\ nnnn
   Use *nnnn* processes to analyze the source files.
-  On a multi-core machine, this speeds up processing by analyzing subset
-  of files separately under multiple processes running in parallel.
-  If ``n`` is 0, then the maximum number processes is the number of
-  core processors detected on the platform.
+  On a multi-core machine, this speeds up processing by analyzing subset of
+  files separately under multiple processes running in parallel. If ``n`` is 0,
+  then the maximum number processes is the number of core processors detected
+  on the platform.
+
+  .. attention::
+
+    Please read the :ref:`Performance_and_Memory` section before using this
+    flag.
 
   .. index:: -l
 
@@ -987,6 +992,30 @@ known problems may impact you: most known problems are only relevant to a
 specific version of GNAT, a specific target, or a specific usage profile. Do
 not hesitate to contact the AdaCore support if you need help identifying the
 entries that may be relevant to you.
+
+.. _Performance_and_Memory:
+
+Performance and Memory Usage
+============================
+
+GNATcheck performances are closely related to rules you're enabling and to the
+size of the codebase you're running it on, and sometimes it can take a lot of
+time to perform all checks.
+You can use the ``-j`` switch to run GNATcheck in multi-core mode and decrease
+the checking time. However, you have to be careful about memory usage when
+running GNATcheck with this mode enabled:
+
+You should count around 3.5 GB of available memory per million source code
+lines, per process. Meaning that for a project with ``l`` source code lines, if
+you run GNATcheck while providing ``n`` as parameter of the ``-j`` switch, you
+will need ``(l / 1,000,000) * 3.5 * n`` GB of available memory (this formula
+isn't valid if ``n = 0``).
+
+.. attention::
+
+  Out-of-memory errors are hard to debug and can lead to system freezes, invalid
+  results, or non-deterministic behavior. Thus, make sure you have enough memory
+  before running GNATcheck.
 
 .. _Transition_from_ASIS-based_GNATcheck:
 
