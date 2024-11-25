@@ -21,7 +21,8 @@ class Manage(ManageScript):
         ctx = CompileCtx(lang_name='Lkql',
                          short_name='lkql',
                          lexer=lkql_lexer,
-                         grammar=lkql_grammar)
+                         grammar=lkql_grammar,
+                         textmate_config="tm_config.json")
 
         return ctx
 

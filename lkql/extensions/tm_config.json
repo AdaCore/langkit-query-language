@@ -1,0 +1,100 @@
+{
+    "or_rules": [
+        {
+            "tokens": ["String"],
+            "scope": "string.quoted.double"
+        },
+        {
+            "tokens": ["Integer"],
+            "scope": "constant.numeric",
+            "bounded": true
+        },
+        {
+            "tokens": ["Rec"],
+            "scope": "support.function",
+            "bounded": true
+        },
+        {
+            "tokens": ["SelectTok", "FromTok", "ThroughTok"],
+            "scope": "keyword.other.query",
+            "bounded": true
+        },
+        {
+            "tokens": ["When", "Match", "For", "If", "Then", "Else", "Import"],
+            "scope": "keyword.control",
+            "bounded": true
+        },
+        {
+            "tokens": ["Val", "Fun", "Selector"],
+            "scope": "storage.type",
+            "bounded": true
+        },
+        {
+            "tokens": [
+                "Is",
+                "In",
+                "Not",
+                "EqEq",
+                "Neq",
+                "Lt",
+                "LEq",
+                "Gt",
+                "GEq",
+                "And",
+                "Or",
+                "Plus",
+                "Minus",
+                "Mul",
+                "Div",
+                "Amp"
+            ],
+            "scope": "keyword.operator",
+            "bounded": true
+        },
+        {
+            "tokens": ["TrueLit", "FalseLit", "Null"],
+            "scope": "constant.language",
+            "bounded": true
+        },
+        {
+            "tokens": ["SubBlockLiteral"],
+            "scope": "comment.block.documentation"
+        },
+        {
+            "tokens": ["Comment"],
+            "scope": "comment.line.number-sign"
+        }
+    ],
+    "and_rules": [
+        {
+            "tokens": ["At", "Identifier"],
+            "scope": "entity.name.annotation"
+        }
+    ],
+    "group_rules": [
+        {
+            "name": "Parented",
+            "begin_token": "LPar",
+            "begin_scope": "punctuation.paren.open",
+            "end_token": "RPar",
+            "end_scope": "punctuation.paren.close",
+            "patterns": ["$self"]
+        },
+        {
+            "name": "Bracketed",
+            "begin_token": "LBrack",
+            "begin_scope": "punctuation.brack.open",
+            "end_token": "RBrack",
+            "end_scope": "punctuation.brack.close",
+            "patterns": ["$self"]
+        },
+        {
+            "name": "Curled",
+            "begin_token": "LCurl",
+            "begin_scope": "punctuation.curl.open",
+            "end_token": "RCurl",
+            "end_scope": "punctuation.curl.close",
+            "patterns": ["$self"]
+        }
+    ]
+}
