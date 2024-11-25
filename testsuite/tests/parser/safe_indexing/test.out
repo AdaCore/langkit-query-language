@@ -1,0 +1,11 @@
+ValDecl
+|f_annotation: <null>
+|f_doc_node: <null>
+|f_identifier:
+|  Identifier: a
+|f_value:
+|  SafeIndexing
+|  |f_collection_expr:
+|  |  Identifier: value
+|  |f_index_expr:
+|  |  IntegerLiteral: 1
