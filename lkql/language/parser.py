@@ -1,17 +1,14 @@
-from langkit.parsers import (
-    Grammar, Or, List, Pick, Opt, Cut as c, Null
-)
 from langkit.dsl import (
-    T, ASTNode, abstract, Field, synthetic, Struct, UserField, LookupKind, AbstractField
+    abstract, synthetic, AbstractField, ASTNode, Field, Struct, T, UserField
 )
+from langkit.envs import add_env, add_to_env, add_to_env_kv, EnvSpec
 from langkit.expressions import (
-    Entity, Self, String, No, langkit_property, AbstractKind, AbstractProperty,
-    Let, If, ArrayLiteral
+    direct_env, langkit_property, new_env_assoc,
+    AbstractKind, AbstractProperty, Entity, If, Let, No, Not, Self, String as S
 )
-import langkit.expressions as dsl_expr
-from langkit.expressions import String as S, new_env_assoc, ArrayLiteral, Not, direct_env
-from langkit.envs import add_to_env_kv, add_env, add_to_env, handle_children, EnvSpec
-from language.lexer import Token, lkql_lexer as L
+from langkit.parsers import Cut as c, Grammar, List, Null, Opt, Or, Pick
+
+from language.lexer import lkql_lexer as L, Token
 
 
 class DiagnosticHint(Struct):
@@ -112,7 +109,6 @@ class Expr(LkqlNode):
     """
     Root node class for LKQL expressions.
     """
-    pass
 
 
 class TopLevelList(LkqlNode.list):
@@ -141,7 +137,6 @@ class Literal(Expr):
     """
     Base class for literals
     """
-    pass
 
 
 class BoolLiteral(Literal):
@@ -204,7 +199,6 @@ class BaseStringLiteral(Literal):
     """
     Base class for string literals, both single & multi line.
     """
-    pass
 
 
 class StringLiteral(BaseStringLiteral):
@@ -225,7 +219,6 @@ class UnitLiteral(Literal):
     """
     Literal representing the unit value.
     """
-    pass
 
 
 class NullLiteral(Literal):
@@ -239,7 +232,6 @@ class SubBlockLiteral(LkqlNode):
     """
     Wrapper for a SubBlockLiteral token.
     """
-    pass
 
 
 class CondExpr(Expr):
@@ -277,7 +269,7 @@ class Arg(LkqlNode):
         """
         Return whether the argument has a name.
         """
-        return dsl_expr.Not(Self.name.is_null)
+        return Not(Self.name.is_null)
 
     @langkit_property(return_type=Expr, public=True,
                       kind=AbstractKind.abstract)
@@ -285,7 +277,7 @@ class Arg(LkqlNode):
         """
         Return the argument's expression.
         """
-        pass
+
 
 
 class ExprArg(Arg):
@@ -324,7 +316,6 @@ class SynthNamedArg(NamedArg):
     """
     Synthetic NamedArg node
     """
-    pass
 
 
 class ParameterDecl(Declaration):
@@ -380,14 +371,12 @@ class RelBinOp(BinOp):
     """
     Relational (produces boolean) binary operator.
     """
-    pass
 
 
 class ArithBinOp(BinOp):
     """
     Arithmetic binary operator.
     """
-    pass
 
 
 class Unpack(LkqlNode):
@@ -432,7 +421,6 @@ class SafeAccess(DotAccess):
     """
     Access to a field of a nullable node using the ``?.`` operator
     """
-    pass
 
 
 class InClause(Expr):
@@ -459,7 +447,6 @@ class SafeIndexing(Indexing):
     """
     Safe indexing. Returns null if the value doesn't exist.
     """
-    pass
 
 
 @abstract
@@ -467,7 +454,6 @@ class BasePattern(LkqlNode):
     """
     Root node class for patterns.
     """
-    pass
 
 
 class FilteredPattern(BasePattern):
@@ -490,7 +476,6 @@ class ValuePattern(BasePattern):
     (As opposed to patterns that only bind values to a given name without
     doing any kind of filtering)
     """
-    pass
 
 
 class BindingPattern(BasePattern):
@@ -526,7 +511,6 @@ class NullPattern(ValuePattern):
     """
     Null pattern. Will only match the null node.
     """
-    pass
 
 
 class UniversalPattern(ValuePattern):
@@ -537,7 +521,6 @@ class UniversalPattern(ValuePattern):
 
        let declParent = query * [children(depth==1)] BasicDecl
     """
-    pass
 
 
 class RegexPattern(ValuePattern):
@@ -613,7 +596,7 @@ class OrPattern(ValuePattern):
 
     For instance::
 
-        let value_decls = select ObjectDecl or ParamSpec
+        val value_decls = select ObjectDecl or ParamSpec
     """
     left = Field(type=BasePattern)
     right = Field(type=BasePattern)
@@ -625,7 +608,7 @@ class NotPattern(ValuePattern):
 
     For instance::
 
-       let non_objects = select not ObjectDecl
+       val non_objects = select not ObjectDecl
     """
     pattern = Field(type=BasePattern)
 
@@ -647,7 +630,7 @@ class Query(Expr):
 
     For instance::
 
-       let withAspects = [from <node>] [through <selector>]
+       val withAspects = [from <node>] [through <selector>]
                          select ObjectDecl [child] AspectAssoc
     """
 
@@ -664,7 +647,7 @@ class Query(Expr):
 
 class ListCompAssoc(LkqlNode):
     """
-    Arrow association of the form: id <- expr.
+    Arrow association of the form: id in expr.
     This construction is meant to be used a part of a list comprehension
     """
 
@@ -738,7 +721,6 @@ class BlockBody(LkqlNode):
     """
     Root node for block expression block before steps
     """
-    pass
 
 
 class BlockBodyDecl(BlockBody):
@@ -813,7 +795,7 @@ class BaseFunction(Expr):
         """
         return Self.match(
             lambda n=T.NamedFunction: n.doc_node,
-            lambda _: dsl_expr.No(T.BaseStringLiteral)
+            lambda _: No(T.BaseStringLiteral)
         )
 
     @langkit_property(return_type=T.Int, public=True)
@@ -835,7 +817,7 @@ class BaseFunction(Expr):
         """
         Return whether the function has a parameter with the given name.
         """
-        return dsl_expr.Not(Self.find_parameter(name).is_null)
+        return Not(Self.find_parameter(name).is_null)
 
     @langkit_property(return_type=ParameterDecl.entity.array, public=True)
     def default_parameters():
@@ -843,7 +825,7 @@ class BaseFunction(Expr):
         Return the defaults parameters of the function, if any.
         """
         return Entity.parameters.filter(
-            lambda p: dsl_expr.Not(p.default_expr.is_null)
+            lambda p: Not(p.default_expr.is_null)
         )
 
 
@@ -858,7 +840,6 @@ class AnonymousFunction(BaseFunction):
     """
     Anonymous function expression.
     """
-    pass
 
 
 class FunDecl(Declaration):
@@ -916,16 +897,16 @@ class FunCall(Expr):
         Return whether this is a call to an actual function (instead of a
         syntactic construct that looks like a function call bu isn't one).
         """
-        return dsl_expr.Not(Self.parent.is_a(NodePatternProperty))
+        return Not(Self.parent.is_a(NodePatternProperty))
 
     @langkit_property(return_type=T.Bool, public=True)
     def is_builtin_call():
         """
         Return whether this is a call to a built-in property.
         """
-        return (Self.name.text == String("print")) | \
-               (Self.name.text == String("debug")) | \
-               (Self.name.text == String("list"))
+        return (Self.name.text == S("print")) | \
+               (Self.name.text == S("debug")) | \
+               (Self.name.text == S("list"))
 
     @langkit_property(return_type=Expr)
     def expr_for_arg(name=T.String):
@@ -941,7 +922,7 @@ class FunCall(Expr):
         """
         Return the expression associated to the 'expr' argument, if any.
         """
-        return Self.expr_for_arg(String('depth'))
+        return Self.expr_for_arg(S('depth'))
 
     @langkit_property(return_type=Expr, public=True, memoized=True)
     def max_depth_expr():
@@ -951,7 +932,7 @@ class FunCall(Expr):
         If neither 'depth' or 'max_depth' is set, return a null expression.
         """
         return If(Self.depth_expr.is_null,
-                  Self.expr_for_arg(String('max_depth')),
+                  Self.expr_for_arg(S('max_depth')),
                   Self.depth_expr)
 
     @langkit_property(return_type=Expr, public=True, memoized=True)
@@ -962,7 +943,7 @@ class FunCall(Expr):
         If neither 'depth' or 'min_depth' is set, return a null expression.
         """
         return If(Self.depth_expr.is_null,
-                  Self.expr_for_arg(String('min_depth')),
+                  Self.expr_for_arg(S('min_depth')),
                   Self.depth_expr)
 
 
@@ -1041,7 +1022,7 @@ class SelectorCall(LkqlNode):
         name is 'all'.
         """
         return If(Self.quantifier.is_null,
-                  String("all"),
+                  S("all"),
                   Self.quantifier.text)
 
     @langkit_property(return_type=T.Identifier, public=True)
@@ -1057,7 +1038,6 @@ class NodePattern(ValuePattern):
     """
     Root node class for node patterns
     """
-    pass
 
 
 class NodeKindPattern(NodePattern):
@@ -1206,17 +1186,21 @@ lkql_grammar.add_rules(
         Query(
             "from", Unpack("*"), G.expr,
             Opt("through", Or(G.expr)),
-            "select", c(), 
-            Or(QueryKind.alt_first(L.Identifier(match_text="first")),
-               QueryKind.alt_all()), 
+            "select", c(),
+            Or(
+                QueryKind.alt_first(L.Identifier(match_text="first")),
+                QueryKind.alt_all()
+            ),
             G.pattern
         ),
         Query(
             Null(Unpack), Null(G.expr),
             Opt("through", Or(G.expr)),
-            "select", c(), 
-            Or(QueryKind.alt_first(L.Identifier(match_text="first")),
-               QueryKind.alt_all()), 
+            "select", c(),
+            Or(
+                QueryKind.alt_first(L.Identifier(match_text="first")),
+                QueryKind.alt_all()
+            ),
             G.pattern
         ),
     ),
@@ -1235,11 +1219,11 @@ lkql_grammar.add_rules(
 
     value_pattern=Or(
         ExtendedNodePattern(
-
-            Or(UniversalPattern("*"),
-               NodeKindPattern(G.upper_id),
-               ParenPattern("(", G.or_pattern, ")")),
-
+            Or(
+                UniversalPattern("*"),
+                NodeKindPattern(G.upper_id),
+                ParenPattern("(", G.or_pattern, ")")
+            ),
             Pick("(", c(), List(G.pattern_arg, sep=","), ")")
         ),
         NodeKindPattern(G.upper_id),
@@ -1332,17 +1316,18 @@ lkql_grammar.add_rules(
     listcomp=ListComprehension(
         "[",
         G.expr, "for",
-        List(ListCompAssoc(G.id, "in", G.expr),
-             sep=",", empty_valid=False),
+        List(ListCompAssoc(G.id, "in", G.expr), sep=",", empty_valid=False),
         Opt("if", G.expr),
         "]"
     ),
 
     listlit=ListLiteral("[", List(G.expr, empty_valid=True, sep=","), "]"),
 
-    decl=Or(G.fun_decl,
-            G.selector_decl,
-            G.val_decl),
+    decl=Or(
+        G.fun_decl,
+        G.selector_decl,
+        G.val_decl
+    ),
 
     expr=Or(
         BinOp(
@@ -1363,36 +1348,36 @@ lkql_grammar.add_rules(
         InClause(G.comp_expr, "in", G.expr),
         RelBinOp(
             G.comp_expr,
-            Or(Op.alt_eq("=="),
-               Op.alt_neq("!="),
-               Op.alt_lt("<"),
-               Op.alt_leq("<="),
-               Op.alt_gt(">"),
-               Op.alt_geq(">=")),
+            Or(
+                Op.alt_eq("=="),
+                Op.alt_neq("!="),
+                Op.alt_lt("<"),
+                Op.alt_leq("<="),
+                Op.alt_gt(">"),
+                Op.alt_geq(">=")
+            ),
             G.plus_expr
         ),
         G.plus_expr
     ),
 
     plus_expr=Or(
-
-        ArithBinOp(G.plus_expr,
-                   Or(Op.alt_plus("+"), Op.alt_minus("-")),
-                   G.prod_expr),
-
+        ArithBinOp(
+            G.plus_expr,
+            Or(Op.alt_plus("+"), Op.alt_minus("-")),
+            G.prod_expr
+        ),
         BinOp(G.plus_expr, Op.alt_concat("&"), G.prod_expr),
-
         G.prod_expr
     ),
 
     prod_expr=Or(
-
-        ArithBinOp(G.prod_expr,
-                   Or(Op.alt_mul("*"), Op.alt_div("/")),
-                   G.value_expr),
-
+        ArithBinOp(
+            G.prod_expr,
+            Or(Op.alt_mul("*"), Op.alt_div("/")),
+            G.value_expr
+        ),
         G.unop
-
     ),
 
     unop=Or(
@@ -1402,7 +1387,6 @@ lkql_grammar.add_rules(
 
     value_expr=Or(
         Unwrap(G.value_expr, "!!"),
-
         DotAccess(G.value_expr, ".", c(), G.id),
         SafeAccess(G.value_expr, "?", ".", c(), G.id),
         Indexing(G.value_expr, "[", c(), G.expr, "]"),
@@ -1451,8 +1435,7 @@ lkql_grammar.add_rules(
             Or(BlockBodyDecl(G.decl, ";"), BlockBodyExpr(G.expr, ";")),
             empty_valid=True
         ),
-        c(),
-        G.expr,
+        c(), G.expr,
         "}"
     ),
 
@@ -1506,12 +1489,14 @@ lkql_grammar.add_rules(
     upper_id=Identifier(Token.UpperIdentifier),
     integer=IntegerLiteral(Token.Integer),
 
-    bool_literal=Or(BoolLiteral.alt_true("true"),
-                    BoolLiteral.alt_false("false")),
+    bool_literal=Or(
+        BoolLiteral.alt_true("true"),
+        BoolLiteral.alt_false("false")
+    ),
 
     string_literal=StringLiteral(Token.String),
-    block_string_literal=BlockStringLiteral(List(
-        SubBlockLiteral(Token.SubBlockLiteral), empty_valid=False)
+    block_string_literal=BlockStringLiteral(
+        List(SubBlockLiteral(Token.SubBlockLiteral), empty_valid=False)
     ),
 
     unit_literal=UnitLiteral("(", ")"),
