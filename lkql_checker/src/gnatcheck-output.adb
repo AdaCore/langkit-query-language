@@ -320,8 +320,11 @@ package body Gnatcheck.Output is
 
    procedure Print_Tool_Version (Released_At : Positive) is
    begin
-      Put ("GNATCHECK ");
-      Put (Version_String);
+      if Gnatkp_Mode then
+         Put ("GNATKP " & Date);
+      else
+         Put ("GNATCHECK " & Version_String);
+      end if;
       New_Line;
 
       Put ("Copyright (C) ");
