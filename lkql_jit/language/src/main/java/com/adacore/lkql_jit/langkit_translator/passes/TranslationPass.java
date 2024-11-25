@@ -622,9 +622,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                 .emitDiagnostic(
                         CheckerUtils.MessageKind.WARNING,
                         "'is' syntax is deprecated for patterns. Please consider migrating your"
-                                + " code via 'lkql refactor -r IS_TO_COLON"
-                                + patternDetailDelimiterIs.getUnit().getFileName()
-                                + "'.",
+                                + " code via 'lkql refactor -r IS_TO_COLON "
+                                + "path/to/your/rule_file.lkql'.",
                         null,
                         SourceSectionWrapper.create(
                                 patternDetailDelimiterIs.getSourceLocationRange(), source));
