@@ -1,17 +1,12 @@
 lexer lkql_lexer {
-
-    BigLongRArrow
     @trivia()
     Whitespace <- p"[ \\t\\n\\r]"
     Dot <- "."
     DotDotDot <- "..."
-    QuestionDot <- "?."
-    QuestionBrack <- "?["
     Question <- "?"
     Coma <- ","
     SemiCol <- ";"
     Colon <- ":"
-    UnderScore <- "_"
     Eq <- "="
     EqEq <- "=="
     Neq <- "!="
@@ -36,11 +31,7 @@ lexer lkql_lexer {
     At <- "@"
     SubBlockLiteral <- p"\\|\\\"(.?)+"
     Pipe <- "|"
-    LArrow <- "<-"
     BigRArrow <- "=>"
-    Box <- "<>"
-    @symbol()
-    Let <- "let"
     @symbol()
     SelectTok <- "select"
     @symbol()
@@ -63,8 +54,6 @@ lexer lkql_lexer {
     Rec <- "rec"
     @symbol()
     For <- "for"
-    @symbol()
-    Skip <- "skip"
     @symbol()
     Is <- "is"
     @symbol()
@@ -225,10 +214,10 @@ grammar lkql_grammar {
     value_expr <- or(
         | Unwrap(value_expr "!!")
         | DotAccess(value_expr "." / id)
-        | SafeAccess(value_expr "?." / id)
+        | SafeAccess(value_expr "?" "." / id)
         | UpperDotAccess(upper_id "." / id)
         | Indexing(value_expr "[" / expr "]")
-        | SafeIndexing(value_expr "?[" / expr "]")
+        | SafeIndexing(value_expr "?" "[" / expr "]")
         | selector_expr
         | FunCall(value_expr Safe("?") "(" / list*(arg, ",") ")")
         | constructor_call
@@ -450,7 +439,7 @@ class NodeKindPattern: NodePattern {
 |"
 |" For instance::
 |"
-|"    let non_objects = select not ObjectDecl
+|"    val non_objects = select not ObjectDecl
 class NotPattern: ValuePattern {
     @parse_field
     pattern: BasePattern
@@ -470,7 +459,7 @@ class ObjectPattern: ValuePattern {
 |"
 |" For instance::
 |"
-|"     let value_decls = select ObjectDecl or ParamSpec
+|"     val value_decls = select ObjectDecl or ParamSpec
 class OrPattern: ValuePattern {
     @parse_field
     left: BasePattern
@@ -962,7 +951,7 @@ class ObjectLiteral: Expr {
 |"
 |" For instance::
 |"
-|"    let withAspects = [from <node>] [through <selector>]
+|"    val withAspects = [from <node>] [through <selector>]
 |"                      select ObjectDecl [child] AspectAssoc
 class Query: Expr {
     @parse_field
@@ -1029,7 +1018,6 @@ class Import: LkqlNode {
     name: Identifier
 }
 
-|" Arrow association of the form: id <- expr.
 |" This construction is meant to be used a part of a list comprehension
 class ListCompAssoc: LkqlNode {
     @parse_field
