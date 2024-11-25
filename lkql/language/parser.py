@@ -1404,9 +1404,9 @@ lkql_grammar.add_rules(
         Unwrap(G.value_expr, "!!"),
 
         DotAccess(G.value_expr, ".", c(), G.id),
-        SafeAccess(G.value_expr, "?.", c(), G.id),
+        SafeAccess(G.value_expr, "?", ".", c(), G.id),
         Indexing(G.value_expr, "[", c(), G.expr, "]"),
-        SafeIndexing(G.value_expr, "?[", c(), G.expr, "]"),
+        SafeIndexing(G.value_expr, "?", "[", c(), G.expr, "]"),
         G.selector_expr,
         FunCall(
             G.value_expr, Safe("?"),
