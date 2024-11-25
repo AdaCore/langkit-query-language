@@ -1,0 +1,26 @@
+{
+  "name": "lkql",
+  "displayName": "LKQL language support",
+  "description": "Support extension for the Langkit Query Language",
+  "version": "0.0.1",
+  "publisher": "AdaCore",
+  "engines": {
+    "vscode": "^1.83.1"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "lkql",
+      "aliases": ["Langkit Query Language", "lkql"],
+      "extensions": [".lkql"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "lkql",
+      "scopeName": "source.lkql",
+      "path": "./syntaxes/lkql.tmLanguage.json"
+    }]
+  }
+}

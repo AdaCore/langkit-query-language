@@ -60,6 +60,10 @@ build_lkql_native_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
 	$(MAVEN) -f lkql_jit/ clean install -P native,$(BUILD_MODE)
 
+vscode_extension: lkql
+	mkdir -p utils/vscode_extension/adacore.lkql/syntaxes
+	cp -pr lkql/build/lkql.tmLanguage.json utils/vscode_extension/adacore.lkql/syntaxes/lkql.tmLanguage.json
+
 .PHONY: lkql_checker
 
 automated:

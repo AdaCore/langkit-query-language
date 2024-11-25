@@ -57,3 +57,6 @@ asis/
 # Documentation build artifacts
 user_manual/build/
 lkql_checker/doc/build/
+
+# VS Code extension build artifacts
+utils/vscode_extension/adacore.lkql/syntaxes/*.json

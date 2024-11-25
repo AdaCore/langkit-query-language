@@ -45,6 +45,24 @@ eval `lkql/manage.py setenv`
 gprbuild -P lkql_checker/lkql_checker.gpr -p
 ```
 
+### Installing the LKQL VS Code extension
+
+This repo is providing a VS Code extension supporting the LKQL language. To
+install it you first have to make sure that it is up to date regarding the
+LKQL language specification:
+
+```sh
+make vscode_extension
+```
+
+Then you can copy the `utils/vscode_extension/adacore.lkql` directory into your
+local VS Code extensions repository (`~/.vscode/extensions` on Linux and Mac,
+and `%USERPROFILE%\.vscode\extensions` on Windows):
+
+```sh
+cp -r --remove-destination utils/vscode_extension/adacore.lkql [VSCODE_EXTENSIONS]/
+```
+
 ### Running the testsuite
 
 ```
