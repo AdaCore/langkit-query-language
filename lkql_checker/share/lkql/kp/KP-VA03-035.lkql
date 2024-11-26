@@ -1,7 +1,7 @@
 # Flag protected subprogram bodies whose protected type has aspect Lock_Free
 # when a variable is referenced via an expanded name in this body.
 
-@check(message="possible occurrence of KP VA03-035", impact="22.*")
+@check(message="possible occurrence of KP VA03-035")
 fun kp_va03_035(node) =
     node is SubpBody
     when node.p_decl_part() is BasicDecl(p_semantic_parent():

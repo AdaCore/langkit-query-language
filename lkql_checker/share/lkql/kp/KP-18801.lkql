@@ -45,8 +45,7 @@ fun check_params(n) = {
 }
 
 @check(help="possible occurrence of KP 18801",
-       message="possible occurrence of KP 18801",
-       impact="23.*")
+       message="possible occurrence of KP 18801")
 fun kp_18801(node) =
     node is (BinOp(f_op: OpEq) |
              CallExpr(p_kind(): "call") when node.f_name.p_name_is("\"=\""))

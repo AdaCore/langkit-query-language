@@ -3,7 +3,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP 18637", impact="23.*")
+@check(message="possible occurrence of KP 18637")
 fun kp_18637(node) =
     node is CallExpr(
         f_name: Name(

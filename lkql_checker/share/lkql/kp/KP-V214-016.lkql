@@ -15,7 +15,7 @@ fun check_type(params) =
       )
    ]
 
-@check(message="possible occurrence of KP V214-016", impact="21.*,22.*,23.1")
+@check(message="possible occurrence of KP V214-016")
 fun kp_v214_016(node) =
     node is GenericSubpInstantiation
     when stdlib.ultimate_designated_generic_subp(node)

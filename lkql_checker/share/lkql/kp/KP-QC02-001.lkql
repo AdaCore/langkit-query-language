@@ -11,7 +11,6 @@ fun array_with_align(type) =
     }
 
 @check(message="possible occurrence of KP QC02-001",
-       impact="7.[1-4].*,17.*,18.[12]",
        follow_generic_instantiations=true)
 fun kp_qc02_001(node) =
     node is AttributeRef(parent: not AttributeDefClause)

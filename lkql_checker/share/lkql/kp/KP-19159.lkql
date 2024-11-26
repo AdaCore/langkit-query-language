@@ -1,8 +1,7 @@
 import stdlib
 
 @check(help="possible occurrence of KP 19159",
-       message="possible occurrence of KP 19159",
-       impact="23.*,24.*")
+       message="possible occurrence of KP 19159")
 fun kp_19159(node) =
     |" Look for a value conversion between array types directly
     |" passed as an actual parameter in a call to a subprogram.

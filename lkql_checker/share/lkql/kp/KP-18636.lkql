@@ -1,6 +1,6 @@
 # Flag 'Image applied to objects of a class-wide interface type
 
-@check(message="possible occurrence of KP 18636", impact="22.*,23.*")
+@check(message="possible occurrence of KP 18636")
 fun kp_18636(node) =
     node is AttributeRef
     when node.f_attribute.p_name_is("Image")

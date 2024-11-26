@@ -1,7 +1,7 @@
 # Flag objects that have an aspect or pragma setting the convention to C,
 # where the objects are of an anonymous access-to-subprogram type.
 
-@check(message="possible occurrence of KP V329-046", impact="22.1")
+@check(message="possible occurrence of KP V329-046")
 fun kp_v329_046(node) =
     node is ObjectDecl(f_type_expr: AnonymousType(
         f_type_decl: AnonymousTypeDecl(f_type_def: acc@AccessToSubpDef)))

@@ -4,8 +4,7 @@
 # variant part
 
 @check(help="possible occurrence of KP 18718",
-       message="possible occurrence of KP 18718 if compiled with optimization",
-       impact="23.*")
+       message="possible occurrence of KP 18718 if compiled with optimization")
 fun kp_18718(node) =
     node is ObjectDecl(
         # An ObjectDecl with a default expression being a function call

@@ -7,7 +7,7 @@ fun primitives(decl) =
     | SubtypeDecl => decl.p_get_type().p_get_primitives()
     | *           => null
 
-@check(message="possible occurrence of KP S124-035", impact="18.*,19.*")
+@check(message="possible occurrence of KP S124-035")
 fun kp_s114_015(node) =
     # Look for variant record types
     node is TypeDecl(f_discriminants: not null,

@@ -1,6 +1,5 @@
 @check(help="possible occurrence of KP 19447",
-       message="possible occurrence of KP 19447",
-       impact="24.*")
+       message="possible occurrence of KP 19447")
 fun kp_19447(node) =
     |" To be safe, this KP detector flags all references to the Finalization_Size
     |" attribute.

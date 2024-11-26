@@ -7,7 +7,7 @@ fun sso_array_type(typ) =
     typ is BaseTypeDecl(p_is_array_type(): true)
     and stdlib.has_non_default_sso(typ)
 
-@check(help="possible occurrence of KP VB20-002", impact="22.*",
+@check(help="possible occurrence of KP VB20-002",
        message="possible occurrence of KP VB20-002 if using -O2 or above")
 fun kp_vb20_002(node) =
     node is CallExpr

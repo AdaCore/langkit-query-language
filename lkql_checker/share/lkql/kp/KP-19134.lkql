@@ -26,8 +26,7 @@ fun is_unck_conv_to_array_of_int(call) =
     }
 
 @check(help="possible occurrence of KP 19134",
-       message="possible occurrence of KP 19134",
-       impact="23.*,24.*")
+       message="possible occurrence of KP 19134")
 fun kp_19134(node) =
     node is CallExpr(p_is_call(): true)
     when stdlib.any([is_unck_conv_to_array_of_int(p.actual)

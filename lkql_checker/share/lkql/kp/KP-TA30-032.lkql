@@ -10,7 +10,7 @@ fun range_length(t) =
       )
     | *                         => -1
 
-@check(message="possible occurrence of KP TA30-032", impact="20.[12]",
+@check(message="possible occurrence of KP TA30-032",
        follow_generic_instantiations = true)
 fun kp_ta30_032(node) =
     node is ObjectDecl

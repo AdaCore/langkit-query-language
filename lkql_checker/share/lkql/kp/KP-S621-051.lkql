@@ -3,7 +3,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP S621-051", impact="19.*")
+@check(message="possible occurrence of KP S621-051")
 fun kp_s621_051(node) =
     node is ParamAssoc(
       parent: AssocList(parent: c@CallExpr(

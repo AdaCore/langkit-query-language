@@ -2,7 +2,6 @@
 
 @check(help="possible occurrence of KP U727-033",
        message="possible occurrence of KP U727-033 if float operation performed before first context switch on leon targets",
-       impact="7.4.*,1[7-9].*,2[01].*",
        target="leon*")
 fun kp_u727_033(node) =
     node is LibraryItem(f_item: b@BaseSubpBody)

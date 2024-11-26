@@ -33,8 +33,7 @@ fun is_unconstrained_discriminated(type_decl) =
     | *            => false
 
 @check(help="possible occurrence of KP 19142",
-       message="possible occurrence of KP 19142",
-       impact="24.*")
+       message="possible occurrence of KP 19142")
 fun kp_19142(node) =
     node is SubpBody
     # Check that the subprogram is overriding

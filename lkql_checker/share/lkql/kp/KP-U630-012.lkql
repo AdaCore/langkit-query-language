@@ -5,7 +5,7 @@ fun has_negative(params, last) =
     last > 0 and
     (params[last].actual.p_eval_as_int() < 0 or has_negative(params, last - 1))
 
-@check(message="possible occurrence of KP U630-012", impact="21.*")
+@check(message="possible occurrence of KP U630-012")
 fun kp_u630_012(node) =
     node is AttributeRef
     when node.f_attribute.p_name_is("Enum_Rep")

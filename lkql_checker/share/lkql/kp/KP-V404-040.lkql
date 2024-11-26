@@ -3,8 +3,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP V404-040",
-       impact="19.[1-6],20.[12],21.[1-4],22.1")
+@check(message="possible occurrence of KP V404-040")
 fun kp_v404_040(node) =
     node is AttributeRef
     when node.f_attribute.p_name_is("Valid")

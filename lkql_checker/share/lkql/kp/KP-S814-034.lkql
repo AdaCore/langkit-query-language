@@ -1,6 +1,6 @@
 import stdlib
 
-@check(message="possible occurrence of KP S814-034", impact="17.*,18.*,19.*")
+@check(message="possible occurrence of KP S814-034")
 fun kp_s814_034(node) =
     |" Flag array aggregates with an others choice if the array component type is a
     |" record type that has a string subcomponent.

@@ -17,7 +17,7 @@ fun check_subp(subp) =
     when check_type(stdlib.full_root_type(spec.f_subp_returns
                                               .p_designated_type_decl()))
 
-@check(message="possible occurrence of KP R410-028", impact="7.[123].*")
+@check(message="possible occurrence of KP R410-028")
 fun kp_r410_028(node) =
     node is BaseId(
         p_is_call(): true,

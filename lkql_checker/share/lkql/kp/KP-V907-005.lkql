@@ -2,8 +2,7 @@
 # indexing when the index is not static, nor a for loop variable.
 
 @check(help="possible occurrence of KP V907-005",
-       message="possible occurrence of KP V907-005 with -O3, consider using -fno-loop-unroll-and-jam or -O2",
-       impact="22.*")
+       message="possible occurrence of KP V907-005 with -O3, consider using -fno-loop-unroll-and-jam or -O2")
 fun kp_v907_005(node) =
     node is BaseLoopStmt(
         any parent: BaseLoopStmt,

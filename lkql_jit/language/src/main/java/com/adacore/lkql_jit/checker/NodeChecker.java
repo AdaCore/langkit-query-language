@@ -24,7 +24,6 @@ public final class NodeChecker extends BaseChecker {
             final Remediation remediation,
             final long executionCost,
             final boolean parametricExemption,
-            final String impact,
             final String target) {
         super(
                 name,
@@ -37,7 +36,6 @@ public final class NodeChecker extends BaseChecker {
                 remediation,
                 executionCost,
                 parametricExemption,
-                impact,
                 target);
     }
 
@@ -56,7 +54,6 @@ public final class NodeChecker extends BaseChecker {
                 this.remediation,
                 this.executionCost,
                 this.parametricExemption,
-                this.impact,
                 this.target);
     }
 }

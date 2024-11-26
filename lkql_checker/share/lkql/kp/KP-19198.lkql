@@ -1,4 +1,4 @@
-@check(help="possible occurrence of KP 19198", message="possible occurrence of KP 19198", impact="24.*")
+@check(help="possible occurrence of KP 19198", message="possible occurrence of KP 19198")
 fun kp_19198(node) =
     |" Flag object declaration which specify the "address" aspect and have a
     |" aggregate default value.

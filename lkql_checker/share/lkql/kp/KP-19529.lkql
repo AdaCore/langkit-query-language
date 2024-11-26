@@ -21,8 +21,7 @@ fun is_composite_object(name) =
     }
 
 @check(help="possible occurrence of KP 19529",
-       message="possible occurrence of KP 19529",
-       impact="24.*")
+       message="possible occurrence of KP 19529")
 fun kp_19529(node) =
     |" Flag assign statement between two composite objects that are declared
     |" in a subprogram and assigned in a nested sub-program.

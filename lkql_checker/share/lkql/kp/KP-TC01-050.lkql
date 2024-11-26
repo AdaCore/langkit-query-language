@@ -3,8 +3,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP TC01-050",
-       impact="19.[1-4],20.[12],21.1")
+@check(message="possible occurrence of KP TC01-050")
 fun kp_tc01_050(node) =
     node is MembershipExpr(
       f_membership_exprs: l@ExprAlternativesList

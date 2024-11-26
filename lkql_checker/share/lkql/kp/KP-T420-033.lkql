@@ -2,7 +2,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP T420-033", impact="18.*,19.*,20.1")
+@check(message="possible occurrence of KP T420-033")
 fun kp_t420_033(node) =
     node is ComponentDecl
     when node.p_semantic_parent() is BaseTypeDecl(p_is_tagged_type(): true)

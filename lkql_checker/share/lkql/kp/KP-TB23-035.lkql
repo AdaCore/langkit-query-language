@@ -4,7 +4,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP TB23-035", impact="20.[12]")
+@check(message="possible occurrence of KP TB23-035")
 fun kp_tb23_035(node) =
     node is AssignStmt(f_dest: DottedName(p_referenced_decl():
                                             c@ComponentDecl))

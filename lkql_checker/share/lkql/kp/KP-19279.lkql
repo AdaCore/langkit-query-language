@@ -42,8 +42,7 @@ fun contains_dynamic_bounds(agg) =
     )
 
 @check(help="possible occurrence of KP 19279",
-       message="possible occurrence of KP 19279",
-       impact="23.*,24.*")
+       message="possible occurrence of KP 19279")
 fun kp_19279(node) =
     |" Flag object intialization / assignment where the assigned expression is a
     |" multi-dimention array aggregate with one of the sub-aggregate having

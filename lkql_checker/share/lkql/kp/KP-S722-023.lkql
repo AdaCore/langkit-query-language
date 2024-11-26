@@ -16,7 +16,6 @@ fun is_array_slice(expr) =
     | o          => false
 
 @check(message="possible occurrence of KP S722-023",
-       impact="7.[1-4].*,17.*,18.[12],19.[123]",
        follow_generic_instantiations=true)
 fun kp_s722_023(node) =
     node is AttributeRef

@@ -1,8 +1,7 @@
 import stdlib
 
 @check(help="possible occurrence of KP 19341",
-       message="possible occurrence of KP 19341",
-       impact="24.*")
+       message="possible occurrence of KP 19341")
 fun kp_19341(node) =
     |" Flag all array type declarations that define the 'pack' or
     |" the 'component_size' aspect, and which have aliased composite

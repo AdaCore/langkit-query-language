@@ -6,7 +6,7 @@ fun pow2(n, result = 1) = if n == 0 then result else pow2(n - 1, result * 2)
 
 fun is_positive(n) = n.p_is_static_expr() and n.p_eval_as_int() >= 0
 
-@check(message="possible occurrence of KP TB09-038", impact="20.[12]")
+@check(message="possible occurrence of KP TB09-038")
 fun kp_tb09_038(node) =
     # Look for an integer type declaration
     node is TypeDecl(p_is_int_type(): true,

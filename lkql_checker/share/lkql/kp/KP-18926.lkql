@@ -20,8 +20,7 @@ fun is_flagged_aspect(aspect) =
     | * => false
 
 @check(help="possible occurrence of KP 18926",
-       message="possible occurrence of KP 18926",
-       impact="23.*,24.1")
+       message="possible occurrence of KP 18926")
 fun kp_18926(node) =
     node is BracketAggregate
     when is_flagged_aspect(node.p_expression_type().p_get_aspect("Aggregate"))

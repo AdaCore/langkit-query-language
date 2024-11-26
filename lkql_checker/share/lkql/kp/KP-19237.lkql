@@ -1,6 +1,5 @@
 @check(help="possible occurrence of KP 19237",
-       message="possible occurrence of KP 19237",
-       impact="23.*,24.*")
+       message="possible occurrence of KP 19237")
 fun kp_19237(node) =
     |" Search for indirect calls to functions returning limited tagged objects.
     node is CallExpr(

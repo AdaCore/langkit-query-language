@@ -1,7 +1,7 @@
 # Flag "Post" aspects that contain a 'Old reference and a comparison (= or /=)
 # with the "null" literal.
 
-@check(message="possible occurrence of KP VB24-008", impact="23.*")
+@check(message="possible occurrence of KP VB24-008")
 fun kp_vb24_008(node) =
     node is AspectAssoc(f_id: Name(p_name_is("Post"): true))
     when (from node.f_expr select first

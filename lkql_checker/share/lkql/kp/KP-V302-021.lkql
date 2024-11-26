@@ -3,7 +3,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP V302-021", impact="21.*,22.1")
+@check(message="possible occurrence of KP V302-021")
 fun kp_v302_021(node) =
     node is BaseSubpSpec(p_return_type(): ret@TypeDecl,
                          p_primitive_subp_tagged_type(): type@BaseTypeDecl,

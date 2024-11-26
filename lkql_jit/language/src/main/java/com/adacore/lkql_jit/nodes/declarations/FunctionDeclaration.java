@@ -149,8 +149,7 @@ public final class FunctionDeclaration extends Declaration {
                                 remediation,
                                 (long) checkerArguments[6],
                                 (boolean) checkerArguments[7],
-                                (String) checkerArguments[8],
-                                (String) checkerArguments[9])
+                                (String) checkerArguments[8])
                         : new UnitChecker(
                                 this.name,
                                 functionValue,
@@ -162,8 +161,7 @@ public final class FunctionDeclaration extends Declaration {
                                 remediation,
                                 (long) checkerArguments[6],
                                 (boolean) checkerArguments[7],
-                                (String) checkerArguments[8],
-                                (String) checkerArguments[9]);
+                                (String) checkerArguments[8]);
 
         // Put the object in the context
         LKQLLanguage.getContext(this)

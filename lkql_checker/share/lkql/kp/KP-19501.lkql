@@ -33,8 +33,7 @@ fun array_index_has_kp(expr, array_decl, child_n) =
     | *    => array_index_has_kp(expr, array_decl, child_n + 1)
 
 @check(help="possible occurrence of KP 19501",
-       message="possible occurrence of KP 19501",
-       impact="7.1.*,7.2.*,7.3.*,7.4.*,17.*,18.*,19.*,20.*,21.*,22.*,23.*,24.*")
+       message="possible occurrence of KP 19501")
 fun kp_19501(node) =
     |" Flag constructions involving an integer valued attribute reference known
     |" at compile time, when the attribute reference is:

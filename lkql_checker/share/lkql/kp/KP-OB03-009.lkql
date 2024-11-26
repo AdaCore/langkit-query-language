@@ -1,7 +1,7 @@
 # Flag record types with aspect Implicit_Dereference that have an
 # access-to-class-wide discriminant.
 
-@check(message="possible occurrence of KP OB03-009", impact="19.*")
+@check(message="possible occurrence of KP OB03-009")
 fun kp_ob03_009(node) =
     # Look for record types with discriminants and Implicit_Dereference aspect
     node is TypeDecl(f_discriminants: part@KnownDiscriminantPart,

@@ -3,7 +3,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP 18701", impact="23.*")
+@check(message="possible occurrence of KP 18701")
 fun kp_18701(node) =
     node is Aggregate
     when node.p_expression_type() is BaseTypeDecl(
