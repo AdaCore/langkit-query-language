@@ -155,6 +155,19 @@ class BaseDriver(DiffTestDriver):
             'is_codepeer': self.is_codepeer,
         })
 
+    @property
+    def required_files(self) -> list[str]:
+        """
+        Return a list of files required for the test to run. This list is going
+        to be used during the ``set_up`` phase of the test to ensure those
+        files exists. Each file must be relative to the testcase working
+        directory.
+
+        By default, there is not required files, but this property can be
+        override in children test drivers.
+        """
+        return []
+
     def set_up(self) -> None:
         super().set_up()
 
@@ -165,6 +178,11 @@ class BaseDriver(DiffTestDriver):
             self.test_env['test_name'].startswith('internal__')
         ):
             raise TestSkip('Skipping internal testcase')
+
+        # Check that required files are reachable
+        for f in self.required_files:
+            if not P.isfile(self.working_dir(f)):
+                raise TestAbortWithError(f"Missing required file: {f}")
 
         self._define_lkql_executables()
 

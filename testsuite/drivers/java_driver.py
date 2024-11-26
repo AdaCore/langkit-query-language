@@ -1,7 +1,6 @@
 import os
 
 from drivers.base_driver import BaseDriver
-from e3.testsuite.driver.classic import TestAbortWithFailure
 
 
 class JavaDriver(BaseDriver):
@@ -14,12 +13,11 @@ class JavaDriver(BaseDriver):
     in the test directory.
     """
 
-    def run(self) -> None:
-        # Get and check the test Java main file
-        main_java_file = self.working_dir("Main.java")
-        if not os.path.isfile(main_java_file):
-            raise TestAbortWithFailure("Missing 'Main.java' file")
+    @property
+    def required_files(self) -> list[str]:
+        return ["Main.java"]
 
+    def run(self) -> None:
         # Get the needed environment variable
         graal_home = os.environ["GRAAL_HOME"]
         lkql_jit_home = os.environ.get(
@@ -56,6 +54,6 @@ class JavaDriver(BaseDriver):
                 class_path,
                 f"-Djava.library.path={java_library_path}",
                 f"-Dtruffle.class.path.append={os.path.join(lkql_jit_home, 'lkql_jit.jar')}",
-                main_java_file,
+                self.working_dir("Main.java"),
             ]
         )
