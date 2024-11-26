@@ -16,6 +16,10 @@ class RefactorDriver(BaseDriver):
 
     perf_supported = True
 
+    @property
+    def required_files(self) -> list[str]:
+        return ["input.lkql"]
+
     def run(self) -> None:
         self.check_run([
             *self.command_base, 'refactor',

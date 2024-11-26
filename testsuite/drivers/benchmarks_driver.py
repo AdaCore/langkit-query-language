@@ -7,7 +7,7 @@ from drivers.base_driver import BaseDriver
 class BenchmarksDriver(BaseDriver):
     """
     This driver runs the LKQL JIT benchmarks using the Maven JMH entry point.
-    This driver doens't compare any output and only report the result of the
+    This driver doesn't compare any output and only report the result of the
     benchmarks execution.
     """
 

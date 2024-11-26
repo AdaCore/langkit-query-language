@@ -13,6 +13,11 @@ class ParserDriver(BaseDriver):
     Test arguments:
         - rule: name of the grammar rule to pass to `parse`
     """
+
+    @property
+    def required_files(self) -> list[str]:
+        return ["input"]
+
     def run(self) -> None:
         rule = self.test_env['rule']
 
