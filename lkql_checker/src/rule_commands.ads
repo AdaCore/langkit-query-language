@@ -7,10 +7,12 @@ with Ada.Containers.Vectors;
 
 with GNAT.Regexp;
 
-with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
+with GNATCOLL.JSON; use GNATCOLL.JSON;
+
+with Langkit_Support.Diagnostics;          use Langkit_Support.Diagnostics;
 with Langkit_Support.Generic_API.Analysis;
 use Langkit_Support.Generic_API.Analysis;
-with Langkit_Support.Text;        use Langkit_Support.Text;
+with Langkit_Support.Text;                 use Langkit_Support.Text;
 
 with Libadalang.Analysis;
 
@@ -122,6 +124,7 @@ package Rule_Commands is
    function Create_Rule_Command
      (Lkql_File_Path : String;
       Ctx            : L.Analysis_Context;
+      Impacts        : JSON_Value;
       Rc             : out Rule_Command) return Boolean;
    --  Create a Rule_Command value with the given name and arguments and
    --  store it in ``Rc``. Return ``True`` if this succeeded, ie. the file
