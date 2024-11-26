@@ -14,7 +14,7 @@ fun has_two_integer_params(params) =
 fun is_operator(params, expr) =
     stdlib.get_parameter(params, expr).p_is_operator_name()
 
-@check(message="possible occurrence of KP V127-049", impact="21.*,22.1")
+@check(message="possible occurrence of KP V127-049")
 fun kp_v127_049(node) =
     # Look for parameter associations of generic instantiations
     node is ParamAssoc(parent: AssocList(parent: inst@GenericInstantiation),

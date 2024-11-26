@@ -4,7 +4,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP V624-025", impact="22.*")
+@check(message="possible occurrence of KP V624-025")
 fun kp_v624_025(node) =
     node is AttributeRef
     when node.f_attribute.p_name_is("Valid_Scalars")

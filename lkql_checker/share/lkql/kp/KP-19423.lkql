@@ -1,6 +1,5 @@
 @check(help="possible occurrence of KP 19423",
-       message="possible occurrence of KP 19423",
-       impact="22.*,23.*,24.*")
+       message="possible occurrence of KP 19423")
 fun kp_19423(node) =
     |" Flag all "for ... in" loops which iterate over expressions of the
     |" form "F'Range", where F is a function call.

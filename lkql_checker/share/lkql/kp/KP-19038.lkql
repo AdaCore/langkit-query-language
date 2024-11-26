@@ -1,6 +1,5 @@
 @check(help="possible occurrence of KP 19038",
-       message="possible occurrence of KP 19038",
-       impact="24.1")
+       message="possible occurrence of KP 19038")
 fun kp_19038(node) =
     |" Detect all occurrences of aspect "Exclusive_Functions".
     node is AspectAssoc(

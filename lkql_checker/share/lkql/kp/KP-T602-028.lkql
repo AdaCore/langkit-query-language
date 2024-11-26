@@ -8,7 +8,7 @@ fun is_access(attr) =
     attr.p_name_is("Unchecked_Access") or
     attr.p_name_is("Unrestricted_Access")
 
-@check(message="possible occurrence of KP T602-028", impact="20.*")
+@check(message="possible occurrence of KP T602-028")
 fun kp_t602_028(node) =
     # Look for '*Access
     node is AttributeRef

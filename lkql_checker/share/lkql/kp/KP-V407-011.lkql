@@ -15,7 +15,7 @@ fun check_prefix(param, n) =
     param.p_expression_type() is AnonymousTypeDecl(p_is_access_type(): true) and
     n.p_expression_type() is t@TypeDecl when stdlib.has_interfaces(t)
 
-@check(message="possible occurrence of KP V407-011", impact="20.*,21.*,22.1")
+@check(message="possible occurrence of KP V407-011")
 fun kp_v407_011(node) =
     # Look for 'Access as a parameter of a CallExpr
     node is AttributeRef(parent: ParamAssoc(parent: l@AssocList(parent: CallExpr)))

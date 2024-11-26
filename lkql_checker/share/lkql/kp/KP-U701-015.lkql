@@ -1,5 +1,5 @@
 # Flag Predicate_Failure aspects
 
-@check(message="possible occurrence of KP U701-015", impact="21.*,22.*")
+@check(message="possible occurrence of KP U701-015")
 fun kp_u701_015(node) =
     node is AspectAssoc when node.f_id.p_name_is("Predicate_Failure")

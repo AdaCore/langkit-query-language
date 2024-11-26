@@ -12,8 +12,7 @@ fun outermost_package_decl(n) =
 }
 
 @check(help="possible occurrence of KP U803-030",
-       message="possible occurrence of KP U803-030 if -gnatE is used",
-       impact="21.*")
+       message="possible occurrence of KP U803-030 if -gnatE is used")
 fun kp_u803_030(node) =
     node is CallExpr(
       p_is_call(): true,

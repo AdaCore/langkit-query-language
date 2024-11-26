@@ -6,7 +6,7 @@ fun is_unconstrained(t) =
         ArrayTypeDef(f_indices: UnconstrainedArrayIndices) or
     t is ConcreteTypeDecl(f_discriminants: KnownDiscriminantPart)
 
-@check(message="possible occurrence of KP U310-012", impact="22.*")
+@check(message="possible occurrence of KP U310-012")
 fun kp_u310_012(node) =
     node is SubpSpec(f_subp_kind: SubpKindFunction)
     when node.p_return_type() is TypeDecl(p_full_view(): ret@TypeDecl)

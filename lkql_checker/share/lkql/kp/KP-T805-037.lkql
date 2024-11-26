@@ -2,7 +2,7 @@
 # default initialization of a component whose type is of a record type with
 # discriminants.
 
-@check(message="possible occurrence of KP T805-037", impact="20.[12]")
+@check(message="possible occurrence of KP T805-037")
 fun kp_t805_037(node) =
     node is TypeDecl(
       f_discriminants: part@KnownDiscriminantPart,

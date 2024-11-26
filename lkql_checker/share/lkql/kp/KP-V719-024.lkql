@@ -1,7 +1,7 @@
 # Flag discriminated record types with a variant part whose discrete choice
 # list contains an "others" choice, and a Dynamic_Predicate predicate.
 
-@check(message="possible occurrence of KP V719-024", impact="22.*")
+@check(message="possible occurrence of KP V719-024")
 fun kp_v719_024(node) =
     # Look for record types with discriminants and a Dynamic_Predicate aspect
     node is TypeDecl(f_discriminants: not null,

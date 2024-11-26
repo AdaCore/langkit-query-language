@@ -7,8 +7,7 @@ fun get_type_def(t) =
     | SubtypeDecl => get_type_def(t.f_subtype.f_name.p_referenced_decl())
     | *           => null
 
-@check(message="possible occurrence of KP R316-001",
-       impact="18.*,19.[1-4],20.[12]")
+@check(message="possible occurrence of KP R316-001")
 fun kp_r316_001(node) =
     node is (ClassicSubpDecl |
              BaseSubpBody(p_previous_part(): null) |

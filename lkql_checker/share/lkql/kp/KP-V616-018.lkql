@@ -7,7 +7,7 @@ fun access_to_unconstrained_array(t) =
         p_accessed_type(): TypeDecl(
             f_type_def: ArrayTypeDef(f_indices: UnconstrainedArrayIndices)))
 
-@check(message="possible occurrence of KP V616-018", impact="22.*")
+@check(message="possible occurrence of KP V616-018")
 fun kp_v616_018(node) =
     node is ComponentDecl(
         p_semantic_parent(): TypeDecl(f_type_def: DerivedTypeDef),

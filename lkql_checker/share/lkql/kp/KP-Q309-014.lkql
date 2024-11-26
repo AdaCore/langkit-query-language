@@ -15,6 +15,6 @@ fun is_untagged_packed_discr(n) =
                                                  .p_referenced_decl())
     | *             => false
 
-@check(message="possible occurrence of KP Q309-014", impact="7.[1-4].*,17.*")
+@check(message="possible occurrence of KP Q309-014")
 fun kp_q309_014(node) =
     node is DerivedTypeDef when is_untagged_packed_discr(node)

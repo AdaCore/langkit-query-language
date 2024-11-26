@@ -2,7 +2,7 @@
 
 @check(help="possible occurrence of KP TB25-028",
        message="possible occurrence of KP TB25-028 on powerpc targets",
-       impact="20.*", target="powerpc*")
+       target="powerpc*")
 fun kp_tB25_028(node) =
     node is AttributeRef
     when node.f_attribute.p_name_is("Valid_Scalars")
