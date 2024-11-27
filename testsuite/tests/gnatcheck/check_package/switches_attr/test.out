@@ -1,0 +1,18 @@
+Without additional switches
+===========================
+
+main.adb:3:04: goto statement [goto_statements]
+
+With a disallowed switch
+========================
+
+gnatcheck: for option RULE - -r is forbidden in project file
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+With invalid attribute value
+============================
+
+gnatcheck: invalid.gpr:5:11: error: attribute "Check'Switches" expects a list of values
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

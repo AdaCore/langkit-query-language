@@ -1,0 +1,18 @@
+Without additional rule file
+============================
+
+main.adb:3:04: goto statement
+
+With additional rule file
+=========================
+
+gnatcheck: only one LKQL configuration file is allowed
+main.adb:3:04: goto statement
+>>>program returned status code 6
+
+With invalid attribute value
+============================
+
+gnatcheck: invalid.gpr:5:11: error: attribute "Check'Rule_File" expects a single value
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
