@@ -5,12 +5,28 @@
 
 import stdlib
 
+fun negated(n) =
+    match n.f_op
+    | OpNot => n.f_expr
+    | op@* => new RelationOp(
+        f_left = n.f_left,
+        f_right = n.f_right,
+        f_op = match op
+            | OpEq  => new OpNeq()
+            | OpNeq => new OpEq()
+            | OpLt  => new OpGte()
+            | OpLte => new OpGt()
+            | OpGt  => new OpLte()
+            | OpGte => new OpLt()
+    )
+
 fun strip_parentheses(node) =
     |" Skip any ParenExpr and return the enclosing expression
     if node is ParenExpr then strip_parentheses(node.f_expr) else node
 
 @check(message="negation of boolean operator",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=(n, ctx) => ctx.replace(n, negated(strip_parentheses(n.f_expr))))
 fun boolean_negations(node) =
     node is UnOp(f_op: op@OpNot when stdlib.is_predefined_op(op))
     when stdlib.is_standard_boolean(node)
