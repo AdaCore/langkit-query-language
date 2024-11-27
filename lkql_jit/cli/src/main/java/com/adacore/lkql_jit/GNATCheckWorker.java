@@ -185,13 +185,19 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         // If a LKQL rule config file has been provided, parse it and display the result
         if (this.args.lkqlConfigFile != null) {
-            System.out.println(
-                    new JSONObject(
-                            parseLKQLRuleFile(this.args.lkqlConfigFile).entrySet().stream()
-                                    .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
-                                    .collect(
-                                            Collectors.toMap(
-                                                    Map.Entry::getKey, Map.Entry::getValue))));
+            try {
+                final var instances = parseLKQLRuleFile(this.args.lkqlConfigFile);
+                final var jsonInstances =
+                        new JSONObject(
+                                instances.entrySet().stream()
+                                        .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
+                                        .collect(
+                                                Collectors.toMap(
+                                                        Map.Entry::getKey, Map.Entry::getValue)));
+                System.out.println(jsonInstances);
+            } catch (LKQLRuleFileError e) {
+                System.out.println(e.getMessage());
+            }
             return 0;
         }
 
@@ -222,7 +228,12 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         final Map<String, RuleInstance> instances = new HashMap<>();
         for (var rulesFrom : this.args.rulesFroms) {
             if (!rulesFrom.isEmpty()) {
-                instances.putAll(parseLKQLRuleFile(rulesFrom));
+                try {
+                    instances.putAll(parseLKQLRuleFile(rulesFrom));
+                } catch (LKQLRuleFileError e) {
+                    System.out.println(e.getMessage());
+                    return 0;
+                }
             }
         }
         optionsBuilder.ruleInstances(instances);
@@ -237,7 +248,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             executable.executeVoid(true);
             return 0;
         } catch (Exception e) {
-            System.out.println("WORKER_FATAL_ERROR: " + e.getMessage());
+            System.out.println(e.getMessage());
             return 0;
         }
     }
@@ -253,16 +264,28 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     // ----- Option parsing helpers -----
 
-    /** Emit a formatted error when there is an invalid LKQL rule file. */
-    private static void errorInLKQLRuleFile(final String lkqlRuleFile, final String message) {
-        System.err.println("WORKER_FATAL_ERROR: " + message + " (" + lkqlRuleFile + ")");
+    /** Throws an exception with the given message, related ot the provided LKQL file name. */
+    private static void errorInLKQLRuleFile(final String lkqlRuleFile, final String message)
+            throws LKQLRuleFileError {
+        errorInLKQLRuleFile(lkqlRuleFile, message, true);
+    }
+
+    private static void errorInLKQLRuleFile(
+            final String lkqlRuleFile, final String message, final boolean addTag)
+            throws LKQLRuleFileError {
+        throw new LKQLRuleFileError(
+                (addTag ? "WORKER_ERROR: " : "") + message + " (" + lkqlRuleFile + ")");
     }
 
     /**
-     * Read the given LKQL file and parse it as a rule configuration file to return the extracted
-     * instances.
+     * Read the given LKQL file and parse it as a rule configuration file to return the list of
+     * instances defined in it.
+     *
+     * @throws LKQLRuleFileError If there is any error in the provided LKQL rule file, preventing
+     *     the analysis to go further.
      */
-    private static Map<String, RuleInstance> parseLKQLRuleFile(final String lkqlRuleFileName) {
+    private static Map<String, RuleInstance> parseLKQLRuleFile(final String lkqlRuleFileName)
+            throws LKQLRuleFileError {
         final File lkqlFile = new File(lkqlRuleFileName);
         final String lkqlFileBasename = lkqlFile.getName();
         final Map<String, RuleInstance> res = new HashMap<>();
@@ -313,9 +336,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             }
         } catch (IOException e) {
             errorInLKQLRuleFile(lkqlFileBasename, "Could not read file");
+        } catch (LKQLRuleFileError e) {
+            throw e;
         } catch (Exception e) {
-            errorInLKQLRuleFile(
-                    lkqlFileBasename, "Error during file processing: " + e.getMessage());
+            errorInLKQLRuleFile(lkqlFileBasename, e.getMessage(), false);
         }
         return res;
     }
@@ -328,7 +352,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             final String lkqlRuleFile,
             final Value instancesObject,
             final RuleInstance.SourceMode sourceMode,
-            final Map<String, RuleInstance> toPopulate) {
+            final Map<String, RuleInstance> toPopulate)
+            throws LKQLRuleFileError {
         // Iterate on all instance object keys
         for (String ruleName : instancesObject.getMemberKeys()) {
             final String lowerRuleName = ruleName.toLowerCase();
@@ -385,7 +410,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             final Value argsObject,
             final RuleInstance.SourceMode sourceMode,
             final String ruleName,
-            final Map<String, RuleInstance> toPopulate) {
+            final Map<String, RuleInstance> toPopulate)
+            throws LKQLRuleFileError {
         // Ensure that the given value has members (is an object)
         if (!argsObject.hasMembers()) {
             errorInLKQLRuleFile(lkqlRuleFile, "Arguments should be in an object value");
@@ -437,6 +463,15 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     /** Util function which returns whether a rule accepts sole argument. */
     private static boolean acceptSoleArgs(final String ruleName) {
         return List.of("style_checks", "warnings").contains(ruleName);
+    }
+
+    // ----- Inner classes -----
+
+    /** An exception to throw while analysing an LKQL rule file. */
+    static final class LKQLRuleFileError extends Exception {
+        public LKQLRuleFileError(String message) {
+            super(message);
+        }
     }
 
     // ----- The LKQL checker -----

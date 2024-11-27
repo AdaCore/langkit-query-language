@@ -805,8 +805,6 @@ package body Gnatcheck.Rules.Rule_Table is
         Get_Rule_File_Name (LKQL_RF_Name);
       JSON_Config_File_Name : constant String :=
         Global_Report_Dir.all & "gnatcheck-rules.json.out";
-      Error_File_Name : constant String :=
-        Global_Report_Dir.all & "gnatcheck-rules.json.err";
       Parser_Pid : Process_Id;
       Waited_Pid : Process_Id;
       Success : Boolean;
@@ -836,30 +834,30 @@ package body Gnatcheck.Rules.Rule_Table is
       --  Call the LKQL rule config file parser and parse its result
       Parser_Pid :=
         Spawn_LKQL_Rule_File_Parser
-          (Rule_File_Absolute_Path, JSON_Config_File_Name, Error_File_Name);
+          (Rule_File_Absolute_Path, JSON_Config_File_Name);
       Wait_Process (Waited_Pid, Success);
 
       if Parser_Pid /= Waited_Pid or else not Success then
          Error ("can not call the LKQL rule file parser");
          Rule_Option_Problem_Detected := True;
-         return;
-      end if;
-      Analyze_Output (Error_File_Name, Success);
+      else
+         Config_JSON := Read (Read_File (JSON_Config_File_Name).all);
 
-      Config_JSON := Read (Read_File (JSON_Config_File_Name).all);
-      if not Config_JSON.Success then
-         Error ("can not parse the rule config JSON file");
-         Rule_Option_Problem_Detected := True;
-         return;
-      end if;
+         --  If the JSON parsing failed, it means that LKQL rule file
+         --  processing failed and diagnostics are in the output file.
+         if not Config_JSON.Success then
+            Analyze_Output (JSON_Config_File_Name, Success);
+            Rule_Option_Problem_Detected := True;
 
-      --  Populate the global rule table with the rule config
-      Map_JSON_Object (Config_JSON.Value, Rule_Object_Mapper'Access);
+         --  Else, populate the global rule table with the rule config
+         else
+            Map_JSON_Object (Config_JSON.Value, Rule_Object_Mapper'Access);
+         end if;
 
-      --  Delete the temporary JSON files if not it debug mode
-      if not Arg.Debug_Mode.Get then
-         Delete_File (JSON_Config_File_Name, Success);
-         Delete_File (Error_File_Name, Success);
+         --  Delete the temporary JSON files if not it debug mode
+         if not Arg.Debug_Mode.Get then
+            Delete_File (JSON_Config_File_Name, Success);
+         end if;
       end if;
    end Process_LKQL_Rule_File;
 

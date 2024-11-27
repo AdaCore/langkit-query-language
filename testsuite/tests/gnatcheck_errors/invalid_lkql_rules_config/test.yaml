@@ -4,6 +4,8 @@ input_sources:
 format: brief
 
 tests:
+- label: Invalid syntax
+  lkql_rule_file: invalid_syntax.lkql
 - label: Invalid LKQL semantic
   lkql_rule_file: invalid_semantic.lkql
 - label: No 'rules' object
