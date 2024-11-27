@@ -1,15 +1,3 @@
-# Flag each control structure whose nesting level exceeds the value provided in
-# the rule parameter n.
-# The control structures checked are the following:
-# - if statement
-# - case statement
-# - loop statement
-# - selective accept statement
-# - timed entry call statement
-# - conditional entry call statement
-# - asynchronous select statement
-# If Loops_Only is true, only loop statements are counted.
-
 fun check_control_parent(node, n) =
     |" Return true if node and its parents contain more than n control structure
     match node
@@ -28,6 +16,48 @@ fun check_loop_parent(node, n) =
 @check(message="nesting level of control structures too deep",
        category="Style", subcategory="Programming Practice")
 fun overly_nested_control_structures(node, n: int = 3, loops_only = false) =
+    |" Flag each control structure whose nesting level exceeds the value provided
+    |" in the rule parameter.
+    |"
+    |" The control structures checked are the following:
+    |"
+    |" * ``if`` statement
+    |" * ``case`` statement
+    |" * ``loop`` statement
+    |" * selective accept statement
+    |" * timed entry call statement
+    |" * conditional entry call statement
+    |" * asynchronous select statement
+    |"
+    |" The rule has the following (optional) parameters for the ``+R`` option and for
+    |" LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Positive integer specifying the maximal control structure nesting
+    |"    level that is not flagged. Defaults to 3 if not specified.
+    |"
+    |" *Loops_Only: bool*
+    |"    If ``true``, only loop statements are counted.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6
+    |"
+    |"    if I > 0 then
+    |"        for Idx in I .. J loop
+    |"           if J < 0 then
+    |"              case I is
+    |"                 when 1 =>
+    |"                    if Idx /= 0 then  --  FLAG (if rule parameter is 3)
+    |"                       J := J / Idx;
+    |"                    end if;
+    |"                 when others =>
+    |"                    J := J + Idx;
+    |"              end case;
+    |"           end if;
+    |"        end loop;
+    |"    end if;
     if loops_only
     then node is BaseLoopStmt when check_loop_parent(node.parent, n)
     else node is (IfStmt | CaseStmt | BaseLoopStmt | SelectStmt)

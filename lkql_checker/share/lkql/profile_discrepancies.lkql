@@ -1,7 +1,3 @@
-# Flag subprogram or entry body (or body stub) if its parameter (or parameter
-# and result) profile does not follow the lexical structure of the profile in
-# the corresponding subprogram or entry declaration.
-
 import stdlib
 
 # Return true if the two lists l1 and l2 have identical names
@@ -48,13 +44,32 @@ fun entry_mismatch(e) = {
 
 @unit_check(help="parameter profile discrepancies",
             category="Style", subcategory="Readability")
-fun profile_discrepancies(unit) = [
-    {message: "structure of parameter profile differs from " &
-              stdlib.sloc_image(n.p_decl_part()),
-     loc: n.p_defining_name()}
-    for n in from unit.root select node@((BaseSubpBody | SubpBodyStub)
-        when match node.p_decl_part()
-        | g@GenericSubpDecl => subp_mismatch(node, g?.f_subp_decl)
-        | s@BasicSubpDecl   => subp_mismatch(node, s)
-        | *                 => false
-    | EntryBody when entry_mismatch(node))]
+fun profile_discrepancies(unit) =
+    |" Flag subprogram or entry body (or body stub) if its parameter (or
+    |" parameter and result) profile does not follow the lexical structure
+    |" of the profile in the corresponding subprogram or entry declaration.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 8
+    |"
+    |"    package Pack is
+    |"       procedure Proc
+    |"         (I : Integer;
+    |"          J : Integer);
+    |"    end Pack;
+    |"
+    |"    package body Pack is
+    |"       procedure Proc (I, J : Integer) is    --  FLAG
+    [
+        {message: "structure of parameter profile differs from " &
+                  stdlib.sloc_image(n.p_decl_part()),
+         loc: n.p_defining_name()}
+        for n in from unit.root select node@((BaseSubpBody | SubpBodyStub)
+            when match node.p_decl_part()
+            | g@GenericSubpDecl => subp_mismatch(node, g?.f_subp_decl)
+            | s@BasicSubpDecl   => subp_mismatch(node, s)
+            | *                 => false
+        | EntryBody when entry_mismatch(node))
+    ]

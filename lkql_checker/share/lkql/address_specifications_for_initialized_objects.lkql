@@ -1,9 +1,19 @@
-# Flag address clauses and address aspect definitions if they are applied
-# to object declarations with explicit initializations.
-
 @check(message="address specification for initialized object",
        category="Style", subcategory="Programming Practice")
 fun address_specifications_for_initialized_objects(node) =
+    |" Flag address clauses and address aspect definitions if they are applied
+    |" to object declarations with explicit initializations.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5
+    |"
+    |"    I : Integer := 0;
+    |"    Var0 : Integer with Address => I'Address;
+    |"
+    |"    Var1 : Integer := 10;
+    |"    for Var1'Address use Var0'Address;             --  FLAG
     # for X'Address use ...
     node is (a@AttributeDefClause(
         f_attribute_expr: AttributeRef(

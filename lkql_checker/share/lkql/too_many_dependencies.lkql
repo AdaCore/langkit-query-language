@@ -1,10 +1,3 @@
-# Flag a library item or a subunit that immediately depends on more than N
-# library units (N is a rule parameter). In case of a dependency on child
-# units, implicit or explicit dependencies on all their parents are not
-# counted.
-# This rule has the N parameter: Positive integer specifying the maximal
-# number of dependencies when the library item or subunit is not flagged.
-
 fun is_not_starter(name, l) =
     |" Given a list of strings l, return 1 if none of the strings start with
     |" name, 0 otherwise.
@@ -37,14 +30,40 @@ fun num_deps(unit, parent) = {
 
 @unit_check(help="unit has too many dependencies", remediation="MAJOR",
             category="Feature")
-fun too_many_dependencies(unit, n : int = 5) = [
-    {message: "unit has too many dependencies (" &
-              img(if node is LibraryItem
-                  then num_deps(node.parent, node.f_item.p_semantic_parent())
-                  else num_deps(node.parent, node.p_semantic_parent())) & ")",
-     loc: node}
-    for node in from unit.root select
-        (lib@(LibraryItem when num_deps(lib.parent,
-                                       lib.f_item.p_semantic_parent()) > n) |
-        sub@Subunit when num_deps(sub.parent, sub.p_semantic_parent()) > n)
-]
+fun too_many_dependencies(unit, n : int = 5) =
+    |" Flag a library item or a subunit that immediately depends on more than
+    |" N library units (N is a rule parameter). In case of a dependency on
+    |" child units, implicit or explicit dependencies on all their parents are
+    |" not counted.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Positive integer specifying the maximal number of dependencies when
+    |"    the library item or subunit is not flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 8
+    |"
+    |"    --  if rule parameter is 5 or smaller:
+    |"    with Pack1;
+    |"    with Pack2;
+    |"    with Pack3;
+    |"    with Pack4;
+    |"    with Pack5;
+    |"    with Pack6;
+    |"    procedure Main is               --  FLAG
+    [
+        {message: "unit has too many dependencies (" &
+                  img(if node is LibraryItem
+                      then num_deps(node.parent, node.f_item.p_semantic_parent())
+                      else num_deps(node.parent, node.p_semantic_parent())) & ")",
+         loc: node}
+        for node in from unit.root select
+            (lib@(LibraryItem when num_deps(lib.parent,
+                                           lib.f_item.p_semantic_parent()) > n) |
+            sub@Subunit when num_deps(sub.parent, sub.p_semantic_parent()) > n)
+    ]

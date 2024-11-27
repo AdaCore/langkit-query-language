@@ -1,18 +1,3 @@
-# Flag each positional parameter notation in a subprogram or entry call, except
-# for the following:
-# - Parameters of calls to attribute subprograms are not flagged;
-# - Parameters of prefix or infix calls to operator functions are not flagged;
-# - If the called subprogram or entry has only one formal parameter, the
-#   parameter of the call is not flagged;
-# - If a subprogram call uses the Object.Operation notation, then
-#   - the first parameter (that is, Object) is not flagged;
-#   - if the called subprogram has only two parameters, the second parameter of
-#     the call is not flagged;
-# This rule has the parameter All: if this parameter is specified, all the
-# positional parameter associations that can be replaced with named
-# associations according to language rules are flagged, except parameters of
-# the calls to operator functions.
-
 fun check_actual_param(spec, node, check_dot) =
     match spec
     | SubpSpec  => {
@@ -26,6 +11,55 @@ fun check_actual_param(spec, node, check_dot) =
 @check(message="positional parameter association", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun positional_parameters(node, all=false) =
+    |" Flag each positional parameter notation in a subprogram or entry call,
+    |" except for the following:
+    |"
+    |" * Parameters of calls to attribute subprograms are not flagged;
+    |" * Parameters of prefix or infix calls to operator functions are not flagged;
+    |" * If the called subprogram or entry has only one formal parameter,
+    |"   the parameter of the call is not flagged;
+    |" * If a subprogram call uses the *Object.Operation* notation, then
+    |"   * the first parameter (that is, *Object*) is not flagged;
+    |"
+    |"   * if the called subprogram has only two parameters, the second parameter
+    |"     of the call is not flagged;
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *All: bool*
+    |"    If ``true``, all the positional parameter associations that can be replaced
+    |"    with named associations according to language rules are flagged, except
+    |"    parameters of the calls to operator functions.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 17, 21
+    |"
+    |"    procedure Bar (I : in out Integer) is
+    |"       function My_Max (Left, Right : Integer) return Integer renames Integer'Max;
+    |"
+    |"       procedure Proc1 (I : in out Integer) is
+    |"       begin
+    |"          I := I + 1;
+    |"       end Proc1;
+    |"
+    |"       procedure Proc2 (I, J : in out Integer) is
+    |"       begin
+    |"          I := I + J;
+    |"       end Proc2;
+    |"
+    |"       L, M : Integer := 1;
+    |"    begin
+    |"       Proc1 (L);
+    |"       Proc2 (L, M);                              --  FLAG (twice)
+    |"       Proc2 (I => M, J => L);
+    |"
+    |"       L := Integer'Max (10, M);
+    |"       M := My_Max (100, Right => L);             --  FLAG
+    |"
+    |"    end Bar;
     node is ParamAssoc(f_designator: null, parent: l@AssocList)
     when l.parent is c@CallExpr(
         p_is_call(): true,

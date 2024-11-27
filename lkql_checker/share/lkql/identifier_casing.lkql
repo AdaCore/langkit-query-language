@@ -1,32 +1,3 @@
-# Flag each defining identifier that does not have a casing corresponding to
-# the kind of entity being declared. All defining names are checked.
-# The rule may have the following parameters:
-# - Type=casing_scheme
-#   Specifies casing for names from type and subtype declarations.
-# - Enum=casing_scheme
-#   Specifies the casing of defining enumeration literals and for the defining
-#   names in a function renaming declarations if the renamed entity is an
-#   enumeration literal.
-# - Constant=casing_scheme
-#   Specifies the casing for defining names from constants and named number
-#   declarations, including the object renaming declaration if the renamed
-#   object is a constant.
-# - Exception=casing_scheme
-#   Specifies the casing for names from exception declarations and exception
-#   renaming declarations.
-# - Others=casing_scheme
-#   Specifies the casing for all defining names for which no special casing
-#   scheme is specified. If this parameter is not set, the casing for the
-#   entities that do not correspond to the specified parameters is not checked.
-# - Exclude
-#   Specifies a list of full identifier casing exceptions.
-#
-# Where: casing_scheme ::= upper|lower|mixed
-# upper means that the defining identifier should be upper-case. lower means
-# that the defining identifier should be lower-case mixed means that the first
-# defining identifier letter and the first letter after each underscore should
-# be upper-case, and all the other letters should be lower-case.
-
 import stdlib
 
 fun wrong_casing(str, scheme) =
@@ -101,68 +72,219 @@ fun check_casing(id, scheme, exclude) =
             category="Style", subcategory="Readability")
 fun identifier_casing(unit,
                       type="", enum="", constant="", exception="", others="",
-                      exclude=[]) = [
-    {message: n.text & " does not have casing specified " &
-              ({
-                fun msg(str, scheme) =
-                    if wrong_casing(n.text, scheme)
-                    then str & scheme & ")" else "in the dictionary";
+                      exclude=[]) =
+    |" Flag each defining identifier that does not have a casing corresponding to the
+    |" kind of entity being declared. All defining names are checked. For the
+    |" defining names from the following kinds of declarations a special casing scheme
+    |" can be defined:
+    |"
+    |" * type and subtype declarations;
+    |" * enumeration literal specifications (not including character literals)
+    |"   and function renaming declarations if the renaming entity is an
+    |"   enumeration literal;
+    |" * constant and number declarations (including object renaming
+    |"   declarations if the renamed object is a constant);
+    |" * exception declarations and exception renaming declarations.
+    |"
+    |" The rule may have the following parameters for ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Type: casing_scheme*
+    |"    Specifies casing for names from type and subtype declarations.
+    |"
+    |" *Enum: casing_scheme*
+    |"    Specifies the casing of defining enumeration literals and for the
+    |"    defining names in a function renaming declarations if the renamed
+    |"    entity is an enumeration literal.
+    |"
+    |" *Constant: casing_scheme*
+    |"    Specifies the casing for defining names from constants and named number
+    |"    declarations, including the object renaming declaration if the
+    |"    renamed object is a constant
+    |"
+    |" *Exception: casing_scheme*
+    |"    Specifies the casing for names from exception declarations and exception
+    |"    renaming declarations.
+    |"
+    |" *Others: casing_scheme*
+    |"    Specifies the casing for all defining names for which no special casing
+    |"    scheme is specified. If this parameter is not set, the casing for the
+    |"    entities that do not correspond to the specified parameters is not checked.
+    |"
+    |" *Exclude: string*
+    |"    The name of a dictionary file to specify casing exceptions. The name of the
+    |"    file may contain references to environment variables (e.g.
+    |"    $REPOSITORY_ROOT/my_dict.txt), they are replaced by the values of these
+    |"    variables.
+    |"
+    |" Where *casing_scheme* is a string and:
+    |" ::
+    |"
+    |"      casing_scheme ::= upper|lower|mixed
+    |"
+    |" *upper* means that the defining identifier should be upper-case.
+    |" *lower* means that the defining identifier should be lower-case
+    |" *mixed* means that the first defining identifier letter and the first
+    |" letter after each underscore should be upper-case, and all the other
+    |" letters should be lower-case
+    |"
+    |" You have to use the ``param_name=value`` formatting to pass arguments through
+    |" the ``+R`` options. Example: ``+RIdentifier_Casing:Type=mixed,Others=lower``.
+    |"
+    |" If a defining identifier is from a declaration for which a specific casing
+    |" scheme can be set, but the corresponding parameter is not specified for the
+    |" rule, then the casing scheme defined by ``Others`` parameter is used to
+    |" check this identifier. If ``Others`` parameter also is not set, the
+    |" identifier is not checked.
+    |"
+    |" *Exclude* is the name of the text file that contains casing exceptions. The way
+    |" how this rule is using the casing exception dictionary file is consistent with
+    |" using the casing exception dictionary in the GNAT pretty-printer *gnatpp*, see
+    |" GNAT User's Guide.
+    |"
+    |" There are two kinds of exceptions:
+    |"
+    |" *identifier*
+    |"   If a dictionary file contains an identifier, then each occurrence of that
+    |"   (defining) identifier in the checked source should use the casing specified
+    |"   included in *dictionary_file*
+    |"
+    |" *wildcard*
+    |"   A wildcard has the following syntax
+    |"
+    |" ::
+    |"
+    |"       wildcard ::= *simple_identifier* |
+    |"                          *simple_identifier |
+    |"                          simple_identifier*
+    |"       simple_identifier ::= letter{letter_or_digit}
+    |"
+    |" ``simple_identifier`` specifies the casing of subwords (the term 'subword'
+    |" is used below to denote the part of a name which is delimited by '_' or by
+    |" the beginning or end of the word and which does not contain any '_' inside).
+    |" A wildcard of the form ``simple_identifier*`` defines the casing of the
+    |" first subword of a defining name to check, the wildcard of the form
+    |" ``*simple_identifier`` specifies the casing of the last subword, and
+    |" the wildcard of the form ``*simple_identifier*`` specifies the casing of
+    |" any subword.
+    |"
+    |" If for a defining identifier some of its subwords can be mapped onto
+    |" wildcards, but some other cannot, the casing of the identifier subwords
+    |" that are not mapped onto wildcards from casing exception dictionary
+    |" is checked against the casing scheme defined for the corresponding
+    |" entity.
+    |"
+    |" If some identifier is included in the exception dictionary both as a whole
+    |" identifier and can be mapped onto some wildcard from the
+    |" dictionary, then it is the identifier and not the wildcard that is used to check
+    |" the identifier casing.
+    |"
+    |" If more than one dictionary file is specified, or a dictionary file contains
+    |" more than one exception variant for the same identifier, the new casing
+    |" exception overrides the previous one.
+    |"
+    |" Casing check against dictionary file(s) has a higher priority than checks
+    |" against the casing scheme specified for a given entity/declaration kind.
+    |"
+    |" The rule activation option should contain at least one parameter.
+    |"
+    |" The rule allows parametric exemption, the parameters that are allowed in
+    |" the definition of exemption sections are:
+    |"
+    |" *Type*
+    |"    Exempts check for type and subtype name casing
+    |"
+    |" *Enum*
+    |"    Exempts check for enumeration literal name casing
+    |"
+    |" *Constant*
+    |"    Exempts check for constant name casing
+    |"
+    |" *Exception*
+    |"    Exempts check for exception name casing
+    |"
+    |" *Others*
+    |"    Exempts check for defining names for which no special casing scheme is specified.
+    |"
+    |" *Exclude*
+    |"    Exempts check for defining names for which casing schemes are specified in exception
+    |"    dictionaries
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4, 7
+    |"
+    |"    --  if the rule is activated as '+RIdentifier_Casing:Type=upper,Others=mixed'
+    |"    package Foo is
+    |"       type ENUM_1 is (A1, B1, C1);
+    |"       type Enum_2 is (A2, B2, C2);      --  FLAG
+    |"
+    |"       Var1 : Enum_1 := A1;
+    |"       VAR2 : ENUM_2 := A2;              --  FLAG
+    |"    end Foo;
+    [
+        {message: n.text & " does not have casing specified " &
+                  ({
+                    fun msg(str, scheme) =
+                        if wrong_casing(n.text, scheme)
+                        then str & scheme & ")" else "in the dictionary";
 
-                match n.parent
-                   | (t@BaseTypeDecl when t is (not SingleTaskTypeDecl |
-                      p@TaskBody when p.p_previous_part() is not SingleTaskDecl))
-                     when type != "" => msg("for subtype names (", type)
-                   | EnumLiteralDecl when enum != ""
-                   => msg("for enumeration literals (", enum)
-
-                   | p =>
-                       match p.parent
-                       | (ObjectDecl(p_is_constant_object(): true) |
-                          NumberDecl) when constant != ""
-                       => msg("for constant names (", constant)
-
-                       | SubpRenamingDecl when enum != ""
+                    match n.parent
+                       | (t@BaseTypeDecl when t is (not SingleTaskTypeDecl |
+                          p@TaskBody when p.p_previous_part() is not SingleTaskDecl))
+                         when type != "" => msg("for subtype names (", type)
+                       | EnumLiteralDecl when enum != ""
                        => msg("for enumeration literals (", enum)
 
-                       | ExceptionDecl when exception != ""
-                       => msg("for exception names (", exception)
+                       | p =>
+                           match p.parent
+                           | (ObjectDecl(p_is_constant_object(): true) |
+                              NumberDecl) when constant != ""
+                           => msg("for constant names (", constant)
 
-                       | * => msg("(", others)
-               }),
-     loc: n}
-    for n in from unit.root
-    select node@DefiningName(f_name: id@Identifier)
-    when match node.parent
-        # Task objects
-        | (SingleTaskDecl | SingleTaskTypeDecl)
-        => check_casing(id, others, exclude)
+                           | SubpRenamingDecl when enum != ""
+                           => msg("for enumeration literals (", enum)
 
-        # Types and subtypes, including TaskBody when the spec is a task type
-        | (BaseTypeDecl |
-           p@TaskBody when p.p_previous_part() is not SingleTaskDecl)
-          when type != "" => check_casing(id, type, exclude)
+                           | ExceptionDecl when exception != ""
+                           => msg("for exception names (", exception)
 
-        # Enums
-        | EnumLiteralDecl when enum != "" => check_casing(id, enum, exclude)
+                           | * => msg("(", others)
+                   }),
+         loc: n}
+        for n in from unit.root
+        select node@DefiningName(f_name: id@Identifier)
+        when match node.parent
+            # Task objects
+            | (SingleTaskDecl | SingleTaskTypeDecl)
+            => check_casing(id, others, exclude)
 
-        # Look one level up for remaining cases
-        | p => match p.parent
+            # Types and subtypes, including TaskBody when the spec is a task type
+            | (BaseTypeDecl |
+               p@TaskBody when p.p_previous_part() is not SingleTaskDecl)
+              when type != "" => check_casing(id, type, exclude)
 
-        # Constants
-        | (ObjectDecl(p_is_constant_object(): true) |
-           NumberDecl) when constant != ""
-        =>
-            check_casing(id, constant, exclude)
+            # Enums
+            | EnumLiteralDecl when enum != "" => check_casing(id, enum, exclude)
 
-        # Function renaming an enum literal
-        | r@SubpRenamingDecl
-          when r.f_renames.f_renamed_object.p_referenced_decl() is
-               EnumLiteralDecl and enum != "" => check_casing(id, enum, exclude)
+            # Look one level up for remaining cases
+            | p => match p.parent
 
-        # Exceptions
-        | ExceptionDecl when exception != ""
-        => check_casing(id, exception, exclude)
+            # Constants
+            | (ObjectDecl(p_is_constant_object(): true) |
+               NumberDecl) when constant != ""
+            =>
+                check_casing(id, constant, exclude)
 
-        # Other cases
-        | * => check_casing(id, others, exclude)
-]
+            # Function renaming an enum literal
+            | r@SubpRenamingDecl
+              when r.f_renames.f_renamed_object.p_referenced_decl() is
+                   EnumLiteralDecl and enum != "" => check_casing(id, enum, exclude)
+
+            # Exceptions
+            | ExceptionDecl when exception != ""
+            => check_casing(id, exception, exclude)
+
+            # Other cases
+            | * => check_casing(id, others, exclude)
+    ]

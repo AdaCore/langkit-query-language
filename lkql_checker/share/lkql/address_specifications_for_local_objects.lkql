@@ -1,10 +1,26 @@
-# Flag address clauses and address aspect definitions if they are applied
-# to data objects declared in local subprogram bodies. Data objects
-# declared in library subprogram bodies are not flagged.
-
 @check(message="address specification for local object",
        category="Style", subcategory="Programming Practice")
 fun address_specifications_for_local_objects(node) =
+    |" Flag address clauses and address aspect definitions if they are applied
+    |" to data objects declared in local subprogram bodies. Data objects
+    |" declared in library subprogram bodies are not flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 7
+    |"
+    |"    package Pack is
+    |"       Var : Integer;
+    |"       procedure Proc (I : in out Integer);
+    |"    end Pack;
+    |"    package body Pack is
+    |"       procedure Proc (I : in out Integer) is
+    |"          Tmp : Integer with Address => Pack.Var'Address;   --  FLAG
+    |"       begin
+    |"          I := Tmp;
+    |"       end Proc;
+    |"    end Pack;
     node is ObjectDecl (any parent: s@SubpBody
                         when not s.parent is LibraryItem)
     when node.p_has_aspect("Address")

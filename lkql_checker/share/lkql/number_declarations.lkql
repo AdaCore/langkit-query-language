@@ -1,4 +1,15 @@
-# Number declarations are flagged.
-
 @check(message="number declaration", category="Feature")
-fun number_declarations(node) = node is NumberDecl
+fun number_declarations(node) =
+    |" Number declarations are flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1, 2
+    |"
+    |"    Num1 : constant := 13;                 --  FLAG
+    |"    Num2 : constant := 1.3;                --  FLAG
+    |"
+    |"    Const1 : constant Integer := 13;
+    |"    Const2 : constant Float := 1.3;
+    node is NumberDecl

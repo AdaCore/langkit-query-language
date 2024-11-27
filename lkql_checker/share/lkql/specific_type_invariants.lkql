@@ -1,11 +1,28 @@
-# Flag any definition of (non-class-wide) Type_Invariant aspect that is a part
-# of a declaration of a tagged type or a tagged extension. Definitions of
-# Type_Invariant aspect that are parts of declarations of non-tagged types are
-# not flagged.
-
 @check(message="definition of non class-wide Type_Invariant aspect",
        category="Style", subcategory="Object Orientation")
 fun specific_type_invariants(node) =
+    |" Flag any definition of (non-class-wide) Type_Invariant aspect that is
+    |" a part of a declaration of a tagged type or a tagged extension. Definitions
+    |" of Type_Invariant'Class aspects are not flagged. Definitions of (non-class-wide)
+    |" Type_Invariant aspect that are parts of declarations of non-tagged types
+    |" are not flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6
+    |"
+    |"    type PT is private
+    |"       with Type_Invariant => Test_PT (PT);
+    |"    function Test_PT (X : PT) return Boolean;
+    |"
+    |"    type TPT1 is tagged private
+    |"       with Type_Invariant => Test_TPT1 (TPT1);        --  FLAG
+    |"    function Test_TPT1 (X : TPT1) return Boolean;
+    |"
+    |"    type TPT2 is tagged private
+    |"       with Type_Invariant'Class => Test_TPT2 (TPT2);
+    |"    function Test_TPT2 (X : TPT2) return Boolean;
     node is AspectAssoc(
         f_id: Identifier(p_name_is("Type_Invariant"): true),
         any parent(depth=3): BaseTypeDecl(p_is_tagged_type(): true))

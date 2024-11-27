@@ -22,7 +22,7 @@ A copy of the license is included in the section entitled
 
    gnatcheck_rm/getting_started
    gnatcheck_rm/using_gnatcheck
-   gnatcheck_rm/predefined_rules
+   generated/predefined_rules
    gnatcheck_rm/writing_your_own_rules
    gnatcheck_rm/lkql_language_reference
 
@@ -33,5 +33,5 @@ A copy of the license is included in the section entitled
 .. toctree::
    :maxdepth: 2
 
-   gnatcheck_rm/list_of_rules
+   generated/list_of_rules
    share/gnu_free_documentation_license

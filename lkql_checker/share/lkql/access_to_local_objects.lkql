@@ -1,15 +1,3 @@
-# Flag any `'Access' attribute reference if its prefix denotes an
-# identifier defined by a local object declaration or a subcomponent
-# thereof.
-#
-# An object declaration is considered as local if it is located
-# anywhere except library-level packages or bodies of library-level
-# packages (including packages nested in those). Here both package
-# declarations and package instantiations are considered as packages.
-#
-# If the attribute prefix is a dereference or a subcomponent thereof, the
-# attribute reference is not flagged.
-
 import stdlib
 
 fun has_access_type(n) =
@@ -46,6 +34,24 @@ fun denotes_local_object(n) = {
 @check(message="access attribute for local objects",
        category="Style", subcategory="Programming Practice")
 fun access_to_local_objects(node) =
+    |" Flag any ``'Access`` attribute reference if its prefix denotes an identifier
+    |" defined by a local object declaration or a subcomponent thereof. An object
+    |" declaration is considered as local if it is located anywhere except library-level
+    |" packages or bodies of library-level packages (including packages nested
+    |" in those). Here both package declarations and package instantiations are
+    |" considered as packages. If the attribute prefix is a dereference or
+    |" a subcomponent thereof, the attribute reference is not flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5
+    |"
+    |"    package body Pack
+    |"       procedure Proc is
+    |"          type Int_A is access all Integer;
+    |"          Var1 : aliased Integer;
+    |"          Var2 :         Int_A := Var1'Access;  --  FLAG
     node is AttributeRef
     when node.f_attribute.p_name_is("Access")
      and denotes_local_object(node.f_prefix)

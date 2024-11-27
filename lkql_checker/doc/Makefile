@@ -42,6 +42,9 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)
 
+generate:
+	lkql doc-rules -O generated $(SOURCEDIR)/../share/lkql $(SOURCEDIR)/stubs
+
 %.html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/$*/html
 

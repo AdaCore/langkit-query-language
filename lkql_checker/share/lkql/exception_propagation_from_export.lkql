@@ -1,10 +1,3 @@
-# Flag each subprogram body with an Export or Convention aspect that may
-# propagate an exception.
-# A subprogram is considered as not propagating if:
-# - it has an exception handler with a "when others" choice;
-# - and no exception handler contains a raise statement, nor any call to
-#   Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
-
 import stdlib
 
 fun is_exported(body) = {
@@ -18,5 +11,29 @@ fun is_exported(body) = {
 @check(message="exception may propagate out of exported subprogram",
        category="Style", subcategory="Programming Practice")
 fun exception_propagation_from_export(node) =
+    |" Flag a subprogram body if aspect or pragma ``Export`` or ``Convention`` is
+    |" applied to this subprogram and this subprogram may propagate an exception.
+    |"
+    |" A subprogram is considered as not propagating an exception if:
+    |"
+    |" * its body has an exception handler with ``others`` exception choice;
+    |" * no exception handler in the body contains a raise statement nor a call to
+    |"   ``Ada.Exception.Raise_Exception`` or ``Ada.Exception.Reraise_Occurrence``.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6
+    |"
+    |"    package P is
+    |"       procedure Proc (I : in out Integer) with Export;
+    |"    end P;
+    |"
+    |"    package body P is
+    |"       procedure Proc (I : in out Integer) is    --  FLAG
+    |"       begin
+    |"          I := I + 10;
+    |"       end Proc;
+    |"    end P;
     node is SubpBody
     when is_exported(node) and stdlib.propagate_exceptions(node)

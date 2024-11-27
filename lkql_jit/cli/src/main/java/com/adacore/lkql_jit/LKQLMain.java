@@ -17,7 +17,8 @@ import picocli.CommandLine.Command;
             LKQLLauncher.LKQLRun.class,
             LKQLChecker.Args.class,
             GNATCheckWorker.Args.class,
-            LKQLDoc.class,
+            LKQLDocAPI.class,
+            LKQLDocRules.class,
             LKQLRefactor.class
         },
         description =

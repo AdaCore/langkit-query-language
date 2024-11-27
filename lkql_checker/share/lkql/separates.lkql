@@ -1,4 +1,22 @@
-# Flag each occurrence of a separate unit
-
 @check(message="separate unit", category="Feature")
-fun separates(node) = node is Subunit
+fun separates(node) =
+    |" Flags subunits.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 7
+    |"
+    |"    package body P is
+    |"
+    |"       procedure Sep is separate;
+    |"
+    |"    end P;
+    |"
+    |"    separate(P)       --  FLAG
+    |"    procedure Sep is
+    |"       procedure Q is separate;
+    |"    begin
+    |"       null;
+    |"    end Sep;
+    node is Subunit

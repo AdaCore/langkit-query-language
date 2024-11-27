@@ -1,15 +1,24 @@
-# Flag discrete ranges that are a part of an index constraint, constrained
-# array definition, or for-loop parameter specification, and whose bounds are
-# both of type universal_integer. Ranges that have at least one bound of a
-# specific type (such as 1 .. N, where N is a variable or an expression of
-# non-universal type) are not flagged.
-
 # In the context of a range constraint, a NumberDecl is always an int
 fun is_universal_int(i) =
     i is IntLiteral or i is Name(p_referenced_decl(): NumberDecl)
 
 @check(message="range with universal integer bounds", category="SPARK")
 fun universal_ranges(node) =
+    |" Flag discrete ranges that are a part of an index constraint, constrained
+    |" array definition, or ``for``-loop parameter specification, and whose bounds
+    |" are both of type *universal_integer*. Ranges that have at least one
+    |" bound of a specific type (such as ``1 .. N``, where ``N`` is a variable
+    |" or an expression of non-universal type) are not flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    L : Positive := 1;
+    |"
+    |"    S1 : String (L .. 10);
+    |"    S2 : String (1 .. 10);     --  FLAG
     node is ((
         # index constraint or constrained array definition
         CompositeConstraint(p_is_index_constraint(): true)

@@ -1,15 +1,3 @@
-# Flag instantiations of Ada.Unchecked_Conversion if the actual for the formal
-# type Source is the System.Address type (or a type derived from it), and the
-# actual for the formal type Target is an access type (including types derived
-# from access types). This includes cases when the actual for Source is a
-# private type and its full declaration is a type derived from System.Address,
-# and cases when the actual for Target is a private type and its full
-# declaration is an access type. The rule is checked inside expanded generics
-# by default, unless the parameter `No_Instantiations` is set.
-#
-# If the parameter `ALL` is set, all instantiations of Unchecked_Conversion
-# to or from System.Address are flagged.
-
 import stdlib
 
 fun is_address(param) =
@@ -28,6 +16,43 @@ fun check_uc_params(source, target, all) =
        follow_generic_instantiations=true,
        category="Style", subcategory="Programming Practice")
 fun unchecked_address_conversions(node, all=false, no_instantiations=false) =
+    |" Flag instantiations of ``Ada.Unchecked_Conversion`` if the actual for the
+    |" formal type Source is the ``System.Address`` type (or a type derived from
+    |" it), and the actual for the formal type ``Target`` is an access type
+    |" (including types derived from access types). This include cases when the
+    |" actual for ``Source`` is a private type and its full declaration is a type
+    |" derived from ``System.Address``, and cases when the actual for ``Target`` is
+    |" a private type and its full declaration is an access type. The rule is
+    |" checked inside expanded generics unless the ``No_Instantiations`` parameter
+    |" is set.
+    |"
+    |" The rule has the following optional parameters for the ``+R`` option and for
+    |" LKQL rule options files:
+    |"
+    |" *All: bool*
+    |"    If ``true``, all instantiations of Unchecked_Conversion to or from System.Address are
+    |"    flagged.
+    |"
+    |" *No_Instantiations: bool*
+    |"    If ``true``, Do not check inside expanded generics.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 9
+    |"
+    |"    with Ada.Unchecked_Conversion;
+    |"    with System;
+    |"    package Foo is
+    |"       type My_Address is new System.Address;
+    |"
+    |"       type My_Integer is new Integer;
+    |"       type My_Access is access all My_Integer;
+    |"
+    |"       function Address_To_Access is new Ada.Unchecked_Conversion  --  FLAG
+    |"         (Source => My_Address,
+    |"          Target => My_Access);
+    |"    end Foo;
     node is GenericSubpInstantiation
     when not (no_instantiations and stdlib.in_generic_instance(node))
      and stdlib.is_unchecked_conversion(node)

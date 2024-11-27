@@ -1,5 +1,16 @@
-# Flag declarations of generic formal objects of mode IN OUT.
-
-@check(message="generic IN OUT object", category="Feature")
+@check(message="generic IN OUT object", category="Feature",
+       rule_name="Generic_IN_OUT_Objects")
 fun generic_in_out_objects(node) =
+    |" Flag declarations of generic formal objects of mode IN OUT.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    generic
+    |"       I :        Integer;
+    |"       J : in     Integer;
+    |"       K : in out Integer;             --  FLAG
+    |"    package Pack_G is
     node is GenericFormalObjDecl(f_decl: ObjectDecl(f_mode: ModeInOut))

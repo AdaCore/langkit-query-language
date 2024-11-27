@@ -1,11 +1,34 @@
-# Flag each volatile object that does not have an address specification. Only
-# variable declarations are checked.
-# An object is considered as being volatile if a pragma or aspect Volatile is
-# applied to the object or to its type, or if the object is atomic.
-
 @check(message="volatile object with no address clause",
        category="Style", subcategory="Tasking")
 fun volatile_objects_without_address_clauses(node) =
+    |" Flag each volatile object that does not have an address specification.
+    |" Only variable declarations are checked.
+    |"
+    |" An object is considered as being volatile if a pragma or aspect Volatile
+    |" is applied to the object or to its type, if the object is atomic or
+    |" if the GNAT compiler considers this object as volatile because of some
+    |" code generation reasons.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6, 11
+    |"
+    |"    with Interfaces, System, System.Storage_Elements;
+    |"    package Foo is
+    |"       Variable: Interfaces.Unsigned_8
+    |"          with Address => System.Storage_Elements.To_Address (0), Volatile;
+    |"
+    |"       Variable1: Interfaces.Unsigned_8                                --  FLAG
+    |"          with Volatile;
+    |"
+    |"       type My_Int is range 1 .. 32 with Volatile;
+    |"
+    |"       Variable3 : My_Int;                                             --  FLAG
+    |"
+    |"       Variable4 : My_Int
+    |"         with Address => Variable3'Address;
+    |"    end Foo;
     node is o@ObjectDecl when (
         o.p_has_aspect("volatile")
         or o.f_type_expr.p_designated_type_decl() is

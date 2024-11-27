@@ -1,9 +1,19 @@
-# Flag simple loops where the first statement is an exit (for the same loop)
-# and which could be replaced by a while loop.
-
 @check(message="simple LOOP may be replaced by a WHILE loop",
        category="Style", subcategory="Programming Practice")
 fun use_while_loops(node) =
+    |" Flag simple loop statements that have the exit statement completing
+    |" execution of such a loop as the first statement in their sequence of
+    |" statements. Such loop statements can be replaced by ``WHILE`` loops.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    loop      --  FLAG
+    |"       exit when I > 0;
+    |"       I := I + 10;
+    |"    end loop;
     node is LoopStmt
     when node.f_stmts[1] is e@ExitStmt
      when (e.f_loop_name == null or

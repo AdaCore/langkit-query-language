@@ -1,10 +1,17 @@
-# Flags infix calls to binary operators /, =, /=, >, >=, <, <=, -, mod, rem
-# (except when operating on floating point types) if operands of a call are
-# syntactically equivalent.
-
 @check(message="same operands",
        category="Style", subcategory="Programming Practice")
 fun same_operands(node) =
+    |" Flags infix calls to binary operators ``/``, ``=``, ``/=``, ``>``, ``>=``,
+    |" ``<``, ``<=``, ``-``, ``mod``, ``rem`` (except when operating on floating
+    |" point types) if operands of a call are syntactically equivalent.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    Y := (X + 1) / (X - 1);        --  NO FLAG
+    |"    Z := (X + 1) / (X + 1);        --  FLAG
     node is BinOp(f_op: OpDiv | OpEq | OpGt | OpGte | OpLt | OpLte |
                           OpMinus | OpMod | OpNeq | OpRem)
     when node.f_left.p_expression_type() is not

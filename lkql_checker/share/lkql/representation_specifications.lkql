@@ -1,9 +1,3 @@
-# Flag each record representation clause, enumeration representation clause and
-# declarations with a representation aspect (including attribute clauses and
-# pragmas).
-# The rule has a parameter Record_Rep_Clauses_Only: Only record representation
-# clauses are flagged.
-
 selector defining_names
     |" Return all the defining names of this basic decl. This can be used
     |" instead of `any children is DefiningName...` to avoid selecting the
@@ -38,14 +32,43 @@ fun has_rep_aspect(node) =
    has_aspect(node, "Volatile_Components")
 
 @unit_check(help="representation specification", category="Feature")
-fun representation_specifications(unit, record_rep_clauses_only=false) = [
-    {message: if n is BasicDecl
-              then "declaration with a representation aspect"
-              else "representation specification",
-     loc: n}
-    for n in from unit.root
-    select (RecordRepClause |
-           (EnumRepClause when not record_rep_clauses_only) |
-           (BasicDecl(any defining_names: dn@*(p_previous_part(): null) when has_rep_aspect(dn))
-                when not record_rep_clauses_only))
-]
+fun representation_specifications(unit, record_rep_clauses_only=false) =
+    |" Flag each record representation clause, enumeration representation
+    |" clause and representation attribute clause. Flag each aspect definition
+    |" that defines a representation aspect. Also flag any pragma that is
+    |" classified by the Ada Standard as a representation pragma, and the
+    |" definition of the corresponding aspects.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Record_Rep_Clauses_Only: bool*
+    |"    If ``true``, only record representation clauses are flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5, 8, 11
+    |"
+    |"    type State         is (A,M,W,P);
+    |"    type Mode          is (Fix, Dec, Exp, Signif);
+    |"
+    |"    type Byte_Mask     is array (0..7)  of Boolean
+    |"      with Component_Size => 1;                                --  FLAG
+    |"
+    |"    type State_Mask    is array (State) of Boolean
+    |"      with Component_Size => 1;                                --  FLAG
+    |"
+    |"    type Mode_Mask     is array (Mode)  of Boolean;
+    |"    for Mode_Mask'Component_Size use 1;                        --  FLAG
+    [
+        {message: if n is BasicDecl
+                  then "declaration with a representation aspect"
+                  else "representation specification",
+         loc: n}
+        for n in from unit.root
+        select (RecordRepClause |
+               (EnumRepClause when not record_rep_clauses_only) |
+               (BasicDecl(any defining_names: dn@*(p_previous_part(): null) when has_rep_aspect(dn))
+                    when not record_rep_clauses_only))
+    ]

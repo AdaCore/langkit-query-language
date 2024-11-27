@@ -1,5 +1,15 @@
-# Flag all use clauses for packages; use type clauses are not flagged.
-
-@check(message="use clause for package",
+@check(message="use clause for package", rule_name="USE_PACKAGE_Clauses",
        category="Style", subcategory="Programming Practice")
-fun use_package_clauses(node) = node is UsePackageClause
+fun use_package_clauses(node) =
+    |" Flag all ``use`` clauses for packages; ``use type`` clauses are
+    |" not flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    with Ada.Text_IO;
+    |"    use Ada.Text_IO;                               --  FLAG
+    |"    procedure Bar (S : in out String) is
+    node is UsePackageClause

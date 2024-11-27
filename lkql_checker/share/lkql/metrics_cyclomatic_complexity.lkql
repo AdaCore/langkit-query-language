@@ -1,17 +1,53 @@
-# Flag each program unit that is an executable body exceeding the limit N.
-# This rule has the following optional parameter:
-# Exempt_Case_Statements: Count the complexity introduced by CASE statement or
-# CASE expression as 1.
-
 import metrics
 
 @unit_check(help="cyclomatic complexity", execution_cost=3, category="Metrics")
 fun metrics_cyclomatic_complexity(unit, n : int = 5,
-                                  exempt_case_statements=false) = [
-    { message: "cyclomatic complexity is too high: " & img(t[2]), loc: t[1] }
-    for t in [(body, metrics.cyclomatic_complexity(body, exempt_case_statements))
-              for body in (from unit.root select
-                           (BaseSubpBody | PackageBody | TaskBody | EntryBody))]
-    if t[2] > n
-]
-
+                                  exempt_case_statements=false) =
+    |" The ``Metrics_Cyclomatic_Complexity`` rule takes a positive integer as
+    |" upper bound.  A program unit that is an executable body exceeding this limit will be flagged.
+    |"
+    |" This rule has the following optional parameter for the ``+R`` option and for
+    |" LKQL rule options files:
+    |"
+    |" *Exempt_Case_Statements: bool*
+    |"    Whether to count the complexity introduced by ``case`` statement or ``case``
+    |"    expression as 1.
+    |"
+    |" The McCabe cyclomatic complexity metric is defined
+    |" in `http://www.mccabe.com/pdf/mccabe-nist235r.pdf <http://www.mccabe.com/pdf/mccabe-nist235r.pdf>`_
+    |" The goal of cyclomatic complexity metric is to estimate the number
+    |" of independent paths in the control flow graph that in turn gives the number
+    |" of tests needed to satisfy paths coverage testing completeness criterion.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    --  if the rule parameter is 6 or less
+    |"    procedure Proc (I : in out Integer; S : String) is   --  FLAG
+    |"    begin
+    |"       if I in 1 .. 10 then
+    |"          for J in S'Range loop
+    |"
+    |"             if S (J) = ' ' then
+    |"                if I < 10 then
+    |"                   I := 10;
+    |"                end if;
+    |"             end if;
+    |"
+    |"             I := I + Character'Pos (S (J));
+    |"          end loop;
+    |"       elsif S = "abs" then
+    |"          if I > 0 then
+    |"             I := I + 1;
+    |"          end if;
+    |"       end if;
+    |"    end Proc;
+    [
+        { message: "cyclomatic complexity is too high: " & img(t[2]), loc: t[1] }
+        for t in [(body, metrics.cyclomatic_complexity(body, exempt_case_statements))
+                  for body in (from unit.root select
+                               (BaseSubpBody | PackageBody | TaskBody | EntryBody))]
+        if t[2] > n
+    ]

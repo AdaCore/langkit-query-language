@@ -1,14 +1,3 @@
-# Flag each function returning an unconstrained array. Function declarations,
-# function bodies (and body stubs) having no separate specifications, and
-# generic function instantiations are flagged. Function calls and function
-# renamings are not flagged.
-# Generic function declarations, and function declarations in generic packages,
-# are not flagged. Instead, this rule flags the results of generic
-# instantiations (that is, expanded specification and expanded body
-# corresponding to an instantiation).
-# This rule has the parameter Except_String: Do not flag functions that return
-# the predefined String type or a type derived from it, directly or indirectly.
-
 import stdlib
 
 fun unconstrained_array_type(type, except_string) =
@@ -28,6 +17,34 @@ fun unconstrained_array_type(type, except_string) =
 @check(message="function returns unconstrained array",
        follow_generic_instantiations=true, category="Feature")
 fun unconstrained_array_returns(node, except_string = false) =
+    |" Flag each function returning an unconstrained array. Function declarations,
+    |" function bodies (and body stubs) having no separate specifications,
+    |" and generic function instantiations are flagged.
+    |" Function calls and function renamings are
+    |" not flagged.
+    |"
+    |" Generic function declarations, and function declarations in generic
+    |" packages, are not flagged.  Instead, this rule flags the results of
+    |" generic instantiations (that is, expanded specification and expanded
+    |" body corresponding to an instantiation).
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Except_String: bool*
+    |"    If ``true``, do not flag functions that return the predefined ``String`` type
+    |"    or a type derived from it, directly or indirectly.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    type Arr is array (Integer range <>) of Integer;
+    |"    subtype Arr_S is Arr (1 .. 10);
+    |"
+    |"    function F1 (I : Integer) return Arr;      --  FLAG
+    |"    function F2 (I : Integer) return Arr_S;
     node is (AbstractSubpDecl | SubpDecl | GenericSubpInternal |
              BaseSubpBody(p_previous_part(): null) |
              SubpBodyStub(p_previous_part(): null))

@@ -1,12 +1,82 @@
-# Flag each use of the specified attributes. The attributes to be detected are
-# named in the parameter ``forbidden``. If the ``all`` parameter is true,
-# all pragmas by default are flagged, except the pragmas listed in the
-# ``allowed`` parameter.
-
 @unit_check(help="usage of specified attributes", parametric_exemption=true,
             category="Style", subcategory="Portability")
-fun forbidden_attributes(unit, all=false, forbidden=[], allowed=[]) = [
-    {message: "use of attribute " & node.f_attribute.text, loc: node}
-    for node in from unit.root select AttributeRef(f_attribute: id@Identifier)
-    when (all or [p for p in forbidden if id.p_name_is(p)])
-     and not [p for p in allowed if id.p_name_is(p)]]
+fun forbidden_attributes(unit, all=false, forbidden=[], allowed=[]) =
+    |" Flag each use of the specified attributes. The attributes to be detected are
+    |" named in the rule's parameters.
+    |"
+    |" This rule has the following parameters for the ``+R`` option and for LKQL
+    |" rule options file:
+    |"
+    |" *Forbidden: list[string]*
+    |"    Adds the specified attributes to the set of attributes to be detected and sets
+    |"    the detection checks for all the specified attributes ON.
+    |"    If an element does not denote any attribute defined in the Ada standard
+    |"    or in the GNAT Reference Manual, it is treated as the name of unknown
+    |"    attribute.
+    |"    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
+    |"    attributes are added to the set of attributes to be detected.
+    |"
+    |" *Allowed: string*
+    |"    A semi-colon separated list of attributes to remove from the set of attributes
+    |"    to be detected. You have to use the named parameter formatting to specify it.
+    |"
+    |" *All: bool*
+    |"    If ``true``, all attributes are detected; this sets the rule ON.
+    |"
+    |" Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
+    |" does not have the syntax of an Ada identifier and therefore can not be
+    |" considered as a (part of an) attribute designator, a diagnostic message is
+    |" generated and the corresponding parameter is ignored. (If an attribute allows a
+    |" static expression to be a part of the attribute designator, this expression is
+    |" ignored by this rule.)
+    |"
+    |" The ``+R`` option with no parameters doesn't create any instance for the rule,
+    |" thus, it has no effect.
+    |"
+    |" .. note::
+    |"    In LKQL rule options files, the ``Allowed`` parameter should be a list of
+    |"    strings:
+    |"
+    |"    .. code-block:: lkql
+    |"
+    |"       val rules = @{
+    |"          Forbidden_Attributes: {Forbidden: ["X", "Y", "GNAT"], Allowed: ["Z"]}
+    |"       }
+    |"
+    |" The rule allows parametric exemption, the parameters that are allowed in the
+    |" definition of exemption sections are *Attribute_Designators*. Each
+    |" *Attribute_Designator* used as a rule exemption parameter should denote
+    |" a predefined or GNAT-specific attribute.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6, 9, 20
+    |"
+    |"    --  if the rule is activated as +RForbidden_Attributes:Range,First,Last
+    |"    procedure Foo is
+    |"       type Arr is array (1 .. 10) of Integer;
+    |"       Arr_Var : Arr;
+    |"
+    |"       subtype Ind is Integer range Arr'First .. Arr'Last; --  FLAG (twice)
+    |"    begin
+    |"
+    |"       for J in Arr'Range loop                             --  FLAG
+    |"          Arr_Var (J) := Integer'Succ (J);
+    |"
+    |"    --  if the rule is activated as +RForbidden_Attributes:ALL,Allowed=First,Last
+    |"    procedure Foo is
+    |"       type Arr is array (1 .. 10) of Integer;
+    |"       Arr_Var : Arr;
+    |"
+    |"       subtype Ind is Integer range Arr'First .. Arr'Last; --  NOFLAG (because of 'Allowed' rule arg)
+    |"    begin
+    |"
+    |"       for J in Arr'Range loop                             --  FLAG
+    |"          Arr_Var (J) := Integer'Succ (J);
+    [
+        {message: "use of attribute " & node.f_attribute.text, loc: node}
+        for node in from unit.root select AttributeRef(f_attribute: id@Identifier)
+        when (all or [p for p in forbidden if id.p_name_is(p)])
+         and not [p for p in allowed if id.p_name_is(p)]
+    ]

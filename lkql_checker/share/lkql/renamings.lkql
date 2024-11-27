@@ -1,4 +1,12 @@
-# Flag renaming declarations.
-
 @check(message="renaming declaration", category="Feature")
-fun renamings(node) = node is RenamingClause
+fun renamings(node) =
+    |" Flag renaming declarations.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    I : Integer;
+    |"    J : Integer renames I;     --  FLAG
+    node is RenamingClause

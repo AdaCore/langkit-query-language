@@ -1,18 +1,76 @@
-# Flag use of membership test expression.
-# This rule has the following parameters:
-# - Multi_Alternative_Only: Flag only those membership test expressions that
-#   have more than one membership choice in the membership choice list.
-# - Float_Types_Only: Flag only those membership test expressions that checks
-#   objects of floating point type and private types whose completions are
-#   floating-point types.
-# - Except_Assertions: Do not flag a membership test expression if it is a
-#   subcomponent of the following constructs[...]
-# These three parameters are independent on each other.
-
 import stdlib
 
 @check(message="membership test", category="Feature")
 fun membership_tests(node, multi_alternative_only=false, float_types_only=false, except_assertions=false) =
+    |" Flag use of membership test expression.
+    |"
+    |" This rule has the following (optional) parameters for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Multi_Alternative_Only: bool*
+    |"    If ``true``, flag only those membership test expressions that have more than
+    |"    one membership choice in the membership choice list.
+    |"
+    |" *Float_Types_Only: bool*
+    |"    If ``true``, flag only those membership test expressions that checks objects
+    |"    of floating point type and private types whose completions are floating-point
+    |"    types.
+    |"
+    |" *Except_Assertions: bool*
+    |"    If ``true``, do not flag a membership test expression if it is a subcomponent
+    |"    of the following constructs:
+    |"
+    |" *argument of the following pragmas*
+    |"
+    |" *Language-defined*
+    |"
+    |" * ``Assert``
+    |"
+    |" *GNAT-specific*
+    |"
+    |" * ``Assert_And_Cut``
+    |" * ``Assume``
+    |" * ``Contract_Cases``
+    |" * ``Debug``
+    |" * ``Invariant``
+    |" * ``Loop_Invariant``
+    |" * ``Loop_Variant``
+    |" * ``Postcondition``
+    |" * ``Precondition``
+    |" * ``Predicate``
+    |" * ``Refined_Post``
+    |"
+    |" *definition of the following aspects*
+    |"
+    |" *Language-defined*
+    |"
+    |" * ``Static_Predicate``
+    |" * ``Dynamic_Predicate``
+    |" * ``Pre``
+    |" * ``Pre'Class``
+    |" * ``Post``
+    |" * ``Post'Class``
+    |" * ``Type_Invariant``
+    |" * ``Type_Invariant'Class``
+    |"
+    |" *GNAT-specific*
+    |"
+    |" * ``Contract_Cases``
+    |" * ``Invariant``
+    |" * ``Invariant'Class``
+    |" * ``Predicate``
+    |" * ``Refined_Post``
+    |"
+    |" These three parameters are independent on each other.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    procedure Proc (S : in out Speed) is
+    |"    begin
+    |"       if S in Low .. High then      --  FLAG
     node is MembershipExpr
     and (if multi_alternative_only then node.f_membership_exprs[2])
     and (not float_types_only

@@ -1,4 +1,13 @@
-# Flag all uses of array slicing.
-
 @check(message="slice", category="SPARK")
-fun slices(node) = node is CallExpr(p_is_array_slice(): true)
+fun slices(node) =
+    |" Flag all uses of array slicing
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    procedure Proc (S : in out String; L, R : Positive) is
+    |"       Tmp : String := S (L .. R);        --  FLAG
+    |"    begin
+    node is CallExpr(p_is_array_slice(): true)

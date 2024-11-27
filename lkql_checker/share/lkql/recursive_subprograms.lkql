@@ -1,25 +1,3 @@
-# Flags specs (and bodies that act as specs) of recursive subprograms. A
-# subprogram is considered as recursive in a given context if there exists a
-# chain of direct calls starting from the body of, and ending at this
-# subprogram within this context. A context is provided by the set of Ada
-# sources specified as arguments of a given gnatcheck call. Neither dispatching
-# calls nor calls through access-to-subprograms are considered as direct calls
-# by this rule. If Follow_Dispatching_Calls is set, gnatcheck considers a
-# dispatching call as a set of calls to all the subprograms the dispatching
-# call may dispatch to, otherwise dispatching calls are ignored. As a
-# limitation, primitive operations declared in generic instantiations are not
-# taken into account.
-#
-# This rule does not take into account calls that may happen as the result of
-# subprogram import or more generally unavailable subprogram bodies. See rule
-# Unavailable_Body_Calls to detect these cases.
-#
-# Generic subprograms and subprograms detected in generic units are not flagged.
-# Recursive subprograms in expanded generic instantiations are flagged.
-#
-# This rule does not take into account subprogram calls in aspect definitions
-# nor implicit calls made via type initialization.
-
 import stdlib
 
 fun get_body(node) =
@@ -85,7 +63,63 @@ fun recursive_subprograms(node,
                           skip_dispatching_calls=true,
                           follow_dispatching_calls=false,
                           follow_ghost_code=false) =
-
+    |" Flags specs (and bodies that act as specs) of recursive subprograms. A
+    |" subprogram is considered as recursive in a given context if there exists
+    |" a chain of direct calls starting from the body of, and ending at
+    |" this subprogram within this context. A context is provided by the set
+    |" of Ada sources specified as arguments of a given ``gnatcheck`` call.
+    |" Neither dispatching calls nor calls through access-to-subprograms
+    |" are considered as direct calls by this rule. If *Follow_Dispatching_Calls*
+    |" rule parameter is set, ``gnatcheck`` considers a dispatching call as a set
+    |" of calls to all the subprograms the dispatching call may dispatch to,
+    |" otherwise dispatching calls are ignored. The current rule limitation is
+    |" that when processing dispatching calls the rule does not take into account
+    |" type primitive operations declared in generic instantiations.
+    |"
+    |" This rule does not take into account calls to subprograms whose
+    |" bodies are not available because of any reason (a subprogram is imported,
+    |" the Ada source containing the body is not provided as ``gnatcheck``
+    |" argument source etc.). The *Unavailable_Body_Calls* rule can be used to
+    |" detect these cases.
+    |"
+    |" Generic subprograms and subprograms detected in generic units are not
+    |" flagged. Recursive subprograms in generic instantiations
+    |" are flagged.
+    |"
+    |" Ghost code and assertion code such as pre & post conditions or code inside of
+    |" `pragma Assert` is not flagged either by default.
+    |"
+    |" The rule does not take into account implicit calls that are the
+    |" result of computing default initial values for an object or a subcomponent
+    |" thereof as a part of the elaboration of an object declaration.
+    |"
+    |" The rule also does not take into account subprogram calls inside
+    |" aspect definitions.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Follow_Dispatching_Calls: bool*
+    |"    Whether to treat a dispatching call as a set of calls to all the subprograms
+    |"    the dispatching call may dispatch to.
+    |"
+    |" *Follow_Ghost_Code: bool*
+    |"    Whether to analyze ghost code and assertion code, which isn't analyzed by
+    |"    this check by default.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    function Factorial (N : Natural) return Positive is  --  FLAG
+    |"    begin
+    |"       if N = 0 then
+    |"          return 1;
+    |"       else
+    |"          return N * Factorial (N - 1);
+    |"       end if;
+    |"    end Factorial;
     node is (ClassicSubpDecl | SubpBodyStub(p_previous_part(): null) |
              BaseSubpBody(p_previous_part(): null | GenericSubpDecl))
 

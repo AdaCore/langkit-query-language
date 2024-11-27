@@ -1,9 +1,3 @@
-# Flag for loop statements used instead of array slicing.
-# Specifically detect loops of the form:
-# for X in ... loop
-#    Array_Object (X) := <constant> *or* Another_Array (X);
-# end loop;
-
 fun array_index(call, var) =
     call is CallExpr(
         f_suffix: l@AssocList
@@ -16,6 +10,29 @@ fun array_index(call, var) =
 @check(message="FOR loop may be replaced by an array slice",
        category="Style", subcategory="Programming Practice")
 fun use_array_slices(node) =
+    |" Flag ``for`` loops if a loop contains a single assignment statement, and
+    |" this statement is an assignment between array components or between an
+    |" array component and a constant value, and such a loop can
+    |" be replaced by a single assignment statement with array slices or
+    |" array objects as the source and the target of the assignment.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6, 10
+    |"
+    |"       type Table_Array_Type is array (1 .. 10) of Integer;
+    |"       Primary_Table   : Table_Array_Type;
+    |"       Secondary_Table : Table_Array_Type;
+    |"
+    |"    begin
+    |"       for I in Table_Array_Type'Range loop   --  FLAG
+    |"          Secondary_Table (I) := Primary_Table (I);
+    |"       end loop;
+    |"
+    |"       for I in 2 .. 5 loop                   --  FLAG
+    |"          Secondary_Table (I) := 1;
+    |"       end loop;
     node is ForLoopStmt
     when node.f_stmts.children_count == 1
      and node.f_stmts[1] is stmt@AssignStmt

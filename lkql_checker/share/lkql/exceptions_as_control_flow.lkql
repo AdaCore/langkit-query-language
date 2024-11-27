@@ -1,7 +1,3 @@
-# Flag each place where an exception is explicitly raised and handled in the
-# same subprogram body. A raise statement in an exception handler, package
-# body, task body or entry body is not flagged.
-
 import stdlib
 
 fun canonical_exception(name) = {
@@ -18,25 +14,46 @@ fun canonical_exception(name) = {
 @check(message="this exception will be handled in the same body",
        category="Style", subcategory="Programming Practice")
 fun exceptions_as_control_flow(node) =
-   # Select raise statements that are directly part of a subprogram body
-   node is r@RaiseStmt(f_exception_name: exc@Name)
-   when stdlib.enclosing_body(r) is BaseSubpBody(
-      any children: exc_handler@ExceptionHandler when {
-          val exc_block = exc_handler.parent;
-          val stmt_block = exc_block?.parent;
-          val canonical_exc = canonical_exception(exc);
+    |" Flag each place where an exception is explicitly raised and handled in the
+    |" same subprogram body. A ``raise`` statement in an exception handler,
+    |" package body, task body or entry body is not flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5
+    |"
+    |"    procedure Bar (I : in out Integer) is
+    |"
+    |"    begin
+    |"       if I = Integer'Last then
+    |"          raise Constraint_Error;    --  FLAG
+    |"       else
+    |"         I := I - 1;
+    |"       end if;
+    |"    exception
+    |"       when Constraint_Error =>
+    |"          I := Integer'First;
+    |"    end Bar;
+    # Select raise statements that are directly part of a subprogram body
+    node is r@RaiseStmt(f_exception_name: exc@Name)
+    when stdlib.enclosing_body(r) is BaseSubpBody(
+       any children: exc_handler@ExceptionHandler when {
+           val exc_block = exc_handler.parent;
+           val stmt_block = exc_block?.parent;
+           val canonical_exc = canonical_exception(exc);
 
-          # Where there is a handler that handles this same exception (either
-          # via an others clause, or a direct name handling)
-          exc_handler.f_handled_exceptions is *(
-             any children: OthersDesignator |
-                 i@Identifier(p_referenced_decl(): ExceptionDecl)
-                 when canonical_exception(i) == canonical_exc)
+           # Where there is a handler that handles this same exception (either
+           # via an others clause, or a direct name handling)
+           exc_handler.f_handled_exceptions is *(
+              any children: OthersDesignator |
+                  i@Identifier(p_referenced_decl(): ExceptionDecl)
+                  when canonical_exception(i) == canonical_exc)
 
-          # And the handler belongs to a block that encloses this raise statement
-          and r is *(any parent: p when p.parent == stmt_block)
+           # And the handler belongs to a block that encloses this raise statement
+           and r is *(any parent: p when p.parent == stmt_block)
 
-          # But the raise statement is not directly part of the handler
-          and not r is *(any parent: p when p.parent == exc_block)
-      }
-   )
+           # But the raise statement is not directly part of the handler
+           and not r is *(any parent: p when p.parent == exc_block)
+       }
+    )

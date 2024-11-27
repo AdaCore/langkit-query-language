@@ -1,16 +1,28 @@
-# Flag a declaration of a dispatching operation, if the first parameter is not
-# a controlling one and its name is not This (the check for parameter name is
-# not case-sensitive). Declarations of dispatching functions with a controlling
-# result and no controlling parameter are never flagged.
-# A subprogram body declaration, subprogram renaming declaration, or subprogram
-# body stub is flagged only if it is not a completion of a prior subprogram
-# declaration.
-
 import stdlib
 
 @check(message="first parameter should have name 'This' and proper type",
        remediation="EASY", category="Style", subcategory="Readability")
 fun misnamed_controlling_parameters(node) =
+    |" Flag a declaration of a dispatching operation, if the first parameter is
+    |" not a controlling one and its name is not ``This`` (the check for
+    |" parameter name is not case-sensitive). Declarations of dispatching functions
+    |" with a controlling result and no controlling parameter are never flagged.
+    |"
+    |" A subprogram body declaration, subprogram renaming declaration, or subprogram
+    |" body stub is flagged only if it is not a completion of a prior subprogram
+    |" declaration.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5, 6
+    |"
+    |"    package Foo is
+    |"       type T is tagged private;
+    |"
+    |"       procedure P1 (This : in out T);
+    |"       procedure P2 (That : in out T);              --  FLAG
+    |"       procedure P1 (I : Integer; This : in out T); --  FLAG
     node is (BasicSubpDecl |
              BaseSubpBody(p_previous_part(): null) |
              SubpBodyStub(p_previous_part(): null))

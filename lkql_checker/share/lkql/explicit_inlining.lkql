@@ -1,8 +1,21 @@
-# Flag a subprogram (or generic subprogram, or instantiation of a subprogram)
-# with an Inline aspect.
-
 @check(message="subprogram marked inline", category="Feature")
 fun explicit_inlining(node) =
+    |" Flag a subprogram declaration, a generic subprogram declaration or
+    |" a subprogram instantiation if this declaration has an Inline aspect specified
+    |" or an Inline pragma applied to it. If a generic subprogram declaration
+    |" has an Inline aspect specified or pragma Inline applied, then only
+    |" generic subprogram declaration is flagged but not its instantiations.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1, 4
+    |"
+    |"    procedure Swap (I, J : in out Integer);                    --  FLAG
+    |"    pragma Inline (Swap);
+    |"
+    |"    function Increment (I : Integer) return Integer is (I + 1) --  FLAG
+    |"      with Inline;
     node is (SubpBody | GenericSubpInstantiation | ExprFunction |
              SubpBodyStub | BasicSubpDecl)
     when node.p_has_aspect("Inline")

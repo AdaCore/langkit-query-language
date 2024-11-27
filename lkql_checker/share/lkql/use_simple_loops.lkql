@@ -1,9 +1,18 @@
-# Flag while loops where the condition is statically known to be True and which
-# could be replaced by a simple loop.
-
 @check(message="WHILE loop may be replaced by a simple LOOP",
        category="Style", subcategory="Programming Practice")
 fun use_simple_loops(node) =
+    |" Flag ``while`` loop statements that have a condition statically known
+    |" to be ``TRUE``. Such loop statements can be replaced by simple loops.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    while True loop      --  FLAG
+    |"       I := I + 10;
+    |"       exit when I > 0;
+    |"    end loop;
     # Find while loops whose condition is statically known to be True (= 1)
     node is WhileLoopStmt(
         f_spec: WhileLoopSpec(f_expr: e@Expr(p_is_static_expr(): true)

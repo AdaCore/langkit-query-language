@@ -1,9 +1,52 @@
-# Flag each occurrence of an exception handler with at least one call to a
-# given list of subprograms (from parameter subprograms).
-
 @check(message="exception handler with forbidden calls",
        category="Style", subcategory="Programming Practice")
 fun calls_in_exception_handlers(node, subprograms=[]) =
+    |" Flag an exception handler if its sequence of statements contains a call to one of
+    |" the subprograms specified as a rule parameter.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Subprograms: list[string]*
+    |"    A list of full expanded Ada name of subprograms.
+    |"
+    |" Note that if a rule parameter does not denote the name of an existing
+    |" subprogram, the parameter itself is (silently) ignored and does not have any
+    |" effect except for turning the rule ON.
+    |"
+    |" Be aware that the rule does not follow renamings. So if a subprogram name specified
+    |" as a rule parameter denotes the name declared by subprogram renaming, the
+    |" rule will flag only exception handlers that calls this subprogram using this
+    |" name and does not respect and will pay no attention to the calls that use
+    |" original subprogram name, and the other way around. This is a user responsibility
+    |" to provide as the rule parameters all needed subprogram names the subprogram
+    |" of interest in case if renamings are used for this subprogram.
+    |"
+    |" Note also, that the rule does not make any overload resolution, so if a rule
+    |" parameter refers to more than one overloaded subprograms, the rule will treat
+    |" calls to all these subprograms as the calls to the same subprogram.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 14
+    |"
+    |"    -- Suppose the rule parameter is P.Unsafe
+    |"    package P is
+    |"       procedure Safe;
+    |"       procedure Unsafe;
+    |"    end P;
+    |"
+    |"    with P; use P;
+    |"    procedure Proc is
+    |"    begin
+    |"       ...
+    |"    exception
+    |"       when Constraint_Error =>   --  NO FLAG
+    |"          Safe;
+    |"       when others =>             --  FLAG
+    |"          Unsafe;
+    |"    end Proc;
     node is ExceptionHandler
     when (from node.f_stmts select first id@BaseId(p_is_call(): true)
           when {

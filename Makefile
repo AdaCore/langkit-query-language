@@ -34,6 +34,7 @@ lkql: build/bin/liblkqllang_parse
 
 doc: build_lkql_native_jit
 	cd user_manual && make clean html
+	cd lkql_checker/doc && make generate html-all
 
 gnatcheck: lkql
 	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)

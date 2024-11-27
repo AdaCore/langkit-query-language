@@ -1,12 +1,3 @@
-# Flag syntactically equivalent branch bodies in a common 'case' or
-# 'if' construct.
-# The optional parameters min_size and min_stmt provide a way to
-# parametrize a threshold to decide when two branches are worth reporting.
-# min_size represents the minimum number of tokens to consider (SingleTokNode
-# in Libadalang terms).
-# min_stmt represents the minimum number of statements to consider.
-# If any of the parameters match, the branch is considered.
-
 fun check_size(n, min_size, min_stmt) =
     (from n select Stmt).length >= min_stmt or
     (from n select SingleTokNode).length >= min_size
@@ -41,9 +32,61 @@ fun message(node, min_size, min_stmt) = {
 
 @unit_check(help="duplicate branch",
             category="Style", subcategory="Programming Practice")
-fun duplicate_branches(unit, min_size: int = 14, min_stmt: int = 4) = [
-    message(n, min_size, min_stmt)
-    for n in from unit.root
-    select node@(IfStmt | IfExpr | CaseStmt | CaseExpr)
-    when check_list(gather_stmts(node), min_size, min_stmt)
-]
+fun duplicate_branches(unit, min_size: int = 14, min_stmt: int = 4) =
+    |" Flag a sequence of statements that is a component of an ``if`` statement
+    |" or of a ``case`` statement alternative, if the same ``if`` or ``case``
+    |" statement contains another sequence of statements as its component
+    |" (or a component of its ``case`` statement alternative) that is
+    |" syntactically equivalent to the sequence of statements in question.
+    |" The check for syntactical equivalence of operands ignores line breaks,
+    |" white spaces and comments.
+    |"
+    |" Small sequences of statements are not flagged by this rule. The rule has
+    |" two optional parameters that allow to specify the maximal size of statement
+    |" sequences that are not flagged:
+    |"
+    |" * *min_stmt: int*
+    |"    An integer literal. All statement sequences that contain more than *min_stmt*
+    |"    statements (`Stmt` as defined in Libadalang) as subcomponents are flagged;
+    |"
+    |" * *min_size: int*
+    |"    An integer literal. All statement sequences that contain more than *min_size*
+    |"    lexical elements (`SingleTokNode` in Libadalang terms) are flagged.
+    |"
+    |" You have to use the ``param_name=value`` formatting to pass arguments through
+    |" the ``+R`` options. Example: ``+RDuplicate_Branches:min_stmt=20,min_size=42``.
+    |"
+    |" If at least one of the two thresholds specified by the rule parameters is
+    |" exceeded, a statement sequence is flagged. The following defaults are used:
+    |" ``min_stmt=4,min_size=14``.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2, 11
+    |"
+    |"    if X > 0 then
+    |"       declare       --  FLAG: code duplicated at line 11
+    |"          A : Integer := X;
+    |"          B : Integer := A + 1;
+    |"          C : Integer := B + 1;
+    |"          D : Integer := C + 1;
+    |"       begin
+    |"          return D;
+    |"       end;
+    |"    else
+    |"       declare
+    |"          A : Integer := X;
+    |"          B : Integer := A + 1;
+    |"          C : Integer := B + 1;
+    |"          D : Integer := C + 1;
+    |"       begin
+    |"          return D;
+    |"       end;
+    |"    end if;
+    [
+        message(n, min_size, min_stmt)
+        for n in from unit.root
+        select node@(IfStmt | IfExpr | CaseStmt | CaseExpr)
+        when check_list(gather_stmts(node), min_size, min_stmt)
+    ]

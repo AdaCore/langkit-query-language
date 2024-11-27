@@ -1,9 +1,23 @@
-# Flag all block statements containing local declarations. A `declare'
-# block with an empty `declarative_part' or with a `declarative part'
-# containing only pragmas and/or `use' clauses is not flagged.
-
 @check(message="block statement with local declaration", category="Feature")
 fun declarations_in_blocks(node) =
+    |" Flag all block statements containing local declarations. A ``declare``
+    |" block with an empty *declarative_part* or with a *declarative part*
+    |" containing only pragmas and/or ``use`` clauses is not flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    if I /= J then
+    |"       declare                       --  FLAG
+    |"          Tmp : Integer;
+    |"       begin
+    |"          TMP := I;
+    |"          I   := J;
+    |"          J   := Tmp;
+    |"       end;
+    |"    end if;
     node is DeclBlock
     (any children(depth=1): DeclarativePart
         (f_decls: AdaNodeList(all children(depth=2): not

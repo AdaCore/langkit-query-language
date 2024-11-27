@@ -1,8 +1,3 @@
-# Flag each set of consecutive assignment (not intersperced with other
-# statements) to record components when all components of the record are
-# assigned, unless the record type has a single component, or has discriminants,
-# or is tagged.
-
 fun assign_stmts(n, prefix) =
     |" Return all consecutive AssignStmt starting at n and following siblings
     |" when the destination is a DottedName whose prefix matches prefix.
@@ -14,6 +9,32 @@ fun assign_stmts(n, prefix) =
 @check(message="component assignments may be replaced by an aggregate",
        category="Style", subcategory="Programming Practice")
 fun use_record_aggregates(node) =
+    |" Flag the first statement in the sequence of assignment statements if the targets
+    |" of all these assignment statements are components of the same record objects,
+    |" all the components of this objects get assigned as the result of such a
+    |" sequence, and the type of the record object does not have discriminants.
+    |" This rule helps to detect cases when a sequence of assignment statements
+    |" can be replaced with a single assignment statement with a record aggregate
+    |" as an expression being assigned, there is no guarantee that it detects all
+    |" such sequences.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 7
+    |"
+    |"       type Rec is record
+    |"          Comp1, Comp2 : Integer;
+    |"       end record;
+    |"
+    |"       Var1, Var2 : Rec;
+    |"    begin
+    |"       Var1.Comp1 := 1;  --  FLAG
+    |"       Var1.Comp2 := 2;
+    |"
+    |"       Var2.Comp1 := 1;  --  NO FLAG
+    |"       I := 1;
+    |"       Var2.Comp2 := 2;
     node is AssignStmt(
         f_dest: DottedName(
             f_prefix: prefix@Name,

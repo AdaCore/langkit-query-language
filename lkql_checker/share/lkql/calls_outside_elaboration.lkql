@@ -1,12 +1,46 @@
-# Flag each occurrence of call (as given by parameter `forbidden`) performed
-# outside library level package elaboration. Note that function renamings are
-# not followed by this rule.
-
 import stdlib
 
 @check(message="call performed outside elaboration",
        category="Style", subcategory="Programming Practice")
 fun calls_outside_elaboration(node, forbidden=[]) =
+    |" Flag subprogram calls outside library package elaboration code. Only calls to
+    |" the subprograms specified as a rule parameter are considered, renamings are
+    |" not followed.
+    |"
+    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Forbidden: list[string]*
+    |"    A list of full expanded Ada name of subprograms.
+    |"
+    |" Note that if a rule parameter does not denote the name of an existing
+    |" subprogram, the parameter itself is (silently) ignored and does not have any
+    |" effect except for turning the rule ON.
+    |"
+    |" Note also, that the rule does not make any overload resolution, so if a rule
+    |" parameter refers to more than one overloaded subprograms, the rule will treat
+    |" calls to all these subprograms as the calls to the same subprogram.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 12
+    |"
+    |"    --  Suppose the rule is activated as +RCalls_Outside_Elaboration:P.Fun;
+    |"    package P is
+    |"       I : Integer := Fun (1);          --  NO FLAG
+    |"       J : Integer;
+    |"
+    |"       procedure Proc (I : in out Integer);
+    |"    end P;
+    |"
+    |"    package body P is
+    |"       procedure Proc (I : in out Integer) is
+    |"       begin
+    |"          I := Another_Fun (Fun (1));   --  FLAG
+    |"       end Proc;
+    |"    begin
+    |"       J := Fun (I);                    --  NO FLAG
     node is BaseId(p_is_call(): true,
                    any stdlib.semantic_parent: BasicSubpDecl | SubpBody | TaskBody |
                                                  ExprFunction | EntryBody | ProtectedBody)

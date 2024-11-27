@@ -1,10 +1,67 @@
-# Flag use of quantified expression.
-# This rule has the parameter Except_Assertions: Do not flag a quantified
-# expression if it is a subcomponent of the following constructs[...]
-
 import stdlib
 
 @check(message="quantified expression", category="Feature")
 fun quantified_expressions(node, except_assertions=false) =
+    |" Flag use of quantified expression.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Except_Assertions: bool*
+    |"    If ``true``, do not flag a conditional expression if it is a subcomponent
+    |"    of the following constructs:
+    |"
+    |" *argument of the following pragmas*
+    |"
+    |" *Language-defined*
+    |"
+    |" * ``Assert``
+    |"
+    |" *GNAT-specific*
+    |"
+    |" * ``Assert_And_Cut``
+    |" * ``Assume``
+    |" * ``Contract_Cases``
+    |" * ``Debug``
+    |" * ``Invariant``
+    |" * ``Loop_Invariant``
+    |" * ``Loop_Variant``
+    |" * ``Postcondition``
+    |" * ``Precondition``
+    |" * ``Predicate``
+    |" * ``Refined_Post``
+    |"
+    |" *definition of the following aspects*
+    |"
+    |" *Language-defined*
+    |"
+    |" * ``Static_Predicate``
+    |" * ``Dynamic_Predicate``
+    |" * ``Pre``
+    |" * ``Pre'Class``
+    |" * ``Post``
+    |" * ``Post'Class``
+    |" * ``Type_Invariant``
+    |" * ``Type_Invariant'Class``
+    |"
+    |" *GNAT-specific*
+    |"
+    |" * ``Contract_Cases``
+    |" * ``Invariant``
+    |" * ``Invariant'Class``
+    |" * ``Predicate``
+    |" * ``Refined_Post``
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 5, 6
+    |"
+    |"    subtype Ind is Integer range 1 .. 10;
+    |"    type Matrix is array (Ind, Ind) of Integer;
+    |"
+    |"    function Check_Matrix (M : Matrix) return Boolean is
+    |"      (for some I in Ind =>                               --  FLAG
+    |"         (for all J in Ind => M (I, J) = 0));             --  FLAG
     node is QuantifiedExpr
     when not (except_assertions and stdlib.within_assert(node))

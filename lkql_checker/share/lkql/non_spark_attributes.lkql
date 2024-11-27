@@ -1,9 +1,69 @@
-# The SPARK 95 language defines the following subset of Ada 95 attribute
-# designators as those that can be used in SPARK programs. The use of any other
-# attribute is flagged. [...]
-
-@check(message="attribute is not from the SPARK subset", category="SPARK")
+@check(message="attribute is not from the SPARK subset", category="SPARK",
+       rule_name="Non_SPARK_Attributes")
 fun non_spark_attributes(node) =
+    |" The SPARK language defines the following subset of Ada 95 attribute
+    |" designators as those that can be used in SPARK programs. The use of
+    |" any other attribute is flagged.
+    |"
+    |" * ``'Adjacent``
+    |" * ``'Aft``
+    |" * ``'Base``
+    |" * ``'Ceiling``
+    |" * ``'Component_Size``
+    |" * ``'Compose``
+    |" * ``'Copy_Sign``
+    |" * ``'Delta``
+    |" * ``'Denorm``
+    |" * ``'Digits``
+    |" * ``'Exponent``
+    |" * ``'First``
+    |" * ``'Floor``
+    |" * ``'Fore``
+    |" * ``'Fraction``
+    |" * ``'Last``
+    |" * ``'Leading_Part``
+    |" * ``'Length``
+    |" * ``'Machine``
+    |" * ``'Machine_Emax``
+    |" * ``'Machine_Emin``
+    |" * ``'Machine_Mantissa``
+    |" * ``'Machine_Overflows``
+    |" * ``'Machine_Radix``
+    |" * ``'Machine_Rounds``
+    |" * ``'Max``
+    |" * ``'Min``
+    |" * ``'Model``
+    |" * ``'Model_Emin``
+    |" * ``'Model_Epsilon``
+    |" * ``'Model_Mantissa``
+    |" * ``'Model_Small``
+    |" * ``'Modulus``
+    |" * ``'Pos``
+    |" * ``'Pred``
+    |" * ``'Range``
+    |" * ``'Remainder``
+    |" * ``'Rounding``
+    |" * ``'Safe_First``
+    |" * ``'Safe_Last``
+    |" * ``'Scaling``
+    |" * ``'Signed_Zeros``
+    |" * ``'Size``
+    |" * ``'Small``
+    |" * ``'Succ``
+    |" * ``'Truncation``
+    |" * ``'Unbiased_Rounding``
+    |" * ``'Val``
+    |" * ``'Valid``
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    type Integer_A is access all Integer;
+    |"
+    |"    Var : aliased Integer := 1;
+    |"    Var_A : Integer_A := Var'Access;  --  FLAG
     node is AttributeRef
     when not (node.f_attribute?.p_name_is("Adjacent") or
               node.f_attribute?.p_name_is("Aft") or

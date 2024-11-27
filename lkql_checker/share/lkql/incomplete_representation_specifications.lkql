@@ -1,9 +1,25 @@
-# Flag all record types that have a layout representation specification but
-# without Size and Pack representation specifications.
-
 @check(message="record type with incomplete representation specification",
        category="Style", subcategory="Portability")
 fun incomplete_representation_specifications(node) =
+    |" Flag all record types that have a layout representation specification
+    |" but without Size and Pack representation specifications.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    package Pack is
+    |"       type Rec is record  --  FLAG
+    |"          I : Integer;
+    |"          B : Boolean;
+    |"       end record;
+    |"
+    |"       for Rec use record
+    |"          I at 0 range 0 ..31;
+    |"          B at 4 range 0 .. 7;
+    |"       end record;
+    |"    end Pack;
     node is TypeDecl
     when node.p_get_record_representation_clause()
      and (if node.p_has_aspect("Size") then not node.p_get_aspect("Pack").exists)

@@ -1,14 +1,27 @@
-# Flag any library package declaration, library generic package declaration or
-# library package instantiation that has more than depth parents and
-# grandparents (that is, the name of such a library unit contains more than
-# depth dots). Child subprograms, generic subprograms subprogram instantiations
-# and package bodies are not flagged.
-# This rule has the parameter N: Positive integer specifying the maximal
-# number of ancestors when the unit is not flagged.
-
 @check(message="unit has too many ancestors",
        category="Style", subcategory="Program Structure")
 fun deep_library_hierarchy(node, n: int = 3) =
+    |" Flag any library package declaration, library generic package
+    |" declaration or library package instantiation that has more than N
+    |" parents and grandparents (that is, the name of such a library unit
+    |" contains more than N dots). Child subprograms, generic subprograms
+    |" subprogram instantiations and package bodies are not flagged.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Positive integer specifying the maximal number of ancestors when
+    |"    the unit is not flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    package Parent.Child1.Child2 is  -- FLAG  (if rule parameter is 1)
+    |"       I : Integer;
+    |"    end;
     node is (BasePackageDecl(f_package_name:
                             DefiningName(any children(depth=n+2): Name))
     | GenericPackageInstantiation(f_name:

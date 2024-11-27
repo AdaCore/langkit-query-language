@@ -1,12 +1,23 @@
-# Flags comments that are not on their own line
-
 import stdlib
 
 @unit_check(help="end of line comments", remediation="EASY",
             category="Style", subcategory="Readability")
-fun end_of_line_comments(unit) = [
-    {message: "end of line comment", loc: tok}
-    for tok in unit.tokens
-    if tok.kind == "comment" and
-       stdlib.previous_non_blank_token_line(tok) == tok.start_line
-]
+fun end_of_line_comments(unit) =
+    |" Flags comments that are located in the source lines that
+    |" contains Ada code.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3,4
+    |"
+    |"    package A is
+    |"       -- NO FLAG
+    |"       I : Integer;  -- FLAG
+    |"    end A;  --  FLAG
+    [
+        {message: "end of line comment", loc: tok}
+        for tok in unit.tokens
+        if tok.kind == "comment" and
+           stdlib.previous_non_blank_token_line(tok) == tok.start_line
+    ]

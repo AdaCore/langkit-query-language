@@ -1,11 +1,26 @@
-# Flag a record component declaration if it contains a default expression.
-#
-# Do not flag record component declarations in protected definitions.
-# Do not flag discriminant specifications.
-
 @check(message="default value for record component",
        category="Style", subcategory="Programming Practice")
 fun default_values_for_record_components(node) =
-   node is ComponentDecl
-   when node.f_default_expr
-   and not node is *(any parent: ProtectedDef)
+    |" Flag a record component declaration if it contains a default expression.
+    |" Do not flag record component declarations in protected definitions.
+    |" Do not flag discriminant specifications.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2, 7
+    |"
+    |"    type Rec (D : Natural := 0) is record
+    |"       I : Integer := 0;                    -- FLAG
+    |"       B : Boolean;
+    |"
+    |"       case D is
+    |"          when 0 =>
+    |"             C : Character := 'A';          -- FLAG
+    |"          when others =>
+    |"             F : Float;
+    |"       end case;
+    |"    end record;
+    node is ComponentDecl
+    when node.f_default_expr
+    and not node is *(any parent: ProtectedDef)

@@ -1,18 +1,48 @@
-# Flag call to instantiation of Ada.Unchecked_Conversion if it is an actual in
-# procedure or entry call or if it is a default value in a subprogram or entry
-# parameter specification.
-
 import stdlib
 
 @unit_check(message="instance of Unchecked_Conversion as actual parameter",
             category="Style", subcategory="Programming Practice")
-fun unchecked_conversions_as_actuals(unit) = [
-    {message: "instance of Unchecked_Conversion as " &
-              (if n is CallExpr(any parent: CallStmt)
-               then "actual parameter" else "default parameter value"),
-     loc: n}
-    for n in from unit.root
-    select node@CallExpr(any parent: CallStmt | SubpSpec)
-    when stdlib.is_unchecked_conversion(
-        stdlib.ultimate_subprogram_alias(node.p_referenced_decl())
-    )]
+fun unchecked_conversions_as_actuals(unit) =
+    |" Flag call to instantiation of ``Ada.Unchecked_Conversion`` if it is an actual in
+    |" procedure or entry call or if it is a default value in a subprogram or
+    |" entry parameter specification.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 11, 22
+    |"
+    |"    with Ada.Unchecked_Conversion;
+    |"    procedure Bar (I : in out Integer) is
+    |"       type T1 is array (1 .. 10) of Integer;
+    |"       type T2 is array (1 .. 10) of Integer;
+    |"
+    |"       function UC is new Ada.Unchecked_Conversion (T1, T2);
+    |"
+    |"       Var1 : T1 := (others => 1);
+    |"       Var2 : T2 := (others => 2);
+    |"
+    |"       procedure Init (X : out T2; Y : T2 := UC (Var1)) is   --  FLAG
+    |"       begin
+    |"          X := Y;
+    |"       end Init;
+    |"
+    |"       procedure Ident (X : T2; Y : out T2) is
+    |"       begin
+    |"          Y := X;
+    |"       end Ident;
+    |"
+    |"    begin
+    |"       Ident (UC (Var1), Var2);                              --  FLAG
+    |"    end Bar;
+    [
+        {message: "instance of Unchecked_Conversion as " &
+                  (if n is CallExpr(any parent: CallStmt)
+                   then "actual parameter" else "default parameter value"),
+         loc: n}
+        for n in from unit.root
+        select node@CallExpr(any parent: CallStmt | SubpSpec)
+        when stdlib.is_unchecked_conversion(
+            stdlib.ultimate_subprogram_alias(node.p_referenced_decl())
+        )
+    ]

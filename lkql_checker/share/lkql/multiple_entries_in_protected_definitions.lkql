@@ -1,10 +1,23 @@
-# Flag each protected definition (i.e., each protected object/type declaration)
-# that declares more than one entry. Diagnostic messages are generated for all
-# the entry declarations except the first one. An entry family is counted as
-# one entry. Entries from the private part of the protected definition are also
-# checked.
-
 @check(message="more than one entry in protected definition",
        category="Style", subcategory="Tasking")
 fun multiple_entries_in_protected_definitions(node) =
+    |" Flag each protected definition (i.e., each protected object/type declaration)
+    |" that declares more than one entry.
+    |" Diagnostic messages are generated for all the entry declarations
+    |" except the first one. An entry family is counted as one entry. Entries from
+    |" the private part of the protected definition are also checked.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    protected PO is
+    |"       entry Get (I :     Integer);
+    |"       entry Put (I : out Integer);    --  FLAG
+    |"       procedure Reset;
+    |"       function Check return Boolean;
+    |"    private
+    |"       Val : Integer := 0;
+    |"    end PO;
     node is EntryDecl(any prev_siblings: EntryDecl)

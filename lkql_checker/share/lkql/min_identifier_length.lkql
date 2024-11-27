@@ -1,9 +1,23 @@
-# Flag each occurrence of a defining name whose length is shorter than N.
-# Numeric types are excluded.
-
 @check(message="identifier too short",
        category="Style", subcategory="Readability")
 fun min_identifier_length(node, n: int = 2) =
+    |" Flag any defining identifier that has length shorter than specified by
+    |" the rule parameter. Defining identifiers of objects and components of
+    |" numeric types are not flagged.
+    |"
+    |" The rule has a mandatory parameter for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *N: int*
+    |"    The minimal allowed identifier length specification.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    I : Integer;              --  NO FLAG
+    |"    J : String (1 .. 10);     --  FLAG
     node is DefiningName
     when node.text.length < n
      and node.p_basic_decl()?.p_type_expression() is (null |

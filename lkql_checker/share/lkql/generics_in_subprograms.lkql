@@ -1,10 +1,21 @@
-# Flag each declaration of a generic unit in a subprogram. Generic declarations
-# in the bodies of generic subprograms are also flagged. A generic unit nested
-# in another generic unit is not flagged. If a generic unit is declared in a
-# local package that is declared in a subprogram body, the generic unit is
-# flagged.
-
 @check(message="generic definition in subprogram body", category="Feature")
 fun generics_in_subprograms(node) =
+    |" Flag each declaration of a generic unit in a subprogram. Generic
+    |" declarations in the bodies of generic subprograms are also flagged.
+    |" A generic unit nested in another generic unit is not flagged.
+    |" If a generic unit is
+    |" declared in a local package that is declared in a subprogram body, the
+    |" generic unit is flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    procedure Proc is
+    |"
+    |"       generic                                --  FLAG
+    |"          type FT is range <>;
+    |"       function F_G (I : FT) return FT;
     node is GenericDecl(any parent: BaseSubpBody,
                         all parent: not GenericPackageDecl)

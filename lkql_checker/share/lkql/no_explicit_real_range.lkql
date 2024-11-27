@@ -1,7 +1,3 @@
-# Flag a declaration of a floating point type or a decimal fixed point type,
-# including types derived from them if no explicit range specification is
-# provided for the type.
-
 fun is_real_without_range(decl) =
     decl is
         ((TypeDecl
@@ -18,4 +14,15 @@ fun is_real_without_range(decl) =
 @check(message="real type with no range definition",
        category="Style", subcategory="Portability")
 fun no_explicit_real_range(node) =
+    |" Flag a declaration of a floating point type or a decimal fixed point
+    |" type, including types derived from them if no explicit range
+    |" specification is provided for the type.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1, 2
+    |"
+    |"    type F1 is digits 8;                           --  FLAG
+    |"    type F2 is delta 0.01 digits 8;                --  FLAG
     node is TypeDecl when node.p_is_real_type() and is_real_without_range(node)

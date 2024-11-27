@@ -1,10 +1,26 @@
-# Flag each occurrence of an exception handler which contains as first
-# statement a raise with no exception name, unless there is also a handler for
-# others with more than just a raise statement.
-
 @check(message="trivial exception handler",
        category="Style", subcategory="Programming Practice")
 fun trivial_exception_handlers(node) =
+    |" Flag exception handlers that contain a raise statement with no exception name
+    |" as their first statement unless the enclosing handled sequence of
+    |" statements also contains a handler with ``OTHERS`` exception choice that
+    |" starts with any statement but not a raise statement with no exception name.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"       exception
+    |"          when My_Exception =>   --  FLAG
+    |"             raise;
+    |"       end;
+    |"    exception
+    |"       when Constraint_Error =>  --  NO FLAG
+    |"          raise;
+    |"       when others =>
+    |"          null;
+    |"    end;
     node is ExceptionHandler
     when node.f_stmts[1] is RaiseStmt(f_exception_name: null)
      and {

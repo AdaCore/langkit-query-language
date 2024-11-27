@@ -1,7 +1,14 @@
-# Flag an enumeration type definition if it contains a single enumeration
-# literal specification.
-
 @check(message="enumeration type definition with a single enumeration literal",
        category="Style", subcategory="Programming Practice")
 fun single_value_enumeration_types(node) =
+    |" Flag an enumeration type definition if it contains a single enumeration
+    |" literal specification
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    type Enum3 is (A, B, C);
+    |"    type Enum1 is (D);      --  FLAG
     node is EnumTypeDef when not node.f_enum_literals[2]

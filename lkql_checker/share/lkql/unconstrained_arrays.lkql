@@ -1,6 +1,15 @@
-# Unconstrained array definitions are flagged.
-
 @check(message="unconstrained array definition", category="Feature")
 fun unconstrained_arrays(node) =
+    |" Unconstrained array definitions are flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    type Idx is range -100 .. 100;
+    |"
+    |"    type U_Arr is array (Idx range <>) of Integer;      --  FLAG
+    |"    type C_Arr is array (Idx) of Integer;
     node is ArrayTypeDef(f_indices: UnconstrainedArrayIndices,
                          all parent(depth=2): not GenericFormalTypeDecl)

@@ -1,13 +1,3 @@
-# Flag any non-dispatching call to a dispatching primitive operation, except
-# for:
-# - a call to the corresponding primitive of the parent type.
-# - a call to a primitive of an untagged private type, even though the full
-#   type may be tagged, when the call is made at a place where the view of the
-#   type is untagged.
-# This rule has the parameter Except_Constructors: Do not flag non-dispatching
-# calls to functions if the function has a controlling result and no
-# controlling parameters (aka constructors).
-
 import stdlib
 
 # TODO: move to LAL
@@ -23,13 +13,73 @@ fun is_parent_primitive(body, decl, parent_type) =
 
 @check(message="non-dispatching call to primitive operation",
        category="Style", subcategory="Object Orientation")
-fun direct_calls_to_primitives(node, except_constructors=false) = node is
-    BaseId(p_is_static_call(): true)
-    when stdlib.ultimate_subprogram_alias(node.p_referenced_decl()) is
-         decl@BasicDecl(p_subp_spec_or_null():
-                        spec@BaseSubpSpec(p_primitive_subp_tagged_type():
-                                          t@BaseTypeDecl))
-     when t.p_most_visible_part(node).p_is_tagged_type()
-      and (not (except_constructors and stdlib.is_constructor(spec)))
-      and not is_parent_primitive(stdlib.enclosing_body(node), decl, t)
-
+fun direct_calls_to_primitives(node, except_constructors=false) =
+    |" Flag any non-dispatching call to a dispatching primitive operation, except for:
+    |"
+    |" * a call to the corresponding primitive of the parent type.  (This
+    |"   occurs in the common idiom where a primitive subprogram for a tagged type
+    |"   directly calls the same primitive subprogram of the parent type.)
+    |" * a call to a primitive of an untagged private type, even though the full type
+    |"   may be tagged, when the call is made at a place where the view of the type is
+    |"   untagged.
+    |"
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Except_Constructors: bool*
+    |"    If ``true``, do not flag non-dispatching calls to functions if the function
+    |"    has a controlling result and no controlling parameters (in a traditional OO
+    |"    sense such functions may be considered as constructors).
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 28, 29
+    |"
+    |"    package Root is
+    |"       type T_Root is tagged private;
+    |"
+    |"       procedure Primitive_1 (X : in out T_Root);
+    |"       procedure Primitive_2 (X : in out T_Root);
+    |"    private
+    |"       type T_Root is tagged record
+    |"          Comp : Integer;
+    |"       end record;
+    |"    end Root;
+    |"
+    |"    package Root.Child is
+    |"       type T_Child is new T_Root with private;
+    |"
+    |"       procedure Primitive_1 (X : in out T_Child);
+    |"       procedure Primitive_2 (X : in out T_Child);
+    |"    private
+    |"       type T_Child is new T_Root with record
+    |"          B : Boolean;
+    |"       end record;
+    |"    end Root.Child;
+    |"
+    |"    package body Root.Child is
+    |"
+    |"       procedure Primitive_1 (X : in out T_Child) is
+    |"       begin
+    |"          Primitive_1 (T_Root (X));      --  NO FLAG
+    |"          Primitive_2 (T_Root (X));      --  FLAG
+    |"          Primitive_2 (X);               --  FLAG
+    |"       end Primitive_1;
+    |"
+    |"       procedure Primitive_2 (X : in out T_Child) is
+    |"       begin
+    |"          X.Comp  := X.Comp + 1;
+    |"       end Primitive_2;
+    |"
+    |"    end Root.Child;
+    node is
+        BaseId(p_is_static_call(): true)
+        when stdlib.ultimate_subprogram_alias(node.p_referenced_decl()) is
+             decl@BasicDecl(p_subp_spec_or_null():
+                            spec@BaseSubpSpec(p_primitive_subp_tagged_type():
+                                              t@BaseTypeDecl))
+         when t.p_most_visible_part(node).p_is_tagged_type()
+          and (not (except_constructors and stdlib.is_constructor(spec)))
+          and not is_parent_primitive(stdlib.enclosing_body(node), decl, t)

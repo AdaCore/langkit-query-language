@@ -1,7 +1,12 @@
-# Flag all library-level subprograms (including generic subprogram
-# instantiations).
-
 @check(message="declaration of library level subprogram", category="Feature")
 fun library_level_subprograms(node) =
+    |" Flag all library-level subprograms (including generic
+    |" subprogram instantiations).
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    with Ada.Text_IO; use Ada.Text_IO;
+    |"    procedure Proc is                         --  FLAG
     node is (BaseSubpBody | GenericSubpInstantiation)
     when node.parent is LibraryItem

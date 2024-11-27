@@ -1,10 +1,3 @@
-# Flag each occurrence of list of statements that can be moved outside
-# an enclosing if statement. This happens when the if statement has only then
-# and else paths, and one of them only ends with a "breaking" statement
-# (raise, return, exit or goto, possibly nested in a block with no exception
-# handler); in this case, the other path needs not be nested inside the if
-# statement and is flagged.
-
 fun has_last_breaking_stmt(stmts) =
     match stmts[stmts.children_count]
     | (RaiseStmt | ReturnStmt | ExitStmt(f_cond_expr: null) | GotoStmt) => true
@@ -15,6 +8,38 @@ fun has_last_breaking_stmt(stmts) =
 @check(message="nested path may be moved outside if statement",
        category="Style", subcategory="Programming Practice")
 fun nested_paths(node) =
+    |" Flag the beginning of a sequence of statements that is immediately enclosed
+    |" by an ``IF`` statement if this sequence of statement can be moved outside
+    |" the enclosing ``IF`` statement. The beginning of a sequence of statements is
+    |" flagged if:
+    |"
+    |" *
+    |"   The enclosing ``IF`` statement contains ``IF`` and ``ELSE`` paths and
+    |"   no ``ELSIF`` path;
+    |"
+    |" *
+    |"   This sequence of statements does not end with a breaking statement but
+    |"   the sequence of statement in another path does end with a breaking statement.
+    |"
+    |" A breaking statement is either a raise statement, or a return statement,
+    |" or an unconditional exit statement, or a goto statement or a block
+    |" statement without an exception handler with the enclosed sequence of
+    |" statements that ends with some breaking statement.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    loop
+    |"       if I > K then
+    |"          K := K + I;   --  FLAG
+    |"          I := I + 1;
+    |"       else
+    |"          L := 10;
+    |"          exit;
+    |"       end if;
+    |"    end loop;
     # Match stmt lists that are either the then or the else list of an if stmt
     node is (StmtList(parent: if_stmt@IfStmt) |
              StmtList(parent: ElsePart(parent: if_stmt@IfStmt)))

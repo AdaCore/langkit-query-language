@@ -1,14 +1,24 @@
-# Flag each exception handler that contains a choice for the predefined
-# Constraint_Error exception, but does not contain the choice for the
-# predefined Numeric_Error exception, or that contains the choice for
-# Numeric_Error, but does not contain the choice for Constraint_Error.
-
 fun decl_name(n) =
     n.p_referenced_defining_name().p_canonical_fully_qualified_name()
 
 @check(message="Constraint_Error is handled separately from Numeric_Error",
        category="Style", subcategory="Portability")
 fun separate_numeric_error_handlers(node) =
+    |" Flags each exception handler that contains a choice for
+    |" the predefined ``Constraint_Error`` exception, but does not contain
+    |" the choice for the predefined ``Numeric_Error`` exception, or
+    |" that contains the choice for ``Numeric_Error``, but does not contain the
+    |" choice for ``Constraint_Error``.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    exception
+    |"       when Constraint_Error =>  --  FLAG
+    |"          Clean_Up;
+    |"    end;
     node is BaseId(parent: l @ AlternativesList(parent: ExceptionHandler))
     when (
         decl_name(node) == "standard.constraint_error"

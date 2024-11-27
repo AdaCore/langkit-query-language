@@ -1,7 +1,3 @@
-# Flag each raise statement that raises a predefined exception (i.e., one
-# of the exceptions Constraint_Error, Numeric_Error, Program_Error,
-# Storage_Error, or Tasking_Error).
-
 fun is_predefined_raise(id) =
     id.p_referenced_decl() is decl@BasicDecl
     when match decl.p_defining_name().p_canonical_fully_qualified_name()
@@ -18,5 +14,16 @@ fun canonical_exception_name(name) = {
 
 @check(message="explicit raise of a predefined exception", category="Feature")
 fun raising_predefined_exceptions(node) =
+    |" Flag each ``raise`` statement that raises a predefined exception
+    |" (i.e., one of the exceptions ``Constraint_Error``, ``Numeric_Error``,
+    |" ``Program_Error``, ``Storage_Error``, or ``Tasking_Error``).
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    begin
+    |"       raise Constraint_Error;    --  FLAG
     node is RaiseStmt(f_exception_name: exc@Name)
     when is_predefined_raise(canonical_exception_name(exc))

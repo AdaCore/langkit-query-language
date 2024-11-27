@@ -1,8 +1,3 @@
-# Flag subprogram calls and generic instantiations that have in their
-# parameters at least two calls to the same function, taking into account
-# renamings.
-# `functions` is a list of fully qualified function names to check.
-
 import stdlib
 
 fun check_list(l, functions) =
@@ -18,6 +13,45 @@ fun check_list(l, functions) =
 @check(message="call with side effects",
        category="Style", subcategory="Programming Practice")
 fun side_effect_parameters(node, functions=[]) =
+    |" Flag subprogram calls and generic instantiations that have at least two actual
+    |" parameters that are expressions containing a call to the same function as a
+    |" subcomponent. Only calls to the functions specified as a rule parameter are
+    |" considered.
+    |"
+    |" The rule has an optional parameter(s) for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *Functions: list[string]*
+    |"    A list of fully expanded Ada names of functions to flag parameters from.
+    |"
+    |" Note that a rule parameter should be a function name but not the name defined
+    |" by a function renaming declaration. Note also, that if a rule parameter does not
+    |" denote the name of an existing function or if it denotes a name defined by
+    |" a function renaming declaration, the parameter itself is (silently) ignored
+    |" and does not have any effect.
+    |"
+    |" Note also, that the rule does not make any overload resolution, so if
+    |" a rule parameter refers to more than one overloaded functions with the same
+    |" name, the rule will treat calls to all these function as the calls to the
+    |" same function.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 12
+    |"
+    |"    --  Suppose the rule is activated as +RSide_Effect_Parameters:P.Fun
+    |"    package P is
+    |"      function Fun return Integer;
+    |"      function Fun  (I : Integer) return Integer;
+    |"      function Fun1 (I : Integer) return Integer;
+    |"    end P;
+    |"
+    |"    with P; use P;
+    |"    with Bar;
+    |"    procedure Foo is
+    |"    begin
+    |"      Bar (Fun, 1, Fun1 (Fun));    --  FLAG
     node is (GenericInstantiation
             when check_list(node.p_inst_params(), functions)
     |

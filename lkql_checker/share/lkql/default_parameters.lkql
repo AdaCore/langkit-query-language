@@ -1,12 +1,30 @@
-# Flag formal part (in subprogram specifications and entry declarations)
-# with more than N parameters with a default value.
-
 # The `ignore` parameter is just there to allow using default_parameters with
 # default values (all other rules with a single integer require setting a
 # value for the `n` parameter).
-
 @check(message="too many parameters with default value", category="Feature")
 fun default_parameters(node, n: int = 0, ignore = false) =
+    |" Flag formal part (in subprogram specifications and entry declarations)
+    |" if it defines more than N parameters with default values, when N is a
+    |" rule parameter. If no parameter is provided for the rule then all the
+    |" formal parts with defaulted parameters are flagged.
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Integer not less than 0 specifying the minimal allowed number of
+    |"    defaulted parameters.
+    |"
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3,4
+    |"
+    |"    procedure P (I : in out Integer; J : Integer := 0);  -- No FLAG (if parameter is 1)
+    |"    procedure Q (I : in out Integer; J : Integer);
+    |"    procedure R (I, J : Integer := 0; K : Integer := 0); --  FLAG (if parameter is 2 or less)
+    |"    procedure S (I : Integer; J, K : Integer := 0);      --  FLAG (if parameter is 2 or less)
     node is Params
     when (from (from node.f_params select ParamSpec(f_default_expr: Expr))
           select DefiningName).length > n

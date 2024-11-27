@@ -1,12 +1,42 @@
-# Flag an assignment statement located in a protected body if the variable name
-# in the left part of the statement denotes an object declared outside this
-# protected type or object.
-
 import stdlib
 
 @check(message="assignment from protected body to outside object",
        category="Style", subcategory="Programming Practice")
 fun outbound_protected_assignments(node) =
+    |" Flag an assignment statement located in a protected body if the
+    |" variable name in the left part of the statement denotes an object
+    |" declared outside this protected type or object.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 17
+    |"
+    |"    package Pack is
+    |"       Var : Integer;
+    |"
+    |"       protected P is
+    |"          entry E (I : in out Integer);
+    |"          procedure P (I : Integer);
+    |"       private
+    |"          Flag : Boolean;
+    |"       end P;
+    |"
+    |"    end Pack;
+    |"    package body Pack is
+    |"       protected body P is
+    |"          entry E (I : in out Integer) when Flag is
+    |"          begin
+    |"             I   := Var + I;
+    |"             Var := I;           --  FLAG
+    |"          end E;
+    |"
+    |"          procedure P (I : Integer) is
+    |"          begin
+    |"             Flag := I > 0;
+    |"          end P;
+    |"       end P;
+    |"    end Pack;
     node is AssignStmt(any parent: p@ProtectedBody
     when not (stdlib.ultimate_alias(node.f_dest) is
               *(any parent: pr@(ProtectedTypeDecl |

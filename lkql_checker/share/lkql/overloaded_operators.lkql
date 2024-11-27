@@ -1,10 +1,21 @@
-# Flag each function declaration that overloads an operator symbol. A function
-# body or an expression function is checked only if it does not have a separate
-# spec. Formal functions are also checked. For a renaming declaration, only
-# renaming-as-declaration is checked.
-
 @check(message="overloading of an operator symbol", category="SPARK")
 fun overloaded_operators(node) =
+    |" Flag each function declaration that overloads an operator symbol.
+    |" A function body or an expression function is checked only if it
+    |" does not have a separate spec. Formal functions are also checked. For a
+    |" renaming declaration, only renaming-as-declaration is checked.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6
+    |"
+    |"    type Rec is record
+    |"       C1 : Integer;
+    |"       C2 : Float;
+    |"    end record;
+    |"
+    |"    function "<" (Left, Right : Rec) return Boolean;    --  FLAG
     match node
     | ClassicSubpDecl          => node.p_defining_name()?.p_is_operator_name()
     | BaseSubpBody             => not node.p_decl_part() and

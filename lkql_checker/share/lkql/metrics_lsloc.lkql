@@ -1,28 +1,51 @@
-# The Metrics_LSLOC rule takes a positive integer as upper bound. A program
-# unit declaration or a program unit body exceeding this limit will be flagged.
-#
-# The metric counts the total number of declarations and the total number of
-# statements.
-#
-# This rule has the following optional parameter:
-#   Subprograms: Check for subprogram bodies only.
-
 import metrics
 
-@unit_check(help="Logical source lines", execution_cost=3)
-fun metrics_lsloc(unit, n : int = 5, subprograms=false) = {
-    val nodes =
-        if subprograms
-        then (from unit.root select BaseSubpBody)
-        else (from unit.root select
-              (GenericPackageDecl | PackageDecl | PackageBody |
-              BaseSubpBody |
-              TaskTypeDecl | SingleTaskDecl | TaskBody |
-              SingleProtectedDecl | ProtectedTypeDecl | ProtectedBody));
+@unit_check(help="Logical source lines", execution_cost=3,
+            rule_name="Metrics_LSLOC", category="Metrics")
+fun metrics_lsloc(unit, n : int = 5, subprograms=false) =
+    |" The ``Metrics_LSLOC`` rule takes a positive integer as
+    |" upper bound.  A program unit declaration or a program unit body exceeding
+    |" this limit will be flagged.
+    |"
+    |" The metric counts the total number of declarations and the total number of statements.
+    |"
+    |" This rule has the following optional parameter for the ``+R`` option and for
+    |" LKQL rule options files:
+    |"
+    |" *Subprograms: bool*
+    |"    Whether to check the rule for subprogram bodies only.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2
+    |"
+    |"    --  if the rule parameter is 20 or less
+    |"    package Pack is                             --  FLAG
+    |"       procedure Proc1 (I : in out Integer);
+    |"       procedure Proc2 (I : in out Integer);
+    |"       procedure Proc3 (I : in out Integer);
+    |"       procedure Proc4 (I : in out Integer);
+    |"       procedure Proc5 (I : in out Integer);
+    |"       procedure Proc6 (I : in out Integer);
+    |"       procedure Proc7 (I : in out Integer);
+    |"       procedure Proc8 (I : in out Integer);
+    |"       procedure Proc9 (I : in out Integer);
+    |"       procedure Proc10 (I : in out Integer);
+    |"    end Pack;
+    {
+        val nodes =
+            if subprograms
+            then (from unit.root select BaseSubpBody)
+            else (from unit.root select
+                  (GenericPackageDecl | PackageDecl | PackageBody |
+                  BaseSubpBody |
+                  TaskTypeDecl | SingleTaskDecl | TaskBody |
+                  SingleProtectedDecl | ProtectedTypeDecl | ProtectedBody));
 
-    [
-        { message: "LSLOC is too high: " & img(t[2]), loc: t[1] }
-        for t in [(body, metrics.logical_slocs(body)) for body in nodes]
-        if t[2] > n
-    ]
-}
+        [
+            { message: "LSLOC is too high: " & img(t[2]), loc: t[1] }
+            for t in [(body, metrics.logical_slocs(body)) for body in nodes]
+            if t[2] > n
+        ]
+    }

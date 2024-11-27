@@ -1,30 +1,65 @@
-# Flag a declaration of an overriding primitive operation of a tagged type if
-# at least one of the operations it overrides or implements does not have
-# (explicitly defined or inherited) Pre'Class aspect defined for it.
-
 @memoized
 fun base_decls(node) = node.p_base_subp_declarations()
 
 @unit_check(help="overridden operation has no Pre'Class",
        category="Style", subcategory="Object Orientation")
-fun no_inherited_classwide_pre(unit) = [
-    {message:
-        "overriding operation that does not inherit Pre'Class (" &
-        ({
-            val tok = [d for d in base_decls(n)
-                       if base_decls(d).length == 1 and
-                          not d.p_has_aspect("Pre'Class")][1].token_start();
-            tok.unit.name.base_name & ":" &
-            img(tok.start_line) & ":" & img(tok.start_column) & ")"}),
-     loc: n.p_defining_name()}
-    for n in from unit.root select node@(BasicSubpDecl | BaseSubpBody)
-    # Get subprogram declarations that are primitive of a tagged type
-    when node.p_subp_spec_or_null()?.p_primitive_subp_tagged_type()
-     and ({
-        val decls = base_decls(node);
-        # If decls.length is greater than 1, it means we are overriding
-        decls.length > 1 and
-        # Check whether one of the root operation(s) does not define Pre'Class
-        [d for d in decls
-         if (base_decls(d).length == 1) and not d.p_has_aspect("Pre'Class")]
-     })]
+fun no_inherited_classwide_pre(unit) =
+    |" Flag a declaration of an overriding primitive operation of a tagged type
+    |" if at least one of the operations it overrides or implements does not
+    |" have (explicitly defined or inherited) Pre'Class aspect defined for
+    |" it.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 13, 17
+    |"
+    |"    package Foo is
+    |"
+    |"       type Int is interface;
+    |"       function Test (X : Int) return Boolean is abstract;
+    |"       procedure Proc (I : in out Int) is abstract with Pre'Class => Test (I);
+    |"
+    |"       type Int1 is interface;
+    |"       procedure Proc (I : in out Int1) is abstract;
+    |"
+    |"       type T is tagged private;
+    |"
+    |"        type NT1 is new T and Int with private;
+    |"        function Test (X : NT1) return Boolean;        --  FLAG
+    |"        procedure Proc (X : in out NT1);
+    |"
+    |"        type NT2 is new T and Int1 with private;
+    |"        procedure Proc (X : in out NT2);               --  FLAG
+    |"
+    |"       private
+    |"       type T is tagged record
+    |"          I : Integer;
+    |"       end record;
+    |"
+    |"       type NT1 is new T and Int with null record;
+    |"       type NT2 is new T and Int1 with null record;
+    |"
+    |"    end Foo;
+    [
+        {message:
+            "overriding operation that does not inherit Pre'Class (" &
+            ({
+                val tok = [d for d in base_decls(n)
+                           if base_decls(d).length == 1 and
+                              not d.p_has_aspect("Pre'Class")][1].token_start();
+                tok.unit.name.base_name & ":" &
+                img(tok.start_line) & ":" & img(tok.start_column) & ")"}),
+         loc: n.p_defining_name()}
+        for n in from unit.root select node@(BasicSubpDecl | BaseSubpBody)
+        # Get subprogram declarations that are primitive of a tagged type
+        when node.p_subp_spec_or_null()?.p_primitive_subp_tagged_type()
+         and ({
+            val decls = base_decls(node);
+            # If decls.length is greater than 1, it means we are overriding
+            decls.length > 1 and
+            # Check whether one of the root operation(s) does not define Pre'Class
+            [d for d in decls
+             if (base_decls(d).length == 1) and not d.p_has_aspect("Pre'Class")]
+         })
+    ]

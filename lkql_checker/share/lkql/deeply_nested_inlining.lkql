@@ -1,8 +1,3 @@
-# Flag a subprogram (or generic subprogram) if pragma Inline has been applied
-# to it, and it calls another subprogram to which pragma Inline applies,
-# resulting in potential nested inlining, with a nesting depth exceeding the
-# value specified by the N rule parameter.
-
 import stdlib
 
 # Given a name, return the body of the decl referenced by the name if it is
@@ -32,6 +27,56 @@ fun check_inlining(node, n: int) =
 @check(help="deeply nested inlining (global analysis required)",
        message="deeply nested inlining", category="Feature")
 fun deeply_nested_inlining(node, n: int = 3) =
+    |" Flag a subprogram (or generic subprogram) if pragma Inline has been applied
+    |" to it, and it calls another subprogram to which pragma Inline applies,
+    |" resulting in potential nested inlining, with a nesting depth exceeding the
+    |" value specified by the *N* rule parameter.
+    |"
+    |" This rule requires the global analysis of all the compilation units that
+    |" are ``gnatcheck`` arguments; such analysis may affect the tool's
+    |" performance. If gnatcheck generates warnings saying that "*body is not
+    |" analyzed for ...*", this means that such an analysis is incomplete, this
+    |" may result in rule false negatives.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Positive integer specifying the maximum level of nested calls to
+    |"    subprograms to which pragma Inline has been applied.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    procedure P1 (I : in out integer) with Inline => True;   --  FLAG
+    |"    procedure P2 (I : in out integer) with Inline => True;
+    |"    procedure P3 (I : in out integer) with Inline => True;
+    |"    procedure P4 (I : in out integer) with Inline => True;
+    |"
+    |"    procedure P1 (I : in out integer) is
+    |"    begin
+    |"       I := I + 1;
+    |"       P2 (I);
+    |"    end;
+    |"
+    |"    procedure P2 (I : in out integer) is
+    |"    begin
+    |"       I := I + 1;
+    |"       P3 (I);
+    |"    end;
+    |"
+    |"    procedure P3 (I : in out integer) is
+    |"    begin
+    |"       I := I + 1;
+    |"       P4 (I);
+    |"    end;
+    |"
+    |"    procedure P4 (I : in out integer) is
+    |"    begin
+    |"       I := I + 1;
+    |"    end;
     match node
     | ClassicSubpDecl          => node.p_has_aspect("Inline") and
                                   check_inlining(node.p_body_part(), n + 1)

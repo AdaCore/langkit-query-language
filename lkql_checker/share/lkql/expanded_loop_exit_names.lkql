@@ -1,5 +1,19 @@
-# Flag all expanded loop names in `exit' statements.
-
 @check(message="expanded loop name in exit statement", category="SPARK")
 fun expanded_loop_exit_names(node) =
+    |" Flag all expanded loop names in ``exit`` statements.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6
+    |"
+    |"    procedure Proc (S : in out String) is
+    |"    begin
+    |"       Search : for J in S'Range loop
+    |"          if S (J) = ' ' then
+    |"             S (J) := '_';
+    |"             exit Proc.Search;            --  FLAG
+    |"          end if;
+    |"       end loop Search;
+    |"    end Proc;
     node is ExitStmt(f_loop_name: DottedName)

@@ -1,10 +1,47 @@
-# Flag each explicit use of the name of any numeric type or subtype declared in
-# package Standard.
-
 import stdlib
 
 @check(message="explicit reference to predefined numeric subtype",
        category="Style", subcategory="Portability")
 fun predefined_numeric_types(node) =
+    |" Flag each explicit use of the name of any numeric type or subtype declared
+    |" in package ``Standard``.
+    |"
+    |" The rationale for this rule is to detect when the
+    |" program may depend on platform-specific characteristics of the implementation
+    |" of the predefined numeric types. Note that this rule is overly pessimistic;
+    |" for example, a program that uses ``String`` indexing
+    |" likely needs a variable of type ``Integer``.
+    |" Another example is the flagging of predefined numeric types with explicit
+    |" constraints:
+    |"
+    |" .. code-block:: ada
+    |"
+    |"       subtype My_Integer is Integer range Left .. Right;
+    |"       Vy_Var : My_Integer;
+    |"
+    |"
+    |" This rule detects only numeric types and subtypes declared in package
+    |" ``Standard``. The use of numeric types and subtypes declared in other
+    |" predefined packages (such as ``System.Any_Priority`` or
+    |" ``Ada.Text_IO.Count``) is not flagged
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2, 3, 6, 9
+    |"
+    |"    package Foo is
+    |"       I : Integer;                               -- FLAG
+    |"       F : Float;                                 -- FLAG
+    |"       B : Boolean;
+    |"
+    |"       type Arr is array (1 .. 5) of Short_Float; -- FLAG
+    |"
+    |"       type Res is record
+    |"          C1 : Long_Integer;                      -- FLAG
+    |"          C2 : Character;
+    |"       end record;
+    |"
+    |"    end Foo;
     node is Identifier(p_referenced_decl(): t@BaseTypeDecl
     when stdlib.is_standard_numeric(t.p_canonical_fully_qualified_name()))

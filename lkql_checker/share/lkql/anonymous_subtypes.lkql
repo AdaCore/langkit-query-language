@@ -1,22 +1,3 @@
-# Flag all uses of anonymous subtypes except for the following:
-# - when the subtype indication depends on a discriminant, this includes the
-#   cases of a record component definitions when a component depends on a
-#   discriminant, and using the discriminant of the derived type to constrain
-#   the parent type;
-# - when a self-referenced data structure is defined, and a discriminant is
-#   constrained by the reference to the current instance of a type;
-#
-# A use of an anonymous subtype is any instance of a subtype indication
-# with a constraint, other than one that occurs immediately within a
-# subtype declaration (that is, a Range or DiscriminantConstraint of a
-# SubtypeDecl). Any use of a range other than as a constraint used
-# immediately within a subtype declaration is considered as an anonymous
-# subtype.
-#
-# The rule does not flag ranges in the component clauses from a record
-# representation clause, because the language rules do not allow to use
-# subtype names there.
-
 # Any part of the tree is a discriminant of the enclosing type decl
 fun is_using_discriminant(node, type_decl) =
     type_decl and
@@ -39,6 +20,45 @@ fun is_self_referencing(expr, type_decl) =
 
 @check(message="anonymous subtype", category="Feature")
 fun anonymous_subtypes(node) =
+    |" Flag all uses of anonymous subtypes except for the following:
+    |"
+    |" * when the subtype indication depends on a discriminant, this includes the
+    |"   cases of a record component definitions when a component depends on a
+    |"   discriminant, and using the discriminant of the derived type to
+    |"   constraint the parent type;
+    |" * when a self-referenced data structure is defined, and a discriminant
+    |"   is constrained by the reference to the current instance of a type;
+    |"
+    |" A use of an anonymous subtype is
+    |" any instance of a subtype indication with a constraint, other than one
+    |" that occurs immediately within a subtype declaration. Any use of a range
+    |" other than as a constraint used immediately within a subtype declaration
+    |" is considered as an anonymous subtype.
+    |"
+    |" The rule does not flag ranges in the component clauses from a record
+    |" representation clause, because the language rules do not allow to use
+    |" subtype names there.
+    |"
+    |" An effect of this rule is that ``for`` loops such as the following are
+    |" flagged (since ``1..N`` is formally a 'range')
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    for I in 1 .. N loop   --  FLAG
+    |"       ...
+    |"    end loop;
+    |"
+    |" Declaring an explicit subtype solves the problem:
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    subtype S is Integer range 1..N;
+    |"    ...
+    |"    for I in S loop        --  NO FLAG
+    |"       ...
+    |"    end loop;
     node is ((SubtypeIndication(f_constraint: constraint@Constraint)
          when (not (constraint is
                     CompositeConstraint(p_is_discriminant_constraint(): true)

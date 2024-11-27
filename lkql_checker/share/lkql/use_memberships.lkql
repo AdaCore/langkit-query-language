@@ -1,11 +1,3 @@
-# Flag each occurrence of a sequence of comparisons of a same variable that
-# could be changed to a membership test with multiple values. Multiple
-# comparisons for equality, membership tests, and range comparisons of
-# the form X >= E1 and X <= E2, all connected by the predefined "or" operator
-# and using predefined comparison operators.
-# If `short_circuit` is true then also consider "or else" and "and then"
-# operators.
-
 import stdlib
 
 fun check_expr(expr, id, short_circuit) =
@@ -39,6 +31,44 @@ fun check_expr(expr, id, short_circuit) =
 @check(message="expression may be replaced by a membership test",
        category="Style", subcategory="Programming Practice")
 fun use_memberships(node, short_circuit = false) =
+    |" Flag expressions that could be rewritten as membership tests. Only expressions
+    |" that are not subexpressions of other expressions are flagged. An expression
+    |" is considered to be replaceable with an equivalent membership test if it is
+    |" a logical expression consisting of a call to one or more predefined ``or``
+    |" operation(s), each relation that is an operand of the ``or`` expression is
+    |" a comparison of the same variable of one of following forms:
+    |"
+    |" * a call to a predefined ``=`` operator, the variable is the left operand
+    |"   of this call;
+    |" * a membership test applied to this variable;
+    |" * a range test of the form ``Var >= E1 and Var <= E2`` where ``Var`` is
+    |"   the variable in question and ``>=``, ``and`` and ``<=`` are predefined
+    |"   operators;
+    |"
+    |" This rule has the following (optional) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *Short_Circuit: bool*
+    |"   Whether to consider the short circuit ``and then`` and ``or else`` operations
+    |"   along with the predefined logical ``and`` and ``or`` operators.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 2,8
+    |"
+    |"    begin
+    |"       Bool1 := A = 100        -- FLAG (if Short_Circuit is true)
+    |"               or (A >=  1 and then A <= B);
+    |"
+    |"       Bool2 := A = 100        --  NO FLAG
+    |"               or B in S;
+    |"
+    |"       Bool3 := A = 1          --  FLAG
+    |"               or
+    |"                A = B
+    |"               or
+    |"                A = B + A;
     node is BinOp(parent: not Expr,
                   f_op: (op@OpOr when stdlib.is_predefined_op(op)) |
                           OpOrElse when short_circuit)

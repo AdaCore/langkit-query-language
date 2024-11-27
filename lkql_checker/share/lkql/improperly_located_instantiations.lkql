@@ -1,22 +1,33 @@
-# Flag all generic instantiations in library-level package specs (including
-# library generic packages) and in all subprogram bodies.
-# Instantiations in task and entry bodies are not flagged. Instantiations in
-# the bodies of protected subprograms are flagged.
-
 import stdlib
 
 @unit_check(help="instantiations not properly located", category="Feature")
-fun improperly_located_instantiations(unit) = [
-     {message: "instantiation in a " &
-               (if node is GenericInstantiation(any parent: BaseSubpBody)
-                then "subprogram body"
-                else (if unit.root.f_body.f_item is GenericPackageDecl
-                      then "generic " else "") & "library package spec"),
-      loc: node.p_defining_name()}
-     for node in if unit.root is CompilationUnit
-                 then (match unit.root.f_body
-                       | LibraryItem(f_item: GenericPackageDecl | BasePackageDecl)
-                           => from unit.root select GenericInstantiation
-                       | * => from (from unit.root select BaseSubpBody)
-                              select GenericInstantiation)
-                 else []]
+fun improperly_located_instantiations(unit) =
+    |" Flag all generic instantiations in library-level package specs
+    |" (including library generic packages) and in all subprogram bodies.
+    |"
+    |" Instantiations in task and entry bodies are not flagged. Instantiations in the
+    |" bodies of protected subprograms are flagged.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 3
+    |"
+    |"    with Ada.Text_IO; use Ada.Text_IO;
+    |"    procedure Proc is
+    |"       package My_Int_IO is new Integer_IO (Integer);   --  FLAG
+    [
+         {message: "instantiation in a " &
+                   (if node is GenericInstantiation(any parent: BaseSubpBody)
+                    then "subprogram body"
+                    else (if unit.root.f_body.f_item is GenericPackageDecl
+                          then "generic " else "") & "library package spec"),
+          loc: node.p_defining_name()}
+         for node in if unit.root is CompilationUnit
+                     then (match unit.root.f_body
+                           | LibraryItem(f_item: GenericPackageDecl | BasePackageDecl)
+                               => from unit.root select GenericInstantiation
+                           | * => from (from unit.root select BaseSubpBody)
+                                  select GenericInstantiation)
+                     else []
+    ]

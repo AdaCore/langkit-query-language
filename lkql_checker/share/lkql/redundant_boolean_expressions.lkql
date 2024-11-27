@@ -1,13 +1,3 @@
-# Flag each occurrence of the following constructs:
-# - If statements with only then/else branches, no elsif, and each branch
-#   is a single statement, either an assignment on the same destination, or a
-#   return, of Standard.True on one branch and Standard.False on the other
-#   branch.
-# - If expressions with only then/else branches, when one path expresion is
-#   Standard.True and the other is Standard.False.
-# - infix predefined (in)equality against Standard.True/False.
-# - infix predefined "not" operators whose argument is a predefined comparison.
-
 import stdlib
 
 fun true_and_false(left, right) =
@@ -30,6 +20,43 @@ fun check_then_else(then_stmt, else_stmt) =
 @check(message="redundant boolean expression",
        category="Style", subcategory="Programming Practice")
 fun redundant_boolean_expressions(node) =
+    |" Flag constructs including boolean operations that can be simplified. The
+    |" following constructs are flagged:
+    |"
+    |" * ``if`` statements that have ``if`` and ``else`` paths (and no ``elsif`` path) if
+    |"   both paths contain a single statement that is either:
+    |"
+    |"   * an assignment to the same variable of ``True`` in one path and ``False``
+    |"     in the other path
+    |"
+    |"   * a return statement that in one path returns ``True`` and in the other
+    |"     path ``False``
+    |"
+    |"   where ``True`` and ``False`` are literals of the type ``Standard.Boolean``
+    |"   or any type derived from it. Note that in case of assignment statements the
+    |"   variable names in the left part should be literally the same (case
+    |"   insensitive);
+    |"
+    |" * ``if`` expressions that have ``if`` and ``else`` paths (without any ``elseif``)
+    |"   if one path expression is ``True`` and the other is ``False``, where ``True``
+    |"   and ``False`` are literals of the ``Standard.Boolean`` type (or any type derived
+    |"   from it).
+    |" * infix call to a predefined ``=`` or ``/=`` operator when the right operand
+    |"   is ``True`` or ``False`` where ``True`` and ``False`` are literals of the type
+    |"   ``Standard.Boolean`` or any type derived from it.
+    |" * infix call to a predefined ``not`` operator whose argument is an infix
+    |"   call to a predefined ordering operator.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1
+    |"
+    |"    if I + J > K then   --  FLAG
+    |"       return True;
+    |"    else
+    |"       return False;
+    |"    end if;
     node is (RelationOp(f_op: op@(OpEq | OpNeq)
             when stdlib.is_predefined_op(op)
              and (node.f_right is name@Name when {

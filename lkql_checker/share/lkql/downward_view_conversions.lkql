@@ -1,6 +1,3 @@
-# Flag downward view conversions.
-# This rule will also flag downward view conversions done through access types.
-
 fun is_downward_conv(expr_type, t) =
     |" Whether converting from `expr_type` to `t` is a downward view conversion
     |" of tagged types
@@ -21,7 +18,46 @@ fun is_tagged(typ) =
 @check(message="downward view conversion",
        category="Style", subcategory="Object Orientation")
 fun downward_view_conversions(node) =
-
+    |" Flag downward view conversions.
+    |"
+    |" This rule will also flag downward view conversions done through access types.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 19, 21
+    |"
+    |"    package Foo is
+    |"       type T1 is tagged private;
+    |"       procedure Proc1 (X : in out T1'Class);
+    |"
+    |"       type T2 is new T1 with private;
+    |"       procedure Proc2 (X : in out T2'Class);
+    |"
+    |"    private
+    |"       type T1 is tagged record
+    |"          C : Integer := 0;
+    |"       end record;
+    |"
+    |"       type T2 is new T1 with null record;
+    |"    end Foo;
+    |"
+    |"    package body Foo is
+    |"
+    |"       procedure Proc1 (X : in out T1'Class) is
+    |"          Var : T2 := T2 (X);                          --  FLAG
+    |"          X_Acc : T1_Access := X'Unrestricted_Access;
+    |"          Var_2 : T2_Access := T2_Access (X_Acc);      --  FLAG
+    |"       begin
+    |"          Proc2 (T2'Class (X));                        --  FLAG
+    |"       end Proc1;
+    |"
+    |"       procedure Proc2 (X : in out T2'Class) is
+    |"       begin
+    |"          X.C := X.C + 1;
+    |"       end Proc2;
+    |"
+    |"    end Foo;
     node is CallExpr(
         # Select type conversions
         p_referenced_decl(): BaseTypeDecl(
