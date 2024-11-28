@@ -335,8 +335,9 @@ public class LKQLDocRules implements Callable<Integer> {
 
                 The description of the rules currently implemented in ``gnatcheck`` is
                 given in this chapter.
-                The rule identifier is used as a parameter of ``gnatcheck``'s ``+R`` or ``-R``
-                switches.
+                The rule identifier is used as a key for LKQL rule configuration objects (see
+                :ref:`LKQL rule file<LKQL_options_file>`), and as first parameter of
+                ``gnatcheck``'s ``+R`` or ``-R`` switches.
 
                 Be aware that most of these rules apply to specialized coding
                 requirements developed by individual users and may well not make sense in
