@@ -2,11 +2,18 @@ import metrics
 
 @unit_check(help="essential complexity", execution_cost=3, category="Metrics")
 fun metrics_essential_complexity(unit, n : int = 3) =
-    |" The ``Metrics_Essential_Complexity`` rule takes a positive integer as
-    |" upper bound.  A program unit that is an executable body exceeding this limit will be flagged.
+    |" The ``Metrics_Essential_Complexity`` rule takes a positive integer as upper bound.
+    |" A program unit that is an executable body exceeding this limit will be flagged.
     |"
     |" The Ada essential complexity metric is a McCabe cyclomatic complexity metric counted
     |" for the code that is reduced by excluding all the pure structural Ada control statements.
+    |"
+    |" This rule has the following (mandatory) parameter for the ``+R`` option and
+    |" for LKQL rule options files:
+    |"
+    |" *N: int*
+    |"    Maximum essential complexity a body can have without being flagged, all
+    |"    bodies with a higher index will be flagged.
     |"
     |" .. rubric:: Example
     |"

@@ -6,8 +6,12 @@ fun metrics_cyclomatic_complexity(unit, n : int = 5,
     |" The ``Metrics_Cyclomatic_Complexity`` rule takes a positive integer as
     |" upper bound.  A program unit that is an executable body exceeding this limit will be flagged.
     |"
-    |" This rule has the following optional parameter for the ``+R`` option and for
-    |" LKQL rule options files:
+    |" This rule has the following parameters for the ``+R`` option and for LKQL rule
+    |" options files:
+    |"
+    |" *N: int*
+    |"    Maximum cyclomatic complexity a body can have without being flagged, all
+    |"    bodies with a higher index will be flagged.
     |"
     |" *Exempt_Case_Statements: bool*
     |"    Whether to count the complexity introduced by ``case`` statement or ``case``
