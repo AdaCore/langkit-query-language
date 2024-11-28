@@ -1,31 +1,67 @@
 import stdlib
 
-fun is_static_int_attr_ref(expr) =
-    |" Returns whether the given expression is an attribute reference which
-    |" value is a static (compilation known) universal integer.
+fun is_static_int_attr(expr) =
+    |" Returns whether the given expression is a universal-integer valued
+    |" attribute reference known at compile time.
     expr is AttributeRef
-    when expr.p_expression_type() == expr.p_universal_int_type()
-     and expr.p_is_static_expr()
+    when expr.p_expression_type() == expr.p_universal_int_type() and
+         expr.p_is_static_expr()
 
-fun is_dynamic_subtype_formal(formal) =
-    |" Returns whether the given formal parameter DefiningName has a dynamic
+fun is_dynamic_subtyped_entity(name) =
+    |" Returns whether the given name is a DefiningName and has a dynamic
     |" subtype.
-    formal is DefiningName(p_basic_decl(): decl@BasicDecl)
-    when decl.f_type_expr is (SubtypeIndication | Name)(
-        p_is_static_subtype(): false
-    )
+    {
+        val decl = match name
+                   | DefiningName => name.p_basic_decl()
+                   | Name => name.p_referenced_decl();
+        decl is (ComponentDef | DiscriminantSpec | ObjectDecl | ParamSpec)
+        when decl.f_type_expr is (SubtypeIndication | Name)(
+            p_is_static_subtype(): false
+        )
+    }
+
+fun array_index_has_kp(expr, array_decl, child_n) =
+    |" Returns whether the given array indexing expression contains an index
+    |" being a reference to the ``Length`` attribute, while dimension bounds
+    |" aren't static. Recurse on all indexing expr params starting from
+    |" ``child_n``.
+    match expr.f_suffix[child_n]?.f_r_expr
+    | e when is_static_int_attr(e) =>
+        if array_decl.f_type_expr.p_is_static_subtype()
+        then array_index_has_kp(expr, array_decl, child_n + 1)
+    | null => false
+    | *    => array_index_has_kp(expr, array_decl, child_n + 1)
 
 @check(help="possible occurrence of KP 19501",
        message="possible occurrence of KP 19501",
        impact="7.1.*,7.2.*,7.3.*,7.4.*,17.*,18.*,19.*,20.*,21.*,22.*,23.*,24.*")
 fun kp_19501(node) =
-    |" Flag all call expressions which include at least one known problematic
-    |" formal/actual parameter pair.
-    node is CallExpr(p_is_call(): true)
-    when stdlib.any(
-        [
-            is_static_int_attr_ref(p.actual) and
-            is_dynamic_subtype_formal(p.param)
+    |" Flag constructions involving an integer valued attribute reference known
+    |" at compile time, when the attribute reference is:
+    |" * an actual parameter in a call where the subtype of the corresponding
+    |"   formal parameter is subject to a constraint
+    |" * the expression of an assignment where the subtype of the target object
+    |"   is subject to a constraint
+    |" * the operand of a qualified expression where the subtype mark
+    |"   denotes a subtype that is subject to a constraint
+    |" * an array index value in an indexed component name
+    |"
+    |" Additionally, at least one of the bounds of the applicable constraint
+    |" must be unknown at compile time.
+    match node
+    | CallExpr(p_is_call(): true) =>
+        stdlib.any([
+            is_static_int_attr(p.actual) and
+            is_dynamic_subtyped_entity(p.param)
             for p in node.p_call_params()
-        ]
-    )
+        ])
+    | CallExpr(p_kind(): "array_index") =>
+        array_index_has_kp(node, node.f_name.p_referenced_decl(), 1)
+    | AssignStmt =>
+        is_static_int_attr(node.f_expr) and
+        is_dynamic_subtyped_entity(node.f_dest)
+    | QualExpr(f_suffix: ParenExpr(f_expr: operand)) =>
+        is_static_int_attr(operand) and
+        node.f_prefix is (SubtypeIndication | Name)(
+            p_is_static_subtype(): false
+        )

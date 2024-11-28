@@ -1,5 +1,9 @@
-main.adb:64:4: rule violation: possible occurrence of KP 19501
-64 |    Process_Dyn_Int (C_S'Length);        --  FLAG
+main.adb:59:29: rule violation: possible occurrence of KP 19501
+59 |    Qual_Expr_3 : Dyn_Int := Dyn_Int'(C_S'Length);    --  FLAG
+   |                             ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:67:4: rule violation: possible occurrence of KP 19501
+67 |    Process_Dyn_Int (C_S'Length);        --  FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 main.adb:72:4: rule violation: possible occurrence of KP 19501
@@ -9,4 +13,20 @@ main.adb:72:4: rule violation: possible occurrence of KP 19501
 main.adb:76:4: rule violation: possible occurrence of KP 19501
 76 |    Process_Multiple (C_S'Length, C_S'Size);  --  FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:81:4: rule violation: possible occurrence of KP 19501
+81 |    Dyn_Assign  := C_S'Length;    --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:87:4: rule violation: possible occurrence of KP 19501
+87 |    Dyn_Index (C_S'Length) := 10;       --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:91:4: rule violation: possible occurrence of KP 19501
+91 |    Mult_Index (1, C_S'Length) := 10;   --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:93:4: rule violation: possible occurrence of KP 19501
+93 |    Mult_Index (C_S'Length, 1) := 10;   --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
