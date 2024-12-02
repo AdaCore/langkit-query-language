@@ -1,16 +1,16 @@
-p.adb:22:18: rule violation: possible occurrence of KP S814-034
-22 |       A : Arr := (others => (others => S_Init));                   --  FLAG
+p.adb:26:18: rule violation: possible occurrence of KP S814-034
+26 |       A : Arr := (others => (others => S_Init));                   --  FLAG
    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-p.adb:23:22: rule violation: possible occurrence of KP S814-034
-23 |       M_A : M_Arr := (others => (others => R_Init));               --  FLAG
+p.adb:27:22: rule violation: possible occurrence of KP S814-034
+27 |       M_A : M_Arr := (others => (others => R_Init));               --  FLAG
    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-p.adb:24:22: rule violation: possible occurrence of KP S814-034
-24 |       D_A : D_Arr := (others => (Text => S_Init, I => 2));         --  FLAG
+p.adb:28:22: rule violation: possible occurrence of KP S814-034
+28 |       D_A : D_Arr := (others => (Text => S_Init, I => 2));         --  FLAG
    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-p.adb:28:6: rule violation: possible occurrence of KP S814-034
-28 |      (3 => (Text => "INVALID "), others => (Text => "OTHERS  "));  --  FLAG
+p.adb:32:6: rule violation: possible occurrence of KP S814-034
+32 |      (3 => (Text => "INVALID "), others => (Text => "OTHERS  "));  --  FLAG
    |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
