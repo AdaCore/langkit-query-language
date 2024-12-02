@@ -1,0 +1,11 @@
+fun f1() = false
+f1
+
+fun f2() = f2()
+
+fun f3() = {
+    fun f3() = {
+        1
+    };
+    f3
+}

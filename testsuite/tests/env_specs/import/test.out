@@ -1,0 +1,56 @@
+=====
+script.lkql:1:8: identifier:
+1 | import test
+  |        ^^^^
+(no referenced declaration)
+=====
+
+=====
+script.lkql:2:1: identifier:
+2 | test
+  | ^^^^
+script.lkql:1:1: referenced declaration <Import script.lkql:1:1-1:12>:
+1 | import test
+  | ^^^^^^^^^^^
+=====
+
+=====
+script.lkql:4:5: identifier:
+4 | val x = {
+  |     ^
+script.lkql:4:1: referenced declaration <ValDecl script.lkql:4:1-7:2>:
+4 |  val x = {
+  | _^
+5 ||     val test = test;
+6 ||     test
+7 || }
+  ||_^
+=====
+
+=====
+script.lkql:5:9: identifier:
+5 |     val test = test;
+  |         ^^^^
+script.lkql:5:5: referenced declaration <ValDecl script.lkql:5:5-5:20>:
+5 |     val test = test;
+  |     ^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:5:16: identifier:
+5 |     val test = test;
+  |                ^^^^
+script.lkql:1:1: referenced declaration <Import script.lkql:1:1-1:12>:
+1 | import test
+  | ^^^^^^^^^^^
+=====
+
+=====
+script.lkql:6:5: identifier:
+6 |     test
+  |     ^^^^
+script.lkql:5:5: referenced declaration <ValDecl script.lkql:5:5-5:20>:
+5 |     val test = test;
+  |     ^^^^^^^^^^^^^^^
+=====
+

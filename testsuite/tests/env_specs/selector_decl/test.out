@@ -1,0 +1,70 @@
+=====
+script.lkql:1:10: identifier:
+1 | selector s
+  |          ^
+script.lkql:1:1: referenced declaration <SelectorDecl script.lkql:1:1-4:20>:
+1 |  selector s
+  | _^
+2 || | null => depth
+3 || | *    => this
+4 || | this@null => this
+  ||___________________^
+=====
+
+=====
+script.lkql:2:11: identifier:
+2 | | null => depth
+  |           ^^^^^
+script.lkql:1:1: referenced declaration <SelectorDecl script.lkql:1:1-4:20>:
+1 |  selector s
+  | _^
+2 || | null => depth
+3 || | *    => this
+4 || | this@null => this
+  ||___________________^
+=====
+
+=====
+script.lkql:3:11: identifier:
+3 | | *    => this
+  |           ^^^^
+script.lkql:1:1: referenced declaration <SelectorDecl script.lkql:1:1-4:20>:
+1 |  selector s
+  | _^
+2 || | null => depth
+3 || | *    => this
+4 || | this@null => this
+  ||___________________^
+=====
+
+=====
+script.lkql:4:3: identifier:
+4 | | this@null => this
+  |   ^^^^
+script.lkql:4:3: referenced declaration <BindingPattern script.lkql:4:3-4:12>:
+4 | | this@null => this
+  |   ^^^^^^^^^
+=====
+
+=====
+script.lkql:4:16: identifier:
+4 | | this@null => this
+  |                ^^^^
+script.lkql:4:3: referenced declaration <BindingPattern script.lkql:4:3-4:12>:
+4 | | this@null => this
+  |   ^^^^^^^^^
+=====
+
+=====
+script.lkql:6:1: identifier:
+6 | s
+  | ^
+script.lkql:1:1: referenced declaration <SelectorDecl script.lkql:1:1-4:20>:
+1 |  selector s
+  | _^
+2 || | null => depth
+3 || | *    => this
+4 || | this@null => this
+  ||___________________^
+=====
+

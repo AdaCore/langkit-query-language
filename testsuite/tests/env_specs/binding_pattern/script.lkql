@@ -1,0 +1,7 @@
+null is b@AdaNode
+when {
+    val b = b;
+    b
+}
+
+val b = b
