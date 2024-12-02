@@ -1,10 +1,14 @@
 procedure P is
+   --  Ensure aggregates with no type don't trigger any error
+   type Example_Enum is (A, B, C);
+   for Example_Enum use (A => 0, B => 1, C => 2);                 --  NOFLAG
+
    Max_Error_Length : constant := 8;
    subtype Str is String (1 .. Max_Error_Length);
 
    S_Init : constant Str := "INIT    ";
 
-   type Rec is record
+   type Rec is tagged record
       Text : Str;
    end record;
 

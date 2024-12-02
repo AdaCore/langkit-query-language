@@ -4,7 +4,7 @@ import stdlib
 fun kp_s814_034(node) =
     |" Flag array aggregates with an others choice if the array component type is a
     |" record type that has a string subcomponent.
-    node is Aggregate(p_is_subaggregate(): false, p_expression_type(): t)
+    node is Aggregate(p_is_subaggregate(): false, p_expression_type(): t@BaseTypeDecl)
     when
         # Check that the aggregate is not a nested array aggregate
         not node.p_is_subaggregate() and
