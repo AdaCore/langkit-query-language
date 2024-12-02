@@ -1,0 +1,59 @@
+=====
+script.lkql:1:9: identifier:
+1 | null is b@AdaNode
+  |         ^
+script.lkql:1:9: referenced declaration <BindingPattern script.lkql:1:9-1:18>:
+1 | null is b@AdaNode
+  |         ^^^^^^^^^
+=====
+
+=====
+script.lkql:1:11: identifier:
+1 | null is b@AdaNode
+  |           ^^^^^^^
+(no referenced declaration)
+=====
+
+=====
+script.lkql:3:9: identifier:
+3 |     val b = b;
+  |         ^
+script.lkql:3:5: referenced declaration <ValDecl script.lkql:3:5-3:14>:
+3 |     val b = b;
+  |     ^^^^^^^^^
+=====
+
+=====
+script.lkql:3:13: identifier:
+3 |     val b = b;
+  |             ^
+script.lkql:1:9: referenced declaration <BindingPattern script.lkql:1:9-1:18>:
+1 | null is b@AdaNode
+  |         ^^^^^^^^^
+=====
+
+=====
+script.lkql:4:5: identifier:
+4 |     b
+  |     ^
+script.lkql:3:5: referenced declaration <ValDecl script.lkql:3:5-3:14>:
+3 |     val b = b;
+  |     ^^^^^^^^^
+=====
+
+=====
+script.lkql:7:5: identifier:
+7 | val b = b
+  |     ^
+script.lkql:7:1: referenced declaration <ValDecl script.lkql:7:1-7:10>:
+7 | val b = b
+  | ^^^^^^^^^
+=====
+
+=====
+script.lkql:7:9: identifier:
+7 | val b = b
+  |         ^
+(no referenced declaration)
+=====
+

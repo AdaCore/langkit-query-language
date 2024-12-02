@@ -6,7 +6,6 @@ import re
 import select
 import subprocess
 import sys
-from typing import TextIO
 
 from e3.fs import mkdir
 from e3.testsuite.control import YAMLTestControlCreator
@@ -529,7 +528,7 @@ class BaseDriver(DiffTestDriver):
     def _define_lkql_executables(self) -> None:
         # If the mode is JIT
         if self.env.options.mode == "jit":
-            python_wrapper = P.join(self.env.support_dir, "lkql_jit.py")
+            python_wrapper = P.join(self.env.python_support, "lkql_jit.py")
             self.command_base = [sys.executable, python_wrapper]
 
         # If the mode is native JIT

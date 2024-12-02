@@ -1,0 +1,54 @@
+=====
+script.lkql:2:9: identifier:
+2 |     val a = 1;
+  |         ^
+script.lkql:2:5: referenced declaration <ValDecl script.lkql:2:5-2:14>:
+2 |     val a = 1;
+  |     ^^^^^^^^^
+=====
+
+=====
+script.lkql:4:9: identifier:
+4 |         a + 1
+  |         ^
+script.lkql:5:13: referenced declaration <ListCompAssoc script.lkql:5:13-5:32>:
+5 |         for a in {val a = a; a}
+  |             ^^^^^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:5:13: identifier:
+5 |         for a in {val a = a; a}
+  |             ^
+script.lkql:5:13: referenced declaration <ListCompAssoc script.lkql:5:13-5:32>:
+5 |         for a in {val a = a; a}
+  |             ^^^^^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:5:23: identifier:
+5 |         for a in {val a = a; a}
+  |                       ^
+script.lkql:5:19: referenced declaration <ValDecl script.lkql:5:19-5:28>:
+5 |         for a in {val a = a; a}
+  |                   ^^^^^^^^^
+=====
+
+=====
+script.lkql:5:27: identifier:
+5 |         for a in {val a = a; a}
+  |                           ^
+script.lkql:2:5: referenced declaration <ValDecl script.lkql:2:5-2:14>:
+2 |     val a = 1;
+  |     ^^^^^^^^^
+=====
+
+=====
+script.lkql:5:30: identifier:
+5 |         for a in {val a = a; a}
+  |                              ^
+script.lkql:5:19: referenced declaration <ValDecl script.lkql:5:19-5:28>:
+5 |         for a in {val a = a; a}
+  |                   ^^^^^^^^^
+=====
+

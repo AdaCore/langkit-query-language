@@ -17,7 +17,7 @@ from e3.testsuite.testcase_finder import (
 
 from drivers import (
     checker_driver, gnatcheck_driver, interpreter_driver, parser_driver, java_driver,
-    benchmarks_driver, refactor_driver
+    benchmarks_driver, refactor_driver, env_specs_driver
 )
 
 class PerfTestFinder(YAMLTestFinder):
@@ -87,7 +87,8 @@ class LKQLTestsuite(Testsuite):
                        'checker': checker_driver.CheckerDriver,
                        'gnatcheck': gnatcheck_driver.GnatcheckDriver,
                        'benchmarks': benchmarks_driver.BenchmarksDriver,
-                       'refactor': refactor_driver.RefactorDriver,}
+                       'refactor': refactor_driver.RefactorDriver,
+                       'env_specs': env_specs_driver.EnvSpecsDriver,}
 
     def add_options(self, parser: ArgumentParser) -> None:
         parser.add_argument(
@@ -159,7 +160,8 @@ class LKQLTestsuite(Testsuite):
         self.env.testsuite_root_dir = self.root_dir
 
         # Give access to python support directory to drivers
-        self.env.support_dir = P.join(self.root_dir, "python_support")
+        self.env.python_support = P.join(self.root_dir, "python_support")
+        self.env.java_support = P.join(self.root_dir, "java_support")
 
         # Directory that contains GPR files, shared by testcases
         os.environ['GPR_PROJECT_PATH'] = P.pathsep.join([

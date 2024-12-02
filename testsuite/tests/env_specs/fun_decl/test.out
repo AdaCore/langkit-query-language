@@ -1,0 +1,75 @@
+=====
+script.lkql:1:5: identifier:
+1 | fun f1() = false
+  |     ^^
+script.lkql:1:1: referenced declaration <FunDecl script.lkql:1:1-1:17>:
+1 | fun f1() = false
+  | ^^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:2:1: identifier:
+2 | f1
+  | ^^
+script.lkql:1:1: referenced declaration <FunDecl script.lkql:1:1-1:17>:
+1 | fun f1() = false
+  | ^^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:4:5: identifier:
+4 | fun f2() = f2()
+  |     ^^
+script.lkql:4:1: referenced declaration <FunDecl script.lkql:4:1-4:16>:
+4 | fun f2() = f2()
+  | ^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:4:12: identifier:
+4 | fun f2() = f2()
+  |            ^^
+script.lkql:4:1: referenced declaration <FunDecl script.lkql:4:1-4:16>:
+4 | fun f2() = f2()
+  | ^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:6:5: identifier:
+6 | fun f3() = {
+  |     ^^
+script.lkql:6:1: referenced declaration <FunDecl script.lkql:6:1-11:2>:
+ 6 |  fun f3() = {
+   | _^
+ 7 ||     fun f3() = {
+ 8 ||         1
+ 9 ||     };
+10 ||     f3
+11 || }
+   ||_^
+=====
+
+=====
+script.lkql:7:9: identifier:
+7 |     fun f3() = {
+  |         ^^
+script.lkql:7:5: referenced declaration <FunDecl script.lkql:7:5-9:6>:
+7 |      fun f3() = {
+  | _____^
+8 ||         1
+9 ||     };
+  ||_____^
+=====
+
+=====
+script.lkql:10:5: identifier:
+10 |     f3
+   |     ^^
+script.lkql:7:5: referenced declaration <FunDecl script.lkql:7:5-9:6>:
+7 |      fun f3() = {
+  | _____^
+8 ||         1
+9 ||     };
+  ||_____^
+=====
+

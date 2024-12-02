@@ -1,0 +1,7 @@
+import test
+test
+
+val x = {
+    val test = test;
+    test
+}

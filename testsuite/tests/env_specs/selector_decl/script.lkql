@@ -1,0 +1,6 @@
+selector s
+| null => depth
+| *    => this
+| this@null => this
+
+s
