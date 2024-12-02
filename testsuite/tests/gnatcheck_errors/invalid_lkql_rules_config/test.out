@@ -67,7 +67,15 @@ try "gnatcheck --help" for more information.
 Missing mandatory parameter
 ===========================
 
-gnatcheck: missing parameter for instance headers: 'header' (missing_param.lkql)
+gnatcheck: missing 'header' parameter for rule "headers" (missing_param.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Missing mandatory parameter on instance
+=======================================
+
+gnatcheck: missing 'header' parameter for rule "headers" (instance "custom_instance") (missing_param_instance.lkql)
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -75,7 +83,7 @@ try "gnatcheck --help" for more information.
 Extra parameter
 ===============
 
-gnatcheck: extra argument for instance goto_statements: 'extra' (extra_param.lkql)
+gnatcheck: extra argument for rule "goto_statements": 'extra' (extra_param.lkql)
 >>>program returned status code 5
 
 Multiple instance with the same name
