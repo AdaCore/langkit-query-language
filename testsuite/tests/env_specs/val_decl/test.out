@@ -1,0 +1,132 @@
+=====
+script.lkql:1:5: identifier:
+1 | val v1 = "Hello"
+  |     ^^
+script.lkql:1:1: referenced declaration <ValDecl script.lkql:1:1-1:17>:
+1 | val v1 = "Hello"
+  | ^^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:2:1: identifier:
+2 | v1
+  | ^^
+script.lkql:1:1: referenced declaration <ValDecl script.lkql:1:1-1:17>:
+1 | val v1 = "Hello"
+  | ^^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:4:5: identifier:
+4 | val v2 = v2
+  |     ^^
+script.lkql:4:1: referenced declaration <ValDecl script.lkql:4:1-4:12>:
+4 | val v2 = v2
+  | ^^^^^^^^^^^
+=====
+
+=====
+script.lkql:4:10: identifier:
+4 | val v2 = v2
+  |          ^^
+(no referenced declaration)
+=====
+
+=====
+script.lkql:6:5: identifier:
+6 | val v3 = {
+  |     ^^
+script.lkql:6:1: referenced declaration <ValDecl script.lkql:6:1-9:2>:
+6 |  val v3 = {
+  | _^
+7 ||     val v3 = v3;
+8 ||     v3
+9 || }
+  ||_^
+=====
+
+=====
+script.lkql:7:9: identifier:
+7 |     val v3 = v3;
+  |         ^^
+script.lkql:7:5: referenced declaration <ValDecl script.lkql:7:5-7:16>:
+7 |     val v3 = v3;
+  |     ^^^^^^^^^^^
+=====
+
+=====
+script.lkql:7:14: identifier:
+7 |     val v3 = v3;
+  |              ^^
+(no referenced declaration)
+=====
+
+=====
+script.lkql:8:5: identifier:
+8 |     v3
+  |     ^^
+script.lkql:7:5: referenced declaration <ValDecl script.lkql:7:5-7:16>:
+7 |     val v3 = v3;
+  |     ^^^^^^^^^^^
+=====
+
+=====
+script.lkql:11:5: identifier:
+11 | val v4 = {
+   |     ^^
+script.lkql:11:1: referenced declaration <ValDecl script.lkql:11:1-17:2>:
+11 |  val v4 = {
+   | _^
+12 ||     val v4 = {
+13 ||         val v4 = 1;
+14 ||         v4
+15 ||     };
+16 ||     v4
+17 || }
+   ||_^
+=====
+
+=====
+script.lkql:12:9: identifier:
+12 |     val v4 = {
+   |         ^^
+script.lkql:12:5: referenced declaration <ValDecl script.lkql:12:5-15:6>:
+12 |      val v4 = {
+   | _____^
+13 ||         val v4 = 1;
+14 ||         v4
+15 ||     };
+   ||_____^
+=====
+
+=====
+script.lkql:13:13: identifier:
+13 |         val v4 = 1;
+   |             ^^
+script.lkql:13:9: referenced declaration <ValDecl script.lkql:13:9-13:19>:
+13 |         val v4 = 1;
+   |         ^^^^^^^^^^
+=====
+
+=====
+script.lkql:14:9: identifier:
+14 |         v4
+   |         ^^
+script.lkql:13:9: referenced declaration <ValDecl script.lkql:13:9-13:19>:
+13 |         val v4 = 1;
+   |         ^^^^^^^^^^
+=====
+
+=====
+script.lkql:16:5: identifier:
+16 |     v4
+   |     ^^
+script.lkql:12:5: referenced declaration <ValDecl script.lkql:12:5-15:6>:
+12 |      val v4 = {
+   | _____^
+13 ||         val v4 = 1;
+14 ||         v4
+15 ||     };
+   ||_____^
+=====
+
