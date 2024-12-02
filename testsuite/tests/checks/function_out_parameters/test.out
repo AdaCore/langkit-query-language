@@ -1,0 +1,24 @@
+function_out.adb:22:13: rule violation: function has output parameter(s)
+22 |    function F_5 (I : out Integer) return Integer is      --  FLAG
+   |             ^^^
+
+function_out.adb:32:13: rule violation: function has output parameter(s)
+32 |    function Sep_F (I : out Integer) return Integer       --  FLAG
+   |             ^^^^^
+
+function_out.ads:4:13: rule violation: function has output parameter(s)
+4 |    function F_3 (I : out Integer) return Integer;        --  FLAG
+  |             ^^^
+
+function_out.ads:5:13: rule violation: function has output parameter(s)
+5 |    function F_4 (I : in out Integer) return Integer;     --  FLAG
+  |             ^^^
+
+function_out.ads:7:13: rule violation: function has output parameter(s)
+7 |    function Expr_F (I : out Integer) return Integer is   --  FLAG
+  |             ^^^^^^
+
+function_out.ads:12:13: rule violation: function has output parameter(s)
+12 |    function Gen_F (I : out T) return Integer;            --  FLAG
+   |             ^^^^^
+

@@ -2719,6 +2719,38 @@ Here is an example:
 
 
 
+.. _Function_OUT_Parameters:
+
+``Function_OUT_Parameters``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Function_OUT_Parameters
+
+Flag any function declaration, function body declaration, expression function
+declaration, function body stub, or generic function declaration which has at
+least one formal parameter of mode ``out`` or ``in out``.
+
+A function body declaration or function body stub is only flagged if there is
+no separate declaration for this function.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2, 3, 4
+
+   function F_1 (I : Integer) return Integer;
+   function F_2 (I : out Integer) return Integer;        --  FLAG
+   function F_3 (I : in out Integer) return Integer;     --  FLAG
+   function F_4 (I : in out Integer) return Integer is   --  FLAG
+     (I + 42);
+
+   function F_2 (I : out Integer) return Integer is      --  NOFLAG (declaration has already been flagged)
+   begin
+      return 0;
+   end F_2;
+
+
+
 .. _Global_Variables:
 
 ``Global_Variables``
