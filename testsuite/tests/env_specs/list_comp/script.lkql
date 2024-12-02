@@ -1,0 +1,7 @@
+{
+    val a = 1;
+    [
+        a + 1
+        for a in {val a = a; a}
+    ]
+}

@@ -1,0 +1,171 @@
+=====
+script.lkql:1:5: identifier:
+1 | fun f1(p) = p
+  |     ^^
+script.lkql:1:1: referenced declaration <FunDecl script.lkql:1:1-1:14>:
+1 | fun f1(p) = p
+  | ^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:1:8: identifier:
+1 | fun f1(p) = p
+  |        ^
+script.lkql:1:8: referenced declaration <ParameterDecl script.lkql:1:8-1:9>:
+1 | fun f1(p) = p
+  |        ^
+=====
+
+=====
+script.lkql:1:13: identifier:
+1 | fun f1(p) = p
+  |             ^
+script.lkql:1:8: referenced declaration <ParameterDecl script.lkql:1:8-1:9>:
+1 | fun f1(p) = p
+  |        ^
+=====
+
+=====
+script.lkql:3:5: identifier:
+3 | fun f2(p) = {
+  |     ^^
+script.lkql:3:1: referenced declaration <FunDecl script.lkql:3:1-6:2>:
+3 |  fun f2(p) = {
+  | _^
+4 ||     val p = p;
+5 ||     p
+6 || }
+  ||_^
+=====
+
+=====
+script.lkql:3:8: identifier:
+3 | fun f2(p) = {
+  |        ^
+script.lkql:3:8: referenced declaration <ParameterDecl script.lkql:3:8-3:9>:
+3 | fun f2(p) = {
+  |        ^
+=====
+
+=====
+script.lkql:4:9: identifier:
+4 |     val p = p;
+  |         ^
+script.lkql:4:5: referenced declaration <ValDecl script.lkql:4:5-4:14>:
+4 |     val p = p;
+  |     ^^^^^^^^^
+=====
+
+=====
+script.lkql:4:13: identifier:
+4 |     val p = p;
+  |             ^
+script.lkql:3:8: referenced declaration <ParameterDecl script.lkql:3:8-3:9>:
+3 | fun f2(p) = {
+  |        ^
+=====
+
+=====
+script.lkql:5:5: identifier:
+5 |     p
+  |     ^
+script.lkql:4:5: referenced declaration <ValDecl script.lkql:4:5-4:14>:
+4 |     val p = p;
+  |     ^^^^^^^^^
+=====
+
+=====
+script.lkql:8:5: identifier:
+8 | fun f3(p: p = {p}) = p
+  |     ^^
+script.lkql:8:1: referenced declaration <FunDecl script.lkql:8:1-8:23>:
+8 | fun f3(p: p = {p}) = p
+  | ^^^^^^^^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:8:8: identifier:
+8 | fun f3(p: p = {p}) = p
+  |        ^
+script.lkql:8:8: referenced declaration <ParameterDecl script.lkql:8:8-8:18>:
+8 | fun f3(p: p = {p}) = p
+  |        ^^^^^^^^^^
+=====
+
+=====
+script.lkql:8:11: identifier:
+8 | fun f3(p: p = {p}) = p
+  |           ^
+(no referenced declaration)
+=====
+
+=====
+script.lkql:8:16: identifier:
+8 | fun f3(p: p = {p}) = p
+  |                ^
+(no referenced declaration)
+=====
+
+=====
+script.lkql:8:22: identifier:
+8 | fun f3(p: p = {p}) = p
+  |                      ^
+script.lkql:8:8: referenced declaration <ParameterDecl script.lkql:8:8-8:18>:
+8 | fun f3(p: p = {p}) = p
+  |        ^^^^^^^^^^
+=====
+
+=====
+script.lkql:10:5: identifier:
+10 | val p = 0
+   |     ^
+script.lkql:10:1: referenced declaration <ValDecl script.lkql:10:1-10:10>:
+10 | val p = 0
+   | ^^^^^^^^^
+=====
+
+=====
+script.lkql:12:5: identifier:
+12 | fun f4(p: p = {p}) = p
+   |     ^^
+script.lkql:12:1: referenced declaration <FunDecl script.lkql:12:1-12:23>:
+12 | fun f4(p: p = {p}) = p
+   | ^^^^^^^^^^^^^^^^^^^^^^
+=====
+
+=====
+script.lkql:12:8: identifier:
+12 | fun f4(p: p = {p}) = p
+   |        ^
+script.lkql:12:8: referenced declaration <ParameterDecl script.lkql:12:8-12:18>:
+12 | fun f4(p: p = {p}) = p
+   |        ^^^^^^^^^^
+=====
+
+=====
+script.lkql:12:11: identifier:
+12 | fun f4(p: p = {p}) = p
+   |           ^
+script.lkql:10:1: referenced declaration <ValDecl script.lkql:10:1-10:10>:
+10 | val p = 0
+   | ^^^^^^^^^
+=====
+
+=====
+script.lkql:12:16: identifier:
+12 | fun f4(p: p = {p}) = p
+   |                ^
+script.lkql:10:1: referenced declaration <ValDecl script.lkql:10:1-10:10>:
+10 | val p = 0
+   | ^^^^^^^^^
+=====
+
+=====
+script.lkql:12:22: identifier:
+12 | fun f4(p: p = {p}) = p
+   |                      ^
+script.lkql:12:8: referenced declaration <ParameterDecl script.lkql:12:8-12:18>:
+12 | fun f4(p: p = {p}) = p
+   |        ^^^^^^^^^^
+=====
+

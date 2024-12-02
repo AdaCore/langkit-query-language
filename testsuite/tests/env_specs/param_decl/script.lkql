@@ -1,0 +1,12 @@
+fun f1(p) = p
+
+fun f2(p) = {
+    val p = p;
+    p
+}
+
+fun f3(p: p = {p}) = p
+
+val p = 0
+
+fun f4(p: p = {p}) = p

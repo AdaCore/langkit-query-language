@@ -1,0 +1,17 @@
+val v1 = "Hello"
+v1
+
+val v2 = v2
+
+val v3 = {
+    val v3 = v3;
+    v3
+}
+
+val v4 = {
+    val v4 = {
+        val v4 = 1;
+        v4
+    };
+    v4
+}

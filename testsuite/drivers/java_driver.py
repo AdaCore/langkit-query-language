@@ -1,9 +1,7 @@
-import os
-
-from drivers.base_driver import BaseDriver
+from drivers.base_java_driver import BaseJavaDriver
 
 
-class JavaDriver(BaseDriver):
+class JavaDriver(BaseJavaDriver):
     """
     This driver runs the provided Java application in the GraalVM with a direct
     access to the LKQL JIT Truffle language. This driver is mainly used to
@@ -18,42 +16,4 @@ class JavaDriver(BaseDriver):
         return ["Main.java"]
 
     def run(self) -> None:
-        # Get the needed environment variable
-        graal_home = os.environ["GRAAL_HOME"]
-        lkql_jit_home = os.environ.get(
-            "LKQL_JIT_HOME", os.path.join(graal_home, "languages", "lkql")
-        )
-
-        # Get the GraalVM Java executable
-        java = (
-            os.path.join(graal_home, "bin", "java.exe")
-            if os.name == "nt"
-            else os.path.join(graal_home, "bin", "java")
-        )
-
-        # Create the class path
-        class_path = os.pathsep.join(
-            [
-                os.path.join(graal_home, "lib", "truffle", "truffle-api.jar"),
-                os.path.join(lkql_jit_home, "lkql_jit.jar"),
-            ]
-        )
-
-        # Create the value for java.library.path property
-        java_library_path = (
-            os.environ.get("PATH", "")
-            if os.name == "nt"
-            else os.environ.get("LD_LIBRARY_PATH", "")
-        )
-
-        # Run Java with the main file
-        self.check_run(
-            [
-                java,
-                "-cp",
-                class_path,
-                f"-Djava.library.path={java_library_path}",
-                f"-Dtruffle.class.path.append={os.path.join(lkql_jit_home, 'lkql_jit.jar')}",
-                self.working_dir("Main.java"),
-            ]
-        )
+        self.java(self.working_dir("Main.java"))
