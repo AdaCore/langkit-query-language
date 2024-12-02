@@ -1214,7 +1214,7 @@ package body Gnatcheck.Projects is
             if not Rules_Depreciation_Emitted then
                Error_In_Tty
                  ("The '-rules' section is now deprecated. You should only " &
-                  "use the '--rules' and '--rule-file' command-line options.");
+                  "use the '--rule' and '--rule-file' command-line options.");
                Error_In_Tty
                  ("You can use the '--emit-lkql-rule-file' flag to " &
                   "automatically translate your rule configuration to the " &
