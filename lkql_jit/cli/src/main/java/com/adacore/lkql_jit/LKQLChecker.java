@@ -78,7 +78,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         @CommandLine.Option(
                 names = {"-r", "--rule"},
-                description = "Additional directories where rules will be sought")
+                description = "Enable the given rule (this option is cumulative)")
         public List<String> rules = new ArrayList<>();
 
         @CommandLine.Option(
