@@ -38,7 +38,7 @@ main.adb:1:11: error: internal issue at foo.lkql:4:17: Null receiver in dot acce
 main.adb:1:18: error: internal issue at foo.lkql:4:17: Null receiver in dot access [foo]
 main.adb:2:06: error: internal issue at foo.lkql:4:17: Null receiver in dot access [foo]
 main.adb:3:04: error: internal issue at foo.lkql:4:17: Null receiver in dot access [foo]
-main.adb:3:08: error: internal issue at foo.lkql:4:17: Null receiver in dot access [foo]
+main.adb:3:09: error: internal issue at foo.lkql:4:17: Null receiver in dot access [foo]
 main.adb:4:05: error: internal issue at foo.lkql:4:17: Null receiver in dot access [foo]
 main.adb:4:10: error: internal issue at foo.lkql:4:17: Null receiver in dot access [foo]
 
