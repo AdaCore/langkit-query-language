@@ -63,11 +63,6 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         public boolean recursive;
 
         @CommandLine.Option(
-                names = {"-j", "--jobs"},
-                description = "Numbers of jobs to use. If zero, one job per CPU")
-        public int jobs = 1;
-
-        @CommandLine.Option(
                 names = {"-v", "--verbose"},
                 description = "Enable the verbose mode")
         public boolean verbose;
