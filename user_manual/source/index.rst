@@ -12,6 +12,7 @@ Welcome to LKQL's documentation!
 
    language_reference
    lkql_api_doc
+   lkql_driver
    lkql_checker
 
 
