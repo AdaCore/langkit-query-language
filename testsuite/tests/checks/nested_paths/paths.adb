@@ -93,4 +93,8 @@ begin
    else
       I := I + 1;                  --  NOFLAG
    end if;
+
+   if Cond then
+      null;                        --  NOFLAG
+   end if;
 end Paths;
