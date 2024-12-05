@@ -35,4 +35,9 @@ package body Deeply_Inlined_2012 is
       New_P4;
    end P5;
 
+   procedure Free (Elem : in out T) is
+   begin
+      Free (Elem.C);
+   end Free;
+
 end Deeply_Inlined_2012;
