@@ -5,5 +5,5 @@ fun kp_19312(node) =
     |" Flag "for" loop specs which define an iteration filter and which iterate
     |" over a type which defines the "iterable" aspect.
     node is ForLoopSpec
-    when node.f_iter_expr.p_expression_type()?.p_has_aspect?("iterable")
-     and node.f_iter_filter is not null
+    when node.f_iter_filter is not null
+     and node.f_iter_expr is e@Expr when (e.p_expression_type()?.p_has_aspect?("iterable"))
