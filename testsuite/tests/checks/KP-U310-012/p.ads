@@ -14,6 +14,8 @@ package P is
    function Create return T_Array with Post => True;  --  FLAG
    function No_Flag return T_Array;                   --  NOFLAG
 
+   type F_Access is access function (B : Boolean) return String;
+
 private
 
    type T_Array2 is array (Positive range <>) of T
