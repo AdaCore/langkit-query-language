@@ -2,11 +2,11 @@ main.adb:35:44: rule violation: possible occurrence of KP 19312
 35 |    S_1 : constant Integer_Sets.Set := [for E of I when False => E];  --  FLAG
    |                                            ^^^^^^^^^^^^^^^^^
 
-main.adb:47:8: rule violation: possible occurrence of KP 19312
-47 |    for Elem in I when False loop        --  FLAG
+main.adb:51:8: rule violation: possible occurrence of KP 19312
+51 |    for Elem in I when False loop        --  FLAG
    |        ^^^^^^^^^^^^^^^^^^^^
 
-main.adb:51:8: rule violation: possible occurrence of KP 19312
-51 |    for Elem of I when False loop        --  FLAG
+main.adb:55:8: rule violation: possible occurrence of KP 19312
+55 |    for Elem of I when False loop        --  FLAG
    |        ^^^^^^^^^^^^^^^^^^^^
 

@@ -40,6 +40,10 @@ begin
       Put_Line ("Elem: " & Elem'Image);
    end loop;
 
+   for Elem in Integer range 1 .. 10 loop --  NOFLAG
+      Put_Line ("Elem: " & Elem'Image);
+   end loop;
+
    for Elem of I loop                   --  NOFLAG
       Put_Line ("Elem: " & Elem'Image);
    end loop;
