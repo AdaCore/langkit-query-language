@@ -1,6 +1,6 @@
 # TODO: move this function to libadalang
 fun lal_is_mod_type(n) =
-    n.f_type_expr.p_designated_type_decl().f_type_def is ModIntTypeDef
+    n.f_type_expr.p_designated_type_decl().p_root_type() is TypeDecl(f_type_def: ModIntTypeDef)
 
 @check(message="bit record without layout definition",
        category="Style", subcategory="Portability")
