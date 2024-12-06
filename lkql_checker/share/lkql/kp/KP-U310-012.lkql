@@ -11,5 +11,5 @@ fun kp_u310_012(node) =
     node is SubpSpec(f_subp_kind: SubpKindFunction)
     when node.p_return_type() is TypeDecl(p_full_view(): ret@TypeDecl)
      when is_unconstrained(ret)
-      and (node.parent.p_has_aspect("Post") or
+      and (node.parent is BasicDecl(p_has_aspect("Post"): true) or
            ret.p_has_aspect("Type_Invariant"))
