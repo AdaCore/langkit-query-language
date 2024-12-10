@@ -246,8 +246,14 @@ public final class LKQLContext {
     public LKQLOptions getOptions() {
         if (this.options == null) {
             final var optionsSource = this.env.getOptions().get(LKQLLanguage.options);
-            final var jsonObject = new JSONObject(new JSONTokener(optionsSource));
-            this.options = LKQLOptions.fromJson(jsonObject);
+
+            // If the "lkql.options" value is empty, get default options.
+            if (!optionsSource.isBlank()) {
+                final var jsonObject = new JSONObject(new JSONTokener(optionsSource));
+                this.options = LKQLOptions.fromJson(jsonObject);
+            } else {
+                this.options = LKQLOptions.getDefault();
+            }
         }
         return this.options;
     }
