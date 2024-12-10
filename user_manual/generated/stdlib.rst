@@ -145,7 +145,8 @@ Functions
 
 .. function:: is_predefined_op(op, follow_renamings=false)
 
-    Return true if ``op`` is a predefined operator
+    Return true if ``op`` is a predefined operator; ``op`` can be an Op or
+    a CallExpr.
 
 .. function:: is_predefined_type(n)
 
