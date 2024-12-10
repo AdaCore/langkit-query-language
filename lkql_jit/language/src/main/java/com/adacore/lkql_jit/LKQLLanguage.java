@@ -91,7 +91,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             help = "If the language should be verbose",
             category = OptionCategory.INTERNAL,
             stability = OptionStability.STABLE)
-    static final OptionKey<String> options = new OptionKey<>("{}");
+    static final OptionKey<String> options = new OptionKey<>("");
 
     Liblkqllang.AnalysisContext lkqlAnalysisContext;
 

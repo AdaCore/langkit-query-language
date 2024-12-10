@@ -110,6 +110,11 @@ public record LKQLOptions(
                 DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")));
     }
 
+    /** Get a default options instance. */
+    public static LKQLOptions getDefault() {
+        return new Builder().build();
+    }
+
     // ----- Instance methods -----
 
     /** Serialize the LKQL options to a JSON object. */
