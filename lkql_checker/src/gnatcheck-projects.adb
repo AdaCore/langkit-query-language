@@ -1269,6 +1269,8 @@ package body Gnatcheck.Projects is
             Disallow (Arg.Follow_Symbolic_Links.This, "-eL" & In_Project_Msg);
             Disallow (Arg.Rules.This, "-r" & In_Project_Msg);
             Disallow (Arg.Rule_File.This, "--rule-file" & In_Project_Msg);
+            Disallow (Arg.Target.This, "--target" & In_Project_Msg);
+            Disallow (Arg.RTS.This, "--RTS" & In_Project_Msg);
          end;
       end if;
 
@@ -1292,6 +1294,8 @@ package body Gnatcheck.Projects is
          Allow (Arg.Follow_Symbolic_Links.This);
          Allow (Arg.Rules.This);
          Allow (Arg.Rule_File.This);
+         Allow (Arg.Target.This);
+         Allow (Arg.RTS.This);
       end if;
 
       loop
