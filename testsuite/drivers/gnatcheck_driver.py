@@ -129,11 +129,16 @@ class GnatcheckDriver(BaseDriver):
         - ``worker``: Provide a custom worker for the GNATcheck run.
         - ``gnatkp_autoconfig`` (bool): Whether to automatically configure the
           target and runtime when running in "gnatkp" mode. Default is True.
+        - ``auto_codepeer_target`` (bool): Whether to automatically add the
+          codepeer target when the test is run in CodePeer mode. Default is
+          True.
         - ``in_tty`` (bool): Whether to run GNATcheck in a pseudo TTY using the
           ``pty`` Python module.
 
         - ``jobs`` (int): The number of jobs to forward to the GNATcheck command.
         - ``project`` (str): GPR build file to use (if any).
+        - ``target`` (str): The target to forward to LibGPR for project
+          resolution.
         - ``subdirs`` (str): The directory to forward to GNATcheck `--subdirs`
           option.
         - ``input_sources`` (list[str]): Ada files to analyze (if explicit,
@@ -166,6 +171,8 @@ class GnatcheckDriver(BaseDriver):
         - ``extra_rule_options`` (list[str]): Extra arguments for the rules
           section.
 
+        - ``canonicalize_worker`` (bool): Whether to replace the GNATcheck worker
+          name by a constant string in then test output. Default is True.
         - ``pre_python``/``post_python`` (str): Python code to be executed
           before/after the test.
         - ``list_dirs`` (list[str]): A list of directories to display the content
@@ -296,15 +303,24 @@ class GnatcheckDriver(BaseDriver):
             if pre_python:
                 capture_exec_python(pre_python)
 
-            # If the executable is gantkp, we must provide an explicit runtime
+            # Set the target if one has been provided
+            if test_data.get('target'):
+                args.append(f"--target={test_data['target']}")
+
+            # If the executable is gnatkp, we must provide an explicit runtime
             # and target
             if exe == "gnatkp" and test_data.get('gnatkp_autoconfig', True):
-                if not self.is_codepeer:
+                if not self.is_codepeer and not test_data.get('target'):
                     args.append(f"--target={self.env.host.triplet}")
                 args.append("--RTS=default")
 
-            # Set the codepeer target if needed
-            if self.is_codepeer:
+            # Set the codepeer target if needed and no other one has been
+            # provided.
+            if (
+                self.is_codepeer and
+                test_data.get('auto_codepeer_target', True)
+                and not test_data.get('target')
+            ):
                 args.append("--target=codepeer")
 
             # Set the "--show-rule" flag according to the test
@@ -414,6 +430,16 @@ class GnatcheckDriver(BaseDriver):
                     p = self.shell(args, env=gnatcheck_env, catch_error=False, analyze_output=False)
                     exec_output = p.out
                     status_code = p.status
+
+                # If required, canonicalize gnatcheck worker name in the output
+                if test_data.get('canonicalize_worker', True):
+                    worker = " ".join(
+                        [
+                            P.basename(self.gnatcheck_worker_exe[0]),
+                            *self.gnatcheck_worker_exe[1:],
+                        ]
+                    )
+                    exec_output = exec_output.replace(worker, "<gnatcheck_worker_exe>")
 
                 # Then read GNATcheck report file if there is one
                 report_file_content = ""
