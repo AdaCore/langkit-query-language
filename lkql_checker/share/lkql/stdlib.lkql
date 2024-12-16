@@ -45,7 +45,7 @@ selector children_no_nested
 
 fun all(iterable) =
     |" Return whether all elements in the given iterable are truthy
-    [x for x in iterable if not x].length == 0
+    [x for x in iterable if not x]?[1] == ()
 
 fun any(iterable) =
     |" Return whether at least one element in the given iterable is truthy
@@ -224,6 +224,53 @@ fun is_standard_boolean(n) =
     |" Return true if the root type of ``n`` is ``Standard.Boolean``.
     n.p_expression_type() is t@BaseTypeDecl
     when t.p_root_type() == n.p_bool_type()
+
+fun is_standard_true(node) =
+    |" Get whether the given node is a Name representing the standard True
+    |" literal.
+    node is Name
+    when node.p_referenced_defining_name()
+             ?.p_canonical_fully_qualified_name?() == "standard.boolean.true"
+
+fun is_standard_false(node) =
+    |" Get whether the given node is a Name representing the standard False
+    |" value.
+    node is Name
+    when node.p_referenced_defining_name()
+             ?.p_canonical_fully_qualified_name?() == "standard.boolean.false"
+
+fun is_negated_op(node) =
+    |" Return whether ``node`` is a "not" unary operation, returning a standard
+    |" boolean, and having as operand a predefined RelationOp or UnOp with
+    |" OpNeq as operator.
+    node is UnOp(f_op: nop@OpNot)
+    when is_predefined_op(nop)
+     and is_standard_boolean(node)
+     and strip_conversions(node.f_expr) is eop@(RelationOp | UnOp(f_op: OpNot))
+         when is_predefined_op(eop.f_op)
+
+fun negate_op(node) =
+    |" Assumes that ``node`` is either a RelationOp or UnOp with the OpNot
+    |" as operator. Returns the negated form of the operation as a rewriting
+    |" node.
+    |" Examples:
+    |" ``negate_op("A = B") -> "A /= B"``
+    |" ``negate_op("A > B") -> "A <= B"``
+    |" ``negate_op("not A") -> "A"``
+    match node.f_op
+    | OpNot => node.f_expr
+    | op    =>
+        new RelationOp(
+            f_left = node.f_left,
+            f_right = node.f_right,
+            f_op = match op
+                   | OpEq  => new OpNeq()
+                   | OpNeq => new OpEq()
+                   | OpLt  => new OpGte()
+                   | OpLte => new OpGt()
+                   | OpGt  => new OpLte()
+                   | OpGte => new OpLt()
+        )
 
 fun full_root_type(t) =
     |" Return the full view of the root type of ``t``, traversing subtypes,

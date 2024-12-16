@@ -1,4 +1,4 @@
-import com.adacore.lkql_jit.LKQLOptions;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 

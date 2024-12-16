@@ -8,11 +8,11 @@ package com.adacore.lkql_jit.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
-import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.runtime.values.LKQLFunction;
+import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -39,7 +39,9 @@ public final class MapFunction {
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,
-                "Given a collection, a mapping function",
+                "Given an iterable object and a function, return the list resulting of the "
+                        + "function application on each element of the iterable object: "
+                        + "map(lst, f) -> [f(lst[1]), f(lst[2]), ...]",
                 new String[] {"indexable", "fn"},
                 new Expr[] {null, null},
                 new MapExpr());

@@ -143,6 +143,12 @@ Functions
 
     Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
 
+.. function:: is_negated_op(node)
+
+    Return whether ``node`` is a "not" unary operation, returning a standard
+    boolean, and having as operand a predefined RelationOp or UnOp with
+    OpNeq as operator.
+
 .. function:: is_predefined_op(op, follow_renamings=false)
 
     Return true if ``op`` is a predefined operator; ``op`` can be an Op or
@@ -161,9 +167,19 @@ Functions
 
     Return true if the root type of ``n`` is ``Standard.Boolean``.
 
+.. function:: is_standard_false(node)
+
+    Get whether the given node is a Name representing the standard False
+    value.
+
 .. function:: is_standard_numeric(n)
 
     Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
+
+.. function:: is_standard_true(node)
+
+    Get whether the given node is a Name representing the standard True
+    literal.
 
 .. function:: is_unchecked_conversion(node)
 
@@ -182,6 +198,16 @@ Functions
 .. function:: max(x, y)
 
     Return the max value between x and y
+
+.. function:: negate_op(node)
+
+    Assumes that ``node`` is either a RelationOp or UnOp with the OpNot
+    as operator. Returns the negated form of the operation as a rewriting
+    node.
+    Examples:
+    ``negate_op("A = B") -> "A /= B"``
+    ``negate_op("A > B") -> "A <= B"``
+    ``negate_op("not A") -> "A"``
 
 .. function:: next_non_blank_token_line(token)
 

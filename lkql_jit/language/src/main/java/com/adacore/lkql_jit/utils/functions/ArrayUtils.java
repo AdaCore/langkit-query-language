@@ -6,9 +6,7 @@
 package com.adacore.lkql_jit.utils.functions;
 
 import com.oracle.truffle.api.CompilerDirectives;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Util functions to manipulate the arrays in the JIT implementation.
@@ -30,6 +28,22 @@ public final class ArrayUtils {
             if (val.equals(arr[i])) return i;
         }
         return -1;
+    }
+
+    /**
+     * From the given array, create a map associating each distinct element of the array to a list
+     * containing indexes that refer to this element.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static <T> Map<T, List<Integer>> indexMap(T[] arr) {
+        final Map<T, List<Integer>> res = new HashMap<>();
+        for (int i = 0; i < arr.length; i++) {
+            final var elem = arr[i];
+            final List<Integer> indexes = res.getOrDefault(elem, new ArrayList<>());
+            indexes.add(i);
+            res.put(elem, indexes);
+        }
+        return res;
     }
 
     /**
@@ -62,5 +76,10 @@ public final class ArrayUtils {
             }
         }
         return resList;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public static <T> String toString(T[] array) {
+        return Arrays.toString(array);
     }
 }

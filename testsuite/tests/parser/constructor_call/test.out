@@ -1,0 +1,85 @@
+TopLevelList
+|  ConstructorCall
+|  |f_name:
+|  |  Identifier: IntLiteral
+|  |f_arguments:
+|  |  ArgList
+|  |  |  ExprArg
+|  |  |  |f_value_expr:
+|  |  |  |  StringLiteral: "50"
+|  ConstructorCall
+|  |f_name:
+|  |  Identifier: BinOp
+|  |f_arguments:
+|  |  ArgList
+|  |  |  NamedArg
+|  |  |  |f_arg_name:
+|  |  |  |  Identifier: f_op
+|  |  |  |f_value_expr:
+|  |  |  |  ConstructorCall
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier: OpPlus
+|  |  |  |  |f_arguments:
+|  |  |  |  |  ArgList: <empty list>
+|  |  |  NamedArg
+|  |  |  |f_arg_name:
+|  |  |  |  Identifier: f_left
+|  |  |  |f_value_expr:
+|  |  |  |  ConstructorCall
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier: IntLiteral
+|  |  |  |  |f_arguments:
+|  |  |  |  |  ArgList
+|  |  |  |  |  |  ExprArg
+|  |  |  |  |  |  |f_value_expr:
+|  |  |  |  |  |  |  StringLiteral: "40"
+|  |  |  NamedArg
+|  |  |  |f_arg_name:
+|  |  |  |  Identifier: f_right
+|  |  |  |f_value_expr:
+|  |  |  |  ConstructorCall
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier: IntLiteral
+|  |  |  |  |f_arguments:
+|  |  |  |  |  ArgList
+|  |  |  |  |  |  ExprArg
+|  |  |  |  |  |  |f_value_expr:
+|  |  |  |  |  |  |  StringLiteral: "2"
+|  ConstructorCall
+|  |f_name:
+|  |  Identifier: BinOp
+|  |f_arguments:
+|  |  ArgList
+|  |  |  NamedArg
+|  |  |  |f_arg_name:
+|  |  |  |  Identifier: f_left
+|  |  |  |f_value_expr:
+|  |  |  |  ConstructorCall
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier: IntLiteral
+|  |  |  |  |f_arguments:
+|  |  |  |  |  ArgList
+|  |  |  |  |  |  ExprArg
+|  |  |  |  |  |  |f_value_expr:
+|  |  |  |  |  |  |  StringLiteral: "40"
+|  |  |  NamedArg
+|  |  |  |f_arg_name:
+|  |  |  |  Identifier: f_op
+|  |  |  |f_value_expr:
+|  |  |  |  ConstructorCall
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier: OpPlus
+|  |  |  |  |f_arguments:
+|  |  |  |  |  ArgList: <empty list>
+|  |  |  NamedArg
+|  |  |  |f_arg_name:
+|  |  |  |  Identifier: f_right
+|  |  |  |f_value_expr:
+|  |  |  |  ConstructorCall
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier: IntLiteral
+|  |  |  |  |f_arguments:
+|  |  |  |  |  ArgList
+|  |  |  |  |  |  ExprArg
+|  |  |  |  |  |  |f_value_expr:
+|  |  |  |  |  |  |  StringLiteral: "2"

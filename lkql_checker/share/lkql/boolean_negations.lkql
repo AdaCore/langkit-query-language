@@ -1,11 +1,8 @@
 import stdlib
 
-fun strip_parentheses(node) =
-    |" Skip any ParenExpr and return the enclosing expression
-    if node is ParenExpr then strip_parentheses(node.f_expr) else node
-
 @check(message="negation of boolean operator",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=(n, ctx) => ctx.replace(n, stdlib.negate_op(stdlib.strip_conversions(n.f_expr))))
 fun boolean_negations(node) =
     |" Flag any infix call to the predefined ``NOT`` operator for the predefined
     |" Boolean type if its argument is an infix call to a predefined relation
@@ -20,8 +17,4 @@ fun boolean_negations(node) =
     |"    :emphasize-lines: 1
     |"
     |"    Is_Data_Available := not (Buffer_Length = 0);   --  FLAG
-    node is UnOp(f_op: op@OpNot when stdlib.is_predefined_op(op))
-    when stdlib.is_standard_boolean(node)
-     and strip_parentheses(node.f_expr) is
-         expr_op@(RelationOp | UnOp(f_op: OpNot))
-         when stdlib.is_predefined_op(expr_op.f_op)
+    stdlib.is_negated_op(node)

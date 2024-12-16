@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
+import com.adacore.lkql_jit.runtime.values.LKQLTuple;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;

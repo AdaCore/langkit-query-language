@@ -47,7 +47,7 @@ begin
 
    if X > 0 then    --  NOFLAG
       return 2;
-   end if:
+   end if;
 
    return X;
 end Stmt;

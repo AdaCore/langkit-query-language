@@ -1,0 +1,2 @@
+val ref = BinOp.f_left
+print(ref)

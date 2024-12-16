@@ -1,3 +1,4 @@
 driver: 'checker'
 rule_name: Positional_Components
 input_sources: ['pos.ads']
+auto_fix: True
