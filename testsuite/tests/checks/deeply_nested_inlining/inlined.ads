@@ -1,5 +1,4 @@
 package Inlined is
-
    procedure P0;                --  NOFLAG
    pragma Inline (P0);
 
@@ -17,5 +16,4 @@ package Inlined is
 
    function F2 return Boolean;  --  NOFLAG
    pragma Inline (F2);
-
 end Inlined;
