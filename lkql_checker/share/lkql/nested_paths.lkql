@@ -49,7 +49,7 @@ fun nested_paths(node) =
       if_stmt.f_alternatives[1] == null
 
       # Has an "else" part
-      and if_stmt.f_else_part.f_stmts[1] != null
+      and if_stmt.f_else_part != null
 
       and not has_last_breaking_stmt(node)
       and has_last_breaking_stmt(if if_stmt.f_then_stmts == node
