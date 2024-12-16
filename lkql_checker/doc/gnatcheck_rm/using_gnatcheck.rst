@@ -270,6 +270,12 @@ The following switches control the general ``gnatcheck`` behavior
   Verbose mode; ``gnatcheck`` generates version information and then
   a trace of sources being processed.
 
+  .. index:: -W
+
+``-W, --warnings-as-errors``
+  Treat warnings raised by GNATcheck as errors, ensuring an erroneous return
+  code.
+
   .. index:: -o
 
 ``-o report_file``
