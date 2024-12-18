@@ -3,11 +3,10 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.options;
+package com.adacore.lkql_jit;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,14 +50,14 @@ public record RuleInstance(
         }
     }
 
+    // ----- Constructors -----
+
     public static RuleInstance fromJson(JSONObject jsonObject) throws JSONException {
         return new RuleInstance(
                 jsonObject.getString("ruleName"),
                 Optional.ofNullable(jsonObject.optString("instanceName", null)),
                 SourceMode.valueOf(jsonObject.getString("sourceMode")),
-                jsonObject.getJSONObject("arguments").toMap().entrySet().stream()
-                        .map(e -> Map.entry(e.getKey(), (String) e.getValue()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                JSONUtils.parseStringMap(jsonObject.getJSONObject("arguments")));
     }
 
     // ----- Instance methods -----

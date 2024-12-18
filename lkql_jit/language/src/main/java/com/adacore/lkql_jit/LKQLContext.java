@@ -11,12 +11,9 @@ import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.checker.*;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.options.JsonUtils;
-import com.adacore.lkql_jit.options.RuleInstance;
 import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -25,6 +22,8 @@ import com.oracle.truffle.api.source.Source;
 import java.io.File;
 import java.util.*;
 import java.util.function.BiConsumer;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
  * This class represents the execution context of an LKQL script.
@@ -102,12 +101,6 @@ public final class LKQLContext {
 
     // ----- Checker attributes -----
 
-    /**
-     * All rule instantiated by the user through the command-line. Mapped from their identifier to
-     * their value.
-     */
-    private Map<String, RuleInstance> ruleInstances = null;
-
     /** A cache for all rule arguments to avoid evaluating twice the same argument source. */
     private Map<String, Map<String, Object>> instancesArgsCache = new HashMap<>();
 
@@ -128,40 +121,16 @@ public final class LKQLContext {
 
     // ----- Option caches -----
 
-    /** Whether the language is in the verbose mode. */
-    @CompilerDirectives.CompilationFinal private Boolean isVerbose = null;
-
-    @CompilerDirectives.CompilationFinal private Boolean keepGoingOnMissingFile = null;
-
-    @CompilerDirectives.CompilationFinal private Boolean showInstantiationChain = null;
-
-    /** The project file to analyse. */
-    @CompilerDirectives.CompilationFinal private String projectFile = null;
-
-    @CompilerDirectives.CompilationFinal private String target = null;
-
-    @CompilerDirectives.CompilationFinal private String runtime = null;
-
-    @CompilerDirectives.CompilationFinal private String configFile = null;
+    /** Options object passed to the LKQL engine. */
+    @CompilerDirectives.CompilationFinal private LKQLOptions options = null;
 
     /** The project's scenario variables. */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private Libadalang.ScenarioVariable[] scenarioVars = null;
 
-    /** The ada files passed through the command line. */
+    /** Directories to look for LKQL rules into. */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
-    private String[] files = null;
-
-    /** Whether the checker is in debug mode. */
-    @CompilerDirectives.CompilationFinal private Boolean checkerDebug = null;
-
-    /** The directories where the rule files are located. */
-    @CompilerDirectives.CompilationFinal(dimensions = 1)
-    private String[] ruleDirectories;
-
-    /** The files to ignore during an analysis. */
-    @CompilerDirectives.CompilationFinal(dimensions = 1)
-    private String[] ignores;
+    private String[] ruleDirectories = null;
 
     /** Tool to emit diagnostics in the wanted format. */
     @CompilerDirectives.CompilationFinal private CheckerUtils.DiagnosticEmitter emitter;
@@ -234,34 +203,33 @@ public final class LKQLContext {
 
     // ----- Options getting methods -----
 
+    /** Parse the LKQL engine options passed as a JSON string, store it in a cache and return it. */
+    public LKQLOptions getOptions() {
+        if (this.options == null) {
+            final var optionsSource = this.env.getOptions().get(LKQLLanguage.options);
+            final var jsonObject = new JSONObject(new JSONTokener(optionsSource));
+            this.options = LKQLOptions.fromJson(jsonObject);
+        }
+        return this.options;
+    }
+
     /**
      * Get if the language execution is in verbose mode.
      *
      * @return True if the verbose flag is on.
      */
     public boolean isVerbose() {
-        if (this.isVerbose == null) {
-            this.isVerbose = this.env.getOptions().get(LKQLLanguage.verbose);
-        }
-        return this.isVerbose;
+        return this.getOptions().verbose();
     }
 
     /** Return true if the engine should keep running when a required file is not found. */
     public boolean keepGoingOnMissingFile() {
-        if (this.keepGoingOnMissingFile == null) {
-            this.keepGoingOnMissingFile =
-                    this.env.getOptions().get(LKQLLanguage.keepGoingOnMissingFile);
-        }
-        return this.keepGoingOnMissingFile;
+        return this.getOptions().keepGoingOnMissingFile();
     }
 
     /** Get whether to display instantiation chain in diagnostics. */
     public boolean showInstantiationChain() {
-        if (this.showInstantiationChain == null) {
-            this.showInstantiationChain =
-                    this.env.getOptions().get(LKQLLanguage.showInstantiationChain);
-        }
-        return this.showInstantiationChain;
+        return this.getOptions().showInstantiationChain();
     }
 
     /**
@@ -270,59 +238,30 @@ public final class LKQLContext {
      * @return The project file in a string.
      */
     public String getProjectFile() {
-        if (this.projectFile == null) {
-            this.projectFile = this.env.getOptions().get(LKQLLanguage.projectFile);
-        }
-        return this.projectFile;
+        return this.getOptions().projectFile().orElse("");
     }
 
     public String getTarget() {
-        if (this.target == null) {
-            this.target = this.env.getOptions().get(LKQLLanguage.target);
-        }
-        return this.target;
+        return this.getOptions().target().orElse("");
     }
 
     public String getRuntime() {
-        if (this.runtime == null) {
-            this.runtime = this.env.getOptions().get(LKQLLanguage.runtime);
-        }
-        return this.runtime;
+        return this.getOptions().runtime().orElse("");
     }
 
     public String getConfigFile() {
-        if (this.configFile == null) {
-            this.configFile = this.env.getOptions().get(LKQLLanguage.configFile);
-        }
-        return this.configFile;
+        return this.getOptions().configFile().orElse("");
     }
 
     /** Return the list of scenario variables to specify when loading the GPR project file. */
     public Libadalang.ScenarioVariable[] getScenarioVars() {
         if (this.scenarioVars == null) {
-            // Scenario variables are passed as semicolon-separated substrings encoded in Base64.
-            String[] bindings = this.env.getOptions().get(LKQLLanguage.scenarioVars).split(";");
-            if (bindings.length == 1 && bindings[0].length() == 0) {
-                // No scenario variables were specified
-                this.scenarioVars = new Libadalang.ScenarioVariable[0];
-            } else {
-                // Some scenario variables were specified. Decode them from Base64 and parse the
-                // `key=value`
-                // specification.
-                Base64.Decoder decoder = Base64.getDecoder();
-                this.scenarioVars = new Libadalang.ScenarioVariable[bindings.length];
-                for (int i = 0; i < bindings.length; ++i) {
-                    String binding = new String(decoder.decode(bindings[i]));
-                    int eqIndex = binding.indexOf('=');
-                    if (eqIndex == -1) {
-                        throw LKQLRuntimeException.fromMessage(
-                                "Invalid scenario variable specification: " + binding);
-                    }
-                    String name = binding.substring(0, eqIndex);
-                    String value = binding.substring(eqIndex + 1);
-                    this.scenarioVars[i] = Libadalang.ScenarioVariable.create(name, value);
-                }
+            final var scenarioVarList = new ArrayList<Libadalang.ScenarioVariable>();
+            for (var entry : this.getOptions().scenarioVariables().entrySet()) {
+                scenarioVarList.add(
+                        Libadalang.ScenarioVariable.create(entry.getKey(), entry.getValue()));
             }
+            this.scenarioVars = scenarioVarList.toArray(new Libadalang.ScenarioVariable[0]);
         }
         return this.scenarioVars;
     }
@@ -333,10 +272,7 @@ public final class LKQLContext {
      * @return The files to analyse in an array.
      */
     public String[] getFiles() {
-        if (this.files == null) {
-            this.files = StringUtils.splitPaths(this.env.getOptions().get(LKQLLanguage.files));
-        }
-        return this.files;
+        return this.getOptions().files().toArray(new String[0]);
     }
 
     /**
@@ -346,10 +282,7 @@ public final class LKQLContext {
      */
     @CompilerDirectives.TruffleBoundary
     public boolean isCheckerDebug() {
-        if (this.checkerDebug == null) {
-            this.checkerDebug = this.env.getOptions().get(LKQLLanguage.checkerDebug);
-        }
-        return this.checkerDebug;
+        return this.getOptions().checkerDebug();
     }
 
     /**
@@ -359,14 +292,12 @@ public final class LKQLContext {
      */
     public String[] getRuleDirectories() {
         if (this.ruleDirectories == null) {
-            this.ruleDirectories =
-                    StringUtils.splitPaths(this.env.getOptions().get(LKQLLanguage.rulesDirs));
-            String additionalRulesDirs = System.getenv(Constants.LKQL_RULES_PATH);
+            final var rulesDirsList = new ArrayList<>(this.getOptions().rulesDirs());
+            final var additionalRulesDirs = System.getenv(Constants.LKQL_RULES_PATH);
             if (additionalRulesDirs != null) {
-                this.ruleDirectories =
-                        ArrayUtils.concat(
-                                this.ruleDirectories, StringUtils.splitPaths(additionalRulesDirs));
+                rulesDirsList.addAll(Arrays.asList(StringUtils.splitPaths(additionalRulesDirs)));
             }
+            this.ruleDirectories = rulesDirsList.toArray(new String[0]);
         }
         return this.ruleDirectories;
     }
@@ -377,25 +308,13 @@ public final class LKQLContext {
      * @return The array containing all Ada files to ignore.
      */
     public String[] getIgnores() {
-        if (this.ignores == null) {
-            this.ignores = StringUtils.splitPaths(this.env.getOptions().get(LKQLLanguage.ignores));
-            this.ignores =
-                    Arrays.stream(this.ignores)
-                            .filter(s -> !s.isBlank() && !s.isEmpty())
-                            .toArray(String[]::new);
-        }
-        return this.ignores;
+        return this.getOptions().ignores().toArray(new String[0]);
     }
 
     /** Invalidate the option caches. */
     private void invalidateOptionCaches() {
-        this.isVerbose = null;
-        this.projectFile = null;
-        this.files = null;
-        this.ruleInstances = null;
+        this.options = null;
         this.instancesArgsCache = new HashMap<>();
-        this.ruleDirectories = null;
-        this.ignores = null;
         this.emitter = null;
     }
 
@@ -440,7 +359,7 @@ public final class LKQLContext {
     public CheckerUtils.DiagnosticEmitter getDiagnosticEmitter() {
         if (this.emitter == null) {
             this.emitter =
-                    switch (this.env.getOptions().get(LKQLLanguage.diagnosticOutputMode)) {
+                    switch (this.getOptions().diagnosticOutputMode()) {
                         case PRETTY -> new CheckerUtils.DefaultEmitter();
                         case GNATCHECK -> new CheckerUtils.GNATcheckEmitter();
                     };
@@ -530,9 +449,8 @@ public final class LKQLContext {
             }
 
             // Get the subproject provided by the user
-            final String subprojectName = this.env.getOptions().get(LKQLLanguage.subprojectFile);
             final String[] subprojects =
-                    subprojectName.isEmpty() ? null : new String[] {subprojectName};
+                    this.getOptions().subprojectFile().map(s -> new String[] {s}).orElse(null);
 
             // If no files were specified by the user, the files to analyze are those of the root
             // project (i.e. without recursing into project dependencies)
@@ -555,7 +473,7 @@ public final class LKQLContext {
 
             this.adaContext =
                     this.projectManager.createContext(
-                            subprojectName.isEmpty() ? null : subprojectName,
+                            this.getOptions().subprojectFile().orElse(null),
                             this.eventHandler,
                             true,
                             8);
@@ -571,7 +489,7 @@ public final class LKQLContext {
 
             // If the option is the empty string, the language implementation will end up setting it
             // to the default value for its language (e.g. iso-8859-1 for Ada).
-            String charset = this.env.getOptions().get(LKQLLanguage.charset);
+            String charset = this.getOptions().charset().orElse("");
 
             // Load the implicit project
             this.projectManager =
@@ -599,19 +517,7 @@ public final class LKQLContext {
 
     @CompilerDirectives.TruffleBoundary
     public Map<String, RuleInstance> getRuleInstances() {
-        if (this.ruleInstances == null) {
-            try {
-                this.ruleInstances =
-                        JsonUtils.deserializeInstances(
-                                this.env.getOptions().get(LKQLLanguage.ruleInstances));
-            } catch (Exception e) {
-                // Since the LKQL option is internal, the user cannot provide a raw value so this
-                // is not supposed to happen.
-                e.printStackTrace();
-                throw LKQLRuntimeException.shouldNotHappen("Invalid JSON for rule instances");
-            }
-        }
-        return this.ruleInstances;
+        return this.getOptions().ruleInstances();
     }
 
     /**
@@ -735,8 +641,7 @@ public final class LKQLContext {
                 };
 
         // If there are no required instance, check if we have to fall back on all checkers
-        if (this.getRuleInstances().isEmpty()
-                && this.env.getOptions().get(LKQLLanguage.fallbackToAllRules)) {
+        if (this.getRuleInstances().isEmpty() && this.getOptions().fallbackToAllRules()) {
             for (BaseChecker checker : allCheckers.values()) {
                 dispatchChecker.accept(checker, generalNodeCheckers);
             }

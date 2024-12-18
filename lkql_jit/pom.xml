@@ -10,6 +10,7 @@
     <version>0.1.0</version>
     <modules>
         <module>language</module>
+        <module>options</module>
         <module>cli</module>
         <module>native</module>
         <module>component</module>
@@ -122,6 +123,7 @@
                     <java>
                         <includes>
                             <include>language/src/main/java/**/*.java</include>
+                            <include>options/src/main/java/**/*.java</include>
                             <include>cli/src/main/java/**/*.java</include>
                             <include>benchmarks/src/test/java/**/*.java</include>
                         </includes>
