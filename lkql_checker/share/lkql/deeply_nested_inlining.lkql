@@ -12,12 +12,11 @@ fun inlined_body(name) = match name.p_referenced_decl()
     | b@BaseSubpBody when b?.p_has_aspect("Inline")
                       => b
     | EnumLiteralDecl => null
-    | GenericSubpInstantiation(f_generic_subp_name: *(
-                               p_referenced_decl(): b@GenericSubpDecl(
-                               p_has_aspect("Inline"): true)))
-                      => b?.p_body_part()
-    | d@BasicDecl when d?.p_is_subprogram() and d?.p_has_aspect("Inline")
-                      => d?.p_body_part()
+    | g@GenericSubpInstantiation(f_generic_subp_name: *(p_referenced_decl(): b@GenericSubpDecl))
+      when b.p_has_aspect("Inline") or g.p_has_aspect("Inline")
+                      => b.p_body_part()
+    | d@BasicDecl when d.p_is_subprogram() and d.p_has_aspect("Inline")
+                      => d.p_body_part()
     | *               => null
 
 # Return true if we reach a level ``n`` of inlining of 0
