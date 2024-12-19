@@ -287,6 +287,12 @@ The following switches control the general ``gnatcheck`` behavior
   All switches and options provided after this flag will be parse as
   :ref:`rule options<gnatcheck_Rule_Options>`.
 
+  .. attention::
+
+    This CLI section is **deprecated**, consider converting your rule
+    configuration to the new :ref:`LKQL rule file<LKQL_options_file>` format
+    using the ``--emit-lkql-rule-file`` switch.
+
 If a project file is specified and no argument source is explicitly
 specified (either directly or by means of ``-files`` option), and no
 ``-U`` or ``--no-subprojects`` is specified, then the set of processed
@@ -384,13 +390,20 @@ LKQL Rule Files
 ===============
 
 You can configure GNATcheck rules using an LKQL file, provided through the
-``--rule-file`` command-line option.
+``--rule-file`` command-line option or implicitly fetched by GNATcheck (as
+described in the following paragraph).
 
 By default, GNATcheck will look for a ``rules.lkql`` file in the current working
 directory or besides the specified project file if any. If there is one and
 no other rule configuration has been provided (through an LKQL rule file, or
 through the rule options), GNATcheck will load it as the LKQL rule options
 file, as if it was provided through the ``--rule-file`` option.
+
+.. note::
+
+  You can use the ``--emit-lkql-rule-file`` CLI switch to generate an LKQL rule
+  file from a legacy rule configuration provided through the ``-rules``
+  section.
 
 This file must be a valid LKQL file that exports at least a ``rules`` top-level
 symbol. This symbol must refer to an object value containing rules
@@ -405,8 +418,8 @@ integer, a string, or a list of strings.
     Forbidden_Attributes: {Forbidden: ["GNAT"], Allowed: ["First", "Last"]}
   }
 
-You can map a boolean parameter from a ``+R`` option to an LKQL rule options file by
-passing an LKQL boolean value to it. For example:
+For example, to map a boolean parameter from a ``+R`` rule option to an LKQL
+rule file, you have to associate a boolean LKQL value to the parameter name:
 
 ::
 
@@ -422,8 +435,8 @@ maps to:
 
 .. attention::
 
-  You cannot provide the same key twice; thus, the following code will
-  result in a runtime error.
+  You cannot provide the same key twice; thus, the following code will result
+  in a runtime error.
 
   ::
 
@@ -481,8 +494,9 @@ GNATcheck Rule Options
 
 .. attention::
 
-  GNATcheck rule options are deprecated, please use :ref:`LKQL_options_file`
-  instead.
+  Rules options are **deprecated**, consider converting your rule
+  configuration to the new :ref:`LKQL rule file<LKQL_options_file>` format
+  using the ``--emit-lkql-rule-file`` CLI switch.
 
 The following options control the processing performed by ``gnatcheck``. You
 can provide as many rule options as you want after the ``-rules`` switch.
@@ -652,7 +666,7 @@ GNATcheck Exit Codes
 * ``3``: No tool failure, no problem with rule specification, but
   there is at least one missing argument source.
 
-* ``4``: Parameter of the rule ``-from`` option denotes a nonexistent file.
+* ``4``: Provided rule configuration file doesn't exist.
 
 * ``5``: The name of an unknown rule in a rule option or some problem with
   rule parameters.
