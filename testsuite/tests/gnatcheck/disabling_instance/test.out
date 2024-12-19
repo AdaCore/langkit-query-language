@@ -14,6 +14,6 @@ main.adb:8:07: goto statement [cond_goto|goto_statements]
 Disabling the wrong instance
 ============================
 
-gnatcheck: rule instance doesn't exist, therefore, cannot be disabled: "goto_statements"
+gnatcheck: "goto_statements" is not enabled, therefore, cannot be disabled
 main.adb:3:04: goto statement [cond_goto|goto_statements]
 >>>program returned status code 5
