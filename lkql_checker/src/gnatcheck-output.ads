@@ -18,6 +18,10 @@ package Gnatcheck.Output is
    Custom_XML_Report_File  : Boolean := False;
    --  Undicate if custom name is specified for text or XML output file
 
+   Error_From_Warning : Boolean;
+   --  Whether a warning message has been emitted while "warnings as errors"
+   --  mode is enabled. This ensure the return code of GNATcheck is not 0.
+
    procedure Print_Version_Info (Released_At : Positive);
    --  Prints into Stderr the tool version information in the following format:
    --
@@ -43,39 +47,19 @@ package Gnatcheck.Output is
    procedure Error_No_Tool_Name (Message : String);
    --  Sends into Stderr the error message with no tool name prefix
 
-   procedure Error_In_Tty (Message : String);
-   --  Same as ``Error`` but send the message only if Stderr is a TTY. Also,
-   --  ``Message`` is not added to the stderr log file.
-
-   procedure SLOC_Error
-     (Message : String;
-      SLOC    : String);
-   --  Sends to Stderr the error message in the following format:
-   --  'SLOC:Tool_Name:Message', where SLOC is the GNAT-style source location.
-
    procedure Warning (Message : String);
-   --  Same as Error, but do nothing if Warning_Mode = Quiet.
+   --  Same as ``Error``
 
-   procedure Info
-     (Message  : String;
-      Line_Len : Natural := 0;
-      Spacing  : Natural := 0);
-   --  Sends Message as a separate line(s) into Stderr (with no tool name
-   --  prefix). If Line_Len is set to some positive value, it is treated as a
-   --  maximal length of the text to be placed into one output line, and if the
-   --  length of Message exceeds Line_Len, this procedure tries to split
-   --  Message treating spaces as word separators and prints the rest of the
-   --  Message on the next line(s). Each continuation line starts from Spacing
-   --  number of space characters. Message can be split only on borders of
-   --  words.
+   procedure Info (Message : String);
+   --  Sends Message into Stderr (with no tool name prefix).
 
-   procedure Info_No_EOL
-     (Message  : String;
-      Line_Len : Natural := 0;
-      Spacing  : Natural := 0);
-   --  The same as Info, but does not "close" the last line being printed out,
-   --  that is, the last line does not contain a (platform-specific) EOL
-   --  character(s).
+   procedure Info_No_EOL (Message : String);
+   --  The same as ``Info``, but does not output a (platform-specific) EOL
+   --  character(s) after ``Message``.
+
+   procedure Info_In_Tty (Message : String);
+   --  Same as ``Info`` but send the message only if Stderr is a TTY. Also,
+   --  ``Message`` is not added to the current ``Log_File``.
 
    Indent_String : constant String := "   ";
    --  Used as indentation element in various output
