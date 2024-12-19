@@ -43,8 +43,14 @@ package Gnatcheck.Diagnoses is
    Match_Rule_Warning_Param : constant Pattern_Matcher :=
      Compile ("(\.?\w)");
 
-   Match_Exempt_Comment : constant Pattern_Matcher :=
-     Compile ("--##\s*rule\s+(line\s+)?(on|off)\s+([^\s]+)[^#]*(?:##(.*))?");
+   Common_Exempt_Comment_Match : constant String :=
+     "\s+(line\s+)?(on|off)\s+([^\s]+)[^#]*(?:##(.*))?";
+
+   Match_Rule_Exempt_Comment : constant Pattern_Matcher :=
+     Compile ("--##\s*rule" & Common_Exempt_Comment_Match);
+
+   Match_Kp_Exempt_Comment : constant Pattern_Matcher :=
+     Compile ("--##\s*kp" & Common_Exempt_Comment_Match);
 
    -----------------------
    -- Diagnoses storage --
