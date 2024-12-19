@@ -442,7 +442,7 @@ package body Gnatcheck.Compiler is
                                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
-   --  Start of processing for Analyze_Builder_Output
+   --  Start of processing for Analyze_Output
 
    begin
       Errors := False;
@@ -512,12 +512,15 @@ package body Gnatcheck.Compiler is
                   end if;
                end;
             end if;
-         elsif Line_Len >= 20
-               and then Line (1 .. 20) = "WORKER_FATAL_ERROR: "
+         elsif Line_Len >= 16
+            and then Line (1 .. 16) = "WORKER_WARNING: "
          then
-            Error ("error raised by the worker: " & Line (21 .. Line_Len));
+            Warning (Line (17 .. Line_Len));
+         elsif Line_Len >= 14
+            and then Line (1 .. 14) = "WORKER_ERROR: "
+         then
+            Error (Line (15 .. Line_Len));
             Errors := True;
-            return;
          else
             Analyze_Line (Line (1 .. Line_Len));
          end if;
@@ -1692,8 +1695,7 @@ package body Gnatcheck.Compiler is
 
    function Spawn_LKQL_Rule_File_Parser
      (LKQL_RF_Name : String;
-      Result_File : String;
-      Error_File : String) return Process_Id
+      Result_File : String) return Process_Id
    is
       use GNAT.String_Split;
 
@@ -1737,7 +1739,7 @@ package body Gnatcheck.Compiler is
       --  Spawn the process and return the associated process ID
       Pid :=
         Non_Blocking_Spawn
-          (Worker.all, Args (1 .. Num_Args), Result_File, Error_File);
+          (Worker.all, Args (1 .. Num_Args), Result_File);
 
       for J in Args'Range loop
          Free (Args (J));
