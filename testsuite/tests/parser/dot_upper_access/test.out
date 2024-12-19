@@ -1,0 +1,5 @@
+UpperDotAccess
+|f_receiver:
+|  Identifier: NodeKind
+|f_member:
+|  Identifier: f_field

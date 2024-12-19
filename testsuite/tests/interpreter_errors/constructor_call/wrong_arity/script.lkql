@@ -1,0 +1,4 @@
+val impossible = new BinOp(
+    f_left=new IntLiteral("50"),
+    f_right=new IntLiteral("8")
+)

@@ -1,0 +1,20 @@
+val int_lit_50 = new IntLiteral("50")
+val int_lit_8 = new IntLiteral("8")
+val sub = new BinOp(
+    f_op=new OpMinus(),
+    f_left=int_lit_50,
+    f_right=int_lit_8
+)
+val lst = new StmtList([
+    int_lit_50.clone,
+    int_lit_8.clone,
+    sub
+])
+val other_lst = new StmtList()
+
+print(int_lit_50)
+print(int_lit_50.clone)
+print(int_lit_8)
+print(sub)
+print(lst)
+print(other_lst)

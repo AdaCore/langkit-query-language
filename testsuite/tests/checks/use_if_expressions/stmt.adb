@@ -45,5 +45,9 @@ begin
       X := 0;
    end if;
 
+   if X > 0 then    --  NOFLAG
+      return 2;
+   end if;
+
    return X;
 end Stmt;

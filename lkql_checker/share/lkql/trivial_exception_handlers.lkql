@@ -3,7 +3,8 @@
 # others with more than just a raise statement.
 
 @check(message="trivial exception handler",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=(n, ctx) => ctx.remove(n))
 fun trivial_exception_handlers(node) =
     node is ExceptionHandler
     when node.f_stmts[1] is RaiseStmt(f_exception_name: null)

@@ -765,6 +765,17 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                         receiver));
     }
 
+    /** Visit an upper dot-access node and translate it into a member reference access. */
+    @Override
+    public LKQLNode visit(Liblkqllang.UpperDotAccess upperDotAccess) {
+        final var receiver = upperDotAccess.fReceiver();
+        final var member = upperDotAccess.fMember();
+        return new MemberRefAccess(
+                loc(upperDotAccess),
+                new Identifier(loc(receiver), receiver.getText()),
+                new Identifier(loc(member), member.getText()));
+    }
+
     // --- In clause
 
     /**
@@ -1439,21 +1450,37 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.FunDecl funDecl) {
-        // Translate the declaration fields
+        // Get the current slot of the name
+        final String name = funDecl.fName().getText();
+        this.scriptFrames.declareBinding(name);
+        final int slot = this.scriptFrames.getBinding(name);
+
+        // Translate the declaration annotation
         final Liblkqllang.DeclAnnotation annotationBase = funDecl.fAnnotation();
         final Annotation annotation =
                 annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
-        final String name = funDecl.fName().getText();
-
-        // Get the current slot of the name
-        this.scriptFrames.declareBinding(name);
-        final int slot = this.scriptFrames.getBinding(name);
 
         // Translate the function body
         FunExpr funExpr = (FunExpr) funDecl.fFunExpr().accept(this);
 
-        // Return the new function declaration node
-        return new FunctionDeclaration(loc(funDecl), annotation, name, slot, funExpr);
+        // Create the new function declaration node
+        final var functionDecl =
+                new FunctionDeclaration(loc(funDecl), annotation, name, slot, funExpr);
+
+        // If the function is annotated as a checker, create a checker exportation node and
+        // return it
+        if (annotation != null) {
+            if (annotation.getName().equals(Constants.ANNOTATION_NODE_CHECK)) {
+                return new CheckerExport(
+                        loc(funDecl), annotation, CheckerExport.CheckerMode.NODE, functionDecl);
+            } else if (annotation.getName().equals(Constants.ANNOTATION_UNIT_CHECK)) {
+                return new CheckerExport(
+                        loc(funDecl), annotation, CheckerExport.CheckerMode.UNIT, functionDecl);
+            }
+        }
+
+        // Finally return the function declaration
+        return functionDecl;
     }
 
     // --- Safe tokens
@@ -1485,6 +1512,21 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the function call
         return FunCallNodeGen.create(loc(funCall), isSafe, arguments, callee);
+    }
+
+    /**
+     * Visit a constructor call node. For now constructor is only available for rewriting nodes,
+     * thus we can statically determine required children and their order.
+     *
+     * @param constructorCall The constructor call from Langkit.
+     * @return The constructor call node for Truffle.
+     */
+    @Override
+    public LKQLNode visit(Liblkqllang.ConstructorCall constructorCall) {
+        return new ConstructorCall(
+                loc(constructorCall),
+                new Identifier(loc(constructorCall.fName()), constructorCall.fName().getText()),
+                (ArgList) constructorCall.fArguments().accept(this));
     }
 
     // --- Selector declaration
@@ -1530,13 +1572,15 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Liblkqllang.BaseStringLiteral documentationBase = selectorDecl.fDocNode();
         final String documentation =
                 documentationBase.isNone() ? "" : parseStringLiteral(documentationBase);
-        final Liblkqllang.DeclAnnotation annotationBase = selectorDecl.fAnnotation();
-        final Annotation annotation =
-                annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
 
         // Get the current slot to place the new selector in
         this.scriptFrames.declareBinding(name);
         final int slot = this.scriptFrames.getBinding(name);
+
+        // Translate the declaration annotation
+        final Liblkqllang.DeclAnnotation annotationBase = selectorDecl.fAnnotation();
+        final Annotation annotation =
+                annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
 
         // Enter the selector frame
         this.scriptFrames.enterFrame(selectorDecl);

@@ -7,15 +7,15 @@ package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.runtime.values.LKQLSelector;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;

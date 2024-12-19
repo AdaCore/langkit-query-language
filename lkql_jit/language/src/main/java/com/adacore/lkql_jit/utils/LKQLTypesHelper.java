@@ -7,10 +7,10 @@ package com.adacore.lkql_jit.utils;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.values.LKQLNull;
-import com.adacore.lkql_jit.built_ins.values.LKQLObject;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
+import com.adacore.lkql_jit.runtime.values.LKQLNull;
+import com.adacore.lkql_jit.runtime.values.LKQLObject;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.math.BigInteger;
 
@@ -79,6 +79,15 @@ public final class LKQLTypesHelper {
     /** The string representing the analysis unit type. */
     public static final String ANALYSIS_UNIT = "AnalysisUnit";
 
+    /** The string representing the rewriting context type. */
+    public static final String REWRITING_CONTEXT = "RewritingContext";
+
+    /** The string representing the rewriting node type. */
+    public static final String REWRITING_NODE = "RewritingNode";
+
+    /** The string representing a reference to a lal member. */
+    public static final String MEMBER_REFERENCE = "MemberReference";
+
     // ----- Class methods -----
 
     /**
@@ -90,6 +99,11 @@ public final class LKQLTypesHelper {
     @CompilerDirectives.TruffleBoundary
     public static String typeUnion(String... types) {
         return String.join(" | ", types);
+    }
+
+    /** Get list type representation with its precise element type. */
+    public static String listOf(String elementType) {
+        return LKQL_LIST + "[" + elementType + "]";
     }
 
     /**
@@ -144,6 +158,10 @@ public final class LKQLTypesHelper {
             return LKQL_OBJECT;
         } else if (LKQLTypeSystemGen.isLKQLNamespace(obj)) {
             return LKQL_NAMESPACE;
+        } else if (LKQLTypeSystemGen.isRewritingContext(obj)) {
+            return REWRITING_CONTEXT;
+        } else if (LKQLTypeSystemGen.isRewritingNode(obj)) {
+            return REWRITING_NODE;
         } else {
             return defaultValue;
         }

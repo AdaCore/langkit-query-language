@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.TopLevelList;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**
@@ -18,6 +19,9 @@ public final class TopLevelRootNode extends BaseRootNode {
 
     // ----- Attributes -----
 
+    /** Whether this top level root node comes from an import request. */
+    private final boolean fromImport;
+
     /** The list of nodes representing the program. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -28,20 +32,21 @@ public final class TopLevelRootNode extends BaseRootNode {
     /**
      * Create a new LKQL top level root node.
      *
+     * @param fromImport Whether the node has been created from an import statement.
      * @param program The LKQL program to execute.
      * @param language The reference to the LKQL language instance.
      */
-    public TopLevelRootNode(final TopLevelList program, final LKQLLanguage language) {
+    public TopLevelRootNode(
+            final boolean fromImport, final TopLevelList program, final LKQLLanguage language) {
         super(language, program.getFrameDescriptor());
+        this.fromImport = fromImport;
         this.program = program;
     }
 
     // ----- Execution methods -----
 
     /**
-     * Execute the LKQL program and return the namespace, result of this program execution. This
-     * root node expects 1 argument: - boolean checkerMode: If the top level list node is in checker
-     * mode. Default is false.
+     * Execute the LKQL program and return the namespace, result of this program execution.
      *
      * @param frame The frame to execute in.
      * @return The namespace of the LKQL program.
@@ -49,12 +54,11 @@ public final class TopLevelRootNode extends BaseRootNode {
      */
     @Override
     public Object execute(VirtualFrame frame) {
-        // Get the execution arguments and perform pre-computing actions
-        Object[] arguments = frame.getArguments();
-        final boolean checkerMode = arguments.length > 0 && (boolean) arguments[0];
-
         // If the checker mode is activated add all rule imports
-        if (checkerMode) {
+        final var engineMode = LKQLLanguage.getContext(this.program).getEngineMode();
+        if (!fromImport
+                && (engineMode == LKQLOptions.EngineMode.CHECKER
+                        || engineMode == LKQLOptions.EngineMode.FIXER)) {
             this.program.addRuleImports();
         }
 

@@ -279,6 +279,7 @@ Field Access
 
 .. lkql_doc_class:: DotAccess
 .. lkql_doc_class:: Safe
+.. lkql_doc_class:: UpperDotAccess
 
 A field access returns the contents of a field. In the following example, we
 get the content of the  ``f_type_expr`` syntax field on a node of type
@@ -298,6 +299,20 @@ access":
 
 The safe access will return null if the left hand side is null. This allows
 users to chain accesses without having to checks for nulls at every step.
+
+For a reference of the existing fields for syntax nodes for Ada, look at the
+`Libadalang API doc
+<https://docs.adacore.com/live/wave/libadalang/html/libadalang_ug/python_api_ref.html>`_.
+
+In the context of rewriting features usage, you may want to get a reference
+to a field of a node.
+You can access such references with a dot-access notation on node kinds:
+
+.. code-block::
+
+    val ref_to_f_child = MyNodeKind.f_child
+
+Such values can be used when calling ``RewritingContext``'s methods.
 
 
 Unwrap Expression
@@ -351,6 +366,34 @@ take only one argument, which is the starting point of the selector call chain:
 .. code-block:: lkql
 
   children(select first AdaNode)
+
+Constructor call
+^^^^^^^^^^^^^^^^
+
+.. lkql_doc_class:: ConstructorCall
+
+.. raw:: html
+  :file: ../../lkql/build/railroad-diagrams/constructor_call.svg
+
+You can call node constructors to create new nodes possibly used for the
+tree rewriting layer of LKQL. The result of a constructor call is a value
+of the ``RewritingNode`` type.
+
+.. code-block:: lkql
+
+  val token_node = new BooleanLiteral("Hello!")
+  val list_node = new SomeListNode(child_1, child_2)
+  val composite_node = new CompositeNode(
+      f_child_1=token_node,
+      f_child_2=list_node
+  )
+
+As function calls, you can pass arguments via positional or named associations
+for composite nodes. About token and list nodes, you may only pass arguments
+through the positional format.
+
+To know whether a node is a token, list or composite one, you may refer to the
+Langkit specification of the language you're querying.
 
 
 Indexing Expression

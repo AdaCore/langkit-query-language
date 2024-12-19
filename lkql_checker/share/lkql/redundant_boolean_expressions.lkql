@@ -11,43 +11,56 @@
 import stdlib
 
 fun true_and_false(left, right) =
-    left is Name and right is Name and {
-        val n1 = left.p_referenced_defining_name()
-                     ?.p_canonical_fully_qualified_name?();
-        val n2 = right.p_referenced_defining_name()
-                      ?.p_canonical_fully_qualified_name?();
-        (n1 == "standard.boolean.true" and n2 == "standard.boolean.false") or
-        (n2 == "standard.boolean.true" and n1 == "standard.boolean.false")
-    }
+    (stdlib.is_standard_true(left) and stdlib.is_standard_false(right)) or
+    (stdlib.is_standard_false(left) and stdlib.is_standard_true(right))
 
 fun check_then_else(then_stmt, else_stmt) =
-    (then_stmt is AssignStmt and else_stmt is AssignStmt and
-     then_stmt.f_dest.p_name_matches(else_stmt.f_dest) and
-     true_and_false(then_stmt.f_expr, else_stmt.f_expr)) or
-    (then_stmt is ReturnStmt and else_stmt is ReturnStmt and
-     true_and_false(then_stmt.f_return_expr, else_stmt.f_return_expr))
+    (
+        then_stmt is AssignStmt and else_stmt is AssignStmt and
+        then_stmt.f_dest.p_name_matches(else_stmt.f_dest) and
+        true_and_false(then_stmt.f_expr, else_stmt.f_expr)
+    )
+    or (
+        then_stmt is ReturnStmt and else_stmt is ReturnStmt and
+        true_and_false(then_stmt.f_return_expr, else_stmt.f_return_expr)
+    )
+
+fun simplify_boolean_expression(node) =
+    match node
+    | RelationOp =>
+        if stdlib.is_standard_false(node.f_right)
+        then new UnOp(new OpNot(), node.f_left)
+        else node.f_left
+    | IfStmt =>
+        (
+            match node.f_then_stmts[1]
+            | a@AssignStmt =>
+                new AssignStmt(
+                    f_dest=a.f_dest,
+                    f_expr=node.f_cond_expr
+                )
+            | ReturnStmt => new ReturnStmt(node.f_cond_expr)
+        )
+    | IfExpr => node.f_cond_expr
+    | UnOp => stdlib.negate_op(stdlib.strip_conversions(node.f_expr))
 
 @check(message="redundant boolean expression",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=(n, ctx) => ctx.replace(n, simplify_boolean_expression(n)))
 fun redundant_boolean_expressions(node) =
-    node is (RelationOp(f_op: op@(OpEq | OpNeq)
-            when stdlib.is_predefined_op(op)
-             and (node.f_right is name@Name when {
-                val n = name.p_referenced_defining_name()
-                            ?.p_canonical_fully_qualified_name?();
-                n == "standard.boolean.true" or n == "standard.boolean.false"
-            }))
-
-         | (IfStmt when node.f_alternatives[1] == null
-                     and node.f_else_stmts.children_count == 1
-                     and node.f_then_stmts.children_count == 1
-                     and check_then_else(node.f_then_stmts[1],
-                                         node.f_else_stmts[1]))
-
-         | (IfExpr when node.f_alternatives[1] == null
-                     and true_and_false(node.f_then_expr, node.f_else_expr))
-
-         | (UnOp(f_op: op@OpNot
-                  when stdlib.is_predefined_op(op)
-                   and stdlib.strip_conversions(node.f_expr) is rel@RelationOp
-                       when stdlib.is_predefined_op(rel.f_op))))
+    match node
+    | RelationOp(f_op: op@(OpEq | OpNeq)) =>
+        stdlib.is_predefined_op(op)
+        and (
+            node.f_right is name@Name
+            when stdlib.is_standard_true(name) or stdlib.is_standard_false(name)
+        )
+    | IfStmt =>
+        node.f_alternatives[1] == null
+        and node.f_else_stmts.children_count == 1
+        and node.f_then_stmts.children_count == 1
+        and check_then_else(node.f_then_stmts[1], node.f_else_stmts[1])
+    | IfExpr =>
+        node.f_alternatives[1] == null
+        and true_and_false(node.f_then_expr, node.f_else_expr)
+    | UnOp => stdlib.is_negated_op(node)

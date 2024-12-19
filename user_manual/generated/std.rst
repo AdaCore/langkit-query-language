@@ -26,7 +26,7 @@ Builtin functions
 
 .. function:: map(indexable, fn)
 
-    Given a collection, a mapping function
+    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
 
 .. function:: unique(indexable)
 
@@ -109,9 +109,17 @@ Methods for `AnalysisUnit`
 
 Methods for `LazyList`
 """"""""""""""""""""""
+.. method:: LazyList.enumerate(this)
+
+    Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
 .. method:: LazyList.length(this)
 
     Get the length of the iterable element
+
+.. method:: LazyList.map(this, fn)
+
+    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
 
 .. method:: LazyList.reduce(this, fn, init)
 
@@ -123,9 +131,17 @@ Methods for `LazyList`
 
 Methods for `List`
 """"""""""""""""""
+.. method:: List.enumerate(this)
+
+    Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
 .. method:: List.length(this)
 
     Get the length of the iterable element
+
+.. method:: List.map(this, fn)
+
+    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
 
 .. method:: List.reduce(this, fn, init)
 
@@ -185,11 +201,55 @@ Methods for `Node`
 
     Given an ast node, return its analysis unit
 
+Methods for `RewritingContext`
+""""""""""""""""""""""""""""""
+.. method:: RewritingContext.add_first(this, list_node, new_node)
+
+    Insert the given new node at the beginning of the given list node (raises a runtime error if it is not a list node)
+
+.. method:: RewritingContext.add_last(this, list_node, new_node)
+
+    Insert the given new node at the end of the given list node(raises a runtime error if it is not a list node)
+
+.. method:: RewritingContext.insert_after(this, node, new_node)
+
+    Given a node, insert the new one after it in its parent (this function expects this parent to be a list node, raises a runtime error otherwise)
+
+.. method:: RewritingContext.insert_before(this, node, new_node)
+
+    Given a node, insert the new one before it in its parent (this function expects this parent to be a list node, raises a runtime error otherwise)
+
+.. method:: RewritingContext.remove(this, to_remove)
+
+    Delete the given node from its parent (this function expects this parent to be a list node, raises a runtime error otherwise)
+
+.. method:: RewritingContext.replace(this, old, new)
+
+    Replace old node by the new one
+
+.. method:: RewritingContext.set_child(this, node, member_ref, new_value)
+
+    Set the node child, following the given member reference, to the new value
+
+Methods for `RewritingNode`
+"""""""""""""""""""""""""""
+.. method:: RewritingNode.clone(this)
+
+    Given a rewriting node, clone it and return its copy
+
 Methods for `SelectorList`
 """"""""""""""""""""""""""
+.. method:: SelectorList.enumerate(this)
+
+    Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
 .. method:: SelectorList.length(this)
 
     Get the length of the iterable element
+
+.. method:: SelectorList.map(this, fn)
+
+    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
 
 .. method:: SelectorList.reduce(this, fn, init)
 

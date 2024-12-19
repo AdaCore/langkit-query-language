@@ -6,9 +6,9 @@
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.runtime.values.LKQLProperty;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;

@@ -151,6 +151,10 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         final String symbol = valDecl.fIdentifier().getText();
         checkDuplicateBindings(symbol, valDecl.fIdentifier());
         this.scriptFramesBuilder.addBinding(symbol);
+        final var annotation = valDecl.fAnnotation();
+        if (!annotation.isNone()) {
+            annotation.accept(this);
+        }
         valDecl.fValue().accept(this);
         return null;
     }
@@ -166,6 +170,10 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         final String symbol = funDecl.fName().getText();
         checkDuplicateBindings(symbol, funDecl.fName());
         this.scriptFramesBuilder.addBinding(symbol);
+        final var annotation = funDecl.fAnnotation();
+        if (!annotation.isNone()) {
+            annotation.accept(this);
+        }
         funDecl.fFunExpr().accept(this);
         return null;
     }
@@ -197,6 +205,10 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         final String symbol = selectorDecl.fName().getText();
         checkDuplicateBindings(symbol, selectorDecl.fName());
         this.scriptFramesBuilder.addBinding(symbol);
+        final var annotation = selectorDecl.fAnnotation();
+        if (!annotation.isNone()) {
+            annotation.accept(this);
+        }
 
         // Open a new frame, add implicit symbols and visit arms
         this.scriptFramesBuilder.openFrame(selectorDecl);
@@ -689,6 +701,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
+    public Void visit(Liblkqllang.UpperDotAccess upperDotAccess) {
+        traverseChildren(upperDotAccess);
+        return null;
+    }
+
+    @Override
     public Void visit(Liblkqllang.InClause inClause) {
         traverseChildren(inClause);
         return null;
@@ -907,6 +925,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.FunCall funCall) {
         traverseChildren(funCall);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.ConstructorCall constructorCall) {
+        traverseChildren(constructorCall);
         return null;
     }
 

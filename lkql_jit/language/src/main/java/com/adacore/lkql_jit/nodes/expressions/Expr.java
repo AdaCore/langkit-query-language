@@ -7,14 +7,12 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.values.*;
-import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
-import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.built_ins.values.interfaces.Nullish;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.runtime.values.*;
+import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
+import com.adacore.lkql_jit.runtime.values.interfaces.*;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
@@ -74,6 +72,10 @@ public abstract class Expr extends LKQLNode {
     @SuppressWarnings("unused")
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectBoolean(executeGeneric(frame));
+    }
+
+    public Truthy executeTruthy(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectTruthy(executeGeneric(frame));
     }
 
     /**
@@ -254,5 +256,38 @@ public abstract class Expr extends LKQLNode {
     @SuppressWarnings("unused")
     public Libadalang.AdaNode executeNode(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectAdaNode(executeGeneric(frame));
+    }
+
+    /**
+     * Execute the expression as a rewriting context.
+     *
+     * @throws UnexpectedResultException If the node cannot be evaluated as a rewriting context.
+     */
+    @SuppressWarnings("unused")
+    public Libadalang.RewritingContext executeRewritingContext(VirtualFrame frame)
+            throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectRewritingContext(executeGeneric(frame));
+    }
+
+    /**
+     * Execute the expression as a rewriting context.
+     *
+     * @throws UnexpectedResultException If the node cannot be evaluated as a rewriting context.
+     */
+    @SuppressWarnings("unused")
+    public Libadalang.RewritingNode executeRewritingNode(VirtualFrame frame)
+            throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectRewritingNode(executeGeneric(frame));
+    }
+
+    /**
+     * Execute the expression as a member reference.
+     *
+     * @throws UnexpectedResultException If the node cannot be evaluated as a member reference.
+     */
+    @SuppressWarnings("unused")
+    public Libadalang.MemberReference executeMemberReference(VirtualFrame frame)
+            throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectMemberReference(executeGeneric(frame));
     }
 }

@@ -1,3 +1,4 @@
 driver: 'checker'
 rule_name: Boolean_Negations
+auto_fix: True
 input_sources: ['proc.adb', 'proc2.adb']

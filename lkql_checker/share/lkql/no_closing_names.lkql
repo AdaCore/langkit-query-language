@@ -1,14 +1,43 @@
 # Flag each program unit that is longer than N lines and does not repeat its
 # name after the "end".
 
+fun add_closing_name(prog_unit, ctx) =
+    |" Return a copy of "prog_unit" with its closing name.
+    {
+        val parent_and_ref = match prog_unit
+            | (ProtectedTypeDecl | SingleProtectedDecl | TaskTypeDecl) =>
+                (
+                    prog_unit.f_definition,
+                    match prog_unit
+                    | TaskTypeDecl => TaskDef.f_end_name
+                    | (ProtectedTypeDecl | SingleProtectedDecl) => ProtectedDef.f_end_name
+                )
+            | * =>
+                (
+                    prog_unit,
+                    match prog_unit
+                    | SubpBody => SubpBody.f_end_name
+                    | PackageBody => PackageBody.f_end_name
+                    | BasePackageDecl => BasePackageDecl.f_end_name
+                    | TaskBody => TaskBody.f_end_name
+                    | ProtectedBody => ProtectedBody.f_end_name
+                );
+        ctx.set_child(
+            parent_and_ref[1],
+            parent_and_ref[2],
+            new EndName(f_name=new Identifier(prog_unit.p_defining_name().text))
+        )
+    }
+
 @check(message="no closing name", remediation="TRIVIAL",
-       category="Style", subcategory="Programming Practice")
+       category="Style", subcategory="Programming Practice",
+       auto_fix=add_closing_name)
 fun no_closing_names(node, n : int = 0) =
     node is (SubpBody | PackageBody | BasePackageDecl |
             TaskTypeDecl | TaskBody |
             ProtectedTypeDecl | SingleProtectedDecl | ProtectedBody)
      and node.token_end().end_line - node.token_start().start_line >= n
      and match node
-         | (TaskTypeDecl | ProtectedTypeDecl | SingleProtectedDecl)
-             => node.f_definition.f_end_name == null
+         | (TaskTypeDecl | ProtectedTypeDecl | SingleProtectedDecl) =>
+            node.f_definition.f_end_name == null
          | * => node.f_end_name == null
