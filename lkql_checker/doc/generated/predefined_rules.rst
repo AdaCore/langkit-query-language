@@ -3623,7 +3623,7 @@ exactly one component; for example, ``(1..1 => 0, others => 1)``.
       end record;
 
       Arr_Var1 : Arr := (others => 1);
-      Arr_Var2 : Arr := (1 => 1, 2=> 2, others => 0);  --  FLAG
+      Arr_Var2 : Arr := (1 => 1, 2 => 2, others => 0);  --  FLAG
 
       Rec_Var1 : Rec := (C1 => 1, others => 0);
       Rec_Var2 : Rec := (1, 2, others => 3);           --  FLAG
