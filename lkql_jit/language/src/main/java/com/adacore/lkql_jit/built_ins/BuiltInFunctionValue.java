@@ -5,55 +5,40 @@
 
 package com.adacore.lkql_jit.built_ins;
 
+import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
+import com.oracle.truffle.api.CompilerDirectives;
 
 /** This class represents the LKQL value of a built-in function. */
 public class BuiltInFunctionValue extends LKQLFunction {
 
+    public String[] stringDefaultVals;
+
+    private boolean defaultValsEvald = false;
+
     // ----- Constructor -----
 
-    /**
-     * Create a built-in function value.
-     *
-     * @param name The name of the built-in.
-     * @param documentation The documentation of the built-in.
-     * @param names The names of the built-in parameters.
-     * @param defaultValues The default values of the parameters.
-     * @param body The expression representing the built-in body.
-     */
+    /** Create a built-in function value. */
     public BuiltInFunctionValue(
             String name,
             String documentation,
             String[] names,
-            Expr[] defaultValues,
-            AbstractBuiltInFunctionBody body) {
+            String[] defaultValues,
+            BuiltInBody body) {
         super(
                 new FunctionRootNode(null, null, false, body),
                 Closure.EMPTY,
                 name,
                 documentation,
                 names,
-                defaultValues);
-    }
+                new Expr[names.length]);
 
-    public BuiltInFunctionValue(
-            String name,
-            String documentation,
-            String[] names,
-            Expr[] defaultValues,
-            AbstractBuiltInFunctionBody.BuiltInCallback fn) {
-        super(
-                new FunctionRootNode(
-                        null, null, false, AbstractBuiltInFunctionBody.fromCallback(fn)),
-                Closure.EMPTY,
-                name,
-                documentation,
-                names,
-                defaultValues);
+        stringDefaultVals = defaultValues;
     }
 
     // ----- Instance methods -----
@@ -64,6 +49,29 @@ public class BuiltInFunctionValue extends LKQLFunction {
      * @param callNode The node which called the built-in.
      */
     public void setCallNode(FunCall callNode) {
-        ((AbstractBuiltInFunctionBody) this.getBody()).setCallNode(callNode);
+        ((BuiltInBody) this.getBody()).setCallNode(callNode);
+    }
+
+    @Override
+    public Expr[] getParameterDefaultValues() {
+        if (stringDefaultVals != null && !defaultValsEvald) {
+            for (int i = 0; i < parameterDefaultValues.length; i++) {
+                if (stringDefaultVals[i] != null) {
+                    parameterDefaultValues[i] = getDefaultValAt(i);
+                }
+            }
+            defaultValsEvald = true;
+        }
+        return parameterDefaultValues;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private Expr getDefaultValAt(int i) {
+        var prg =
+                ((TopLevelList)
+                                LKQLLanguage.getLanguage(rootNode.getBody())
+                                        .translate(stringDefaultVals[i], "<defaultval>"))
+                        .program;
+        return (Expr) prg[0];
     }
 }

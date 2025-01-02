@@ -47,7 +47,7 @@ public class LKQLFunction extends BasicLKQLValue {
      * Default values of the function parameters (if a function parameter doesn't have any, the
      * value is 'null').
      */
-    public final Expr[] parameterDefaultValues;
+    protected final Expr[] parameterDefaultValues;
 
     // ----- Constructors -----
 
@@ -59,7 +59,6 @@ public class LKQLFunction extends BasicLKQLValue {
      * @param name The name of the function.
      * @param documentation The documentation of the function.
      * @param parameterNames The names of the parameters.
-     * @param parameterDefaultValues The default values of the parameters.
      */
     public LKQLFunction(
             final FunctionRootNode rootNode,
@@ -199,5 +198,9 @@ public class LKQLFunction extends BasicLKQLValue {
             }
         }
         return name + "(" + String.join(", ", expandedParams.toArray(new String[0])) + ")";
+    }
+
+    public Expr[] getParameterDefaultValues() {
+        return parameterDefaultValues;
     }
 }

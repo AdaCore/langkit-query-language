@@ -135,6 +135,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      */
     @Override
     protected LKQLContext createContext(Env env) {
+
         // Create the global values
         GlobalScope globalValues = new GlobalScope();
 
@@ -231,6 +232,13 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         return new TopLevelRootNode(request.getSource().isInternal(), result, this).getCallTarget();
     }
 
+    /** Translate the given source from string. */
+    public LKQLNode translate(String source, String sourceName) {
+        Source src = Source.newBuilder(Constants.LKQL_ID, source, sourceName).build();
+        var root = lkqlAnalysisContext.getUnitFromBuffer(source, sourceName).getRoot();
+        return translate(root, src, false);
+    }
+
     /**
      * Translate the given source Langkit AST.
      *
@@ -275,6 +283,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         // Do the translation pass and return the result
         final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
+
         return lkqlLangkitRoot.accept(translationPass);
     }
 

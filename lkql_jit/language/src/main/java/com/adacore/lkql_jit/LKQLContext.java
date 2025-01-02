@@ -7,7 +7,6 @@ package com.adacore.lkql_jit;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.liblkqllang.Liblkqllang;
-import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.checker.BaseChecker;
 import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.UnitChecker;
@@ -370,18 +369,6 @@ public final class LKQLContext {
         this.options = null;
         this.instancesArgsCache = new HashMap<>();
         this.emitter = null;
-    }
-
-    // ----- Value related methods -----
-
-    /**
-     * Get the meta table for the given type.
-     *
-     * @param type The type to get the meta table for.
-     * @return The meta table for the type.
-     */
-    public Map<String, BuiltInMethodFactory> getMetaTable(String type) {
-        return this.global.getMetaTable(type);
     }
 
     // ----- IO methods -----

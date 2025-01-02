@@ -73,6 +73,27 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <!-- Annotation processor for LKQL built-ins -->
+                        <annotationProcessorPath>
+                            <groupId>com.adacore</groupId>
+                            <artifactId>builtins_annotations</artifactId>
+                            <version>0.1.0</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>org.graalvm.truffle</groupId>
+                            <artifactId>truffle-dsl-processor</artifactId>
+                            <version>${graalvm.version}</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -100,6 +121,12 @@
         <dependency>
             <groupId>com.adacore</groupId>
             <artifactId>options</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>builtins_annotations</artifactId>
             <version>0.1.0</version>
         </dependency>
 
