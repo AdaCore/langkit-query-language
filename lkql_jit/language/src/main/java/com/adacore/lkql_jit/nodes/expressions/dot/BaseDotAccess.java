@@ -52,7 +52,7 @@ public abstract class BaseDotAccess extends Expr {
         // Get the LKQL context
         LKQLContext context = LKQLLanguage.getContext(this);
         Map<String, BuiltInMethodFactory> metaTable =
-                context.getMetaTable(LKQLTypesHelper.fromJava(receiver));
+                context.getGlobal().getMetaTable(LKQLTypesHelper.fromJava(receiver));
 
         // Return the built-in method or null
         if (metaTable.containsKey(this.member.getName())) {

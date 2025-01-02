@@ -15,6 +15,7 @@
         <module>native</module>
         <module>component</module>
         <module>benchmarks</module>
+        <module>builtins_annotations</module>
     </modules>
 
     <properties>
@@ -126,6 +127,7 @@
                             <include>options/src/main/java/**/*.java</include>
                             <include>cli/src/main/java/**/*.java</include>
                             <include>benchmarks/src/test/java/**/*.java</include>
+                            <include>builtins_annotations/src/main/java/**/*.java</include>
                         </includes>
 
                         <licenseHeader>

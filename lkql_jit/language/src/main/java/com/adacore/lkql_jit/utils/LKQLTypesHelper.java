@@ -23,7 +23,11 @@ public final class LKQLTypesHelper {
 
     // ----- Static values -----
 
-    /** The string representing the LKQL iterable interface. */
+    /**
+     * The string representing the LKQL iterable interface. NOTE: unlike every other Str constant in
+     * this file, this is not a real type, but rather a class of types. As such this is only used in
+     * error messages
+     */
     public static final String LKQL_ITERABLE = "Iterable";
 
     /** The string representing the LKQL unit type. */
@@ -87,6 +91,34 @@ public final class LKQLTypesHelper {
 
     /** The string representing a reference to a lal member. */
     public static final String MEMBER_REFERENCE = "MemberReference";
+
+    /**
+     * Set of all LKQL types. This is necessary because we don't have a closed set of all types as
+     * an enum or something
+     */
+    public static final String[] ALL_TYPES = {
+        LKQL_UNIT,
+        LKQL_BOOLEAN,
+        LKQL_INTEGER,
+        LKQL_STRING,
+        LKQL_PATTERN,
+        LKQL_FUNCTION,
+        LKQL_PROPERTY_REF,
+        LKQL_SELECTOR,
+        LKQL_TUPLE,
+        LKQL_LIST,
+        LKQL_LAZY_LIST,
+        LKQL_SELECTOR_LIST,
+        LKQL_OBJECT,
+        LKQL_NAMESPACE,
+        LKQL_REC_VALUE,
+        ADA_NODE,
+        TOKEN,
+        ANALYSIS_UNIT,
+        REWRITING_CONTEXT,
+        REWRITING_NODE,
+        MEMBER_REFERENCE
+    };
 
     // ----- Class methods -----
 

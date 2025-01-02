@@ -41,7 +41,7 @@ public final class TopLevelList extends LKQLNode {
     @Children private Import[] ruleImports;
 
     /** The list of nodes representing the LKQL program. */
-    @Children private final LKQLNode[] program;
+    @Children public final LKQLNode[] program;
 
     private final boolean isInteractive;
 

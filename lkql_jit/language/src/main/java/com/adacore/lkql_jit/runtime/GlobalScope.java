@@ -5,9 +5,9 @@
 
 package com.adacore.lkql_jit.runtime;
 
+import com.adacore.lkql_jit.built_ins.AllBuiltIns;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
-import com.adacore.lkql_jit.built_ins.BuiltInsHolder;
 import com.adacore.lkql_jit.checker.BaseChecker;
 import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -48,26 +48,21 @@ public final class GlobalScope {
 
     /** Create a new global scope. */
     public GlobalScope() {
-        var builtInsHolder = BuiltInsHolder.get();
+        var builtInFunctions = AllBuiltIns.allFunctions();
         this.checkers = new HashMap<>();
-        this.builtIns =
-                new Object
-                        [builtInsHolder.builtInFunctions.size()
-                                + builtInsHolder.builtInMethods.size()];
+        this.builtIns = new Object[builtInFunctions.size() + AllBuiltIns.allMethods().size()];
         this.metaTables = new HashMap<>();
         this.globalObjects = new HashMap<>();
 
         // Add the built-in functions
-        for (int i = 0; i < builtInsHolder.builtInFunctions.size(); i++) {
-            BuiltInFunctionValue function = builtInsHolder.builtInFunctions.get(i);
+        for (int i = 0; i < builtInFunctions.size(); i++) {
+            BuiltInFunctionValue function = builtInFunctions.get(i);
             builtIns[i] = function;
         }
 
         // Add the built-in methods
-        for (var entry : builtInsHolder.builtInMethods.entrySet()) {
-            var methods = new HashMap<String, BuiltInMethodFactory>();
-            methods.putAll(builtInsHolder.commonMethods);
-            methods.putAll(entry.getValue());
+        for (var entry : AllBuiltIns.allMethods().entrySet()) {
+            var methods = new HashMap<String, BuiltInMethodFactory>(entry.getValue());
             metaTables.put(entry.getKey(), methods);
         }
     }

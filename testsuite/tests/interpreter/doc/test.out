@@ -1,4 +1,4 @@
-Built-in print function. Prints whatever is passed as an argument
+Built-in print function. Prints the argument
 Given any object, return the documentation associated with it
 Yields all the descendants of the given node
 This is the docstring

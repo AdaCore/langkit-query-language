@@ -5,101 +5,44 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
-
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
-import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
+import com.adacore.libadalang.Libadalang.MemberReference;
+import com.adacore.libadalang.Libadalang.RewritingContext;
+import com.adacore.libadalang.Libadalang.RewritingNode;
+import com.adacore.lkql_jit.annotations.BuiltInMethod;
+import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverter;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverterNodeGen;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import java.util.Map;
-import java.util.function.BiConsumer;
 
 /** This class contains all methods for the rewriting context type. */
+@BuiltinMethodContainer(targetTypes = {LKQLTypesHelper.REWRITING_CONTEXT})
 public final class RewritingContextMethods {
 
-    public static final Map<String, BuiltInMethodFactory> methods =
-            Map.ofEntries(
-                    createMethod(
-                            "replace",
-                            "Replace old node by the new one",
-                            new String[] {"old", "new"},
-                            new Expr[] {null, null},
-                            new ReplaceExpr()),
-                    createMethod(
-                            "set_child",
-                            "Set the node child, following the given member reference, to the new "
-                                    + "value",
-                            new String[] {"node", "member_ref", "new_value"},
-                            new Expr[] {null, null, null},
-                            new SetChildExpr()),
-                    createMethod(
-                            "insert_before",
-                            "Given a node, insert the new one before it in its parent (this"
-                                    + " function expects this parent to be a list node, raises a"
-                                    + " runtime error otherwise)",
-                            new String[] {"node", "new_node"},
-                            new Expr[] {null, null},
-                            new InsertExpr(Libadalang.RewritingNode::insertBefore)),
-                    createMethod(
-                            "insert_after",
-                            "Given a node, insert the new one after it in its parent (this function"
-                                + " expects this parent to be a list node, raises a runtime error"
-                                + " otherwise)",
-                            new String[] {"node", "new_node"},
-                            new Expr[] {null, null},
-                            new InsertExpr(Libadalang.RewritingNode::insertAfter)),
-                    createMethod(
-                            "add_first",
-                            "Insert the given new node at the beginning of the given list node "
-                                    + "(raises a runtime error if it is not a list node)",
-                            new String[] {"list_node", "new_node"},
-                            new Expr[] {null, null},
-                            new InsertExpr(Libadalang.RewritingNode::insertFirst)),
-                    createMethod(
-                            "add_last",
-                            "Insert the given new node at the end of the given list node"
-                                    + "(raises a runtime error if it is not a list node)",
-                            new String[] {"list_node", "new_node"},
-                            new Expr[] {null, null},
-                            new InsertExpr(Libadalang.RewritingNode::insertLast)),
-                    createMethod(
-                            "remove",
-                            "Delete the given node from its parent (this function expects this "
-                                    + "parent to be a list node, raises a runtime error otherwise)",
-                            new String[] {"to_remove"},
-                            new Expr[] {null},
-                            new RemoveExpr()));
-
-    /** Body for the "replace" method. */
-    public static final class ReplaceExpr extends AbstractBuiltInFunctionBody {
+    public abstract static class BaseRewritingContextExpr extends BuiltInBody {
         @Child RewritingNodeConverter argToRewritingNode = RewritingNodeConverterNodeGen.create();
 
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the associated rewriting context
-            Libadalang.RewritingContext ctx =
-                    LKQLTypeSystemGen.asRewritingContext(frame.getArguments()[0]);
+        public RewritingNode convert(VirtualFrame frame, Object node, boolean ensureTied) {
+            return argToRewritingNode.execute(node, ensureTied, this.callNode);
+        }
+    }
 
+    @BuiltInMethod(name = "replace", doc = "Replace old node by the new one")
+    public abstract static class ReplaceExpr extends BaseRewritingContextExpr {
+        @Specialization
+        public Object executeGeneric(
+                VirtualFrame frame, RewritingContext ctx, Object oldNode, Object newNode) {
             // Get the method arguments
-            final var toReplace =
-                    argToRewritingNode.execute(
-                            frame.getArguments()[1],
-                            false,
-                            this.callNode.getArgList().getArgs()[0]);
-            final var newNode =
-                    argToRewritingNode.execute(
-                            frame.getArguments()[2], true, this.callNode.getArgList().getArgs()[1]);
+            final var toReplace = convert(frame, oldNode, false);
+            final var byNode = convert(frame, newNode, true);
 
             // Replace the given node and return the rewriting context
             try {
-                toReplace.replace(newNode);
+                toReplace.replace(byNode);
             } catch (Libadalang.LangkitException e) {
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }
@@ -107,67 +50,38 @@ public final class RewritingContextMethods {
         }
     }
 
-    /** Body for the "set_child" method. */
-    public static final class SetChildExpr extends AbstractBuiltInFunctionBody {
-        @Child RewritingNodeConverter argToRewritingNode = RewritingNodeConverterNodeGen.create();
+    @BuiltInMethod(
+            name = "set_child",
+            doc = "Set the node child, following the given member reference, to the new value")
+    public abstract static class SetChildExpr extends BaseRewritingContextExpr {
+        @Specialization
+        public Object executeGeneric(
+                VirtualFrame frame,
+                RewritingContext ctx,
+                Object node,
+                MemberReference memberRef,
+                Object newValue) {
 
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
             // Get the method arguments
-            final var node =
-                    argToRewritingNode.execute(
-                            frame.getArguments()[1],
-                            false,
-                            this.callNode.getArgList().getArgs()[0]);
-            final Libadalang.MemberReference memberRef;
-            try {
-                memberRef = LKQLTypeSystemGen.expectMemberReference(frame.getArguments()[2]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.MEMBER_REFERENCE,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]);
-            }
-            final var newNode =
-                    argToRewritingNode.execute(
-                            frame.getArguments()[3], true, this.callNode.getArgList().getArgs()[2]);
+            final var nod = convert(frame, node, false);
+            final var newNode = convert(frame, newValue, true);
 
             // Call the child replacement
-            node.setChild(memberRef, newNode);
+            nod.setChild(memberRef, newNode);
 
-            return LKQLTypeSystemGen.asRewritingContext(frame.getArguments()[0]);
+            return ctx;
         }
     }
 
-    /** Body of insert kind methods. */
-    public static final class InsertExpr extends AbstractBuiltInFunctionBody {
-        @Child RewritingNodeConverter argToRewritingNode = RewritingNodeConverterNodeGen.create();
-
-        private final BiConsumer<Libadalang.RewritingNode, Libadalang.RewritingNode> insertOp;
-
-        public InsertExpr(BiConsumer<Libadalang.RewritingNode, Libadalang.RewritingNode> insertOp) {
-            this.insertOp = insertOp;
-        }
-
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the associated rewriting context
-            Libadalang.RewritingContext ctx =
-                    LKQLTypeSystemGen.asRewritingContext(frame.getArguments()[0]);
-
-            // Get the method arguments
-            final var listNode =
-                    argToRewritingNode.execute(
-                            frame.getArguments()[1],
-                            false,
-                            this.callNode.getArgList().getArgs()[0]);
-            final var newNode =
-                    argToRewritingNode.execute(
-                            frame.getArguments()[2], true, this.callNode.getArgList().getArgs()[1]);
-
-            // Apply tbe insertion operation and return the context
+    @BuiltInMethod(
+            name = "insert_before",
+            doc = "Insert `new_node` before `node` (`node`'s parent needs to be a list node)")
+    public abstract static class InsertBefore extends BaseRewritingContextExpr {
+        @Specialization
+        public Object execute(
+                VirtualFrame frame, RewritingContext ctx, Object node, Object newNode) {
             try {
-                this.insertOp.accept(listNode, newNode);
+                convert(frame, node, false).insertBefore(convert(frame, newNode, false));
             } catch (Libadalang.LangkitException e) {
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }
@@ -175,26 +89,59 @@ public final class RewritingContextMethods {
         }
     }
 
-    /** Body of the "remove" method. */
-    public static final class RemoveExpr extends AbstractBuiltInFunctionBody {
-        @Child RewritingNodeConverter argToRewritingNode = RewritingNodeConverterNodeGen.create();
+    @BuiltInMethod(
+            name = "insert_after",
+            doc = "Insert `new_node` after `node` (`node`'s parent needs to be a list node)")
+    public abstract static class InsertAfter extends BaseRewritingContextExpr {
+        @Specialization
+        public Object execute(
+                VirtualFrame frame, RewritingContext ctx, Object node, Object newNode) {
+            try {
+                convert(frame, node, false).insertAfter(convert(frame, newNode, false));
+            } catch (Libadalang.LangkitException e) {
+                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+            }
+            return ctx;
+        }
+    }
 
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the associated rewriting context
-            Libadalang.RewritingContext ctx =
-                    LKQLTypeSystemGen.asRewritingContext(frame.getArguments()[0]);
+    @BuiltInMethod(name = "add_first", doc = "Insert `new_node` at the beginning of `list_node`")
+    public abstract static class AddFirst extends BaseRewritingContextExpr {
+        @Specialization
+        public Object execute(
+                VirtualFrame frame, RewritingContext ctx, Object node, Object newNode) {
+            try {
+                convert(frame, node, false).insertFirst(convert(frame, newNode, false));
+            } catch (Libadalang.LangkitException e) {
+                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+            }
+            return ctx;
+        }
+    }
 
-            // Get the method arguments
-            final var toRemove =
-                    argToRewritingNode.execute(
-                            frame.getArguments()[1],
-                            false,
-                            this.callNode.getArgList().getArgs()[0]);
+    @BuiltInMethod(name = "add_last", doc = "Insert `new_node` at the end of `list_node`")
+    public abstract static class AddLast extends BaseRewritingContextExpr {
+        @Specialization
+        public Object execute(
+                VirtualFrame frame, RewritingContext ctx, Object node, Object newNode) {
+            try {
+                convert(frame, node, false).insertLast(convert(frame, newNode, false));
+            } catch (Libadalang.LangkitException e) {
+                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+            }
+            return ctx;
+        }
+    }
 
+    @BuiltInMethod(
+            name = "remove",
+            doc = "Delete the given node from its parent (parent needs to be a list node)")
+    public abstract static class RemoveExpr extends BaseRewritingContextExpr {
+        @Specialization
+        public Object executeGeneric(VirtualFrame frame, RewritingContext ctx, Object objToRemove) {
             // Call the removing method and return the context
             try {
-                toRemove.removeFromParent();
+                convert(frame, objToRemove, false).removeFromParent();
             } catch (Libadalang.LangkitException e) {
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }
