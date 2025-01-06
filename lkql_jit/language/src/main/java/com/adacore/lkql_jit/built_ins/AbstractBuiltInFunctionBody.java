@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins;
 
+import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -24,10 +25,22 @@ public abstract class AbstractBuiltInFunctionBody extends Expr {
         super(null);
     }
 
+    // ----- Getters -----
+
+    public FunCall getCallNode() {
+        return callNode;
+    }
+
     // ----- Setters -----
 
     public void setCallNode(FunCall callNode) {
         this.callNode = callNode;
+    }
+
+    // ----- Instance methods -----
+
+    public LKQLNode argNode(int index) {
+        return this.callNode.getArgList().getArgs()[index];
     }
 
     // ----- Class methods -----

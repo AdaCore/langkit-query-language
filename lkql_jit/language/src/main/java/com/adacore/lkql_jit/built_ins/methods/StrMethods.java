@@ -11,16 +11,17 @@ import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
+import com.adacore.lkql_jit.built_ins.SpecializedBuiltInBody;
 import com.adacore.lkql_jit.built_ins.functions.BaseNameFunction;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.LKQLPattern;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import java.math.BigInteger;
 import java.util.Map;
 
 /**
@@ -68,40 +69,82 @@ public class StrMethods {
                                     + " contained between indices from and to (both included)",
                             new String[] {"from", "to"},
                             new Expr[] {null, null},
-                            new SubstringExpr()),
+                            new SpecializedBuiltInBody<>(
+                                    StrMethodsFactory.SubstringExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executeSubstring(
+                                            LKQLTypeSystemGen.asString(args[0]), args[1], args[2]);
+                                }
+                            }),
                     createMethod(
                             "split",
                             "Given a string, return an iterator on the words contained by str"
                                     + " separated by separator",
                             new String[] {"separator"},
                             new Expr[] {null},
-                            new SplitExpr()),
+                            new SpecializedBuiltInBody<>(
+                                    StrMethodsFactory.SplitExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executeSplit(
+                                            LKQLTypeSystemGen.asString(args[0]), args[1]);
+                                }
+                            }),
                     createMethod(
                             "contains",
                             "Search for to_find in the given string. Return whether a match is"
                                     + " found. to_find can be either a pattern or a string",
                             new String[] {"to_find"},
                             new Expr[] {null},
-                            new ContainsExpr()),
+                            new SpecializedBuiltInBody<>(
+                                    StrMethodsFactory.ContainsExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executeContains(
+                                            LKQLTypeSystemGen.asString(args[0]), args[1]);
+                                }
+                            }),
                     createMethod(
                             "find",
                             "Search for to_find in the given string. Return position of the match,"
                                 + " or -1 if no match. to_find can be either a pattern or a string",
                             new String[] {"to_find"},
                             new Expr[] {null},
-                            new FindExpr()),
+                            new SpecializedBuiltInBody<>(
+                                    StrMethodsFactory.FindExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executeFind(
+                                            LKQLTypeSystemGen.asString(args[0]), args[1]);
+                                }
+                            }),
                     createMethod(
                             "starts_with",
                             "Given a string, returns whether it starts with the given prefix",
                             new String[] {"prefix"},
                             new Expr[] {null},
-                            new StartsWithExpr()),
+                            new SpecializedBuiltInBody<>(
+                                    StrMethodsFactory.StartsWithExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executeStartsWith(
+                                            LKQLTypeSystemGen.asString(args[0]), args[1]);
+                                }
+                            }),
                     createMethod(
                             "ends_with",
                             "Given a string, returns whether it ends with the given suffix",
                             new String[] {"suffix"},
                             new Expr[] {null},
-                            new EndsWithExpr()));
+                            new SpecializedBuiltInBody<>(
+                                    StrMethodsFactory.EndsWithExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executeEndsWith(
+                                            LKQLTypeSystemGen.asString(args[0]), args[1]);
+                                }
+                            }));
 
     // ----- Inner classes -----
 
@@ -186,192 +229,154 @@ public class StrMethods {
     }
 
     /** Expression of the "substring" method. */
-    public static final class SubstringExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the arguments
-            Object startObject = frame.getArguments()[1];
-            Object endObject = frame.getArguments()[2];
+    abstract static class SubstringExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
-            // Verify the type of arguments
-            if (!LKQLTypeSystemGen.isImplicitBigInteger(startObject)) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_INTEGER,
-                        LKQLTypesHelper.fromJava(startObject),
-                        this.callNode.getArgList().getArgs()[0]);
-            }
+        public abstract String executeSubstring(String source, Object start, Object end);
 
-            if (!LKQLTypeSystemGen.isImplicitBigInteger(endObject)) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_INTEGER,
-                        LKQLTypesHelper.fromJava(endObject),
-                        this.callNode.getArgList().getArgs()[1]);
-            }
+        @Specialization
+        protected String onValid(String source, long start, long end) {
+            // Offset the start index by 1 since LKQL is 1-indexed
+            start = start - 1;
 
-            // Cast the arguments
-            BigInteger startBig =
-                    BigIntegerUtils.subtract(
-                            LKQLTypeSystemGen.asImplicitBigInteger(startObject), BigInteger.ONE);
-            BigInteger endBig = LKQLTypeSystemGen.asImplicitBigInteger(endObject);
-
-            int start = BigIntegerUtils.intValue(startBig);
-            int end = BigIntegerUtils.intValue(endBig);
-
-            // Verify the start and end
+            // Verify start and end bounds
             if (start < 0) {
-                throw LKQLRuntimeException.invalidIndex(
-                        start, this.callNode.getArgList().getArgs()[0]);
+                throw LKQLRuntimeException.invalidIndex((int) start + 1, this.body.argNode(0));
             }
-            if (end > LKQLTypeSystemGen.asString(frame.getArguments()[0]).length()) {
-                throw LKQLRuntimeException.invalidIndex(
-                        end, this.callNode.getArgList().getArgs()[1]);
+            if (end > source.length()) {
+                throw LKQLRuntimeException.invalidIndex((int) end, this.body.argNode(1));
             }
 
             // Return the substring
-            return LKQLTypeSystemGen.asString(frame.getArguments()[0]).substring(start, end);
+            return source.substring((int) start, (int) end);
+        }
+
+        @Specialization
+        protected String invalidEnd(
+                @SuppressWarnings("unused") String source,
+                @SuppressWarnings("unused") long start,
+                Object end) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_INTEGER,
+                    LKQLTypesHelper.fromJava(end),
+                    this.body.argNode(1));
+        }
+
+        @Fallback
+        protected String invalidStart(
+                @SuppressWarnings("unused") String source,
+                Object start,
+                @SuppressWarnings("unused") Object end) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_INTEGER,
+                    LKQLTypesHelper.fromJava(start),
+                    this.body.argNode(0));
         }
     }
 
     /** Expression of the "split" method. */
-    public static final class SplitExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object toSplit = frame.getArguments()[0];
-            Object separatorObject = frame.getArguments()[1];
+    abstract static class SplitExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
-            // Verify the argument type
-            if (!LKQLTypeSystemGen.isString(separatorObject)) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_STRING,
-                        LKQLTypesHelper.fromJava(separatorObject),
-                        this.callNode.getArgList().getArgs()[0]);
-            }
+        public abstract LKQLList executeSplit(String source, Object sep);
 
-            // Split the string
-            String[] separated =
-                    StringUtils.split(
-                            LKQLTypeSystemGen.asString(toSplit),
-                            LKQLTypeSystemGen.asString(separatorObject));
+        @Specialization
+        protected LKQLList onValid(String source, String sep) {
+            return new LKQLList(StringUtils.split(source, sep));
+        }
 
-            // Return the list value of the split string
-            return new LKQLList(separated);
+        @Fallback
+        protected LKQLList onInvalid(@SuppressWarnings("unused") String source, Object sep) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_STRING,
+                    LKQLTypesHelper.fromJava(sep),
+                    this.body.argNode(0));
         }
     }
 
     /** Expression of the "contains" method. */
-    public static final class ContainsExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the arguments
-            String receiver = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
-            Object toFindObject = frame.getArguments()[1];
-            boolean contains;
+    abstract static class ContainsExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
-            // If the argument is a string
-            if (LKQLTypeSystemGen.isString(toFindObject)) {
-                String toFind = LKQLTypeSystemGen.asString(toFindObject);
-                contains = StringUtils.contains(receiver, toFind);
-            }
+        public abstract boolean executeContains(String source, Object toFind);
 
-            // If the argument is a pattern
-            else if (LKQLTypeSystemGen.isLKQLPattern(toFindObject)) {
-                LKQLPattern pattern = LKQLTypeSystemGen.asLKQLPattern(toFindObject);
-                contains = pattern.contains(receiver);
-            }
+        @Specialization
+        protected boolean onString(String source, String toFind) {
+            return StringUtils.contains(source, toFind);
+        }
 
-            // Else, just thrown an error
-            else {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_STRING,
-                        LKQLTypesHelper.fromJava(toFindObject),
-                        this.callNode.getArgList().getArgs()[0]);
-            }
+        @Specialization
+        protected boolean onPattern(String source, LKQLPattern toFind) {
+            return toFind.contains(source);
+        }
 
-            // Return if the receiver contains the to find
-            return contains;
+        @Fallback
+        protected boolean onInvalid(@SuppressWarnings("unused") String source, Object toFind) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.typeUnion(
+                            LKQLTypesHelper.LKQL_STRING, LKQLTypesHelper.LKQL_PATTERN),
+                    LKQLTypesHelper.fromJava(toFind),
+                    this.body.argNode(0));
         }
     }
 
     /** Expression of the "find" method. */
-    public static final class FindExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the arguments
-            String receiver = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
-            Object toFindObject = frame.getArguments()[1];
-            int index;
+    abstract static class FindExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
-            // If the argument is a string
-            if (LKQLTypeSystemGen.isString(toFindObject)) {
-                String toFind = LKQLTypeSystemGen.asString(toFindObject);
-                index = StringUtils.indexOf(receiver, toFind);
-            }
+        public abstract long executeFind(String source, Object toFind);
 
-            // If the argument is a pattern
-            else if (LKQLTypeSystemGen.isLKQLPattern(toFindObject)) {
-                LKQLPattern pattern = LKQLTypeSystemGen.asLKQLPattern(toFindObject);
-                index = pattern.find(receiver);
-            }
+        @Specialization
+        protected long onString(String source, String toFind) {
+            return StringUtils.indexOf(source, toFind) + 1;
+        }
 
-            // Else, just throw an error
-            else {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_STRING,
-                        LKQLTypesHelper.fromJava(toFindObject),
-                        this.callNode.getArgList().getArgs()[0]);
-            }
+        @Specialization
+        protected long onPattern(String source, LKQLPattern toFind) {
+            return toFind.find(source) + 1;
+        }
 
-            // Return the index
-            return (long) index + 1;
+        @Fallback
+        protected long onInvalid(@SuppressWarnings("unused") String source, Object toFind) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.typeUnion(
+                            LKQLTypesHelper.LKQL_STRING, LKQLTypesHelper.LKQL_PATTERN),
+                    LKQLTypesHelper.fromJava(toFind),
+                    this.body.argNode(0));
         }
     }
 
     /** Expression of the "starts_with" method. */
-    public static final class StartsWithExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object prefixObject = frame.getArguments()[1];
+    abstract static class StartsWithExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
-            // Verify the argument type
-            if (!LKQLTypeSystemGen.isString(prefixObject)) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_STRING,
-                        LKQLTypesHelper.fromJava(prefixObject),
-                        this.callNode.getArgList().getArgs()[0]);
-            }
+        public abstract boolean executeStartsWith(String source, Object prefix);
 
-            // Cast the arguments
-            String receiver = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
-            String prefix = LKQLTypeSystemGen.asString(prefixObject);
+        @Specialization
+        protected boolean onValid(String source, String prefix) {
+            return source.startsWith(prefix);
+        }
 
-            // Return if the receiver has the prefix
-            return receiver.startsWith(prefix);
+        @Fallback
+        protected boolean onInvalid(@SuppressWarnings("unused") String source, Object prefix) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_STRING,
+                    LKQLTypesHelper.fromJava(prefix),
+                    this.body.argNode(0));
         }
     }
 
     /** Expression of the "ends_with" method. */
-    public static final class EndsWithExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object suffixObject = frame.getArguments()[1];
+    abstract static class EndsWithExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
-            // Verify the argument type
-            if (!LKQLTypeSystemGen.isString(suffixObject)) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_STRING,
-                        LKQLTypesHelper.fromJava(suffixObject),
-                        this.callNode.getArgList().getArgs()[0]);
-            }
+        public abstract boolean executeEndsWith(String source, Object suffix);
 
-            // Cast the arguments
-            String receiver = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
-            String suffix = LKQLTypeSystemGen.asString(suffixObject);
+        @Specialization
+        protected boolean onValid(String source, String suffix) {
+            return source.endsWith(suffix);
+        }
 
-            // Return if the receiver has the prefix
-            return receiver.endsWith(suffix);
+        @Specialization
+        protected boolean onInvalid(@SuppressWarnings("unused") String source, Object suffix) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_STRING,
+                    LKQLTypesHelper.fromJava(suffix),
+                    this.body.argNode(0));
         }
     }
 }

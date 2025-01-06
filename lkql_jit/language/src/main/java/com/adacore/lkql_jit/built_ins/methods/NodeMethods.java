@@ -13,6 +13,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
+import com.adacore.lkql_jit.built_ins.SpecializedBuiltInBody;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
@@ -22,8 +23,9 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -66,7 +68,16 @@ public final class NodeMethods {
                             "Return whether two nodes have the same tokens, ignoring trivias",
                             new String[] {"other"},
                             new Expr[] {null},
-                            new SameTokensExpr()));
+                            new SpecializedBuiltInBody<>(
+                                    NodeMethodsFactory.SameTokensExprNodeGen.create()) {
+                                @Override
+                                protected Object dispatch(Object[] args) {
+                                    return this.specializedNode.executeSameTokens(
+                                            LKQLTypeSystemGen.asAdaNode(args[0]), args[1]);
+                                }
+                            }));
+
+    // ----- Inner classes -----
 
     /** Expression of the "children" method. */
     public static final class ChildrenExpr extends AbstractBuiltInFunctionBody {
@@ -171,21 +182,13 @@ public final class NodeMethods {
     }
 
     /** Expression of the "same_tokens" method. */
-    public static final class SameTokensExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the nodes to compare
-            Libadalang.AdaNode leftNode = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]);
-            Libadalang.AdaNode rightNode;
-            try {
-                rightNode = LKQLTypeSystemGen.expectAdaNode(frame.getArguments()[1]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ADA_NODE,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[0]);
-            }
+    public abstract static class SameTokensExpr
+            extends SpecializedBuiltInBody.SpecializedBuiltInNode {
 
+        public abstract boolean executeSameTokens(Libadalang.AdaNode leftNode, Object rightNode);
+
+        @Specialization
+        protected boolean onAdaNode(Libadalang.AdaNode leftNode, Libadalang.AdaNode rightNode) {
             // Get the tokens
             Libadalang.Token leftToken = leftNode.tokenStart();
             Libadalang.Token rightToken = rightNode.tokenStart();
@@ -218,12 +221,16 @@ public final class NodeMethods {
             return true;
         }
 
-        /**
-         * Get the next token from the given one ignoring the trivias
-         *
-         * @param t The token to get the next from
-         * @return The next token
-         */
+        @Fallback
+        protected boolean onInvalid(
+                @SuppressWarnings("unused") Libadalang.AdaNode leftNode, Object rightValue) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.ADA_NODE,
+                    LKQLTypesHelper.fromJava(rightValue),
+                    body.argNode(0));
+        }
+
+        /** Get the next token from the given one ignoring the trivias. */
         private static Libadalang.Token next(Libadalang.Token t) {
             Libadalang.Token res = t.next();
             while (!res.isNone() && res.triviaIndex != 0) {

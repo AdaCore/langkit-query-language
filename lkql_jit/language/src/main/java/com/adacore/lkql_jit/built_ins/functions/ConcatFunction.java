@@ -7,14 +7,17 @@ package com.adacore.lkql_jit.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.SpecializedBuiltInBody;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 
 /**
  * This class represents the "concat" built-in function in the LKQL language.
@@ -23,92 +26,86 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 public final class ConcatFunction {
 
-    // ----- Attributes -----
-
-    /** The name of the function. */
     public static final String NAME = "concat";
 
-    // ----- Class methods -----
-
+    /** Get a brand new "concat" function value. */
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,
                 "Given a list of lists or strings, return a concatenated list or string",
                 new String[] {"lists"},
                 new Expr[] {null},
-                (VirtualFrame frame, FunCall call) -> {
-
-                    // Get the argument
-                    Object lists = frame.getArguments()[0];
-
-                    // Check the type of the argument
-                    if (!LKQLTypeSystemGen.isLKQLList(lists)) {
-                        throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_LIST,
-                                LKQLTypesHelper.fromJava(lists),
-                                call.getArgList().getArgs()[0]);
-                    }
-
-                    // Cast the argument to list
-                    LKQLList listValue = LKQLTypeSystemGen.asLKQLList(lists);
-
-                    // If the list is not empty
-                    if (listValue.size() > 0) {
-                        final Object firstItem = listValue.get(0);
-
-                        // If the first value is a string look for strings in the list
-                        if (LKQLTypeSystemGen.isString(firstItem)) {
-                            // Create a string builder and add all strings in the list
-                            String result = LKQLTypeSystemGen.asString(firstItem);
-                            for (int i = 1; i < listValue.size(); i++) {
-                                final Object item = listValue.get(i);
-                                if (!LKQLTypeSystemGen.isString(item)) {
-                                    throw LKQLRuntimeException.wrongType(
-                                            LKQLTypesHelper.LKQL_STRING,
-                                            LKQLTypesHelper.fromJava(item),
-                                            call.getArgList().getArgs()[0]);
-                                }
-                                result =
-                                        StringUtils.concat(
-                                                result, LKQLTypeSystemGen.asString(item));
-                            }
-
-                            // Return the result
-                            return result;
-                        }
-
-                        // If the first item is a list look for lists in the list
-                        if (LKQLTypeSystemGen.isLKQLList(firstItem)) {
-                            // Create a result array and add all list of the argument
-                            Object[] result = LKQLTypeSystemGen.asLKQLList(firstItem).getContent();
-                            for (int i = 1; i < listValue.size(); i++) {
-                                final Object item = listValue.get(i);
-                                if (!LKQLTypeSystemGen.isLKQLList(item)) {
-                                    throw LKQLRuntimeException.wrongType(
-                                            LKQLTypesHelper.LKQL_LIST,
-                                            LKQLTypesHelper.fromJava(item),
-                                            call.getArgList().getArgs()[0]);
-                                }
-                                result =
-                                        ArrayUtils.concat(
-                                                result,
-                                                LKQLTypeSystemGen.asLKQLList(item).getContent());
-                            }
-                            return new LKQLList(result);
-                        }
-
-                        // Else there is an error
-                        throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.typeUnion(
-                                        LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
-                                LKQLTypesHelper.fromJava(firstItem),
-                                call.getArgList().getArgs()[0]);
-                    }
-
-                    // If the list is empty just return an empty list
-                    else {
-                        return new LKQLList(new Object[0]);
+                new SpecializedBuiltInBody<>(ConcatFunctionFactory.ConcatExprNodeGen.create()) {
+                    @Override
+                    protected Object dispatch(Object[] args) {
+                        return specializedNode.executeConcat(args[0]);
                     }
                 });
+    }
+
+    /** Expression of the "concat" function. */
+    abstract static class ConcatExpr extends SpecializedBuiltInBody.SpecializedBuiltInNode {
+
+        public abstract Object executeConcat(Object list);
+
+        protected static boolean isString(Object o) {
+            return LKQLTypeSystemGen.isString(o);
+        }
+
+        protected static boolean isList(Object o) {
+            return LKQLTypeSystemGen.isLKQLList(o);
+        }
+
+        @Specialization(guards = {"list.size() > 0", "isString(list.get(0))"})
+        protected String onListOfStrings(LKQLList list) {
+            // Create a string builder and add all strings in the list
+            String result = LKQLTypeSystemGen.asString(list.get(0));
+            for (int i = 1; i < list.size(); i++) {
+                final Object item = list.get(i);
+                if (!LKQLTypeSystemGen.isString(item)) {
+                    this.invalidElemType(list, item);
+                }
+                result = StringUtils.concat(result, LKQLTypeSystemGen.asString(item));
+            }
+            return result;
+        }
+
+        @Specialization(guards = {"list.size() > 0", "isList(list.get(0))"})
+        protected LKQLList onListOfLists(LKQLList list) {
+            Object[] result = LKQLTypeSystemGen.asLKQLList(list.get(0)).getContent();
+            for (int i = 1; i < list.size(); i++) {
+                final Object item = list.get(i);
+                if (!LKQLTypeSystemGen.isLKQLList(item)) {
+                    this.invalidElemType(list, item);
+                }
+                result = ArrayUtils.concat(result, LKQLTypeSystemGen.asLKQLList(item).getContent());
+            }
+            return new LKQLList(result);
+        }
+
+        @Specialization(guards = "notValidElem.size() > 0")
+        @CompilerDirectives.TruffleBoundary
+        protected LKQLList invalidElemType(
+                @SuppressWarnings("unused") LKQLList notValidElem,
+                @Cached("notValidElem.get(0)") Object elem) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_LIST
+                            + " of "
+                            + LKQLTypesHelper.typeUnion(
+                                    LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
+                    LKQLTypesHelper.fromJava(elem) + " element",
+                    body.argNode(0));
+        }
+
+        @Specialization(guards = "emptyList.size() == 0")
+        protected LKQLList onEmptyList(@SuppressWarnings("unused") LKQLList emptyList) {
+            return new LKQLList(new Object[0]);
+        }
+
+        @Fallback
+        protected LKQLList invalidType(Object notValid) {
+            throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.fromJava(notValid), body.argNode(0));
+        }
     }
 }
