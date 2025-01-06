@@ -9,7 +9,7 @@ class Manage(ManageScript):
 
     def create_context(self, args):
 
-        from langkit.compile_context import AdaSourceKind, CompileCtx
+        from langkit.compile_context import CompileCtx
 
         from language.lexer import lkql_lexer
         from language.parser import lkql_grammar
