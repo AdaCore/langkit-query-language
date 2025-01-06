@@ -7,10 +7,6 @@ class Manage(ManageScript):
 
     ENABLE_BUILD_WARNINGS_DEFAULT = True
 
-    @property
-    def main_programs(self):
-        return super().main_programs
-
     def create_context(self, args):
 
         from langkit.compile_context import AdaSourceKind, CompileCtx
