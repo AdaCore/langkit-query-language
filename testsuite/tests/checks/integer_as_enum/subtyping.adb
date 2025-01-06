@@ -1,35 +1,40 @@
 procedure Subtyping is
-    type Enum1 is range 1 .. 3;  --  NOFLAG
-    subtype Enum1_S is Enum1;
+   type Enum1 is range 1 .. 3;  --  NOFLAG
+   subtype Enum1_S is Enum1;
 
-    generic
-       type Int_F is range <>;
-    procedure Proc_G (X : in out Int_F);
+   generic
+      type Int_F is range <>;
+   procedure Proc_G (X : in out Int_F);
 
-    procedure Proc_G (X : in out Int_F) is
-    begin
-       X := X + 1;
-    end Proc_G;
+   procedure Proc_G (X : in out Int_F) is
+   begin
+      X := X + 1;
+   end Proc_G;
 
-    procedure Proc_I is new Proc_G (Enum1_S);
+   procedure Proc_I is new Proc_G (Enum1_S);
 
-    type Enum2 is range 1 .. 3;  --  NOFLAG
-    subtype Enum2_S is Enum2;
+   type Enum2 is range 1 .. 3;  --  NOFLAG
+   subtype Enum2_S is Enum2;
 
-    type Int is range 1 .. 10;   --  NOFLAG
+   type Int is range 1 .. 10;   --  NOFLAG
 
-    E : Enum2 := 1;
-    I : Int   := 1;
+   E : Enum2 := 1;
+   I : Int   := 1;
 
-    type Enum3 is range 1 .. 3;  --  NOFLAG
-    subtype Enum3_S is Enum3;
+   type Enum3 is range 1 .. 3;  --  NOFLAG
+   subtype Enum3_S is Enum3;
 
-    type Enum3_D is new Enum3_S; --  NOFLAG
-    X : Enum3_D := 1;
+   type Enum3_D is new Enum3_S; --  NOFLAG
+   X : Enum3_D := 1;
+
+   --  [CS0040230] Ensure GNATcheck rule is not crashing on such constructions
+   type D_String is new String;
+   S : constant String := "Hello";
+   D_S : D_String := D_String (S)(S'First .. S'Last); --  NOFLAG
 
 begin
-    E := Enum2_S (I);
+   E := Enum2_S (I);
 
-    I := I + 1;
-    X := X + 1;
+   I := I + 1;
+   X := X + 1;
 end Subtyping;
