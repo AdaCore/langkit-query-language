@@ -31,14 +31,14 @@ public class ListComprehensionBenchmark extends TruffleBenchmark {
     /** The source for the LKQL list comprehension value. */
     private static final String lkqlSource =
             """
-    val generator = %s
+    val generator = [%s]
     val result = [x * 2 for x in generator].to_list
     """;
 
     /** The fibonacci function in JS */
     private static final String jsSource =
             """
-    var generator = %s;
+    var generator = [%s];
     var result = generator.map(x => x * 2);
     """;
 
@@ -55,7 +55,9 @@ public class ListComprehensionBenchmark extends TruffleBenchmark {
         for (int i = 0; i < size; i++) {
             this.generator[i] = i;
         }
-        final String generatorLiteral = Arrays.toString(this.generator);
+        final String generatorLiteral =
+                String.join(
+                        ",\n", Arrays.stream(this.generator).mapToObj(Integer::toString).toList());
         this.lkqlListComp = lkqlSource.formatted(generatorLiteral);
         this.jsListComp = jsSource.formatted(generatorLiteral);
     }

@@ -14,15 +14,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Context context = Context
-            .newBuilder("lkql")
-            .option(
-                "lkql.options", new LKQLOptions.Builder()
-                    .projectFile("default_project/default.gpr")
-                    .build()
-                    .toJson()
-                    .toString()
-            ).build();
+        Context context = Context.newBuilder("lkql").build();
         Value executable = context.parse("lkql", LKQL_SOURCE);
 
         Value namespace = executable.execute(false);
