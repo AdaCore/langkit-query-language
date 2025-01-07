@@ -56,5 +56,5 @@ fun no_closing_names(node, n : int = 0) =
      and node.token_end().end_line - node.token_start().start_line >= n
      and match node
          | (TaskTypeDecl | ProtectedTypeDecl | SingleProtectedDecl) =>
-            node.f_definition.f_end_name == null
+            node.f_definition is (ProtectedDef | TaskDef)(f_end_name: null)
          | * => node.f_end_name == null
