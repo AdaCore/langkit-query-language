@@ -278,11 +278,11 @@ package body Gnatcheck.Output is
       end if;
 
       Put_Line
-        ("Copyright (C) "    &
-         Image (Released_At) &
-         '-'                 &
-         Current_Year        &
-         ", AdaCore.");
+        ("Copyright (C) "
+         & Image (Released_At)
+         & '-'
+         & Current_Year
+         & ", AdaCore.");
    end Print_Tool_Version;
 
    ------------------------

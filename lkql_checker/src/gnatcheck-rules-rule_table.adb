@@ -159,10 +159,10 @@ package body Gnatcheck.Rules.Rule_Table is
       --  No_Dependence
 
       Print
-        ((Level + 1) * Indent_String &
-         "<field switch=""+RRestrictions:No_Dependence" &
-         """ label=""No_Dependence"  &
-         ", specify one unit to check"" separator=""=&gt;""/>");
+        ((Level + 1) * Indent_String
+         & "<field switch=""+RRestrictions:No_Dependence"
+         & """ label=""No_Dependence"
+         & ", specify one unit to check"" separator=""=&gt;""/>");
    end Exception_Cases;
 
    --------------
@@ -560,12 +560,12 @@ package body Gnatcheck.Rules.Rule_Table is
 
                            if not Success then
                               Error
-                                 ("bad format of rule file "   &
-                                  RF_Name & ", part of lines " &
-                                  Image (Rule_Start_Line)      &
-                                  ":"                          &
-                                  Image (Current_Line)         &
-                                  " ignored");
+                                ("bad format of rule file "
+                                 & RF_Name & ", part of lines "
+                                 & Image (Rule_Start_Line)
+                                 & ":"
+                                 & Image (Current_Line)
+                                 & " ignored");
                               Rule_Option_Problem_Detected := True;
 
                               Success := True;
@@ -577,20 +577,21 @@ package body Gnatcheck.Rules.Rule_Table is
                               then
                                  Process_Rule_File (Rule_Buf (1 .. Rule_Len));
                               else
-                                 Error ("can not locate rule file " &
-                                 Rule_Buf (1 .. Rule_Len));
+                                 Error
+                                   ("can not locate rule file "
+                                    & Rule_Buf (1 .. Rule_Len));
                                  Missing_Rule_File_Detected := True;
                               end if;
                            end if;
 
                         when Indefinite =>
                            Error
-                             ("bad format of rule file "   &
-                              RF_Name & ", lines "         &
-                              Image (Rule_Start_Line)      &
-                              ":"                          &
-                              Image (Current_Line - 1)     &
-                              " do not have format of rule option");
+                             ("bad format of rule file "
+                              & RF_Name & ", lines "
+                              & Image (Rule_Start_Line)
+                              & ":"
+                              & Image (Current_Line - 1)
+                              & " do not have format of rule option");
                            Rule_Option_Problem_Detected := True;
                      end case;
                   end if;
@@ -611,8 +612,8 @@ package body Gnatcheck.Rules.Rule_Table is
                   else
                      Error ("can not read rule options from " & RF_Name);
                      Error
-                       ("too long rule option, the content of the file " &
-                        "ignored starting from line " & Image (Current_Line));
+                       ("too long rule option, the content of the file ignored"
+                        & " starting from line " & Image (Current_Line));
                      Rule_Option_Problem_Detected := True;
                      Success := False;
                      return;
@@ -739,12 +740,12 @@ package body Gnatcheck.Rules.Rule_Table is
 
                if not Success then
                   Error
-                     ("bad format of rule file "          &
-                      Rule_File_Base & ", part of lines " &
-                      Image (Rule_Start_Line)             &
-                      ":"                                 &
-                      Image (Current_Line)                &
-                      " ignored");
+                     ("bad format of rule file "
+                      & Rule_File_Base & ", part of lines "
+                      & Image (Rule_Start_Line)
+                      & ":"
+                      & Image (Current_Line)
+                      & " ignored");
 
                   Rule_Option_Problem_Detected := True;
                   Success := True;
@@ -756,8 +757,9 @@ package body Gnatcheck.Rules.Rule_Table is
                   if Is_Regular_File (Include_RF_Name.all) then
                      Process_Rule_File (Include_RF_Name.all);
                   else
-                     Error ("can not locate rule file " &
-                     Rule_Buf (1 .. Rule_Len));
+                     Error
+                       ("can not locate rule file "
+                        & Rule_Buf (1 .. Rule_Len));
                      Missing_Rule_File_Detected := True;
                   end if;
 
@@ -766,14 +768,15 @@ package body Gnatcheck.Rules.Rule_Table is
 
             when Indefinite =>
                Error
-                 ("bad format of rule file "          &
-                  Rule_File_Base & ", lines "         &
-                  Image (Rule_Start_Line)             &
-                  ":"                                 &
-                  Image (if New_State = Indefinite then
-                            Current_Line
-                         else Current_Line - 1)       &
-                  " do not have format of rule option");
+                 ("bad format of rule file "
+                  & Rule_File_Base & ", lines "
+                  & Image (Rule_Start_Line)
+                  & ":"
+                  & Image
+                    (if New_State = Indefinite
+                     then Current_Line
+                     else Current_Line - 1)
+                  & " do not have format of rule option");
                Rule_Option_Problem_Detected := True;
          end case;
 
@@ -961,13 +964,13 @@ package body Gnatcheck.Rules.Rule_Table is
       begin
          if Word_Start = 0 and then Enable then
             Error
-              (R_Name & " rule option must have a parameter" &
-               Diag_Defined_At);
+              (R_Name & " rule option must have a parameter"
+               & Diag_Defined_At);
             return False;
          elsif Word_Start /= 0 and then not Enable then
             Error
-              ("(" & Instance_Name & ") no parameter allowed for -R" &
-               Diag_Defined_At);
+              ("(" & Instance_Name & ") no parameter allowed for -R"
+               & Diag_Defined_At);
             return False;
          end if;
 
@@ -1001,8 +1004,8 @@ package body Gnatcheck.Rules.Rule_Table is
             Word_End := Index (Option (Word_Start + 1 .. Last_Idx), ":");
 
             if Word_End = 0 then
-               Error ("bad structure of rule option " & Option &
-                      Diag_Defined_At);
+               Error
+                 ("bad structure of rule option " & Option & Diag_Defined_At);
                Rule_Option_Problem_Detected := True;
                return;
             end if;
@@ -1027,8 +1030,8 @@ package body Gnatcheck.Rules.Rule_Table is
          Rule := Get_Rule (Option (Word_Start .. Word_End));
          if not Present (Rule) then
             Error
-              ("unknown rule: " & Option (Word_Start .. Word_End) &
-               ", ignored" & Diag_Defined_At);
+              ("unknown rule: " & Option (Word_Start .. Word_End) & ", ignored"
+               & Diag_Defined_At);
             Bad_Rule_Detected := True;
             return;
          end if;
@@ -1046,25 +1049,25 @@ package body Gnatcheck.Rules.Rule_Table is
          --  instance, check that this instance exists.
          if Enable and then Instance /= null then
             Error
-              ("rule instance with the same name already exists: """        &
-               To_String (Instance_Name) & """ previously instantiated at " &
-               (if Instance.Defined_At /= ""
-                then To_String (Instance.Defined_At)
-                else "command line") & Diag_Defined_At);
+              ("rule instance with the same name already exists: """
+               & To_String (Instance_Name) & """ previously instantiated at "
+               & (if Instance.Defined_At /= ""
+                  then To_String (Instance.Defined_At)
+                  else "command line") & Diag_Defined_At);
             if not Instance_Help_Emitted then
                Info
-                 ("if you want to pass multiple parameters to a rule you " &
-                  "should use the comma separated notation: e.g. "         &
-                  "+RMy_Rule:Param1,Param2");
+                 ("if you want to pass multiple parameters to a rule you "
+                  & "should use the comma separated notation: e.g. "
+                  & "+RMy_Rule:Param1,Param2");
                Instance_Help_Emitted := True;
             end if;
             Bad_Rule_Detected := True;
             return;
          elsif not Enable and then Instance = null then
             Error
-              ("""" & To_String (Instance_Name) & """ is not enabled, " &
-               "therefore, cannot be disabled"                          &
-               Diag_Defined_At);
+              ("""" & To_String (Instance_Name) & """ is not enabled, "
+               & "therefore, cannot be disabled"
+               & Diag_Defined_At);
             Bad_Rule_Detected := True;
             return;
          end if;
@@ -1390,8 +1393,8 @@ package body Gnatcheck.Rules.Rule_Table is
          else
             for Rule of Set loop
                Print
-                 (" " & To_String (Rule.Name) & " - " &
-                  To_String (Rule.Help_Info));
+                 (" " & To_String (Rule.Name) & " - "
+                  & To_String (Rule.Help_Info));
             end loop;
          end if;
       else
@@ -1409,14 +1412,17 @@ package body Gnatcheck.Rules.Rule_Table is
             end loop;
          end if;
 
-         Print (Executable & " allows activation of the following checks " &
-                "provided by GNAT");
-         Print ("using the same syntax to control these checks as for other " &
-                "rules:");
+         Print
+           (Executable & " allows activation of the following checks "
+            & "provided by GNAT");
+         Print
+           ("using the same syntax to control these checks as for other "
+            & "rules:");
          Print (" warnings     - compiler warnings - EASY");
          Print (" style_checks - compiler style checks - TRIVIAL");
-         Print (" restrictions - checks made by pragma Restriction_Warnings" &
-                " - EASY");
+         Print
+           (" restrictions - checks made by pragma Restriction_Warnings"
+            & " - EASY");
       end if;
    end Rules_Help;
 
@@ -1429,17 +1435,17 @@ package body Gnatcheck.Rules.Rule_Table is
       if R in Rident.All_Parameter_Restrictions then
          if Has_Natural_Parameter (R) then
             Print
-              ((Level + 1) * Indent_String &
-               "<spin switch=""+RRestrictions:" & Capitalize (R'Img) &
-               """ label=""" & Capitalize (R'Img) &
-               """ min=""1"" max=""99999"" default=""0""" &
-               " separator=""=&gt;""/>");
+              ((Level + 1) * Indent_String
+               & "<spin switch=""+RRestrictions:" & Capitalize (R'Img)
+               & """ label=""" & Capitalize (R'Img)
+               & """ min=""1"" max=""99999"" default=""0"""
+               & " separator=""=&gt;""/>");
          elsif Has_Name_Parameter (R) then
             Print
-              ((Level + 1) * Indent_String &
-               "<field switch=""+RRestrictions:" & Capitalize (R'Img) &
-               """ label=""" & Capitalize (R'Img) &
-               ", specify one feature to check"" separator=""=&gt;""/>");
+              ((Level + 1) * Indent_String
+               & "<field switch=""+RRestrictions:" & Capitalize (R'Img)
+               & """ label=""" & Capitalize (R'Img)
+               & ", specify one feature to check"" separator=""=&gt;""/>");
          else
             Error ("restriction " & R'Img & " unknown");
             Bad_Rule_Detected := True;
@@ -1447,10 +1453,10 @@ package body Gnatcheck.Rules.Rule_Table is
          end if;
       else
          Print
-           ((Level + 1) * Indent_String &
-            "<check switch=""+RRestrictions:" & Capitalize (R'Img) &
-            """ label=""" & Capitalize (R'Img) &
-            """/>");
+           ((Level + 1) * Indent_String
+            & "<check switch=""+RRestrictions:" & Capitalize (R'Img)
+            & """ label=""" & Capitalize (R'Img)
+            & """/>");
       end if;
    end Restriction_Help;
 
@@ -1527,21 +1533,21 @@ package body Gnatcheck.Rules.Rule_Table is
 
          if R.Subcategory = "" then
             Print
-              (Indent_String & "<category name=""" &
-               To_String (R.Category) & """>");
+              (Indent_String & "<category name="""
+               & To_String (R.Category) & """>");
          else
             if Has_Previous
               and then Previous.Category /= R.Category
             then
                Print
-                 (Indent_String & "<category name=""" &
-                  To_String (R.Category) & """>");
+                 (Indent_String & "<category name="""
+                  & To_String (R.Category) & """>");
             end if;
 
             Level := 2;
             Print
-              (2 * Indent_String & "<category name=""" &
-               To_String (R.Subcategory) & """>");
+              (2 * Indent_String & "<category name="""
+               & To_String (R.Subcategory) & """>");
          end if;
 
          declare
@@ -1588,17 +1594,17 @@ package body Gnatcheck.Rules.Rule_Table is
             for Instance of Rule.Instances loop
                Instance.Map_Parameters (Args);
                Print
-                 (3 * Indent_String & "<instance name=""" &
-                  Instance_Name (Instance.all) & """" &
-                  (if Args.Is_Empty then " />" else ">"));
+                 (3 * Indent_String & "<instance name="""
+                  & Instance_Name (Instance.all) & """"
+                  & (if Args.Is_Empty then " />" else ">"));
 
                if not Args.Is_Empty then
                   for Arg of Args loop
                      Print
-                       (4 * Indent_String & "<arg name=""" &
-                        To_String (To_Text (Arg.Name)) & """ value=""" &
-                        Escape_Quotes (To_String (To_Text (Arg.Value))) &
-                        """ />");
+                       (4 * Indent_String & "<arg name="""
+                        & To_String (To_Text (Arg.Name)) & """ value="""
+                        & Escape_Quotes (To_String (To_Text (Arg.Value)))
+                        & """ />");
                   end loop;
                   Print (3 * Indent_String & "</instance>");
                end if;

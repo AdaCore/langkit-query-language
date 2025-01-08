@@ -8,7 +8,7 @@ main.adb:5:07: variable "Value" is assigned but never read [warnings:m]
 With same warning on multiple instances
 =======================================
 
-gnatcheck: error: cannot enable the same warning in different rule instances : h
+gnatcheck: error: cannot enable the same warning in different rule instances: h
 main.adb:5:07: declaration hides "Value" at line 2 [warnings:h]
 main.adb:5:07: variable "Value" is assigned but never read [warnings:m]
 >>>program returned status code 5

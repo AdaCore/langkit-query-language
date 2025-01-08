@@ -220,8 +220,8 @@ package body Gnatcheck.Projects is
       begin
          if Attr.Kind /= List then
             Error
-              (String (Proj.Path_Name.Simple_Name) & ": " & Image (Attr_Id) &
-               " value must be a list");
+              (String (Proj.Path_Name.Simple_Name) & ": " & Image (Attr_Id)
+               & " value must be a list");
             raise Parameter_Error;
          end if;
 
@@ -242,8 +242,8 @@ package body Gnatcheck.Projects is
       begin
          if Attr.Kind /= Single then
             Error
-              (String (Proj.Path_Name.Simple_Name) & ": " & Image (Attr_Id) &
-               " value must be a single value");
+              (String (Proj.Path_Name.Simple_Name) & ": " & Image (Attr_Id)
+               & " value must be a single value");
             raise Parameter_Error;
          end if;
 
@@ -572,8 +572,7 @@ package body Gnatcheck.Projects is
 
       if not My_Project.Tree.Languages.Contains (GPR2.Ada_Language) then
          Error
-           (""""
-            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
+           ("""" & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
             & """ has no Ada sources, processing failed");
 
          raise Parameter_Error;
@@ -584,9 +583,8 @@ package body Gnatcheck.Projects is
             Print (Msg.Format);
          end loop;
          Error
-           (""""                                                        &
-            String (My_Project.Tree.Root_Project.Path_Name.Simple_Name) &
-            """ processing failed");
+           ("""" & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
+            & """ processing failed");
 
          raise Parameter_Error;
       end if;
@@ -641,8 +639,8 @@ package body Gnatcheck.Projects is
       if Aggregate.Num_Of_Aggregated_Projects > 1 then
          if not Main_Unit.Is_Empty then
             Error
-              ("'-U main' cannot be used if aggregate project " &
-               "aggregates more than one non-aggregate project");
+              ("'-U main' cannot be used if aggregate project "
+               & "aggregates more than one non-aggregate project");
 
             raise Parameter_Error;
          end if;
@@ -1213,12 +1211,12 @@ package body Gnatcheck.Projects is
             end case;
             if not Rules_Depreciation_Emitted then
                Info_In_Tty
-                 ("The '-rules' section is now deprecated. You should only " &
-                  "use the '--rule' and '--rule-file' command-line options.");
+                 ("The '-rules' section is now deprecated. You should only use"
+                  & " the '--rule' and '--rule-file' command-line options.");
                Info_In_Tty
-                 ("You can use the '--emit-lkql-rule-file' flag to " &
-                  "automatically translate your rule configuration to the " &
-                  "new LKQL format.");
+                 ("You can use the '--emit-lkql-rule-file' flag to "
+                  & "automatically translate your rule configuration to the "
+                  & "new LKQL format.");
                Rules_Depreciation_Emitted := True;
             end if;
          end loop;
@@ -1376,15 +1374,17 @@ package body Gnatcheck.Projects is
                        Natural'Value (Parameter (Parser => Parser));
 
                      if Max_Diagnoses > 1000 then
-                        Error ("Parameter (Parser => Parser) of '-m' option " &
-                               "too big, max allowed is 1000");
+                        Error
+                          ("Parameter (Parser => Parser) of '-m' option "
+                           & "too big, max allowed is 1000");
                         raise Parameter_Error;
                      end if;
 
                   exception
                      when Constraint_Error =>
-                     Error ("Wrong Parameter of '-m' option: " &
-                            Parameter (Parser => Parser));
+                     Error
+                       ("Wrong Parameter of '-m' option: "
+                        & Parameter (Parser => Parser));
                      raise Parameter_Error;
                   end;
                end if;
@@ -1420,8 +1420,9 @@ package body Gnatcheck.Projects is
                           Verbosity_Levels'Value (Parameter);
                      exception
                         when Constraint_Error =>
-                           Error ("wrong switch parameter " &
-                                  Parameter & " for -vP");
+                           Error
+                             ("wrong switch parameter " & Parameter
+                              & " for -vP");
                            raise Parameter_Error;
                      end;
                   elsif Args_From_Project then
@@ -1457,8 +1458,8 @@ package body Gnatcheck.Projects is
                   elsif Full_Switch (Parser => Parser) = "-version" then
                      if Args_From_Project then
                         Error
-                          ("project file should not contain '--version' " &
-                           "option");
+                          ("project file should not contain '--version' "
+                           & "option");
                         raise Parameter_Error;
                      end if;
 
@@ -1486,8 +1487,9 @@ package body Gnatcheck.Projects is
          raise Parameter_Error;
 
       when GNAT.Command_Line.Invalid_Parameter =>
-         Error ("missing Parameter (Parser => Parser) for: -" &
-                Full_Switch (Parser => Parser));
+         Error
+           ("missing Parameter (Parser => Parser) for: -"
+            & Full_Switch (Parser => Parser));
          raise Parameter_Error;
    end Scan_Arguments;
 
@@ -1611,14 +1613,14 @@ package body Gnatcheck.Projects is
                   then
                      if not Arg.Quiet_Mode then
                         Info
-                          (Ada.Strings.Unbounded.To_String (Rule.Name) &
-                           " disabled, target does not match");
+                          (Ada.Strings.Unbounded.To_String (Rule.Name)
+                           & " disabled, target does not match");
                      end if;
                   else
                      if not Arg.Quiet_Mode then
                         Info
-                          (Ada.Strings.Unbounded.To_String (Rule.Name) &
-                           " enabled");
+                          (Ada.Strings.Unbounded.To_String (Rule.Name)
+                           & " enabled");
                      end if;
 
                      Instance := Rule.Create_Instance (Is_Alias => False);

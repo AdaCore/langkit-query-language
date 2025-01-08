@@ -9,7 +9,7 @@ main.adb:19:04: reference to "Put_Line" violates restriction No_Use_Of_Entity [n
 With same restriction on multiple instances
 ===========================================
 
-gnatcheck: error: cannot enable the same restriction in different rule instances : No_Calendar
+gnatcheck: error: cannot enable the same restriction in different rule instances: No_Calendar
 main.adb:2:06: violation of restriction "No_Calendar" [no_calendar|restrictions]
 >>>program returned status code 5
 Errors in Ada sources FLAG annotations!

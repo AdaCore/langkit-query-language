@@ -8,7 +8,7 @@ main.adb:8:08: reserved words must be all lower case [keywords|style_checks:k]
 With same style check on multiple instances
 ===========================================
 
-gnatcheck: error: cannot enable the same style check in different rule instances : x
+gnatcheck: error: cannot enable the same style check in different rule instances: x
 main.adb:6:07: redundant parentheses [extra_par|style_checks:x]
 >>>program returned status code 5
 Errors in Ada sources FLAG annotations!

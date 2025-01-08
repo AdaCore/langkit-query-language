@@ -262,8 +262,8 @@ procedure Gnatcheck_Main is
                   Current := Total_Jobs;
                   Tool_Failures := @ + 1;
                   Error
-                    ("error while waiting for gnatcheck process, output may " &
-                     "be incomplete.");
+                    ("error while waiting for gnatcheck process, output may "
+                     & "be incomplete.");
                   return;
                end if;
 
@@ -556,8 +556,8 @@ begin
       --  Ensure that the 'rules.lkql' file doesn't exists
       if Is_Regular_File (Default_LKQL_Rule_Options_File) then
          Error
-           ("cannot emit the LKQL rule file, " &
-            Default_LKQL_Rule_Options_File & "already exists");
+           ("cannot emit the LKQL rule file, "
+            & Default_LKQL_Rule_Options_File & "already exists");
          OS_Exit (E_Error);
       end if;
 
