@@ -16,3 +16,7 @@ def lkql_native_jit():
     install()
     anod_test("lkql", qualifier="implementation=native_jit")
     anod_test("gnatcheck", qualifier="implementation=native_jit")
+
+def gnatcheck_internal_testsuite():
+    install()
+    anod_test("gnatcheck", qualifier="implementation=native_jit,internal")
