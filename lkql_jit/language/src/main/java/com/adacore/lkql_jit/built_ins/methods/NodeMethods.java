@@ -30,7 +30,7 @@ import java.util.ArrayList;
 @BuiltinMethodContainer(targetTypes = {LKQLTypesHelper.ADA_NODE})
 public final class NodeMethods {
 
-    @BuiltInMethod(name = "children", doc = "Return the node's children", isAttribute = true)
+    @BuiltInMethod(name = "children", doc = "Return the node's children", isProperty = true)
     abstract static class ChildrenExpr extends BuiltInBody {
         @Specialization
         public LKQLList onNode(AdaNode self) {
@@ -44,7 +44,7 @@ public final class NodeMethods {
         }
     }
 
-    @BuiltInMethod(name = "parent", doc = "Return the node's parent", isAttribute = true)
+    @BuiltInMethod(name = "parent", doc = "Return the node's parent", isProperty = true)
     abstract static class ParentExpr extends BuiltInBody {
         @Specialization
         public AdaNode onNode(AdaNode self) {
@@ -56,7 +56,7 @@ public final class NodeMethods {
     @BuiltInMethod(
             name = "children_count",
             doc = "Return the node's children count",
-            isAttribute = true)
+            isProperty = true)
     abstract static class ChildrenCountExpr extends BuiltInBody {
         @Specialization
         public long onNode(AdaNode self) {
@@ -67,7 +67,7 @@ public final class NodeMethods {
     @BuiltInMethod(
             name = "dump",
             doc = "Dump the node's content in a structured tree",
-            isAttribute = true)
+            isProperty = true)
     abstract static class DumpExpr extends BuiltInBody {
         @Specialization
         public LKQLUnit onNode(AdaNode self) {
@@ -76,7 +76,7 @@ public final class NodeMethods {
         }
     }
 
-    @BuiltInMethod(name = "text", doc = "Return the node's text", isAttribute = true)
+    @BuiltInMethod(name = "text", doc = "Return the node's text", isProperty = true)
     abstract static class TextExpr extends BuiltInBody {
         @Specialization
         public String onNode(AdaNode self) {
@@ -84,7 +84,7 @@ public final class NodeMethods {
         }
     }
 
-    @BuiltInMethod(name = "image", doc = "Return the node's image", isAttribute = true)
+    @BuiltInMethod(name = "image", doc = "Return the node's image", isProperty = true)
     abstract static class ImageExpr extends BuiltInBody {
         @Specialization
         public String onNode(AdaNode self) {
@@ -92,7 +92,7 @@ public final class NodeMethods {
         }
     }
 
-    @BuiltInMethod(name = "unit", doc = "Return the node's analysis unit", isAttribute = true)
+    @BuiltInMethod(name = "unit", doc = "Return the node's analysis unit", isProperty = true)
     abstract static class UnitExpr extends BuiltInBody {
         @Specialization
         public AnalysisUnit onNode(AdaNode self) {
@@ -100,7 +100,7 @@ public final class NodeMethods {
         }
     }
 
-    @BuiltInMethod(name = "kind", doc = "Return the node's kind", isAttribute = true)
+    @BuiltInMethod(name = "kind", doc = "Return the node's kind", isProperty = true)
     abstract static class KindExpr extends BuiltInBody {
         @Specialization
         public String onNode(AdaNode self) {
@@ -108,7 +108,7 @@ public final class NodeMethods {
         }
     }
 
-    @BuiltInMethod(name = "tokens", doc = "Return the node's tokens", isAttribute = true)
+    @BuiltInMethod(name = "tokens", doc = "Return the node's tokens", isProperty = true)
     abstract static class TokensExpr extends BuiltInBody {
         @Specialization
         public LKQLList onNode(AdaNode self) {

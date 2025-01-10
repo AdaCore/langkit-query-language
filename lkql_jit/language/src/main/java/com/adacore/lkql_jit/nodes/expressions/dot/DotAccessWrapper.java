@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
-import com.adacore.lkql_jit.built_ins.BuiltInAttributeValue;
+import com.adacore.lkql_jit.built_ins.BuiltInPropertyValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.Constants;
@@ -42,7 +42,7 @@ public abstract class DotAccessWrapper extends Expr {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onAttribute(
-            BuiltInAttributeValue attribute,
+            BuiltInPropertyValue attribute,
             @CachedLibrary("attribute") InteropLibrary attributeLibrary) {
         try {
             return attributeLibrary.execute(attribute, attribute.thisValue);

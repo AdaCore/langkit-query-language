@@ -358,7 +358,7 @@ public class BuiltInProcessor extends AbstractProcessor {
 
                                         var name = methodAnnotation.name();
                                         var doc = methodAnnotation.doc();
-                                        var isAttribute = methodAnnotation.isAttribute();
+                                        var isProperty = methodAnnotation.isProperty();
 
                                         if (fnAnnotation != null) {
                                             if (name.equals("")) {
@@ -400,7 +400,7 @@ public class BuiltInProcessor extends AbstractProcessor {
 
                                         var wrapper =
                                                 "BuiltInMethodFactory."
-                                                        + (isAttribute
+                                                        + (isProperty
                                                                 ? "createAttribute"
                                                                 : "createMethod")
                                                         + "(\""
@@ -408,7 +408,7 @@ public class BuiltInProcessor extends AbstractProcessor {
                                                         + "\", \""
                                                         + doc
                                                         + "\""
-                                                        + (isAttribute
+                                                        + (isProperty
                                                                 ? ""
                                                                 : ", "
                                                                         + builtInArguments(

@@ -32,7 +32,7 @@ public class IterableMethods {
                     """
                   Return the content of the iterable object with each element associated \
                   to its index in a tuple: [(<index>, <elem>), ...]""",
-            isAttribute = true)
+            isProperty = true)
     abstract static class EnumerateExpr extends BuiltInBody {
         @Specialization
         public LKQLList execute(LKQLList receiver) {
@@ -50,7 +50,7 @@ public class IterableMethods {
         }
     }
 
-    @BuiltInMethod(name = "to_list", doc = "Transform into a list", isAttribute = true)
+    @BuiltInMethod(name = "to_list", doc = "Transform into a list", isProperty = true)
     abstract static class ToListExpr extends BuiltInBody {
         @Specialization
         public LKQLList onIterable(Iterable self) {
@@ -66,7 +66,7 @@ public class IterableMethods {
         }
     }
 
-    @BuiltInMethod(name = "length", doc = "Return the length of the iterable", isAttribute = true)
+    @BuiltInMethod(name = "length", doc = "Return the length of the iterable", isProperty = true)
     abstract static class LengthExpr extends BuiltInBody {
         @Specialization
         public long onIterable(Iterable self) {

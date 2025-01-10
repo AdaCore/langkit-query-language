@@ -26,10 +26,10 @@ public final class BuiltInMethodFactory {
     public final BuiltInBody methodBody;
 
     /**
-     * Whether the factory should produce "attribute" value. See the {@link BuiltInAttributeValue}
+     * Whether the factory should produce "attribute" value. See the {@link BuiltInPropertyValue}
      * class for more information.
      */
-    public final boolean isAttribute;
+    public final boolean isProperty;
 
     // ----- Constructors -----
 
@@ -40,21 +40,21 @@ public final class BuiltInMethodFactory {
             String[] names,
             String[] defaultValues,
             BuiltInBody methodBody,
-            boolean isAttribute) {
+            boolean isProperty) {
         this.name = name;
         this.documentation = documentation;
         this.paramNames = names;
         this.defaultValues = defaultValues;
         this.methodBody = methodBody;
-        this.isAttribute = isAttribute;
+        this.isProperty = isProperty;
     }
 
     // ----- Instance methods -----
 
     /** Instantiate the method with the given "thisValue" and return the LKQL value. */
     public BuiltInMethodValue instantiate(Object thisValue) {
-        return this.isAttribute
-                ? new BuiltInAttributeValue(
+        return this.isProperty
+                ? new BuiltInPropertyValue(
                         this.name, this.documentation, this.methodBody, thisValue)
                 : new BuiltInMethodValue(
                         this.name,

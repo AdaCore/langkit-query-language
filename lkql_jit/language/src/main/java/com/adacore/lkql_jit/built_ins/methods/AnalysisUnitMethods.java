@@ -20,7 +20,7 @@ import java.util.ArrayList;
 @BuiltinMethodContainer(targetTypes = {LKQLTypesHelper.ANALYSIS_UNIT})
 public final class AnalysisUnitMethods {
 
-    @BuiltInMethod(name = "root", doc = "Return the root for this unit", isAttribute = true)
+    @BuiltInMethod(name = "root", doc = "Return the root for this unit", isProperty = true)
     abstract static class RootExpr extends BuiltInBody {
         @Specialization
         public Object onUnit(AnalysisUnit self) {
@@ -29,7 +29,7 @@ public final class AnalysisUnitMethods {
         }
     }
 
-    @BuiltInMethod(name = "name", doc = "Return the name for this unit", isAttribute = true)
+    @BuiltInMethod(name = "name", doc = "Return the name for this unit", isProperty = true)
     abstract static class NameExpr extends BuiltInBody {
         @Specialization
         public String onUnit(AnalysisUnit self) {
@@ -37,7 +37,7 @@ public final class AnalysisUnitMethods {
         }
     }
 
-    @BuiltInMethod(name = "tokens", doc = "Return the tokens for this unit", isAttribute = true)
+    @BuiltInMethod(name = "tokens", doc = "Return the tokens for this unit", isProperty = true)
     abstract static class TokensExpr extends BuiltInBody {
         @Specialization
         public LKQLList onUnit(AnalysisUnit self) {
@@ -52,7 +52,7 @@ public final class AnalysisUnitMethods {
         }
     }
 
-    @BuiltInMethod(name = "text", doc = "Return the text for this unit", isAttribute = true)
+    @BuiltInMethod(name = "text", doc = "Return the text for this unit", isProperty = true)
     abstract static class TextExpr extends BuiltInBody {
         @Specialization
         public String onUnit(AnalysisUnit self) {

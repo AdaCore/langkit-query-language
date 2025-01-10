@@ -30,5 +30,5 @@ public @interface BuiltInMethod {
      * Whether method is a property. A property is a built-in method that doesn't need any
      * arguments, and that doesn't take parens when you call it.
      */
-    boolean isAttribute() default false;
+    boolean isProperty() default false;
 }
