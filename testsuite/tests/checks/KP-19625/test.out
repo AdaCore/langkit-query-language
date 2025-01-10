@@ -1,0 +1,8 @@
+bounded_vector_return_issue.adb:55:30: rule violation: possible occurrence of KP 19625
+55 |          Median : Integer := Sort (V) (Middle);  -- FLAG
+   |                              ^^^^^^^^^^^^^^^^^
+
+main.adb:32:11: rule violation: possible occurrence of KP 19625
+32 |    Res := Ident1 (V) (4);  -- FLAG
+   |           ^^^^^^^^^^^^^^
+
