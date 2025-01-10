@@ -44,7 +44,7 @@ public class BuiltInFunctions {
     @BuiltInFunction(
             name = "unique",
             doc = "Given a collection, create a list with all duplicates removed")
-    @BuiltInMethod(targetTypes = LKQLTypesHelper.LKQL_LIST, isAttribute = true)
+    @BuiltInMethod(targetTypes = LKQLTypesHelper.LKQL_LIST, isProperty = true)
     abstract static class UniqueExpr extends BuiltInBody {
         @Specialization
         protected LKQLList onIndexable(Indexable indexable) {
@@ -64,7 +64,7 @@ public class BuiltInFunctions {
 
     /** Expression of the "print" function. */
     @BuiltInFunction(name = "print", doc = "Built-in print function. Prints the argument")
-    @BuiltInMethod(isAttribute = true)
+    @BuiltInMethod(isProperty = true)
     abstract static class PrintExpr extends BuiltInBody {
         @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
         protected LKQLUnit onBoolean(
@@ -83,7 +83,7 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(name = "img", doc = "Return a string representation of an object")
-    @BuiltInMethod(isAttribute = true)
+    @BuiltInMethod(isProperty = true)
     abstract static class ImgExpr extends BuiltInBody {
         @Specialization
         protected String onString(String string) {
@@ -99,7 +99,7 @@ public class BuiltInFunctions {
     @BuiltInFunction(
             name = "doc",
             doc = "Given any object, return the documentation associated with it")
-    @BuiltInMethod(isAttribute = true)
+    @BuiltInMethod(isProperty = true)
     abstract static class DocExpr extends BuiltInBody {
         @Specialization
         protected String onLKQLValue(LKQLValue value) {
@@ -241,7 +241,7 @@ public class BuiltInFunctions {
             doc = "Given a string that represents a file name, returns the basename")
     @BuiltInMethod(
             targetTypes = {LKQLTypesHelper.LKQL_STRING},
-            isAttribute = true)
+            isProperty = true)
     abstract static class BaseNameExpr extends BuiltInBody {
         @Specialization
         protected String executeOnString(String fileName) {
@@ -415,7 +415,7 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(name = "help", doc = "Print formatted help for the given object")
-    @BuiltInMethod(isAttribute = true)
+    @BuiltInMethod(isProperty = true)
     abstract static class HelpExpr extends BuiltInBody {
         @Specialization
         protected Object onLKQLValue(LKQLValue value) {

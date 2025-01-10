@@ -22,7 +22,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 @BuiltinMethodContainer(targetTypes = {LKQLTypesHelper.TOKEN})
 public final class TokenMethods {
 
-    @BuiltInMethod(name = "start_column", doc = "Return the start column", isAttribute = true)
+    @BuiltInMethod(name = "start_column", doc = "Return the start column", isProperty = true)
     abstract static class StartColExpr extends BuiltInBody {
         @Specialization
         public long onToken(Token t) {
@@ -30,7 +30,7 @@ public final class TokenMethods {
         }
     }
 
-    @BuiltInMethod(name = "end_column", doc = "Return the end column", isAttribute = true)
+    @BuiltInMethod(name = "end_column", doc = "Return the end column", isProperty = true)
     abstract static class EndColExpr extends BuiltInBody {
         @Specialization
         public long onToken(Token t) {
@@ -38,7 +38,7 @@ public final class TokenMethods {
         }
     }
 
-    @BuiltInMethod(name = "start_line", doc = "Return the start line", isAttribute = true)
+    @BuiltInMethod(name = "start_line", doc = "Return the start line", isProperty = true)
     abstract static class StartLineExpr extends BuiltInBody {
         @Specialization
         public long onToken(Token t) {
@@ -46,7 +46,7 @@ public final class TokenMethods {
         }
     }
 
-    @BuiltInMethod(name = "end_line", doc = "Return the end line", isAttribute = true)
+    @BuiltInMethod(name = "end_line", doc = "Return the end line", isProperty = true)
     abstract static class EndLineExpr extends BuiltInBody {
         @Specialization
         public long onToken(Token t) {
@@ -57,7 +57,7 @@ public final class TokenMethods {
     @BuiltInMethod(
             name = "is_equivalent",
             doc = "Return whether two tokens are structurally equivalent",
-            isAttribute = true)
+            isProperty = true)
     abstract static class IsEquivalentExpr extends BuiltInBody {
         @Specialization
         protected boolean onValid(Token self, Token other) {
@@ -68,7 +68,7 @@ public final class TokenMethods {
     @BuiltInMethod(
             name = "is_trivia",
             doc = "Return whether this token is a trivia",
-            isAttribute = true)
+            isProperty = true)
     abstract static class IsTriviaExpr extends BuiltInBody {
         @Specialization
         public boolean onToken(Token t) {
@@ -110,7 +110,7 @@ public final class TokenMethods {
         }
     }
 
-    @BuiltInMethod(name = "unit", doc = "Return the unit for this token", isAttribute = true)
+    @BuiltInMethod(name = "unit", doc = "Return the unit for this token", isProperty = true)
     abstract static class UnitExpr extends BuiltInBody {
         @Specialization
         public Libadalang.AnalysisUnit onToken(Token t) {
@@ -118,7 +118,7 @@ public final class TokenMethods {
         }
     }
 
-    @BuiltInMethod(name = "text", doc = "Return the text for this token", isAttribute = true)
+    @BuiltInMethod(name = "text", doc = "Return the text for this token", isProperty = true)
     abstract static class TextExpr extends BuiltInBody {
         @Specialization
         public String onToken(Token t) {
@@ -126,7 +126,7 @@ public final class TokenMethods {
         }
     }
 
-    @BuiltInMethod(name = "kind", doc = "Return the kind for this token", isAttribute = true)
+    @BuiltInMethod(name = "kind", doc = "Return the kind for this token", isProperty = true)
     abstract static class KindExpr extends BuiltInBody {
         @Specialization
         public String onToken(Token t) {

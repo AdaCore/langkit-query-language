@@ -26,7 +26,7 @@ public class StrMethods {
     @BuiltInMethod(
             name = "to_lower_case",
             doc = "Return the string in lowercase",
-            isAttribute = true)
+            isProperty = true)
     public abstract static class ToLowerCaseExpr extends BuiltInBody {
         @Specialization
         public Object execute(String arg) {
@@ -37,7 +37,7 @@ public class StrMethods {
     @BuiltInMethod(
             name = "is_lower_case",
             doc = "Return whether the string is in lowercase",
-            isAttribute = true)
+            isProperty = true)
     public abstract static class IsLowerCaseExpr extends BuiltInBody {
         @Specialization
         public Object executeGeneric(String arg) {
@@ -48,7 +48,7 @@ public class StrMethods {
     @BuiltInMethod(
             name = "to_upper_case",
             doc = "Return the string in uppercase",
-            isAttribute = true)
+            isProperty = true)
     public abstract static class ToUpperCaseExpr extends BuiltInBody {
         @Specialization
         public Object executeGeneric(String arg) {
@@ -59,7 +59,7 @@ public class StrMethods {
     @BuiltInMethod(
             name = "is_upper_case",
             doc = "Return whether the string is in uppercase",
-            isAttribute = true)
+            isProperty = true)
     public abstract static class IsUpperCaseExpr extends BuiltInBody {
         @Specialization
         public Object executeGeneric(String arg) {
@@ -73,7 +73,7 @@ public class StrMethods {
                     "Return whether the given string is written in mixed case, that is,"
                             + " with only lower case characters except the first one and every"
                             + " character following an underscore",
-            isAttribute = true)
+            isProperty = true)
     public abstract static class IsMixedCaseExpr extends BuiltInBody {
         @Specialization
         public Object executeGeneric(String arg) {
@@ -104,7 +104,7 @@ public class StrMethods {
         }
     }
 
-    @BuiltInMethod(name = "length", doc = "Return the string's length", isAttribute = true)
+    @BuiltInMethod(name = "length", doc = "Return the string's length", isProperty = true)
     public abstract static class LengthExpr extends BuiltInBody {
         @Specialization
         public Object executeGeneric(String arg) {

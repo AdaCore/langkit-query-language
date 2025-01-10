@@ -19,7 +19,7 @@ public final class RewritingNodeMethods {
     @BuiltInMethod(
             name = "clone",
             doc = "Given a rewriting node, clone it and return its copy",
-            isAttribute = true)
+            isProperty = true)
     public abstract static class CloneExpr extends BuiltInBody {
         @Specialization
         public Object execute(Libadalang.RewritingNode node) {
