@@ -4,96 +4,98 @@ Standard library
 Builtin functions
 ^^^^^^^^^^^^^^^^^
 
-.. function:: print(val, new_line)
-
-    Built-in print function. Prints whatever is passed as an argument
-
-.. function:: img(val)
-
-    Return a string representation of an object
-
-.. function:: base_name(str)
-
-    Given a string that represents a file name, returns the basename
-
-.. function:: concat(lists)
-
-    Given a list of lists or strings, return a concatenated list or string
-
-.. function:: reduce(indexable, fn, init)
-
-    Given a collection, a reduction function, and an initial value reduce the result
-
-.. function:: map(indexable, fn)
-
-    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
-
 .. function:: unique(indexable)
 
-    Given collection, remove all identical elements in order to have only one instance of each
-
-.. function:: doc(obj)
-
-    Given any object, return the documentation associated with it
-
-.. function:: profile(obj)
-
-    Given any object, if it is a callable, return its profile as text
-
-.. function:: document_builtins()
-
-    Return a string in the RsT format containing documentation for all built-ins
-
-.. function:: document_namespace(namespace, name)
-
-    Return a string in the RsT format containing documentation for all built-ins
-
-.. function:: help(obj)
-
-    Given any object, return formatted help for it
-
-.. function:: units()
-
-    Return an iterator on all units
-
-.. function:: specified_units()
-
-    Return an iterator on units specified by the user
+    Given a collection, create a list with all duplicates removed
 
 .. function:: pattern(regex, case_sensitive)
 
     Given a regex pattern string, create a pattern object
 
+.. function:: print(to_print, new_line)
+
+    Built-in print function. Prints the argument
+
+.. function:: img(string)
+
+    Return a string representation of an object
+
+.. function:: doc(value)
+
+    Given any object, return the documentation associated with it
+
+.. function:: reduce(iterable, function, init_value)
+
+    Given a collection, a reduction function, and an initial value reduce the result
+
+.. function:: document_builtins()
+
+    Return a string in the RsT format containing documentation for all built-ins
+
+.. function:: base_name(file_name)
+
+    Given a string that represents a file name, returns the basename
+
+.. function:: concat(list)
+
+    Given a list of lists or strings, return a concatenated list or string
+
+.. function:: map(iterable, function)
+
+    Given a collection, a mapping function
+
+.. function:: profile(val)
+
+    Given any object, if it is a callable, return its profile as text
+
+.. function:: document_namespace(namespace, name)
+
+    Return a string in the RsT format containing documentation for all built-ins
+
+.. function:: help(value)
+
+    Print formatted help for the given object
+
+.. function:: units()
+
+    Return a list of all units
+
+.. function:: specified_units()
+
+    Return a list of units specified by the user
+
 .. function:: node_checker(root)
 
-    Given a root, execute all node checker while traverse the tree
+    Given a root, execute all node checkers while traversing the tree
 
 .. function:: unit_checker(unit)
 
-    Given a unit, apply all the unit checker on it
+    Given a unit, apply all the unit checkers on it
 
 Builtin methods
 ^^^^^^^^^^^^^^^
 
-Methods for `Any`
-"""""""""""""""""
-.. method:: Any.doc(this)
+Methods for `AnalysisUnit`
+""""""""""""""""""""""""""
+.. method:: AnalysisUnit.doc(this)
 
     Given any object, return the documentation associated with it
 
-.. method:: Any.img(this)
+.. method:: AnalysisUnit.help(this)
+
+    Print formatted help for the given object
+
+.. method:: AnalysisUnit.img(this)
 
     Return a string representation of an object
 
-.. method:: Any.print(this, new_line)
-
-    Built-in print function. Prints whatever is passed as an argument
-
-Methods for `AnalysisUnit`
-""""""""""""""""""""""""""
 .. method:: AnalysisUnit.name(this)
 
-    Return the name of this unit
+    Return the name for this unit
+
+.. method:: AnalysisUnit.print(this)
+
+    Built-in print function. Prints the argument
 
 .. method:: AnalysisUnit.root(this)
 
@@ -101,129 +103,347 @@ Methods for `AnalysisUnit`
 
 .. method:: AnalysisUnit.text(this)
 
-    Return the text of the analysis unit
+    Return the text for this unit
 
 .. method:: AnalysisUnit.tokens(this)
 
-    Return the tokens of the unit
+    Return the tokens for this unit
+
+Methods for `Bool`
+""""""""""""""""""
+.. method:: Bool.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: Bool.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Bool.img(this)
+
+    Return a string representation of an object
+
+.. method:: Bool.print(this)
+
+    Built-in print function. Prints the argument
+
+Methods for `Function`
+""""""""""""""""""""""
+.. method:: Function.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: Function.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Function.img(this)
+
+    Return a string representation of an object
+
+.. method:: Function.print(this)
+
+    Built-in print function. Prints the argument
+
+Methods for `Int`
+"""""""""""""""""
+.. method:: Int.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: Int.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Int.img(this)
+
+    Return a string representation of an object
+
+.. method:: Int.print(this)
+
+    Built-in print function. Prints the argument
 
 Methods for `LazyList`
 """"""""""""""""""""""
+.. method:: LazyList.doc(this)
+
+    Given any object, return the documentation associated with it
+
 .. method:: LazyList.enumerate(this)
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
 
+.. method:: LazyList.help(this)
+
+    Print formatted help for the given object
+
+.. method:: LazyList.img(this)
+
+    Return a string representation of an object
+
 .. method:: LazyList.length(this)
 
-    Get the length of the iterable element
+    Return the length of the iterable
 
-.. method:: LazyList.map(this, fn)
+.. method:: LazyList.print(this)
 
-    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
+    Built-in print function. Prints the argument
 
-.. method:: LazyList.reduce(this, fn, init)
+.. method:: LazyList.reduce(this, function, init_value)
 
     Given a collection, a reduction function, and an initial value reduce the result
 
 .. method:: LazyList.to_list(this)
 
-    Transform an iterator into a list
+    Transform into a list
 
 Methods for `List`
 """"""""""""""""""
+.. method:: List.doc(this)
+
+    Given any object, return the documentation associated with it
+
 .. method:: List.enumerate(this)
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
 
+.. method:: List.help(this)
+
+    Print formatted help for the given object
+
+.. method:: List.img(this)
+
+    Return a string representation of an object
+
 .. method:: List.length(this)
 
-    Get the length of the iterable element
+    Return the length of the iterable
 
-.. method:: List.map(this, fn)
+.. method:: List.print(this)
 
-    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
+    Built-in print function. Prints the argument
 
-.. method:: List.reduce(this, fn, init)
+.. method:: List.reduce(this, function, init_value)
 
     Given a collection, a reduction function, and an initial value reduce the result
 
-.. method:: List.sublist(this, low_bound, high_bound)
+.. method:: List.sublist(this, low, high)
 
     Return a sublist of `list` from `low_bound` to `high_bound`
 
 .. method:: List.to_list(this)
 
-    Transform an iterator into a list
+    Transform into a list
 
 .. method:: List.unique(this)
 
-    Given collection, remove all identical elements in order to have only one instance of each
+    Given a collection, create a list with all duplicates removed
+
+Methods for `MemberReference`
+"""""""""""""""""""""""""""""
+.. method:: MemberReference.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: MemberReference.help(this)
+
+    Print formatted help for the given object
+
+.. method:: MemberReference.img(this)
+
+    Return a string representation of an object
+
+.. method:: MemberReference.print(this)
+
+    Built-in print function. Prints the argument
+
+Methods for `Namespace`
+"""""""""""""""""""""""
+.. method:: Namespace.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: Namespace.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Namespace.img(this)
+
+    Return a string representation of an object
+
+.. method:: Namespace.print(this)
+
+    Built-in print function. Prints the argument
 
 Methods for `Node`
 """"""""""""""""""
 .. method:: Node.children(this)
 
-    Given a node, get the list of all its children
+    Return the node's children
 
 .. method:: Node.children_count(this)
 
-    Given a node, return the count of its children
+    Return the node's children count
+
+.. method:: Node.doc(this)
+
+    Given any object, return the documentation associated with it
 
 .. method:: Node.dump(this)
 
-    Given an ast node, return a structured dump of the subtree
+    Dump the node's content in a structured tree
+
+.. method:: Node.help(this)
+
+    Print formatted help for the given object
 
 .. method:: Node.image(this)
 
-    Given an ast node, return its image
+    Return the node's image
+
+.. method:: Node.img(this)
+
+    Return a string representation of an object
 
 .. method:: Node.kind(this)
 
-    Return the kind of this node, as a string
+    Return the node's kind
 
 .. method:: Node.parent(this)
 
-    Given a node, get the parent of it
+    Return the node's parent
 
-.. method:: Node.same_tokens(this, other)
+.. method:: Node.print(this)
+
+    Built-in print function. Prints the argument
+
+.. method:: Node.same_tokens(this, right_node)
 
     Return whether two nodes have the same tokens, ignoring trivias
 
 .. method:: Node.text(this)
 
-    Given an ast node, return its text
+    Return the node's text
 
 .. method:: Node.tokens(this)
 
-    Given a node, return an iterator on its tokens
+    Return the node's tokens
 
 .. method:: Node.unit(this)
 
-    Given an ast node, return its analysis unit
+    Return the node's analysis unit
+
+Methods for `Object`
+""""""""""""""""""""
+.. method:: Object.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: Object.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Object.img(this)
+
+    Return a string representation of an object
+
+.. method:: Object.print(this)
+
+    Built-in print function. Prints the argument
+
+Methods for `Pattern`
+"""""""""""""""""""""
+.. method:: Pattern.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: Pattern.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Pattern.img(this)
+
+    Return a string representation of an object
+
+.. method:: Pattern.print(this)
+
+    Built-in print function. Prints the argument
+
+Methods for `PropertyReference`
+"""""""""""""""""""""""""""""""
+.. method:: PropertyReference.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: PropertyReference.help(this)
+
+    Print formatted help for the given object
+
+.. method:: PropertyReference.img(this)
+
+    Return a string representation of an object
+
+.. method:: PropertyReference.print(this)
+
+    Built-in print function. Prints the argument
+
+Methods for `RecValue`
+""""""""""""""""""""""
+.. method:: RecValue.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: RecValue.help(this)
+
+    Print formatted help for the given object
+
+.. method:: RecValue.img(this)
+
+    Return a string representation of an object
+
+.. method:: RecValue.print(this)
+
+    Built-in print function. Prints the argument
 
 Methods for `RewritingContext`
 """"""""""""""""""""""""""""""
-.. method:: RewritingContext.add_first(this, list_node, new_node)
+.. method:: RewritingContext.add_first(this, node, new_node)
 
-    Insert the given new node at the beginning of the given list node (raises a runtime error if it is not a list node)
+    Insert `new_node` at the beginning of `list_node`
 
-.. method:: RewritingContext.add_last(this, list_node, new_node)
+.. method:: RewritingContext.add_last(this, node, new_node)
 
-    Insert the given new node at the end of the given list node(raises a runtime error if it is not a list node)
+    Insert `new_node` at the end of `list_node`
+
+.. method:: RewritingContext.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: RewritingContext.help(this)
+
+    Print formatted help for the given object
+
+.. method:: RewritingContext.img(this)
+
+    Return a string representation of an object
 
 .. method:: RewritingContext.insert_after(this, node, new_node)
 
-    Given a node, insert the new one after it in its parent (this function expects this parent to be a list node, raises a runtime error otherwise)
+    Insert `new_node` after `node` (`node`'s parent needs to be a list node)
 
 .. method:: RewritingContext.insert_before(this, node, new_node)
 
-    Given a node, insert the new one before it in its parent (this function expects this parent to be a list node, raises a runtime error otherwise)
+    Insert `new_node` before `node` (`node`'s parent needs to be a list node)
 
-.. method:: RewritingContext.remove(this, to_remove)
+.. method:: RewritingContext.print(this)
 
-    Delete the given node from its parent (this function expects this parent to be a list node, raises a runtime error otherwise)
+    Built-in print function. Prints the argument
 
-.. method:: RewritingContext.replace(this, old, new)
+.. method:: RewritingContext.remove(this, obj_to_remove)
+
+    Delete the given node from its parent (parent needs to be a list node)
+
+.. method:: RewritingContext.replace(this, old_node, new_node)
 
     Replace old node by the new one
 
@@ -237,27 +457,73 @@ Methods for `RewritingNode`
 
     Given a rewriting node, clone it and return its copy
 
+.. method:: RewritingNode.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: RewritingNode.help(this)
+
+    Print formatted help for the given object
+
+.. method:: RewritingNode.img(this)
+
+    Return a string representation of an object
+
+.. method:: RewritingNode.print(this)
+
+    Built-in print function. Prints the argument
+
+Methods for `Selector`
+""""""""""""""""""""""
+.. method:: Selector.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: Selector.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Selector.img(this)
+
+    Return a string representation of an object
+
+.. method:: Selector.print(this)
+
+    Built-in print function. Prints the argument
+
 Methods for `SelectorList`
 """"""""""""""""""""""""""
+.. method:: SelectorList.doc(this)
+
+    Given any object, return the documentation associated with it
+
 .. method:: SelectorList.enumerate(this)
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
 
+.. method:: SelectorList.help(this)
+
+    Print formatted help for the given object
+
+.. method:: SelectorList.img(this)
+
+    Return a string representation of an object
+
 .. method:: SelectorList.length(this)
 
-    Get the length of the iterable element
+    Return the length of the iterable
 
-.. method:: SelectorList.map(this, fn)
+.. method:: SelectorList.print(this)
 
-    Given an iterable object and a function, return the list resulting of the function application on each element of the iterable object: map(lst, f) -> [f(lst[1]), f(lst[2]), ...]
+    Built-in print function. Prints the argument
 
-.. method:: SelectorList.reduce(this, fn, init)
+.. method:: SelectorList.reduce(this, function, init_value)
 
     Given a collection, a reduction function, and an initial value reduce the result
 
 .. method:: SelectorList.to_list(this)
 
-    Transform an iterator into a list
+    Transform into a list
 
 Methods for `Str`
 """""""""""""""""
@@ -269,17 +535,29 @@ Methods for `Str`
 
     Search for to_find in the given string. Return whether a match is found. to_find can be either a pattern or a string
 
+.. method:: Str.doc(this)
+
+    Given any object, return the documentation associated with it
+
 .. method:: Str.ends_with(this, suffix)
 
-    Given a string, returns whether it ends with the given suffix
+    Returns whether string ends with given prefix
 
 .. method:: Str.find(this, to_find)
 
     Search for to_find in the given string. Return position of the match, or -1 if no match. to_find can be either a pattern or a string
 
+.. method:: Str.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Str.img(this)
+
+    Return a string representation of an object
+
 .. method:: Str.is_lower_case(this)
 
-    Return whether the given string contains lower case characters only
+    Return whether the string is in lowercase
 
 .. method:: Str.is_mixed_case(this)
 
@@ -287,43 +565,59 @@ Methods for `Str`
 
 .. method:: Str.is_upper_case(this)
 
-    Return whether the given string contains upper case characters only
+    Return whether the string is in uppercase
 
 .. method:: Str.length(this)
 
-    Given a string, return the length of it in character
+    Return the string's length
 
-.. method:: Str.split(this, separator)
+.. method:: Str.print(this)
 
-    Given a string, return an iterator on the words contained by str separated by separator
+    Built-in print function. Prints the argument
+
+.. method:: Str.split(this, sep)
+
+    Given a string, split it on the given separator, and return an iterator on the parts
 
 .. method:: Str.starts_with(this, prefix)
 
-    Given a string, returns whether it starts with the given prefix
+    Returns whether string starts with given prefix
 
-.. method:: Str.substring(this, from, to)
+.. method:: Str.substring(this, start, end)
 
     Given a string and two indices (from and to), return the substring contained between indices from and to (both included)
 
 .. method:: Str.to_lower_case(this)
 
-    Return the given string written with lower case characters only
+    Return the string in lowercase
 
 .. method:: Str.to_upper_case(this)
 
-    Return the given string written with upper case characters only
+    Return the string in uppercase
 
 Methods for `Token`
 """""""""""""""""""
+.. method:: Token.doc(this)
+
+    Given any object, return the documentation associated with it
+
 .. method:: Token.end_column(this)
 
-    Return the column end
+    Return the end column
 
 .. method:: Token.end_line(this)
 
-    Return the line end
+    Return the end line
 
-.. method:: Token.is_equivalent(this, other)
+.. method:: Token.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Token.img(this)
+
+    Return a string representation of an object
+
+.. method:: Token.is_equivalent(this)
 
     Return whether two tokens are structurally equivalent
 
@@ -333,9 +627,9 @@ Methods for `Token`
 
 .. method:: Token.kind(this)
 
-    Return the kind of the token
+    Return the kind for this token
 
-.. method:: Token.next(this, exclude_trivia)
+.. method:: Token.next(this, ignore_trivia)
 
     Return the next token
 
@@ -343,19 +637,59 @@ Methods for `Token`
 
     Return the previous token
 
+.. method:: Token.print(this)
+
+    Built-in print function. Prints the argument
+
 .. method:: Token.start_column(this)
 
-    Return the column start
+    Return the start column
 
 .. method:: Token.start_line(this)
 
-    Return the line start
+    Return the start line
 
 .. method:: Token.text(this)
 
-    Return the text of the token
+    Return the text for this token
 
 .. method:: Token.unit(this)
 
     Return the unit for this token
+
+Methods for `Tuple`
+"""""""""""""""""""
+.. method:: Tuple.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: Tuple.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Tuple.img(this)
+
+    Return a string representation of an object
+
+.. method:: Tuple.print(this)
+
+    Built-in print function. Prints the argument
+
+Methods for `Unit`
+""""""""""""""""""
+.. method:: Unit.doc(this)
+
+    Given any object, return the documentation associated with it
+
+.. method:: Unit.help(this)
+
+    Print formatted help for the given object
+
+.. method:: Unit.img(this)
+
+    Return a string representation of an object
+
+.. method:: Unit.print(this)
+
+    Built-in print function. Prints the argument
 
