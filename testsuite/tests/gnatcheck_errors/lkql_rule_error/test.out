@@ -1,5 +1,5 @@
-gnatcheck: test.lkql:3:05: Unknown symbol: blah
-gnatcheck: Errors during analysis
+gnatcheck: error: test.lkql:3:05: Unknown symbol: blah
+gnatcheck: error: Errors during analysis
 1. Summary
 
    fully compliant sources               : 1

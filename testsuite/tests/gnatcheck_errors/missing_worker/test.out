@@ -1,2 +1,2 @@
-gnatcheck: cannot locate the worker executable: i_dont_exist
+gnatcheck: error: cannot locate the worker executable: i_dont_exist
 >>>program returned status code 2

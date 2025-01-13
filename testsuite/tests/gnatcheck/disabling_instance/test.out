@@ -1,7 +1,7 @@
 Disable an instance with its name
 =================================
 
-gnatcheck: No rule to check specified
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
@@ -14,6 +14,6 @@ main.adb:8:07: goto statement [cond_goto|goto_statements]
 Disabling the wrong instance
 ============================
 
-gnatcheck: "goto_statements" is not enabled, therefore, cannot be disabled
+gnatcheck: error: "goto_statements" is not enabled, therefore, cannot be disabled
 main.adb:3:04: goto statement [cond_goto|goto_statements]
 >>>program returned status code 5

@@ -249,8 +249,9 @@ package body Gnatcheck.Source_Table is
 
       if not Res.Is_Defined then
          if Is_Regular_File (Fname) then
-            Warning (Fname & " is not in the analysed project closure (" &
-                     String (Arg_Project.Tree.Root_Project.Name) & ")");
+            Warning
+              (Fname & " is not in the analysed project closure ("
+               & String (Arg_Project.Tree.Root_Project.Name) & ")");
          else
             Warning (Fname & " not found");
          end if;
@@ -286,8 +287,9 @@ package body Gnatcheck.Source_Table is
          else
             Old_SF := Same_Name_File_Find (Full_Source_Name_String.all);
             if Present (Old_SF) then
-               Error ("more than one version of "
-                 & Short_Source_Name_String.all & " processed");
+               Error
+                 ("more than one version of " & Short_Source_Name_String.all
+                  & " processed");
             end if;
          end if;
       end if;
@@ -788,20 +790,21 @@ package body Gnatcheck.Source_Table is
               Integer'Image ((Current * 100) / Total_Sources);
          begin
             Percent (1) := '(';
-            Info ("completed" & Integer'Image (Current) & " out of"
-                  & Integer'Image (Total_Sources) & " "
-                  & Percent & "%)...");
+            Info
+              ("completed" & Integer'Image (Current) & " out of"
+               & Integer'Image (Total_Sources) & " "
+               & Percent & "%)...");
          end;
       end if;
 
       if Verbose_Mode then
-         Info_No_EOL ("[" & N (2 .. N'Last) & "] ");
-         Info (Short_Source_Name (SF));
+         Info ("[" & N (2 .. N'Last) & "] " & Short_Source_Name (SF));
 
-      elsif not (Arg.Quiet_Mode or Arg.Progress_Indicator_Mode.Get) then
-         Info_No_EOL ("Units remaining:");
-         Info_No_EOL (N);
-         Info_No_EOL ("     " & ASCII.CR);
+      elsif not (Arg.Quiet_Mode or else Arg.Progress_Indicator_Mode.Get) then
+         Print
+           ("Units remaining:" & N & "     " & ASCII.CR,
+            New_Line => False,
+            Log_Message => False);
       end if;
 
       Sources_Left := Sources_Left - 1;

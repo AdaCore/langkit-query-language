@@ -1,95 +1,95 @@
 Invalid syntax
 ==============
 
-gnatcheck: invalid_syntax.lkql:1:01: Cannot parse <val_decl>
-gnatcheck: invalid_syntax.lkql:3:01: Expected Upper_Identifier, got '}'
-gnatcheck: invalid_syntax.lkql:3:01: End of input expected, got "R_Curl"
-gnatcheck: Syntax errors in invalid_syntax.lkql: stopping interpreter (invalid_syntax.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: invalid_syntax.lkql:1:01: Cannot parse <val_decl>
+gnatcheck: error: invalid_syntax.lkql:3:01: Expected Upper_Identifier, got '}'
+gnatcheck: error: invalid_syntax.lkql:3:01: End of input expected, got "R_Curl"
+gnatcheck: error: Syntax errors in invalid_syntax.lkql: stopping interpreter (invalid_syntax.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 Invalid LKQL semantic
 =====================
 
-gnatcheck: invalid_semantic.lkql:1:25: Type error: expected Int but got Bool (invalid_semantic.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: invalid_semantic.lkql:1:25: Type error: expected Int but got Bool (invalid_semantic.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 No 'rules' object
 =================
 
-gnatcheck: LKQL config file must define a 'rules' top level object value (no_rules_object.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: LKQL config file must define a 'rules' top level object value (no_rules_object.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 Empty rules object
 ==================
 
-gnatcheck: No rule to check specified
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 Not existing rule
 =================
 
-gnatcheck: unknown rule: this_is_not_a_rule (not_existing_rule.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: unknown rule: this_is_not_a_rule (not_existing_rule.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 Not valid arguments
 ===================
 
-gnatcheck: Rule arguments must be an object or indexable value (not_valid_args.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: Rule arguments must be an object or indexable value (not_valid_args.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 Not valid arguments element
 ===========================
 
-gnatcheck: Arguments should be in an object value (not_valid_args_elem.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: Arguments should be in an object value (not_valid_args_elem.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 Not existing file
 =================
 
-gnatcheck: can not locate LKQL rule file not_existing.lkql
-gnatcheck: No rule to check specified
+gnatcheck: error: can not locate LKQL rule file not_existing.lkql
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 Missing mandatory parameter
 ===========================
 
-gnatcheck: missing 'header' parameter for rule "headers" (missing_param.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: missing 'header' parameter for rule "headers" (missing_param.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 Missing mandatory parameter on instance
 =======================================
 
-gnatcheck: missing 'header' parameter for rule "headers" (instance "custom_instance") (missing_param_instance.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: missing 'header' parameter for rule "headers" (instance "custom_instance") (missing_param_instance.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
 Extra parameter
 ===============
 
-gnatcheck: extra argument for rule "goto_statements": 'extra' (extra_param.lkql)
+gnatcheck: error: extra argument for rule "goto_statements": 'extra' (extra_param.lkql)
 >>>program returned status code 5
 
 Multiple instance with the same name
 ====================================
 
-gnatcheck: Multiple instances with the same name: an_instance (instance_names.lkql)
-gnatcheck: No rule to check specified
+gnatcheck: error: Multiple instances with the same name: an_instance (instance_names.lkql)
+gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

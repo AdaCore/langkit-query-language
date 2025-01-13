@@ -1,3 +1,3 @@
-gnatcheck: Unparsable line: This line is not parsable
-gnatcheck: Unparsable line: Message: should appear
-gnatcheck: Unparsable line: This line is not parsable either
+gnatcheck: error: unparsable worker output: "This line is not parsable"
+gnatcheck: error: unparsable worker output: "Message: should appear"
+gnatcheck: error: unparsable worker output: "This line is not parsable either"

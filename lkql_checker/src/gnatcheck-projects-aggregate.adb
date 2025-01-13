@@ -202,8 +202,9 @@ package body Gnatcheck.Projects.Aggregate is
 
    begin
       if Full_Tool_Name = null then
-         Error ("Cannot locate " & Executable &
-                " on PATH, possible installation problem");
+         Error
+           ("Cannot locate " & Executable
+            & " on PATH, possible installation problem");
          raise Fatal_Error;
       end if;
 
@@ -252,8 +253,9 @@ package body Gnatcheck.Projects.Aggregate is
 
       while not Prj_Iterator_Done loop
          if Verbose_Mode then
-            Info ("Processing aggregated project " &
-                  String (Next_Prj_Name));
+            Info
+              ("Processing aggregated project "
+               & String (Next_Prj_Name));
          end if;
 
          Free (Prj_Args (2));

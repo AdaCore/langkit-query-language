@@ -1,2 +1,2 @@
-gnatcheck: multiple rules with the same name: custom_rule
+gnatcheck: error: multiple rules with the same name: custom_rule
 >>>program returned status code 2

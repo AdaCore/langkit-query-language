@@ -280,7 +280,7 @@ package body Gnatcheck.Compiler is
 
          procedure Format_Error is
          begin
-            Error ("Unparsable line: " & Msg);
+            Error ("unparsable worker output: """ & Msg & """");
             Errors := True;
          end Format_Error;
 
@@ -451,12 +451,12 @@ package body Gnatcheck.Compiler is
       --  them.
 
       if Is_Regular_File (Out_File) and then Size (Out_File) /= 0 then
-         Error ("error when calling gprbuild:");
+         Error ("error when calling gprbuild, raw output:");
 
          declare
             Str : String_Access := Read_File (Out_File);
          begin
-            Error_No_Tool_Name (Str (Str'First .. Str'Last - 1));
+            Print (Str (Str'First .. Str'Last - 1));
             Free (Str);
          end;
 
@@ -474,7 +474,7 @@ package body Gnatcheck.Compiler is
                     and then Line (1 .. 29) = "gnat1: invalid switch: -gnatw")
          then
             Error ("wrong parameter specified for compiler-related rule:");
-            Error_No_Tool_Name (Line (1 .. Line_Len));
+            Print (Line (1 .. Line_Len));
             Errors := True;
 
          elsif Index (Line (1 .. Line_Len), "BUG DETECTED") /= 0 then
@@ -1070,8 +1070,9 @@ package body Gnatcheck.Compiler is
            (Lower_Rest_Name, I_Name, Cursor, Success);
          if not Success and then Restriction_To_Instance (Cursor) /= I_Name
          then
-            Error ("cannot enable the same restriction in different rule " &
-                   "instances : " & Rest_Name);
+            Error
+              ("cannot enable the same restriction in different rule "
+               & "instances: " & Rest_Name);
             Bad_Rule_Detected := True;
             return;
          end if;
@@ -1087,8 +1088,9 @@ package body Gnatcheck.Compiler is
                exit;
 
             else
-               Error ("wrong structure of restriction rule parameter " &
-                      Param & ", ignored");
+               Error
+                 ("wrong structure of restriction rule parameter " & Param
+                  & ", ignored");
                Bad_Rule_Detected := True;
 
                return;
@@ -1099,8 +1101,9 @@ package body Gnatcheck.Compiler is
       if R_Id in All_Boolean_Restrictions then
 
          if Arg_Present then
-            Error ("RESTRICTIONS rule parameter: " & Param &
-                   " can not contain expression, ignored");
+            Error
+              ("RESTRICTIONS rule parameter: " & Param
+               & " can not contain expression, ignored");
             Bad_Rule_Detected := True;
          else
             Restriction_Setting (R_Id).Active := True;
@@ -1109,8 +1112,9 @@ package body Gnatcheck.Compiler is
       elsif R_Id /= Not_A_Restriction_Id then
 
          if not Arg_Present then
-            Error ("RESTRICTIONS rule parameter: " & Param &
-                    " should contain an expression, ignored");
+            Error
+              ("RESTRICTIONS rule parameter: " & Param
+               & " should contain an expression, ignored");
             Bad_Rule_Detected := True;
 
             return;
@@ -1134,17 +1138,19 @@ package body Gnatcheck.Compiler is
                         end if;
                      end loop;
 
-                     Error ("expression for RESTRICTIONS rule parameter: " &
-                            Param (First_Idx .. Last_Idx) &
-                            " is specified more than once");
+                     Error
+                       ("expression for RESTRICTIONS rule parameter: "
+                        & Param (First_Idx .. Last_Idx)
+                        & " is specified more than once");
                      Rule_Option_Problem_Detected := True;
                   end if;
 
                   Restriction_Setting (R_Id).Param.Append (R_Val'Img);
                exception
                   when Constraint_Error =>
-                     Error ("wrong restriction parameter expression in " &
-                             Param & ", ignored");
+                     Error
+                       ("wrong restriction parameter expression in "
+                        & Param & ", ignored");
                      Bad_Rule_Detected := True;
 
                      return;
@@ -1167,8 +1173,9 @@ package body Gnatcheck.Compiler is
          case Special_R_Id is
             when No_Dependence =>
                if not Arg_Present then
-                  Error ("Restrictions rule parameter: " & Param &
-                          " should contain a unit name, ignored");
+                  Error
+                    ("Restrictions rule parameter: " & Param
+                     & " should contain a unit name, ignored");
                   Bad_Rule_Detected := True;
 
                   return;
@@ -1180,8 +1187,9 @@ package body Gnatcheck.Compiler is
 
             when No_Use_Of_Entity =>
                if not Arg_Present then
-                  Error ("Restrictions rule parameter: " & Param &
-                          " should contain an entity name, ignored");
+                  Error
+                    ("Restrictions rule parameter: " & Param
+                     & " should contain an entity name, ignored");
                   Bad_Rule_Detected := True;
 
                   return;
@@ -1193,8 +1201,9 @@ package body Gnatcheck.Compiler is
 
             when No_Specification_Of_Aspect =>
                if not Arg_Present then
-                  Error ("Restrictions rule parameter: " & Param &
-                          " should contain an aspect name, ignored");
+                  Error
+                    ("Restrictions rule parameter: " & Param
+                     & " should contain an aspect name, ignored");
                   Bad_Rule_Detected := True;
 
                   return;
@@ -1226,8 +1235,9 @@ package body Gnatcheck.Compiler is
                  Static_Dispatch_Tables                   |
                  No_Exception_Propagation
       then
-         Warning ("restriction " & To_Mixed (R_Id'Img) &
-                  " ignored - only fully effective during code generation");
+         Warning
+           ("restriction " & To_Mixed (R_Id'Img)
+            & " ignored - only fully effective during code generation");
 
          Restriction_Setting (R_Id).Active := False;
       end if;
@@ -1243,20 +1253,23 @@ package body Gnatcheck.Compiler is
                  No_Entry_Queue                           |
                  No_Reentrancy
       then
-         Warning ("restriction " & To_Mixed (R_Id'Img) &
-                  " ignored - cannot be checked statically");
+         Warning
+           ("restriction " & To_Mixed (R_Id'Img)
+            & " ignored - cannot be checked statically");
 
          Restriction_Setting (R_Id).Active := False;
 
       elsif R_Id = No_Recursion then
-         Warning ("restriction No_Recursion ignored (cannot be checked " &
-                  "statically), use rule Recursive_Subprograms instead");
+         Warning
+           ("restriction No_Recursion ignored (cannot be checked statically), "
+            & "use rule Recursive_Subprograms instead");
 
          Restriction_Setting (R_Id).Active := False;
 
       elsif R_Id = Max_Asynchronous_Select_Nesting and then R_Val /= 0 then
-         Warning ("restriction Max_Asynchronous_Select_Nesting ignored - " &
-                  "cannot be checked statically if parameter is not 0");
+         Warning
+           ("restriction Max_Asynchronous_Select_Nesting ignored - "
+            & "cannot be checked statically if parameter is not 0");
          Restriction_Setting (R_Id).Active := False;
       end if;
    end Process_Restriction_Param;
@@ -1320,8 +1333,9 @@ package body Gnatcheck.Compiler is
 
             Style_To_Instance.Insert ([C], Name, Cursor, Success);
             if not Success and then Style_To_Instance (Cursor) /= Name then
-               Error ("cannot enable the same style check in different " &
-                      "rule instances : " & C);
+               Error
+                 ("cannot enable the same style check in different rule "
+                  & "instances: " & C);
                Bad_Rule_Detected := True;
                return;
             end if;
@@ -1395,8 +1409,9 @@ package body Gnatcheck.Compiler is
          if Param (J) in 'e' | 's'
            and then (J = Param'First or else Param (J - 1) not in '.' | '_')
          then
-            Error ("Warnings rule cannot have " & Param (J) &
-                   " parameter, parameter string " & Param & " ignored");
+            Error
+              ("Warnings rule cannot have " & Param (J)
+               & " parameter, parameter string " & Param & " ignored");
             Bad_Rule_Detected := True;
 
             return;
@@ -1416,8 +1431,9 @@ package body Gnatcheck.Compiler is
 
          Warning_To_Instance.Insert (Param (I .. J), Name, Cursor, Success);
          if not Success and then Warning_To_Instance (Cursor) /= Name then
-            Error ("cannot enable the same warning in different rule " &
-                   "instances : " & Param (I .. J));
+            Error
+              ("cannot enable the same warning in different rule instances: "
+               & Param (I .. J));
             Bad_Rule_Detected := True;
             return;
          end if;
@@ -1595,8 +1611,8 @@ package body Gnatcheck.Compiler is
 
       --  Test if the worker executable exists
       if Worker = null then
-         Error ("cannot locate the worker executable: "
-                & Base_Name (Worker_Name));
+         Error
+           ("cannot locate the worker executable: " & Base_Name (Worker_Name));
          raise Fatal_Error;
       end if;
 
@@ -1718,8 +1734,9 @@ package body Gnatcheck.Compiler is
       end loop;
 
       if Worker = null then
-         Error ("cannot locate the worker executable: "
-                & Base_Name (Worker_Name));
+         Error
+           ("cannot locate the worker executable: "
+            & Base_Name (Worker_Name));
          raise Fatal_Error;
       end if;
 
