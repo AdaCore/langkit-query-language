@@ -13,6 +13,7 @@ PYTHON=python
 MAVEN=mvn
 BUILD_DIR=/undefined
 LKQL_DIR=$(BUILD_DIR)/lkql
+IMPACTDB_DIR=/undefined
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
 GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
 BUILD_FOR_JIT=false
@@ -35,6 +36,9 @@ lkql: build/bin/liblkqllang_parse
 doc: build_lkql_native_jit
 	cd user_manual && make clean html
 	cd lkql_checker/doc && make generate html-all
+
+impacts:
+	PYTHONPATH=$(IMPACTDB_DIR) ./utils/impact-db_impacts_gen.py $(IMPACTDB_DIR)
 
 format:
 	$(MAVEN) -f lkql_jit spotless:apply
