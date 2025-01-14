@@ -130,10 +130,13 @@ public final class NodeCheckerFunction {
                         visitList.addFirst(new VisitStep(stubBody, true, inSparkCode));
                     }
                 } catch (Libadalang.LangkitException e) {
-                    context.println(
-                            StringUtils.concat(
-                                    "Error during generic instantiation walking: ",
-                                    e.getMessage()));
+                    context.getDiagnosticEmitter()
+                            .emitDiagnostic(
+                                    CheckerUtils.MessageKind.ERROR,
+                                    e.getMessage(),
+                                    new LalLocationWrapper(currentNode, context.linesCache),
+                                    new SourceSectionWrapper(this.callNode.getSourceSection()),
+                                    rootUnit.getFileName(true));
                     continue;
                 }
 
