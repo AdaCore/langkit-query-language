@@ -1,29 +1,37 @@
 #! /usr/bin/env python
 
+from langkit.compile_context import CompileCtx
+import langkit.config as C
 from langkit.libmanage import ManageScript
+import langkit.names as names
+from langkit.utils import PluginLoader
 
 
 class Manage(ManageScript):
 
     ENABLE_BUILD_WARNINGS_DEFAULT = True
 
-    @property
-    def main_programs(self):
-        return super().main_programs
+    def create_config(self):
+        return C.CompilationConfig(
+            lkt=None,
+            library=C.LibraryConfig(
+                root_directory=".",
+                language_name=names.Name("Lkql"),
+                short_name="lkql",
+            ),
+        )
 
-    def create_context(self, args):
-
-        from langkit.compile_context import AdaSourceKind, CompileCtx
-
+    def create_context(self, config, verbosity):
         from language.lexer import lkql_lexer
         from language.parser import lkql_grammar
 
-        ctx = CompileCtx(lang_name='Lkql',
-                         short_name='lkql',
-                         lexer=lkql_lexer,
-                         grammar=lkql_grammar)
-
-        return ctx
+        return CompileCtx(
+            config=config,
+            plugin_loader=PluginLoader(config.library.root_directory),
+            lexer=lkql_lexer,
+            grammar=lkql_grammar,
+            verbosity=verbosity,
+        )
 
 
 if __name__ == '__main__':
