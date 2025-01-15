@@ -11,9 +11,9 @@ class Manage(ManageScript):
 
     ENABLE_BUILD_WARNINGS_DEFAULT = True
 
-    def create_config(self):
+    def create_config(self, args):
         return C.CompilationConfig(
-            lkt=None,
+            lkt_spec=None,
             library=C.LibraryConfig(
                 root_directory=".",
                 language_name=names.Name("Lkql"),
