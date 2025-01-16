@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+import os.path
+
 from langkit.compile_context import CompileCtx
 import langkit.config as C
 from langkit.libmanage import ManageScript
@@ -15,7 +17,7 @@ class Manage(ManageScript):
         return C.CompilationConfig(
             lkt_spec=None,
             library=C.LibraryConfig(
-                root_directory=".",
+                root_directory=os.path.dirname(__file__),
                 language_name=names.Name("Lkql"),
                 short_name="lkql",
             ),
