@@ -46,8 +46,8 @@ format:
 gnatcheck: lkql
 	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
-build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
-	lkql/manage.py make --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java --maven-executable $(MAVEN) $(ADDITIONAL_MANAGE_ARGS)
+build/bin/liblkqllang_parse: lkql/lkql.lkt
+	lkm make -c lkql/langkit.yaml --pass-on="emit railroad diagrams" --enable-java --maven-executable $(MAVEN) $(ADDITIONAL_MANAGE_ARGS)
 
 test:
 	testsuite/testsuite.py -Edtmp

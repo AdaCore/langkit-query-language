@@ -1,0 +1,11 @@
+lkt_spec:
+  entry_point: lkql.lkt
+  types_from_lkt: true
+
+library:
+  language_name: Lkql
+  short_name: lkql
+
+manage_defaults:
+  build_warnings: true
+  enable_java: true

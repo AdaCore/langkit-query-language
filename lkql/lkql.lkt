@@ -1,0 +1,1170 @@
+lexer lkql_lexer {
+
+    BigLongRArrow
+    @trivia()
+    Whitespace <- p"[ \\t\\n\\r]"
+    Dot <- "."
+    DotDotDot <- "..."
+    QuestionDot <- "?."
+    QuestionBrack <- "?["
+    Question <- "?"
+    Coma <- ","
+    SemiCol <- ";"
+    Colon <- ":"
+    UnderScore <- "_"
+    Eq <- "="
+    EqEq <- "=="
+    Neq <- "!="
+    ExclExcl <- "!!"
+    Lt <- "<"
+    LEq <- "<="
+    Gt <- ">"
+    GEq <- ">="
+    And <- "and"
+    Or <- "or"
+    Plus <- "+"
+    Minus <- "-"
+    Mul <- "*"
+    Div <- "/"
+    Amp <- "&"
+    LPar <- "("
+    RPar <- ")"
+    LCurl <- "{"
+    RCurl <- "}"
+    LBrack <- "["
+    RBrack <- "]"
+    At <- "@"
+    SubBlockLiteral <- p"\\|\\\"(.?)+"
+    Pipe <- "|"
+    LArrow <- "<-"
+    BigRArrow <- "=>"
+    Box <- "<>"
+    @symbol()
+    Let <- "let"
+    @symbol()
+    SelectTok <- "select"
+    @symbol()
+    FromTok <- "from"
+    @symbol()
+    ThroughTok <- "through"
+    @symbol()
+    When <- "when"
+    @symbol()
+    Val <- "val"
+    @symbol()
+    Fun <- "fun"
+    @symbol()
+    Import <- "import"
+    @symbol()
+    Selector <- "selector"
+    @symbol()
+    Match <- "match"
+    @symbol()
+    Rec <- "rec"
+    @symbol()
+    For <- "for"
+    @symbol()
+    Skip <- "skip"
+    @symbol()
+    Is <- "is"
+    @symbol()
+    In <- "in"
+    @symbol()
+    TrueLit <- "true"
+    @symbol()
+    FalseLit <- "false"
+    @symbol()
+    If <- "if"
+    @symbol()
+    Else <- "else"
+    @symbol()
+    Then <- "then"
+    @symbol()
+    Not <- "not"
+    @symbol()
+    Null <- "null"
+    @symbol()
+    New <- "new"
+    Integer <- p"[0-9]+"
+    @symbol()
+    Identifier <- p"[a-z][A-Za-z0-9_]*"
+    @symbol()
+    UpperIdentifier <- p"[A-Za-z][A-Za-z0-9_]*"
+    String <- p"\"(\\\\.|[^\"])*\""
+    @trivia()
+    Comment <- p"#(.?)+"
+}
+@with_lexer(lkql_lexer)
+grammar lkql_grammar {
+    @main_rule
+    main_rule <- TopLevelList*(or(import_clause | decl | expr))
+    import_clause <- Import("import" id)
+    query <- or(
+        | Query(
+            "from"
+            Unpack("*")
+            expr
+            ?pick("through" or(expr))
+            "select"
+            /
+            or(| QueryKind.First(@Identifier("first")) | QueryKind.All())
+            pattern
+        )
+        | Query(
+            null(Unpack)
+            null(Expr)
+            ?pick("through" or(expr))
+            "select"
+            /
+            or(| QueryKind.First(@Identifier("first")) | QueryKind.All())
+            pattern
+        )
+    )
+    or_pattern <- or(OrPattern(pattern "|" or_pattern) | pattern)
+    pattern <- or(| FilteredPattern(value_pattern "when" expr) | value_pattern)
+    object_pattern_assoc <- ObjectPatternAssoc(id ":" pattern)
+    value_pattern <- or(
+        | ExtendedNodePattern(
+            or(
+                | UniversalPattern("*")
+                | NodeKindPattern(upper_id)
+                | ParenPattern("(" or_pattern ")")
+            )
+            pick("(" / list+(pattern_arg, ",") ")")
+        )
+        | NodeKindPattern(upper_id)
+        | UniversalPattern("*")
+        | NullPattern("null")
+        | regex_pattern
+        | NotPattern("not" value_pattern)
+        | bool_pattern
+        | integer_pattern
+        | list_pattern
+        | object_pattern
+        | BindingPattern(id ?pick("@" value_pattern))
+        | ParenPattern("(" or_pattern ")")
+        | tuple_pattern
+    )
+    regex_pattern <- RegexPattern(@String)
+    bool_pattern <- or(| BoolPattern.True("true") | BoolPattern.False("false"))
+    splat_pattern <- SplatPattern(?pick(id "@") "...")
+    integer_pattern <- IntegerPattern(@Integer)
+    list_pattern <- ListPattern(
+        "[" list+(or(splat_pattern | value_pattern), ",") "]"
+    )
+    object_pattern <- ObjectPattern(
+        "{" list+(or(object_pattern_assoc | splat_pattern), ",") "}"
+    )
+    tuple_pattern <- TuplePattern("(" list+(value_pattern, ",") ")")
+    pattern_detail_delimiter <- or(
+        | PatternDetailDelimiter.Is("is")
+        | PatternDetailDelimiter.Colon(":")
+    )
+    pattern_arg <- or(
+        | NodePatternSelector(
+            selector_call pattern_detail_delimiter or_pattern
+        )
+        | NodePatternField(id pattern_detail_delimiter / or_pattern)
+        | NodePatternProperty(fun_call pattern_detail_delimiter / or_pattern)
+    )
+    selector_call <- SelectorCall(
+        Identifier(or(@Identifier("any") | @Identifier("all")))
+        ?pick(id "@")
+        value_expr
+    )
+    objectlit <- ObjectLiteral("{" list*(object_assoc, ",") "}")
+    object_assoc <- ObjectAssoc(object_key ":" expr)
+    at_object_lit <- AtObjectLiteral("@" "{" list*(at_object_assoc, ",") "}")
+    at_object_assoc <- AtObjectAssoc(object_key ?pick(":" expr))
+    object_key <- or(id | upper_id)
+    listcomp <- ListComprehension(
+        "["
+        expr
+        "for"
+        list+(ListCompAssoc(id "in" expr), ",")
+        ?pick("if" expr)
+        "]"
+    )
+    listlit <- ListLiteral("[" list*(expr, ",") "]")
+    decl <- or(fun_decl | selector_decl | val_decl)
+    expr <- or(
+        | BinOp(expr or(Op.And("and") | Op.Or("or")) not_expr)
+        | not_expr
+    )
+    not_expr <- or(UnOp(Op.Not("not") comp_expr) | comp_expr)
+    comp_expr <- or(
+        | IsClause(comp_expr "is" pattern)
+        | InClause(comp_expr "in" expr)
+        | RelBinOp(
+            comp_expr
+            or(
+                | Op.Eq("==")
+                | Op.Neq("!=")
+                | Op.Lt("<")
+                | Op.Leq("<=")
+                | Op.Gt(">")
+                | Op.Geq(">=")
+            )
+            plus_expr
+        )
+        | plus_expr
+    )
+    plus_expr <- or(
+        | ArithBinOp(plus_expr or(Op.Plus("+") | Op.Minus("-")) prod_expr)
+        | BinOp(plus_expr Op.Concat("&") prod_expr)
+        | prod_expr
+    )
+    prod_expr <- or(
+        | ArithBinOp(prod_expr or(Op.Mul("*") | Op.Div("/")) value_expr)
+        | unop
+    )
+    unop <- or(
+        | UnOp(or(Op.Plus("+") | Op.Minus("-")) value_expr)
+        | value_expr
+    )
+    value_expr <- or(
+        | Unwrap(value_expr "!!")
+        | DotAccess(value_expr "." / id)
+        | SafeAccess(value_expr "?." / id)
+        | UpperDotAccess(upper_id "." / id)
+        | Indexing(value_expr "[" / expr "]")
+        | SafeIndexing(value_expr "?[" / expr "]")
+        | selector_expr
+        | FunCall(value_expr Safe("?") "(" / list*(arg, ",") ")")
+        | constructor_call
+        | term
+    )
+    term <- or(
+        | query
+        | listcomp
+        | listlit
+        | objectlit
+        | at_object_lit
+        | match_expr
+        | id
+        | string_literal
+        | block_string_literal
+        | bool_literal
+        | unit_literal
+        | NullLiteral("null")
+        | integer
+        | anonymous_function
+        | pick("(" expr ")")
+        | if_then_else
+        | block_expr
+        | tuple_expr
+    )
+    tuple_expr <- Tuple("(" list+(expr, ",") ")")
+    anonymous_function <- AnonymousFunction(
+        "(" list*(param, ",") ")" "=>" null(BaseStringLiteral) expr
+    )
+    block_expr <- BlockExpr(
+        "{"
+        list*(or(| BlockBodyDecl(decl ";") | BlockBodyExpr(expr ";")))
+        /
+        expr
+        "}"
+    )
+    val_decl <- ValDecl(?decl_annotation ?doc_node "val" / id "=" expr)
+    fun_decl <- FunDecl(
+        ?decl_annotation
+        "fun"
+        /
+        id
+        NamedFunction("(" list*(param, ",") ")" "=" ?doc_node expr)
+    )
+    fun_call <- FunCall(id Safe("?") "(" / arg_list ")")
+    constructor_call <- ConstructorCall(
+        "new" upper_id "(" / list*(arg, ",") ")"
+    )
+    arg_list <- list*(arg, ",")
+    selector_decl <- SelectorDecl(
+        ?decl_annotation "selector" / id ?doc_node list+(selector_arm)
+    )
+    selector_arm <- SelectorArm("|" pattern "=>" expr)
+    selector_expr <- or(
+        | RecExpr("rec" "(" Unpack("*") expr "," Unpack("*") expr ")")
+        | RecExpr("rec" "(" Unpack("*") expr null(Unpack) null(Expr) ")")
+    )
+    match_expr <- Match("match" expr list+(match_arm))
+    match_arm <- MatchArm("|" pattern "=>" expr)
+    if_then_else <- CondExpr("if" expr "then" expr ?pick("else" expr))
+    id <- Identifier(@Identifier)
+    upper_id <- Identifier(@UpperIdentifier)
+    integer <- IntegerLiteral(@Integer)
+    bool_literal <- or(| BoolLiteral.True("true") | BoolLiteral.False("false"))
+    string_literal <- StringLiteral(@String)
+    block_string_literal <- BlockStringLiteral(
+        list+(SubBlockLiteral(@SubBlockLiteral))
+    )
+    unit_literal <- UnitLiteral("(" ")")
+    arg <- or(NamedArg(id "=" expr) | ExprArg(expr))
+    param <- ParameterDecl(
+        null(DeclAnnotation) id ?pick(":" id) ?pick("=" expr)
+    )
+    decl_annotation <- DeclAnnotation("@" id ?pick("(" arg_list ")"))
+    doc_node <- or(string_literal | block_string_literal)
+}
+
+|" Root node class for LKQL AST nodes.
+@abstract
+class LkqlNode implements Node[LkqlNode] {
+}
+
+|" Base class for arguments
+@abstract
+class Arg: LkqlNode {
+    |" Return whether the argument has a name.
+    @exported
+    fun has_name(): Bool = not node.name().is_null
+
+    |" Return the argument's expression.
+    @exported
+    @abstract
+    fun expr(): Expr
+
+    |" Return the argument's name, or an empty String if the argument has no
+    |" name.
+    @exported
+    fun name(): Identifier = null[Identifier]
+}
+
+|" Argument that consists of an expression
+class ExprArg: Arg {
+    @parse_field
+    value_expr: Expr
+
+    fun expr(): Expr = node.value_expr
+}
+
+|" Named argument of the form: ``name=expression``
+|"
+|" For instance::
+|"
+|"    add(x=20, y=22)
+class NamedArg: Arg {
+    @parse_field
+    arg_name: Identifier
+    @parse_field
+    value_expr: Expr
+
+    fun expr(): Expr = node.value_expr
+
+    fun name(): Identifier = node.arg_name
+}
+
+|" Synthetic NamedArg node
+@synthetic
+class SynthNamedArg: NamedArg {
+}
+
+|" At object literal association of the form:
+|" ``label opt(: <value>)``
+class AtObjectAssoc: LkqlNode {
+    @parse_field
+    name: Identifier
+    @parse_field
+    @nullable
+    expr: Expr
+}
+
+|" Root node class for patterns.
+@abstract
+class BasePattern: LkqlNode {
+}
+
+|" Pattern comprising a binding name and a value pattern.
+|"
+|" For instance::
+|"
+|"    o@ObjectDecl
+class BindingPattern: BasePattern {
+    @parse_field
+    binding: Identifier
+    @parse_field
+    @nullable
+    value_pattern: BasePattern
+}
+
+|" Pattern with a filtering predicate, of the form:
+|" ``<pattern> when <predicate>``
+|"
+|" For instance::
+|"
+|"    o@ObjectDecl when o.children.length == 3
+class FilteredPattern: BasePattern {
+    @parse_field
+    pattern: BasePattern
+    @parse_field
+    predicate: Expr
+}
+
+|" Root node class for patterns that filter values.
+|" (As opposed to patterns that only bind values to a given name without
+|" doing any kind of filtering)
+@abstract
+class ValuePattern: BasePattern {
+}
+
+|" Pattern to match on booleans.
+enum class BoolPattern: ValuePattern {
+    case True, False
+}
+
+|" Pattern to match on integers.
+class IntegerPattern: ValuePattern implements TokenNode {
+}
+
+|" Pattern to match on lists.
+class ListPattern: ValuePattern {
+    @parse_field
+    patterns: ASTList[BasePattern]
+}
+
+|" Root node class for node patterns
+@abstract
+class NodePattern: ValuePattern {
+}
+
+|" Node pattern of the form:
+|"
+|" ``KindName(field: Pattern, prop(): Pattern, any selector: Pattern)``
+|"
+|" For instance::
+|"
+|"     ObjectDecl(any children: AspectAssoc)
+class ExtendedNodePattern: NodePattern {
+    @parse_field
+    node_pattern: ValuePattern
+    @parse_field
+    details: ASTList[NodePatternDetail]
+}
+
+|" Pattern of the form: KindName
+class NodeKindPattern: NodePattern {
+    @parse_field
+    kind_name: Identifier
+}
+
+|" Pattern that matches if its inner pattern doesn't match.
+|"
+|" For instance::
+|"
+|"    let non_objects = select not ObjectDecl
+class NotPattern: ValuePattern {
+    @parse_field
+    pattern: BasePattern
+}
+
+|" Null pattern. Will only match the null node.
+class NullPattern: ValuePattern {
+}
+
+|" Pattern to match on objects.
+class ObjectPattern: ValuePattern {
+    @parse_field
+    patterns: ASTList[LkqlNode]
+}
+
+|" Pattern that matches if any of its subpatterns matches.
+|"
+|" For instance::
+|"
+|"     let value_decls = select ObjectDecl or ParamSpec
+class OrPattern: ValuePattern {
+    @parse_field
+    left: BasePattern
+    @parse_field
+    right: BasePattern
+}
+
+|" A parenthesized pattern.
+class ParenPattern: ValuePattern {
+    @parse_field
+    pattern: BasePattern
+}
+
+|" Pattern that considers the value as text and matches it against the
+|" given regular expression.
+class RegexPattern: ValuePattern implements TokenNode {
+}
+
+|" Pattern to match any remaining number of elements in a list pattern.
+class SplatPattern: ValuePattern {
+    @parse_field
+    @nullable
+    binding: Identifier
+}
+
+|" Pattern to match on tuples.
+class TuplePattern: ValuePattern {
+    @parse_field
+    patterns: ASTList[BasePattern]
+}
+
+|" Universal pattern that matches any value.
+|"
+|" For instance::
+|"
+|"    let declParent = query * [children(depth==1)] BasicDecl
+class UniversalPattern: ValuePattern {
+}
+
+|" Root node for block expression block before steps
+@abstract
+class BlockBody: LkqlNode {
+}
+
+|" Node for an expression in a block expression body
+class BlockBodyDecl: BlockBody {
+    @parse_field
+    decl: Declaration
+}
+
+|" Node for a declaration in a block expression body
+class BlockBodyExpr: BlockBody {
+    @parse_field
+    expr: Expr
+}
+
+|" Compile time annotation attached to a declaration. For the moment, only
+|" used for @checker annotation in lkql_checker.
+class DeclAnnotation: LkqlNode {
+    @parse_field
+    name: Identifier
+    @parse_field
+    arguments: ASTList[Arg]
+
+    |" Find argument with name "name"
+    @exported
+    fun arg_with_name(name: Symbol): Entity[Arg] =
+        self.arguments.find((a) => a.name().symbol == name)
+}
+
+|" Root node class for LKQL declarations.
+@abstract
+class Declaration: LkqlNode {
+    @parse_field
+    @nullable
+    annotation: DeclAnnotation
+
+    |" Return the documentation for this declaration
+    @exported
+    @abstract
+    fun doc(): BaseStringLiteral
+}
+
+|" Function definition
+|"
+|" For instance::
+|"
+|"    fun add(x, y) = x + y
+class FunDecl: Declaration {
+    @parse_field
+    name: Identifier
+    @parse_field
+    fun_expr: NamedFunction
+
+    fun doc(): BaseStringLiteral = node.fun_expr.doc()
+
+    env_spec {
+        add_to_env_kv(node.name.symbol, node)
+    }
+}
+
+|" Base class for parameters
+class ParameterDecl: Declaration {
+    @parse_field
+    param_identifier: Identifier
+    @parse_field
+    @nullable
+    type_annotation: Identifier
+    @parse_field
+    @nullable
+    default_expr: Expr
+
+    fun doc(): BaseStringLiteral = null[BaseStringLiteral]
+
+    |" Return the identifier of the parameter.
+    @exported
+    fun identifier(): Identifier = node.param_identifier
+
+    |" Return the name of the parameter.
+    @exported
+    fun name(): String = node.param_identifier.text
+}
+
+|" Ast selector, describing a subtree
+class SelectorDecl: Declaration {
+    @parse_field
+    name: Identifier
+    @parse_field
+    @nullable
+    doc_node: BaseStringLiteral
+    @parse_field
+    arms: ASTList[SelectorArm]
+
+    fun doc(): BaseStringLiteral = node.doc_node
+
+    env_spec {
+        add_to_env_kv(node.name.symbol, node)
+    }
+}
+
+|" Value declaration
+|" Associates a name with a value.
+|"
+|" For instance::
+|"
+|"    val message = "Hello World"
+class ValDecl: Declaration {
+    @parse_field
+    @nullable
+    doc_node: BaseStringLiteral
+    @parse_field
+    identifier: Identifier
+    @parse_field
+    value: Expr
+
+    fun doc(): BaseStringLiteral = node.doc_node
+}
+
+|" Root node class for LKQL expressions.
+@abstract
+class Expr: LkqlNode {
+}
+
+|" Object literal with @ in front of it:
+|" ``@{ label1, label2: value }``
+class AtObjectLiteral: Expr {
+    @parse_field
+    assocs: ASTList[AtObjectAssoc]
+}
+
+|" Base class for a function expression.
+@abstract
+class BaseFunction: Expr {
+    @parse_field
+    parameters: ASTList[ParameterDecl]
+    @parse_field
+    @nullable
+    doc_node: BaseStringLiteral
+    @parse_field
+    body_expr: Expr
+
+    |" Return a text profile for this function.
+    @exported
+    fun profile(): String = match node.parent {
+        case d: FunDecl =>
+            "fun " & d.name.text & "(" & node.parameters.text & ")"
+        case _ => "lambda " & "(" & node.parameters.text & ")"
+    }
+
+    |" Return documentation associated to this function object.
+    @exported
+    fun doc(): BaseStringLiteral = match node {
+        case n: NamedFunction => n.doc_node
+        case _ => null[BaseStringLiteral]
+    }
+
+    |" Return the number of parameters of the function
+    @exported
+    fun arity(): Int = node.parameters.length()
+
+    |" Return the parameter associated with the given name, if any.
+    @exported
+    fun find_parameter(name: String): ParameterDecl =
+        node.parameters.find((p) => p.param_identifier.text == name)
+
+    |" Return whether the function has a parameter with the given name.
+    @exported
+    fun has_parameter(name: String): Bool =
+        not node.find_parameter(name).is_null
+
+    |" Return the defaults parameters of the function, if any.
+    @exported
+    fun default_parameters(): Array[Entity[ParameterDecl]] =
+        self.parameters.filter((p) => not p.default_expr.is_null)
+}
+
+|" Anonymous function expression.
+class AnonymousFunction: BaseFunction {
+}
+
+|" Function expression that is part of a named function declaration (see
+|" ``FunDecl``).
+class NamedFunction: BaseFunction {
+}
+
+|" Binary operation.
+class BinOp: Expr {
+    @parse_field
+    left: Expr
+    @parse_field
+    op: Op
+    @parse_field
+    right: Expr
+}
+
+|" Arithmetic binary operator.
+class ArithBinOp: BinOp {
+}
+
+|" Relational (produces boolean) binary operator.
+class RelBinOp: BinOp {
+}
+
+|" Expression of the form: ``val id = value; expr; expr``
+|"
+|" For instance::
+|"
+|"     {
+|"        val x = 40;
+|"        val y = 2;
+|"        print(x + y);
+|"        x + y
+|"     }
+class BlockExpr: Expr {
+    @parse_field
+    body: ASTList[BlockBody]
+    @parse_field
+    expr: Expr
+}
+
+|" Expression of the form: ``if CONDITION then EXPR1 else EXPR2``
+class CondExpr: Expr {
+    @parse_field
+    condition: Expr
+    @parse_field
+    then_expr: Expr
+    @parse_field
+    @nullable
+    else_expr: Expr
+}
+
+|" Call of a constructor.
+|"
+|" For instance::
+|"
+|"     new IntLiteral("50")
+|"     new BinOp(f_op=new OpPlus(),
+|"               f_left=new IntLiteral("40"),
+|"               f_right=new IntLiteral("2"))
+class ConstructorCall: Expr {
+    @parse_field
+    name: Identifier
+    @parse_field
+    arguments: ASTList[Arg]
+}
+
+|" Access to a node's field using dot notation.
+class DotAccess: Expr {
+    @parse_field
+    receiver: Expr
+    @parse_field
+    member: Identifier
+}
+
+|" Access to a field of a nullable node using the ``?.`` operator
+class SafeAccess: DotAccess {
+}
+
+|" Function call.
+|"
+|" For instance::
+|"
+|"    add(2, 40)
+class FunCall: Expr {
+    @parse_field
+    name: Expr
+    @parse_field
+    has_safe: Safe
+    @parse_field
+    arguments: ASTList[Arg]
+
+    |" Return the number of arguments of the function call
+    @exported
+    fun arity(): Int = node.arguments.length()
+
+    |" Return whether this is a call to an actual function (instead of a
+    |" syntactic construct that looks like a function call bu isn't one).
+    @exported
+    fun is_actual_call(): Bool = not node.parent is NodePatternProperty
+
+    |" Return whether this is a call to a built-in property.
+    @exported
+    fun is_builtin_call(): Bool =
+        (node.name.text == "print" or node.name.text == "debug")
+        or node.name.text == "list"
+
+    fun expr_for_arg(name: String): Expr = {
+        val x =
+            node.arguments.find(
+                (a) => a.as[NamedArg].do((na) => na.arg_name.text == name)
+            );
+
+        if x.is_null then null[Expr] else x.expr()
+    }
+
+    |" Return the expression associated to the 'expr' argument, if any.
+    @exported
+    @memoized
+    fun depth_expr(): Expr = node.expr_for_arg("depth")
+
+    |" If the 'max_depth' arg is set and 'depth' is not set, return the
+    |" expression for 'max_depth'. If 'depth' is set return its expression.
+    |" If neither 'depth' or 'max_depth' is set, return a null expression.
+    @exported
+    @memoized
+    fun max_depth_expr(): Expr =
+        if node.depth_expr().is_null then node.expr_for_arg("max_depth")
+        else node.depth_expr()
+
+    |" If the 'min_depth' arg is set and 'depth' is not set, return the
+    |" expression for 'min_depth'. If 'depth' is set return its expression.
+    |" If neither 'depth' or 'min_depth' is set, return a null expression.
+    @exported
+    @memoized
+    fun min_depth_expr(): Expr =
+        if node.depth_expr().is_null then node.expr_for_arg("min_depth")
+        else node.depth_expr()
+}
+
+|" Regular identifier.
+class Identifier: Expr implements TokenNode {
+    |" Return the symbol for this identifier.
+    @exported
+    fun sym(): Symbol = node.symbol
+}
+
+|" Check that a list contains a given value using the ``in`` keyword
+class InClause: Expr {
+    @parse_field
+    value_expr: Expr
+    @parse_field
+    list_expr: Expr
+}
+
+|" Access to the nth element of a List or String
+|"
+|" For instance::
+|"
+|"    values[0]
+class Indexing: Expr {
+    @parse_field
+    collection_expr: Expr
+    @parse_field
+    index_expr: Expr
+}
+
+|" Safe indexing. Returns null if the value doesn't exist.
+class SafeIndexing: Indexing {
+}
+
+|" Check that a node matches a given pattern
+class IsClause: Expr {
+    @parse_field
+    node_expr: Expr
+    @parse_field
+    pattern: BasePattern
+}
+
+|" List comprehension of the form:
+|" ``[ expr | generator1, generator2, ...,  opt(guard)]``
+class ListComprehension: Expr {
+    @parse_field
+    expr: Expr
+    @parse_field
+    generators: ASTList[ListCompAssoc]
+    @parse_field
+    @nullable
+    guard: Expr
+}
+
+|" List literal of the form: ``[ expr1, expr2, ..., exprn ]``
+class ListLiteral: Expr {
+    @parse_field
+    exprs: ASTList[Expr]
+}
+
+|" Base class for literals
+@abstract
+class Literal: Expr {
+}
+
+|" Base class for string literals, both single & multi line.
+@abstract
+class BaseStringLiteral: Literal {
+}
+
+|" Node containing documentation for a given entity.
+class BlockStringLiteral: BaseStringLiteral {
+    @parse_field
+    docs: ASTList[SubBlockLiteral]
+}
+
+|" String literal.
+class StringLiteral: BaseStringLiteral implements TokenNode {
+}
+
+|" Boolean literal
+enum class BoolLiteral: Literal {
+    case True, False
+}
+
+|" Integer literal.
+class IntegerLiteral: Literal implements TokenNode {
+}
+
+|" Literal representing a null node.
+class NullLiteral: Literal implements TokenNode {
+}
+
+|" Literal representing the unit value.
+class UnitLiteral: Literal {
+}
+
+|" Match expression, returns the expression associated with the first pattern
+|" that matches the 'matched_val' field, or unit if no pattern matches.
+|"
+|" For instance::
+|"
+|"    match nodes[0]
+|"        | ObjectDecl => true
+|"        | *          => false
+class Match: Expr {
+    @parse_field
+    matched_val: Expr
+    @parse_field
+    arms: ASTList[MatchArm]
+
+    |" Return the expression associated with the nth selector arm.
+    @exported
+    fun nth_expression(n: Int = 0): Expr = node.arms?[n - 1].expr
+
+    |" Return a list of the patterns that appear n the match
+    |" expressions's arms.
+    @exported
+    fun patterns(): Array[Entity[BasePattern]] =
+        node.arms.map((x) => x.pattern.as_entity)
+}
+
+|" Object literal of the form:
+|" ``{label: value, ..., labeln: valuen}``
+class ObjectLiteral: Expr {
+    @parse_field
+    assocs: ASTList[ObjectAssoc]
+}
+
+|" Query against a pattern.
+|" this kind of expression will return every AST node that matches the given
+|" pattern.
+|"
+|" For instance::
+|"
+|"    let withAspects = [from <node>] [through <selector>]
+|"                      select ObjectDecl [child] AspectAssoc
+class Query: Expr {
+    @parse_field
+    @nullable
+    unpack_from: Unpack
+    @parse_field
+    @nullable
+    from_expr: Expr
+    @parse_field
+    @nullable
+    through_expr: Expr
+    @parse_field
+    query_kind: QueryKind
+    @parse_field
+    pattern: BasePattern
+}
+
+|" Expression that is only valid in a selector. Describes the next actions of
+|" a selector.
+class RecExpr: Expr {
+    @parse_field
+    recurse_unpack: Unpack
+    @parse_field
+    recurse_expr: Expr
+    @parse_field
+    @nullable
+    result_unpack: Unpack
+    @parse_field
+    @nullable
+    result_expr: Expr
+}
+
+|" Tuple expression.
+class Tuple: Expr {
+    @parse_field
+    exprs: ASTList[Expr]
+}
+
+|" Unary operator (+/-)
+class UnOp: Expr {
+    @parse_field
+    op: Op
+    @parse_field
+    operand: Expr
+}
+
+|" Unwrapping of a nullable node using the !! operator.
+class Unwrap: Expr {
+    @parse_field
+    node_expr: Expr
+}
+
+|" Access to a node kind field using the dot notation.
+class UpperDotAccess: Expr {
+    @parse_field
+    receiver: Identifier
+    @parse_field
+    member: Identifier
+}
+
+|" Import.
+class Import: LkqlNode {
+    @parse_field
+    name: Identifier
+}
+
+|" Arrow association of the form: id <- expr.
+|" This construction is meant to be used a part of a list comprehension
+class ListCompAssoc: LkqlNode {
+    @parse_field
+    binding_name: Identifier
+    @parse_field
+    coll_expr: Expr
+}
+
+|" Holder for the top-level environment
+class TopLevelList: ASTList[LkqlNode] {
+}
+
+|" Represents one case of a 'match'.
+class MatchArm: LkqlNode {
+    @parse_field
+    pattern: BasePattern
+    @parse_field
+    expr: Expr
+}
+
+|" Access to a field, property or selector inside a node pattern.
+@abstract
+class NodePatternDetail: LkqlNode {
+    @abstract
+    @parse_field
+    pattern_detail_delimiter: PatternDetailDelimiter
+}
+
+|" Access to a field in a node pattern.
+class NodePatternField: NodePatternDetail {
+    @parse_field
+    identifier: Identifier
+    @parse_field
+    pattern_detail_delimiter: PatternDetailDelimiter
+    @parse_field
+    expected_value: BasePattern
+}
+
+|" Access to a property in a node pattern.
+class NodePatternProperty: NodePatternDetail {
+    @parse_field
+    call: FunCall
+    @parse_field
+    pattern_detail_delimiter: PatternDetailDelimiter
+    @parse_field
+    expected_value: BasePattern
+}
+
+|" Use of a selector in a node pattern
+class NodePatternSelector: NodePatternDetail {
+    @parse_field
+    call: SelectorCall
+    @parse_field
+    pattern_detail_delimiter: PatternDetailDelimiter
+    @parse_field
+    pattern: BasePattern
+}
+
+|" Object assoc in an object literal:
+|" ``label: <value>``
+class ObjectAssoc: LkqlNode {
+    @parse_field
+    name: Identifier
+    @parse_field
+    expr: Expr
+}
+
+|" Object pattern assoc in an object pattern:
+|" ``label: <pattern>``
+class ObjectPatternAssoc: LkqlNode {
+    @parse_field
+    name: Identifier
+    @parse_field
+    pattern: BasePattern
+}
+
+|" Base class for operators.
+enum class Op: LkqlNode {
+    case Plus, Minus, Mul, Div, And, Or, Eq, Neq, Concat, Lt, Leq, Gt, Geq, Not
+}
+
+|" Pattern detail delimiter, either 'is' (old syntax) or ':' (new syntax).
+enum class PatternDetailDelimiter: LkqlNode {
+    case Is, Colon
+}
+
+|" Base class for operators.
+enum class QueryKind: LkqlNode {
+    case All, First
+}
+
+|" Qualifier for safe accesses.
+@qualifier
+enum class Safe: LkqlNode {
+}
+
+|" Represents one case of a selector
+|"
+|" For instance::
+|"
+|"    | o@ObjectDecl => o.image
+class SelectorArm: LkqlNode {
+    @parse_field
+    pattern: BasePattern
+    @parse_field
+    expr: Expr
+}
+
+|" Root node for selector patterns
+class SelectorCall: LkqlNode {
+    @parse_field
+    quantifier: Identifier
+    @parse_field
+    @nullable
+    binding: Identifier
+    @parse_field
+    selector_call: Expr
+
+    |" Return the selector's quantifier name.
+    |" If the name hasn't been explicitly specified, the default quantifier
+    |" name is 'all'.
+    @exported
+    fun quantifier_name(): String =
+        if node.quantifier.is_null then "all" else node.quantifier.text
+
+    |" Return the binding name associated with this selector call, if any.
+    @exported
+    fun binding_name(): Identifier = node.binding
+}
+
+|" Wrapper for a SubBlockLiteral token.
+class SubBlockLiteral: LkqlNode {
+}
+
+|" Qualifier for unpack operator ("*").
+@qualifier
+enum class Unpack: LkqlNode {
+}
