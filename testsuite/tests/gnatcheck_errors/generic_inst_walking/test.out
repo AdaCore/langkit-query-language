@@ -1,0 +1,37 @@
+Total gnatcheck failures: 1
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 0
+   unverified sources                    : 1
+   total sources                         : 1
+   ignored sources                       : 0
+
+   non-exempted violations               : 0
+   rule exemption warnings               : 0
+   compilation errors                    : 0
+   exempted violations                   : 0
+   internal errors                       : 1
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+   no non-exempted violations detected
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+   no language violations detected
+
+6. Gnatcheck internal errors
+
+test.adb:2:04: error: internal issue at checker.lkql:4:22: test.adb:2:4-2:28: dereferencing a null access [/test.adb]
+
+>>>program returned status code 2

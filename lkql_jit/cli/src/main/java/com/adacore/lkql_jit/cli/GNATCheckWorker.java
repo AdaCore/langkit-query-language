@@ -223,7 +223,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             try {
                 optionsBuilder.files(Files.readAllLines(Paths.get(this.args.filesFrom)));
             } catch (IOException e) {
-                System.err.println("Could not read file: " + this.args.filesFrom);
+                System.err.println("WORKER_ERROR: Could not read file: " + this.args.filesFrom);
             }
         }
 
