@@ -255,9 +255,15 @@ package Gnatcheck.Projects is
    --  Use ``Add_Rule_Option`` to forge a new rule option enabling the given
    --  rule without any parameter.
 
-   procedure Set_LKQL_Rule_File (File : String);
+   procedure Set_LKQL_Rule_File (File : String; Project_Relative : Boolean);
    --  Set the given ``File`` as the LKQL rule file to process during the
-   --  execution of ``Process_Rule_Options``.
+   --  execution of ``Process_Rule_Options``. If a rule file has already been
+   --  set, this function displays an error and set the
+   --  ``Rule_Option_Problem_Detected`` flag to True.
+   --  If the provided ``File`` isn't an absolute path, if ``Project_Relative``
+   --  is set to ``True``, resolve the provided file relatively to
+   --  the current project file (if any). Else, resolve ``File`` relatively to
+   --  the current working directory.
 
    function Is_Rule_Options_Empty return Boolean;
    --  Get whether the rule options are empty.

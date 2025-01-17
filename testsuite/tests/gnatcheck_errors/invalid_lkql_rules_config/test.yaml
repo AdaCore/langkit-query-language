@@ -18,8 +18,6 @@ tests:
   lkql_rule_file: not_valid_args.lkql
 - label: Not valid arguments element
   lkql_rule_file: not_valid_args_elem.lkql
-- label: Not existing file
-  lkql_rule_file: not_existing.lkql
 - label: Missing mandatory parameter
   lkql_rule_file: missing_param.lkql
 - label: Missing mandatory parameter on instance

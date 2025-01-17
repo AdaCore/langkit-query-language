@@ -1,0 +1,5 @@
+project With_Valid is
+   package Check is
+      for Rule_File use "prj_rules.lkql";
+   end Check;
+end With_Valid;

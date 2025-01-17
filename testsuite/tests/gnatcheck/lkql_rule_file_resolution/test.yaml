@@ -1,0 +1,14 @@
+driver: gnatcheck
+format: brief
+tests:
+  - label: With CLI valid rule file
+    project: prj/without.gpr
+    lkql_rule_file: rules.lkql
+  - label: With CLI invalid rule file
+    project: prj/without.gpr
+    lkql_rule_file: prj_rules.lkql
+  - label: With a project provided valid rule file
+    project: prj/with_valid.gpr
+  - label: With a project provided invalid rule file
+    project: prj/with_invalid.gpr
+canonicalize_backslashes: True
