@@ -829,7 +829,7 @@ package body Gnatcheck.Rules.Rule_Table is
    begin
       --  Ensure that the provided rule file exists
       if not Is_Regular_File (Rule_File_Absolute_Path) then
-         Error ("can not locate LKQL rule file " & LKQL_RF_Name);
+         Error ("can not locate LKQL rule file " & Rule_File_Absolute_Path);
          Missing_Rule_File_Detected := True;
          return;
       end if;
