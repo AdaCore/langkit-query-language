@@ -56,14 +56,6 @@ gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
 
-Not existing file
-=================
-
-gnatcheck: error: can not locate LKQL rule file <working-dir>/not_existing.lkql
-gnatcheck: error: no rule to check specified
-try "gnatcheck --help" for more information.
->>>program returned status code 2
-
 Missing mandatory parameter
 ===========================
 
