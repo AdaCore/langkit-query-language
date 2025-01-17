@@ -23,7 +23,6 @@ fun get_type(type) =
     | *                 => type
 
 @check(message="possible occurrence of KP R517-023",
-       impact="7.[1-4].*,17.*,18.[12]",
        follow_generic_instantiations = true)
 fun kp_r517_023(node) =
     node is CallExpr(p_is_call(): true)

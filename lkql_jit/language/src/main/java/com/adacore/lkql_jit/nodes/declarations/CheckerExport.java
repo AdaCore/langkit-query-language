@@ -93,14 +93,14 @@ public class CheckerExport extends Declaration {
                 };
 
         // Get the auto fix function
-        final var autoFixObject = checkerArguments[11];
+        final var autoFixObject = checkerArguments[10];
         final var autoFixArg = this.annotation.getArguments().getArgWithName("auto_fix");
 
         // If there is an auto fix, the checker must be a node checker
         if (autoFixObject != null && this.mode == CheckerMode.UNIT) {
             throw LKQLRuntimeException.fromMessage(
                     "Auto fixes not available for unit checks",
-                    autoFixArg.orElseGet(() -> this.annotation.getArguments().getArgs()[11]));
+                    autoFixArg.orElseGet(() -> this.annotation.getArguments().getArgs()[10]));
         }
 
         // Check that the auto fix object is a function
@@ -109,7 +109,7 @@ public class CheckerExport extends Declaration {
                     LKQLTypesHelper.LKQL_FUNCTION,
                     LKQLTypesHelper.fromJava(autoFixObject),
                     OptionalUtils.map(autoFixArg, a -> (LKQLNode) a.getArgExpr())
-                            .orElseGet(() -> this.annotation.getArguments().getArgs()[11]));
+                            .orElseGet(() -> this.annotation.getArguments().getArgs()[10]));
         }
         final var autoFix =
                 autoFixObject == null ? null : LKQLTypeSystemGen.asLKQLFunction(autoFixObject);
@@ -129,8 +129,7 @@ public class CheckerExport extends Declaration {
                                 remediation,
                                 (long) checkerArguments[6],
                                 (boolean) checkerArguments[7],
-                                (String) checkerArguments[8],
-                                (String) checkerArguments[9])
+                                (String) checkerArguments[8])
                         : new UnitChecker(
                                 functionValue.name,
                                 functionValue,
@@ -142,8 +141,7 @@ public class CheckerExport extends Declaration {
                                 remediation,
                                 (long) checkerArguments[6],
                                 (boolean) checkerArguments[7],
-                                (String) checkerArguments[8],
-                                (String) checkerArguments[9]);
+                                (String) checkerArguments[8]);
 
         // Put the object in the context
         LKQLLanguage.getContext(this)

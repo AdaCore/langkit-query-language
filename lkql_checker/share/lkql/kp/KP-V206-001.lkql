@@ -3,7 +3,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP V206-001", impact="22.1")
+@check(message="possible occurrence of KP V206-001")
 fun kp_v206_001(node) =
     node is GenericPackageInstantiation
     when node.f_generic_pkg_name.p_referenced_decl()

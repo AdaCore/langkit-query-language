@@ -4,7 +4,7 @@ import stdlib
 
 @check(help="possible occurrence of KP U923-018",
        message="possible occurrence of KP U923-018 on powerpc64 targets",
-       impact="21.*", target="powerpc64*")
+       target="powerpc64*")
 fun kp_u923_018(node) =
     node is (ClassicSubpDecl |
              BaseSubpBody(p_previous_part(): null) |

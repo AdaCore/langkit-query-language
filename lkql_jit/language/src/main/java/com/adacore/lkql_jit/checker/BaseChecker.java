@@ -51,9 +51,6 @@ public abstract class BaseChecker {
     /** If the checker has a parametric exemption. */
     protected final boolean parametricExemption;
 
-    /** Version impacted by the checker. */
-    protected final String impact;
-
     /** Target of the checker. */
     protected final String target;
 
@@ -72,7 +69,6 @@ public abstract class BaseChecker {
             final Remediation remediation,
             final long executionCost,
             final boolean parametricExemption,
-            final String impact,
             final String target) {
         this.name = name;
         this.function = function;
@@ -85,7 +81,6 @@ public abstract class BaseChecker {
         this.remediation = remediation;
         this.executionCost = executionCost;
         this.parametricExemption = parametricExemption;
-        this.impact = impact;
         this.target = target;
     }
 

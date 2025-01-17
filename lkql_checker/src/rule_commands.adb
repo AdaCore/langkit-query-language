@@ -93,6 +93,7 @@ package body Rule_Commands is
    function Create_Rule_Command
      (Lkql_File_Path : String;
       Ctx            : L.Analysis_Context;
+      Impacts        : JSON_Value;
       Rc             : out Rule_Command) return Boolean
    is
       Root    : constant L.Lkql_Node :=
@@ -132,8 +133,6 @@ package body Rule_Commands is
          Remediation_Arg       : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name
              (To_Unbounded_Text ("remediation"));
-         Impact_Arg            : constant L.Arg :=
-           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("impact"));
          Target_Arg            : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("target"));
          Msg                   : Unbounded_Text_Type;
@@ -218,24 +217,25 @@ package body Rule_Commands is
          Get_Text (Category_Arg, To_Unbounded_Text ("Misc"), Category);
          Get_Text (Subcategory_Arg, To_Unbounded_Text (""), Subcategory);
 
-         if not Impact_Arg.Is_Null then
-            Check_String (Impact_Arg);
-
+         if Impacts /= JSON_Null then
             declare
-               Str : constant String :=
-                 To_String (Impact_Arg.P_Expr.As_String_Literal.Text);
+               Impact_Value : constant JSON_Value :=
+                 Impacts.Get (To_UTF8 (To_Lower (Name)));
             begin
-               Impact :=
-                 new Regexp'(Compile ("{" &
-                                      Str (Str'First + 1 .. Str'Last - 1) &
-                                      "}",
-                                      Glob => True, Case_Sensitive => False));
-
+               if Impact_Value /= JSON_Null then
+                  Impact :=
+                    new Regexp'
+                      (Compile
+                         ("{" & Impact_Value.Get & "}",
+                          Glob           => True,
+                          Case_Sensitive => False));
+               end if;
             exception
                when others =>
-                  raise Rule_Error with
-                    "invalid argument for @" &
-                    To_String (Check_Annotation.F_Name.Text);
+                  raise Rule_Error
+                    with
+                      "invalid impact entry for "
+                      & To_String (Check_Annotation.F_Name.Text);
             end;
          end if;
 

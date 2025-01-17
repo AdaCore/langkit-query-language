@@ -18,7 +18,7 @@ fun get_components(type) =
 fun check_components(ids, comps) =
     [id for id in ids if not [n for n in comps if id.p_name_matches(n)]]
 
-@check(message="possible occurrence of KP U126-006", impact="20.[12],21.1")
+@check(message="possible occurrence of KP U126-006")
 fun kp_u126_006(node) =
     # Look for record types with a representation clause
     node is TypeDecl

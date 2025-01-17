@@ -11,7 +11,7 @@ fun check_clause(params) =
      then params[2].f_r_expr.p_eval_as_int() != 1
      else params[2].f_r_expr.p_eval_as_int() != 0)
 
-@check(message="possible occurrence of KP UC22-009", impact="22.1")
+@check(message="possible occurrence of KP UC22-009")
 fun kp_uc22_009(node) =
     node is EnumRepClause
     when node.f_type_name.p_referenced_decl() is t@TypeDecl

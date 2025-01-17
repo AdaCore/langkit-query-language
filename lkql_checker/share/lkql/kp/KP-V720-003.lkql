@@ -6,8 +6,7 @@ fun has_initialize_scalars(unit) =
     unit.p_config_pragmas("Initialize_Scalars").length > 0
 
 @check(help="possible occurrence of KP V720-003 - global analysis required",
-       message="possible occurrence of KP V720-003 if -gnatVo and -gnateA are used",
-       impact="22.*")
+       message="possible occurrence of KP V720-003 if -gnatVo and -gnateA are used")
 fun kp_v720_003(node) =
     node is AssocList(parent: call@CallExpr(p_is_call(): true))
     when has_initialize_scalars(node.p_enclosing_compilation_unit()) and

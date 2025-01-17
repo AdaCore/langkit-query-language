@@ -86,7 +86,6 @@ public class Constants {
                 "remediation",
                 "execution_cost",
                 "parametric_exemption",
-                "impact",
                 "target",
                 "rule_name",
                 "auto_fix"
@@ -95,6 +94,6 @@ public class Constants {
     /** The default values for annotation parameters. */
     public static final Object[] CHECKER_PARAMETER_DEFAULT_VALUES =
             new Object[] {
-                null, null, false, "Misc", "Misc", "MEDIUM", 0L, false, "", "amd64", null, null
+                null, null, false, "Misc", "Misc", "MEDIUM", 0L, false, "amd64", null, null
             };
 }

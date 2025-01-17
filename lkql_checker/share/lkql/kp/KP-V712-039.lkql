@@ -3,7 +3,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP V712-039", impact="22.*")
+@check(message="possible occurrence of KP V712-039")
 fun kp_v712_039(node) =
     node is ForLoopStmt(
         f_spec: ForLoopSpec(f_iter_expr: Expr(

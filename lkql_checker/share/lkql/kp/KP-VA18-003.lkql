@@ -2,8 +2,7 @@
 # Is_Descendant_At_Same_Level when any parameter of type Tag is not xxx'Tag.
 
 @check(help="possible occurrence of KP VA18-003",
-       message="possible occurrence of KP VA18-003 if No_Tag is passed",
-       impact="21.*,22.*")
+       message="possible occurrence of KP VA18-003 if No_Tag is passed")
 fun kp_va18_003(node) =
     node is CallExpr(f_suffix: l@AssocList,
                      p_referenced_decl(): decl@SubpDecl)

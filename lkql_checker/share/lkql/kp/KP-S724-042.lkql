@@ -1,7 +1,7 @@
 # Flag extended return statements with a default expression of a type with
 # a Default_Initial_Condition aspect.
 
-@check(message="possible occurrence of KP S724-042", impact="19.*,20.1")
+@check(message="possible occurrence of KP S724-042")
 fun kp_s724_042(node) =
     node is ExtendedReturnStmt
     when node.f_decl.f_default_expr is Expr

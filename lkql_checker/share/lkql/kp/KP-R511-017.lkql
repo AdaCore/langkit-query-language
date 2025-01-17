@@ -2,8 +2,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP R511-017",
-       impact="7.[1-4].*,17.*,18.*")
+@check(message="possible occurrence of KP R511-017")
 fun kp_r511_017(node) =
     node is SubtypeDecl(
         p_has_aspect("Object_Size"): true,
