@@ -1,0 +1,31 @@
+import stdlib
+
+fun size_depends_on_discriminant(type_decl) =
+    |" Returns whether the given type declaration is a record declaration with
+    |" its size depending on defaulted discriminants.
+    type_decl.p_is_record_type()
+    and stdlib.any([
+        d is DiscriminantSpec(f_default_expr: not null)
+        when (
+            from type_decl select (
+                VariantPart(f_discr_name: id when id.p_referenced_decl() == d)
+                | Constraint(any children: id@Identifier when id.p_referenced_decl() == d)
+            )
+        ).length > 0
+        for d in type_decl.p_discriminants_list(type_decl)
+    ])
+
+@check(help="possible occurrence of KP 19696",
+       message="possible occurrence of KP 19696")
+fun kp_19696(node) =
+    |" Flag function calls returning a discriminated limited record type with
+    |" default discriminants, with a size that depends on the discriminants.
+    node is Name(
+        p_is_call(): true,
+        p_expression_type(): d@BaseTypeDecl(
+            p_is_limited_type(): true
+        ) when stdlib.any([
+            size_depends_on_discriminant(pt)
+            for pt in [d] & stdlib.full_parent_types(d).to_list
+        ])
+    )

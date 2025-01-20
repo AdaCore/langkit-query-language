@@ -1,0 +1,28 @@
+main.adb:69:17: rule violation: possible occurrence of KP 19696
+69 |    Consume_R_1 (Get_R_1);           --  FLAG
+   |                 ^^^^^^^
+
+main.adb:70:19: rule violation: possible occurrence of KP 19696
+70 |    Consume_S_R_1 (Get_S_R_1);       --  FLAG
+   |                   ^^^^^^^^^
+
+main.adb:71:19: rule violation: possible occurrence of KP 19696
+71 |    Consume_D_R_1 (Get_D_R_1);       --  FLAG
+   |                   ^^^^^^^^^
+
+main.adb:72:21: rule violation: possible occurrence of KP 19696
+72 |    Consume_L_D_R_1 (Get_L_D_R_1);   --  FLAG
+   |                     ^^^^^^^^^^^
+
+main.adb:73:17: rule violation: possible occurrence of KP 19696
+73 |    Consume_R_2 (Get_R_2);           --  FLAG
+   |                 ^^^^^^^
+
+main.adb:77:19: rule violation: possible occurrence of KP 19696
+77 |    Consume_D_R_6 (Get_D_R_6);       --  FLAG
+   |                   ^^^^^^^^^
+
+main.adb:78:21: rule violation: possible occurrence of KP 19696
+78 |    Consume_S_D_R_6 (Get_S_D_R_6);   --  FLAG
+   |                     ^^^^^^^^^^^
+
