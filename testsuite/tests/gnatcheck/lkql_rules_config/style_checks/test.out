@@ -1,9 +1,9 @@
 Classic argument object
 =======================
 
-main.adb:3:07: redundant parentheses
+main.adb:3:07: rule violation: redundant parentheses
 
 Shortcut argument
 =================
 
-main.adb:3:07: redundant parentheses
+main.adb:3:07: rule violation: redundant parentheses

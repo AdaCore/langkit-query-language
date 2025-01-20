@@ -3029,8 +3029,19 @@ package body Gnatcheck.Diagnoses is
            (Ada.Strings.Fixed.Trim (Line_Number'Image (Sloc.Line), Left)
             & ':' & Column_Str);
       end Image;
+
+      Tag_String : constant String :=
+        (case Self.Diagnosis_Kind is
+         when Rule_Violation =>
+           (if Self.Justification /= Null_Unbounded_String
+            then "rule violation (exempted): "
+            else "rule violation: "),
+         when Exemption_Warning => "warning: ",
+         when others => "");
    begin
-      return To_String (Self.File) & ":" & Image (Self.Sloc) & ": "
+      return To_String (Self.File) & ":"
+        & Image (Self.Sloc) & ": "
+        & Tag_String
         & To_String (Self.Text);
    end Image;
 

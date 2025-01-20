@@ -1,15 +1,15 @@
 With valid options
 ==================
 
-main.adb:6:07: redundant parentheses [extra_par|style_checks:x]
-main.adb:6:08: bad casing of "Int" declared at line 4 [style_checks:r]
-main.adb:8:08: reserved words must be all lower case [keywords|style_checks:k]
+main.adb:6:07: rule violation: redundant parentheses [extra_par|style_checks:x]
+main.adb:6:08: rule violation: bad casing of "Int" declared at line 4 [style_checks:r]
+main.adb:8:08: rule violation: reserved words must be all lower case [keywords|style_checks:k]
 
 With same style check on multiple instances
 ===========================================
 
 gnatcheck: error: cannot enable the same style check in different rule instances: x
-main.adb:6:07: redundant parentheses [extra_par|style_checks:x]
+main.adb:6:07: rule violation: redundant parentheses [extra_par|style_checks:x]
 >>>program returned status code 5
 Errors in Ada sources FLAG annotations!
 

@@ -1,11 +1,11 @@
 Simple configuration
 ====================
 
-main.adb:2:04: use of pragma Ada_2022
-main.adb:3:04: use of pragma Custom
+main.adb:2:04: rule violation: use of pragma Ada_2022
+main.adb:3:04: rule violation: use of pragma Custom
 
 All enabled
 ===========
 
-main.adb:2:04: use of pragma Ada_2022
-main.adb:8:04: use of pragma Assert
+main.adb:2:04: rule violation: use of pragma Ada_2022
+main.adb:8:04: rule violation: use of pragma Assert

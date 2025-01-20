@@ -1,1 +1,1 @@
-main.adb:4:07: code duplicated at line 11
+main.adb:4:07: rule violation: code duplicated at line 11

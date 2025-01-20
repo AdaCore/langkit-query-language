@@ -1,76 +1,76 @@
-chop.adb:14:11: PIck_Up does not have casing specified (mixed)
-chop.ads:11:18: Stick does not start with subtype prefix T_
-phil.adb:21:11: Think_Times does not start with subtype prefix T_
-phil.adb:25:11: Meal_Times does not start with subtype prefix T_
-phil.adb:31:13: Life_Time does not start with subtype prefix T_
-phil.adb:33:05: "Who_Am_I" is not modified, could be declared constant
-phil.ads:12:03: violation of restriction "No_Tasking"
-phil.ads:12:13: Philosopher does not start with subtype prefix T_
-phil.ads:12:26: My_ID does not have casing specified (mixed)
-phil.ads:19:08: States does not end with type suffix _Type
-phil.ads:19:08: States does not start with subtype prefix T_
-random_generic.ads:5:08: Result_Subtype does not end with type suffix _Type
-random_generic.ads:5:08: Result_Subtype does not start with subtype prefix T_
-room.adb:19:03: violation of restriction "No_Tasking"
-room.adb:19:23: anonymous subtype
-room.adb:20:03: violation of restriction "No_Tasking"
-room.adb:20:23: anonymous subtype
-room.adb:21:03: violation of restriction "No_Tasking"
-room.adb:21:23: anonymous subtype
-room.adb:22:03: violation of restriction "No_Tasking"
-room.adb:22:23: anonymous subtype
-room.adb:23:03: violation of restriction "No_Tasking"
-room.adb:23:23: anonymous subtype
-room.adb:25:08: Philosopher_Ptr does not end with access suffix _Access_Type
-room.adb:25:08: Philosopher_Ptr does not start with access prefix A_
-room.adb:27:11: anonymous array type
-room.adb:28:18: anonymous array type
-room.adb:29:16: anonymous array type
-room.adb:35:05: Blanks does not start with constant prefix C_
-room.adb:55:22: aggregate is not a part of a qualified expression
-room.adb:56:22: aggregate is not a part of a qualified expression
-room.adb:57:22: aggregate is not a part of a qualified expression
-room.adb:58:22: aggregate is not a part of a qualified expression
-room.adb:59:22: aggregate is not a part of a qualified expression
-room.adb:60:01: multiple blank lines
-room.adb:62:25: anonymous subtype
-room.ads:18:03: Table_Size does not start with constant prefix C_
-room.ads:19:11: Table_Type does not start with subtype prefix T_
-room.ads:21:12: anonymous array type
-room.ads:23:03: violation of restriction "No_Tasking"
-screen.adb:15:11: Int_IO does not have casing specified (mixed)
-screen.adb:22:13: ClearScreen does not have casing specified (mixed)
-screen.adb:28:13: MoveCursor does not have casing specified (mixed)
-screen.ads:10:03: ScreenHeight does not have casing specified (mixed)
-screen.ads:10:03: ScreenHeight does not start with constant prefix C_
-screen.ads:11:03: ScreenWidth does not have casing specified (mixed)
-screen.ads:11:03: ScreenWidth does not start with constant prefix C_
-screen.ads:13:11: Height does not start with subtype prefix T_
-screen.ads:14:11: Width does not start with subtype prefix T_
-screen.ads:16:08: Position does not end with type suffix _Type
-screen.ads:16:08: Position does not start with subtype prefix T_
-screen.ads:25:13: ClearScreen does not have casing specified (mixed)
-screen.ads:29:13: MoveCursor does not have casing specified (mixed)
-society.ads:11:11: Unique_DNA_Codes does not have casing specified (mixed)
-society.ads:11:11: Unique_DNA_Codes does not start with subtype prefix T_
-society.ads:13:19: anonymous array type
-society.ads:13:46: anonymous subtype
-windows.adb:11:18: UpperLeft does not have casing specified (mixed)
-windows.adb:18:22: aggregate is not a part of a qualified expression
-windows.adb:23:13: EraseToEndOfLine does not have casing specified (mixed)
-windows.adb:26:18: anonymous subtype
-windows.adb:62:18: anonymous subtype
-windows.adb:93:20: anonymous subtype
-windows.adb:107:18: anonymous subtype
-windows.adb:113:18: anonymous subtype
-windows.adb:114:26: aggregate is not a part of a qualified expression
-windows.adb:116:26: aggregate is not a part of a qualified expression
-windows.adb:121:24: aggregate is not a part of a qualified expression
-windows.adb:123:18: anonymous subtype
-windows.adb:129:17: aggregate is not a part of a qualified expression
-windows.adb:130:17: aggregate is not a part of a qualified expression
-windows.adb:134:13: MoveCursor does not have casing specified (mixed)
-windows.ads:11:08: Window does not end with type suffix _Type
-windows.ads:11:08: Window does not start with subtype prefix T_
-windows.ads:13:18: UpperLeft does not have casing specified (mixed)
-windows.ads:33:13: MoveCursor does not have casing specified (mixed)
+chop.adb:14:11: rule violation: PIck_Up does not have casing specified (mixed)
+chop.ads:11:18: rule violation: Stick does not start with subtype prefix T_
+phil.adb:21:11: rule violation: Think_Times does not start with subtype prefix T_
+phil.adb:25:11: rule violation: Meal_Times does not start with subtype prefix T_
+phil.adb:31:13: rule violation: Life_Time does not start with subtype prefix T_
+phil.adb:33:05: rule violation: "Who_Am_I" is not modified, could be declared constant
+phil.ads:12:03: rule violation: violation of restriction "No_Tasking"
+phil.ads:12:13: rule violation: Philosopher does not start with subtype prefix T_
+phil.ads:12:26: rule violation: My_ID does not have casing specified (mixed)
+phil.ads:19:08: rule violation: States does not end with type suffix _Type
+phil.ads:19:08: rule violation: States does not start with subtype prefix T_
+random_generic.ads:5:08: rule violation: Result_Subtype does not end with type suffix _Type
+random_generic.ads:5:08: rule violation: Result_Subtype does not start with subtype prefix T_
+room.adb:19:03: rule violation: violation of restriction "No_Tasking"
+room.adb:19:23: rule violation: anonymous subtype
+room.adb:20:03: rule violation: violation of restriction "No_Tasking"
+room.adb:20:23: rule violation: anonymous subtype
+room.adb:21:03: rule violation: violation of restriction "No_Tasking"
+room.adb:21:23: rule violation: anonymous subtype
+room.adb:22:03: rule violation: violation of restriction "No_Tasking"
+room.adb:22:23: rule violation: anonymous subtype
+room.adb:23:03: rule violation: violation of restriction "No_Tasking"
+room.adb:23:23: rule violation: anonymous subtype
+room.adb:25:08: rule violation: Philosopher_Ptr does not end with access suffix _Access_Type
+room.adb:25:08: rule violation: Philosopher_Ptr does not start with access prefix A_
+room.adb:27:11: rule violation: anonymous array type
+room.adb:28:18: rule violation: anonymous array type
+room.adb:29:16: rule violation: anonymous array type
+room.adb:35:05: rule violation: Blanks does not start with constant prefix C_
+room.adb:55:22: rule violation: aggregate is not a part of a qualified expression
+room.adb:56:22: rule violation: aggregate is not a part of a qualified expression
+room.adb:57:22: rule violation: aggregate is not a part of a qualified expression
+room.adb:58:22: rule violation: aggregate is not a part of a qualified expression
+room.adb:59:22: rule violation: aggregate is not a part of a qualified expression
+room.adb:60:01: rule violation: multiple blank lines
+room.adb:62:25: rule violation: anonymous subtype
+room.ads:18:03: rule violation: Table_Size does not start with constant prefix C_
+room.ads:19:11: rule violation: Table_Type does not start with subtype prefix T_
+room.ads:21:12: rule violation: anonymous array type
+room.ads:23:03: rule violation: violation of restriction "No_Tasking"
+screen.adb:15:11: rule violation: Int_IO does not have casing specified (mixed)
+screen.adb:22:13: rule violation: ClearScreen does not have casing specified (mixed)
+screen.adb:28:13: rule violation: MoveCursor does not have casing specified (mixed)
+screen.ads:10:03: rule violation: ScreenHeight does not have casing specified (mixed)
+screen.ads:10:03: rule violation: ScreenHeight does not start with constant prefix C_
+screen.ads:11:03: rule violation: ScreenWidth does not have casing specified (mixed)
+screen.ads:11:03: rule violation: ScreenWidth does not start with constant prefix C_
+screen.ads:13:11: rule violation: Height does not start with subtype prefix T_
+screen.ads:14:11: rule violation: Width does not start with subtype prefix T_
+screen.ads:16:08: rule violation: Position does not end with type suffix _Type
+screen.ads:16:08: rule violation: Position does not start with subtype prefix T_
+screen.ads:25:13: rule violation: ClearScreen does not have casing specified (mixed)
+screen.ads:29:13: rule violation: MoveCursor does not have casing specified (mixed)
+society.ads:11:11: rule violation: Unique_DNA_Codes does not have casing specified (mixed)
+society.ads:11:11: rule violation: Unique_DNA_Codes does not start with subtype prefix T_
+society.ads:13:19: rule violation: anonymous array type
+society.ads:13:46: rule violation: anonymous subtype
+windows.adb:11:18: rule violation: UpperLeft does not have casing specified (mixed)
+windows.adb:18:22: rule violation: aggregate is not a part of a qualified expression
+windows.adb:23:13: rule violation: EraseToEndOfLine does not have casing specified (mixed)
+windows.adb:26:18: rule violation: anonymous subtype
+windows.adb:62:18: rule violation: anonymous subtype
+windows.adb:93:20: rule violation: anonymous subtype
+windows.adb:107:18: rule violation: anonymous subtype
+windows.adb:113:18: rule violation: anonymous subtype
+windows.adb:114:26: rule violation: aggregate is not a part of a qualified expression
+windows.adb:116:26: rule violation: aggregate is not a part of a qualified expression
+windows.adb:121:24: rule violation: aggregate is not a part of a qualified expression
+windows.adb:123:18: rule violation: anonymous subtype
+windows.adb:129:17: rule violation: aggregate is not a part of a qualified expression
+windows.adb:130:17: rule violation: aggregate is not a part of a qualified expression
+windows.adb:134:13: rule violation: MoveCursor does not have casing specified (mixed)
+windows.ads:11:08: rule violation: Window does not end with type suffix _Type
+windows.ads:11:08: rule violation: Window does not start with subtype prefix T_
+windows.ads:13:18: rule violation: UpperLeft does not have casing specified (mixed)
+windows.ads:33:13: rule violation: MoveCursor does not have casing specified (mixed)

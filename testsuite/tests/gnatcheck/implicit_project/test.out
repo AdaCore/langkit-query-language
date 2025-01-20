@@ -1,1 +1,1 @@
-main.adb:3:04: goto statement
+main.adb:3:04: rule violation: goto statement

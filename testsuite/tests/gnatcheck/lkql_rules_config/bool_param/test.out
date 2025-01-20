@@ -1,13 +1,13 @@
 Goto_Statements
 ===============
 
-main.adb:5:04: goto statement
+main.adb:5:04: rule violation: goto statement
 
 Non_Short_Circuits_Operators
 ============================
 
-main.adb:2:34: use of predefined AND for boolean type
-main.adb:3:24: use of predefined OR for boolean type
+main.adb:2:34: rule violation: use of predefined AND for boolean type
+main.adb:3:24: rule violation: use of predefined OR for boolean type
 
 Invalid type
 ============

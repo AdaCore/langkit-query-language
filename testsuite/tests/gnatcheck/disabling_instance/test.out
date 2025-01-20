@@ -8,12 +8,12 @@ try "gnatcheck --help" for more information.
 Disable an instance with a previously given parameter
 =====================================================
 
-main.adb:3:04: goto statement [cond_goto|goto_statements]
-main.adb:8:07: goto statement [cond_goto|goto_statements]
+main.adb:3:04: rule violation: goto statement [cond_goto|goto_statements]
+main.adb:8:07: rule violation: goto statement [cond_goto|goto_statements]
 
 Disabling the wrong instance
 ============================
 
 gnatcheck: error: "goto_statements" is not enabled, therefore, cannot be disabled
-main.adb:3:04: goto statement [cond_goto|goto_statements]
+main.adb:3:04: rule violation: goto statement [cond_goto|goto_statements]
 >>>program returned status code 5

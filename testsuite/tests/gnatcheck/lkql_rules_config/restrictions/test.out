@@ -1,2 +1,2 @@
-main.adb:3:07: violation of restriction "Max_Task_Entries = 2"
-main.adb:13:24: violation of restriction "No_Access_Subprograms"
+main.adb:3:07: rule violation: violation of restriction "Max_Task_Entries = 2"
+main.adb:13:24: rule violation: violation of restriction "No_Access_Subprograms"
