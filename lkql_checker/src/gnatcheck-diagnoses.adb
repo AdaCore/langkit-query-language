@@ -1682,11 +1682,11 @@ package body Gnatcheck.Diagnoses is
 
       function Preprocess_Diag (Diag : String) return String;
       --  Add GPS_Prefix if Progress_Indicator_Mode is True, and remove any
-      --  training [-gnatwxxx].
+      --  trailing [-gnatwxxx].
 
       procedure Counted_Print_Diagnosis
         (Position : Error_Messages_Storage.Cursor);
-      --  Print Diagnosis until reaching Max_Diagnoses
+      --  Print diagnosis until reaching Max_Diagnoses
 
       ---------------------
       -- Preprocess_Diag --
