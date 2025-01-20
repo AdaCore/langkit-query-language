@@ -42,13 +42,13 @@ package Gnatcheck.Output is
    --  Reports that a required file could not be found
 
    procedure Error (Message : String);
-   --  Sends into Stderr the error message in the form 'Tool_Name: Message'
+   --  Sends ``Message`` into stderr, prefixed by "tool_name: error: ".
 
    procedure Warning (Message : String);
-   --  Same as ``Error``
+   --  Sends ``Message`` into stderr, prefixed by "tool_name: warning: ".
 
    procedure Info (Message : String);
-   --  Sends Message into Stderr (with no tool name prefix).
+   --  Sends ``Message`` into stderr, prefixed by "tool_name: info: ".
 
    procedure Info_In_Tty (Message : String);
    --  Same as ``Info`` but send the message only if Stderr is a TTY. Also,
