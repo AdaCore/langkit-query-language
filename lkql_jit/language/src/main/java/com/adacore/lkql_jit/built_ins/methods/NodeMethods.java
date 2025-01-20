@@ -5,17 +5,13 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
-import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createMethod;
-
 import com.adacore.libadalang.Libadalang;
+import com.adacore.libadalang.Libadalang.AdaNode;
+import com.adacore.libadalang.Libadalang.AnalysisUnit;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
-import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
-import com.adacore.lkql_jit.built_ins.SpecializedBuiltInBody;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.annotations.BuiltInMethod;
+import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
@@ -23,153 +19,103 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * This class contains all built-in methods for the node type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
+@BuiltinMethodContainer(targetTypes = {LKQLTypesHelper.ADA_NODE})
 public final class NodeMethods {
 
-    public static final Map<String, BuiltInMethodFactory> methods =
-            Map.ofEntries(
-                    createAttribute(
-                            "children_count",
-                            "Given a node, return the count of its children",
-                            new ChildrenCountExpr()),
-                    createAttribute(
-                            "children",
-                            "Given a node, get the list of all its children",
-                            new ChildrenExpr()),
-                    createAttribute(
-                            "parent", "Given a node, get the parent of it", new ParentExpr()),
-                    createAttribute(
-                            "dump",
-                            "Given an ast node, return a structured dump of the subtree",
-                            new DumpExpr()),
-                    createAttribute("text", "Given an ast node, return its text", new TextExpr()),
-                    createAttribute(
-                            "image", "Given an ast node, return its image", new ImageExpr()),
-                    createAttribute(
-                            "unit", "Given an ast node, return its analysis unit", new UnitExpr()),
-                    createAttribute(
-                            "kind", "Return the kind of this node, as a string", new KindExpr()),
-                    createAttribute(
-                            "tokens",
-                            "Given a node, return an iterator on its tokens",
-                            new TokensExpr()),
-                    createMethod(
-                            "same_tokens",
-                            "Return whether two nodes have the same tokens, ignoring trivias",
-                            new String[] {"other"},
-                            new Expr[] {null},
-                            new SpecializedBuiltInBody<>(
-                                    NodeMethodsFactory.SameTokensExprNodeGen.create()) {
-                                @Override
-                                protected Object dispatch(Object[] args) {
-                                    return this.specializedNode.executeSameTokens(
-                                            LKQLTypeSystemGen.asAdaNode(args[0]), args[1]);
-                                }
-                            }));
-
-    // ----- Inner classes -----
-
-    /** Expression of the "children" method. */
-    public static final class ChildrenExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the node
-            Libadalang.AdaNode node = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]);
-
-            // Prepare the result
-            int childrenCount = node.getChildrenCount();
-            Libadalang.AdaNode[] res = new Libadalang.AdaNode[childrenCount];
+    @BuiltInMethod(name = "children", doc = "Return the node's children", isProperty = true)
+    abstract static class ChildrenExpr extends BuiltInBody {
+        @Specialization
+        public LKQLList onNode(AdaNode self) {
+            int childrenCount = self.getChildrenCount();
+            AdaNode[] res = new AdaNode[childrenCount];
             for (int i = 0; i < childrenCount; i++) {
-                Libadalang.AdaNode child = node.getChild(i);
+                AdaNode child = self.getChild(i);
                 res[i] = (child.isNone() ? LKQLNull.INSTANCE : child);
             }
-
-            // Return the list value
             return new LKQLList(res);
         }
     }
 
-    /** Expression of the "parent" method. */
-    public static final class ParentExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            Libadalang.AdaNode parent =
-                    LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).parent();
+    @BuiltInMethod(name = "parent", doc = "Return the node's parent", isProperty = true)
+    abstract static class ParentExpr extends BuiltInBody {
+        @Specialization
+        public AdaNode onNode(AdaNode self) {
+            AdaNode parent = self.parent();
             return parent.isNone() ? LKQLNull.INSTANCE : parent;
         }
     }
 
-    /** Expression of the "children_count" method. */
-    public static final class ChildrenCountExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            return (long) LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getChildrenCount();
+    @BuiltInMethod(
+            name = "children_count",
+            doc = "Return the node's children count",
+            isProperty = true)
+    abstract static class ChildrenCountExpr extends BuiltInBody {
+        @Specialization
+        public long onNode(AdaNode self) {
+            return (long) self.getChildrenCount();
         }
     }
 
-    /** Expression of the "dump" method. */
-    public static final class DumpExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            LKQLLanguage.getContext(this)
-                    .print(LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).dumpTree());
+    @BuiltInMethod(
+            name = "dump",
+            doc = "Dump the node's content in a structured tree",
+            isProperty = true)
+    abstract static class DumpExpr extends BuiltInBody {
+        @Specialization
+        public LKQLUnit onNode(AdaNode self) {
+            LKQLLanguage.getContext(this).print(self.dumpTree());
             return LKQLUnit.INSTANCE;
         }
     }
 
-    /** Expression of the "text" method. */
-    public static final class TextExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getText();
+    @BuiltInMethod(name = "text", doc = "Return the node's text", isProperty = true)
+    abstract static class TextExpr extends BuiltInBody {
+        @Specialization
+        public String onNode(AdaNode self) {
+            return self.getText();
         }
     }
 
-    /** Expression of the "image" method. */
-    public static final class ImageExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getImage();
+    @BuiltInMethod(name = "image", doc = "Return the node's image", isProperty = true)
+    abstract static class ImageExpr extends BuiltInBody {
+        @Specialization
+        public String onNode(AdaNode self) {
+            return self.getImage();
         }
     }
 
-    /** Expression of the "unit" method. */
-    public static final class UnitExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getUnit();
+    @BuiltInMethod(name = "unit", doc = "Return the node's analysis unit", isProperty = true)
+    abstract static class UnitExpr extends BuiltInBody {
+        @Specialization
+        public AnalysisUnit onNode(AdaNode self) {
+            return self.getUnit();
         }
     }
 
-    /** Expression of the "kind" method. */
-    public static final class KindExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            return ReflectionUtils.getClassSimpleName(frame.getArguments()[0]);
+    @BuiltInMethod(name = "kind", doc = "Return the node's kind", isProperty = true)
+    abstract static class KindExpr extends BuiltInBody {
+        @Specialization
+        public String onNode(AdaNode self) {
+            return ReflectionUtils.getClassSimpleName(self);
         }
     }
 
-    /** Expression of the "tokens" method. */
-    public static final class TokensExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the node
-            Libadalang.AdaNode node = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]);
-
+    @BuiltInMethod(name = "tokens", doc = "Return the node's tokens", isProperty = true)
+    abstract static class TokensExpr extends BuiltInBody {
+        @Specialization
+        public LKQLList onNode(AdaNode self) {
             // Prepare the result
             ArrayList<Libadalang.Token> resList = new ArrayList<>();
-            Libadalang.Token startToken = node.tokenStart();
-            Libadalang.Token endToken = node.tokenEnd();
+            Libadalang.Token startToken = self.tokenStart();
+            Libadalang.Token endToken = self.tokenEnd();
             resList.add(startToken);
             while (!startToken.equals(endToken)) {
                 startToken = startToken.next();
@@ -181,14 +127,12 @@ public final class NodeMethods {
         }
     }
 
-    /** Expression of the "same_tokens" method. */
-    public abstract static class SameTokensExpr
-            extends SpecializedBuiltInBody.SpecializedBuiltInNode {
-
-        public abstract boolean executeSameTokens(Libadalang.AdaNode leftNode, Object rightNode);
-
+    @BuiltInMethod(
+            name = "same_tokens",
+            doc = "Return whether two nodes have the same tokens, ignoring trivias")
+    abstract static class SameTokensExpr extends BuiltInBody {
         @Specialization
-        protected boolean onAdaNode(Libadalang.AdaNode leftNode, Libadalang.AdaNode rightNode) {
+        protected boolean onAdaNode(AdaNode leftNode, AdaNode rightNode) {
             // Get the tokens
             Libadalang.Token leftToken = leftNode.tokenStart();
             Libadalang.Token rightToken = rightNode.tokenStart();
@@ -219,15 +163,6 @@ public final class NodeMethods {
 
             // The default return value
             return true;
-        }
-
-        @Fallback
-        protected boolean onInvalid(
-                @SuppressWarnings("unused") Libadalang.AdaNode leftNode, Object rightValue) {
-            throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE,
-                    LKQLTypesHelper.fromJava(rightValue),
-                    body.argNode(0));
         }
 
         /** Get the next token from the given one ignoring the trivias. */

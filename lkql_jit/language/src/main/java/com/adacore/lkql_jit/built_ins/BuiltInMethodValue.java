@@ -5,8 +5,6 @@
 
 package com.adacore.lkql_jit.built_ins;
 
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-
 /** This class represents the LKQL value of an instantiated built-in method. */
 public class BuiltInMethodValue extends BuiltInFunctionValue {
 
@@ -25,8 +23,8 @@ public class BuiltInMethodValue extends BuiltInFunctionValue {
             String name,
             String documentation,
             String[] names,
-            Expr[] defaultValues,
-            AbstractBuiltInFunctionBody body,
+            String[] defaultValues,
+            BuiltInBody body,
             Object thisValue) {
         super(name, documentation, names, defaultValues, body);
         this.thisValue = thisValue;

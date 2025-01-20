@@ -11,11 +11,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents all type of arguments in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents all type of arguments in the LKQL language. */
 public abstract class Arg extends LKQLNode {
 
     // ----- Attributes -----

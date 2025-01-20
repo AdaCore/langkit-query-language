@@ -214,7 +214,7 @@ public abstract class FunCall extends Expr {
             Object[] args,
             boolean includeClosure) {
         // Verify that all arguments are present
-        Expr[] defaultValues = function.parameterDefaultValues;
+        Expr[] defaultValues = function.getParameterDefaultValues();
         for (int i = 0; i < args.length; i++) {
             if (args[i] == null) {
                 if (defaultValues[i] != null) {

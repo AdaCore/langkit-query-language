@@ -5,29 +5,25 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import static com.adacore.lkql_jit.built_ins.BuiltInMethodFactory.createAttribute;
-
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
-import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import java.util.Map;
+import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.annotations.BuiltInMethod;
+import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.dsl.Specialization;
 
 /** This class contains all methods for the rewriting node type. */
+@BuiltinMethodContainer(targetTypes = {LKQLTypesHelper.REWRITING_NODE})
 public final class RewritingNodeMethods {
 
-    public static final Map<String, BuiltInMethodFactory> methods =
-            Map.ofEntries(
-                    createAttribute(
-                            "clone",
-                            "Given a rewriting node, clone it and return its copy",
-                            new CloneExpr()));
-
-    /** Body for the clone method */
-    public static final class CloneExpr extends AbstractBuiltInFunctionBody {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            return LKQLTypeSystemGen.asRewritingNode(frame.getArguments()[0]).clone();
+    @BuiltInMethod(
+            name = "clone",
+            doc = "Given a rewriting node, clone it and return its copy",
+            isProperty = true)
+    public abstract static class CloneExpr extends BuiltInBody {
+        @Specialization
+        public Object execute(Libadalang.RewritingNode node) {
+            return node.clone();
         }
     }
 }

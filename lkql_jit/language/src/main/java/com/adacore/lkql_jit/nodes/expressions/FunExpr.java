@@ -80,19 +80,11 @@ public final class FunExpr extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeFunction(frame);
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeFunction(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public LKQLFunction executeFunction(VirtualFrame frame) {
         return new LKQLFunction(

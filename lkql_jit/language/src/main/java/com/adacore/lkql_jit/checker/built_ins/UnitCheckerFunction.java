@@ -9,13 +9,12 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.annotations.BuiltInFunction;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLObject;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
@@ -25,6 +24,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -32,54 +32,19 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-/**
- * This class represents the "unit_checker" built-in function in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This class represents the "unit_checker" built-in function in the LKQL language. */
 public final class UnitCheckerFunction {
 
-    // ----- Attributes -----
+    @BuiltInFunction(name = "unit_checker", doc = "Given a unit, apply all the unit checkers on it")
+    abstract static class UnitCheckerExpr extends BuiltInBody {
 
-    /** The name of the built-in. */
-    public static final String NAME = "unit_checker";
+        private final InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
-    public static BuiltInFunctionValue getValue() {
-        return new BuiltInFunctionValue(
-                NAME,
-                "Given a unit, apply all the unit checker on it",
-                new String[] {"unit"},
-                new Expr[] {null},
-                new UnitCheckerExpr());
-    }
-
-    // ----- Inner classes -----
-
-    /** This class is the expression of the "unit_checker" function. */
-    private static final class UnitCheckerExpr extends AbstractBuiltInFunctionBody {
-
-        /** An uncached interop library for the checker functions execution. */
-        private InteropLibrary interopLibrary = InteropLibrary.getUncached();
-
-        /**
-         * @see
-         *     AbstractBuiltInFunctionBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-         */
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
+        @Specialization
+        public Object alwaysTrue(VirtualFrame frame, Libadalang.AnalysisUnit unit) {
             // Get the arguments
             LKQLContext context = LKQLLanguage.getContext(this);
-            Libadalang.AnalysisUnit unit;
             UnitChecker[] checkers = context.getUnitCheckersFiltered();
-
-            try {
-                unit = LKQLTypeSystemGen.expectAnalysisUnit(frame.getArguments()[0]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ANALYSIS_UNIT,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[0]);
-            }
 
             // Iterate over all checker
             for (UnitChecker checker : checkers) {
@@ -135,7 +100,7 @@ public final class UnitCheckerFunction {
             // Prepare the arguments
             Object[] arguments = new Object[functionValue.parameterNames.length + 1];
             arguments[1] = unit;
-            for (int i = 1; i < functionValue.parameterDefaultValues.length; i++) {
+            for (int i = 1; i < functionValue.getParameterDefaultValues().length; i++) {
                 String paramName = functionValue.parameterNames[i];
                 Object userDefinedArg =
                         context.getRuleArg(
@@ -145,7 +110,7 @@ public final class UnitCheckerFunction {
                                 paramName);
                 arguments[i + 1] =
                         userDefinedArg == null
-                                ? functionValue.parameterDefaultValues[i].executeGeneric(frame)
+                                ? functionValue.getParameterDefaultValues()[i].executeGeneric(frame)
                                 : userDefinedArg;
             }
 

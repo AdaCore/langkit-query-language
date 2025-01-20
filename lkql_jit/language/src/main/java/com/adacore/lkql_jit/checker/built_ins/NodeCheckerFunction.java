@@ -9,13 +9,12 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.AbstractBuiltInFunctionBody;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.annotations.BuiltInFunction;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
@@ -26,6 +25,7 @@ import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -37,50 +37,25 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 
-/**
- * This class represents the "node_checker" built-in function in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
 public final class NodeCheckerFunction {
-
-    // ----- Attributes -----
-
-    /** The name of the built-in. */
-    public static final String NAME = "node_checker";
-
-    // ----- Class methods -----
-
-    public static BuiltInFunctionValue getValue() {
-        return new BuiltInFunctionValue(
-                NAME,
-                "Given a root, execute all node checker while traverse the tree",
-                new String[] {"root"},
-                new Expr[] {null},
-                new NodeCheckerExpr());
-    }
-
-    // ----- Inner classes -----
 
     /**
      * This class is the expression of the "node_checker" built-in. This expression contains the
-     * traversing logic to checker the nodes.
+     * traversing logic to check the nodes.
      */
-    private static final class NodeCheckerExpr extends AbstractBuiltInFunctionBody {
+    @BuiltInFunction(
+            name = "node_checker",
+            doc = "Given a root, execute all node checkers while traversing the tree")
+    abstract static class NodeCheckerExpr extends BuiltInBody {
 
-        /** An uncached interop library for the checker functions execution. */
-        private InteropLibrary interopLibrary = InteropLibrary.getUncached();
+        private final InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
-        /**
-         * @see
-         *     AbstractBuiltInFunctionBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-         */
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
+        @Specialization
+        public Object alwaysTrue(VirtualFrame frame, Libadalang.AdaNode root) {
             // Get the arguments
             final LKQLContext context = LKQLLanguage.getContext(this);
-            final Libadalang.AdaNode root;
             final Libadalang.AnalysisUnit rootUnit;
+
             final NodeChecker[] allNodeCheckers = context.getAllNodeCheckers();
             final NodeChecker[] adaNodeCheckers = context.getAdaNodeCheckers();
             final NodeChecker[] sparkNodeCheckers = context.getSparkNodeCheckers();
@@ -300,7 +275,7 @@ public final class NodeCheckerFunction {
             // Prepare the arguments
             Object[] arguments = new Object[functionValue.parameterNames.length + 1];
             arguments[1] = node;
-            for (int i = 1; i < functionValue.parameterDefaultValues.length; i++) {
+            for (int i = 1; i < functionValue.getParameterDefaultValues().length; i++) {
                 String paramName = functionValue.parameterNames[i];
                 Object userDefinedArg =
                         context.getRuleArg(
@@ -310,7 +285,7 @@ public final class NodeCheckerFunction {
                                 StringUtils.toLowerCase(paramName));
                 arguments[i + 1] =
                         userDefinedArg == null
-                                ? functionValue.parameterDefaultValues[i].executeGeneric(frame)
+                                ? functionValue.getParameterDefaultValues()[i].executeGeneric(frame)
                                 : userDefinedArg;
             }
 
