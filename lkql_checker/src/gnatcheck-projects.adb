@@ -589,12 +589,18 @@ package body Gnatcheck.Projects is
          raise Parameter_Error;
       end if;
 
+      --  Use the runtime path provided through the project file
       if RTS_Path = Null_Unbounded_String
         and then My_Project.Tree.Runtime (Ada_Language) /= ""
       then
          RTS_Path :=
            To_Unbounded_String
              (String (My_Project.Tree.Runtime (Ada_Language)));
+      end if;
+
+      --  Use the target specified through the project file or the config file
+      if Target = Null_Unbounded_String then
+         Target := To_Unbounded_String (String (My_Project.Tree.Target));
       end if;
 
       if Load_Sources then
@@ -607,7 +613,6 @@ package body Gnatcheck.Projects is
             Gnatcheck.Projects.Aggregate.Collect_Aggregated_Projects
               (My_Project.Tree);
 
-            Target := To_Unbounded_String (String (My_Project.Tree.Target));
          end if;
 
          if not My_Project.Tree.Update_Sources then
@@ -1263,6 +1268,8 @@ package body Gnatcheck.Projects is
             Disallow (Arg.Follow_Symbolic_Links.This, "-eL" & In_Project_Msg);
             Disallow (Arg.Rules.This, "-r" & In_Project_Msg);
             Disallow (Arg.Rule_File.This, "--rule-file" & In_Project_Msg);
+            Disallow (Arg.Target.This, "--target" & In_Project_Msg);
+            Disallow (Arg.RTS.This, "--RTS" & In_Project_Msg);
          end;
       end if;
 
@@ -1286,6 +1293,8 @@ package body Gnatcheck.Projects is
          Allow (Arg.Follow_Symbolic_Links.This);
          Allow (Arg.Rules.This);
          Allow (Arg.Rule_File.This);
+         Allow (Arg.Target.This);
+         Allow (Arg.RTS.This);
       end if;
 
       loop

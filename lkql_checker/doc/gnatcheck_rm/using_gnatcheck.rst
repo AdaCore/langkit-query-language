@@ -380,6 +380,8 @@ GNATcheck:
     * ``-eL``
     * ``-r, --rule [rule_name]`` (use ``Rules`` attribute instead)
     * ``--rule-file=filename`` (use ``Rule_File`` attribute instead)
+    * ``--target`` (use the ``Target`` GPR attribute instead)
+    * ``--RTS`` (use the ``Runtime`` GPR attribute instead)
 
     If you're providing one of those switches through the ``Switches`` or the
     ``Default_Switches`` attribute, GNATcheck will emit an error message and
