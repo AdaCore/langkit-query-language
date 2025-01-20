@@ -2,3 +2,4 @@ driver: gnatcheck
 project: prj.gpr
 rules:
   - +Rderiving_from_predefined_type
+canonicalize_backslashes: True
