@@ -1,2 +1,2 @@
-main.adb:29:07: silent exception handler
-main.adb:36:04: silent exception handler
+main.adb:29:07: rule violation: silent exception handler
+main.adb:36:04: rule violation: silent exception handler

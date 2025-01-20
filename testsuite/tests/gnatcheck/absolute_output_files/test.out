@@ -1,5 +1,5 @@
    no exempted violations detected
-main.adb:3:05: goto statement
+main.adb:3:05: rule violation: goto statement
    no rule exemption problems detected
    no language violations detected
    no internal error detected

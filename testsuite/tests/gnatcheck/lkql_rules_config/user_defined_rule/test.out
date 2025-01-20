@@ -1,1 +1,1 @@
-main.adb:2:19: Invalid integer literal
+main.adb:2:19: rule violation: Invalid integer literal

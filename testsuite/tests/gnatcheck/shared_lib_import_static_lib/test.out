@@ -1,2 +1,2 @@
-shared_lib.ads:4:17: explicit reference to predefined numeric subtype
-static_lib.ads:2:17: explicit reference to predefined numeric subtype
+shared_lib.ads:4:17: rule violation: explicit reference to predefined numeric subtype
+static_lib.ads:2:17: rule violation: explicit reference to predefined numeric subtype

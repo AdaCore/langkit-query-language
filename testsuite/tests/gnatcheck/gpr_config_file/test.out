@@ -1,9 +1,9 @@
 Without config file
 ===================
 
-main.adb:3:04: goto statement
+main.adb:3:04: rule violation: goto statement
 
 With config file
 ================
 
-main.body:3:04: goto statement
+main.body:3:04: rule violation: goto statement

@@ -1,2 +1,2 @@
-test.ads:2:12: declaration of local package
-test.ads:2:12: declaration of local package
+test.ads:2:12: rule violation: declaration of local package
+test.ads:2:12: rule violation: declaration of local package

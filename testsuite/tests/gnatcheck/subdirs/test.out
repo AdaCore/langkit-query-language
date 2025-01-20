@@ -4,7 +4,7 @@ gnatcheck: error: error when calling gprbuild, raw output:
 
 gprbuild: *** compilation phase failed
    no exempted violations detected
-main.adb:3:05: goto statement
+main.adb:3:05: rule violation: goto statement
    no rule exemption problems detected
 main.adb:6:05: error: "Put_Line" is undefined
 main.adb:6:05: error: possible missing "with Ada.Text_IO; use Ada.Text_IO"

@@ -1,10 +1,10 @@
 Valid run
 =========
 
-main.adb:11:08: actual parameter mismatch
-main.adb:15:08: actual parameter mismatch
-main.adb:16:08: actual parameter mismatch
-main.adb:17:08: actual parameter mismatch
+main.adb:11:08: rule violation: actual parameter mismatch
+main.adb:15:08: rule violation: actual parameter mismatch
+main.adb:16:08: rule violation: actual parameter mismatch
+main.adb:17:08: rule violation: actual parameter mismatch
 
 Invalid type
 ============

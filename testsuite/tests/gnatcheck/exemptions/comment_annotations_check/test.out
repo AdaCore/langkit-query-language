@@ -15,34 +15,34 @@
 
 2. Exempted Coding Standard Violations
 
-main.adb:8:22: implicit IN mode in parameter specification
+main.adb:8:22: rule violation (exempted): implicit IN mode in parameter specification
    (Exemption justification)
-main.adb:16:16: expression function
+main.adb:16:16: rule violation (exempted): expression function
    (unjustified)
-main.adb:25:16: expression function
+main.adb:25:16: rule violation (exempted): expression function
    (unjustified)
-main.adb:30:19: implicit IN mode in parameter specification
+main.adb:30:19: rule violation (exempted): implicit IN mode in parameter specification
    (justify line off --  FLAG in valid exemptions)
-main.adb:33:19: implicit IN mode in parameter specification
+main.adb:33:19: rule violation (exempted): implicit IN mode in parameter specification
    (unjustified)
-main.adb:37:19: implicit IN mode in parameter specification
+main.adb:37:19: rule violation (exempted): implicit IN mode in parameter specification
    (Because)
-main.adb:41:19: implicit IN mode in parameter specification
+main.adb:41:19: rule violation (exempted): implicit IN mode in parameter specification
    (Because)
 
 3. Non-exempted Coding Standard Violations
 
-main.adb:3:22: implicit IN mode in parameter specification
-main.adb:11:22: implicit IN mode in parameter specification
-main.adb:20:16: expression function
+main.adb:3:22: rule violation: implicit IN mode in parameter specification
+main.adb:11:22: rule violation: implicit IN mode in parameter specification
+main.adb:20:16: rule violation: expression function
 
 4. Rule exemption problems
 
-c.adb:1:01: no matching 'exempt_OFF' annotation for Goto_Statements
-c.adb:6:07: no detection for Goto_Statements in exemption section starting at line 1
-main.adb:24:07: no matching 'exempt_OFF' annotation for expression_functions
-main.adb:29:04: rule expression_functions is already exempted at line 24
-main.adb:33:41: State should be "off" for line exemption
+c.adb:1:01: warning: no matching 'exempt_OFF' annotation for Goto_Statements
+c.adb:6:07: warning: no detection for Goto_Statements in exemption section starting at line 1
+main.adb:24:07: warning: no matching 'exempt_OFF' annotation for expression_functions
+main.adb:29:04: warning: rule expression_functions is already exempted at line 24
+main.adb:33:41: warning: State should be "off" for line exemption
 
 5. Language violations
 

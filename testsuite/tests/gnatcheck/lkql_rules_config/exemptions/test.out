@@ -15,17 +15,17 @@
 
 2. Exempted Coding Standard Violations
 
-main.adb:4:17: unit "Ada.Strings.Unbounded" is not referenced
+main.adb:4:17: rule violation (exempted): unit "Ada.Strings.Unbounded" is not referenced
    (Exempting unused unbounded)
-main.adb:15:04: goto statement
+main.adb:15:04: rule violation (exempted): goto statement
    (Exempting gotos)
 
 3. Non-exempted Coding Standard Violations
 
-main.adb:1:09: unit "Ada.Text_IO" is not referenced
-main.adb:7:09: unit "Ada.Containers" is not referenced
-main.adb:11:04: goto statement
-main.adb:19:04: goto statement
+main.adb:1:09: rule violation: unit "Ada.Text_IO" is not referenced
+main.adb:7:09: rule violation: unit "Ada.Containers" is not referenced
+main.adb:11:04: rule violation: goto statement
+main.adb:19:04: rule violation: goto statement
 
 4. Rule exemption problems
 

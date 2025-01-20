@@ -1,7 +1,7 @@
 Valid run
 =========
 
-no_header.adb:1:01: compilation unit does not start with header
+no_header.adb:1:01: rule violation: compilation unit does not start with header
 
 Missing parameter
 =================

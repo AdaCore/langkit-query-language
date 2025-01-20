@@ -19,14 +19,14 @@
 
 3. Non-exempted Coding Standard Violations
 
-main.adb:1:01: bar
-main.adb:1:11: bar
-main.adb:1:18: bar
-main.adb:2:06: bar
-main.adb:3:04: bar
-main.adb:3:09: bar
-main.adb:4:05: bar
-main.adb:4:10: bar
+main.adb:1:01: rule violation: bar
+main.adb:1:11: rule violation: bar
+main.adb:1:18: rule violation: bar
+main.adb:2:06: rule violation: bar
+main.adb:3:04: rule violation: bar
+main.adb:3:09: rule violation: bar
+main.adb:4:05: rule violation: bar
+main.adb:4:10: rule violation: bar
 
 4. Rule exemption problems
 

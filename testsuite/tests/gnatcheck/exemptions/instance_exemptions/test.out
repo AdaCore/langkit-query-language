@@ -15,61 +15,61 @@
 
 2. Exempted Coding Standard Violations
 
-main.adb:10:04: C_2 does not end with constant suffix _C [ID_SUF|identifier_suffixes]
+main.adb:10:04: rule violation (exempted): C_2 does not end with constant suffix _C [ID_SUF|identifier_suffixes]
    (testing)
-main.adb:15:09: T_3 does not end with type suffix _T [ID_SUF|identifier_suffixes]
+main.adb:15:09: rule violation (exempted): T_3 does not end with type suffix _T [ID_SUF|identifier_suffixes]
    (testing)
-main.adb:32:04: redundant null statement [NULL|redundant_null_statements]
+main.adb:32:04: rule violation (exempted): redundant null statement [NULL|redundant_null_statements]
    (testing)
-main.adb:36:04: redundant null statement [NULL|redundant_null_statements]
+main.adb:36:04: rule violation (exempted): redundant null statement [NULL|redundant_null_statements]
    (testing)
-main.adb:40:04: goto statement [GOTO|goto_statements]
+main.adb:40:04: rule violation (exempted): goto statement [GOTO|goto_statements]
    (testing)
-main.adb:40:04: goto statement [UNCOND_GOTO|goto_statements]
+main.adb:40:04: rule violation (exempted): goto statement [UNCOND_GOTO|goto_statements]
    (testing)
-main.adb:41:17: goto statement [GOTO|goto_statements]
+main.adb:41:17: rule violation (exempted): goto statement [GOTO|goto_statements]
    (testing)
-main.adb:45:04: goto statement [GOTO|goto_statements]
+main.adb:45:04: rule violation (exempted): goto statement [GOTO|goto_statements]
    (testing)
-main.adb:46:17: goto statement [GOTO|goto_statements]
+main.adb:46:17: rule violation (exempted): goto statement [GOTO|goto_statements]
    (testing)
-main.adb:50:04: goto statement [UNCOND_GOTO|goto_statements]
+main.adb:50:04: rule violation (exempted): goto statement [UNCOND_GOTO|goto_statements]
    (testing)
-main.adb:55:07: redundant parentheses [STYLE|style_checks:x]
+main.adb:55:07: rule violation (exempted): redundant parentheses [STYLE|style_checks:x]
    (testing)
-main.adb:70:07: redundant parentheses [STYLE|style_checks:x]
+main.adb:70:07: rule violation (exempted): redundant parentheses [STYLE|style_checks:x]
    (testing)
 
 3. Non-exempted Coding Standard Violations
 
-main.adb:2:09: T does not end with type suffix _T [ID_SUF|identifier_suffixes]
-main.adb:5:04: C does not end with constant suffix _C [ID_SUF|identifier_suffixes]
-main.adb:9:09: T_2 does not end with type suffix _T [ID_SUF|identifier_suffixes]
-main.adb:20:04: redundant null statement [NULL|redundant_null_statements]
-main.adb:22:04: goto statement [GOTO|goto_statements]
-main.adb:22:04: goto statement [UNCOND_GOTO|goto_statements]
-main.adb:23:17: goto statement [GOTO|goto_statements]
-main.adb:25:07: redundant parentheses [STYLE|style_checks:x]
-main.adb:45:04: goto statement [UNCOND_GOTO|goto_statements]
-main.adb:50:04: goto statement [GOTO|goto_statements]
-main.adb:51:17: goto statement [GOTO|goto_statements]
+main.adb:2:09: rule violation: T does not end with type suffix _T [ID_SUF|identifier_suffixes]
+main.adb:5:04: rule violation: C does not end with constant suffix _C [ID_SUF|identifier_suffixes]
+main.adb:9:09: rule violation: T_2 does not end with type suffix _T [ID_SUF|identifier_suffixes]
+main.adb:20:04: rule violation: redundant null statement [NULL|redundant_null_statements]
+main.adb:22:04: rule violation: goto statement [GOTO|goto_statements]
+main.adb:22:04: rule violation: goto statement [UNCOND_GOTO|goto_statements]
+main.adb:23:17: rule violation: goto statement [GOTO|goto_statements]
+main.adb:25:07: rule violation: redundant parentheses [STYLE|style_checks:x]
+main.adb:45:04: rule violation: goto statement [UNCOND_GOTO|goto_statements]
+main.adb:50:04: rule violation: goto statement [GOTO|goto_statements]
+main.adb:51:17: rule violation: goto statement [GOTO|goto_statements]
 
 4. Rule exemption problems
 
-main.adb:11:04: instance ID_SUF is already exempted with parameter(s) at line 8
-main.adb:12:04: instance ID_SUF is already exempted with the same parameter(s) at line 8
-main.adb:13:04: instance ID_SUF is already exempted with parameter 'constant' at line 8
-main.adb:27:04: wrong rule or instance name in exemption (Not_Existant), ignored
-main.adb:29:04: cannot exempt a specific instance of a compiler rule (style_checks), ignored
-main.adb:59:04: rule goto_statements is already exempted at line 58
-main.adb:60:04: rule goto_statements is already exempted at line 58
-main.adb:61:65: no detection for Goto_Statements in exemption section starting at line 58
-main.adb:65:04: instance GOTO is already exempted at line 63
-main.adb:66:58: no detection for Goto_Statements in exemption section starting at line 64
-main.adb:67:58: no detection for GOTO in exemption section starting at line 63
-main.adb:71:04: rule Style_Checks is already exempted with parameter(s) at line 69
-main.adb:72:04: rule Style_Checks is already exempted with parameter 'x' at line 69
-main.adb:73:04: rule Style_Checks is already exempted with the same parameter(s) at line 69
+main.adb:11:04: warning: instance ID_SUF is already exempted with parameter(s) at line 8
+main.adb:12:04: warning: instance ID_SUF is already exempted with the same parameter(s) at line 8
+main.adb:13:04: warning: instance ID_SUF is already exempted with parameter 'constant' at line 8
+main.adb:27:04: warning: wrong rule or instance name in exemption (Not_Existant), ignored
+main.adb:29:04: warning: cannot exempt a specific instance of a compiler rule (style_checks), ignored
+main.adb:59:04: warning: rule goto_statements is already exempted at line 58
+main.adb:60:04: warning: rule goto_statements is already exempted at line 58
+main.adb:61:65: warning: no detection for Goto_Statements in exemption section starting at line 58
+main.adb:65:04: warning: instance GOTO is already exempted at line 63
+main.adb:66:58: warning: no detection for Goto_Statements in exemption section starting at line 64
+main.adb:67:58: warning: no detection for GOTO in exemption section starting at line 63
+main.adb:71:04: warning: rule Style_Checks is already exempted with parameter(s) at line 69
+main.adb:72:04: warning: rule Style_Checks is already exempted with parameter 'x' at line 69
+main.adb:73:04: warning: rule Style_Checks is already exempted with the same parameter(s) at line 69
 
 5. Language violations
 

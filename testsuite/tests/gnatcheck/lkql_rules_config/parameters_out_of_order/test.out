@@ -1,7 +1,7 @@
 Valid run
 =========
 
-main.adb:3:18: parameter out of order
+main.adb:3:18: rule violation: parameter out of order
 
 Invalid argument value
 ======================

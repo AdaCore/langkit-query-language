@@ -1,11 +1,11 @@
 GNATcheck mode
 ==============
 
-main.adb:22:04: goto statement
+main.adb:22:04: rule violation (exempted): goto statement
    (Because)
-main.adb:26:04: goto statement
+main.adb:26:04: rule violation (exempted): goto statement
    (Because)
-main.adb:19:04: goto statement
+main.adb:19:04: rule violation: goto statement
    no rule exemption problems detected
    no language violations detected
    no internal error detected
@@ -13,11 +13,11 @@ main.adb:19:04: goto statement
 GNATKP mode
 ===========
 
-main.adb:10:04: possible occurrence of KP 19198
+main.adb:10:04: rule violation (exempted): possible occurrence of KP 19198
    (Because)
-main.adb:15:04: possible occurrence of KP 19198
+main.adb:15:04: rule violation (exempted): possible occurrence of KP 19198
    (Because)
-main.adb:6:04: possible occurrence of KP 19198
+main.adb:6:04: rule violation: possible occurrence of KP 19198
    no rule exemption problems detected
    no language violations detected
    no internal error detected

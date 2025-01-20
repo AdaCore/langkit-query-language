@@ -1,8 +1,8 @@
-main.adb:1:19: use clause for package
-main.adb:1:23: use clause
-main.adb:1:37: end of line comment
-main.adb:3:01: possible occurrence of KP U727-033 if float operation performed before first context switch on leon targets
-main.adb:3:11: declaration of library level subprogram
-main.adb:3:37: end of line comment
-main.adb:6:05: goto statement
-main.adb:6:37: end of line comment
+main.adb:1:19: rule violation: use clause for package
+main.adb:1:23: rule violation: use clause
+main.adb:1:37: rule violation: end of line comment
+main.adb:3:01: rule violation: possible occurrence of KP U727-033 if float operation performed before first context switch on leon targets
+main.adb:3:11: rule violation: declaration of library level subprogram
+main.adb:3:37: rule violation: end of line comment
+main.adb:6:05: rule violation: goto statement
+main.adb:6:37: rule violation: end of line comment

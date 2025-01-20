@@ -1,17 +1,17 @@
 Numeric_Literals
 ================
 
-main.adb:4:11: numeric literal
+main.adb:4:11: rule violation: numeric literal
 
 Others_In_Case_Statements
 =========================
 
-main.adb:11:12: OTHERS choice in case statement
+main.adb:11:12: rule violation: OTHERS choice in case statement
 
 Membership_Tests
 ================
 
-main.adb:17:10: membership test
+main.adb:17:10: rule violation: membership test
 
 Invalid type
 ============

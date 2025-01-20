@@ -1,8 +1,8 @@
 Valid run
 =========
 
-main.adb:11:18: callback may propagate exceptions
-main.adb:11:45: callback may propagate exceptions
+main.adb:11:18: rule violation: callback may propagate exceptions
+main.adb:11:45: rule violation: callback may propagate exceptions
 
 Invalid type
 ============
