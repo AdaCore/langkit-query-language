@@ -7,8 +7,7 @@ else
   SOEXT=.so
 endif
 
-PROCS=0
-PREFIX=install
+PROCS=0 PREFIX=install
 PYTHON=python
 MAVEN=mvn
 BUILD_DIR=/undefined
@@ -17,6 +16,7 @@ IMPACTDB_DIR=/undefined
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
 GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
 BUILD_FOR_JIT=false
+LKM=$(PYTHON) -m langkit.scripts.lkm
 
 ifeq ($(BUILD_FOR_JIT),true)
   MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
@@ -46,8 +46,8 @@ format:
 gnatcheck: lkql
 	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
-build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
-	lkql/manage.py make --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java --maven-executable $(MAVEN) $(ADDITIONAL_MANAGE_ARGS)
+build/bin/liblkqllang_parse: lkql/lkql.lkt
+	$(LKM) make -c lkql/langkit.yaml --pass-on="emit railroad diagrams" --enable-java --maven-executable $(MAVEN) $(ADDITIONAL_MANAGE_ARGS)
 
 test:
 	testsuite/testsuite.py -Edtmp
@@ -73,7 +73,7 @@ build_lkql_native_jit: lkql
 automated:
 	rm -rf "$(PREFIX)"
 	mkdir -p "$(PREFIX)/share" "$(PREFIX)/share/examples" "$(PREFIX)/lib"
-	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS)
+	$(LKM) make -c lkql/langkit.yaml $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS)
 	$(GPRBUILD) -Plkql_checker/gnatcheck.gpr -largs -s
 	$(GPRINSTALL) --mode=usage -Plkql_checker/gnatcheck.gpr
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
@@ -83,8 +83,8 @@ automated:
 automated-cov:
 	rm -rf "$(PREFIX)" "$(BUILD_DIR)"
 	mkdir -p "$(PREFIX)/share/lkql" "$(LKQL_DIR)"
-	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS) --coverage
-	$(PYTHON) lkql/manage.py install $(MANAGE_ARGS) $(PREFIX)
+	$(LKM) make -c lkql/langkit.yaml $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS) --coverage
+	$(LKM) install -c lkql/langkit.yaml $(MANAGE_ARGS) $(PREFIX)
 	# Build and install the lkql_checker program. Instrument it first.
 	# Note that we just copy the sources to the build directory since
 	# "gnatcov instrument" does not support build tree relocation.
