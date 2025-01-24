@@ -2629,8 +2629,7 @@ package body Gnatcheck.Diagnoses is
          User_Info_File_Full_Path := new String'
            (GNAT.OS_Lib.Normalize_Pathname
               (Fname,
-               Resolve_Links  => False,
-               Case_Sensitive => False));
+               Resolve_Links  => False));
       else
          Error (Fname & " not found, --include-file option ignored");
       end if;
