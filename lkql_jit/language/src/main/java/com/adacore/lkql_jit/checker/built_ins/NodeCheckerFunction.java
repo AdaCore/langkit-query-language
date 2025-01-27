@@ -110,8 +110,7 @@ public final class NodeCheckerFunction {
                                     CheckerUtils.MessageKind.ERROR,
                                     e.getMessage(),
                                     new LalLocationWrapper(currentNode, context.linesCache),
-                                    new SourceSectionWrapper(this.callNode.getSourceSection()),
-                                    rootUnit.getFileName(true));
+                                    new SourceSectionWrapper(this.callNode.getSourceSection()));
                     continue;
                 }
 

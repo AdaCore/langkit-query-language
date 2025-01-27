@@ -1,4 +1,6 @@
 driver: gnatcheck
 project: prj.gpr
+extra_args: ['-l']
 rules:
   - +Rderiving_from_predefined_type
+canonicalize_backslashes: True
