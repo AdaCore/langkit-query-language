@@ -105,7 +105,6 @@ public final class NodeCheckerFunction {
                         visitList.addFirst(new VisitStep(stubBody, true, inSparkCode));
                     }
                 } catch (Libadalang.LangkitException e) {
-                    context.println(rootUnit.getFileName(true));
                     context.getDiagnosticEmitter()
                             .emitDiagnostic(
                                     CheckerUtils.MessageKind.ERROR,
