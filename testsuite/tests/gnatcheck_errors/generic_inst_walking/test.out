@@ -32,6 +32,6 @@ Total gnatcheck failures: 1
 
 6. Gnatcheck internal errors
 
-/test.adb:2:04: error: internal issue at checker.lkql:4:22: test.adb:2:4-2:28: dereferencing a null access
+<working-dir>/test.adb:2:04: error: internal issue at checker.lkql:4:22: test.adb:2:4-2:28: dereferencing a null access
 
 >>>program returned status code 2
