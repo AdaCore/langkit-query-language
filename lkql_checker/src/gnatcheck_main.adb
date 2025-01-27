@@ -557,7 +557,7 @@ begin
       if Is_Regular_File (Default_LKQL_Rule_Options_File) then
          Error
            ("cannot emit the LKQL rule file, "
-            & Default_LKQL_Rule_Options_File & "already exists");
+            & Default_LKQL_Rule_Options_File & " already exists");
          OS_Exit (E_Error);
       end if;
 

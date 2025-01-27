@@ -1,0 +1,8 @@
+driver: gnatcheck
+description: Test the error message when using '--emit-lkql-rule-file' with an already existing rule file
+rules:
+  - +RGoto_Statements
+extra_args:
+  - --emit-lkql-rule-file
+post_python: "cat('rules.lkql', sort=False)"
+canonicalize_backslashes: True
