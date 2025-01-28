@@ -180,7 +180,7 @@ fun identifier_prefixes(unit,
     |"       Exc_2   : exception;                      --  FLAG
     |"    end Foo;
     {
-        fun check_exclusive(str, exclusive,
+        fun check_exclusive(str,
                             type_exclusive=true, concurrent_exclusive=true,
                             access_exclusive=true, class_access_exclusive=true,
                             subprogram_access_exclusive=true,
@@ -198,7 +198,7 @@ fun identifier_prefixes(unit,
 
         fun check_enum(str) =
             (enum != "-" and not str.starts_with(enum)) or
-            check_exclusive(str, exclusive=exclusive, enum_exclusive=false);
+            check_exclusive(str, enum_exclusive=false);
 
         val str_prefix = " does not start with ";
 
@@ -251,7 +251,6 @@ fun identifier_prefixes(unit,
             p.p_previous_part() is (null | IncompleteTypeDecl) and
             (if node.f_name.text.starts_with(concurrent)
              then check_exclusive(node.f_name.text,
-                                  exclusive=exclusive,
                                   concurrent_exclusive=false))
 
         # 'Class access
@@ -265,7 +264,6 @@ fun identifier_prefixes(unit,
             p?.p_previous_part() is (null | IncompleteTypeDecl) and
             (if node.f_name.text.starts_with(class_access)
              then check_exclusive(node.f_name.text,
-                                  exclusive=exclusive,
                                   class_access_exclusive=false))
 
         # Subprogram access
@@ -277,7 +275,6 @@ fun identifier_prefixes(unit,
             p?.p_previous_part() is (null | IncompleteTypeDecl) and
             (if node.f_name.text.starts_with(subprogram_access)
              then check_exclusive(node.f_name.text,
-                                  exclusive=exclusive,
                                   subprogram_access_exclusive=false))
 
         # Other access types
@@ -288,7 +285,6 @@ fun identifier_prefixes(unit,
             p?.p_previous_part() is (null | IncompleteTypeDecl) and
             (if node.f_name.text.starts_with(access)
              then check_exclusive(node.f_name.text,
-                                  exclusive=exclusive,
                                   access_exclusive=false,
                                   # If both an Access prefix and a Type prefix are
                                   # set and the type prefix is a prefix of the access
@@ -316,7 +312,6 @@ fun identifier_prefixes(unit,
             p.p_previous_part() is (null | IncompleteTypeDecl) and
             ((type != "-" and not node.f_name.text.starts_with(type)) or
              check_exclusive(node.f_name.text,
-                             exclusive=exclusive,
                              type_exclusive=false))
 
         # Enums
@@ -330,7 +325,6 @@ fun identifier_prefixes(unit,
             =>
                 (constant != "-" and not node.f_name.text.starts_with(constant)) or
                 check_exclusive(node.f_name.text,
-                                exclusive=exclusive,
                                 constant_exclusive=false)
 
 
@@ -343,7 +337,6 @@ fun identifier_prefixes(unit,
             | ExceptionDecl =>
                 (exception != "-" and not node.f_name.text.starts_with(exception)) or
                 check_exclusive(node.f_name.text,
-                                exclusive=exclusive,
                                 exception_exclusive=false)
 
             # Check all other defining names for exclusion except for completions
@@ -351,5 +344,5 @@ fun identifier_prefixes(unit,
             | p2 =>
                 (if p2 is (BodyNode | SubpRenamingDecl) then not p2.p_previous_part()) and
                 (if p2 is ObjectDecl then not node.p_previous_part()) and
-                check_exclusive(node.f_name.text, exclusive=exclusive)]
+                check_exclusive(node.f_name.text)]
     }
