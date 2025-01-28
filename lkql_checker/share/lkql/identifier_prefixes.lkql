@@ -8,6 +8,15 @@ fun get_derived(t, derived) = {
    if not res then "" else res[res.length]
 }
 
+fun is_class_access(type_decl) =
+    |" Given a TypeDecl node, return whether the declared type is an access
+    |" to classwide values.
+    type_decl.f_type_def is TypeAccessDef(
+        f_subtype_indication: *(f_name: AttributeRef(
+            f_attribute: Identifier(p_name_is("Class"): true)
+        ))
+    )
+
 @unit_check(help="prefixes in defining names", remediation="EASY",
             parametric_exemption=true,
             category="Style", subcategory="Readability")
@@ -254,12 +263,12 @@ fun identifier_prefixes(unit,
                                   concurrent_exclusive=false))
 
         # 'Class access
-        | (p@TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
-           AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
-           p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
-                         TypeAccessDef(f_subtype_indication: *(f_name:
-           AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
-          when class_access != "-"
+        | (
+            p@TypeDecl when is_class_access(p) |
+            p@SubtypeDecl(
+                p_canonical_type(): td@TypeDecl when is_class_access(td)
+            )
+        ) when class_access != "-"
         =>
             p?.p_previous_part() is (null | IncompleteTypeDecl) and
             (if node.f_name.text.starts_with(class_access)
