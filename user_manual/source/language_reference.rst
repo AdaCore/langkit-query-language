@@ -625,7 +625,7 @@ Match Expression
 .. lkql_doc_class:: MatchArm
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/match.svg
+  :file: ../../lkql/build/railroad-diagrams/match_expr.svg
 
 This expression is a pattern matching expression, and reuses the same patterns
 as the query part of the language. Matchers will be evaluated in order against
