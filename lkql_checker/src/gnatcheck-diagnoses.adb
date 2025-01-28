@@ -174,7 +174,7 @@ package body Gnatcheck.Diagnoses is
    --  boolean parameter is used to define the needed indentation level
 
    function Strip_Tag (Diag : String) return String;
-   --  Strip trailing " [-gnatxxx]", if any
+   --  Strip trailing GNAT tag following the format " [-gnat<x>]", if any
 
    ----------------------------------------------------------------------
    --  Data structures and local routines for rule exemption mechanism --
@@ -1682,7 +1682,7 @@ package body Gnatcheck.Diagnoses is
 
       function Preprocess_Diag (Diag : String) return String;
       --  Add GPS_Prefix if Progress_Indicator_Mode is True, and remove any
-      --  trailing [-gnatwxxx].
+      --  trailing GNAT tag following the "[-gnat<x>]" format.
 
       procedure Counted_Print_Diagnosis
         (Position : Error_Messages_Storage.Cursor);
