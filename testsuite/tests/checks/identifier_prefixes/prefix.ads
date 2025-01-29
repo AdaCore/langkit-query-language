@@ -1,7 +1,3 @@
---  +RIdentifier_Prefixes:
---  Type=Type_,Constant=Const_,Exception=X_,Enum=E_,Derived=Prefix.Root:Root_,
---  Class_Access=CA_
-
 package Prefix is
    --  type
    type Root;                                 --  NOFLAG
@@ -40,6 +36,7 @@ package Prefix is
    --  derived type
    type Root_1 is new Root;
    type Root2 is new Root;                   --  FLAG
+   type Root_1 is new Integer;               --  FLAG
 
    --  derived type via subtype
    subtype Type_Sub1 is Root;                --  NOFLAG
@@ -48,7 +45,7 @@ package Prefix is
    type Root4 is new Type_Sub2;              --  FLAG
 
    --  concurrent type
-   task type Type_Task is                    --  NOFLAG
+   task type Type_Conc_Task is               --  NOFLAG
       entry E;
    end Type_Task;
 
@@ -56,7 +53,7 @@ package Prefix is
       entry E;
    end My_Task;
 
-   protected type Type_Protected is          --  NOFLAG
+   protected type Type_Conc_Protected is     --  NOFLAG
       entry E;
    end Type_Protected;
 
@@ -64,6 +61,10 @@ package Prefix is
       entry E;
    end My_Protected;
 
+   type Type_Conc_Rec is null record;        --  FLAG
+   type Type_Conc_Der is new Integer;        --  FLAG
+
+   Const_Or_Node : Integer := 1;             --  FLAG
 private
    type Priv is new Integer;                 --  NOFLAG: completion
    Private_Const : constant Priv := 0;       --  NOFLAG: completion

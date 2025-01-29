@@ -1038,7 +1038,10 @@ package body Gnatcheck.Rules is
 
    function Id_Prefix_Param_From_Diag (Diag : String) return String is
    begin
-      if Index (Diag, "task") /= 0 or else Index (Diag, "protected") /= 0 then
+      if Index (Diag, "but starts with") /= 0 then
+         return "exclusive";
+      elsif Index (Diag, "task") /= 0 or else Index (Diag, "protected") /= 0
+      then
          return "concurrent";
       elsif Index (Diag, "access-to-class") /= 0 then
          return "class_access";
@@ -1056,8 +1059,6 @@ package body Gnatcheck.Rules is
          return "access";
       elsif Index (Diag, "subtype") /= 0 then
          return "type";
-      elsif Index (Diag, "exclusive") /= 0 then
-         return "exclusive";
       else
          return "";
       end if;
