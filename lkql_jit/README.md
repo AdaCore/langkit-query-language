@@ -41,6 +41,12 @@ environment variable.
 *Note: If for some reason you are not running `./manage.py setenv`, make sure that the
 `sigsegv_handler` library is reachable from your `LD_LIBRARY_PATH`.*
 
+Install the Java LangkitSupport library:
+
+```sh
+$[langkit]> mvn -f langkit/java_support install
+```
+
 ### 2) Build and install Libadalang
 
 ```sh
