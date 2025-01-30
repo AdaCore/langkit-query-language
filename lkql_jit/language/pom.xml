@@ -38,6 +38,7 @@
                                 <includes>
                                     <include>com.adacore:liblkqllang</include>
                                     <include>com.adacore:libadalang</include>
+                                    <include>com.adacore:langkit_support</include>
                                     <include>com.adacore:options</include>
                                     <include>org.json:json</include>
                                 </includes>
@@ -141,6 +142,13 @@
             <artifactId>libadalang</artifactId>
             <version>${config.libadalangVersion}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>langkit_support</artifactId>
+            <version>${config.langkit_supportVersion}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.adacore</groupId>
             <artifactId>options</artifactId>
