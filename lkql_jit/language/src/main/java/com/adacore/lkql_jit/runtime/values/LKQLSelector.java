@@ -46,10 +46,11 @@ public class LKQLSelector extends BasicLKQLValue {
      * @param documentation The documentation of the selector.
      */
     public LKQLSelector(
-            final SelectorRootNode rootNode,
-            final Closure closure,
-            final String name,
-            final String documentation) {
+        final SelectorRootNode rootNode,
+        final Closure closure,
+        final String name,
+        final String documentation
+    ) {
         this.rootNode = rootNode;
         this.closure = closure;
         this.name = name;
@@ -79,6 +80,7 @@ public class LKQLSelector extends BasicLKQLValue {
     /** Exported message to compare two LKQL selectors. */
     @ExportMessage
     public static class IsIdenticalOrUndefined {
+
         /** Compare two LKQL selectors. */
         @Specialization
         protected static TriState onSelector(final LKQLSelector left, final LKQLSelector right) {
@@ -88,8 +90,9 @@ public class LKQLSelector extends BasicLKQLValue {
         /** Do the comparison with another element. */
         @Fallback
         protected static TriState onOther(
-                @SuppressWarnings("unused") final LKQLSelector receiver,
-                @SuppressWarnings("unused") final Object other) {
+            @SuppressWarnings("unused") final LKQLSelector receiver,
+            @SuppressWarnings("unused") final Object other
+        ) {
             return TriState.UNDEFINED;
         }
     }
@@ -119,7 +122,7 @@ public class LKQLSelector extends BasicLKQLValue {
     /** Placeholder function for the Truffle DSL. */
     @ExportMessage
     public Object execute(@SuppressWarnings("unused") Object[] arguments)
-            throws UnsupportedTypeException, ArityException, UnsupportedMessageException {
+        throws UnsupportedTypeException, ArityException, UnsupportedMessageException {
         // TODO (issue #143): implement this method to execute the selector as a simple function
         // returning a selector list
         return null;

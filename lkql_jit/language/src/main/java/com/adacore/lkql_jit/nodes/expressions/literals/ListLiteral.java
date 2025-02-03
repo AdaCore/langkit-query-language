@@ -21,7 +21,8 @@ public final class ListLiteral extends Expr {
     // ----- Children -----
 
     /** The list expressions. */
-    @Children private final Expr[] exprs;
+    @Children
+    private final Expr[] exprs;
 
     // ----- Constructors -----
 

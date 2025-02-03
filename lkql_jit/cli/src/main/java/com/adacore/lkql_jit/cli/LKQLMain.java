@@ -10,24 +10,25 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(
-        mixinStandardHelpOptions = true,
-        name = "lkql",
-        synopsisSubcommandLabel = "COMMAND",
-        subcommands = {
-            LKQLLauncher.LKQLRun.class,
-            LKQLChecker.Args.class,
-            LKQLFix.Args.class,
-            GNATCheckWorker.Args.class,
-            LKQLDocAPI.class,
-            LKQLDocRules.class,
-            LKQLRefactor.class
-        },
-        description =
-                "Unified driver for LKQL (Langkit query language). Allows you to run LKQL "
-                        + "scripts or apply specific checks on a given Ada codebase")
+    mixinStandardHelpOptions = true,
+    name = "lkql",
+    synopsisSubcommandLabel = "COMMAND",
+    subcommands = {
+        LKQLLauncher.LKQLRun.class,
+        LKQLChecker.Args.class,
+        LKQLFix.Args.class,
+        GNATCheckWorker.Args.class,
+        LKQLDocAPI.class,
+        LKQLDocRules.class,
+        LKQLRefactor.class,
+    },
+    description = "Unified driver for LKQL (Langkit query language). Allows you to run LKQL " +
+    "scripts or apply specific checks on a given Ada codebase"
+)
 public class LKQLMain implements Callable<Integer> {
 
-    @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+    @CommandLine.Spec
+    CommandLine.Model.CommandSpec spec;
 
     @Override
     public Integer call() throws Exception {

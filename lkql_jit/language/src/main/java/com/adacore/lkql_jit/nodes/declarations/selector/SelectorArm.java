@@ -80,7 +80,10 @@ public final class SelectorArm extends LKQLNode {
                 return new LKQLRecValue(new Object[0], new Object[0]);
             } else {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_REC_VALUE, LKQLTypesHelper.fromJava(expr), this.expr);
+                    LKQLTypesHelper.LKQL_REC_VALUE,
+                    LKQLTypesHelper.fromJava(expr),
+                    this.expr
+                );
             }
         }
         // Return null if the arm hasn't been executed

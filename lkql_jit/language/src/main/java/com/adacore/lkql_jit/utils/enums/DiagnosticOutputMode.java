@@ -11,12 +11,11 @@ package com.adacore.lkql_jit.utils.enums;
  * @author Hugo GUERRIER
  */
 public enum DiagnosticOutputMode {
-
     /**
      * Emit a pretty diagnostic with source listing where the diagnostic location is highlighted.
      */
     PRETTY,
 
     /** Use a GNATCheck-compliant format: "{file}:{line}:{col} check: {message} [{check}]". */
-    GNATCHECK
+    GNATCHECK,
 }

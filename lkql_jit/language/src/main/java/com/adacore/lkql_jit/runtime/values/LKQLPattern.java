@@ -33,7 +33,7 @@ public final class LKQLPattern extends BasicLKQLValue {
     // ----- Attributes -----
 
     /** Members of the pattern LKQL value. */
-    private final LKQLList MEMBERS = new LKQLList(new String[] {"contains", "find"});
+    private final LKQLList MEMBERS = new LKQLList(new String[] { "contains", "find" });
 
     /** The interop regex object from the TRegex language. */
     private final Object regexObject;
@@ -55,7 +55,10 @@ public final class LKQLPattern extends BasicLKQLValue {
      */
     @CompilerDirectives.TruffleBoundary
     public LKQLPattern(
-            final LKQLNode creator, final String regexString, final boolean caseSensitive) {
+        final LKQLNode creator,
+        final String regexString,
+        final boolean caseSensitive
+    ) {
         this.regexString = regexString;
         this.caseSensitive = caseSensitive;
 
@@ -64,14 +67,12 @@ public final class LKQLPattern extends BasicLKQLValue {
 
         // Call the TRegex language
         try {
-            this.regexObject =
-                    LKQLLanguage.getContext(creator)
-                            .getEnv()
-                            .parseInternal(
-                                    Source.newBuilder("regex", regexSource, "lkql_jit")
-                                            .internal(true)
-                                            .build())
-                            .call();
+            this.regexObject = LKQLLanguage.getContext(creator)
+                .getEnv()
+                .parseInternal(
+                    Source.newBuilder("regex", regexSource, "lkql_jit").internal(true).build()
+                )
+                .call();
         } catch (AbstractTruffleException e) {
             throw LKQLRuntimeException.regexSyntaxError(regexString, creator);
         }
@@ -82,24 +83,26 @@ public final class LKQLPattern extends BasicLKQLValue {
     /** Get whether the given string contains a substring that validate the regex. */
     public boolean contains(String string) {
         try {
-            Object resultObject =
-                    InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
+            Object resultObject = InteropLibrary.getUncached()
+                .invokeMember(this.regexObject, "exec", string, 0);
             return (boolean) InteropLibrary.getUncached().readMember(resultObject, "isMatch");
         } catch (Exception e) {
             throw LKQLRuntimeException.fromMessage(
-                    StringUtils.concat("Pattern execution failed: ", this.regexString));
+                StringUtils.concat("Pattern execution failed: ", this.regexString)
+            );
         }
     }
 
     /** Get the index of the first matched group in the given string, return -1 if there is none. */
     public int find(String string) {
         try {
-            Object resultObject =
-                    InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
+            Object resultObject = InteropLibrary.getUncached()
+                .invokeMember(this.regexObject, "exec", string, 0);
             return (int) InteropLibrary.getUncached().invokeMember(resultObject, "getStart", 0);
         } catch (Exception e) {
             throw LKQLRuntimeException.fromMessage(
-                    StringUtils.concat("Pattern execution failed: ", this.regexString));
+                StringUtils.concat("Pattern execution failed: ", this.regexString)
+            );
         }
     }
 
@@ -108,19 +111,22 @@ public final class LKQLPattern extends BasicLKQLValue {
     /** Exported message to compare two LKQL patterns. */
     @ExportMessage
     public static class IsIdenticalOrUndefined {
+
         /** Compare two LKQL patterns. */
         @Specialization
         protected static TriState onPattern(final LKQLPattern left, final LKQLPattern right) {
             return TriState.valueOf(
-                    left.regexString.equals(right.regexString)
-                            && left.caseSensitive == right.caseSensitive);
+                left.regexString.equals(right.regexString) &&
+                left.caseSensitive == right.caseSensitive
+            );
         }
 
         /** Do the comparison with another element. */
         @Fallback
         protected static TriState onOther(
-                @SuppressWarnings("unused") final LKQLPattern receiver,
-                @SuppressWarnings("unused") final Object other) {
+            @SuppressWarnings("unused") final LKQLPattern receiver,
+            @SuppressWarnings("unused") final Object other
+        ) {
             return TriState.UNDEFINED;
         }
     }
@@ -155,7 +161,7 @@ public final class LKQLPattern extends BasicLKQLValue {
     /** Tell the interop library whether the given member is invokable. */
     @ExportMessage
     public boolean isMemberInvocable(String member) {
-        return ObjectUtils.equals(member, "contains") || ObjectUtils.equals(member, "find");
+        return (ObjectUtils.equals(member, "contains") || ObjectUtils.equals(member, "find"));
     }
 
     /**
@@ -167,7 +173,7 @@ public final class LKQLPattern extends BasicLKQLValue {
      */
     @ExportMessage
     public Object invokeMember(String member, Object... args)
-            throws ArityException, UnsupportedTypeException, UnknownIdentifierException {
+        throws ArityException, UnsupportedTypeException, UnknownIdentifierException {
         // Verify the argument number
         if (args.length < 1) {
             throw ArityException.create(1, 1, args.length);

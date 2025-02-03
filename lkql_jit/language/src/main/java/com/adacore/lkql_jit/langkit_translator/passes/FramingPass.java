@@ -50,12 +50,14 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     private RuntimeException framingError(Liblkqllang.LkqlNode node, String message) {
         var ctx = LKQLLanguage.getContext(null);
-        ctx.getDiagnosticEmitter()
-                .emitDiagnostic(
-                        CheckerUtils.MessageKind.ERROR,
-                        message,
-                        null,
-                        SourceSectionWrapper.create(node.getSourceLocationRange(), source));
+        ctx
+            .getDiagnosticEmitter()
+            .emitDiagnostic(
+                CheckerUtils.MessageKind.ERROR,
+                message,
+                null,
+                SourceSectionWrapper.create(node.getSourceLocationRange(), source)
+            );
         return LKQLRuntimeException.fromMessage("Errors during framing pass");
     }
 
@@ -68,7 +70,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      * @throws LKQLRuntimeException If the symbol is already in the current bindings.
      */
     private void checkDuplicateBindings(final String symbol, final Liblkqllang.LkqlNode node)
-            throws LKQLRuntimeException {
+        throws LKQLRuntimeException {
         if (this.scriptFramesBuilder.bindingExists(symbol)) {
             throw framingError(node, "Already existing symbol: " + symbol);
         }
@@ -83,7 +85,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      * @throws LKQLRuntimeException If the symbol is already in the current parameters.
      */
     private void checkDuplicateParameters(final String symbol, final Liblkqllang.LkqlNode node)
-            throws LKQLRuntimeException {
+        throws LKQLRuntimeException {
         if (this.scriptFramesBuilder.parameterExists(symbol)) {
             throw framingError(node, "Already existing parameter: " + symbol);
         }
@@ -333,16 +335,18 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
         // Visit all generator expressions
         for (int i = 0; i < generatorsCount; i++) {
-            final Liblkqllang.ListCompAssoc assoc =
-                    (Liblkqllang.ListCompAssoc) generators.getChild(i);
+            final Liblkqllang.ListCompAssoc assoc = (Liblkqllang.ListCompAssoc) generators.getChild(
+                i
+            );
             assoc.fCollExpr().accept(this);
         }
 
         // Open the frame and visit the list comprehension expressions
         this.scriptFramesBuilder.openFrame(listComprehension);
         for (int i = 0; i < generatorsCount; i++) {
-            final Liblkqllang.ListCompAssoc assoc =
-                    (Liblkqllang.ListCompAssoc) generators.getChild(i);
+            final Liblkqllang.ListCompAssoc assoc = (Liblkqllang.ListCompAssoc) generators.getChild(
+                i
+            );
             final String symbol = assoc.fBindingName().getText();
             checkDuplicateParameters(symbol, assoc.fBindingName());
             this.scriptFramesBuilder.addParameter(symbol);

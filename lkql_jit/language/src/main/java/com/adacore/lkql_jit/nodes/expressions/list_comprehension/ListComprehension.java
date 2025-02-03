@@ -69,12 +69,13 @@ public final class ListComprehension extends Expr {
      * @param guard The guard of the list comprehension.
      */
     public ListComprehension(
-            final SourceSection location,
-            final FrameDescriptor frameDescriptor,
-            final ClosureDescriptor closureDescriptor,
-            final ComprehensionAssocList generators,
-            final Expr expr,
-            final Expr guard) {
+        final SourceSection location,
+        final FrameDescriptor frameDescriptor,
+        final ClosureDescriptor closureDescriptor,
+        final ComprehensionAssocList generators,
+        final Expr expr,
+        final Expr guard
+    ) {
         super(location);
         this.frameDescriptor = frameDescriptor;
         this.closureDescriptor = closureDescriptor;
@@ -116,9 +117,10 @@ public final class ListComprehension extends Expr {
         // Verify that the result size is strictly positive
         if (resultSize < 1) {
             return new LKQLListComprehension(
-                    this.rootNode,
-                    Closure.create(frame.materialize(), this.closureDescriptor),
-                    new Object[0][]);
+                this.rootNode,
+                Closure.create(frame.materialize(), this.closureDescriptor),
+                new Object[0][]
+            );
         }
 
         // Prepare the array of arguments for each iteration in the list comprehension
@@ -140,9 +142,10 @@ public final class ListComprehension extends Expr {
 
         // Return the result of the list comprehension as a lazy list
         return new LKQLListComprehension(
-                this.rootNode,
-                Closure.create(frame.materialize(), this.closureDescriptor),
-                argsList);
+            this.rootNode,
+            Closure.create(frame.materialize(), this.closureDescriptor),
+            argsList
+        );
     }
 
     // ----- Class methods -----
@@ -161,7 +164,6 @@ public final class ListComprehension extends Expr {
                 valueBuffer[i] = iterators[i].next();
                 return true;
             }
-
             // Else reset the iterator and go to the next one
             else {
                 iterators[i].reset();
@@ -178,7 +180,11 @@ public final class ListComprehension extends Expr {
      */
     private ListComprehensionRootNode createRootNode() {
         return new ListComprehensionRootNode(
-                LKQLLanguage.getLanguage(this), this.frameDescriptor, this.guard, this.expr);
+            LKQLLanguage.getLanguage(this),
+            this.frameDescriptor,
+            this.guard,
+            this.expr
+        );
     }
 
     // ----- Override methods -----

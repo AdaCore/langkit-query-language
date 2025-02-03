@@ -37,35 +37,36 @@ import picocli.CommandLine;
  * actions to the list of actions.
  */
 @CommandLine.Command(
-        name = "refactor",
-        description = "Automatically run a refactoring on LKQL code")
+    name = "refactor",
+    description = "Automatically run a refactoring on LKQL code"
+)
 public class LKQLRefactor implements Callable<Integer> {
 
-    @CommandLine.Spec public picocli.CommandLine.Model.CommandSpec spec;
+    @CommandLine.Spec
+    public picocli.CommandLine.Model.CommandSpec spec;
 
     @CommandLine.Parameters(description = "LKQL files to refactor")
     public List<String> files = new ArrayList<>();
 
-    @CommandLine.Option(
-            names = {"-i", "--inplace"},
-            description = "Rewrite the files in place")
+    @CommandLine.Option(names = { "-i", "--inplace" }, description = "Rewrite the files in place")
     public boolean inPlace;
 
     private enum refactoringKind {
-        IS_TO_COLON
+        IS_TO_COLON,
     }
 
     @CommandLine.Option(
-            names = {"-r", "--refactoring"},
-            description = "Refactoring to run. Valid values: ${COMPLETION-CANDIDATES}",
-            required = true)
+        names = { "-r", "--refactoring" },
+        description = "Refactoring to run. Valid values: ${COMPLETION-CANDIDATES}",
+        required = true
+    )
     private refactoringKind refactoring;
 
     /** Kind of actions that can be attached to a token. */
     private enum actionKind {
         APPEND,
         PREPEND,
-        REPLACE
+        REPLACE,
     }
 
     /**
@@ -91,9 +92,11 @@ public class LKQLRefactor implements Callable<Integer> {
      * @return the id as a string
      */
     private String getTokenId(Token token) {
-        return token.unit.getFileName()
-                + (token.isTrivia() ? "trivia " + token.triviaIndex : token.tokenIndex)
-                + token.kind;
+        return (
+            token.unit.getFileName() +
+            (token.isTrivia() ? "trivia " + token.triviaIndex : token.tokenIndex) +
+            token.kind
+        );
     }
 
     /** Add an action to the list of actions to apply */
@@ -132,15 +135,21 @@ public class LKQLRefactor implements Callable<Integer> {
         for (var tok = unit.getFirstToken(); !tok.isNone(); tok = tok.next()) {
             var tokActions = actions.get(getTokenId(tok));
             if (tokActions != null) {
-                var replaceActions =
-                        tokActions.stream().filter(c -> c.kind == actionKind.REPLACE).toList();
+                var replaceActions = tokActions
+                    .stream()
+                    .filter(c -> c.kind == actionKind.REPLACE)
+                    .toList();
                 assert replaceActions.size() <= 1 : "Only one replace action per token";
 
-                var prependActions =
-                        tokActions.stream().filter(c -> c.kind == actionKind.PREPEND).toList();
+                var prependActions = tokActions
+                    .stream()
+                    .filter(c -> c.kind == actionKind.PREPEND)
+                    .toList();
 
-                var appendActions =
-                        tokActions.stream().filter(c -> c.kind == actionKind.APPEND).toList();
+                var appendActions = tokActions
+                    .stream()
+                    .filter(c -> c.kind == actionKind.APPEND)
+                    .toList();
 
                 for (var action : prependActions) {
                     write.accept(action.text);
@@ -195,7 +204,6 @@ public class LKQLRefactor implements Callable<Integer> {
             }
         }
     }
-    ;
 
     /**
      * Helper for refactor writers: Find all nodes that are children of root and which satisfies the
@@ -203,13 +211,11 @@ public class LKQLRefactor implements Callable<Integer> {
      */
     public static List<LkqlNode> findAll(LkqlNode root, Predicate<LkqlNode> pred) {
         var result = new ArrayList<LkqlNode>();
-        visitChildren(
-                root,
-                (c) -> {
-                    if (pred.test(c)) {
-                        result.add(c);
-                    }
-                });
+        visitChildren(root, c -> {
+            if (pred.test(c)) {
+                result.add(c);
+            }
+        });
         return result;
     }
 
@@ -221,9 +227,11 @@ public class LKQLRefactor implements Callable<Integer> {
         switch (refactoring) {
             case IS_TO_COLON:
                 return unit -> {
-                    for (var det : findAll(unit.getRoot(), (n) -> n instanceof NodePatternDetail)) {
-                        var tokIs =
-                                firstWithPred(det.tokenStart(), (t) -> t.kind == TokenKind.LKQL_IS);
+                    for (var det : findAll(unit.getRoot(), n -> n instanceof NodePatternDetail)) {
+                        var tokIs = firstWithPred(
+                            det.tokenStart(),
+                            t -> t.kind == TokenKind.LKQL_IS
+                        );
 
                         if (!tokIs.isNone()) {
                             // Replace "is" -> ":"

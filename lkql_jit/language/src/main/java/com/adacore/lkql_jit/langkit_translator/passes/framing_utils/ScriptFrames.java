@@ -46,7 +46,10 @@ public final class ScriptFrames {
      * @param globalScope
      */
     public ScriptFrames(
-            final List<String> builtIns, final AbstractNodeFrame root, GlobalScope globalScope) {
+        final List<String> builtIns,
+        final AbstractNodeFrame root,
+        GlobalScope globalScope
+    ) {
         this.globalScope = globalScope;
         this.builtIns = new HashMap<>();
         for (int i = 0; i < builtIns.size(); i++) {
@@ -69,18 +72,20 @@ public final class ScriptFrames {
         if (this.current == null) {
             if (!this.root.node.equals(node)) {
                 throw new TranslatorException(
-                        "Cannot enter the root frame because of node inequality");
+                    "Cannot enter the root frame because of node inequality"
+                );
             }
             this.current = this.root;
         } else {
             if (!this.current.children.containsKey(node)) {
                 throw new TranslatorException(
-                        "Cannot enter the frame, "
-                                + node
-                                + " isn't in the children"
-                                + " (current: "
-                                + this.current.node
-                                + ")");
+                    "Cannot enter the frame, " +
+                    node +
+                    " isn't in the children" +
+                    " (current: " +
+                    this.current.node +
+                    ")"
+                );
             }
             this.current = this.current.children.get(node);
         }
@@ -240,12 +245,9 @@ public final class ScriptFrames {
 
     @Override
     public String toString() {
-        return "ScriptFrames("
-                + "\n\tbuilt_ins: "
-                + this.builtIns
-                + "\n\troot: "
-                + this.root
-                + "\n)";
+        return (
+            "ScriptFrames(" + "\n\tbuilt_ins: " + this.builtIns + "\n\troot: " + this.root + "\n)"
+        );
     }
 
     // ----- Inner classes -----
@@ -257,6 +259,7 @@ public final class ScriptFrames {
 
         /** Pseudo mutable record to store information about a binding. */
         public static final class BindingInfo {
+
             private static final BindingInfo NONE = new BindingInfo(-1);
 
             private final int slot;
@@ -298,7 +301,9 @@ public final class ScriptFrames {
          * @param parent The parent of the node frame.
          */
         protected AbstractNodeFrame(
-                final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
+            final Liblkqllang.LkqlNode node,
+            final AbstractNodeFrame parent
+        ) {
             this.node = node;
             this.parent = parent;
             this.children = new HashMap<>();
@@ -332,7 +337,8 @@ public final class ScriptFrames {
         public void declareBinding(final String symbol) {
             if (!this.bindings.containsKey(symbol)) {
                 throw new TranslatorException(
-                        "Cannot declare the binding '" + symbol + "' if it doesn't exist");
+                    "Cannot declare the binding '" + symbol + "' if it doesn't exist"
+                );
             }
             this.bindings.get(symbol).declared = true;
         }
@@ -438,7 +444,6 @@ public final class ScriptFrames {
          */
         public NodeFrame(final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
             super(node, parent);
-
             this.parameters = new HashMap<>();
             this.closure = new HashMap<>();
             this.closingBindings = new HashMap<>();
@@ -462,10 +467,11 @@ public final class ScriptFrames {
          */
         public ClosureDescriptor getClosureDescriptor() {
             return new ClosureDescriptor(
-                    this.closureCounter,
-                    this.closingBindings,
-                    this.closingParameters,
-                    this.closingClosure);
+                this.closureCounter,
+                this.closingBindings,
+                this.closingParameters,
+                this.closingClosure
+            );
         }
 
         // --- Symbol methods
@@ -505,9 +511,8 @@ public final class ScriptFrames {
             // Ensure the symbol exists in the closure
             if (!this.closure.containsKey(symbol)) {
                 throw new TranslatorException(
-                        "Cannot verify declaration of a non-existing closure symbol: '"
-                                + symbol
-                                + "'");
+                    "Cannot verify declaration of a non-existing closure symbol: '" + symbol + "'"
+                );
             }
 
             // Look in the parent if it is not null
@@ -517,12 +522,10 @@ public final class ScriptFrames {
                 if (this.closingBindings.containsKey(slot)) {
                     return this.parent.getBinding(symbol).declared;
                 }
-
                 // Look in the parent parameters
                 else if (this.closingParameters.containsKey(slot)) {
                     return true;
                 }
-
                 // Else look in the parent closure
                 else {
                     return this.parent.isClosureDeclared(symbol);
@@ -585,10 +588,11 @@ public final class ScriptFrames {
 
             // Get the next available slot for the child and return it
             final List<Integer> childAssociatedSlots =
-                    this.virtualChildrenAssociatedSlots.get(child);
+                this.virtualChildrenAssociatedSlots.get(child);
             if (childAssociatedSlots.size() >= this.virtualChildrenSlots.size()) {
                 this.virtualChildrenSlots.add(
-                        this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, null, null));
+                        this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, null, null)
+                    );
             }
             final int slot = this.virtualChildrenSlots.get(childAssociatedSlots.size());
             childAssociatedSlots.add(slot);
@@ -599,23 +603,25 @@ public final class ScriptFrames {
 
         @Override
         public String toString() {
-            return "NodeFrame("
-                    + "node: "
-                    + this.node
-                    + (!this.bindings.isEmpty() ? ", bindings: " + this.bindings : "")
-                    + (!this.parameters.isEmpty() ? ", parameters: " + this.parameters : "")
-                    + (!this.closure.isEmpty() ? ", closure: " + this.closure : "")
-                    + (!this.closingBindings.isEmpty()
-                            ? ", closing_bindings: " + this.closingBindings
-                            : "")
-                    + (!this.closingParameters.isEmpty()
-                            ? ", closing_parameters: " + this.closingParameters
-                            : "")
-                    + (!this.closingClosure.isEmpty()
-                            ? ", closing_closure: " + this.closingClosure
-                            : "")
-                    + (!this.children.isEmpty() ? ", children: " + this.children.values() : "")
-                    + ")";
+            return (
+                "NodeFrame(" +
+                "node: " +
+                this.node +
+                (!this.bindings.isEmpty() ? ", bindings: " + this.bindings : "") +
+                (!this.parameters.isEmpty() ? ", parameters: " + this.parameters : "") +
+                (!this.closure.isEmpty() ? ", closure: " + this.closure : "") +
+                (!this.closingBindings.isEmpty()
+                        ? ", closing_bindings: " + this.closingBindings
+                        : "") +
+                (!this.closingParameters.isEmpty()
+                        ? ", closing_parameters: " + this.closingParameters
+                        : "") +
+                (!this.closingClosure.isEmpty()
+                        ? ", closing_closure: " + this.closingClosure
+                        : "") +
+                (!this.children.isEmpty() ? ", children: " + this.children.values() : "") +
+                ")"
+            );
         }
     }
 
@@ -683,12 +689,14 @@ public final class ScriptFrames {
 
         @Override
         public String toString() {
-            return "VirtualNodeFrame("
-                    + "node: "
-                    + this.node
-                    + (!this.bindings.isEmpty() ? ", bindings: " + this.bindings : "")
-                    + (!this.children.isEmpty() ? ", children: " + this.children.values() : "")
-                    + ")";
+            return (
+                "VirtualNodeFrame(" +
+                "node: " +
+                this.node +
+                (!this.bindings.isEmpty() ? ", bindings: " + this.bindings : "") +
+                (!this.children.isEmpty() ? ", children: " + this.children.values() : "") +
+                ")"
+            );
         }
     }
 }

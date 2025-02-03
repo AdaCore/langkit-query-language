@@ -7,6 +7,7 @@ package com.adacore.lkql_jit;
 
 /** Entry point for the LKQL benchmarks. */
 public class BenchmarksMain {
+
     public static void main(String[] args) throws Exception {
         org.openjdk.jmh.Main.main(args);
     }

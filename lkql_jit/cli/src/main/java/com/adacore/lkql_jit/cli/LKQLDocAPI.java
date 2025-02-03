@@ -17,17 +17,21 @@ import org.graalvm.polyglot.Source;
 import picocli.CommandLine;
 
 @CommandLine.Command(
-        name = "doc-api",
-        description = "Generate API doc for LKQL modules, in RST format")
+    name = "doc-api",
+    description = "Generate API doc for LKQL modules, in RST format"
+)
 public class LKQLDocAPI implements Callable<Integer> {
+
     @CommandLine.Option(
-            names = "--std",
-            description = "Generate apidoc for the prelude & builtin functions")
+        names = "--std",
+        description = "Generate apidoc for the prelude & builtin functions"
+    )
     public boolean documentStd;
 
     @CommandLine.Option(
-            names = {"-O", "--output-dir"},
-            description = "Output directory for generated RST files")
+        names = { "-O", "--output-dir" },
+        description = "Output directory for generated RST files"
+    )
     public String outputDir = ".";
 
     @CommandLine.Parameters(description = "LKQL modules to document")
@@ -35,14 +39,11 @@ public class LKQLDocAPI implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        Context context =
-                Context.newBuilder("lkql")
-                        .allowAllAccess(true)
-                        // Set default LKQL options
-                        .option(
-                                "lkql.options",
-                                new LKQLOptions.Builder().build().toJson().toString())
-                        .build();
+        Context context = Context.newBuilder("lkql")
+            .allowAllAccess(true)
+            // Set default LKQL options
+            .option("lkql.options", new LKQLOptions.Builder().build().toJson().toString())
+            .build();
         try {
             Files.createDirectories(FileSystems.getDefault().getPath(outputDir));
         } catch (IOException e) {
@@ -55,11 +56,11 @@ public class LKQLDocAPI implements Callable<Integer> {
                 //  "interactive" in order for the eval of the TopLevelList to return its result.
                 // We need to think about how to fix that at the language level, so that we don't
                 // have to call `eval` with `interactive=true` below.
-                var res =
-                        context.eval(
-                                Source.newBuilder("lkql", "document_builtins()", "<input>")
-                                        .interactive(true)
-                                        .build());
+                var res = context.eval(
+                    Source.newBuilder("lkql", "document_builtins()", "<input>")
+                        .interactive(true)
+                        .build()
+                );
                 writer.write(res.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -70,17 +71,17 @@ public class LKQLDocAPI implements Callable<Integer> {
             var path = FileSystems.getDefault().getPath(outputDir, mod + ".rst");
             try (BufferedWriter writer = Files.newBufferedWriter(path)) {
                 context.eval(
-                        Source.newBuilder("lkql", "import " + mod, "<input>")
-                                .interactive(true)
-                                .build());
-                var doc =
-                        context.eval(
-                                Source.newBuilder(
-                                                "lkql",
-                                                "document_namespace(" + mod + ",\"" + mod + "\")",
-                                                "<input>")
-                                        .interactive(true)
-                                        .build());
+                    Source.newBuilder("lkql", "import " + mod, "<input>").interactive(true).build()
+                );
+                var doc = context.eval(
+                    Source.newBuilder(
+                        "lkql",
+                        "document_namespace(" + mod + ",\"" + mod + "\")",
+                        "<input>"
+                    )
+                        .interactive(true)
+                        .build()
+                );
                 writer.write(doc.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);

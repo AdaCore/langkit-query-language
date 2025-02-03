@@ -20,12 +20,13 @@ public class BuiltInMethodValue extends BuiltInFunctionValue {
      * "this" value.
      */
     public BuiltInMethodValue(
-            String name,
-            String documentation,
-            String[] names,
-            String[] defaultValues,
-            BuiltInBody body,
-            Object thisValue) {
+        String name,
+        String documentation,
+        String[] names,
+        String[] defaultValues,
+        BuiltInBody body,
+        Object thisValue
+    ) {
         super(name, documentation, names, defaultValues, body);
         this.thisValue = thisValue;
     }

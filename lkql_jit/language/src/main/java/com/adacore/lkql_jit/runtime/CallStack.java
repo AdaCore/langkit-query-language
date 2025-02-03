@@ -51,10 +51,9 @@ public final class CallStack implements Cloneable {
      */
     public record Element(LKQLFunction function, FunCall call) {
         public String display() {
-            return this.function.getName()
-                    + " (called at "
-                    + this.call.getLocation().display()
-                    + ")";
+            return (
+                this.function.getName() + " (called at " + this.call.getLocation().display() + ")"
+            );
         }
     }
 }

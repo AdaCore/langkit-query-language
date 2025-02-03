@@ -29,11 +29,12 @@ public class RecExpr extends Expr {
     private Expr resultExpr;
 
     public RecExpr(
-            SourceSection location,
-            boolean recurseHasUnpack,
-            Expr recurseExpr,
-            boolean resultHasUnpack,
-            Expr resultExpr) {
+        SourceSection location,
+        boolean recurseHasUnpack,
+        Expr recurseExpr,
+        boolean resultHasUnpack,
+        Expr resultExpr
+    ) {
         super(location);
         this.recurseHasUnpack = recurseHasUnpack;
         this.recurseExpr = recurseExpr;
@@ -48,9 +49,10 @@ public class RecExpr extends Expr {
         if (this.recurseHasUnpack) {
             if (!LKQLTypeSystemGen.isBaseLKQLList(recurseExprVal)) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_ITERABLE,
-                        LKQLTypesHelper.fromJava(recurseExprVal),
-                        this.recurseExpr);
+                    LKQLTypesHelper.LKQL_ITERABLE,
+                    LKQLTypesHelper.fromJava(recurseExprVal),
+                    this.recurseExpr
+                );
             }
             BaseLKQLList i = (BaseLKQLList) recurseExprVal;
             recurseVal = i.getContent();
@@ -76,9 +78,10 @@ public class RecExpr extends Expr {
         if (resultHasUnpack) {
             if (!LKQLTypeSystemGen.isBaseLKQLList(resultExprVal)) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_ITERABLE,
-                        LKQLTypesHelper.fromJava(resultExprVal),
-                        this.resultExpr);
+                    LKQLTypesHelper.LKQL_ITERABLE,
+                    LKQLTypesHelper.fromJava(resultExprVal),
+                    this.resultExpr
+                );
             }
             BaseLKQLList i = (BaseLKQLList) resultExprVal;
             resultVal = i.getContent();

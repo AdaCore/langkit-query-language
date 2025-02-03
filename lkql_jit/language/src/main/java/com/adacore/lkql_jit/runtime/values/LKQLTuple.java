@@ -41,24 +41,28 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
     /** Exported message to compare two tuples. */
     @ExportMessage
     public static class IsIdenticalOrUndefined {
+
         /** Compare two LKQL tuples. */
         @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
         public static TriState onTuple(
-                final LKQLTuple left,
-                final LKQLTuple right,
-                @CachedLibrary("left") InteropLibrary lefts,
-                @CachedLibrary("right") InteropLibrary rights,
-                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
-                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems) {
+            final LKQLTuple left,
+            final LKQLTuple right,
+            @CachedLibrary("left") InteropLibrary lefts,
+            @CachedLibrary("right") InteropLibrary rights,
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems
+        ) {
             return TriState.valueOf(
-                    arrayValueEquals(left, right, lefts, rights, leftElems, rightElems));
+                arrayValueEquals(left, right, lefts, rights, leftElems, rightElems)
+            );
         }
 
         /** Do the comparison with another element. */
         @Fallback
         public static TriState onOther(
-                @SuppressWarnings("unused") final LKQLTuple receiver,
-                @SuppressWarnings("unused") final Object other) {
+            @SuppressWarnings("unused") final LKQLTuple receiver,
+            @SuppressWarnings("unused") final Object other
+        ) {
             return TriState.UNDEFINED;
         }
     }
@@ -66,9 +70,10 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
     /** Get the identity hash code for the given LKQL tuple */
     @ExportMessage
     public static int identityHashCode(
-            LKQLTuple receiver,
-            @CachedLibrary("receiver") InteropLibrary receivers,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems) {
+        LKQLTuple receiver,
+        @CachedLibrary("receiver") InteropLibrary receivers,
+        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems
+    ) {
         return arrayValueHashCode(receiver, receivers, elems);
     }
 
@@ -76,8 +81,9 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
     @CompilerDirectives.TruffleBoundary
     @ExportMessage
     public Object toDisplayString(
-            @SuppressWarnings("unused") final boolean allowSideEffect,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary interopLibrary) {
+        @SuppressWarnings("unused") final boolean allowSideEffect,
+        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary interopLibrary
+    ) {
         // Prepare the result
         StringBuilder resultBuilder = new StringBuilder("(");
 

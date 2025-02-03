@@ -50,7 +50,10 @@ public final class Unwrap extends Expr {
         Object nodeValue = this.expr.executeGeneric(frame);
         if (!LKQLTypeSystemGen.isAdaNode(nodeValue)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(nodeValue), this.expr);
+                LKQLTypesHelper.ADA_NODE,
+                LKQLTypesHelper.fromJava(nodeValue),
+                this.expr
+            );
         }
 
         // Return the node value

@@ -36,12 +36,13 @@ import org.graalvm.options.OptionStability;
  * @author Hugo GUERRIER
  */
 @TruffleLanguage.Registration(
-        id = Constants.LKQL_ID,
-        name = "Langkit Query Language",
-        defaultMimeType = Constants.LKQL_MIME,
-        characterMimeTypes = Constants.LKQL_MIME,
-        contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
-        dependentLanguages = {"regex"})
+    id = Constants.LKQL_ID,
+    name = "Langkit Query Language",
+    defaultMimeType = Constants.LKQL_MIME,
+    characterMimeTypes = Constants.LKQL_MIME,
+    contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
+    dependentLanguages = { "regex" }
+)
 public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     /**
@@ -49,7 +50,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * is where we put all global definitions that must be accessible in every context
      */
     private static final String PRELUDE_SOURCE =
-            """
+        """
         selector children
         |" Yields all the descendants of the given node
         | AdaNode => rec(*this.children)
@@ -75,11 +76,12 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     /** The reference to the LKQL language. */
     private static final LanguageReference<LKQLLanguage> LANGUAGE_REFERENCE =
-            LanguageReference.create(LKQLLanguage.class);
+        LanguageReference.create(LKQLLanguage.class);
 
     /** The reference to the LKQL context. */
-    private static final ContextReference<LKQLContext> CONTEXT_REFERENCE =
-            ContextReference.create(LKQLLanguage.class);
+    private static final ContextReference<LKQLContext> CONTEXT_REFERENCE = ContextReference.create(
+        LKQLLanguage.class
+    );
 
     /** Whether the current language spawning support the color. */
     public static boolean SUPPORT_COLOR = false;
@@ -88,9 +90,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     /** The JSON encoded LKQL engine options. */
     @Option(
-            help = "Options for the LKQL engine as a JSON object",
-            category = OptionCategory.INTERNAL,
-            stability = OptionStability.STABLE)
+        help = "Options for the LKQL engine as a JSON object",
+        category = OptionCategory.INTERNAL,
+        stability = OptionStability.STABLE
+    )
     static final OptionKey<String> options = new OptionKey<>("");
 
     Liblkqllang.AnalysisContext lkqlAnalysisContext;
@@ -135,7 +138,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      */
     @Override
     protected LKQLContext createContext(Env env) {
-
         // Create the global values
         GlobalScope globalValues = new GlobalScope();
 
@@ -187,9 +189,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         TopLevelList result;
 
         if (request.getSource().getPath() == null) {
-            unit =
-                    lkqlAnalysisContext.getUnitFromBuffer(
-                            request.getSource().getCharacters().toString(), "<command-line>");
+            unit = lkqlAnalysisContext.getUnitFromBuffer(
+                request.getSource().getCharacters().toString(),
+                "<command-line>"
+            );
         } else {
             unit = lkqlAnalysisContext.getUnitFromFile(request.getSource().getPath());
         }
@@ -201,16 +204,21 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
             // Iterate over diagnostics
             for (Liblkqllang.Diagnostic diagnostic : diagnostics) {
-                ctx.getDiagnosticEmitter()
-                        .emitDiagnostic(
-                                CheckerUtils.MessageKind.ERROR,
-                                diagnostic.message.toString(),
-                                null,
-                                SourceSectionWrapper.create(
-                                        diagnostic.sourceLocationRange, request.getSource()));
+                ctx
+                    .getDiagnosticEmitter()
+                    .emitDiagnostic(
+                        CheckerUtils.MessageKind.ERROR,
+                        diagnostic.message.toString(),
+                        null,
+                        SourceSectionWrapper.create(
+                            diagnostic.sourceLocationRange,
+                            request.getSource()
+                        )
+                    );
             }
             throw LKQLRuntimeException.fromMessage(
-                    "Syntax errors in " + unit.getFileName(false) + ": stopping interpreter");
+                "Syntax errors in " + unit.getFileName(false) + ": stopping interpreter"
+            );
         }
 
         // Get the LKQL langkit AST
@@ -222,10 +230,11 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Print the Truffle AST if the JIT is in debug mode
         if (getContext(result).isVerbose()) {
             System.out.println(
-                    "=== Truffle AST <"
-                            + result.getSourceSection().getSource().getPath()
-                            + "> :\n"
-                            + result);
+                "=== Truffle AST <" +
+                result.getSourceSection().getSource().getPath() +
+                "> :\n" +
+                result
+            );
         }
 
         // Return the call target
@@ -247,18 +256,22 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * @return The translated LKQL Truffle AST.
      */
     public LKQLNode translate(
-            final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source, boolean isPrelude) {
-
+        final Liblkqllang.LkqlNode lkqlLangkitRoot,
+        final Source source,
+        boolean isPrelude
+    ) {
         if (!isPrelude) {
             var global = getContext(null).getGlobal();
             if (global.prelude == null) {
                 // Eval prelude
-                Source preludeSource =
-                        Source.newBuilder(Constants.LKQL_ID, PRELUDE_SOURCE, "<prelude>").build();
-                var root =
-                        lkqlAnalysisContext
-                                .getUnitFromBuffer(PRELUDE_SOURCE, "<prelude>")
-                                .getRoot();
+                Source preludeSource = Source.newBuilder(
+                    Constants.LKQL_ID,
+                    PRELUDE_SOURCE,
+                    "<prelude>"
+                ).build();
+                var root = lkqlAnalysisContext
+                    .getUnitFromBuffer(PRELUDE_SOURCE, "<prelude>")
+                    .getRoot();
                 var preludeRoot = (TopLevelList) translate(root, preludeSource, true);
                 var callTarget = new TopLevelRootNode(true, preludeRoot, this).getCallTarget();
                 global.prelude = (LKQLNamespace) callTarget.call();
@@ -278,8 +291,9 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Do the framing pass to create the script frame descriptions
         final FramingPass framingPass = new FramingPass(source);
         lkqlLangkitRoot.accept(framingPass);
-        final ScriptFrames scriptFrames =
-                framingPass.getScriptFramesBuilder().build(CONTEXT_REFERENCE.get(null).getGlobal());
+        final ScriptFrames scriptFrames = framingPass
+            .getScriptFramesBuilder()
+            .build(CONTEXT_REFERENCE.get(null).getGlobal());
 
         // Do the translation pass and return the result
         final TranslationPass translationPass = new TranslationPass(source, scriptFrames);

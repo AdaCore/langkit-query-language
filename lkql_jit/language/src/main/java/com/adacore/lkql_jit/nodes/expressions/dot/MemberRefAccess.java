@@ -27,7 +27,6 @@ public class MemberRefAccess extends Expr {
 
     public MemberRefAccess(SourceSection location, Identifier receiver, Identifier member) {
         super(location);
-
         // Get the Ada node description and check that the member exists
         final var description = Libadalang.NODE_DESCRIPTION_MAP.get(receiver.getName());
         if (description == null) {

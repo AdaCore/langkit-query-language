@@ -19,21 +19,23 @@ import java.util.List;
 
 /** This class contains all built-in methods for the iterable type in the LKQL language. */
 @BuiltinMethodContainer(
-        targetTypes = {
-            LKQLTypesHelper.LKQL_LAZY_LIST,
-            LKQLTypesHelper.LKQL_SELECTOR_LIST,
-            LKQLTypesHelper.LKQL_LIST
-        })
+    targetTypes = {
+        LKQLTypesHelper.LKQL_LAZY_LIST,
+        LKQLTypesHelper.LKQL_SELECTOR_LIST,
+        LKQLTypesHelper.LKQL_LIST,
+    }
+)
 public class IterableMethods {
 
     @BuiltInMethod(
-            name = "enumerate",
-            doc =
-                    """
-                  Return the content of the iterable object with each element associated \
-                  to its index in a tuple: [(<index>, <elem>), ...]""",
-            isProperty = true)
+        name = "enumerate",
+        doc = """
+        Return the content of the iterable object with each element associated \
+        to its index in a tuple: [(<index>, <elem>), ...]""",
+        isProperty = true
+    )
     abstract static class EnumerateExpr extends BuiltInBody {
+
         @Specialization
         public LKQLList execute(LKQLList receiver) {
             // Create the result array and fill it
@@ -41,7 +43,9 @@ public class IterableMethods {
             long index = 1;
             final var iterator = receiver.iterator();
             while (iterator.hasNext()) {
-                resContent[(int) index - 1] = new LKQLTuple(new Object[] {index, iterator.next()});
+                resContent[(int) index - 1] = new LKQLTuple(
+                    new Object[] { index, iterator.next() }
+                );
                 index++;
             }
 
@@ -52,6 +56,7 @@ public class IterableMethods {
 
     @BuiltInMethod(name = "to_list", doc = "Transform into a list", isProperty = true)
     abstract static class ToListExpr extends BuiltInBody {
+
         @Specialization
         public LKQLList onIterable(Iterable self) {
             // Create a new list from the iterable
@@ -68,6 +73,7 @@ public class IterableMethods {
 
     @BuiltInMethod(name = "length", doc = "Return the length of the iterable", isProperty = true)
     abstract static class LengthExpr extends BuiltInBody {
+
         @Specialization
         public long onIterable(Iterable self) {
             return self.size();

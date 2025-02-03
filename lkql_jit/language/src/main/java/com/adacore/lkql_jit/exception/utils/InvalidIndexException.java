@@ -14,7 +14,9 @@ import java.io.Serial;
  * @author Hugo GUERRIER
  */
 public final class InvalidIndexException extends RuntimeException {
-    @Serial private static final long serialVersionUID = 6248743740479992497L;
+
+    @Serial
+    private static final long serialVersionUID = 6248743740479992497L;
 
     @CompilerDirectives.TruffleBoundary
     public InvalidIndexException() {}

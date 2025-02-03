@@ -21,21 +21,23 @@ import java.util.stream.Collectors;
 import picocli.CommandLine;
 
 @CommandLine.Command(
-        name = "doc-rules",
-        description = "Generate rules documentation, in RST format")
+    name = "doc-rules",
+    description = "Generate rules documentation, in RST format"
+)
 public class LKQLDocRules implements Callable<Integer> {
+
     @CommandLine.Parameters(
-            description = "Any number of rules directories for which to generate documentation")
+        description = "Any number of rules directories for which to generate documentation"
+    )
     private List<File> rulesDirs = new ArrayList<File>();
 
     @CommandLine.Option(
-            names = {"-O", "--output-dir"},
-            description = "Output directory for generated RST files (default to local directory)")
+        names = { "-O", "--output-dir" },
+        description = "Output directory for generated RST files (default to local directory)"
+    )
     private File outputDir = new File(".");
 
-    @CommandLine.Option(
-            names = {"-v", "--verbose"},
-            description = "Verbose mode.")
+    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode.")
     private boolean verbose;
 
     /**
@@ -61,13 +63,11 @@ public class LKQLDocRules implements Callable<Integer> {
      */
     public static List<LkqlNode> findAll(LkqlNode root, Predicate<LkqlNode> pred) {
         var result = new ArrayList<LkqlNode>();
-        visitChildren(
-                root,
-                (c) -> {
-                    if (pred.test(c)) {
-                        result.add(c);
-                    }
-                });
+        visitChildren(root, c -> {
+            if (pred.test(c)) {
+                result.add(c);
+            }
+        });
         return result;
     }
 
@@ -80,10 +80,11 @@ public class LKQLDocRules implements Callable<Integer> {
     private static FunDecl isCheck(AnalysisUnit unit) {
         final LkqlNode root = unit.getRoot();
 
-        for (var fun : findAll(root, (n) -> n instanceof FunDecl)) {
+        for (var fun : findAll(root, n -> n instanceof FunDecl)) {
             final DeclAnnotation ann = ((FunDecl) fun).fAnnotation();
-            if (ann != null && !ann.isNone() && ann.fName().pSym().text.endsWith("check"))
-                return (FunDecl) fun;
+            if (
+                ann != null && !ann.isNone() && ann.fName().pSym().text.endsWith("check")
+            ) return (FunDecl) fun;
         }
 
         return null;
@@ -113,14 +114,14 @@ public class LKQLDocRules implements Callable<Integer> {
 
     /** Object to represent a LKQL rule for easier documentation generation. */
     private record Rule(FunDecl check, String name, String category, String subcategory)
-            implements Comparable<Rule> {
-
+        implements Comparable<Rule> {
         public Rule(FunDecl check) {
             this(
-                    check,
-                    getRuleName(check),
-                    getAnnotationArgument(check, "category"),
-                    getAnnotationArgument(check, "subcategory"));
+                check,
+                getRuleName(check),
+                getAnnotationArgument(check, "category"),
+                getAnnotationArgument(check, "subcategory")
+            );
         }
 
         private static String getRuleName(FunDecl check) {
@@ -130,10 +131,9 @@ public class LKQLDocRules implements Callable<Integer> {
             String name = getAnnotationArgument(check, "rule_name");
             if (name == "") {
                 name = check.fName().pSym().text;
-                name =
-                        Arrays.stream(name.split("[_]"))
-                                .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
-                                .collect(Collectors.joining("_"));
+                name = Arrays.stream(name.split("[_]"))
+                    .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
+                    .collect(Collectors.joining("_"));
             }
             return name;
         }
@@ -176,11 +176,12 @@ public class LKQLDocRules implements Callable<Integer> {
                 }
             } else {
                 System.out.println(
-                        "Warning: wrong or missing documentation for "
-                                + this.name
-                                + " (doc_node: "
-                                + doc
-                                + ")");
+                    "Warning: wrong or missing documentation for " +
+                    this.name +
+                    " (doc_node: " +
+                    doc +
+                    ")"
+                );
             }
 
             docString.append("\n\n\n");
@@ -190,7 +191,7 @@ public class LKQLDocRules implements Callable<Integer> {
 
         /** Return whether this rule is from category 'category' and subcategory 'subcategory'. */
         public Boolean isFromCategory(String category, String subcategory) {
-            return this.category.equals(category) && this.subcategory.equals(subcategory);
+            return (this.category.equals(category) && this.subcategory.equals(subcategory));
         }
     }
 
@@ -199,8 +200,11 @@ public class LKQLDocRules implements Callable<Integer> {
      * string 'header' as section header.
      */
     private static void printCategory(
-            FileWriter file, List<Rule> rules, String categoryName, String header)
-            throws Exception {
+        FileWriter file,
+        List<Rule> rules,
+        String categoryName,
+        String header
+    ) throws Exception {
         final String title = categoryName + "-Related Rules";
         file.write(rstHeading(title, '=') + "\n\n");
         file.write(rstIndex(title) + "\n\n");
@@ -221,12 +225,12 @@ public class LKQLDocRules implements Callable<Integer> {
      * 'file'. Also, print the RST string 'header' as section header.
      */
     private static void printSubcategory(
-            FileWriter file,
-            List<Rule> rules,
-            String categoryName,
-            String subcategoryName,
-            String header)
-            throws Exception {
+        FileWriter file,
+        List<Rule> rules,
+        String categoryName,
+        String subcategoryName,
+        String header
+    ) throws Exception {
         file.write(rstAnchor(subcategoryName.replace(" ", "_")) + "\n\n");
         file.write(rstHeading(subcategoryName, '-') + "\n\n");
         file.write(rstIndex(subcategoryName + "-related rules") + "\n\n");
@@ -250,10 +254,9 @@ public class LKQLDocRules implements Callable<Integer> {
 
         // Get all lkql files from directories to analyse.
         List<File> ruleDirectoryFiles = new ArrayList<>();
-        for (var dir : rulesDirs)
-            ruleDirectoryFiles.addAll(
-                    Arrays.asList(
-                            dir.listFiles(f -> f.canRead() && f.getName().endsWith(".lkql"))));
+        for (var dir : rulesDirs) ruleDirectoryFiles.addAll(
+            Arrays.asList(dir.listFiles(f -> f.canRead() && f.getName().endsWith(".lkql")))
+        );
 
         List<AnalysisUnit> units = new ArrayList<>();
 
@@ -274,12 +277,12 @@ public class LKQLDocRules implements Callable<Integer> {
         // subsequent calls to printCategory/printSubcategory (mostly for
         // performace).
         List<Rule> rules = new ArrayList<>();
-        rules =
-                units.stream()
-                        .map(u -> isCheck(u))
-                        .filter(u -> u != null)
-                        .map(u -> new Rule(u))
-                        .collect(Collectors.toList());
+        rules = units
+            .stream()
+            .map(u -> isCheck(u))
+            .filter(u -> u != null)
+            .map(u -> new Rule(u))
+            .collect(Collectors.toList());
 
         if (verbose) System.out.println("Found " + rules.size() + " rules for documentation.");
 
@@ -292,17 +295,18 @@ public class LKQLDocRules implements Callable<Integer> {
         FileWriter listOfRules = new FileWriter(outputDir + "/list_of_rules.rst");
 
         listOfRules.write(
-                """
-                .. _List_of_Rules:
+            """
+            .. _List_of_Rules:
 
-                **************************
-                Alphabetical List of Rules
-                **************************
+            **************************
+            Alphabetical List of Rules
+            **************************
 
-                This section contains an alphabetized list of all the predefined
-                GNATcheck rules.
+            This section contains an alphabetized list of all the predefined
+            GNATcheck rules.
 
-                """);
+            """
+        );
         for (var r : rules) listOfRules.write("* :ref:`" + r.name + "`\n");
 
         listOfRules.close();
@@ -324,219 +328,230 @@ public class LKQLDocRules implements Callable<Integer> {
         FileWriter predefinedRules = new FileWriter(outputDir + "/predefined_rules.rst");
 
         predefinedRules.write(
-                """
-                .. _Predefined_Rules:
+            """
+            .. _Predefined_Rules:
 
-                ****************
-                Predefined Rules
-                ****************
+            ****************
+            Predefined Rules
+            ****************
 
-                .. index:: Predefined Rules
+            .. index:: Predefined Rules
 
-                The description of the rules currently implemented in ``gnatcheck`` is
-                given in this chapter.
-                The rule identifier is used as a key for LKQL rule configuration objects (see
-                :ref:`LKQL rule file<LKQL_options_file>`), and as first parameter of
-                ``gnatcheck``'s ``+R`` or ``-R`` switches.
+            The description of the rules currently implemented in ``gnatcheck`` is
+            given in this chapter.
+            The rule identifier is used as a key for LKQL rule configuration objects (see
+            :ref:`LKQL rule file<LKQL_options_file>`), and as first parameter of
+            ``gnatcheck``'s ``+R`` or ``-R`` switches.
 
-                Be aware that most of these rules apply to specialized coding
-                requirements developed by individual users and may well not make sense in
-                other environments. In particular, there are many rules that conflict
-                with one another. Proper usage of gnatcheck involves selecting the rules
-                you wish to apply by looking at your independently developed coding
-                standards and finding the corresponding gnatcheck rules.
+            Be aware that most of these rules apply to specialized coding
+            requirements developed by individual users and may well not make sense in
+            other environments. In particular, there are many rules that conflict
+            with one another. Proper usage of gnatcheck involves selecting the rules
+            you wish to apply by looking at your independently developed coding
+            standards and finding the corresponding gnatcheck rules.
 
-                Unless documentation is specifying some, rules don't have any parameters.
+            Unless documentation is specifying some, rules don't have any parameters.
 
-                If not otherwise specified, a rule does not do any check for the
-                results of generic instantiations.
+            If not otherwise specified, a rule does not do any check for the
+            results of generic instantiations.
 
-                GNATcheck's predefined rules' parameters may have the following types:
+            GNATcheck's predefined rules' parameters may have the following types:
 
-                *bool*
-                   The parameter represents a boolean value, toggling a rule behavior.
-                   In a LKQL rule file you have to associate a boolean value to the parameter
-                   name:
+            *bool*
+               The parameter represents a boolean value, toggling a rule behavior.
+               In a LKQL rule file you have to associate a boolean value to the parameter
+               name:
 
-                   .. code-block:: lkql
+               .. code-block:: lkql
 
-                      val rules = @{
-                         My_Rule: {Bool_Param: true}
-                      }
+                  val rules = @{
+                     My_Rule: {Bool_Param: true}
+                  }
 
-                   To specify a boolean parameter through a ``+R`` option, you just have to provide
-                   the parameter's name to set it to true:
+               To specify a boolean parameter through a ``+R`` option, you just have to provide
+               the parameter's name to set it to true:
 
-                   .. code-block:: ada
+               .. code-block:: ada
 
-                      +RMy_Rule:Bool_Param  -- 'Bool_Param' value is set to true
+                  +RMy_Rule:Bool_Param  -- 'Bool_Param' value is set to true
 
-                *int*
-                   The parameter is an integer value.
-                   In a LKQL rule options file, you have to associate an integer value to the
-                   parameter name:
+            *int*
+               The parameter is an integer value.
+               In a LKQL rule options file, you have to associate an integer value to the
+               parameter name:
 
-                   .. code-block:: lkql
+               .. code-block:: lkql
 
-                      val rules = @{
-                         My_Rule: {N: 5} # If the rule param is named 'N'
-                      }
+                  val rules = @{
+                     My_Rule: {N: 5} # If the rule param is named 'N'
+                  }
 
-                   To specify it with a ``+R`` option, you can write its value right after the
-                   rule name:
+               To specify it with a ``+R`` option, you can write its value right after the
+               rule name:
 
-                   .. code-block:: ada
+               .. code-block:: ada
 
-                      +RMy_Rule:5  -- 'My_Rule' integer param is set to 5
+                  +RMy_Rule:5  -- 'My_Rule' integer param is set to 5
 
-                *string*
-                   The parameter value is a string, sometimes with formatting constraints.
-                   In a LKQL rule options file, you just have to provide a string value:
+            *string*
+               The parameter value is a string, sometimes with formatting constraints.
+               In a LKQL rule options file, you just have to provide a string value:
 
-                   .. code-block:: lkql
+               .. code-block:: lkql
 
-                      val rules = @{
-                         My_Rule: {Str: \"i_am_a_string\"} # If the rule param is named 'Str'
-                      }
+                  val rules = @{
+                     My_Rule: {Str: \"i_am_a_string\"} # If the rule param is named 'Str'
+                  }
 
-                   You can specify it through the ``+R`` option also by passing a string right
-                   after the rule name:
+               You can specify it through the ``+R`` option also by passing a string right
+               after the rule name:
 
-                   .. code-block:: ada
+               .. code-block:: ada
 
-                      +RMy_Rule:i_am_a_string  -- 'My_Rule' string param is set to "i_am_a_string"
+                  +RMy_Rule:i_am_a_string  -- 'My_Rule' string param is set to "i_am_a_string"
 
-                *list[string]*
-                   The parameter value is a list of string.
-                   In a LKQL rule options file, you can use the LKQL list type to specify the
-                   parameter value:
+            *list[string]*
+               The parameter value is a list of string.
+               In a LKQL rule options file, you can use the LKQL list type to specify the
+               parameter value:
 
-                   .. code-block:: lkql
+               .. code-block:: lkql
 
-                      val rules = @{
-                         My_Rule: {Lst: [\"One\", \"Two\", \"Three\"]} # If the rule param is named 'Lst'
-                      }
+                  val rules = @{
+                     My_Rule: {Lst: [\"One\", \"Two\", \"Three\"]} # If the rule param is named 'Lst'
+                  }
 
-                   Through the ``+R`` option, you can specify it as a collection of string
-                   parameters separated by commas:
+               Through the ``+R`` option, you can specify it as a collection of string
+               parameters separated by commas:
 
-                   .. code-block:: ada
+               .. code-block:: ada
 
-                      +RMy_Rule:One,Two,Three  -- 'My_Rule' string list param is set to ["One", "Two", "Three"]
+                  +RMy_Rule:One,Two,Three  -- 'My_Rule' string list param is set to ["One", "Two", "Three"]
 
 
 
-                """);
-
-        printCategory(
-                predefinedRules,
-                rules,
-                "Style",
-                """
-                The rules in this section may be used to enforce various feature usages
-                consistent with good software engineering, for example
-                as described in Ada 95 Quality and Style.
-                """);
-
-        printSubcategory(
-                predefinedRules,
-                rules,
-                "Style",
-                "Tasking",
-                """
-                The rules in this subsection may be used to enforce various
-                feature usages related to concurrency.
-                """);
-
-        printSubcategory(
-                predefinedRules,
-                rules,
-                "Style",
-                "Object Orientation",
-                """
-                The rules in this subsection may be used to enforce various
-                feature usages related to Object-Oriented Programming.
-                """);
-
-        printSubcategory(
-                predefinedRules,
-                rules,
-                "Style",
-                "Portability",
-                """
-                The rules in this subsection may be used to enforce various
-                feature usages that support program portability.
-                """);
-
-        printSubcategory(
-                predefinedRules,
-                rules,
-                "Style",
-                "Program Structure",
-                """
-                The rules in this subsection may be used to enforce feature usages
-                related to program structure.
-                """);
-
-        printSubcategory(
-                predefinedRules,
-                rules,
-                "Style",
-                "Programming Practice",
-                """
-                The rules in this subsection may be used to enforce feature usages that
-                relate to program maintainability.
-                """);
-
-        printSubcategory(
-                predefinedRules,
-                rules,
-                "Style",
-                "Readability",
-                """
-                The rules described in this subsection may be used to enforce feature usages
-                that contribute towards readability.
-                """);
+            """
+        );
 
         printCategory(
-                predefinedRules,
-                rules,
-                "Feature",
-                """
-                The rules in this section can be used to enforce specific
-                usage patterns for a variety of language features.
-                """);
+            predefinedRules,
+            rules,
+            "Style",
+            """
+            The rules in this section may be used to enforce various feature usages
+            consistent with good software engineering, for example
+            as described in Ada 95 Quality and Style.
+            """
+        );
+
+        printSubcategory(
+            predefinedRules,
+            rules,
+            "Style",
+            "Tasking",
+            """
+            The rules in this subsection may be used to enforce various
+            feature usages related to concurrency.
+            """
+        );
+
+        printSubcategory(
+            predefinedRules,
+            rules,
+            "Style",
+            "Object Orientation",
+            """
+            The rules in this subsection may be used to enforce various
+            feature usages related to Object-Oriented Programming.
+            """
+        );
+
+        printSubcategory(
+            predefinedRules,
+            rules,
+            "Style",
+            "Portability",
+            """
+            The rules in this subsection may be used to enforce various
+            feature usages that support program portability.
+            """
+        );
+
+        printSubcategory(
+            predefinedRules,
+            rules,
+            "Style",
+            "Program Structure",
+            """
+            The rules in this subsection may be used to enforce feature usages
+            related to program structure.
+            """
+        );
+
+        printSubcategory(
+            predefinedRules,
+            rules,
+            "Style",
+            "Programming Practice",
+            """
+            The rules in this subsection may be used to enforce feature usages that
+            relate to program maintainability.
+            """
+        );
+
+        printSubcategory(
+            predefinedRules,
+            rules,
+            "Style",
+            "Readability",
+            """
+            The rules described in this subsection may be used to enforce feature usages
+            that contribute towards readability.
+            """
+        );
 
         printCategory(
-                predefinedRules,
-                rules,
-                "Metrics",
-                """
-                The rules in this section can be used to enforce compliance with
-                specific code metrics, by checking that the metrics computed for a program
-                lie within user-specifiable bounds.
-
-                The name of any metrics rule consists of the prefix ``Metrics_``
-                followed by the name of the corresponding metric:
-                ``Essential_Complexity``, ``Cyclomatic_Complexity``, or
-                ``LSLOC``.
-                (The 'LSLOC' acronym stands for 'Logical Source Lines Of Code'.)
-                The meaning and the computed values of the metrics are
-                the same as in *gnatmetric*.
-                """);
+            predefinedRules,
+            rules,
+            "Feature",
+            """
+            The rules in this section can be used to enforce specific
+            usage patterns for a variety of language features.
+            """
+        );
 
         printCategory(
-                predefinedRules,
-                rules,
-                "SPARK",
-                """
-                The rules in this section can be used to enforce
-                compliance with the Ada subset allowed by the SPARK 2005 language.
+            predefinedRules,
+            rules,
+            "Metrics",
+            """
+            The rules in this section can be used to enforce compliance with
+            specific code metrics, by checking that the metrics computed for a program
+            lie within user-specifiable bounds.
 
-                More recent versions of SPARK support these language constructs,
-                so if you want to further restrict the SPARK constructs allowed
-                in your coding standard, you can use some of the following rules.
-                """);
+            The name of any metrics rule consists of the prefix ``Metrics_``
+            followed by the name of the corresponding metric:
+            ``Essential_Complexity``, ``Cyclomatic_Complexity``, or
+            ``LSLOC``.
+            (The 'LSLOC' acronym stands for 'Logical Source Lines Of Code'.)
+            The meaning and the computed values of the metrics are
+            the same as in *gnatmetric*.
+            """
+        );
+
+        printCategory(
+            predefinedRules,
+            rules,
+            "SPARK",
+            """
+            The rules in this section can be used to enforce
+            compliance with the Ada subset allowed by the SPARK 2005 language.
+
+            More recent versions of SPARK support these language constructs,
+            so if you want to further restrict the SPARK constructs allowed
+            in your coding standard, you can use some of the following rules.
+            """
+        );
 
         predefinedRules.close();
 

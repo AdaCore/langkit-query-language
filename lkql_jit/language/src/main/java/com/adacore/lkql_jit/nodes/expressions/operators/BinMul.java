@@ -68,10 +68,16 @@ public abstract class BinMul extends BinOp {
     protected void notNumbers(Object left, Object right) {
         if (!LKQLTypeSystemGen.isLong(left) && !LKQLTypeSystemGen.isBigInteger(left)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(left), this);
+                LKQLTypesHelper.LKQL_INTEGER,
+                LKQLTypesHelper.fromJava(left),
+                this
+            );
         } else {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(right), this);
+                LKQLTypesHelper.LKQL_INTEGER,
+                LKQLTypesHelper.fromJava(right),
+                this
+            );
         }
     }
 

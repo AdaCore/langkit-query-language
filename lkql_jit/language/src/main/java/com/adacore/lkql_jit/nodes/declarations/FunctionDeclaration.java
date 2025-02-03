@@ -34,7 +34,8 @@ public final class FunctionDeclaration extends Declaration {
     // ----- Children -----
 
     /** Expression to get the function value from. */
-    @Child private FunExpr functionExpression;
+    @Child
+    private FunExpr functionExpression;
 
     // ----- Constructors -----
 
@@ -48,11 +49,12 @@ public final class FunctionDeclaration extends Declaration {
      * @param functionExpression The expression which returns the function value.
      */
     public FunctionDeclaration(
-            final SourceSection location,
-            final Annotation annotation,
-            final String name,
-            final int slot,
-            final FunExpr functionExpression) {
+        final SourceSection location,
+        final Annotation annotation,
+        final String name,
+        final int slot,
+        final FunExpr functionExpression
+    ) {
         super(location, annotation);
         this.name = name;
         this.slot = slot;
@@ -94,6 +96,9 @@ public final class FunctionDeclaration extends Declaration {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"slot"}, new Object[] {this.slot});
+                indentLevel,
+                new String[] { "slot" },
+                new Object[] { this.slot }
+            );
     }
 }

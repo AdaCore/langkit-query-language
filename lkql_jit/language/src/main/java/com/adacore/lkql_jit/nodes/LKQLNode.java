@@ -100,10 +100,11 @@ public abstract class LKQLNode extends Node {
         // Add the node custom fields
         for (int i = 0; i < fields.length && i < values.length; i++) {
             this.indent(indentLevel, builder);
-            builder.append(fields[i])
-                    .append(" = ")
-                    .append(values[i] == null ? "null" : values[i].toString())
-                    .append('\n');
+            builder
+                .append(fields[i])
+                .append(" = ")
+                .append(values[i] == null ? "null" : values[i].toString())
+                .append('\n');
         }
 
         // Add the node children
@@ -141,13 +142,14 @@ public abstract class LKQLNode extends Node {
         List<String> res = new ArrayList<>();
 
         // Get the fields annotated with child or children
-        List<Field> childFields =
-                ReflectionUtils.getFieldsUpTo(this.getClass(), null).stream()
-                        .filter(
-                                field ->
-                                        field.getAnnotation(Child.class) != null
-                                                || field.getAnnotation(Children.class) != null)
-                        .toList();
+        List<Field> childFields = ReflectionUtils.getFieldsUpTo(this.getClass(), null)
+            .stream()
+            .filter(
+                field ->
+                    field.getAnnotation(Child.class) != null ||
+                    field.getAnnotation(Children.class) != null
+            )
+            .toList();
 
         // Add all field to the result
         for (Field childField : childFields) {
@@ -164,7 +166,6 @@ public abstract class LKQLNode extends Node {
                 if (fieldValue == null) {
                     fieldValueString = "null";
                 }
-
                 // If the value is an array of node
                 else if (fieldValue.getClass().isArray()) {
                     LKQLNode[] nodeArray = (LKQLNode[]) fieldValue;
@@ -173,7 +174,6 @@ public abstract class LKQLNode extends Node {
                     if (nodeArray.length == 0) {
                         fieldValueString = "[]";
                     }
-
                     // If the node array is not empty
                     else {
                         // Create a string builder for the nodes
@@ -197,12 +197,10 @@ public abstract class LKQLNode extends Node {
                         fieldValueString = nodeArrayStringBuilder.toString();
                     }
                 }
-
                 // If the field is a LKQL node
                 else if (fieldValue instanceof LKQLNode lkqlNode) {
                     fieldValueString = lkqlNode.toString(indentLevel + 1);
                 }
-
                 // Else if the field is just a node
                 else {
                     fieldValueString = fieldValue.toString();
@@ -212,10 +210,11 @@ public abstract class LKQLNode extends Node {
                 res.add(childField.getName() + " = " + fieldValueString);
             } catch (Exception e) {
                 System.err.println(
-                        "Cannot get the child "
-                                + childField.getName()
-                                + " for "
-                                + this.getClass().getSimpleName());
+                    "Cannot get the child " +
+                    childField.getName() +
+                    " for " +
+                    this.getClass().getSimpleName()
+                );
             }
         }
 

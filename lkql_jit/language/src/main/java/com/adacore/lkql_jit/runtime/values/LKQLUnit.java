@@ -35,7 +35,9 @@ public class LKQLUnit extends BasicLKQLValue implements Truthy, Nullish {
     /** Tell the interop API if the receiver is identical to the other. */
     @ExportMessage
     public static TriState isIdenticalOrUndefined(
-            @SuppressWarnings("unused") final LKQLUnit receiver, final Object other) {
+        @SuppressWarnings("unused") final LKQLUnit receiver,
+        final Object other
+    ) {
         return TriState.valueOf(receiver == other);
     }
 

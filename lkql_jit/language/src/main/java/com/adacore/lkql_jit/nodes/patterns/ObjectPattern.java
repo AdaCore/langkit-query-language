@@ -19,15 +19,22 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class ObjectPattern extends ValuePattern {
 
-    @Node.Children private final BasePattern[] patterns;
+    @Node.Children
+    private final BasePattern[] patterns;
+
     private final Shape shape;
 
-    @Node.Child private SplatPattern splat;
+    @Node.Child
+    private SplatPattern splat;
 
     private final String[] keys;
 
     protected ObjectPattern(
-            SourceSection location, BasePattern[] patterns, String[] keys, SplatPattern splat) {
+        SourceSection location,
+        BasePattern[] patterns,
+        String[] keys,
+        SplatPattern splat
+    ) {
         super(location);
         assert patterns.length == keys.length;
         this.patterns = patterns;
@@ -43,10 +50,10 @@ public abstract class ObjectPattern extends ValuePattern {
 
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     public boolean onObject(
-            VirtualFrame frame,
-            final LKQLObject object,
-            @CachedLibrary("object") DynamicObjectLibrary objectLibrary) {
-
+        VirtualFrame frame,
+        final LKQLObject object,
+        @CachedLibrary("object") DynamicObjectLibrary objectLibrary
+    ) {
         for (int i = 0; i < keys.length; i++) {
             var key = keys[i];
             var pattern = patterns[i];
@@ -58,7 +65,6 @@ public abstract class ObjectPattern extends ValuePattern {
 
         var objKeys = objectLibrary.getKeyArray(object);
         if (objKeys.length > keys.length) {
-
             // If there is a splat pattern and the object is bigger than the pattern, then it's
             // OK: we'll return true, and bind the remaining keys if needed.
 
@@ -101,8 +107,9 @@ public abstract class ObjectPattern extends ValuePattern {
 
     @Fallback
     public boolean onOther(
-            @SuppressWarnings("unused") VirtualFrame frame,
-            @SuppressWarnings("unused") Object other) {
+        @SuppressWarnings("unused") VirtualFrame frame,
+        @SuppressWarnings("unused") Object other
+    ) {
         return false;
     }
 }

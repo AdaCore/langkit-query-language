@@ -65,11 +65,12 @@ public final class SelectorCall extends LKQLNode {
      * @param args The arguments for the call.
      */
     public SelectorCall(
-            SourceSection location,
-            Quantifier quantifier,
-            int bindingSlot,
-            Expr selectorExpr,
-            ArgList args) {
+        SourceSection location,
+        Quantifier quantifier,
+        int bindingSlot,
+        Expr selectorExpr,
+        ArgList args
+    ) {
         super(location);
         this.quantifier = quantifier;
         this.bindingSlot = bindingSlot;
@@ -98,7 +99,10 @@ public final class SelectorCall extends LKQLNode {
      * @return True if the traversal verify the pattern, false else.
      */
     public boolean executeVerification(
-            VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
+        VirtualFrame frame,
+        Libadalang.AdaNode node,
+        BasePattern pattern
+    ) {
         // Get the selector list
         LKQLSelectorList selectorListValue = this.getSelectorList(frame, node);
 
@@ -133,9 +137,10 @@ public final class SelectorCall extends LKQLNode {
         Object selectorObject = this.selectorExpr.executeGeneric(frame);
         if (!LKQLTypeSystemGen.isLKQLSelector(selectorObject)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_SELECTOR,
-                    LKQLTypesHelper.fromJava(selectorObject),
-                    this.selectorExpr);
+                LKQLTypesHelper.LKQL_SELECTOR,
+                LKQLTypesHelper.fromJava(selectorObject),
+                this.selectorExpr
+            );
         }
 
         // Get the arguments
@@ -154,33 +159,34 @@ public final class SelectorCall extends LKQLNode {
                             depth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
                             throw LKQLRuntimeException.wrongType(
-                                    LKQLTypesHelper.LKQL_INTEGER,
-                                    LKQLTypesHelper.fromJava(e.getResult()),
-                                    arg.getArgExpr());
+                                LKQLTypesHelper.LKQL_INTEGER,
+                                LKQLTypesHelper.fromJava(e.getResult()),
+                                arg.getArgExpr()
+                            );
                         }
                         break;
-
-                        // If the maximum depth is given
+                    // If the maximum depth is given
                     case Constants.MAX_DEPTH_SYMBOL:
                         try {
                             maxDepth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
                             throw LKQLRuntimeException.wrongType(
-                                    LKQLTypesHelper.LKQL_INTEGER,
-                                    LKQLTypesHelper.fromJava(e.getResult()),
-                                    arg.getArgExpr());
+                                LKQLTypesHelper.LKQL_INTEGER,
+                                LKQLTypesHelper.fromJava(e.getResult()),
+                                arg.getArgExpr()
+                            );
                         }
                         break;
-
-                        // If the minimum depth is given
+                    // If the minimum depth is given
                     case Constants.MIN_DEPTH_SYMBOL:
                         try {
                             minDepth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
                             throw LKQLRuntimeException.wrongType(
-                                    LKQLTypesHelper.LKQL_INTEGER,
-                                    LKQLTypesHelper.fromJava(e.getResult()),
-                                    arg.getArgExpr());
+                                LKQLTypesHelper.LKQL_INTEGER,
+                                LKQLTypesHelper.fromJava(e.getResult()),
+                                arg.getArgExpr()
+                            );
                         }
                         break;
                 }
@@ -201,7 +207,10 @@ public final class SelectorCall extends LKQLNode {
      * @return True of all nodes of the traversal verify the pattern, false else.
      */
     private boolean isAll(
-            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
+        VirtualFrame frame,
+        LKQLSelectorList selectorListValue,
+        BasePattern pattern
+    ) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
@@ -222,7 +231,10 @@ public final class SelectorCall extends LKQLNode {
      * @return True if there is any node that verify the pattern, false else.
      */
     private boolean isAny(
-            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
+        VirtualFrame frame,
+        LKQLSelectorList selectorListValue,
+        BasePattern pattern
+    ) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
@@ -243,7 +255,10 @@ public final class SelectorCall extends LKQLNode {
      * @return The list value
      */
     private LKQLList getFilteredList(
-            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
+        VirtualFrame frame,
+        LKQLSelectorList selectorListValue,
+        BasePattern pattern
+    ) {
         // Prepare the result
         List<Object> resList = new ArrayList<>();
 
@@ -268,7 +283,10 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to filter the list.
      */
     private void doBinding(
-            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
+        VirtualFrame frame,
+        LKQLSelectorList selectorListValue,
+        BasePattern pattern
+    ) {
         LKQLList listValue = this.getFilteredList(frame, selectorListValue, pattern);
         this.doBinding(frame, listValue);
     }
@@ -292,8 +310,9 @@ public final class SelectorCall extends LKQLNode {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
                 indentLevel,
-                new String[] {"quantifier", "slot"},
-                new Object[] {this.quantifier, this.bindingSlot});
+                new String[] { "quantifier", "slot" },
+                new Object[] { this.quantifier, this.bindingSlot }
+            );
     }
 
     // ----- Inner classes -----
@@ -304,6 +323,6 @@ public final class SelectorCall extends LKQLNode {
         ANY,
 
         /** The selector will match if every visited nodes validate the associated pattern. */
-        ALL
+        ALL,
     }
 }

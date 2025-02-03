@@ -21,7 +21,7 @@ public class FibonacciBenchmark extends TruffleBenchmark {
 
     /** The fibonacci function in LKQL */
     private static final String lkqlFibo =
-            """
+        """
         fun fibo(n) =
             if n <= 0
             then 0
@@ -29,24 +29,22 @@ public class FibonacciBenchmark extends TruffleBenchmark {
                  then 1
                  else fibo(n-1) + fibo(n-2)
         fibo(%d)
-        """
-                    .formatted(term);
+        """.formatted(term);
 
     /** The fibonacci function in JS */
     private static final String jsFibo =
-            """
+        """
         function fibo(n) {
             if (n == 0) return 0;
             else if (n == 1) return 1;
             return fibo(n-1) + fibo(n-2);
         }
         fibo(%d)
-        """
-                    .formatted(term);
+        """.formatted(term);
 
     /** The fibonacci function in SimpleLanguage */
     private static final String slFibo =
-            """
+        """
         function fibo(n) {
             if (n < 2) {
                 return 1;
@@ -56,8 +54,7 @@ public class FibonacciBenchmark extends TruffleBenchmark {
         function main() {
             fibo(%d);
         }
-        """
-                    .formatted(term);
+        """.formatted(term);
 
     /** Java recursive fibonacci implementation. */
     private static int javaFibo(int n) {
