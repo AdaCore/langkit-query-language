@@ -38,6 +38,14 @@
         <!-- Python interpreter -->
         <config.python>python</config.python>
 
+        <!-- Node and NPM executables -->
+        <config.node></config.node>
+        <config.npm></config.npm>
+
+        <!-- NPM configuration -->
+        <config.npmInstallCache>./target/npm-cache</config.npmInstallCache>
+        <config.npmrc></config.npmrc>
+
         <!-- List of the components to build with native image -->
         <config.nativeComponents>none</config.nativeComponents>
 
@@ -137,12 +145,23 @@
                             <file>${project.basedir}${file.separator}LICENSE</file>
                         </licenseHeader>
 
-                        <googleJavaFormat>
-                            <version>1.17.0</version>
-                            <style>AOSP</style>
-                            <reflowLongStrings>true</reflowLongStrings>
-                            <formatJavadoc>true</formatJavadoc>
-                        </googleJavaFormat>
+                        <prettier>
+                            <npmInstallCache>${config.npmInstallCache}</npmInstallCache>
+                            <nodeExecutable>${config.node}</nodeExecutable>
+                            <npmExecutable>${config.npm}</npmExecutable>
+                            <npmrc>${config.npmrc}</npmrc>
+                            <devDependencies>
+                                <prettier>3.4.2</prettier>
+                                <prettier-plugin-java>2.6.7</prettier-plugin-java>
+                            </devDependencies>
+                            <config>
+                                <printWidth>100</printWidth>
+                                <tabWidth>4</tabWidth>
+                                <endOfLine>lf</endOfLine>
+                                <parser>java</parser>
+                                <plugins>prettier-plugin-java</plugins>
+                            </config>
+                        </prettier>
 
                         <importOrder>
                             <wildcardsLast>true</wildcardsLast>
