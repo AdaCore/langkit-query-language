@@ -42,8 +42,9 @@ public abstract class DotAccessWrapper extends Expr {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onAttribute(
-            BuiltInPropertyValue attribute,
-            @CachedLibrary("attribute") InteropLibrary attributeLibrary) {
+        BuiltInPropertyValue attribute,
+        @CachedLibrary("attribute") InteropLibrary attributeLibrary
+    ) {
         try {
             return attributeLibrary.execute(attribute, attribute.thisValue);
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {

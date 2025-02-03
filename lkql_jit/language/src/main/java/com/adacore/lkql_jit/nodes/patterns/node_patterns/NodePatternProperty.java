@@ -50,7 +50,11 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      * @param expected The expected value of the property call.
      */
     public NodePatternProperty(
-            SourceSection location, String propertyName, ArgList argList, BasePattern expected) {
+        SourceSection location,
+        String propertyName,
+        ArgList argList,
+        BasePattern expected
+    ) {
         super(location);
         this.propertyName = propertyName;
         this.argList = argList;
@@ -67,11 +71,12 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      * @param property The cached property reference.
      * @return True if the detail is valid, false else.
      */
-    @Specialization(guards = {"node == property.getNode()", "property.getDescription() != null"})
+    @Specialization(guards = { "node == property.getNode()", "property.getDescription() != null" })
     protected boolean propertyCached(
-            VirtualFrame frame,
-            @SuppressWarnings("unused") Libadalang.AdaNode node,
-            @Cached("create(propertyName, node)") LKQLProperty property) {
+        VirtualFrame frame,
+        @SuppressWarnings("unused") Libadalang.AdaNode node,
+        @Cached("create(propertyName, node)") LKQLProperty property
+    ) {
         // Evaluate the arguments
         Object[] arguments = new Object[this.argList.getArgs().length];
         for (int i = 0; i < arguments.length; i++) {
@@ -114,6 +119,9 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"propertyName"}, new Object[] {this.propertyName});
+                indentLevel,
+                new String[] { "propertyName" },
+                new Object[] { this.propertyName }
+            );
     }
 }

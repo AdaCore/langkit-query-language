@@ -36,6 +36,10 @@ public final class NamedArg extends Arg {
      */
     @Override
     public String toString(int indentLevel) {
-        return nodeRepresentation(indentLevel, new String[] {"name"}, new Object[] {this.argName});
+        return nodeRepresentation(
+            indentLevel,
+            new String[] { "name" },
+            new Object[] { this.argName }
+        );
     }
 }

@@ -37,6 +37,9 @@ public class ReadDynamic extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"name"}, new Object[] {this.name});
+                indentLevel,
+                new String[] { "name" },
+                new Object[] { this.name }
+            );
     }
 }

@@ -15,26 +15,26 @@ import org.json.JSONObject;
  * using the JSON format.
  */
 public record LKQLOptions(
-        EngineMode engineMode,
-        boolean verbose,
-        Optional<String> charset,
-        Optional<String> projectFile,
-        Optional<String> subprojectFile,
-        Optional<String> runtime,
-        Optional<String> target,
-        Optional<String> configFile,
-        Map<String, String> scenarioVariables,
-        List<String> files,
-        List<String> ignores,
-        List<String> rulesDirs,
-        Map<String, RuleInstance> ruleInstances,
-        boolean checkerDebug,
-        boolean fallbackToAllRules,
-        boolean keepGoingOnMissingFile,
-        boolean showInstantiationChain,
-        DiagnosticOutputMode diagnosticOutputMode,
-        AutoFixMode autoFixMode) {
-
+    EngineMode engineMode,
+    boolean verbose,
+    Optional<String> charset,
+    Optional<String> projectFile,
+    Optional<String> subprojectFile,
+    Optional<String> runtime,
+    Optional<String> target,
+    Optional<String> configFile,
+    Map<String, String> scenarioVariables,
+    List<String> files,
+    List<String> ignores,
+    List<String> rulesDirs,
+    Map<String, RuleInstance> ruleInstances,
+    boolean checkerDebug,
+    boolean fallbackToAllRules,
+    boolean keepGoingOnMissingFile,
+    boolean showInstantiationChain,
+    DiagnosticOutputMode diagnosticOutputMode,
+    AutoFixMode autoFixMode
+) {
     // ----- Constructors -----
 
     public LKQLOptions {
@@ -91,35 +91,36 @@ public record LKQLOptions(
         final var ruleInstancesJson = jsonLKQLOptions.getJSONObject("ruleInstances");
         for (String instanceName : ruleInstancesJson.keySet()) {
             ruleInstances.put(
-                    instanceName,
-                    RuleInstance.fromJson(ruleInstancesJson.getJSONObject(instanceName)));
+                instanceName,
+                RuleInstance.fromJson(ruleInstancesJson.getJSONObject(instanceName))
+            );
         }
         return new LKQLOptions(
-                EngineMode.valueOf(jsonLKQLOptions.getString("engineMode")),
-                jsonLKQLOptions.getBoolean("verbose"),
-                Optional.ofNullable(jsonLKQLOptions.optString("charset", null)),
-                Optional.ofNullable(jsonLKQLOptions.optString("projectFile", null)),
-                Optional.ofNullable(jsonLKQLOptions.optString("subprojectFile", null)),
-                Optional.ofNullable(jsonLKQLOptions.optString("runtime", null)),
-                Optional.ofNullable(jsonLKQLOptions.optString("target", null)),
-                Optional.ofNullable(jsonLKQLOptions.optString("configFile", null)),
-                JSONUtils.parseStringMap(jsonLKQLOptions.getJSONObject("scenarioVariables")),
-                jsonLKQLOptions.getJSONArray("files").toList().stream()
-                        .map(e -> (String) e)
-                        .toList(),
-                jsonLKQLOptions.getJSONArray("ignores").toList().stream()
-                        .map(e -> (String) e)
-                        .toList(),
-                jsonLKQLOptions.getJSONArray("rulesDirs").toList().stream()
-                        .map(e -> (String) e)
-                        .toList(),
-                ruleInstances,
-                jsonLKQLOptions.getBoolean("checkerDebug"),
-                jsonLKQLOptions.getBoolean("fallbackToAllRules"),
-                jsonLKQLOptions.getBoolean("keepGoingOnMissingFile"),
-                jsonLKQLOptions.getBoolean("showInstantiationChain"),
-                DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")),
-                AutoFixMode.valueOf(jsonLKQLOptions.getString("autoFixMode")));
+            EngineMode.valueOf(jsonLKQLOptions.getString("engineMode")),
+            jsonLKQLOptions.getBoolean("verbose"),
+            Optional.ofNullable(jsonLKQLOptions.optString("charset", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("projectFile", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("subprojectFile", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("runtime", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("target", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("configFile", null)),
+            JSONUtils.parseStringMap(jsonLKQLOptions.getJSONObject("scenarioVariables")),
+            jsonLKQLOptions.getJSONArray("files").toList().stream().map(e -> (String) e).toList(),
+            jsonLKQLOptions.getJSONArray("ignores").toList().stream().map(e -> (String) e).toList(),
+            jsonLKQLOptions
+                .getJSONArray("rulesDirs")
+                .toList()
+                .stream()
+                .map(e -> (String) e)
+                .toList(),
+            ruleInstances,
+            jsonLKQLOptions.getBoolean("checkerDebug"),
+            jsonLKQLOptions.getBoolean("fallbackToAllRules"),
+            jsonLKQLOptions.getBoolean("keepGoingOnMissingFile"),
+            jsonLKQLOptions.getBoolean("showInstantiationChain"),
+            DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")),
+            AutoFixMode.valueOf(jsonLKQLOptions.getString("autoFixMode"))
+        );
     }
 
     /** Get a default options instance. */
@@ -131,31 +132,32 @@ public record LKQLOptions(
 
     /** Serialize the LKQL options to a JSON object. */
     public JSONObject toJson() {
-        final var ruleInstancesJson =
-                new JSONObject(
-                        this.ruleInstances.entrySet().stream()
-                                .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
-                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        final var ruleInstancesJson = new JSONObject(
+            this.ruleInstances.entrySet()
+                .stream()
+                .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+        );
         return new JSONObject()
-                .put("engineMode", engineMode.toString())
-                .put("verbose", verbose)
-                .put("charset", charset.orElse(null))
-                .put("projectFile", projectFile.orElse(null))
-                .put("subprojectFile", subprojectFile.orElse(null))
-                .put("runtime", runtime.orElse(null))
-                .put("target", target.orElse(null))
-                .put("configFile", configFile.orElse(null))
-                .put("scenarioVariables", new JSONObject(scenarioVariables))
-                .put("files", new JSONArray(files))
-                .put("ignores", new JSONArray(ignores))
-                .put("rulesDirs", new JSONArray(rulesDirs))
-                .put("ruleInstances", ruleInstancesJson)
-                .put("checkerDebug", checkerDebug)
-                .put("fallbackToAllRules", fallbackToAllRules)
-                .put("keepGoingOnMissingFile", keepGoingOnMissingFile)
-                .put("showInstantiationChain", showInstantiationChain)
-                .put("diagnosticOutputMode", diagnosticOutputMode.toString())
-                .put("autoFixMode", autoFixMode.toString());
+            .put("engineMode", engineMode.toString())
+            .put("verbose", verbose)
+            .put("charset", charset.orElse(null))
+            .put("projectFile", projectFile.orElse(null))
+            .put("subprojectFile", subprojectFile.orElse(null))
+            .put("runtime", runtime.orElse(null))
+            .put("target", target.orElse(null))
+            .put("configFile", configFile.orElse(null))
+            .put("scenarioVariables", new JSONObject(scenarioVariables))
+            .put("files", new JSONArray(files))
+            .put("ignores", new JSONArray(ignores))
+            .put("rulesDirs", new JSONArray(rulesDirs))
+            .put("ruleInstances", ruleInstancesJson)
+            .put("checkerDebug", checkerDebug)
+            .put("fallbackToAllRules", fallbackToAllRules)
+            .put("keepGoingOnMissingFile", keepGoingOnMissingFile)
+            .put("showInstantiationChain", showInstantiationChain)
+            .put("diagnosticOutputMode", diagnosticOutputMode.toString())
+            .put("autoFixMode", autoFixMode.toString());
     }
 
     // ----- Inner classes -----
@@ -169,7 +171,7 @@ public record LKQLOptions(
         PRETTY,
 
         /** Use a GNATCheck-compliant format: "{file}:{line}:{col} check: {message} [{check}]". */
-        GNATCHECK
+        GNATCHECK,
     }
 
     /** This enum represents the mode for the auto fixes application. */
@@ -181,7 +183,7 @@ public record LKQLOptions(
         NEW_FILE,
 
         /** Replace the content of the original file with the patched analysis unit. */
-        PATCH_FILE
+        PATCH_FILE,
     }
 
     /** Represents the mode the LKQL engine runs on. */
@@ -195,7 +197,7 @@ public record LKQLOptions(
         /**
          * LKQL engine will seek for rules and check that they all define an auto-fixing function.
          */
-        FIXER
+        FIXER,
     }
 
     /** Util class to build a new LKQL options object. */
@@ -329,25 +331,26 @@ public record LKQLOptions(
 
         public LKQLOptions build() {
             return new LKQLOptions(
-                    engineMode,
-                    verbose,
-                    charset,
-                    projectFile,
-                    subprojectFile,
-                    runtime,
-                    target,
-                    configFile,
-                    scenarioVariables,
-                    files,
-                    ignores,
-                    rulesDirs,
-                    ruleInstances,
-                    checkerDebug,
-                    fallbackToAllRules,
-                    keepGoingOnMissingFile,
-                    showInstantiationChain,
-                    diagnosticOutputMode,
-                    autoFixMode);
+                engineMode,
+                verbose,
+                charset,
+                projectFile,
+                subprojectFile,
+                runtime,
+                target,
+                configFile,
+                scenarioVariables,
+                files,
+                ignores,
+                rulesDirs,
+                ruleInstances,
+                checkerDebug,
+                fallbackToAllRules,
+                keepGoingOnMissingFile,
+                showInstantiationChain,
+                diagnosticOutputMode,
+                autoFixMode
+            );
         }
     }
 }

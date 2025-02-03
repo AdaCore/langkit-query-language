@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.runtime.values;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 
 public class LKQLRecValue extends BasicLKQLValue {
+
     public final Object[] recurseVal;
     public final Object[] resultVal;
 

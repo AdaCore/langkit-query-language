@@ -60,31 +60,31 @@ public final class SelectorDeclaration extends Declaration {
      * @param arms The arms of the selector.
      */
     public SelectorDeclaration(
-            SourceSection location,
-            Annotation annotation,
-            FrameDescriptor frameDescriptor,
-            ClosureDescriptor closureDescriptor,
-            String name,
-            String documentation,
-            int slot,
-            int thisSlot,
-            int depthSlot,
-            SelectorArm[] arms) {
+        SourceSection location,
+        Annotation annotation,
+        FrameDescriptor frameDescriptor,
+        ClosureDescriptor closureDescriptor,
+        String name,
+        String documentation,
+        int slot,
+        int thisSlot,
+        int depthSlot,
+        SelectorArm[] arms
+    ) {
         super(location, annotation);
         this.closureDescriptor = closureDescriptor;
         this.name = name;
         this.documentation = documentation;
         this.slot = slot;
 
-        this.selectorRootNode =
-                new SelectorRootNode(
-                        LKQLLanguage.getLanguage(this),
-                        frameDescriptor,
-                        annotation != null
-                                && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
-                        thisSlot,
-                        depthSlot,
-                        arms);
+        this.selectorRootNode = new SelectorRootNode(
+            LKQLLanguage.getLanguage(this),
+            frameDescriptor,
+            annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
+            thisSlot,
+            depthSlot,
+            arms
+        );
     }
 
     // ----- Execution methods -----
@@ -96,13 +96,15 @@ public final class SelectorDeclaration extends Declaration {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         FrameUtils.writeLocal(
-                frame,
-                this.slot,
-                new LKQLSelector(
-                        this.selectorRootNode,
-                        Closure.create(frame.materialize(), this.closureDescriptor),
-                        this.name,
-                        this.documentation));
+            frame,
+            this.slot,
+            new LKQLSelector(
+                this.selectorRootNode,
+                Closure.create(frame.materialize(), this.closureDescriptor),
+                this.name,
+                this.documentation
+            )
+        );
         return LKQLUnit.INSTANCE;
     }
 
@@ -114,6 +116,9 @@ public final class SelectorDeclaration extends Declaration {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"name", "slot"}, new Object[] {this.name, this.slot});
+                indentLevel,
+                new String[] { "name", "slot" },
+                new Object[] { this.name, this.slot }
+            );
     }
 }

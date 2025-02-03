@@ -35,12 +35,13 @@ public final class BuiltInMethodFactory {
 
     /** Create a new method factory directly with the method body. */
     public BuiltInMethodFactory(
-            String name,
-            String documentation,
-            String[] names,
-            String[] defaultValues,
-            BuiltInBody methodBody,
-            boolean isProperty) {
+        String name,
+        String documentation,
+        String[] names,
+        String[] defaultValues,
+        BuiltInBody methodBody,
+        boolean isProperty
+    ) {
         this.name = name;
         this.documentation = documentation;
         this.paramNames = names;
@@ -54,15 +55,15 @@ public final class BuiltInMethodFactory {
     /** Instantiate the method with the given "thisValue" and return the LKQL value. */
     public BuiltInMethodValue instantiate(Object thisValue) {
         return this.isProperty
-                ? new BuiltInPropertyValue(
-                        this.name, this.documentation, this.methodBody, thisValue)
-                : new BuiltInMethodValue(
-                        this.name,
-                        this.documentation,
-                        this.paramNames,
-                        this.defaultValues,
-                        this.methodBody,
-                        thisValue);
+            ? new BuiltInPropertyValue(this.name, this.documentation, this.methodBody, thisValue)
+            : new BuiltInMethodValue(
+                this.name,
+                this.documentation,
+                this.paramNames,
+                this.defaultValues,
+                this.methodBody,
+                thisValue
+            );
     }
 
     // ----- Class methods -----
@@ -74,19 +75,31 @@ public final class BuiltInMethodFactory {
      *     since it is automatically added by this method.
      */
     public static BuiltInMethodFactory createMethod(
-            String name, String doc, String[] names, String[] defaultValues, BuiltInBody body) {
+        String name,
+        String doc,
+        String[] names,
+        String[] defaultValues,
+        BuiltInBody body
+    ) {
         return new BuiltInMethodFactory(
-                name,
-                doc,
-                ArrayUtils.concat(new String[] {"this"}, names),
-                ArrayUtils.concat(new String[] {null}, defaultValues),
-                body,
-                false);
+            name,
+            doc,
+            ArrayUtils.concat(new String[] { "this" }, names),
+            ArrayUtils.concat(new String[] { null }, defaultValues),
+            body,
+            false
+        );
     }
 
     /** Create a map entry containing a method factory which will produce attribute values. */
     public static BuiltInMethodFactory createAttribute(String name, String doc, BuiltInBody body) {
         return new BuiltInMethodFactory(
-                name, doc, new String[] {"this"}, new String[] {null}, body, true);
+            name,
+            doc,
+            new String[] { "this" },
+            new String[] { null },
+            body,
+            true
+        );
     }
 }

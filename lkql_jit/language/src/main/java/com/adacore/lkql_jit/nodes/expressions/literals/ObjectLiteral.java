@@ -31,7 +31,8 @@ public final class ObjectLiteral extends Expr {
     // ----- Children -----
 
     /** Object ordered values. */
-    @Children private final Expr[] values;
+    @Children
+    private final Expr[] values;
 
     /** Object library to insert values in the result. */
     @Child

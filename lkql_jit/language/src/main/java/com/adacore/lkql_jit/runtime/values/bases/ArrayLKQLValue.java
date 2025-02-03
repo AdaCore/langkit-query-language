@@ -11,6 +11,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 
 /** This class is the base for all array like LKQL values. */
 public abstract class ArrayLKQLValue extends BasicLKQLValue {
+
     /**
      * Internal method to perform equality checking on two LKQL array like values.
      *
@@ -20,12 +21,13 @@ public abstract class ArrayLKQLValue extends BasicLKQLValue {
      * @param rightElems Interop library to access 'right' elements messages.
      */
     protected static boolean arrayValueEquals(
-            ArrayLKQLValue left,
-            ArrayLKQLValue right,
-            InteropLibrary lefts,
-            InteropLibrary rights,
-            InteropLibrary leftElems,
-            InteropLibrary rightElems) {
+        ArrayLKQLValue left,
+        ArrayLKQLValue right,
+        InteropLibrary lefts,
+        InteropLibrary rights,
+        InteropLibrary leftElems,
+        InteropLibrary rightElems
+    ) {
         try {
             // Get the left array size and compare it with the right array
             long size = lefts.getArraySize(left);
@@ -56,22 +58,26 @@ public abstract class ArrayLKQLValue extends BasicLKQLValue {
      * @param elems Interop library to access the receiver elements messages.
      */
     protected static int arrayValueHashCode(
-            ArrayLKQLValue receiver, InteropLibrary receivers, InteropLibrary elems) {
+        ArrayLKQLValue receiver,
+        InteropLibrary receivers,
+        InteropLibrary elems
+    ) {
         try {
             final long size = receivers.getArraySize(receiver);
             int result = 1;
             for (long i = 0; i < size; i++) {
                 Object elem = receivers.readArrayElement(receiver, i);
                 result =
-                        31 * result
-                                + (elems.hasIdentity(elem)
-                                        ? elems.identityHashCode(elem)
-                                        : ObjectUtils.hashCode(elem));
+                    31 * result +
+                    (elems.hasIdentity(elem)
+                            ? elems.identityHashCode(elem)
+                            : ObjectUtils.hashCode(elem));
             }
             return result;
         } catch (Exception e) {
             throw LKQLRuntimeException.shouldNotHappen(
-                    "Error in array like value hash code computing");
+                "Error in array like value hash code computing"
+            );
         }
     }
 }

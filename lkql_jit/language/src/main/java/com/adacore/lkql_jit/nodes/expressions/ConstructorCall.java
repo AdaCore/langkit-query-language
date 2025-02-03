@@ -32,7 +32,8 @@ public final class ConstructorCall extends Expr {
      * Arguments for the constructor calling. Those are only ExprArg because named arguments are
      * resolved when the Truffle node is created.
      */
-    @Children private ExprArg[] args;
+    @Children
+    private ExprArg[] args;
 
     /** Node for the conversions to rewriting node. */
     @Child
@@ -60,7 +61,6 @@ public final class ConstructorCall extends Expr {
      */
     public ConstructorCall(SourceSection location, Identifier kindName, ArgList argList) {
         super(location);
-
         // Get the node kind and if this is a token node
         final var description = Libadalang.NODE_DESCRIPTION_MAP.get(kindName.getName());
         if (description == null) {
@@ -83,8 +83,10 @@ public final class ConstructorCall extends Expr {
         }
 
         // Check the argument arity
-        if ((this.args.length != argList.getArgs().length)
-                && (!this.isListNode || argList.getArgs().length > 1)) {
+        if (
+            (this.args.length != argList.getArgs().length) &&
+            (!this.isListNode || argList.getArgs().length > 1)
+        ) {
             throw LKQLRuntimeException.wrongArity(this.args.length, argList.getArgs().length, this);
         }
 
@@ -95,7 +97,6 @@ public final class ConstructorCall extends Expr {
             if (arg instanceof ExprArg exprArg) {
                 this.args[i] = exprArg;
             }
-
             // Else, this is a named arg, so turn it into an expression arg and add it to children
             // at the right index.
             else {
@@ -141,15 +142,17 @@ public final class ConstructorCall extends Expr {
         if (this.isTokenNode) {
             try {
                 return rewritingContext.createTokenNode(
-                        this.nodeKind, this.args[0].getArgExpr().executeString(frame));
+                    this.nodeKind,
+                    this.args[0].getArgExpr().executeString(frame)
+                );
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_STRING,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.args[0]);
+                    LKQLTypesHelper.LKQL_STRING,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.args[0]
+                );
             }
         }
-
         // Else, if the node is a list node, evaluate the first argument as a list
         else if (this.isListNode) {
             if (this.args.length == 0) {
@@ -159,29 +162,31 @@ public final class ConstructorCall extends Expr {
                     final var objectArgs = this.args[0].getArgExpr().executeList(frame).content;
                     final var args = new Libadalang.RewritingNode[objectArgs.length];
                     for (int i = 0; i < objectArgs.length; i++) {
-                        args[i] =
-                                this.rewritingNodeConverter.execute(
-                                        objectArgs[i], true, this.args[0].getArgExpr());
+                        args[i] = this.rewritingNodeConverter.execute(
+                                objectArgs[i],
+                                true,
+                                this.args[0].getArgExpr()
+                            );
                     }
                     return rewritingContext.createNode(this.nodeKind, args);
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.LKQL_LIST,
-                            LKQLTypesHelper.fromJava(e.getResult()),
-                            this.args[0].getArgExpr());
+                        LKQLTypesHelper.LKQL_LIST,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this.args[0].getArgExpr()
+                    );
                 }
             }
         }
-
         // Else, evaluate all arguments as rewriting nodes and call the constructor
         else {
             final var args = new Libadalang.RewritingNode[this.args.length];
             for (int i = 0; i < args.length; i++) {
-                args[i] =
-                        this.rewritingNodeConverter.execute(
-                                this.args[i].getArgExpr().executeGeneric(frame),
-                                true,
-                                this.args[i].getArgExpr());
+                args[i] = this.rewritingNodeConverter.execute(
+                        this.args[i].getArgExpr().executeGeneric(frame),
+                        true,
+                        this.args[i].getArgExpr()
+                    );
             }
             return rewritingContext.createNode(this.nodeKind, args);
         }
@@ -195,6 +200,9 @@ public final class ConstructorCall extends Expr {
     @Override
     public String toString(int indentLevel) {
         return nodeRepresentation(
-                indentLevel, new String[] {"nodeKind"}, new Object[] {this.nodeKind});
+            indentLevel,
+            new String[] { "nodeKind" },
+            new Object[] { this.nodeKind }
+        );
     }
 }

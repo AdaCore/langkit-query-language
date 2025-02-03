@@ -26,7 +26,8 @@ public final class Match extends Expr {
     private Expr expr;
 
     /** Matching arms. */
-    @Children private final MatchArm[] arms;
+    @Children
+    private final MatchArm[] arms;
 
     // ----- constructors -----
 

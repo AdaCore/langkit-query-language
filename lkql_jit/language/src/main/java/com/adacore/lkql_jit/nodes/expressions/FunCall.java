@@ -83,9 +83,10 @@ public abstract class FunCall extends Expr {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onBuiltinMethod(
-            VirtualFrame frame,
-            BuiltInMethodValue method,
-            @CachedLibrary("method") InteropLibrary methodLibrary) {
+        VirtualFrame frame,
+        BuiltInMethodValue method,
+        @CachedLibrary("method") InteropLibrary methodLibrary
+    ) {
         method.setCallNode(this);
 
         // Execute the argument list with the "this" value
@@ -108,9 +109,10 @@ public abstract class FunCall extends Expr {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onBuiltinFunction(
-            VirtualFrame frame,
-            BuiltInFunctionValue function,
-            @CachedLibrary("function") InteropLibrary functionLibrary) {
+        VirtualFrame frame,
+        BuiltInFunctionValue function,
+        @CachedLibrary("function") InteropLibrary functionLibrary
+    ) {
         function.setCallNode(this);
 
         // Execute the argument list
@@ -132,9 +134,10 @@ public abstract class FunCall extends Expr {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onFunction(
-            final VirtualFrame frame,
-            final LKQLFunction function,
-            @CachedLibrary("function") InteropLibrary functionLibrary) {
+        final VirtualFrame frame,
+        final LKQLFunction function,
+        @CachedLibrary("function") InteropLibrary functionLibrary
+    ) {
         // Execute the argument list with the mandatory space for the function closure
         // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
         // compilation error
@@ -201,18 +204,22 @@ public abstract class FunCall extends Expr {
     @Fallback
     protected void nonExecutable(Object nonExec) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_FUNCTION, LKQLTypesHelper.fromJava(nonExec), this);
+            LKQLTypesHelper.LKQL_FUNCTION,
+            LKQLTypesHelper.fromJava(nonExec),
+            this
+        );
     }
 
     // ----- Instance methods -----
 
     /** Util function to call an LKQL function with its precomputed arguments. */
     private Object executeLKQLFunction(
-            VirtualFrame frame,
-            LKQLFunction function,
-            InteropLibrary functionLibrary,
-            Object[] args,
-            boolean includeClosure) {
+        VirtualFrame frame,
+        LKQLFunction function,
+        InteropLibrary functionLibrary,
+        Object[] args,
+        boolean includeClosure
+    ) {
         // Verify that all arguments are present
         Expr[] defaultValues = function.getParameterDefaultValues();
         for (int i = 0; i < args.length; i++) {
@@ -227,7 +234,7 @@ public abstract class FunCall extends Expr {
 
         // Include the closure in arguments if required
         if (includeClosure) {
-            args = ArrayUtils.concat(new Object[] {function.closure.getContent()}, args);
+            args = ArrayUtils.concat(new Object[] { function.closure.getContent() }, args);
         }
 
         // We don't place the closure in the arguments because built-ins don't have any.
@@ -262,6 +269,9 @@ public abstract class FunCall extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"isSafe"}, new Object[] {this.isSafe});
+                indentLevel,
+                new String[] { "isSafe" },
+                new Object[] { this.isSafe }
+            );
     }
 }

@@ -13,7 +13,9 @@ import java.io.Serial;
  * @author Hugo GUERRIER
  */
 public final class UnsupportedTypeException extends Exception {
-    @Serial private static final long serialVersionUID = 7197470955602340792L;
+
+    @Serial
+    private static final long serialVersionUID = 7197470955602340792L;
 
     private final Class<?> type;
 

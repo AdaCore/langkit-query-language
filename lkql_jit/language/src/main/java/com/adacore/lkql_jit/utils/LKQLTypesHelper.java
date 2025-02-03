@@ -117,7 +117,7 @@ public final class LKQLTypesHelper {
         ANALYSIS_UNIT,
         REWRITING_CONTEXT,
         REWRITING_NODE,
-        MEMBER_REFERENCE
+        MEMBER_REFERENCE,
     };
 
     // ----- Class methods -----
@@ -158,9 +158,11 @@ public final class LKQLTypesHelper {
     public static String fromJava(Object obj, String defaultValue) {
         if (LKQLTypeSystemGen.isUnit(obj)) {
             return LKQL_UNIT;
-        } else if (LKQLTypeSystemGen.isLong(obj)
-                || LKQLTypeSystemGen.isBigInteger(obj)
-                || obj instanceof Integer) {
+        } else if (
+            LKQLTypeSystemGen.isLong(obj) ||
+            LKQLTypeSystemGen.isBigInteger(obj) ||
+            obj instanceof Integer
+        ) {
             return LKQL_INTEGER;
         } else if (LKQLTypeSystemGen.isString(obj)) {
             return LKQL_STRING;
@@ -241,52 +243,42 @@ public final class LKQLTypesHelper {
         if (javaValue instanceof Boolean bool) {
             return bool;
         }
-
         // If the source is an integer
         else if (javaValue instanceof Integer integer) {
             return integer.longValue();
         }
-
         // If the source is a long
         else if (javaValue instanceof Long) {
             return javaValue;
         }
-
         // If the value is a big integer
         else if (javaValue instanceof BigInteger) {
             return javaValue;
         }
-
         // If the value is a character
         else if (javaValue instanceof Libadalang.Char character) {
             return character.toString();
         }
-
         // If the source is a symbol
         else if (javaValue instanceof Libadalang.Symbol symbol) {
             return symbol.text;
         }
-
         // If the value is a string
         else if (javaValue instanceof String) {
             return javaValue;
         }
-
         // If the source is an AdaNode
         else if (javaValue instanceof Libadalang.AdaNode adaNode) {
             return adaNode.isNone() ? LKQLNull.INSTANCE : adaNode;
         }
-
         // If the source is a token
         else if (javaValue instanceof Libadalang.Token token) {
             return token;
         }
-
         // If the source is an analysis unit
         else if (javaValue instanceof Libadalang.AnalysisUnit) {
             return javaValue;
         }
-
         // If the source is an array from libadalang
         else if (javaValue instanceof Object[] array) {
             Object[] res = new Object[array.length];
@@ -297,41 +289,36 @@ public final class LKQLTypesHelper {
             }
             return new LKQLList(res);
         }
-
         // If the source is an enum
         else if (javaValue instanceof Enum<?>) {
             return javaValue.toString().toLowerCase();
         }
-
         // If the source is an aspect structure
         else if (javaValue instanceof Libadalang.Aspect aspect) {
-            String[] keys = {"exists", "inherited", "node", "value"};
+            String[] keys = { "exists", "inherited", "node", "value" };
             Object[] values = {
                 aspect.exists,
                 aspect.inherited,
                 aspect.node.isNone() ? LKQLNull.INSTANCE : aspect.node,
-                aspect.value.isNone() ? LKQLNull.INSTANCE : aspect.value
+                aspect.value.isNone() ? LKQLNull.INSTANCE : aspect.value,
             };
             return LKQLObject.createUncached(keys, values);
         }
-
         // If the source is a reference result structure
         else if (javaValue instanceof Libadalang.RefResult refResultStruct) {
-            String[] keys = {"kind", "ref"};
+            String[] keys = { "kind", "ref" };
             Object[] values = {
                 toLKQLValue(refResultStruct.kind),
-                refResultStruct.ref.isNone() ? LKQLNull.INSTANCE : refResultStruct.ref
+                refResultStruct.ref.isNone() ? LKQLNull.INSTANCE : refResultStruct.ref,
             };
             return LKQLObject.createUncached(keys, values);
         }
-
         // If the source is a parameter-actual structure
         else if (javaValue instanceof Libadalang.ParamActual paramActual) {
-            String[] keys = {"actual", "param"};
-            Object[] values = {paramActual.actual, paramActual.param};
+            String[] keys = { "actual", "param" };
+            Object[] values = { paramActual.actual, paramActual.param };
             return LKQLObject.createUncached(keys, values);
         }
-
         // Else, throw an exception for the unsupported type
         else {
             if (javaValue == null) {
@@ -353,17 +340,14 @@ public final class LKQLTypesHelper {
         if (LKQLTypeSystemGen.isNullish(lkqlValue)) {
             return null;
         }
-
         // If the source is a long
         else if (LKQLTypeSystemGen.isLong(lkqlValue)) {
             return (int) LKQLTypeSystemGen.asLong(lkqlValue);
         }
-
         // If the source is a big integer
         else if (LKQLTypeSystemGen.isBigInteger(lkqlValue)) {
             return LKQLTypeSystemGen.asBigInteger(lkqlValue).intValue();
         }
-
         // Just return the value
         else {
             return lkqlValue;

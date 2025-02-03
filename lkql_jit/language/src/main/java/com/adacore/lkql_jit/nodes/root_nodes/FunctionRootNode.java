@@ -22,7 +22,8 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     // ----- Attributes -----
 
     /** Whether the function is memoized. */
-    @CompilerDirectives.CompilationFinal private boolean isMemoized;
+    @CompilerDirectives.CompilationFinal
+    private boolean isMemoized;
 
     // ----- Children -----
 
@@ -42,10 +43,11 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
      * @param body The expression of the function.
      */
     public FunctionRootNode(
-            TruffleLanguage<?> language,
-            FrameDescriptor frameDescriptor,
-            boolean isMemoized,
-            Expr body) {
+        TruffleLanguage<?> language,
+        FrameDescriptor frameDescriptor,
+        boolean isMemoized,
+        Expr body
+    ) {
         super(language, frameDescriptor);
         this.isMemoized = isMemoized;
         this.body = body;
@@ -87,7 +89,6 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
             this.putMemoized(args, res);
             return res;
         }
-
         // Else just execute the body
         else {
             return this.body.executeGeneric(frame);

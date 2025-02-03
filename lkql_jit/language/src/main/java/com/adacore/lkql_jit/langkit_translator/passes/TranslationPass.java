@@ -90,18 +90,22 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     private RuntimeException translationError(Liblkqllang.LkqlNode node, String message) {
         var ctx = LKQLLanguage.getContext(null);
-        ctx.getDiagnosticEmitter()
-                .emitDiagnostic(
-                        CheckerUtils.MessageKind.ERROR,
-                        message,
-                        null,
-                        SourceSectionWrapper.create(node.getSourceLocationRange(), source));
+        ctx
+            .getDiagnosticEmitter()
+            .emitDiagnostic(
+                CheckerUtils.MessageKind.ERROR,
+                message,
+                null,
+                SourceSectionWrapper.create(node.getSourceLocationRange(), source)
+            );
         return LKQLRuntimeException.fromMessage("Errors during analysis");
     }
 
     private RuntimeException multipleSameNameKeys(Liblkqllang.LkqlNode node, String key) {
         throw translationError(
-                node, "Multiple keys with the same name in the object: \"" + key + "\"");
+            node,
+            "Multiple keys with the same name in the object: \"" + key + "\""
+        );
     }
 
     /**
@@ -119,12 +123,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             String raw = stringLiteral.getText();
             res = StringUtils.translateEscapes(raw.substring(1, raw.length() - 1));
         }
-
         // If the string literal is a block iterate over all of its parts
         else {
             final StringBuilder builder = new StringBuilder();
-            for (Liblkqllang.LkqlNode subBlock :
-                    ((Liblkqllang.BlockStringLiteral) stringLiteral).fDocs().children()) {
+            for (Liblkqllang.LkqlNode subBlock : ((Liblkqllang.BlockStringLiteral) stringLiteral).fDocs()
+                .children()) {
                 var str = StringUtils.translateEscapes(subBlock.getText().substring(2));
 
                 if (str.length() > 0) {
@@ -132,8 +135,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                     // the user manual.
                     if (str.charAt(0) != ' ') {
                         throw translationError(
-                                stringLiteral,
-                                "Invalid blockstring: first character should be whitespace");
+                            stringLiteral,
+                            "Invalid blockstring: first character should be whitespace"
+                        );
                     }
                     builder.append(str.substring(1)).append("\n");
                 }
@@ -210,11 +214,12 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the top level node
         return new TopLevelList(
-                loc(topLevelList),
-                this.scriptFrames.getFrameDescriptor(),
-                topLevelNodes.toArray(new LKQLNode[0]),
-                this.source.isInteractive(),
-                doc);
+            loc(topLevelList),
+            this.scriptFrames.getFrameDescriptor(),
+            topLevelNodes.toArray(new LKQLNode[0]),
+            this.source.isInteractive(),
+            doc
+        );
     }
 
     // --- Literals
@@ -257,12 +262,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         if (this.scriptFrames.isBinding(symbol) && this.scriptFrames.isBindingDeclared(symbol)) {
             return new ReadLocal(location, this.scriptFrames.getBinding(symbol));
         }
-
         // In a second time look in the parameters of the frame
         else if (this.scriptFrames.isParameter(symbol)) {
             return new ReadArgument(location, this.scriptFrames.getParameter(symbol));
         }
-
         // Then look in the closure for the symbol
         else if (this.scriptFrames.isClosure(symbol)) {
             final int slot = this.scriptFrames.getClosure(symbol);
@@ -274,12 +277,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         } else if (this.scriptFrames.isPrelude(symbol)) {
             return new ReadPrelude(location, this.scriptFrames.getPrelude(symbol));
         }
-
         // Finally look in the LKQL built-ins
         else if (this.scriptFrames.isBuiltIn(symbol)) {
             return new ReadBuiltIn(location, this.scriptFrames.getBuiltIn(symbol));
         }
-
         // If we're in interactive mode and the symbol hasn't been found any other way, issue a
         // ReadDynamic, which will read from the global scope. This is only necessary in
         // interactive mode.
@@ -303,7 +304,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             return new LongLiteral(loc(integerLiteral), Long.parseLong(integerLiteral.getText()));
         } catch (NumberFormatException e) {
             return new BigIntegerLiteral(
-                    loc(integerLiteral), new BigInteger(integerLiteral.getText()));
+                loc(integerLiteral),
+                new BigInteger(integerLiteral.getText())
+            );
         }
     }
 
@@ -479,7 +482,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                     throw LKQLRuntimeException.positionAfterNamedArgument(curArg);
                 }
             }
-
             // Verify the same name arguments
             else if (curArg instanceof NamedArg namedArg) {
                 namedPhase = true;
@@ -618,15 +620,19 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.PatternDetailDelimiterIs patternDetailDelimiterIs) {
         var ctx = LKQLLanguage.getContext(null);
-        ctx.getDiagnosticEmitter()
-                .emitDiagnostic(
-                        CheckerUtils.MessageKind.WARNING,
-                        "'is' syntax is deprecated for patterns. Please consider migrating your"
-                                + " code via 'lkql refactor -r IS_TO_COLON "
-                                + "path/to/your/rule_file.lkql'.",
-                        null,
-                        SourceSectionWrapper.create(
-                                patternDetailDelimiterIs.getSourceLocationRange(), source));
+        ctx
+            .getDiagnosticEmitter()
+            .emitDiagnostic(
+                CheckerUtils.MessageKind.WARNING,
+                "'is' syntax is deprecated for patterns. Please consider migrating your" +
+                " code via 'lkql refactor -r IS_TO_COLON " +
+                "path/to/your/rule_file.lkql'.",
+                null,
+                SourceSectionWrapper.create(
+                    patternDetailDelimiterIs.getSourceLocationRange(),
+                    source
+                )
+            );
         return null;
     }
 
@@ -738,10 +744,12 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the new DotAccess node
         return wrapDotAccess(
-                DotAccessNodeGen.create(
-                        loc(dotAccess),
-                        new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
-                        receiver));
+            DotAccessNodeGen.create(
+                loc(dotAccess),
+                new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
+                receiver
+            )
+        );
     }
 
     /**
@@ -758,10 +766,12 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the new DotAccess node
         return wrapDotAccess(
-                SafeDotAccessNodeGen.create(
-                        loc(safeAccess),
-                        new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
-                        receiver));
+            SafeDotAccessNodeGen.create(
+                loc(safeAccess),
+                new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
+                receiver
+            )
+        );
     }
 
     /** Visit an upper dot-access node and translate it into a member reference access. */
@@ -770,9 +780,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final var receiver = upperDotAccess.fReceiver();
         final var member = upperDotAccess.fMember();
         return new MemberRefAccess(
-                loc(upperDotAccess),
-                new Identifier(loc(receiver), receiver.getText()),
-                new Identifier(loc(member), member.getText()));
+            loc(upperDotAccess),
+            new Identifier(loc(receiver), receiver.getText()),
+            new Identifier(loc(member), member.getText())
+        );
     }
 
     // --- In clause
@@ -838,8 +849,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.FilteredPattern filteredPattern) {
         // Translate the filtered pattern fields
-        final UnfilteredPattern pattern =
-                (UnfilteredPattern) filteredPattern.fPattern().accept(this);
+        final UnfilteredPattern pattern = (UnfilteredPattern) filteredPattern
+            .fPattern()
+            .accept(this);
         final Expr predicate = (Expr) filteredPattern.fPredicate().accept(this);
 
         // Create the new filtered pattern node
@@ -860,7 +872,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     public LKQLNode visit(Liblkqllang.IntegerPattern integerPattern) {
         try {
             return IntegerPatternNodeGen.create(
-                    loc(integerPattern), Integer.parseInt(integerPattern.getText()));
+                loc(integerPattern),
+                Integer.parseInt(integerPattern.getText())
+            );
         } catch (NumberFormatException e) {
             throw translationError(integerPattern, "Invalid number literal for pattern");
         }
@@ -875,7 +889,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         return ListPatternNodeGen.create(
-                loc(listPattern), listPatterns.toArray(new BasePattern[0]));
+            loc(listPattern),
+            listPatterns.toArray(new BasePattern[0])
+        );
     }
 
     @Override
@@ -974,10 +990,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         return ObjectPatternNodeGen.create(
-                loc(objectPattern),
-                patterns.toArray(new BasePattern[0]),
-                keys.toArray(new String[0]),
-                splat);
+            loc(objectPattern),
+            patterns.toArray(new BasePattern[0]),
+            keys.toArray(new String[0]),
+            splat
+        );
     }
 
     /**
@@ -1017,7 +1034,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         return TuplePatternNodeGen.create(
-                loc(tuplePattern), tuplePatterns.toArray(new BasePattern[0]));
+            loc(tuplePattern),
+            tuplePatterns.toArray(new BasePattern[0])
+        );
     }
 
     /**
@@ -1121,16 +1140,22 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     @Override
     public LKQLNode visit(Liblkqllang.RecExpr recExpr) {
-        final boolean recurseHasUnpack =
-                recExpr.fRecurseUnpack() instanceof Liblkqllang.UnpackPresent;
+        final boolean recurseHasUnpack = recExpr.fRecurseUnpack() instanceof
+        Liblkqllang.UnpackPresent;
         final Expr recurseExpr = (Expr) recExpr.fRecurseExpr().accept(this);
 
-        final boolean resultHasUnpack =
-                recExpr.fResultUnpack() instanceof Liblkqllang.UnpackPresent;
-        final Expr resultExpr =
-                recExpr.fResultExpr().isNone() ? null : (Expr) recExpr.fResultExpr().accept(this);
+        final boolean resultHasUnpack = recExpr.fResultUnpack() instanceof
+        Liblkqllang.UnpackPresent;
+        final Expr resultExpr = recExpr.fResultExpr().isNone()
+            ? null
+            : (Expr) recExpr.fResultExpr().accept(this);
         return new RecExpr(
-                loc(recExpr), recurseHasUnpack, recurseExpr, resultHasUnpack, resultExpr);
+            loc(recExpr),
+            recurseHasUnpack,
+            recurseExpr,
+            resultHasUnpack,
+            resultExpr
+        );
     }
 
     // --- Lists
@@ -1181,7 +1206,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Liblkqllang.ListCompAssocList assocListBase = listComprehension.fGenerators();
         for (int i = 0; i < assocListBase.getChildrenCount(); i++) {
             Liblkqllang.ListCompAssoc assocOrigin =
-                    (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
+                (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
             collections.add((Expr) assocOrigin.fCollExpr().accept(this));
         }
 
@@ -1192,7 +1217,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final List<ComprehensionAssoc> assocList = new ArrayList<>();
         for (int i = 0; i < assocListBase.getChildrenCount(); i++) {
             final Liblkqllang.ListCompAssoc assocBase =
-                    (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
+                (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
             final String name = assocBase.fBindingName().getText();
             int slot = this.scriptFrames.getParameter(name);
 
@@ -1205,15 +1230,17 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr guard = guardBase.isNone() ? null : (Expr) guardBase.accept(this);
 
         // Create the result
-        final ListComprehension res =
-                new ListComprehension(
-                        loc(listComprehension),
-                        this.scriptFrames.getFrameDescriptor(),
-                        this.scriptFrames.getClosureDescriptor(),
-                        new ComprehensionAssocList(
-                                loc(assocListBase), assocList.toArray(new ComprehensionAssoc[0])),
-                        expr,
-                        guard);
+        final ListComprehension res = new ListComprehension(
+            loc(listComprehension),
+            this.scriptFrames.getFrameDescriptor(),
+            this.scriptFrames.getClosureDescriptor(),
+            new ComprehensionAssocList(
+                loc(assocListBase),
+                assocList.toArray(new ComprehensionAssoc[0])
+            ),
+            expr,
+            guard
+        );
 
         // Exit the frame
         this.scriptFrames.exitFrame();
@@ -1299,18 +1326,18 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Iterate on object associations and translate them
         for (int i = 0; i < assocNumber; i++) {
-            final Liblkqllang.AtObjectAssoc assoc =
-                    (Liblkqllang.AtObjectAssoc) assocList.getChild(i);
+            final Liblkqllang.AtObjectAssoc assoc = (Liblkqllang.AtObjectAssoc) assocList.getChild(
+                i
+            );
             final String key = assoc.fName().getText().toLowerCase();
             if (keys.contains(key)) {
                 throw multipleSameNameKeys(atObjectLiteral, key);
             }
             keys.add(key);
             final Liblkqllang.Expr exprBase = assoc.fExpr();
-            values[i] =
-                    exprBase.isNone()
-                            ? new ListLiteral(loc(assoc.fName()), new Expr[0])
-                            : (Expr) exprBase.accept(this);
+            values[i] = exprBase.isNone()
+                ? new ListLiteral(loc(assoc.fName()), new Expr[0])
+                : (Expr) exprBase.accept(this);
         }
 
         // Return the new object literal node because at object is juste syntactic sugar
@@ -1425,14 +1452,14 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final var docstring = baseFunction.pDoc();
 
         // Return the new function expression node
-        final FunExpr res =
-                new FunExpr(
-                        loc(baseFunction),
-                        this.scriptFrames.getFrameDescriptor(),
-                        this.scriptFrames.getClosureDescriptor(),
-                        parameters.toArray(new ParameterDeclaration[0]),
-                        docstring.isNone() ? "" : parseStringLiteral(docstring),
-                        body);
+        final FunExpr res = new FunExpr(
+            loc(baseFunction),
+            this.scriptFrames.getFrameDescriptor(),
+            this.scriptFrames.getClosureDescriptor(),
+            parameters.toArray(new ParameterDeclaration[0]),
+            docstring.isNone() ? "" : parseStringLiteral(docstring),
+            body
+        );
 
         // Exit the function frame
         this.scriptFrames.exitFrame();
@@ -1456,25 +1483,39 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Translate the declaration annotation
         final Liblkqllang.DeclAnnotation annotationBase = funDecl.fAnnotation();
-        final Annotation annotation =
-                annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
+        final Annotation annotation = annotationBase.isNone()
+            ? null
+            : (Annotation) annotationBase.accept(this);
 
         // Translate the function body
         FunExpr funExpr = (FunExpr) funDecl.fFunExpr().accept(this);
 
         // Create the new function declaration node
-        final var functionDecl =
-                new FunctionDeclaration(loc(funDecl), annotation, name, slot, funExpr);
+        final var functionDecl = new FunctionDeclaration(
+            loc(funDecl),
+            annotation,
+            name,
+            slot,
+            funExpr
+        );
 
         // If the function is annotated as a checker, create a checker exportation node and
         // return it
         if (annotation != null) {
             if (annotation.getName().equals(Constants.ANNOTATION_NODE_CHECK)) {
                 return new CheckerExport(
-                        loc(funDecl), annotation, CheckerExport.CheckerMode.NODE, functionDecl);
+                    loc(funDecl),
+                    annotation,
+                    CheckerExport.CheckerMode.NODE,
+                    functionDecl
+                );
             } else if (annotation.getName().equals(Constants.ANNOTATION_UNIT_CHECK)) {
                 return new CheckerExport(
-                        loc(funDecl), annotation, CheckerExport.CheckerMode.UNIT, functionDecl);
+                    loc(funDecl),
+                    annotation,
+                    CheckerExport.CheckerMode.UNIT,
+                    functionDecl
+                );
             }
         }
 
@@ -1523,9 +1564,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.ConstructorCall constructorCall) {
         return new ConstructorCall(
-                loc(constructorCall),
-                new Identifier(loc(constructorCall.fName()), constructorCall.fName().getText()),
-                (ArgList) constructorCall.fArguments().accept(this));
+            loc(constructorCall),
+            new Identifier(loc(constructorCall.fName()), constructorCall.fName().getText()),
+            (ArgList) constructorCall.fArguments().accept(this)
+        );
     }
 
     // --- Selector declaration
@@ -1569,8 +1611,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Get the name, documentation and annotation for the selector declaration
         final String name = selectorDecl.fName().getText();
         final Liblkqllang.BaseStringLiteral documentationBase = selectorDecl.fDocNode();
-        final String documentation =
-                documentationBase.isNone() ? "" : parseStringLiteral(documentationBase);
+        final String documentation = documentationBase.isNone()
+            ? ""
+            : parseStringLiteral(documentationBase);
 
         // Get the current slot to place the new selector in
         this.scriptFrames.declareBinding(name);
@@ -1578,8 +1621,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Translate the declaration annotation
         final Liblkqllang.DeclAnnotation annotationBase = selectorDecl.fAnnotation();
-        final Annotation annotation =
-                annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
+        final Annotation annotation = annotationBase.isNone()
+            ? null
+            : (Annotation) annotationBase.accept(this);
 
         // Enter the selector frame
         this.scriptFrames.enterFrame(selectorDecl);
@@ -1605,16 +1649,17 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the new selector declaration node
         return new SelectorDeclaration(
-                loc(selectorDecl),
-                annotation,
-                frameDescriptor,
-                closureDescriptor,
-                name,
-                documentation,
-                slot,
-                thisSlot,
-                depthSlot,
-                arms.toArray(new SelectorArm[0]));
+            loc(selectorDecl),
+            annotation,
+            frameDescriptor,
+            closureDescriptor,
+            name,
+            documentation,
+            slot,
+            thisSlot,
+            depthSlot,
+            arms.toArray(new SelectorArm[0])
+        );
     }
 
     /**
@@ -1702,14 +1747,19 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Translate the node pattern detail fields
         final String propertyName = nodePatternProperty.fCall().fName().getText();
         final ArgList argList = (ArgList) nodePatternProperty.fCall().fArguments().accept(this);
-        final BasePattern expected =
-                (BasePattern) nodePatternProperty.fExpectedValue().accept(this);
+        final BasePattern expected = (BasePattern) nodePatternProperty
+            .fExpectedValue()
+            .accept(this);
 
         nodePatternProperty.fPatternDetailDelimiter().accept(this);
 
         // Return the new node pattern property detail
         return NodePatternPropertyNodeGen.create(
-                loc(nodePatternProperty), propertyName, argList, expected);
+            loc(nodePatternProperty),
+            propertyName,
+            argList,
+            expected
+        );
     }
 
     /**
@@ -1752,8 +1802,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.ExtendedNodePattern extendedNodePattern) {
         // Translate the extended node pattern fields
-        final ValuePattern nodePattern =
-                (ValuePattern) extendedNodePattern.fNodePattern().accept(this);
+        final ValuePattern nodePattern = (ValuePattern) extendedNodePattern
+            .fNodePattern()
+            .accept(this);
 
         // Get the pattern details
         final List<NodePatternDetail> details = new ArrayList<>();
@@ -1763,7 +1814,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the new extended node pattern node
         return new ExtendedNodePattern(
-                loc(extendedNodePattern), nodePattern, details.toArray(new NodePatternDetail[0]));
+            loc(extendedNodePattern),
+            nodePattern,
+            details.toArray(new NodePatternDetail[0])
+        );
     }
 
     // --- Pattern matching

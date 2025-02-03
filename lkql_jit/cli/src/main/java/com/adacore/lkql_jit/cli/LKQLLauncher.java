@@ -34,19 +34,19 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     @CommandLine.Command(name = "run", description = "Run the LKQL interpreter on a given script")
     public static class LKQLRun implements Callable<Integer> {
 
-        @CommandLine.Spec public CommandLine.Model.CommandSpec spec;
+        @CommandLine.Spec
+        public CommandLine.Model.CommandSpec spec;
 
         @CommandLine.Parameters(description = "Files to analyze")
         public List<String> files = new ArrayList<>();
 
         @CommandLine.Option(
-                names = {"-C", "--charset"},
-                description = "Charset to use for the source decoding")
+            names = { "-C", "--charset" },
+            description = "Charset to use for the source decoding"
+        )
         public String charset = null;
 
-        @CommandLine.Option(
-                names = {"-P", "--project"},
-                description = "Project file to use")
+        @CommandLine.Option(names = { "-P", "--project" }, description = "Project file to use")
         public String project = null;
 
         @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
@@ -56,32 +56,31 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         public String target = null;
 
         @CommandLine.Option(
-                names = {"-U", "--recursive"},
-                description =
-                        "Process all units in the project tree, excluding externally built"
-                                + " projects")
+            names = { "-U", "--recursive" },
+            description = "Process all units in the project tree, excluding externally built" +
+            " projects"
+        )
         public boolean recursive;
 
-        @CommandLine.Option(
-                names = {"-v", "--verbose"},
-                description = "Enable the verbose mode")
+        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
         public boolean verbose;
 
-        @CommandLine.Unmatched public List<String> unmatched;
+        @CommandLine.Unmatched
+        public List<String> unmatched;
 
         @CommandLine.Option(
-                names = {"-S", "--script-path"},
-                description = "The LKQL script to execute")
+            names = { "-S", "--script-path" },
+            description = "The LKQL script to execute"
+        )
         public String script = null;
 
-        @CommandLine.Option(
-                names = {"-i", "--interactive"},
-                description = "Run a REPL")
+        @CommandLine.Option(names = { "-i", "--interactive" }, description = "Run a REPL")
         public boolean interactive;
 
         @CommandLine.Option(
-                names = "--keep-going-on-missing-file",
-                description = "Keep going on missing file")
+            names = "--keep-going-on-missing-file",
+            description = "Keep going on missing file"
+        )
         public Boolean keepGoingOnMissingFile = false;
 
         @Override
@@ -158,14 +157,14 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
         // Forward the command line options to the options object builder
         optionsBuilder
-                .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-                .verbose(this.args.verbose)
-                .projectFile(this.args.project)
-                .target(this.args.target)
-                .runtime(this.args.RTS)
-                .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
-                .files(this.args.files)
-                .charset(this.args.charset);
+            .engineMode(LKQLOptions.EngineMode.INTERPRETER)
+            .verbose(this.args.verbose)
+            .projectFile(this.args.project)
+            .target(this.args.target)
+            .runtime(this.args.RTS)
+            .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
+            .files(this.args.files)
+            .charset(this.args.charset);
 
         // Finally, pass the options to the LKQL engine
         contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
@@ -184,10 +183,9 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                     String line = null;
                     try {
                         line = reader.readLine(prompt);
-                        final Source source =
-                                Source.newBuilder("lkql", line, "<input>")
-                                        .interactive(true)
-                                        .build();
+                        final Source source = Source.newBuilder("lkql", line, "<input>")
+                            .interactive(true)
+                            .build();
                         context.eval(source);
                     } catch (UserInterruptException e) {
                         // Ignore
@@ -224,7 +222,9 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
      */
     @Override
     protected List<String> preprocessArguments(
-            List<String> arguments, Map<String, String> polyglotOptions) {
+        List<String> arguments,
+        Map<String, String> polyglotOptions
+    ) {
         if (this.args.unmatched != null) {
             return this.args.unmatched;
         } else {

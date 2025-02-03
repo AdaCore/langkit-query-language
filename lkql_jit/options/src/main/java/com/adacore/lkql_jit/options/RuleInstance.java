@@ -31,11 +31,11 @@ import org.json.JSONObject;
  *     argument value is an LKQL expression.
  */
 public record RuleInstance(
-        String ruleName,
-        Optional<String> instanceName,
-        SourceMode sourceMode,
-        Map<String, String> arguments) {
-
+    String ruleName,
+    Optional<String> instanceName,
+    SourceMode sourceMode,
+    Map<String, String> arguments
+) {
     // ----- Constructor -----
 
     public RuleInstance {
@@ -54,10 +54,11 @@ public record RuleInstance(
 
     public static RuleInstance fromJson(JSONObject jsonObject) throws JSONException {
         return new RuleInstance(
-                jsonObject.getString("ruleName"),
-                Optional.ofNullable(jsonObject.optString("instanceName", null)),
-                SourceMode.valueOf(jsonObject.getString("sourceMode")),
-                JSONUtils.parseStringMap(jsonObject.getJSONObject("arguments")));
+            jsonObject.getString("ruleName"),
+            Optional.ofNullable(jsonObject.optString("instanceName", null)),
+            SourceMode.valueOf(jsonObject.getString("sourceMode")),
+            JSONUtils.parseStringMap(jsonObject.getJSONObject("arguments"))
+        );
     }
 
     // ----- Instance methods -----
@@ -72,10 +73,10 @@ public record RuleInstance(
 
     public JSONObject toJson() {
         return new JSONObject()
-                .put("ruleName", this.ruleName)
-                .put("instanceName", this.instanceName.orElse(null))
-                .put("sourceMode", this.sourceMode.toString())
-                .put("arguments", new JSONObject(this.arguments));
+            .put("ruleName", this.ruleName)
+            .put("instanceName", this.instanceName.orElse(null))
+            .put("sourceMode", this.sourceMode.toString())
+            .put("arguments", new JSONObject(this.arguments));
     }
 
     // ----- Override methods ------
@@ -103,6 +104,6 @@ public record RuleInstance(
         ADA,
 
         /** The instance will be executed on SPARK code only. */
-        SPARK
+        SPARK,
     }
 }

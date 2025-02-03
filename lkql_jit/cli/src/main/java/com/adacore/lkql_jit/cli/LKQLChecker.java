@@ -21,11 +21,12 @@ public class LKQLChecker extends BaseLKQLChecker {
 
     /** This class defines the "check" LKQL subcommand. */
     @CommandLine.Command(
-            name = "check",
-            description =
-                    "Alternative checker driver. Like GNATcheck but with less options "
-                            + "& a more modern command line interface")
+        name = "check",
+        description = "Alternative checker driver. Like GNATcheck but with less options " +
+        "& a more modern command line interface"
+    )
     public static class Args extends BaseLKQLChecker.Args {
+
         @Override
         public Integer call() {
             new LKQLChecker(this).launch(this.unmatched.toArray(new String[0]));
@@ -44,8 +45,8 @@ public class LKQLChecker extends BaseLKQLChecker {
     @Override
     protected LKQLOptions getOptions() {
         return getBaseOptionsBuilder()
-                .engineMode(LKQLOptions.EngineMode.CHECKER)
-                .checkerDebug(true)
-                .build();
+            .engineMode(LKQLOptions.EngineMode.CHECKER)
+            .checkerDebug(true)
+            .build();
     }
 }

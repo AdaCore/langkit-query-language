@@ -68,12 +68,13 @@ public final class Query extends Expr {
      * @param pattern The pattern of the query node
      */
     public Query(
-            SourceSection location,
-            Kind kind,
-            boolean followGenerics,
-            Expr throughExpr,
-            Expr fromExpr,
-            BasePattern pattern) {
+        SourceSection location,
+        Kind kind,
+        boolean followGenerics,
+        Expr throughExpr,
+        Expr fromExpr,
+        BasePattern pattern
+    ) {
         super(location);
         this.kind = kind;
         this.followGenerics = followGenerics;
@@ -100,9 +101,10 @@ public final class Query extends Expr {
                 through = this.throughExpr.executeSelector(frame);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_SELECTOR,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.throughExpr);
+                    LKQLTypesHelper.LKQL_SELECTOR,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.throughExpr
+                );
             }
         }
 
@@ -115,7 +117,6 @@ public final class Query extends Expr {
                 fromNodes = new Libadalang.AdaNode[1];
                 fromNodes[0] = LKQLTypeSystemGen.asAdaNode(fromObject);
             }
-
             // Else, if the "from" is a list of node
             else if (LKQLTypeSystemGen.isLKQLList(fromObject)) {
                 // Verify the content of the list
@@ -129,13 +130,11 @@ public final class Query extends Expr {
                     }
                 }
             }
-
             // Else, throw an exception on the "from" expression type
             else {
                 throw LKQLRuntimeException.wrongFrom(this.fromExpr);
             }
         }
-
         // Else, there is no "from" expression, we get the default roots
         else {
             fromNodes = LKQLLanguage.getContext(this.pattern).getAllUnitsRoots();
@@ -156,7 +155,6 @@ public final class Query extends Expr {
             // Return the result list value
             return new LKQLList(resNodes.toArray(new Libadalang.AdaNode[0]));
         }
-
         // If the query mode is first
         else {
             for (int i = fromNodes.length - 1; i >= 0; i--) {
@@ -243,7 +241,10 @@ public final class Query extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"queryKind"}, new Object[] {this.kind});
+                indentLevel,
+                new String[] { "queryKind" },
+                new Object[] { this.kind }
+            );
     }
 
     // ----- Inner classes -----
@@ -254,7 +255,7 @@ public final class Query extends Expr {
         ALL,
 
         /** Select only the first node matching the query pattern. */
-        FIRST
+        FIRST,
     }
 
     /** This class is a tool to represent the tree exploration for a default query */
@@ -361,8 +362,9 @@ public final class Query extends Expr {
                     if (!genBody.isNone()) {
                         this.queue.add(genBody);
                     }
-                } else if (next instanceof Libadalang.BodyStub stub
-                        && inGenericInstantiation(next)) {
+                } else if (
+                    next instanceof Libadalang.BodyStub stub && inGenericInstantiation(next)
+                ) {
                     // If this node is a body stub and we are currently traversing a generic
                     // instantiation,
                     // we should also traverse the stub's completion.

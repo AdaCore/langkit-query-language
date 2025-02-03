@@ -62,6 +62,9 @@ public final class BooleanLiteral extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"value"}, new Object[] {this.value});
+                indentLevel,
+                new String[] { "value" },
+                new Object[] { this.value }
+            );
     }
 }

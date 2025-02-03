@@ -20,11 +20,13 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 /** This class contains all methods for the rewriting context type. */
-@BuiltinMethodContainer(targetTypes = {LKQLTypesHelper.REWRITING_CONTEXT})
+@BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.REWRITING_CONTEXT })
 public final class RewritingContextMethods {
 
     public abstract static class BaseRewritingContextExpr extends BuiltInBody {
-        @Child RewritingNodeConverter argToRewritingNode = RewritingNodeConverterNodeGen.create();
+
+        @Child
+        RewritingNodeConverter argToRewritingNode = RewritingNodeConverterNodeGen.create();
 
         public RewritingNode convert(VirtualFrame frame, Object node, boolean ensureTied) {
             return argToRewritingNode.execute(node, ensureTied, this.callNode);
@@ -33,9 +35,14 @@ public final class RewritingContextMethods {
 
     @BuiltInMethod(name = "replace", doc = "Replace old node by the new one")
     public abstract static class ReplaceExpr extends BaseRewritingContextExpr {
+
         @Specialization
         public Object executeGeneric(
-                VirtualFrame frame, RewritingContext ctx, Object oldNode, Object newNode) {
+            VirtualFrame frame,
+            RewritingContext ctx,
+            Object oldNode,
+            Object newNode
+        ) {
             // Get the method arguments
             final var toReplace = convert(frame, oldNode, false);
             final var byNode = convert(frame, newNode, true);
@@ -51,17 +58,19 @@ public final class RewritingContextMethods {
     }
 
     @BuiltInMethod(
-            name = "set_child",
-            doc = "Set the node child, following the given member reference, to the new value")
+        name = "set_child",
+        doc = "Set the node child, following the given member reference, to the new value"
+    )
     public abstract static class SetChildExpr extends BaseRewritingContextExpr {
+
         @Specialization
         public Object executeGeneric(
-                VirtualFrame frame,
-                RewritingContext ctx,
-                Object node,
-                MemberReference memberRef,
-                Object newValue) {
-
+            VirtualFrame frame,
+            RewritingContext ctx,
+            Object node,
+            MemberReference memberRef,
+            Object newValue
+        ) {
             // Get the method arguments
             final var nod = convert(frame, node, false);
             final var newNode = convert(frame, newValue, true);
@@ -74,12 +83,18 @@ public final class RewritingContextMethods {
     }
 
     @BuiltInMethod(
-            name = "insert_before",
-            doc = "Insert `new_node` before `node` (`node`'s parent needs to be a list node)")
+        name = "insert_before",
+        doc = "Insert `new_node` before `node` (`node`'s parent needs to be a list node)"
+    )
     public abstract static class InsertBefore extends BaseRewritingContextExpr {
+
         @Specialization
         public Object execute(
-                VirtualFrame frame, RewritingContext ctx, Object node, Object newNode) {
+            VirtualFrame frame,
+            RewritingContext ctx,
+            Object node,
+            Object newNode
+        ) {
             try {
                 convert(frame, node, false).insertBefore(convert(frame, newNode, false));
             } catch (Libadalang.LangkitException e) {
@@ -90,12 +105,18 @@ public final class RewritingContextMethods {
     }
 
     @BuiltInMethod(
-            name = "insert_after",
-            doc = "Insert `new_node` after `node` (`node`'s parent needs to be a list node)")
+        name = "insert_after",
+        doc = "Insert `new_node` after `node` (`node`'s parent needs to be a list node)"
+    )
     public abstract static class InsertAfter extends BaseRewritingContextExpr {
+
         @Specialization
         public Object execute(
-                VirtualFrame frame, RewritingContext ctx, Object node, Object newNode) {
+            VirtualFrame frame,
+            RewritingContext ctx,
+            Object node,
+            Object newNode
+        ) {
             try {
                 convert(frame, node, false).insertAfter(convert(frame, newNode, false));
             } catch (Libadalang.LangkitException e) {
@@ -107,9 +128,14 @@ public final class RewritingContextMethods {
 
     @BuiltInMethod(name = "add_first", doc = "Insert `new_node` at the beginning of `list_node`")
     public abstract static class AddFirst extends BaseRewritingContextExpr {
+
         @Specialization
         public Object execute(
-                VirtualFrame frame, RewritingContext ctx, Object node, Object newNode) {
+            VirtualFrame frame,
+            RewritingContext ctx,
+            Object node,
+            Object newNode
+        ) {
             try {
                 convert(frame, node, false).insertFirst(convert(frame, newNode, false));
             } catch (Libadalang.LangkitException e) {
@@ -121,9 +147,14 @@ public final class RewritingContextMethods {
 
     @BuiltInMethod(name = "add_last", doc = "Insert `new_node` at the end of `list_node`")
     public abstract static class AddLast extends BaseRewritingContextExpr {
+
         @Specialization
         public Object execute(
-                VirtualFrame frame, RewritingContext ctx, Object node, Object newNode) {
+            VirtualFrame frame,
+            RewritingContext ctx,
+            Object node,
+            Object newNode
+        ) {
             try {
                 convert(frame, node, false).insertLast(convert(frame, newNode, false));
             } catch (Libadalang.LangkitException e) {
@@ -134,9 +165,11 @@ public final class RewritingContextMethods {
     }
 
     @BuiltInMethod(
-            name = "remove",
-            doc = "Delete the given node from its parent (parent needs to be a list node)")
+        name = "remove",
+        doc = "Delete the given node from its parent (parent needs to be a list node)"
+    )
     public abstract static class RemoveExpr extends BaseRewritingContextExpr {
+
         @Specialization
         public Object executeGeneric(VirtualFrame frame, RewritingContext ctx, Object objToRemove) {
             // Call the removing method and return the context

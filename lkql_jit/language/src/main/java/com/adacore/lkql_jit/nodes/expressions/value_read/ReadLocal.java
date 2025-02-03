@@ -47,6 +47,9 @@ public final class ReadLocal extends BaseRead {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"slot"}, new Object[] {this.slot});
+                indentLevel,
+                new String[] { "slot" },
+                new Object[] { this.slot }
+            );
     }
 }

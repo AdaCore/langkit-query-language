@@ -13,7 +13,6 @@ import com.adacore.lkql_jit.utils.Iterator;
  * @author Hugo GUERRIER
  */
 public interface Iterable {
-
     /**
      * Get the size of the iterable collection.
      *

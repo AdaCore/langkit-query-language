@@ -22,7 +22,8 @@ public final class ArgList extends LKQLNode {
     // ----- Children -----
 
     /** The arguments in the list. */
-    @Children private final Arg[] args;
+    @Children
+    private final Arg[] args;
 
     // ----- Constructors -----
 
@@ -112,7 +113,9 @@ public final class ArgList extends LKQLNode {
                 res[index] = arg.executeGeneric(frame);
             } else {
                 throw LKQLRuntimeException.unknownArgument(
-                        arg.getArgName().getName(), arg.getArgName());
+                    arg.getArgName().getName(),
+                    arg.getArgName()
+                );
             }
         }
 

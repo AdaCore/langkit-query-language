@@ -13,8 +13,10 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class ListPattern extends ValuePattern {
+
     /** The sub-patterns for this list pattern. */
-    @Node.Children private final BasePattern[] patterns;
+    @Node.Children
+    private final BasePattern[] patterns;
 
     public ListPattern(SourceSection location, BasePattern[] patterns) {
         super(location);
@@ -30,7 +32,9 @@ public abstract class ListPattern extends ValuePattern {
             // SplatPattern matches the rest of the list
             if (pattern instanceof SplatPattern) {
                 return pattern.executeValue(
-                        frame, new LKQLList(list.getSlice(i, list.getArraySize())));
+                    frame,
+                    new LKQLList(list.getSlice(i, list.getArraySize()))
+                );
             }
             // Else, fail on the first pattern that fails
             else if (!pattern.executeValue(frame, list.get(i))) {
@@ -41,8 +45,10 @@ public abstract class ListPattern extends ValuePattern {
         if (lastMatch < patterns.length - 1) {
             // If there are remaining patterns, there need to be only one, and it needs to be a
             // SplatPattern.
-            if (lastMatch + 1 != patterns.length - 1
-                    || !(patterns[lastMatch + 1] instanceof SplatPattern)) {
+            if (
+                lastMatch + 1 != patterns.length - 1 ||
+                !(patterns[lastMatch + 1] instanceof SplatPattern)
+            ) {
                 return false;
             }
         }
@@ -52,8 +58,9 @@ public abstract class ListPattern extends ValuePattern {
 
     @Fallback
     public boolean onOther(
-            @SuppressWarnings("unused") VirtualFrame frame,
-            @SuppressWarnings("unused") Object other) {
+        @SuppressWarnings("unused") VirtualFrame frame,
+        @SuppressWarnings("unused") Object other
+    ) {
         return false;
     }
 

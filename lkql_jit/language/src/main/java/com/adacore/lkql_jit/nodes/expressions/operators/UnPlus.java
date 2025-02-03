@@ -62,7 +62,10 @@ public abstract class UnPlus extends UnOp {
     @Fallback
     protected void notNumber(Object arg) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(arg), this.getArg());
+            LKQLTypesHelper.LKQL_INTEGER,
+            LKQLTypesHelper.fromJava(arg),
+            this.getArg()
+        );
     }
 
     // ----- Override methods -----

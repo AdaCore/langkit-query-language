@@ -14,7 +14,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 public @interface BuiltInFunction {
-
     /** Name for this built-in function */
     String name();
 

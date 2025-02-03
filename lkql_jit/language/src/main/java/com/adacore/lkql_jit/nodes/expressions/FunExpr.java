@@ -53,16 +53,21 @@ public final class FunExpr extends Expr {
      * @param body The body of the function.
      */
     public FunExpr(
-            final SourceSection location,
-            final FrameDescriptor frameDescriptor,
-            final ClosureDescriptor closureDescriptor,
-            final ParameterDeclaration[] parameters,
-            final String documentation,
-            final Expr body) {
+        final SourceSection location,
+        final FrameDescriptor frameDescriptor,
+        final ClosureDescriptor closureDescriptor,
+        final ParameterDeclaration[] parameters,
+        final String documentation,
+        final Expr body
+    ) {
         super(location);
         this.closureDescriptor = closureDescriptor;
-        this.functionRootNode =
-                new FunctionRootNode(LKQLLanguage.getLanguage(this), frameDescriptor, false, body);
+        this.functionRootNode = new FunctionRootNode(
+            LKQLLanguage.getLanguage(this),
+            frameDescriptor,
+            false,
+            body
+        );
         this.parameterNames = new String[parameters.length];
         this.parameterValues = new Expr[parameters.length];
         this.documentation = documentation;
@@ -88,12 +93,13 @@ public final class FunExpr extends Expr {
     @Override
     public LKQLFunction executeFunction(VirtualFrame frame) {
         return new LKQLFunction(
-                this.functionRootNode,
-                Closure.create(frame.materialize(), this.closureDescriptor),
-                Constants.FUNCTION_DEFAULT_NAME,
-                this.documentation,
-                this.parameterNames,
-                this.parameterValues);
+            this.functionRootNode,
+            Closure.create(frame.materialize(), this.closureDescriptor),
+            Constants.FUNCTION_DEFAULT_NAME,
+            this.documentation,
+            this.parameterNames,
+            this.parameterValues
+        );
     }
 
     // ----- Override methods -----
@@ -105,7 +111,8 @@ public final class FunExpr extends Expr {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
                 indentLevel,
-                new String[] {"names"},
-                new Object[] {Arrays.toString(this.parameterNames)});
+                new String[] { "names" },
+                new Object[] { Arrays.toString(this.parameterNames) }
+            );
     }
 }

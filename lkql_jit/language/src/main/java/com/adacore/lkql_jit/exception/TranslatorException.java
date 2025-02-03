@@ -15,7 +15,9 @@ import java.io.Serial;
  * @author Hugo GUERRIER
  */
 public final class TranslatorException extends AbstractTruffleException {
-    @Serial private static final long serialVersionUID = -1480198635766066797L;
+
+    @Serial
+    private static final long serialVersionUID = -1480198635766066797L;
 
     /**
      * Create a new exception from its message.

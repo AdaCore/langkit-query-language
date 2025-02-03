@@ -31,7 +31,9 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
      * @param frameDescriptor The descriptor of the frame for the root node execution.
      */
     protected MemoizedRootNode(
-            final TruffleLanguage<?> language, final FrameDescriptor frameDescriptor) {
+        final TruffleLanguage<?> language,
+        final FrameDescriptor frameDescriptor
+    ) {
         super(language, frameDescriptor);
         this.memoizationCache = EconomicMap.create();
     }

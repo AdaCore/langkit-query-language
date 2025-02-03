@@ -59,7 +59,10 @@ public abstract class InClause extends BinOp {
     @Fallback
     protected void notIterable(@SuppressWarnings("unused") Object elem, Object notIterable) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.fromJava(notIterable), getRight());
+            LKQLTypesHelper.LKQL_LIST,
+            LKQLTypesHelper.fromJava(notIterable),
+            getRight()
+        );
     }
 
     // ----- Override methods -----

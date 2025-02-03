@@ -27,7 +27,8 @@ public final class ExtendedNodePattern extends NodePattern {
     private ValuePattern basePattern;
 
     /** The details representing the extension. */
-    @Children private final NodePatternDetail[] details;
+    @Children
+    private final NodePatternDetail[] details;
 
     // ----- Constructors -----
 
@@ -39,7 +40,10 @@ public final class ExtendedNodePattern extends NodePattern {
      * @param details The extensions for the base pattern.
      */
     public ExtendedNodePattern(
-            SourceSection location, ValuePattern basePattern, NodePatternDetail[] details) {
+        SourceSection location,
+        ValuePattern basePattern,
+        NodePatternDetail[] details
+    ) {
         super(location);
         this.basePattern = basePattern;
         this.details = details;
@@ -66,7 +70,10 @@ public final class ExtendedNodePattern extends NodePattern {
                 return true;
             } else {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(value), this);
+                    LKQLTypesHelper.ADA_NODE,
+                    LKQLTypesHelper.fromJava(value),
+                    this
+                );
             }
         }
 

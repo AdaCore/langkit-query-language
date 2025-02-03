@@ -76,8 +76,9 @@ public abstract class LKQLLazyList extends BaseLKQLList {
     @Override
     @ExportMessage
     public Object toDisplayString(
-            @SuppressWarnings("unused") final boolean allowSideEffect,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems) {
+        @SuppressWarnings("unused") final boolean allowSideEffect,
+        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems
+    ) {
         return "<" + LKQLTypesHelper.LKQL_LAZY_LIST + ">";
     }
 }

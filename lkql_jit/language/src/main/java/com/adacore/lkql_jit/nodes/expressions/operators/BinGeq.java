@@ -78,7 +78,11 @@ public abstract class BinGeq extends BinOp {
     @Fallback
     protected void notComparable(Object left, Object right) {
         throw LKQLRuntimeException.unsupportedOperation(
-                LKQLTypesHelper.fromJava(left), ">=", LKQLTypesHelper.fromJava(right), this);
+            LKQLTypesHelper.fromJava(left),
+            ">=",
+            LKQLTypesHelper.fromJava(right),
+            this
+        );
     }
 
     // ----- Override methods -----

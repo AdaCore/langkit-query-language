@@ -18,7 +18,8 @@ public abstract class Declaration extends LKQLNode {
     // ----- Children -----
 
     /** Annotation of the declaration. */
-    @Child protected Annotation annotation;
+    @Child
+    protected Annotation annotation;
 
     // ----- Constructors -----
 
