@@ -61,10 +61,11 @@ public abstract class BinConcat extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected LKQLList concatLists(
-            final LKQLList left,
-            final LKQLList right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLList left,
+        final LKQLList right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         try {
             final int leftSize = (int) leftLibrary.getArraySize(left);
             final int rightSize = (int) rightLibrary.getArraySize(right);
@@ -87,10 +88,17 @@ public abstract class BinConcat extends BinOp {
     protected void nonConcatenable(Object left, Object right) {
         if (LKQLTypeSystemGen.isString(left) || LKQLTypeSystemGen.isLKQLList(left)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.fromJava(left), LKQLTypesHelper.fromJava(right), this);
+                LKQLTypesHelper.fromJava(left),
+                LKQLTypesHelper.fromJava(right),
+                this
+            );
         } else {
             throw LKQLRuntimeException.unsupportedOperation(
-                    LKQLTypesHelper.fromJava(left), "&", LKQLTypesHelper.fromJava(right), this);
+                LKQLTypesHelper.fromJava(left),
+                "&",
+                LKQLTypesHelper.fromJava(right),
+                this
+            );
         }
     }
 

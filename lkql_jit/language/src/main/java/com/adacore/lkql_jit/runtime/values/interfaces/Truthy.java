@@ -11,7 +11,6 @@ package com.adacore.lkql_jit.runtime.values.interfaces;
  * @author Hugo GUERRIER
  */
 public interface Truthy {
-
     /**
      * Get the boolean representation of the object.
      *

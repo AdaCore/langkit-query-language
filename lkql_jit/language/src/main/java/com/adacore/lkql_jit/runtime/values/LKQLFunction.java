@@ -35,7 +35,8 @@ public class LKQLFunction extends BasicLKQLValue {
     public final Closure closure;
 
     /** The name of the function. */
-    @CompilerDirectives.CompilationFinal public String name;
+    @CompilerDirectives.CompilationFinal
+    public String name;
 
     /** The documentation of the function. */
     public final String documentation;
@@ -61,12 +62,13 @@ public class LKQLFunction extends BasicLKQLValue {
      * @param parameterNames The names of the parameters.
      */
     public LKQLFunction(
-            final FunctionRootNode rootNode,
-            final Closure closure,
-            final String name,
-            final String documentation,
-            final String[] parameterNames,
-            final Expr[] parameterDefaultValues) {
+        final FunctionRootNode rootNode,
+        final Closure closure,
+        final String name,
+        final String documentation,
+        final String[] parameterNames,
+        final Expr[] parameterDefaultValues
+    ) {
         this.rootNode = rootNode;
         this.closure = closure;
         this.name = name;
@@ -105,6 +107,7 @@ public class LKQLFunction extends BasicLKQLValue {
     /** Exported message to compare two LKQL functions. */
     @ExportMessage
     public static class IsIdenticalOrUndefined {
+
         /** Compare two LKQL functions. */
         @Specialization
         protected static TriState onFunction(final LKQLFunction left, final LKQLFunction right) {
@@ -114,8 +117,9 @@ public class LKQLFunction extends BasicLKQLValue {
         /** Do the comparison with another element. */
         @Fallback
         protected static TriState onOther(
-                @SuppressWarnings("unused") final LKQLFunction receiver,
-                @SuppressWarnings("unused") final Object other) {
+            @SuppressWarnings("unused") final LKQLFunction receiver,
+            @SuppressWarnings("unused") final Object other
+        ) {
             return TriState.UNDEFINED;
         }
     }
@@ -144,21 +148,24 @@ public class LKQLFunction extends BasicLKQLValue {
     /** Inner class for the function execution. */
     @ExportMessage
     public static class Execute {
+
         /** Execute the function with the cached strategy. */
         @Specialization(guards = "function.getCallTarget() == directCallNode.getCallTarget()")
         protected static Object doCached(
-                @SuppressWarnings("unused") final LKQLFunction function,
-                final Object[] arguments,
-                @Cached("create(function.getCallTarget())") DirectCallNode directCallNode) {
+            @SuppressWarnings("unused") final LKQLFunction function,
+            final Object[] arguments,
+            @Cached("create(function.getCallTarget())") DirectCallNode directCallNode
+        ) {
             return directCallNode.call(arguments);
         }
 
         /** Execute the function with the uncached strategy. */
         @Specialization(replaces = "doCached")
         protected static Object doUncached(
-                final LKQLFunction function,
-                final Object[] arguments,
-                @Cached() IndirectCallNode indirectCallNode) {
+            final LKQLFunction function,
+            final Object[] arguments,
+            @Cached IndirectCallNode indirectCallNode
+        ) {
             return indirectCallNode.call(function.getCallTarget(), arguments);
         }
     }
@@ -190,14 +197,13 @@ public class LKQLFunction extends BasicLKQLValue {
             var defVal = parameterDefaultValues[i];
             if (defVal != null) {
                 expandedParams.add(
-                        parameterNames[i]
-                                + "="
-                                + defVal.getSourceSection().getCharacters().toString());
+                    parameterNames[i] + "=" + defVal.getSourceSection().getCharacters().toString()
+                );
             } else {
                 expandedParams.add(parameterNames[i]);
             }
         }
-        return name + "(" + String.join(", ", expandedParams.toArray(new String[0])) + ")";
+        return (name + "(" + String.join(", ", expandedParams.toArray(new String[0])) + ")");
     }
 
     public Expr[] getParameterDefaultValues() {

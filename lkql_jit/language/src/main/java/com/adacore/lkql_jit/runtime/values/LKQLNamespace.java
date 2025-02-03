@@ -69,24 +69,28 @@ public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
     /** Exported message to compare two LKQL namespaces. */
     @ExportMessage
     static class IsIdenticalOrUndefined {
+
         /** Compare two LKQL namespaces. */
         @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
         protected static TriState onLKQLNamespace(
-                final LKQLNamespace left,
-                final LKQLNamespace right,
-                @CachedLibrary("left") DynamicObjectLibrary lefts,
-                @CachedLibrary("right") DynamicObjectLibrary rights,
-                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftValues,
-                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightValues) {
+            final LKQLNamespace left,
+            final LKQLNamespace right,
+            @CachedLibrary("left") DynamicObjectLibrary lefts,
+            @CachedLibrary("right") DynamicObjectLibrary rights,
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftValues,
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightValues
+        ) {
             return TriState.valueOf(
-                    objectValueEquals(left, right, lefts, rights, leftValues, rightValues));
+                objectValueEquals(left, right, lefts, rights, leftValues, rightValues)
+            );
         }
 
         /** Do the comparison with another element. */
         @Fallback
         protected static TriState onOther(
-                @SuppressWarnings("unused") final LKQLNamespace receiver,
-                @SuppressWarnings("unused") final Object other) {
+            @SuppressWarnings("unused") final LKQLNamespace receiver,
+            @SuppressWarnings("unused") final Object other
+        ) {
             return TriState.UNDEFINED;
         }
     }
@@ -111,9 +115,10 @@ public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
     Object toDisplayString(
-            @SuppressWarnings("unused") final boolean allowSideEffects,
-            @CachedLibrary("this") DynamicObjectLibrary thisLibrary,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elemLibrary) {
+        @SuppressWarnings("unused") final boolean allowSideEffects,
+        @CachedLibrary("this") DynamicObjectLibrary thisLibrary,
+        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elemLibrary
+    ) {
         // Prepare the result string builder and get the keys of the object
         StringBuilder resultBuilder = new StringBuilder("Namespace(");
         Object[] keys = thisLibrary.getKeyArray(this);

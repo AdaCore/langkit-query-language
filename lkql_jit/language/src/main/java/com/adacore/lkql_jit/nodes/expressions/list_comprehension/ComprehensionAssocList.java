@@ -21,7 +21,8 @@ public final class ComprehensionAssocList extends LKQLNode {
     // ----- Children -----
 
     /** The comprehension associations. */
-    @Children private final ComprehensionAssoc[] compAssocs;
+    @Children
+    private final ComprehensionAssoc[] compAssocs;
 
     // ----- Constructors -----
 

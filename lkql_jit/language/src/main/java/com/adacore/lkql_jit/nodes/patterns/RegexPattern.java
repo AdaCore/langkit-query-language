@@ -40,8 +40,10 @@ public abstract class RegexPattern extends ValuePattern {
 
     @Specialization
     public boolean onAdaNode(
-            @SuppressWarnings("unused") VirtualFrame frame, Libadalang.AdaNode node) {
-        return node != LKQLNull.INSTANCE && this.pattern.contains(node.getText());
+        @SuppressWarnings("unused") VirtualFrame frame,
+        Libadalang.AdaNode node
+    ) {
+        return (node != LKQLNull.INSTANCE && this.pattern.contains(node.getText()));
     }
 
     @Specialization
@@ -51,8 +53,9 @@ public abstract class RegexPattern extends ValuePattern {
 
     @Fallback
     public boolean onOther(
-            @SuppressWarnings("unused") VirtualFrame frame,
-            @SuppressWarnings("unused") Object other) {
+        @SuppressWarnings("unused") VirtualFrame frame,
+        @SuppressWarnings("unused") Object other
+    ) {
         return false;
     }
 
@@ -64,6 +67,9 @@ public abstract class RegexPattern extends ValuePattern {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"pattern"}, new Object[] {this.pattern});
+                indentLevel,
+                new String[] { "pattern" },
+                new Object[] { this.pattern }
+            );
     }
 }

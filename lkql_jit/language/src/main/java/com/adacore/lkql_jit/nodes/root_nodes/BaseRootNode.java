@@ -28,7 +28,9 @@ public abstract class BaseRootNode extends RootNode {
      * @param frameDescriptor The frame descriptor for the root node.
      */
     protected BaseRootNode(
-            final TruffleLanguage<?> language, final FrameDescriptor frameDescriptor) {
+        final TruffleLanguage<?> language,
+        final FrameDescriptor frameDescriptor
+    ) {
         super(language, frameDescriptor);
     }
 

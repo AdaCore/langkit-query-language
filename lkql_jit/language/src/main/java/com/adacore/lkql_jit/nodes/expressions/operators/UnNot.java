@@ -59,7 +59,10 @@ public abstract class UnNot extends UnOp {
     @Fallback
     protected void notBoolean(Object arg) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_BOOLEAN, LKQLTypesHelper.fromJava(arg), this);
+            LKQLTypesHelper.LKQL_BOOLEAN,
+            LKQLTypesHelper.fromJava(arg),
+            this
+        );
     }
 
     // ----- Override methods -----

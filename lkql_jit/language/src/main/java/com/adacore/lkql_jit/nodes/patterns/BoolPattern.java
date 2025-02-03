@@ -27,14 +27,18 @@ public abstract class BoolPattern extends ValuePattern {
 
     @Fallback
     public boolean onOther(
-            @SuppressWarnings("unused") VirtualFrame frame,
-            @SuppressWarnings("unused") Object other) {
+        @SuppressWarnings("unused") VirtualFrame frame,
+        @SuppressWarnings("unused") Object other
+    ) {
         return false;
     }
 
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"toMatch"}, new Object[] {this.toMatch});
+                indentLevel,
+                new String[] { "toMatch" },
+                new Object[] { this.toMatch }
+            );
     }
 }

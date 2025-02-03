@@ -37,7 +37,10 @@ public final class TopLevelRootNode extends BaseRootNode {
      * @param language The reference to the LKQL language instance.
      */
     public TopLevelRootNode(
-            final boolean fromImport, final TopLevelList program, final LKQLLanguage language) {
+        final boolean fromImport,
+        final TopLevelList program,
+        final LKQLLanguage language
+    ) {
         super(language, program.getFrameDescriptor());
         this.fromImport = fromImport;
         this.program = program;
@@ -56,9 +59,11 @@ public final class TopLevelRootNode extends BaseRootNode {
     public Object execute(VirtualFrame frame) {
         // If the checker mode is activated add all rule imports
         final var engineMode = LKQLLanguage.getContext(this.program).getEngineMode();
-        if (!fromImport
-                && (engineMode == LKQLOptions.EngineMode.CHECKER
-                        || engineMode == LKQLOptions.EngineMode.FIXER)) {
+        if (
+            !fromImport &&
+            (engineMode == LKQLOptions.EngineMode.CHECKER ||
+                engineMode == LKQLOptions.EngineMode.FIXER)
+        ) {
             this.program.addRuleImports();
         }
 

@@ -20,17 +20,18 @@ public class LKQLFix extends BaseLKQLChecker {
 
     /** This class defines the "fix" LKQL subcommand. */
     @CommandLine.Command(
-            name = "fix",
-            description =
-                    "Fixer driver, to apply LKQL defined auto-fixes to sources. In this mode, you"
-                            + " can only enable rules that defines an auto-fixing function.")
+        name = "fix",
+        description = "Fixer driver, to apply LKQL defined auto-fixes to sources. In this mode, you" +
+        " can only enable rules that defines an auto-fixing function."
+    )
     public static class Args extends BaseLKQLChecker.Args {
+
         @CommandLine.Option(
-                names = {"--auto-fix-mode"},
-                description =
-                        "Mode to apply auto fixes (default is DISPLAY)"
-                                + "%nPossible values: ${COMPLETION-CANDIDATES}",
-                completionCandidates = AutoFixModeCompletion.class)
+            names = { "--auto-fix-mode" },
+            description = "Mode to apply auto fixes (default is DISPLAY)" +
+            "%nPossible values: ${COMPLETION-CANDIDATES}",
+            completionCandidates = AutoFixModeCompletion.class
+        )
         public LKQLOptions.AutoFixMode autoFixMode = LKQLOptions.AutoFixMode.DISPLAY;
 
         @Override
@@ -42,6 +43,7 @@ public class LKQLFix extends BaseLKQLChecker {
 
     /** Utility class to provide auto-complete for the auto-fix mode. */
     public static class AutoFixModeCompletion implements Iterable<String> {
+
         @Override
         public Iterator<String> iterator() {
             return Arrays.stream(LKQLOptions.AutoFixMode.values()).map(Object::toString).iterator();
@@ -59,9 +61,9 @@ public class LKQLFix extends BaseLKQLChecker {
     @Override
     protected LKQLOptions getOptions() {
         return getBaseOptionsBuilder()
-                .engineMode(LKQLOptions.EngineMode.FIXER)
-                .checkerDebug(true)
-                .autoFixMode(((Args) args).autoFixMode)
-                .build();
+            .engineMode(LKQLOptions.EngineMode.FIXER)
+            .checkerDebug(true)
+            .autoFixMode(((Args) args).autoFixMode)
+            .build();
     }
 }

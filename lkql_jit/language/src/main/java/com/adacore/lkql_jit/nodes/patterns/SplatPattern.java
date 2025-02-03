@@ -10,6 +10,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
 public class SplatPattern extends ValuePattern {
+
     private final int slot;
 
     public SplatPattern(SourceSection location, int slot) {

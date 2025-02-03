@@ -48,28 +48,34 @@ public final class Closure {
      */
     @CompilerDirectives.TruffleBoundary
     public static Closure create(
-            final MaterializedFrame frame, final ClosureDescriptor closureDescriptor) {
+        final MaterializedFrame frame,
+        final ClosureDescriptor closureDescriptor
+    ) {
         // Create the content of the closure
         final Cell[] content = new Cell[closureDescriptor.getClosureSize()];
 
         // Put all needed locals in the closure
-        for (Map.Entry<Integer, Integer> closingLocal :
-                closureDescriptor.getClosingLocals().entrySet()) {
+        for (Map.Entry<Integer, Integer> closingLocal : closureDescriptor
+            .getClosingLocals()
+            .entrySet()) {
             content[closingLocal.getKey()] = (Cell) frame.getObject(closingLocal.getValue());
         }
 
         // Put all needed parameters in the closure
-        for (Map.Entry<Integer, Integer> closingParameter :
-                closureDescriptor.getClosingParameters().entrySet()) {
-            content[closingParameter.getKey()] =
-                    new Cell(frame.getArguments()[closingParameter.getValue()]);
+        for (Map.Entry<Integer, Integer> closingParameter : closureDescriptor
+            .getClosingParameters()
+            .entrySet()) {
+            content[closingParameter.getKey()] = new Cell(
+                frame.getArguments()[closingParameter.getValue()]
+            );
         }
 
         // Put all needed closure values in the closure
-        for (Map.Entry<Integer, Integer> closingClosure :
-                closureDescriptor.getClosingClosures().entrySet()) {
+        for (Map.Entry<Integer, Integer> closingClosure : closureDescriptor
+            .getClosingClosures()
+            .entrySet()) {
             content[closingClosure.getKey()] =
-                    ((Cell[]) frame.getArguments()[0])[closingClosure.getValue()];
+                ((Cell[]) frame.getArguments()[0])[closingClosure.getValue()];
         }
 
         // Return the new closure

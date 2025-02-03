@@ -36,8 +36,9 @@ public abstract class DotAccess extends BaseDotAccess {
     /** Access to a member of an object value. */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onObject(
-            final LKQLObject receiver,
-            @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary) {
+        final LKQLObject receiver,
+        @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary
+    ) {
         // Try to get the built in
         Object builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
@@ -57,8 +58,9 @@ public abstract class DotAccess extends BaseDotAccess {
     /** Execute the dot access on a namespace value. */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onNamespace(
-            final LKQLNamespace receiver,
-            @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary) {
+        final LKQLNamespace receiver,
+        @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary
+    ) {
         // Try to get the built in
         Object builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
@@ -83,22 +85,23 @@ public abstract class DotAccess extends BaseDotAccess {
      * @return The property reference or the field value.
      */
     @Specialization(
-            guards = {
-                "!receiver.isNone()",
-                "getBuiltIn(receiver) == null",
-                "receiver == property.getNode()",
-                "property.getDescription() != null"
-            },
-            limit = "1")
+        guards = {
+            "!receiver.isNone()",
+            "getBuiltIn(receiver) == null",
+            "receiver == property.getNode()",
+            "property.getDescription() != null",
+        },
+        limit = "1"
+    )
     protected Object onNodeCached(
-            @SuppressWarnings("unused") Libadalang.AdaNode receiver,
-            @Cached("create(member.getName(), receiver)") LKQLProperty property,
-            @Cached("property.isField()") boolean isField) {
+        @SuppressWarnings("unused") Libadalang.AdaNode receiver,
+        @Cached("create(member.getName(), receiver)") LKQLProperty property,
+        @Cached("property.isField()") boolean isField
+    ) {
         // If the method is a field
         if (isField) {
             return property.executeAsField(this);
         }
-
         // If the method is a property
         else {
             return property;
@@ -143,6 +146,9 @@ public abstract class DotAccess extends BaseDotAccess {
         }
 
         throw LKQLRuntimeException.wrongMember(
-                this.member.getName(), LKQLTypesHelper.fromJava(receiver), this.member);
+            this.member.getName(),
+            LKQLTypesHelper.fromJava(receiver),
+            this.member
+        );
     }
 }

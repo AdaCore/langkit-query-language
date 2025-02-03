@@ -37,7 +37,10 @@ public final class ParameterDeclaration extends Declaration {
      * @param defaultValue The default value of the parameter (can be null).
      */
     public ParameterDeclaration(
-            final SourceSection location, final String name, final Expr defaultValue) {
+        final SourceSection location,
+        final String name,
+        final Expr defaultValue
+    ) {
         super(location, null);
         this.name = name;
         this.defaultValue = defaultValue;
@@ -73,6 +76,9 @@ public final class ParameterDeclaration extends Declaration {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"name"}, new Object[] {this.name});
+                indentLevel,
+                new String[] { "name" },
+                new Object[] { this.name }
+            );
     }
 }

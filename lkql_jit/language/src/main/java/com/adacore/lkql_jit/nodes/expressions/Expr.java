@@ -265,7 +265,7 @@ public abstract class Expr extends LKQLNode {
      */
     @SuppressWarnings("unused")
     public Libadalang.RewritingContext executeRewritingContext(VirtualFrame frame)
-            throws UnexpectedResultException {
+        throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectRewritingContext(executeGeneric(frame));
     }
 
@@ -276,7 +276,7 @@ public abstract class Expr extends LKQLNode {
      */
     @SuppressWarnings("unused")
     public Libadalang.RewritingNode executeRewritingNode(VirtualFrame frame)
-            throws UnexpectedResultException {
+        throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectRewritingNode(executeGeneric(frame));
     }
 
@@ -287,7 +287,7 @@ public abstract class Expr extends LKQLNode {
      */
     @SuppressWarnings("unused")
     public Libadalang.MemberReference executeMemberReference(VirtualFrame frame)
-            throws UnexpectedResultException {
+        throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectMemberReference(executeGeneric(frame));
     }
 }

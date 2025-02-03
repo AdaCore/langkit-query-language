@@ -77,7 +77,6 @@ public final class ScriptFramesBuilder {
             }
             this.root = newFrame;
         }
-
         // Else, add it as a child of the current frame
         else {
             this.current.children.add(newFrame);
@@ -106,7 +105,7 @@ public final class ScriptFramesBuilder {
      */
     public boolean bindingExists(final String symbol) {
         if (this.current.parent == null) {
-            return this.current.bindings.contains(symbol) || this.builtIns.contains(symbol);
+            return (this.current.bindings.contains(symbol) || this.builtIns.contains(symbol));
         } else {
             return this.current.bindings.contains(symbol);
         }
@@ -175,12 +174,9 @@ public final class ScriptFramesBuilder {
 
     @Override
     public String toString() {
-        return "ScriptFramesBuilder("
-                + "built_ins: "
-                + this.builtIns
-                + ", root: "
-                + this.root
-                + ")";
+        return (
+            "ScriptFramesBuilder(" + "built_ins: " + this.builtIns + ", root: " + this.root + ")"
+        );
     }
 
     // ----- Inner classes -----
@@ -221,9 +217,10 @@ public final class ScriptFramesBuilder {
          * @param isVirtual If the frame is a virtual one.
          */
         private NodeFrameBuilder(
-                final Liblkqllang.LkqlNode node,
-                final NodeFrameBuilder parent,
-                final boolean isVirtual) {
+            final Liblkqllang.LkqlNode node,
+            final NodeFrameBuilder parent,
+            final boolean isVirtual
+        ) {
             this.node = node;
             this.parent = parent;
             this.children = new ArrayList<>();
@@ -241,10 +238,9 @@ public final class ScriptFramesBuilder {
          */
         public ScriptFrames.AbstractNodeFrame build(final ScriptFrames.AbstractNodeFrame parent) {
             // Create the result node frame
-            final ScriptFrames.AbstractNodeFrame res =
-                    this.isVirtual
-                            ? new ScriptFrames.VirtualNodeFrame(this.node, parent)
-                            : new ScriptFrames.NodeFrame(this.node, parent);
+            final ScriptFrames.AbstractNodeFrame res = this.isVirtual
+                ? new ScriptFrames.VirtualNodeFrame(this.node, parent)
+                : new ScriptFrames.NodeFrame(this.node, parent);
 
             // Add all bindings to the node frame
             for (String binding : this.bindings) {
@@ -269,15 +265,17 @@ public final class ScriptFramesBuilder {
 
         @Override
         public String toString() {
-            return "NodeFrameBuilder"
-                    + (this.isVirtual ? "<virtual>" : "")
-                    + "("
-                    + "node: "
-                    + this.node.getImage()
-                    + (this.bindings.size() > 0 ? ", bindings: " + this.bindings : "")
-                    + (this.parameters.size() > 0 ? ", parameters: " + this.parameters : "")
-                    + (this.children.size() > 0 ? ", children: " + this.children : "")
-                    + ")";
+            return (
+                "NodeFrameBuilder" +
+                (this.isVirtual ? "<virtual>" : "") +
+                "(" +
+                "node: " +
+                this.node.getImage() +
+                (this.bindings.size() > 0 ? ", bindings: " + this.bindings : "") +
+                (this.parameters.size() > 0 ? ", parameters: " + this.parameters : "") +
+                (this.children.size() > 0 ? ", children: " + this.children : "") +
+                ")"
+            );
         }
     }
 }

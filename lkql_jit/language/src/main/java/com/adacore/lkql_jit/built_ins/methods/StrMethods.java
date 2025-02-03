@@ -20,14 +20,16 @@ import com.oracle.truffle.api.dsl.Specialization;
  *
  * @author Hugo GUERRIER
  */
-@BuiltinMethodContainer(targetTypes = {LKQLTypesHelper.LKQL_STRING})
+@BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.LKQL_STRING })
 public class StrMethods {
 
     @BuiltInMethod(
-            name = "to_lower_case",
-            doc = "Return the string in lowercase",
-            isProperty = true)
+        name = "to_lower_case",
+        doc = "Return the string in lowercase",
+        isProperty = true
+    )
     public abstract static class ToLowerCaseExpr extends BuiltInBody {
+
         @Specialization
         public Object execute(String arg) {
             return StringUtils.toLowerCase(arg);
@@ -35,10 +37,12 @@ public class StrMethods {
     }
 
     @BuiltInMethod(
-            name = "is_lower_case",
-            doc = "Return whether the string is in lowercase",
-            isProperty = true)
+        name = "is_lower_case",
+        doc = "Return whether the string is in lowercase",
+        isProperty = true
+    )
     public abstract static class IsLowerCaseExpr extends BuiltInBody {
+
         @Specialization
         public Object executeGeneric(String arg) {
             return StringUtils.toLowerCase(arg).equals(arg);
@@ -46,10 +50,12 @@ public class StrMethods {
     }
 
     @BuiltInMethod(
-            name = "to_upper_case",
-            doc = "Return the string in uppercase",
-            isProperty = true)
+        name = "to_upper_case",
+        doc = "Return the string in uppercase",
+        isProperty = true
+    )
     public abstract static class ToUpperCaseExpr extends BuiltInBody {
+
         @Specialization
         public Object executeGeneric(String arg) {
             return StringUtils.toUpperCase(arg);
@@ -57,10 +63,12 @@ public class StrMethods {
     }
 
     @BuiltInMethod(
-            name = "is_upper_case",
-            doc = "Return whether the string is in uppercase",
-            isProperty = true)
+        name = "is_upper_case",
+        doc = "Return whether the string is in uppercase",
+        isProperty = true
+    )
     public abstract static class IsUpperCaseExpr extends BuiltInBody {
+
         @Specialization
         public Object executeGeneric(String arg) {
             return StringUtils.toUpperCase(arg).equals(arg);
@@ -68,13 +76,14 @@ public class StrMethods {
     }
 
     @BuiltInMethod(
-            name = "is_mixed_case",
-            doc =
-                    "Return whether the given string is written in mixed case, that is,"
-                            + " with only lower case characters except the first one and every"
-                            + " character following an underscore",
-            isProperty = true)
+        name = "is_mixed_case",
+        doc = "Return whether the given string is written in mixed case, that is," +
+        " with only lower case characters except the first one and every" +
+        " character following an underscore",
+        isProperty = true
+    )
     public abstract static class IsMixedCaseExpr extends BuiltInBody {
+
         @Specialization
         public Object executeGeneric(String arg) {
             // Prepare the result
@@ -106,6 +115,7 @@ public class StrMethods {
 
     @BuiltInMethod(name = "length", doc = "Return the string's length", isProperty = true)
     public abstract static class LengthExpr extends BuiltInBody {
+
         @Specialization
         public Object executeGeneric(String arg) {
             // Return the length
@@ -114,11 +124,12 @@ public class StrMethods {
     }
 
     @BuiltInMethod(
-            name = "substring",
-            doc =
-                    "Given a string and two indices (from and to), return the substring"
-                            + " contained between indices from and to (both included)")
+        name = "substring",
+        doc = "Given a string and two indices (from and to), return the substring" +
+        " contained between indices from and to (both included)"
+    )
     abstract static class SubstringExpr extends BuiltInBody {
+
         @Specialization
         protected String onValid(String source, long start, long end) {
             // Offset the start index by 1 since LKQL is 1-indexed
@@ -138,11 +149,12 @@ public class StrMethods {
     }
 
     @BuiltInMethod(
-            name = "split",
-            doc =
-                    "Given a string, split it on the given separator, and return an iterator on the"
-                            + " parts")
+        name = "split",
+        doc = "Given a string, split it on the given separator, and return an iterator on the" +
+        " parts"
+    )
     abstract static class SplitExpr extends BuiltInBody {
+
         @Specialization
         protected LKQLList onValid(String source, String sep) {
             return new LKQLList(StringUtils.split(source, sep));
@@ -150,10 +162,10 @@ public class StrMethods {
     }
 
     @BuiltInMethod(
-            name = "contains",
-            doc =
-                    "Search for to_find in the given string. Return whether a match is"
-                            + " found. to_find can be either a pattern or a string")
+        name = "contains",
+        doc = "Search for to_find in the given string. Return whether a match is" +
+        " found. to_find can be either a pattern or a string"
+    )
     abstract static class ContainsExpr extends BuiltInBody {
 
         @Specialization
@@ -168,10 +180,10 @@ public class StrMethods {
     }
 
     @BuiltInMethod(
-            name = "find",
-            doc =
-                    "Search for to_find in the given string. Return position of the match,"
-                            + " or -1 if no match. to_find can be either a pattern or a string")
+        name = "find",
+        doc = "Search for to_find in the given string. Return position of the match," +
+        " or -1 if no match. to_find can be either a pattern or a string"
+    )
     abstract static class FindExpr extends BuiltInBody {
 
         @Specialization
@@ -187,6 +199,7 @@ public class StrMethods {
 
     @BuiltInMethod(name = "starts_with", doc = "Returns whether string starts with given prefix")
     abstract static class StartsWithExpr extends BuiltInBody {
+
         @Specialization
         protected boolean onValid(String source, String prefix) {
             return source.startsWith(prefix);
@@ -195,6 +208,7 @@ public class StrMethods {
 
     @BuiltInMethod(name = "ends_with", doc = "Returns whether string ends with given prefix")
     abstract static class EndsWithExpr extends BuiltInBody {
+
         @Specialization
         protected boolean onValid(String source, String suffix) {
             return source.endsWith(suffix);

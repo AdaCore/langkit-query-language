@@ -23,16 +23,19 @@ public class LalLocationWrapper implements SourceLocation {
     private final Libadalang.AnalysisUnit unit;
 
     public LalLocationWrapper(
-            Libadalang.SourceLocationRange sourceLocationRange,
-            Libadalang.AnalysisUnit unit,
-            CheckerUtils.SourceLinesCache sourceLinesCache) {
+        Libadalang.SourceLocationRange sourceLocationRange,
+        Libadalang.AnalysisUnit unit,
+        CheckerUtils.SourceLinesCache sourceLinesCache
+    ) {
         this.sourceLocationRange = sourceLocationRange;
         this.unit = unit;
         this.sourceLinesCache = sourceLinesCache;
     }
 
     public LalLocationWrapper(
-            Libadalang.AdaNode node, CheckerUtils.SourceLinesCache sourceLinesCache) {
+        Libadalang.AdaNode node,
+        CheckerUtils.SourceLinesCache sourceLinesCache
+    ) {
         this.sourceLocationRange = node.getSourceLocationRange();
         this.unit = node.getUnit();
         this.sourceLinesCache = sourceLinesCache;
@@ -64,7 +67,12 @@ public class LalLocationWrapper implements SourceLocation {
         String[] validLines = new String[(endLine() + 1) - startLine()];
         if (endLine() + 1 - startLine() >= 0) {
             System.arraycopy(
-                    sourceLines, startLine() - 1, validLines, 0, endLine() + 1 - startLine());
+                sourceLines,
+                startLine() - 1,
+                validLines,
+                0,
+                endLine() + 1 - startLine()
+            );
         }
         return validLines;
     }
@@ -81,6 +89,6 @@ public class LalLocationWrapper implements SourceLocation {
 
     @Override
     public String toString() {
-        return "<LALLocation " + display() + ":" + endLine() + ":" + endColumn() + ">";
+        return ("<LALLocation " + display() + ":" + endLine() + ":" + endColumn() + ">");
     }
 }

@@ -76,10 +76,17 @@ public class LKQLProperty extends BasicLKQLValue {
     public Object executeAsProperty(Node caller, ArgList argList, Object... arguments) {
         try {
             return ReflectionUtils.callProperty(
-                    this.node, this.description, caller, argList, arguments);
+                this.node,
+                this.description,
+                caller,
+                argList,
+                arguments
+            );
         } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
             throw LKQLRuntimeException.unsupportedType(
-                    LKQLTypesHelper.category(e.getType()), caller);
+                LKQLTypesHelper.category(e.getType()),
+                caller
+            );
         }
     }
 
@@ -93,7 +100,9 @@ public class LKQLProperty extends BasicLKQLValue {
             return ReflectionUtils.callProperty(this.node, this.description, caller, null);
         } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
             throw LKQLRuntimeException.unsupportedType(
-                    LKQLTypesHelper.category(e.getType()), caller);
+                LKQLTypesHelper.category(e.getType()),
+                caller
+            );
         }
     }
 
@@ -102,6 +111,7 @@ public class LKQLProperty extends BasicLKQLValue {
     /** Exported message to compare two LKQL properties. */
     @ExportMessage
     public static class IsIdenticalOrUndefined {
+
         /** Compare two LKQL properties. */
         @Specialization
         protected static TriState onProperty(final LKQLProperty left, final LKQLProperty right) {
@@ -111,8 +121,9 @@ public class LKQLProperty extends BasicLKQLValue {
         /** Do the comparison with another element. */
         @Fallback
         protected static TriState onOther(
-                @SuppressWarnings("unused") final LKQLProperty receiver,
-                @SuppressWarnings("unused") final Object other) {
+            @SuppressWarnings("unused") final LKQLProperty receiver,
+            @SuppressWarnings("unused") final Object other
+        ) {
             return TriState.UNDEFINED;
         }
     }
@@ -142,7 +153,7 @@ public class LKQLProperty extends BasicLKQLValue {
     /** Placeholder function for the Truffle DSL. */
     @ExportMessage
     public Object execute(@SuppressWarnings("unused") Object[] arguments)
-            throws UnsupportedTypeException, ArityException, UnsupportedMessageException {
+        throws UnsupportedTypeException, ArityException, UnsupportedMessageException {
         // TODO (issue #143): implement this method to execute the property as a simple function
         return null;
     }

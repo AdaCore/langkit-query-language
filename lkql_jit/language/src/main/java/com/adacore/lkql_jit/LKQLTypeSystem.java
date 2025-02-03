@@ -24,35 +24,37 @@ import java.math.BigInteger;
  *
  * @author Hugo GUERRIER
  */
-@TypeSystem({
-    LKQLUnit.class,
-    boolean.class,
-    long.class,
-    BigInteger.class,
-    String.class,
-    LKQLPattern.class,
-    LKQLFunction.class,
-    LKQLSelector.class,
-    LKQLProperty.class,
-    LKQLTuple.class,
-    LKQLList.class,
-    LKQLLazyList.class,
-    BaseLKQLList.class,
-    Indexable.class,
-    Iterable.class,
-    Libadalang.AdaNode.class,
-    Libadalang.Token.class,
-    Libadalang.AnalysisUnit.class,
-    Libadalang.RewritingContext.class,
-    Libadalang.RewritingNode.class,
-    Libadalang.MemberReference.class,
-    LKQLNamespace.class,
-    LKQLObject.class,
-    Truthy.class,
-    Nullish.class,
-    LKQLRecValue.class,
-    LKQLValue.class,
-})
+@TypeSystem(
+    {
+        LKQLUnit.class,
+        boolean.class,
+        long.class,
+        BigInteger.class,
+        String.class,
+        LKQLPattern.class,
+        LKQLFunction.class,
+        LKQLSelector.class,
+        LKQLProperty.class,
+        LKQLTuple.class,
+        LKQLList.class,
+        LKQLLazyList.class,
+        BaseLKQLList.class,
+        Indexable.class,
+        Iterable.class,
+        Libadalang.AdaNode.class,
+        Libadalang.Token.class,
+        Libadalang.AnalysisUnit.class,
+        Libadalang.RewritingContext.class,
+        Libadalang.RewritingNode.class,
+        Libadalang.MemberReference.class,
+        LKQLNamespace.class,
+        LKQLObject.class,
+        Truthy.class,
+        Nullish.class,
+        LKQLRecValue.class,
+        LKQLValue.class,
+    }
+)
 public abstract class LKQLTypeSystem {
 
     // ----- Unit value methods -----
@@ -96,9 +98,11 @@ public abstract class LKQLTypeSystem {
 
     @TypeCheck(Truthy.class)
     public static boolean isTruthy(Object value) {
-        return value instanceof Truthy
-                || value instanceof Boolean
-                || value instanceof Libadalang.AdaNode;
+        return (
+            value instanceof Truthy ||
+            value instanceof Boolean ||
+            value instanceof Libadalang.AdaNode
+        );
     }
 
     @TypeCast(Truthy.class)

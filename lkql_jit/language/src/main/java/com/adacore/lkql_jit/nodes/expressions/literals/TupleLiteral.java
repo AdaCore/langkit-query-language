@@ -21,7 +21,8 @@ public final class TupleLiteral extends Expr {
     // ----- Children -----
 
     /** The expressions contained in the tuple. */
-    @Children private final Expr[] exprs;
+    @Children
+    private final Expr[] exprs;
 
     // ----- Constructors -----
 

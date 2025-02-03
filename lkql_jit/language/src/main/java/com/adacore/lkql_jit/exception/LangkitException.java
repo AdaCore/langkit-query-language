@@ -18,7 +18,8 @@ public final class LangkitException extends AbstractTruffleException {
 
     // ----- Attributes -----
 
-    @Serial private static final long serialVersionUID = 1755847711876252095L;
+    @Serial
+    private static final long serialVersionUID = 1755847711876252095L;
 
     /** Message of the exception. */
     private final String msg;

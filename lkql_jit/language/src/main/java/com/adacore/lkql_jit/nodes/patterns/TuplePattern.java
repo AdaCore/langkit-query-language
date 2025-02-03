@@ -14,8 +14,10 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class TuplePattern extends ValuePattern {
+
     /** The sub-patterns for this tuple pattern. */
-    @Node.Children private final BasePattern[] patterns;
+    @Node.Children
+    private final BasePattern[] patterns;
 
     public TuplePattern(SourceSection location, BasePattern[] patterns) {
         super(location);
@@ -39,8 +41,9 @@ public abstract class TuplePattern extends ValuePattern {
 
     @Fallback
     public boolean onOther(
-            @SuppressWarnings("unused") VirtualFrame frame,
-            @SuppressWarnings("unused") Object other) {
+        @SuppressWarnings("unused") VirtualFrame frame,
+        @SuppressWarnings("unused") Object other
+    ) {
         return false;
     }
 

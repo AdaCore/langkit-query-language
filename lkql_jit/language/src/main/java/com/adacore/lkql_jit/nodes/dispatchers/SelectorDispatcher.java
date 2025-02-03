@@ -24,7 +24,10 @@ public abstract class SelectorDispatcher extends Node {
 
     /** Function to execute the selector root node and get the result. */
     public abstract LKQLRecValue executeDispatch(
-            SelectorRootNode rootNode, Cell[] closure, LKQLDepthValue node);
+        SelectorRootNode rootNode,
+        Cell[] closure,
+        LKQLDepthValue node
+    );
 
     /**
      * Execute the selector root node with the direct path.
@@ -36,10 +39,11 @@ public abstract class SelectorDispatcher extends Node {
      */
     @Specialization(guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()")
     protected static LKQLRecValue executeCached(
-            @SuppressWarnings("unused") SelectorRootNode rootNode,
-            Cell[] closure,
-            LKQLDepthValue node,
-            @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode) {
+        @SuppressWarnings("unused") SelectorRootNode rootNode,
+        Cell[] closure,
+        LKQLDepthValue node,
+        @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode
+    ) {
         return (LKQLRecValue) directCallNode.call(closure, node);
     }
 
@@ -53,10 +57,11 @@ public abstract class SelectorDispatcher extends Node {
      */
     @Specialization(replaces = "executeCached")
     protected static LKQLRecValue executeUncached(
-            SelectorRootNode rootNode,
-            Cell[] closure,
-            LKQLDepthValue node,
-            @Cached IndirectCallNode indirectCallNode) {
+        SelectorRootNode rootNode,
+        Cell[] closure,
+        LKQLDepthValue node,
+        @Cached IndirectCallNode indirectCallNode
+    ) {
         return (LKQLRecValue) indirectCallNode.call(rootNode.getRealCallTarget(), closure, node);
     }
 

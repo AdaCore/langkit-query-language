@@ -27,11 +27,12 @@ import java.util.ArrayList;
  *
  * @author Hugo GUERRIER
  */
-@BuiltinMethodContainer(targetTypes = {LKQLTypesHelper.ADA_NODE})
+@BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.ADA_NODE })
 public final class NodeMethods {
 
     @BuiltInMethod(name = "children", doc = "Return the node's children", isProperty = true)
     abstract static class ChildrenExpr extends BuiltInBody {
+
         @Specialization
         public LKQLList onNode(AdaNode self) {
             int childrenCount = self.getChildrenCount();
@@ -46,6 +47,7 @@ public final class NodeMethods {
 
     @BuiltInMethod(name = "parent", doc = "Return the node's parent", isProperty = true)
     abstract static class ParentExpr extends BuiltInBody {
+
         @Specialization
         public AdaNode onNode(AdaNode self) {
             AdaNode parent = self.parent();
@@ -54,10 +56,12 @@ public final class NodeMethods {
     }
 
     @BuiltInMethod(
-            name = "children_count",
-            doc = "Return the node's children count",
-            isProperty = true)
+        name = "children_count",
+        doc = "Return the node's children count",
+        isProperty = true
+    )
     abstract static class ChildrenCountExpr extends BuiltInBody {
+
         @Specialization
         public long onNode(AdaNode self) {
             return (long) self.getChildrenCount();
@@ -65,10 +69,12 @@ public final class NodeMethods {
     }
 
     @BuiltInMethod(
-            name = "dump",
-            doc = "Dump the node's content in a structured tree",
-            isProperty = true)
+        name = "dump",
+        doc = "Dump the node's content in a structured tree",
+        isProperty = true
+    )
     abstract static class DumpExpr extends BuiltInBody {
+
         @Specialization
         public LKQLUnit onNode(AdaNode self) {
             LKQLLanguage.getContext(this).print(self.dumpTree());
@@ -78,6 +84,7 @@ public final class NodeMethods {
 
     @BuiltInMethod(name = "text", doc = "Return the node's text", isProperty = true)
     abstract static class TextExpr extends BuiltInBody {
+
         @Specialization
         public String onNode(AdaNode self) {
             return self.getText();
@@ -86,6 +93,7 @@ public final class NodeMethods {
 
     @BuiltInMethod(name = "image", doc = "Return the node's image", isProperty = true)
     abstract static class ImageExpr extends BuiltInBody {
+
         @Specialization
         public String onNode(AdaNode self) {
             return self.getImage();
@@ -94,6 +102,7 @@ public final class NodeMethods {
 
     @BuiltInMethod(name = "unit", doc = "Return the node's analysis unit", isProperty = true)
     abstract static class UnitExpr extends BuiltInBody {
+
         @Specialization
         public AnalysisUnit onNode(AdaNode self) {
             return self.getUnit();
@@ -102,6 +111,7 @@ public final class NodeMethods {
 
     @BuiltInMethod(name = "kind", doc = "Return the node's kind", isProperty = true)
     abstract static class KindExpr extends BuiltInBody {
+
         @Specialization
         public String onNode(AdaNode self) {
             return ReflectionUtils.getClassSimpleName(self);
@@ -110,6 +120,7 @@ public final class NodeMethods {
 
     @BuiltInMethod(name = "tokens", doc = "Return the node's tokens", isProperty = true)
     abstract static class TokensExpr extends BuiltInBody {
+
         @Specialization
         public LKQLList onNode(AdaNode self) {
             // Prepare the result
@@ -128,9 +139,11 @@ public final class NodeMethods {
     }
 
     @BuiltInMethod(
-            name = "same_tokens",
-            doc = "Return whether two nodes have the same tokens, ignoring trivias")
+        name = "same_tokens",
+        doc = "Return whether two nodes have the same tokens, ignoring trivias"
+    )
     abstract static class SameTokensExpr extends BuiltInBody {
+
         @Specialization
         protected boolean onAdaNode(AdaNode leftNode, AdaNode rightNode) {
             // Get the tokens
@@ -144,9 +157,12 @@ public final class NodeMethods {
             while (!leftToken.isNone() && !rightToken.isNone()) {
                 if (leftToken.kind != rightToken.kind) return false;
                 if (leftToken.kind == Libadalang.TokenKind.ADA_IDENTIFIER) {
-                    if (!ObjectUtils.equals(
+                    if (
+                        !ObjectUtils.equals(
                             StringUtils.toLowerCase(leftToken.getText()),
-                            StringUtils.toLowerCase(rightToken.getText()))) return false;
+                            StringUtils.toLowerCase(rightToken.getText())
+                        )
+                    ) return false;
                 } else if (!ObjectUtils.equals(leftToken.getText(), rightToken.getText())) {
                     return false;
                 }

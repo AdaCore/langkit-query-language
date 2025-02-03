@@ -14,6 +14,7 @@ import java.io.File;
  * @author Hugo GUERRIER
  */
 public final class FileUtils {
+
     /** Create a new file object from its name. */
     @CompilerDirectives.TruffleBoundary
     public static File create(String fileName) {

@@ -37,22 +37,26 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     Args args = null;
 
     @CommandLine.Command(
-            name = "gnatcheck_worker",
-            description = "Internal driver meant to be called by GNATcheck. Not for public use")
+        name = "gnatcheck_worker",
+        description = "Internal driver meant to be called by GNATcheck. Not for public use"
+    )
     public static class Args implements Callable<Integer> {
-        @CommandLine.Unmatched public List<String> unmatched;
+
+        @CommandLine.Unmatched
+        public List<String> unmatched;
 
         @CommandLine.Option(
-                names = {"--parse-lkql-config"},
-                description =
-                        "Parse the given LKQL file as a rule configuration file and return its"
-                            + " result as a JSON encoded string. If this option is provided, all"
-                            + " other features are disabled.")
+            names = { "--parse-lkql-config" },
+            description = "Parse the given LKQL file as a rule configuration file and return its" +
+            " result as a JSON encoded string. If this option is provided, all" +
+            " other features are disabled."
+        )
         public String lkqlConfigFile = null;
 
         @CommandLine.Option(
-                names = {"-C", "--charset"},
-                description = "Charset to use for the source decoding")
+            names = { "-C", "--charset" },
+            description = "Charset to use for the source decoding"
+        )
         public String charset = null;
 
         @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
@@ -64,21 +68,17 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         @CommandLine.Option(names = "--config", description = "Config file for GPR loading")
         public String configFile = null;
 
-        @CommandLine.Option(
-                names = {"-v", "--verbose"},
-                description = "Enable the verbose mode")
+        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
         public boolean verbose;
 
-        @CommandLine.Option(
-                names = {"-P", "--project"},
-                description = "Project file to use")
+        @CommandLine.Option(names = { "-P", "--project" }, description = "Project file to use")
         public String project = null;
 
         @CommandLine.Option(
-                names = "-A",
-                description =
-                        "The name of the subproject to analyse, if any. This implies that"
-                                + " `projectFile` designates an aggregate project.")
+            names = "-A",
+            description = "The name of the subproject to analyse, if any. This implies that" +
+            " `projectFile` designates an aggregate project."
+        )
         public String subProject = null;
 
         @CommandLine.Option(names = "-d", description = "Enable the debug mode")
@@ -88,8 +88,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         public Map<String, String> scenarioVariables = new HashMap<>();
 
         @CommandLine.Option(
-                names = "--rules-dir",
-                description = "Additional directory in which to check for rules")
+            names = "--rules-dir",
+            description = "Additional directory in which to check for rules"
+        )
         public List<String> rulesDirs = new ArrayList<>();
 
         @CommandLine.Option(names = "--rules-from", description = "The file containing the rules")
@@ -99,20 +100,22 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         public String filesFrom = null;
 
         @CommandLine.Option(
-                names = "--log-file",
-                description = "The file used by the worker to output logs")
+            names = "--log-file",
+            description = "The file used by the worker to output logs"
+        )
         public String gnatcheckLogFile = null;
 
         @CommandLine.Option(
-                names = "--ignore-project-switches",
-                description =
-                        "Process all units in the project tree, excluding externally built"
-                                + " projects")
+            names = "--ignore-project-switches",
+            description = "Process all units in the project tree, excluding externally built" +
+            " projects"
+        )
         public boolean ignoreProjectSwitches;
 
         @CommandLine.Option(
-                names = "--show-instantiation-chain",
-                description = "Show instantiation chain in reported generic construct")
+            names = "--show-instantiation-chain",
+            description = "Show instantiation chain in reported generic construct"
+        )
         public boolean showInstantiationChain;
 
         @Override
@@ -185,26 +188,27 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // Set the common configuration
         contextBuilder.allowIO(true);
         contextBuilder.engine(
-                Engine.newBuilder()
-                        .allowExperimentalOptions(true)
-                        .option("engine.Compilation", "false")
-                        .build());
+            Engine.newBuilder()
+                .allowExperimentalOptions(true)
+                .option("engine.Compilation", "false")
+                .build()
+        );
         optionsBuilder
-                .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
-                .fallbackToAllRules(false)
-                .keepGoingOnMissingFile(true);
+            .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
+            .fallbackToAllRules(false)
+            .keepGoingOnMissingFile(true);
 
         // If a LKQL rule config file has been provided, parse it and display the result
         if (this.args.lkqlConfigFile != null) {
             try {
                 final var instances = parseLKQLRuleFile(this.args.lkqlConfigFile);
-                final var jsonInstances =
-                        new JSONObject(
-                                instances.entrySet().stream()
-                                        .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
-                                        .collect(
-                                                Collectors.toMap(
-                                                        Map.Entry::getKey, Map.Entry::getValue)));
+                final var jsonInstances = new JSONObject(
+                    instances
+                        .entrySet()
+                        .stream()
+                        .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                );
                 System.out.println(jsonInstances);
             } catch (LKQLRuleFileError e) {
                 System.out.println(e.getMessage());
@@ -214,18 +218,18 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         // Forward the command line options to the options object builder
         optionsBuilder
-                .engineMode(LKQLOptions.EngineMode.CHECKER)
-                .verbose(this.args.verbose)
-                .projectFile(this.args.project)
-                .subprojectFile(this.args.subProject)
-                .scenarioVariables(this.args.scenarioVariables)
-                .target(this.args.target)
-                .runtime(this.args.RTS)
-                .configFile(this.args.configFile)
-                .charset(this.args.charset)
-                .rulesDir(this.args.rulesDirs)
-                .showInstantiationChain(this.args.showInstantiationChain)
-                .checkerDebug(this.args.debug);
+            .engineMode(LKQLOptions.EngineMode.CHECKER)
+            .verbose(this.args.verbose)
+            .projectFile(this.args.project)
+            .subprojectFile(this.args.subProject)
+            .scenarioVariables(this.args.scenarioVariables)
+            .target(this.args.target)
+            .runtime(this.args.RTS)
+            .configFile(this.args.configFile)
+            .charset(this.args.charset)
+            .rulesDir(this.args.rulesDirs)
+            .showInstantiationChain(this.args.showInstantiationChain)
+            .checkerDebug(this.args.debug);
 
         // Read the list of sources to analyze provided by GNATcheck driver
         if (this.args.filesFrom != null) {
@@ -262,7 +266,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             }
         } catch (FileNotFoundException e) {
             System.err.println(
-                    "WORKER_ERROR: Could not create log file: " + this.args.gnatcheckLogFile);
+                "WORKER_ERROR: Could not create log file: " + this.args.gnatcheckLogFile
+            );
         }
 
         // Create the context and run the script in it
@@ -277,7 +282,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     }
 
     protected List<String> preprocessArguments(
-            List<String> arguments, Map<String, String> polyglotOptions) {
+        List<String> arguments,
+        Map<String, String> polyglotOptions
+    ) {
         if (this.args.unmatched != null) {
             return this.args.unmatched;
         } else {
@@ -289,15 +296,18 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     /** Throws an exception with the given message, related ot the provided LKQL file name. */
     private static void errorInLKQLRuleFile(final String lkqlRuleFile, final String message)
-            throws LKQLRuleFileError {
+        throws LKQLRuleFileError {
         errorInLKQLRuleFile(lkqlRuleFile, message, true);
     }
 
     private static void errorInLKQLRuleFile(
-            final String lkqlRuleFile, final String message, final boolean addTag)
-            throws LKQLRuleFileError {
+        final String lkqlRuleFile,
+        final String message,
+        final boolean addTag
+    ) throws LKQLRuleFileError {
         throw new LKQLRuleFileError(
-                (addTag ? "WORKER_ERROR: " : "") + message + " (" + lkqlRuleFile + ")");
+            (addTag ? "WORKER_ERROR: " : "") + message + " (" + lkqlRuleFile + ")"
+        );
     }
 
     /**
@@ -308,22 +318,23 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      *     the analysis to go further.
      */
     private static Map<String, RuleInstance> parseLKQLRuleFile(final String lkqlRuleFileName)
-            throws LKQLRuleFileError {
+        throws LKQLRuleFileError {
         final File lkqlFile = new File(lkqlRuleFileName);
         final String lkqlFileBasename = lkqlFile.getName();
         final Map<String, RuleInstance> res = new HashMap<>();
-        try (Context context =
-                Context.newBuilder()
-                        .option(
-                                "lkql.options",
-                                new LKQLOptions.Builder()
-                                        .diagnosticOutputMode(
-                                                LKQLOptions.DiagnosticOutputMode.GNATCHECK)
-                                        .build()
-                                        .toJson()
-                                        .toString())
-                        .allowIO(true)
-                        .build()) {
+        try (
+            Context context = Context.newBuilder()
+                .option(
+                    "lkql.options",
+                    new LKQLOptions.Builder()
+                        .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
+                        .build()
+                        .toJson()
+                        .toString()
+                )
+                .allowIO(true)
+                .build()
+        ) {
             // Parse the LKQL rule configuration file with a polyglot context
             final Source source = Source.newBuilder("lkql", lkqlFile).build();
             final Value executable = context.parse(source);
@@ -332,30 +343,34 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             // Get the mandatory general instances object and populate the result with it
             if (topLevel.hasMember("rules")) {
                 processInstancesObject(
-                        lkqlFileBasename,
-                        topLevel.getMember("rules"),
-                        RuleInstance.SourceMode.GENERAL,
-                        res);
+                    lkqlFileBasename,
+                    topLevel.getMember("rules"),
+                    RuleInstance.SourceMode.GENERAL,
+                    res
+                );
 
                 // Then get the optional Ada and SPARK instances
                 if (topLevel.hasMember("ada_rules")) {
                     processInstancesObject(
-                            lkqlFileBasename,
-                            topLevel.getMember("ada_rules"),
-                            RuleInstance.SourceMode.ADA,
-                            res);
+                        lkqlFileBasename,
+                        topLevel.getMember("ada_rules"),
+                        RuleInstance.SourceMode.ADA,
+                        res
+                    );
                 }
                 if (topLevel.hasMember("spark_rules")) {
                     processInstancesObject(
-                            lkqlFileBasename,
-                            topLevel.getMember("spark_rules"),
-                            RuleInstance.SourceMode.SPARK,
-                            res);
+                        lkqlFileBasename,
+                        topLevel.getMember("spark_rules"),
+                        RuleInstance.SourceMode.SPARK,
+                        res
+                    );
                 }
             } else {
                 errorInLKQLRuleFile(
-                        lkqlFileBasename,
-                        "LKQL config file must define a 'rules' top level object value");
+                    lkqlFileBasename,
+                    "LKQL config file must define a 'rules' top level object value"
+                );
             }
         } catch (IOException e) {
             errorInLKQLRuleFile(lkqlFileBasename, "Could not read file");
@@ -372,11 +387,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * top-level.
      */
     private static void processInstancesObject(
-            final String lkqlRuleFile,
-            final Value instancesObject,
-            final RuleInstance.SourceMode sourceMode,
-            final Map<String, RuleInstance> toPopulate)
-            throws LKQLRuleFileError {
+        final String lkqlRuleFile,
+        final Value instancesObject,
+        final RuleInstance.SourceMode sourceMode,
+        final Map<String, RuleInstance> toPopulate
+    ) throws LKQLRuleFileError {
         // Iterate on all instance object keys
         for (String ruleName : instancesObject.getMemberKeys()) {
             final String lowerRuleName = ruleName.toLowerCase();
@@ -389,28 +404,31 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 if (args.getArraySize() == 0) {
                     if (toPopulate.containsKey(lowerRuleName)) {
                         errorInLKQLRuleFile(
-                                lkqlRuleFile,
-                                "Multiple instances with the same name: " + lowerRuleName);
+                            lkqlRuleFile,
+                            "Multiple instances with the same name: " + lowerRuleName
+                        );
                     } else {
                         toPopulate.put(
+                            lowerRuleName,
+                            new RuleInstance(
                                 lowerRuleName,
-                                new RuleInstance(
-                                        lowerRuleName,
-                                        Optional.empty(),
-                                        sourceMode,
-                                        new HashMap<>()));
+                                Optional.empty(),
+                                sourceMode,
+                                new HashMap<>()
+                            )
+                        );
                     }
                 }
-
                 // Else iterate over each argument object and create one instance for each
                 else {
                     for (long i = 0; i < args.getArraySize(); i++) {
                         processArgsObject(
-                                lkqlRuleFile,
-                                args.getArrayElement(i),
-                                sourceMode,
-                                lowerRuleName,
-                                toPopulate);
+                            lkqlRuleFile,
+                            args.getArrayElement(i),
+                            sourceMode,
+                            lowerRuleName,
+                            toPopulate
+                        );
                     }
                 }
             } else if (args.hasMembers()) {
@@ -421,7 +439,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                     processSoleArg(args, sourceMode, lowerRuleName, toPopulate);
                 } else {
                     errorInLKQLRuleFile(
-                            lkqlRuleFile, "Rule arguments must be an object or indexable value");
+                        lkqlRuleFile,
+                        "Rule arguments must be an object or indexable value"
+                    );
                 }
             }
         }
@@ -429,17 +449,16 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     /** Internal method to process an object value containing arguments for the given rule name. */
     private static void processArgsObject(
-            final String lkqlRuleFile,
-            final Value argsObject,
-            final RuleInstance.SourceMode sourceMode,
-            final String ruleName,
-            final Map<String, RuleInstance> toPopulate)
-            throws LKQLRuleFileError {
+        final String lkqlRuleFile,
+        final Value argsObject,
+        final RuleInstance.SourceMode sourceMode,
+        final String ruleName,
+        final Map<String, RuleInstance> toPopulate
+    ) throws LKQLRuleFileError {
         // Ensure that the given value has members (is an object)
         if (!argsObject.hasMembers()) {
             errorInLKQLRuleFile(lkqlRuleFile, "Arguments should be in an object value");
         }
-
         // If this is a valid value, process arguments in it
         else {
             // Compute the instance arguments and optional instance name
@@ -454,29 +473,34 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 } else {
                     Value argValue = argsObject.getMember(argName);
                     arguments.put(
-                            argName,
-                            argValue.isString() ? "\"" + argValue + "\"" : argValue.toString());
+                        argName,
+                        argValue.isString() ? "\"" + argValue + "\"" : argValue.toString()
+                    );
                 }
             }
 
             // Add an instance in the instance map if it is not present
             if (toPopulate.containsKey(instanceId)) {
                 errorInLKQLRuleFile(
-                        lkqlRuleFile, "Multiple instances with the same name: " + instanceId);
+                    lkqlRuleFile,
+                    "Multiple instances with the same name: " + instanceId
+                );
             } else {
                 toPopulate.put(
-                        instanceId,
-                        new RuleInstance(ruleName, instanceName, sourceMode, arguments));
+                    instanceId,
+                    new RuleInstance(ruleName, instanceName, sourceMode, arguments)
+                );
             }
         }
     }
 
     /** Internal function to process a sole string argument for a compiler-based rule. */
     private static void processSoleArg(
-            final Value arg,
-            final RuleInstance.SourceMode sourceMode,
-            final String ruleName,
-            final Map<String, RuleInstance> toPopulate) {
+        final Value arg,
+        final RuleInstance.SourceMode sourceMode,
+        final String ruleName,
+        final Map<String, RuleInstance> toPopulate
+    ) {
         // Create the new rule instance and add it to the "global" map
         Map<String, String> args = new HashMap<>();
         args.put("arg", "\"" + arg + "\"");
@@ -492,6 +516,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     /** An exception to throw while analysing an LKQL rule file. */
     static final class LKQLRuleFileError extends Exception {
+
         public LKQLRuleFileError(String message) {
             super(message);
         }
@@ -500,7 +525,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     // ----- The LKQL checker -----
 
     public static final String checkerSource =
-            """
+        """
         val analysis_units = specified_units()
         val roots = [unit.root for unit in analysis_units]
 

@@ -58,18 +58,19 @@ public abstract class BaseChecker {
 
     /** Create a base checker with all its value. */
     public BaseChecker(
-            final String name,
-            final LKQLFunction function,
-            final LKQLFunction autoFix,
-            final String message,
-            final String help,
-            final boolean followGenericInstantiations,
-            final String category,
-            final String subcategory,
-            final Remediation remediation,
-            final long executionCost,
-            final boolean parametricExemption,
-            final String target) {
+        final String name,
+        final LKQLFunction function,
+        final LKQLFunction autoFix,
+        final String message,
+        final String help,
+        final boolean followGenericInstantiations,
+        final String category,
+        final String subcategory,
+        final Remediation remediation,
+        final long executionCost,
+        final boolean parametricExemption,
+        final String target
+    ) {
         this.name = name;
         this.function = function;
         this.autoFix = autoFix;
@@ -123,6 +124,6 @@ public abstract class BaseChecker {
     public enum Remediation {
         EASY,
         MEDIUM,
-        MAJOR
+        MAJOR,
     }
 }

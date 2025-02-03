@@ -12,7 +12,6 @@ package com.adacore.lkql_jit.utils;
  * @author Hugo GUERRIER
  */
 public interface Iterator {
-
     /**
      * Get if the iterator has a next element.
      *
