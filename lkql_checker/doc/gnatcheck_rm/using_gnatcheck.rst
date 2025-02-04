@@ -392,6 +392,46 @@ GNATcheck:
   there is no applicable ``Switches`` attribute.
 
 
+.. _Source_Preprocessing:
+
+Sources pre-processing
+======================
+
+GNATcheck is handling Ada sources pre-processing, meaning that sources lines
+that are "excluded" by the Ada pre-processor are also ignored during the
+GNATcheck analysis. For example, given the following source:
+
+.. code-block:: ada
+
+  procedure Main is
+  begin
+     # if Foo = "Bar" then
+     goto lbl;
+     # else
+     null;
+     # end if;
+  end Main;
+
+Running GNATcheck with the ``Goto_Statements`` rule enabled on this Ada code
+will flag the ``goto lbl;`` if, and only if, the preprocessor symbol ``Foo``
+is set to ``"Bar"``.
+
+To configure pre-processing, you can use the following GPR attributes:
+
+* ``Builder.Global_Compilation_Switches``
+* ``Builder.Default_Switches``
+* ``Builder.Switches``
+* ``Compiler.Default_Switches``
+* ``Compiler.Switches``
+
+.. attention::
+
+  There is a limitation to the GNATcheck's pre-processing handling regarding
+  conditioned ``with`` clauses. Meaning that no matter how symbols are defined,
+  all ``with`` clauses are going to be analyzed and used by GNATcheck to
+  resolve the closure of files to analyze.
+
+
 .. _LKQL_options_file:
 
 LKQL Rule Files
