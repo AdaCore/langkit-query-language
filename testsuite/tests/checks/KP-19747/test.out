@@ -1,0 +1,24 @@
+main.adb:14:9: rule violation: possible occurrence of KP 19747
+14 |    type Arr_Acc is access Arr_Acc_Int;          --  FLAG
+   |         ^^^^^^^
+
+main.adb:15:9: rule violation: possible occurrence of KP 19747
+15 |    type Arr_S_Acc is access Arr_S_Acc_Int;      --  FLAG
+   |         ^^^^^^^^^
+
+main.adb:16:9: rule violation: possible occurrence of KP 19747
+16 |    type Arr_D_Acc is access Arr_D_Acc_Int;      --  FLAG
+   |         ^^^^^^^^^
+
+main.adb:17:9: rule violation: possible occurrence of KP 19747
+17 |    type S_Arr_Acc is access S_Arr_Acc_Int;      --  FLAG
+   |         ^^^^^^^^^
+
+main.adb:18:9: rule violation: possible occurrence of KP 19747
+18 |    type D_Arr_Acc is access D_Arr_Acc_Int;      --  FLAG
+   |         ^^^^^^^^^
+
+main.adb:19:9: rule violation: possible occurrence of KP 19747
+19 |    type Ano_Arr_Acc is access Arr_Ano_Acc_Int;  --  FLAG
+   |         ^^^^^^^^^^^
+
