@@ -41,9 +41,11 @@ impacts:
 	PYTHONPATH=$(IMPACTDB_DIR) ./utils/impact-db_impacts_gen.py $(IMPACTDB_DIR)
 
 format:
+	gnatformat -P lkql_checker/gnatcheck.gpr --no-subprojects
 	$(MAVEN) -f lkql_jit spotless:apply
 
 gnatcheck: lkql
+	gnatformat -P lkql_checker/gnatcheck.gpr --no-subprojects --check
 	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 build/bin/liblkqllang_parse: lkql/lkql.lkt
@@ -74,6 +76,7 @@ automated:
 	rm -rf "$(PREFIX)"
 	mkdir -p "$(PREFIX)/share" "$(PREFIX)/share/examples" "$(PREFIX)/lib"
 	$(LKM) make -c lkql/langkit.yaml $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS)
+	gnatformat -P lkql_checker/gnatcheck.gpr --check --no-subprojects
 	$(GPRBUILD) -Plkql_checker/gnatcheck.gpr -largs -s
 	$(GPRINSTALL) --mode=usage -Plkql_checker/gnatcheck.gpr
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
@@ -102,4 +105,3 @@ automated-cov:
 	mkdir -p "$(PREFIX)/lib/lkql_checker"
 	cp -p "$(BUILD_DIR)/lkql_checker/obj/$(BUILD_MODE)/"*.sid \
 	  "$(PREFIX)/lib/lkql_checker"
-
