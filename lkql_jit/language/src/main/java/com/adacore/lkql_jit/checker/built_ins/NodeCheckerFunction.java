@@ -111,6 +111,11 @@ public final class NodeCheckerFunction {
                                     e.getMessage(),
                                     new LalLocationWrapper(currentNode, context.linesCache),
                                     new SourceSectionWrapper(this.callNode.getSourceSection()));
+                    if (context.isCheckerDebug()) {
+                        context.getLogger().severe(e.getMessage());
+                        context.getLogger()
+                                .severe(e.adaStackTrace.orElse("ERROR: can't get Ada stack trace"));
+                    }
                     continue;
                 }
 

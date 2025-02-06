@@ -352,7 +352,8 @@ procedure Gnatcheck_Main is
               Spawn_Gnatcheck_Worker
                 (File_Name ("rules", 0),
                  File_Name ("out", Job),
-                 File_Name ("files", Job));
+                 File_Name ("files", Job),
+                 File_Name ("log", Job));
 
             if Next_SF > Last_Argument_Source then
                Total_Jobs := @ - Num_Jobs + Job;

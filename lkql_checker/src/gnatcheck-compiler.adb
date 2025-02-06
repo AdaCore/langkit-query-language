@@ -1581,7 +1581,8 @@ package body Gnatcheck.Compiler is
    function Spawn_Gnatcheck_Worker
      (Rule_File   : String;
       Msg_File    : String;
-      Source_File : String) return Process_Id
+      Source_File : String;
+      Log_File    : String) return Process_Id
    is
       use GNAT.String_Split;
 
@@ -1661,6 +1662,10 @@ package body Gnatcheck.Compiler is
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-d");
       end if;
+
+      Num_Args := @ + 1;
+      Args (Num_Args) :=
+         new String'("--log-file=" & Log_File);
 
       if Arg.Follow_Symbolic_Links.Get then
          Num_Args := @ + 1;

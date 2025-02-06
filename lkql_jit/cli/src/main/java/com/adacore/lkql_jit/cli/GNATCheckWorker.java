@@ -8,7 +8,11 @@ package com.adacore.lkql_jit.cli;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -93,6 +97,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         @CommandLine.Option(names = "--files-from", description = "The file containing the files")
         public String filesFrom = null;
+
+        @CommandLine.Option(
+                names = "--log-file",
+                description = "The file used by the worker to output logs")
+        public String gnatcheckLogFile = null;
 
         @CommandLine.Option(
                 names = "--ignore-project-switches",
@@ -243,6 +252,18 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         // Finally, pass the options to the LKQL engine
         contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
+
+        try {
+            // Install a log handler only if gnatcheckLogFile is set
+            if (this.args.gnatcheckLogFile != null) {
+                var logFile = FileSystems.getDefault().getPath(this.args.gnatcheckLogFile);
+                OutputStream outputStream = new FileOutputStream(logFile.toFile());
+                contextBuilder.logHandler(outputStream);
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println(
+                    "WORKER_ERROR: Could not create log file: " + this.args.gnatcheckLogFile);
+        }
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
