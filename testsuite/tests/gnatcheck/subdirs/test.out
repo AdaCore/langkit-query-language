@@ -9,4 +9,4 @@ main.adb:3:05: goto statement
 main.adb:6:05: error: "Put_Line" is undefined
 main.adb:6:05: error: possible missing "with Ada.Text_IO; use Ada.Text_IO"
    no internal error detected
-Content of custom_subdirs/gnatcheck : ['main.adb.stderr', 'main.adb.stdout', 'restriction_pragmas.adc']
+Content of custom_subdirs/gnatcheck : ['gnatcheck-log1.TMP', 'main.adb.stderr', 'main.adb.stdout', 'restriction_pragmas.adc']
