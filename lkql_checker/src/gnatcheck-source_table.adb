@@ -238,11 +238,12 @@ package body Gnatcheck.Source_Table is
       First_Idx : Natural;
       Last_Idx  : Natural;
 
-      Root : constant GPR2.Project.View.Object :=
+      Ambiguous : Boolean;
+      Root      : constant GPR2.Project.View.Object :=
         Arg_Project.Tree.Namespace_Root_Projects.First_Element;
-      Res : constant GPR2.Build.Source.Object :=
+      Res       : constant GPR2.Build.Source.Object :=
         Root.View_Db.Visible_Source
-          (GPR2.Path_Name.Simple_Name (Filename_Type (Fname)));
+          (GPR2.Path_Name.Simple_Name (Filename_Type (Fname)), Ambiguous);
    begin
       Free (Full_Source_Name_String);
       Free (Short_Source_Name_String);
