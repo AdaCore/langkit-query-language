@@ -1,25 +1,43 @@
 stages:
   - test
 
-test:
+# Common part for all testing CIs
+.common-test-part: &common-test-part
   services:
-     - image:e3
-     - cpu:8
+    - image:e3
+    - cpu:8
+    - mem:32
+    - disk:100
   stage: test
   interruptible: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   script:
     - generic_anod_ci
     - cat /tmp/ci_env.sh
     - . /tmp/ci_env.sh
 
-    - anod run --plan .gitlab-ci.plan $LKQL_VARIANT
+    - anod run --plan .gitlab-ci.plan $PLAN_ENTRY
     - testsuite_reports
-
-  parallel:
-    matrix:
-      - LKQL_VARIANT: [lkql_jit, lkql_native_jit]
   artifacts:
     reports:
       junit: xunit-*.xml
+
+# CIs that are run automatically on each merge request event
+test:
+  <<: *common-test-part
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  parallel:
+    matrix:
+      - PLAN_ENTRY: [lkql_jit, lkql_native_jit]
+
+# CIs that are triggered manually
+optional:
+  <<: *common-test-part
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+      allow_failure: true
+  timeout: 2 hours
+  parallel:
+    matrix:
+      - PLAN_ENTRY: [gnatcheck_internal_testsuite]
