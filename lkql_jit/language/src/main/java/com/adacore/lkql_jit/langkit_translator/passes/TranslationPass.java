@@ -548,12 +548,21 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             case OP_AND -> new BinAnd(location, left, right);
             case OP_OR -> new BinOr(location, left, right);
             case OP_EQ -> BinEqNodeGen.create(location, left, right);
-            case OP_NEQ -> BinNeqNodeGen.create(location, left, right);
+            case OP_NEQ -> UnNotNodeGen.create(
+                location,
+                BinEqNodeGen.create(location, left, right)
+            );
             case OP_CONCAT -> BinConcatNodeGen.create(location, left, right);
             case OP_LT -> BinLtNodeGen.create(location, left, right);
             case OP_LEQ -> BinLeqNodeGen.create(location, left, right);
-            case OP_GT -> BinGtNodeGen.create(location, left, right);
-            case OP_GEQ -> BinGeqNodeGen.create(location, left, right);
+            case OP_GT -> UnNotNodeGen.create(
+                location,
+                BinLeqNodeGen.create(location, left, right)
+            );
+            case OP_GEQ -> UnNotNodeGen.create(
+                location,
+                BinLtNodeGen.create(location, left, right)
+            );
             default -> null;
         };
     }
