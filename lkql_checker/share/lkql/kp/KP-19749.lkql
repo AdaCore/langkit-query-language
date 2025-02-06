@@ -1,0 +1,12 @@
+import stdlib
+
+@check(help="possible occurrence of KP 19749",
+       message="possible occurrence of KP 19749")
+fun kp_19749(node) =
+    |" Flag "Task_Dispatching_Policy", "Locking_Policy" and "Queuing_Policy"
+    |" in units that don't contain any explicit tasking construct.
+    node is PragmaNode
+    when match node.f_id.text.to_lower_case
+    | ("task_dispatching_policy" | "locking_policy" | "queuing_policy") =>
+        (from node.unit.root select first n@AdaNode when stdlib.is_tasking_construct(n)) is null
+    | * => false
