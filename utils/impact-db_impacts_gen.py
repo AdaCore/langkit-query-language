@@ -9,6 +9,7 @@
 import glob
 import json
 import sys
+from collections import OrderedDict
 from pathlib import Path
 from impactdb import db
 
@@ -38,7 +39,7 @@ kps = [kp for kp in glob.glob("./lkql_checker/share/lkql/kp/KP-*")]
 ids = [Path(id).stem[3:] for id in kps]
 list_impacts(sorted(ids))
 
-impacts = {"impacts": res}
+impacts = {"impacts": OrderedDict(sorted(res.items()))}
 impacts.update({"gnat": sorted(db.config["gnat"].keys())})
 
 with open("./lkql_checker/share/lkql/kp/kp.json", "w", encoding="utf-8") as f:
