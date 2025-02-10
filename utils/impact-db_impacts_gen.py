@@ -36,7 +36,7 @@ def list_impacts(issues: [str]) -> None:
 
 kps = [kp for kp in glob.glob("./lkql_checker/share/lkql/kp/KP-*")]
 ids = [Path(id).stem[3:] for id in kps]
-list_impacts(ids)
+list_impacts(sorted(ids))
 
 impacts = {"impacts": res}
 impacts.update({"gnat": list(db.config["gnat"].keys())})
