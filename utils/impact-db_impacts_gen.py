@@ -43,6 +43,4 @@ impacts.update({"gnat": list(db.config["gnat"].keys())})
 
 with open("./lkql_checker/share/lkql/kp/kp.json", "w", encoding="utf-8") as f:
     json.dump(impacts, f, ensure_ascii=False, indent=4)
-
-with open("./lkql_checker/share/lkql/kp/kp.json", "a", encoding="utf-8") as f:
     f.write("\n")
