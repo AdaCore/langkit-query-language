@@ -21,6 +21,7 @@ import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.TruffleLogger;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
 import java.util.*;
@@ -299,6 +300,11 @@ public final class LKQLContext {
 
     public String getConfigFile() {
         return this.getOptions().configFile().orElse("");
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public TruffleLogger getLogger() {
+        return TruffleLogger.getLogger(Constants.LKQL_ID);
     }
 
     /** Return the list of scenario variables to specify when loading the GPR project file. */
