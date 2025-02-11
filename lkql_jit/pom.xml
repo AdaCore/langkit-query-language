@@ -35,6 +35,9 @@
         <!-- Liblkqllang version -->
         <config.liblkqllangVersion>0.1</config.liblkqllangVersion>
 
+        <!-- Liblkqllang version -->
+        <config.liblktlangVersion>0.1</config.liblktlangVersion>
+
         <!-- Python interpreter -->
         <config.python>python</config.python>
 
@@ -87,6 +90,12 @@
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
             <version>2.40.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>langkit_support</artifactId>
+            <version>0.1</version>
         </dependency>
     </dependencies>
 

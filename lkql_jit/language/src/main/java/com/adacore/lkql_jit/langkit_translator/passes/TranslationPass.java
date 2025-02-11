@@ -105,10 +105,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     }
 
     /**
-     * Get the string content from a string literal node.
-     *
-     * @param stringLiteral The string literal node.
-     * @return The string content of it.
+     * Get the string content from a string literal node. TODO deduplicate when
+     * eng/libadalang/langkit#896 is done, see LktPasses.java
      */
     private String parseStringLiteral(final Liblkqllang.BaseStringLiteral stringLiteral) {
         // Prepare the result

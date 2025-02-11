@@ -5,7 +5,10 @@
 
 package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.liblktlang.Liblktlang;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.TranslatorException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import java.util.ArrayList;
@@ -47,7 +50,7 @@ public final class ScriptFramesBuilder {
      *
      * @param node The node associated with the frame builder.
      */
-    public void openFrame(final Liblkqllang.LkqlNode node) {
+    public void openFrame(final LangkitSupport.Node node) {
         openFrame(node, false);
     }
 
@@ -66,7 +69,7 @@ public final class ScriptFramesBuilder {
      * @param node The node associated with the frame builder.
      * @param isVirtual If the frame is virtual.
      */
-    private void openFrame(final Liblkqllang.LkqlNode node, final boolean isVirtual) {
+    private void openFrame(final LangkitSupport.Node node, final boolean isVirtual) {
         // Create the new frame
         final NodeFrameBuilder newFrame = new NodeFrameBuilder(node, this.current, isVirtual);
 
@@ -190,8 +193,10 @@ public final class ScriptFramesBuilder {
 
         // ----- Attributes -----
 
-        /** LKQL node associated with the frame builder. */
-        private final Liblkqllang.LkqlNode node;
+        /**
+         * LKQL node associated with the frame builder. TODO: This should be LangkitSupport.NodeType
+         */
+        private final LangkitSupport.Node node;
 
         /** Parent node frame builder. */
         private final NodeFrameBuilder parent;
@@ -221,7 +226,7 @@ public final class ScriptFramesBuilder {
          * @param isVirtual If the frame is a virtual one.
          */
         private NodeFrameBuilder(
-                final Liblkqllang.LkqlNode node,
+                final LangkitSupport.Node node,
                 final NodeFrameBuilder parent,
                 final boolean isVirtual) {
             this.node = node;
@@ -269,11 +274,20 @@ public final class ScriptFramesBuilder {
 
         @Override
         public String toString() {
+            // TODO: Use LangkitSupport.Node interface
+            String nodeImage;
+            if (node instanceof Liblkqllang.LkqlNode lkqlNode) {
+                nodeImage = lkqlNode.getImage();
+            } else if (node instanceof Liblktlang.LktNode lktNode) {
+                nodeImage = lktNode.getImage();
+            } else {
+                throw LKQLRuntimeException.fromMessage("Should not happen");
+            }
             return "NodeFrameBuilder"
                     + (this.isVirtual ? "<virtual>" : "")
                     + "("
                     + "node: "
-                    + this.node.getImage()
+                    + nodeImage
                     + (this.bindings.size() > 0 ? ", bindings: " + this.bindings : "")
                     + (this.parameters.size() > 0 ? ", parameters: " + this.parameters : "")
                     + (this.children.size() > 0 ? ", children: " + this.children : "")

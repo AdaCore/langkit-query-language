@@ -11,7 +11,7 @@ import com.oracle.truffle.api.source.SourceSection;
 /**
  * This class represents a body part of a block expression.
  *
- * @author Hugo GUERRIER
+ * <p>TODO: This whole class is probably useless. Get rid of it and inline children nodes.
  */
 public abstract class BlockBody extends LKQLNode {
 

@@ -5,10 +5,13 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.langkit_translator.passes.FramingPass;
+import com.adacore.lkql_jit.langkit_translator.passes.LktPasses;
 import com.adacore.lkql_jit.langkit_translator.passes.TranslationPass;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -242,12 +245,12 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     /**
      * Translate the given source Langkit AST.
      *
-     * @param lkqlLangkitRoot The LKQL Langkit AST to translate.
+     * @param root The LKQL Langkit AST to translate.
      * @param source The Truffle source of the AST.
      * @return The translated LKQL Truffle AST.
      */
     public LKQLNode translate(
-            final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source, boolean isPrelude) {
+            final LangkitSupport.Node root, final Source source, boolean isPrelude) {
 
         if (!isPrelude) {
             var global = getContext(null).getGlobal();
@@ -255,12 +258,12 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                 // Eval prelude
                 Source preludeSource =
                         Source.newBuilder(Constants.LKQL_ID, PRELUDE_SOURCE, "<prelude>").build();
-                var root =
+                var preludeRoot =
                         lkqlAnalysisContext
                                 .getUnitFromBuffer(PRELUDE_SOURCE, "<prelude>")
                                 .getRoot();
-                var preludeRoot = (TopLevelList) translate(root, preludeSource, true);
-                var callTarget = new TopLevelRootNode(true, preludeRoot, this).getCallTarget();
+                var lkqlPrelude = (TopLevelList) translate(preludeRoot, preludeSource, true);
+                var callTarget = new TopLevelRootNode(true, lkqlPrelude, this).getCallTarget();
                 global.prelude = (LKQLNamespace) callTarget.call();
                 var preludeMap = global.prelude.asMap();
 
@@ -275,16 +278,29 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             }
         }
 
-        // Do the framing pass to create the script frame descriptions
-        final FramingPass framingPass = new FramingPass(source);
-        lkqlLangkitRoot.accept(framingPass);
-        final ScriptFrames scriptFrames =
-                framingPass.getScriptFramesBuilder().build(CONTEXT_REFERENCE.get(null).getGlobal());
+        if (root instanceof Liblkqllang.LkqlNode lkqlRoot) {
+            // Do the framing pass to create the script frame descriptions
+            final FramingPass framingPass = new FramingPass(source);
+            lkqlRoot.accept(framingPass);
+            final ScriptFrames scriptFrames =
+                    framingPass
+                            .getScriptFramesBuilder()
+                            .build(CONTEXT_REFERENCE.get(null).getGlobal());
 
-        // Do the translation pass and return the result
-        final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
+            // Do the translation pass and return the result
+            final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
 
-        return lkqlLangkitRoot.accept(translationPass);
+            return lkqlRoot.accept(translationPass);
+        }
+
+        if (root instanceof Liblktlang.LktNode lktRoot) {
+            final ScriptFrames frames =
+                    LktPasses.buildFrames(lktRoot).build(CONTEXT_REFERENCE.get(null).getGlobal());
+
+            return LktPasses.buildLKQLNode(source, lktRoot, frames);
+        }
+
+        throw LKQLRuntimeException.fromMessage("Should not happen");
     }
 
     public LKQLNode translate(final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source) {
