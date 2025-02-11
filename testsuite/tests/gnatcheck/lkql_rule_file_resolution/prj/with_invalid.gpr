@@ -1,0 +1,5 @@
+project With_Invalid is
+   package Check is
+      for Rule_File use "rules.lkql";
+   end Check;
+end With_Invalid;

@@ -804,8 +804,6 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Process_LKQL_Rule_File (LKQL_RF_Name : String)
    is
-      Rule_File_Absolute_Path : constant String :=
-        Get_Rule_File_Name (LKQL_RF_Name);
       JSON_Config_File_Name : constant String :=
         Global_Report_Dir.all & "gnatcheck-rules.json.out";
       Parser_Pid : Process_Id;
@@ -823,12 +821,12 @@ package body Gnatcheck.Rules.Rule_Table is
          Instance_Object : JSON_Value) is
       begin
          Process_Rule_Object
-           (Rule_File_Absolute_Path, String (Instance_Id), Instance_Object);
+           (LKQL_RF_Name, String (Instance_Id), Instance_Object);
       end Rule_Object_Mapper;
 
    begin
       --  Ensure that the provided rule file exists
-      if not Is_Regular_File (Rule_File_Absolute_Path) then
+      if not Is_Regular_File (LKQL_RF_Name) then
          Error ("can not locate LKQL rule file " & LKQL_RF_Name);
          Missing_Rule_File_Detected := True;
          return;
@@ -837,7 +835,7 @@ package body Gnatcheck.Rules.Rule_Table is
       --  Call the LKQL rule config file parser and parse its result
       Parser_Pid :=
         Spawn_LKQL_Rule_File_Parser
-          (Rule_File_Absolute_Path, JSON_Config_File_Name);
+          (LKQL_RF_Name, JSON_Config_File_Name);
       Wait_Process (Waited_Pid, Success);
 
       if Parser_Pid /= Waited_Pid or else not Success then
