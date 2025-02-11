@@ -7,8 +7,6 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.AllBuiltIns;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.TranslatorException;
@@ -127,11 +125,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.TopLevelList topLevelList) {
         this.scriptFramesBuilder.openFrame(topLevelList);
-
-        // Add the built-in functions
-        for (BuiltInFunctionValue function : AllBuiltIns.allFunctions()) {
-            this.scriptFramesBuilder.addBuiltIn(function.getName());
-        }
 
         this.traverseChildren(topLevelList);
         this.scriptFramesBuilder.closeFrame();

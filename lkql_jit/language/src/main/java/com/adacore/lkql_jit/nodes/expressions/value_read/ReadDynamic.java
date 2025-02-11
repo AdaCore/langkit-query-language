@@ -13,7 +13,8 @@ import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * A dynamic read from the global interactive scope. Such reads are not optimized by the compiler.
- * We might want to investigate optimizing them at some stage.
+ * We might want to investigate optimizing them at some stage. TODO: why does this not derive from
+ * BaseRead
  */
 public class ReadDynamic extends Expr {
 

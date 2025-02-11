@@ -36,6 +36,7 @@
                             <finalName>lkql_jit</finalName>
                             <artifactSet>
                                 <includes>
+                                    <include>com.adacore:liblktlang</include>
                                     <include>com.adacore:liblkqllang</include>
                                     <include>com.adacore:libadalang</include>
                                     <include>com.adacore:langkit_support</include>
@@ -92,6 +93,9 @@
                             <version>${graalvm.version}</version>
                         </annotationProcessorPath>
                     </annotationProcessorPaths>
+                    <source>17</source>
+                    <target>17</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
 
@@ -135,6 +139,12 @@
             <groupId>com.adacore</groupId>
             <artifactId>liblkqllang</artifactId>
             <version>${config.liblkqllangVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>liblktlang</artifactId>
+            <version>${config.liblktlangVersion}</version>
         </dependency>
 
         <dependency>

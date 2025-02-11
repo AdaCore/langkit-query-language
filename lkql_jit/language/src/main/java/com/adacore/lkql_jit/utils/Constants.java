@@ -34,6 +34,11 @@ public class Constants {
     /** LKQL files extension. */
     public static final String LKQL_EXTENSION = ".lkql";
 
+    public static enum LKQLVersion {
+        V1,
+        V2,
+    }
+
     /** MIME type for LKQL. */
     public static final String LKQL_MIME = "application/langkit-query-language";
 

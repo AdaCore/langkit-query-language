@@ -5,10 +5,13 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.langkit_translator.passes.FramingPass;
+import com.adacore.lkql_jit.langkit_translator.passes.LktPasses;
 import com.adacore.lkql_jit.langkit_translator.passes.TranslationPass;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -24,6 +27,7 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.options.OptionDescriptors;
 import org.graalvm.options.OptionKey;
@@ -94,6 +98,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> options = new OptionKey<>("");
 
     Liblkqllang.AnalysisContext lkqlAnalysisContext;
+    Liblktlang.AnalysisContext lktAnalysisContext;
 
     // ----- Constructors -----
 
@@ -101,6 +106,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     public LKQLLanguage() {
         super();
         this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create();
+        this.lktAnalysisContext = Liblktlang.AnalysisContext.create();
         // Set the color support flag
         SUPPORT_COLOR = System.getenv("TERM") != null && System.console() != null;
     }
@@ -186,38 +192,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         final Liblkqllang.AnalysisUnit unit;
         TopLevelList result;
 
-        if (request.getSource().getPath() == null) {
-            unit =
-                    lkqlAnalysisContext.getUnitFromBuffer(
-                            request.getSource().getCharacters().toString(), "<command-line>");
-        } else {
-            unit = lkqlAnalysisContext.getUnitFromFile(request.getSource().getPath());
-        }
-
-        // Verify the parsing result
-        final var diagnostics = unit.getDiagnostics();
-        if (diagnostics.length > 0) {
-            var ctx = LKQLLanguage.getContext(null);
-
-            // Iterate over diagnostics
-            for (Liblkqllang.Diagnostic diagnostic : diagnostics) {
-                ctx.getDiagnosticEmitter()
-                        .emitDiagnostic(
-                                CheckerUtils.MessageKind.ERROR,
-                                diagnostic.message.toString(),
-                                null,
-                                SourceSectionWrapper.create(
-                                        diagnostic.sourceLocationRange, request.getSource()));
-            }
-            throw LKQLRuntimeException.fromMessage(
-                    "Syntax errors in " + unit.getFileName(false) + ": stopping interpreter");
-        }
-
-        // Get the LKQL langkit AST
-        final Liblkqllang.TopLevelList lkqlLangkitRoot = (Liblkqllang.TopLevelList) unit.getRoot();
-
         // Translate the LKQL AST from Langkit to a Truffle AST
-        result = (TopLevelList) translate(lkqlLangkitRoot, request.getSource());
+        result = (TopLevelList) translate(request.getSource());
 
         // Print the Truffle AST if the JIT is in debug mode
         if (getContext(result).isVerbose()) {
@@ -232,22 +208,15 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         return new TopLevelRootNode(request.getSource().isInternal(), result, this).getCallTarget();
     }
 
-    /** Translate the given source from string. */
-    public LKQLNode translate(String source, String sourceName) {
-        Source src = Source.newBuilder(Constants.LKQL_ID, source, sourceName).build();
-        var root = lkqlAnalysisContext.getUnitFromBuffer(source, sourceName).getRoot();
-        return translate(root, src, false);
-    }
-
     /**
      * Translate the given source Langkit AST.
      *
-     * @param lkqlLangkitRoot The LKQL Langkit AST to translate.
+     * @param root The LKQL Langkit AST to translate.
      * @param source The Truffle source of the AST.
      * @return The translated LKQL Truffle AST.
      */
     public LKQLNode translate(
-            final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source, boolean isPrelude) {
+            final LangkitSupport.Node root, final Source source, boolean isPrelude) {
 
         if (!isPrelude) {
             var global = getContext(null).getGlobal();
@@ -255,12 +224,12 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                 // Eval prelude
                 Source preludeSource =
                         Source.newBuilder(Constants.LKQL_ID, PRELUDE_SOURCE, "<prelude>").build();
-                var root =
+                var preludeRoot =
                         lkqlAnalysisContext
                                 .getUnitFromBuffer(PRELUDE_SOURCE, "<prelude>")
                                 .getRoot();
-                var preludeRoot = (TopLevelList) translate(root, preludeSource, true);
-                var callTarget = new TopLevelRootNode(true, preludeRoot, this).getCallTarget();
+                var lkqlPrelude = (TopLevelList) translate(preludeRoot, preludeSource, true);
+                var callTarget = new TopLevelRootNode(true, lkqlPrelude, this).getCallTarget();
                 global.prelude = (LKQLNamespace) callTarget.call();
                 var preludeMap = global.prelude.asMap();
 
@@ -275,19 +244,83 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             }
         }
 
-        // Do the framing pass to create the script frame descriptions
-        final FramingPass framingPass = new FramingPass(source);
-        lkqlLangkitRoot.accept(framingPass);
-        final ScriptFrames scriptFrames =
-                framingPass.getScriptFramesBuilder().build(CONTEXT_REFERENCE.get(null).getGlobal());
+        if (root instanceof Liblkqllang.LkqlNode lkqlRoot) {
+            // Do the framing pass to create the script frame descriptions
+            final FramingPass framingPass = new FramingPass(source);
+            lkqlRoot.accept(framingPass);
+            final ScriptFrames scriptFrames =
+                    framingPass
+                            .getScriptFramesBuilder()
+                            .build(CONTEXT_REFERENCE.get(null).getGlobal());
 
-        // Do the translation pass and return the result
-        final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
+            // Do the translation pass and return the result
+            final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
 
-        return lkqlLangkitRoot.accept(translationPass);
+            return lkqlRoot.accept(translationPass);
+        } else if (root instanceof Liblktlang.LktNode lktRoot) {
+            final ScriptFrames frames =
+                    LktPasses.buildFrames(lktRoot).build(CONTEXT_REFERENCE.get(null).getGlobal());
+
+            return LktPasses.buildLKQLNode(source, lktRoot, frames);
+        } else {
+            throw LKQLRuntimeException.fromMessage("Should not happen");
+        }
     }
 
-    public LKQLNode translate(final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source) {
-        return translate(lkqlLangkitRoot, source, false);
+    public LKQLNode translate(final Source source, String sourceName) {
+        var firstLine = new Scanner(source.getReader()).nextLine();
+
+        LangkitSupport.AnalysisContext langkitCtx = null;
+        if (firstLine.startsWith("# lkql version:")) {
+            if (firstLine.equals("# lkql version: 1")) {
+                // lkql V1 uses lkql syntax
+                langkitCtx = lkqlAnalysisContext;
+            } else if (firstLine.equals("# lkql version: 2")) {
+                // lkql V2 uses Lkt syntax
+                langkitCtx = lktAnalysisContext;
+            } else {
+                throw LKQLRuntimeException.fromMessage("Invalid lkql version");
+            }
+        } else {
+            // By default, use lkql syntax
+            langkitCtx = lkqlAnalysisContext;
+        }
+
+        LangkitSupport.AnalysisUnit unit = null;
+        if (source.getPath() == null) {
+            unit = langkitCtx.getUnitFromBuffer(source.getCharacters().toString(), sourceName);
+        } else {
+            unit = langkitCtx.getUnitFromFile(source.getPath());
+        }
+
+        final var diagnostics = unit.getDiagnostics();
+        if (diagnostics.length > 0) {
+            var ctx = LKQLLanguage.getContext(null);
+
+            // Iterate over diagnostics
+            for (var diagnostic : diagnostics) {
+                ctx.getDiagnosticEmitter()
+                        .emitDiagnostic(
+                                CheckerUtils.MessageKind.ERROR,
+                                diagnostic.getMessage().toString(),
+                                null,
+                                SourceSectionWrapper.create(
+                                        diagnostic.getSourceLocationRange(), source));
+            }
+            throw LKQLRuntimeException.fromMessage(
+                    "Syntax errors in " + unit.getFileName(false) + ": stopping interpreter");
+        }
+
+        return translate(unit.getRoot(), source, false);
+    }
+
+    public LKQLNode translate(final Source source) {
+        return translate(source, "<command-line>");
+    }
+
+    /** Translate the given source from string. */
+    public LKQLNode translate(String source, String sourceName) {
+        Source src = Source.newBuilder(Constants.LKQL_ID, source, sourceName).build();
+        return translate(src, sourceName);
     }
 }

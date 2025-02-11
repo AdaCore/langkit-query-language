@@ -4,61 +4,17 @@ Standard library
 Builtin functions
 ^^^^^^^^^^^^^^^^^
 
-.. function:: unique(indexable)
-
-    Given a collection, create a list with all duplicates removed
-
-.. function:: pattern(regex, case_sensitive)
-
-    Given a regex pattern string, create a pattern object
-
-.. function:: print(to_print, new_line)
-
-    Built-in print function. Prints the argument
-
-.. function:: img(string)
-
-    Return a string representation of an object
-
-.. function:: doc(value)
-
-    Given any object, return the documentation associated with it
-
 .. function:: reduce(iterable, function, init_value)
 
     Given a collection, a reduction function, and an initial value reduce the result
-
-.. function:: document_builtins()
-
-    Return a string in the RsT format containing documentation for all built-ins
 
 .. function:: base_name(file_name)
 
     Given a string that represents a file name, returns the basename
 
-.. function:: concat(list)
+.. function:: img(string)
 
-    Given a list of lists or strings, return a concatenated list or string
-
-.. function:: map(iterable, function)
-
-    Given a collection, a mapping function
-
-.. function:: profile(val)
-
-    Given any object, if it is a callable, return its profile as text
-
-.. function:: document_namespace(namespace, name)
-
-    Return a string in the RsT format containing documentation for all built-ins
-
-.. function:: help(value)
-
-    Print formatted help for the given object
-
-.. function:: units()
-
-    Return a list of all units
+    Return a string representation of an object
 
 .. function:: specified_units()
 
@@ -67,6 +23,50 @@ Builtin functions
 .. function:: node_checker(root)
 
     Given a root, execute all node checkers while traversing the tree
+
+.. function:: profile(val)
+
+    Given any object, if it is a callable, return its profile as text
+
+.. function:: pattern(regex, case_sensitive)
+
+    Given a regex pattern string, create a pattern object
+
+.. function:: concat(list)
+
+    Given a list of lists or strings, return a concatenated list or string
+
+.. function:: units()
+
+    Return a list of all units
+
+.. function:: help(value)
+
+    Print formatted help for the given object
+
+.. function:: print(to_print, new_line)
+
+    Built-in print function. Prints the argument
+
+.. function:: unique(indexable)
+
+    Given a collection, create a list with all duplicates removed
+
+.. function:: document_builtins()
+
+    Return a string in the RsT format containing documentation for all built-ins
+
+.. function:: doc(value)
+
+    Given any object, return the documentation associated with it
+
+.. function:: document_namespace(namespace, name)
+
+    Return a string in the RsT format containing documentation for all built-ins
+
+.. function:: map(iterable, function)
+
+    Given a collection, a mapping function
 
 .. function:: unit_checker(unit)
 
