@@ -15,16 +15,16 @@
 
 2. Exempted Coding Standard Violations
 
-main.ads:5:07: violation of restriction "Max_Protected_Entries = 0"
+main.ads:5:07: rule violation (exempted): violation of restriction "Max_Protected_Entries = 0"
    (testing)
 
 3. Non-exempted Coding Standard Violations
 
-main.adb:20:18: reference to "Ada.Text_IO.Put_Line" violates restriction No_Use_Of_Entity
+main.adb:20:18: rule violation: reference to "Ada.Text_IO.Put_Line" violates restriction No_Use_Of_Entity
 
 4. Rule exemption problems
 
-main.adb:22:106: no detection for 'Restrictions: Max_Protected_Entries, No_Access_Subprograms' in exemption section starting at line 17
+main.adb:22:106: warning: no detection for 'Restrictions: Max_Protected_Entries, No_Access_Subprograms' in exemption section starting at line 17
 
 5. Language violations
 

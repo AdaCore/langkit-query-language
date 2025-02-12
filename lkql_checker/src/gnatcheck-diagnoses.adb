@@ -174,7 +174,7 @@ package body Gnatcheck.Diagnoses is
    --  boolean parameter is used to define the needed indentation level
 
    function Strip_Tag (Diag : String) return String;
-   --  Strip trailing " [-gnatxxx]", if any
+   --  Strip trailing GNAT tag following the format " [-gnat<x>]", if any
 
    ----------------------------------------------------------------------
    --  Data structures and local routines for rule exemption mechanism --
@@ -1682,11 +1682,11 @@ package body Gnatcheck.Diagnoses is
 
       function Preprocess_Diag (Diag : String) return String;
       --  Add GPS_Prefix if Progress_Indicator_Mode is True, and remove any
-      --  training [-gnatwxxx].
+      --  trailing GNAT tag following the "[-gnat<x>]" format.
 
       procedure Counted_Print_Diagnosis
         (Position : Error_Messages_Storage.Cursor);
-      --  Print Diagnosis until reaching Max_Diagnoses
+      --  Print diagnosis until reaching Max_Diagnoses
 
       ---------------------
       -- Preprocess_Diag --
@@ -3029,8 +3029,19 @@ package body Gnatcheck.Diagnoses is
            (Ada.Strings.Fixed.Trim (Line_Number'Image (Sloc.Line), Left)
             & ':' & Column_Str);
       end Image;
+
+      Tag_String : constant String :=
+        (case Self.Diagnosis_Kind is
+         when Rule_Violation =>
+           (if Self.Justification /= Null_Unbounded_String
+            then "rule violation (exempted): "
+            else "rule violation: "),
+         when Exemption_Warning => "warning: ",
+         when others => "");
    begin
-      return To_String (Self.File) & ":" & Image (Self.Sloc) & ": "
+      return To_String (Self.File) & ":"
+        & Image (Self.Sloc) & ": "
+        & Tag_String
         & To_String (Self.Text);
    end Image;
 

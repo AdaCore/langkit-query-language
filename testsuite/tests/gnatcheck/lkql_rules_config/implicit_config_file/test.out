@@ -1,14 +1,14 @@
 Without project file
 ====================
 
-main.adb:3:04: goto statement
+main.adb:3:04: rule violation: goto statement
 
 With project file
 =================
 
-s.adb:4:04: goto statement
+s.adb:4:04: rule violation: goto statement
 
 With other rule options
 =======================
 
-s.adb:3:04: redundant null statement
+s.adb:3:04: rule violation: redundant null statement

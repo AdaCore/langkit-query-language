@@ -1,8 +1,8 @@
 Direct_Equalities
 =================
 
-main.adb:8:07: direct (in)equality
-main.adb:9:15: direct (in)equality
+main.adb:8:07: rule violation: direct (in)equality
+main.adb:9:15: rule violation: direct (in)equality
 
 Invalid type
 ============

@@ -1,2 +1,2 @@
-test.adb:4:06: suspicious equality
+test.adb:4:06: rule violation: suspicious equality
 gnatcheck: info: maximum diagnoses reached, see the report file for full details

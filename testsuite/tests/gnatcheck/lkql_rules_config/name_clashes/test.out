@@ -1,7 +1,7 @@
 Valid run
 =========
 
-main.adb:3:04: use of forbidden identifier
+main.adb:3:04: rule violation: use of forbidden identifier
 
 Missing parameter
 =================

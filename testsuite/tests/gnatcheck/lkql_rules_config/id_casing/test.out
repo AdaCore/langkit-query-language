@@ -1,2 +1,2 @@
-main.adb:4:04: Invalid does not have casing specified for constant names (upper)
-main.adb:7:09: Invalid_type does not have casing specified for subtype names (mixed)
+main.adb:4:04: rule violation: Invalid does not have casing specified for constant names (upper)
+main.adb:7:09: rule violation: Invalid_type does not have casing specified for subtype names (mixed)

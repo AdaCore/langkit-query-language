@@ -1,7 +1,7 @@
 With CLI valid rule file
 ========================
 
-main.adb:3:04: goto statement
+main.adb:3:04: rule violation: goto statement
 
 With CLI invalid rule file
 ==========================
@@ -14,7 +14,7 @@ try "gnatcheck --help" for more information.
 With a project provided valid rule file
 =======================================
 
-main.adb:7:04: redundant null statement
+main.adb:7:04: rule violation: redundant null statement
 
 With a project provided invalid rule file
 =========================================
