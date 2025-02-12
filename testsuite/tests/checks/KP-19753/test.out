@@ -1,0 +1,45 @@
+main.adb:4:4: rule violation: possible occurrence of KP 19753
+4 |     for I in 1 .. 5 loop          --  FLAG
+  | ____^
+  ||
+  || ~~~ 1 other lines ~~~
+  ||
+6 ||    end loop;
+  ||____________^
+
+main.adb:8:4: rule violation: possible occurrence of KP 19753
+8  |     for I of A loop               --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+10 ||    end loop;
+   ||____________^
+
+main.adb:12:4: rule violation: possible occurrence of KP 19753
+12 |     loop                          --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+14 ||    end loop;
+   ||____________^
+
+main.adb:16:4: rule violation: possible occurrence of KP 19753
+16 |     loop                          --  FLAG
+   | ____^
+   ||
+   || ~~~ 4 other lines ~~~
+   ||
+21 ||    end loop;
+   ||____________^
+
+main.adb:23:4: rule violation: possible occurrence of KP 19753
+23 |     loop                          --  FLAG
+   | ____^
+   ||
+   || ~~~ 5 other lines ~~~
+   ||
+29 ||    end loop;
+   ||____________^
+
