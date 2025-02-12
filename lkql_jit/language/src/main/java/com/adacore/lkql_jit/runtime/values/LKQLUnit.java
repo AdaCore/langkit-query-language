@@ -8,14 +8,23 @@ package com.adacore.lkql_jit.runtime.values;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
+import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the unit value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
 public class LKQLUnit extends BasicLKQLValue implements Truthy, Nullish {
+
+    // ----- Constants -----
+
+    private static final TruffleString IMAGE = TruffleString.fromJavaStringUncached(
+        "()",
+        Constants.STRING_ENCODING
+    );
 
     // ----- Attributes -----
 
@@ -51,10 +60,9 @@ public class LKQLUnit extends BasicLKQLValue implements Truthy, Nullish {
     }
 
     /** Get the displayable string for the interop library. */
-    @Override
     @ExportMessage
-    public String toDisplayString(@SuppressWarnings("unused") boolean allowSideEffect) {
-        return "()";
+    public TruffleString toDisplayString(@SuppressWarnings("unused") boolean allowSideEffect) {
+        return IMAGE;
     }
 
     /** Tell the interop API that the value is nullish. */

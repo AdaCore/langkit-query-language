@@ -11,12 +11,13 @@ import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ListUtils;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.strings.TruffleString;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +49,12 @@ public abstract class BinConcat extends BinOp {
      * @return The result of the string concatenation.
      */
     @Specialization
-    protected String concatStrings(String left, String right) {
-        return StringUtils.concat(left, right);
+    protected TruffleString concatStrings(
+        TruffleString left,
+        TruffleString right,
+        @Cached TruffleString.ConcatNode concatNode
+    ) {
+        return concatNode.execute(left, right, Constants.STRING_ENCODING, true);
     }
 
     /**
@@ -86,7 +91,7 @@ public abstract class BinConcat extends BinOp {
      */
     @Fallback
     protected void nonConcatenable(Object left, Object right) {
-        if (LKQLTypeSystemGen.isString(left) || LKQLTypeSystemGen.isLKQLList(left)) {
+        if (LKQLTypeSystemGen.isTruffleString(left) || LKQLTypeSystemGen.isLKQLList(left)) {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.fromJava(left),
                 LKQLTypesHelper.fromJava(right),

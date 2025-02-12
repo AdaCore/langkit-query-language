@@ -6,8 +6,10 @@
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.strings.TruffleString;
 
 /**
  * This node represents a string literal in the LKQL language.
@@ -19,7 +21,13 @@ public final class StringLiteral extends Expr {
     // ----- Attributes -----
 
     /** The value of the string literal. */
-    public final String value;
+    public final TruffleString value;
+
+    // ----- Children -----
+
+    @Child
+    private TruffleString.ToJavaStringNode toJavaStringNode =
+        TruffleString.ToJavaStringNode.create();
 
     // ----- Constructors -----
 
@@ -31,7 +39,7 @@ public final class StringLiteral extends Expr {
      */
     public StringLiteral(SourceSection location, String value) {
         super(location);
-        this.value = value;
+        this.value = TruffleString.fromJavaStringUncached(value, Constants.STRING_ENCODING);
     }
 
     // ----- Execution methods -----
@@ -50,8 +58,15 @@ public final class StringLiteral extends Expr {
      *     com.adacore.lkql_jit.nodes.expressions.Expr#executeString(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
-    public String executeString(VirtualFrame frame) {
+    public TruffleString executeString(VirtualFrame frame) {
         return this.value;
+    }
+
+    // ----- Instance methods -----
+
+    /** Helper method to get the string value as a Java string. */
+    public String getValueAsString() {
+        return this.toJavaStringNode.execute(this.value);
     }
 
     // ----- Override methods -----

@@ -9,10 +9,13 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.libadalang.Libadalang.Token;
 import com.adacore.lkql_jit.annotations.*;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.strings.TruffleString;
 
 /**
  * This class contains all built-in methods for the token type in the LKQL language.
@@ -133,19 +136,33 @@ public final class TokenMethods {
     abstract static class TextExpr extends BuiltInBody {
 
         @Specialization
-        public String onToken(Token t) {
-            return t.getText();
+        public TruffleString onToken(
+            Token t,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
+            return fromJavaStringNode.execute(t.getText(), Constants.STRING_ENCODING);
         }
     }
 
     @BuiltInMethod(name = "kind", doc = "Return the kind for this token", isProperty = true)
     abstract static class KindExpr extends BuiltInBody {
 
+        private static final TruffleString NO_TOKEN = TruffleString.fromJavaStringUncached(
+            "no_toker",
+            Constants.STRING_ENCODING
+        );
+
         @Specialization
-        public String onToken(Token t) {
-            if (t.kind.toC() == -1) return "no_token";
+        public TruffleString onToken(
+            Token t,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
+            if (t.kind.toC() == -1) return NO_TOKEN;
             String rawKind = ObjectUtils.toString(t.kind);
-            return StringUtils.toLowerCase(StringUtils.split(rawKind, "_")[1]);
+            return fromJavaStringNode.execute(
+                StringUtils.toLowerCase(StringUtils.split(rawKind, "_")[1]),
+                Constants.STRING_ENCODING
+            );
         }
     }
 }

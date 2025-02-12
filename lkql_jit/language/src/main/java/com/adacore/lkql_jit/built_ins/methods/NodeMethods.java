@@ -15,11 +15,14 @@ import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.strings.TruffleString;
 import java.util.ArrayList;
 
 /**
@@ -86,8 +89,11 @@ public final class NodeMethods {
     abstract static class TextExpr extends BuiltInBody {
 
         @Specialization
-        public String onNode(AdaNode self) {
-            return self.getText();
+        public TruffleString onNode(
+            AdaNode self,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
+            return fromJavaStringNode.execute(self.getText(), Constants.STRING_ENCODING);
         }
     }
 
@@ -95,8 +101,11 @@ public final class NodeMethods {
     abstract static class ImageExpr extends BuiltInBody {
 
         @Specialization
-        public String onNode(AdaNode self) {
-            return self.getImage();
+        public TruffleString onNode(
+            AdaNode self,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
+            return fromJavaStringNode.execute(self.getImage(), Constants.STRING_ENCODING);
         }
     }
 
@@ -113,8 +122,14 @@ public final class NodeMethods {
     abstract static class KindExpr extends BuiltInBody {
 
         @Specialization
-        public String onNode(AdaNode self) {
-            return ReflectionUtils.getClassSimpleName(self);
+        public TruffleString onNode(
+            AdaNode self,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
+            return fromJavaStringNode.execute(
+                ReflectionUtils.getClassSimpleName(self),
+                Constants.STRING_ENCODING
+            );
         }
     }
 

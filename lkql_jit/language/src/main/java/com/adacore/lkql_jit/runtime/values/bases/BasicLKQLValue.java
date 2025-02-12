@@ -8,17 +8,24 @@ package com.adacore.lkql_jit.runtime.values.bases;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.strings.TruffleString;
 
 /** This class is the base for all "basic" LKQL values. */
 @ExportLibrary(InteropLibrary.class)
 public abstract class BasicLKQLValue implements LKQLValue {
 
     // ----- Attributes -----
+
+    private static final TruffleString BASIC_LKQL_VALUE_STR = TruffleString.fromJavaStringUncached(
+        "<basic_lkql_value>",
+        Constants.STRING_ENCODING
+    );
 
     protected final InteropLibrary thisUncachedLibrary = InteropLibrary.getUncached(this);
 
@@ -41,8 +48,8 @@ public abstract class BasicLKQLValue implements LKQLValue {
      * classes which export the interop library must implement it.
      */
     @ExportMessage
-    public String toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
-        return "<basic_lkql_value>";
+    public TruffleString toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+        return BASIC_LKQL_VALUE_STR;
     }
 
     // ----- Override methods -----

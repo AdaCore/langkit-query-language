@@ -31,6 +31,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.strings.TruffleString;
 
 /** This class represents the "unit_checker" built-in function in the LKQL language. */
 public final class UnitCheckerFunction {
@@ -39,6 +40,9 @@ public final class UnitCheckerFunction {
     abstract static class UnitCheckerExpr extends BuiltInBody {
 
         private final InteropLibrary interopLibrary = InteropLibrary.getUncached();
+
+        private final TruffleString.ToJavaStringNode toJavaStringNode =
+            TruffleString.ToJavaStringNode.getUncached();
 
         @Specialization
         public Object alwaysTrue(VirtualFrame frame, Libadalang.AnalysisUnit unit) {
@@ -143,7 +147,9 @@ public final class UnitCheckerFunction {
                 // Get the violation text
                 String message;
                 try {
-                    message = LKQLTypeSystemGen.expectString(violation.getUncached("message"));
+                    message = toJavaStringNode.execute(
+                        LKQLTypeSystemGen.expectTruffleString(violation.getUncached("message"))
+                    );
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_STRING,

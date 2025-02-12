@@ -209,7 +209,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         String doc = null;
 
         if (topLevelNodes.size() > 0 && topLevelNodes.get(0) instanceof StringLiteral) {
-            doc = ((StringLiteral) topLevelNodes.get(0)).value;
+            doc = ((StringLiteral) topLevelNodes.get(0)).getValueAsString();
         }
 
         // Return the top level node

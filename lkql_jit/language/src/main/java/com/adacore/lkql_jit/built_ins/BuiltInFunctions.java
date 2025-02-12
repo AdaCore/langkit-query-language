@@ -9,6 +9,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.*;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.utils.ImageNode;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
@@ -20,7 +21,6 @@ import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.TextWriter;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
@@ -30,6 +30,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.strings.TruffleString;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -61,8 +62,12 @@ public class BuiltInFunctions {
     abstract static class PatternExpr extends BuiltInBody {
 
         @Specialization
-        protected LKQLPattern onValidArgs(String regex, @DefaultVal("true") boolean caseSensitive) {
-            return new LKQLPattern(getCallNode(), regex, caseSensitive);
+        protected LKQLPattern onValidArgs(
+            TruffleString regex,
+            @DefaultVal("true") boolean caseSensitive,
+            @Cached TruffleString.ToJavaStringNode toJavaStringNode
+        ) {
+            return new LKQLPattern(getCallNode(), toJavaStringNode.execute(regex), caseSensitive);
         }
     }
 
@@ -77,14 +82,11 @@ public class BuiltInFunctions {
             @DefaultVal("true") boolean newLine,
             @CachedLibrary("toPrint") InteropLibrary printingLibrary
         ) {
+            final var s = printingLibrary.toDisplayString(toPrint);
             if (newLine) {
-                LKQLLanguage.getContext(null).println(
-                    (String) printingLibrary.toDisplayString(toPrint)
-                );
+                LKQLLanguage.getContext(null).println(s);
             } else {
-                LKQLLanguage.getContext(null).print(
-                    (String) printingLibrary.toDisplayString(toPrint)
-                );
+                LKQLLanguage.getContext(null).print(s);
             }
             return LKQLUnit.INSTANCE;
         }
@@ -95,13 +97,8 @@ public class BuiltInFunctions {
     abstract static class ImgExpr extends BuiltInBody {
 
         @Specialization
-        protected String onString(String string) {
-            return StringUtils.toRepr(string);
-        }
-
-        @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
-        protected String onObject(Object obj, @CachedLibrary("obj") InteropLibrary objLibrary) {
-            return (String) objLibrary.toDisplayString(obj);
+        protected TruffleString onAny(Object o, @Cached ImageNode imageNode) {
+            return imageNode.execute(o);
         }
     }
 
@@ -113,13 +110,16 @@ public class BuiltInFunctions {
     abstract static class DocExpr extends BuiltInBody {
 
         @Specialization
-        protected String onLKQLValue(LKQLValue value) {
-            return value.lkqlDocumentation();
+        protected TruffleString onLKQLValue(
+            LKQLValue value,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
+            return fromJavaStringNode.execute(value.lkqlDocumentation(), Constants.STRING_ENCODING);
         }
 
         @Specialization
-        protected String onAny(Object obj) {
-            return "";
+        protected TruffleString onAny(Object obj) {
+            return Constants.STRING_ENCODING.getEmpty();
         }
     }
 
@@ -176,7 +176,9 @@ public class BuiltInFunctions {
 
         @CompilerDirectives.TruffleBoundary
         @Specialization
-        public static String exec() {
+        public static TruffleString exec(
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
             var sw = new StringWriter();
             try (TextWriter writer = new TextWriter(sw)) {
                 writer.write("Standard library\n");
@@ -248,7 +250,10 @@ public class BuiltInFunctions {
                     }
                 }
 
-                return sw.getBuffer().toString();
+                return fromJavaStringNode.execute(
+                    sw.getBuffer().toString(),
+                    Constants.STRING_ENCODING
+                );
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -263,8 +268,30 @@ public class BuiltInFunctions {
     abstract static class BaseNameExpr extends BuiltInBody {
 
         @Specialization
-        protected String executeOnString(String fileName) {
-            return FileUtils.baseName(fileName);
+        protected TruffleString executeOnString(
+            TruffleString fileName,
+            @Cached TruffleString.CodePointLengthNode codePointLengthNode,
+            @Cached TruffleString.LastIndexOfStringNode lastIndexOfStringNode,
+            @Cached TruffleString.SubstringNode substringNode
+        ) {
+            final var fileNameLen = codePointLengthNode.execute(
+                fileName,
+                Constants.STRING_ENCODING
+            );
+            final var lastSep = lastIndexOfStringNode.execute(
+                fileName,
+                Constants.PATH_SEP,
+                0,
+                fileNameLen,
+                Constants.STRING_ENCODING
+            );
+            return substringNode.execute(
+                fileName,
+                lastSep + 1,
+                fileNameLen - lastSep,
+                Constants.STRING_ENCODING,
+                false
+            );
         }
     }
 
@@ -275,7 +302,7 @@ public class BuiltInFunctions {
     abstract static class ConcatExpr extends BuiltInBody {
 
         protected static boolean isString(Object o) {
-            return LKQLTypeSystemGen.isString(o);
+            return LKQLTypeSystemGen.isTruffleString(o);
         }
 
         protected static boolean isList(Object o) {
@@ -283,15 +310,23 @@ public class BuiltInFunctions {
         }
 
         @Specialization(guards = { "list.size() > 0", "isString(list.get(0))" })
-        protected String onListOfStrings(LKQLList list) {
+        protected TruffleString onListOfStrings(
+            LKQLList list,
+            @Cached TruffleString.ConcatNode concatNode
+        ) {
             // Create a string builder and add all strings in the list
-            String result = LKQLTypeSystemGen.asString(list.get(0));
+            TruffleString result = LKQLTypeSystemGen.asTruffleString(list.get(0));
             for (int i = 1; i < list.size(); i++) {
                 final Object item = list.get(i);
-                if (!LKQLTypeSystemGen.isString(item)) {
+                if (!isString(item)) {
                     this.invalidElemType(list, item);
                 }
-                result = StringUtils.concat(result, LKQLTypeSystemGen.asString(item));
+                result = concatNode.execute(
+                    result,
+                    LKQLTypeSystemGen.asTruffleString(item),
+                    Constants.STRING_ENCODING,
+                    true
+                );
             }
             return result;
         }
@@ -374,13 +409,16 @@ public class BuiltInFunctions {
     abstract static class ProfileExpr extends BuiltInBody {
 
         @Specialization
-        protected String onLKQLValue(LKQLValue val) {
-            return val.lkqlProfile();
+        protected TruffleString onLKQLValue(
+            LKQLValue val,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
+            return fromJavaStringNode.execute(val.lkqlProfile(), Constants.STRING_ENCODING);
         }
 
         @Specialization
-        protected String onOthers(Object obj) {
-            return "";
+        protected TruffleString onOthers(Object obj) {
+            return Constants.STRING_ENCODING.getEmpty();
         }
     }
 
@@ -400,7 +438,11 @@ public class BuiltInFunctions {
 
         @Specialization
         @CompilerDirectives.TruffleBoundary
-        protected String impl(LKQLNamespace namespace, String name) {
+        protected TruffleString impl(
+            LKQLNamespace namespace,
+            TruffleString name,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
             var sw = new StringWriter();
             try (TextWriter writer = new TextWriter(sw)) {
                 var header = name + "'s API doc";
@@ -438,7 +480,10 @@ public class BuiltInFunctions {
                     documentCallable(writer, sel);
                 }
 
-                return sw.getBuffer().toString();
+                return fromJavaStringNode.execute(
+                    sw.getBuffer().toString(),
+                    Constants.STRING_ENCODING
+                );
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

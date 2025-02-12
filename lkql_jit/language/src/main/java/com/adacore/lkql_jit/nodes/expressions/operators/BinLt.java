@@ -6,11 +6,14 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.strings.TruffleString;
 import java.math.BigInteger;
 
 /**
@@ -65,8 +68,12 @@ public abstract class BinLt extends BinOp {
      * @return The result of the comparison.
      */
     @Specialization
-    protected boolean ltString(String left, String right) {
-        return left.compareTo(right) < 0;
+    protected boolean ltString(
+        TruffleString left,
+        TruffleString right,
+        @Cached TruffleString.CompareBytesNode compareBytesNode
+    ) {
+        return compareBytesNode.execute(left, right, Constants.STRING_ENCODING) < 0;
     }
 
     /**

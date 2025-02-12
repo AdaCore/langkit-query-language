@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.runtime.values.lists;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
+import com.adacore.lkql_jit.nodes.utils.ImageNode;
 import com.adacore.lkql_jit.runtime.values.bases.ArrayLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
@@ -14,19 +15,35 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 
 /** This abstract class represents all list like values in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
 public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, Indexable, Truthy {
+
+    // ----- Constants -----
+
+    private static final TruffleString OPEN_BRACK = TruffleString.fromJavaStringUncached(
+        "[",
+        Constants.STRING_ENCODING
+    );
+    private static final TruffleString CLOSE_BRACK = TruffleString.fromJavaStringUncached(
+        "]",
+        Constants.STRING_ENCODING
+    );
+    private static final TruffleString COMMA = TruffleString.fromJavaStringUncached(
+        ", ",
+        Constants.STRING_ENCODING
+    );
 
     // ----- Constructors -----
 
@@ -111,33 +128,26 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
     /** Get the displayable string for the interop library. */
     @CompilerDirectives.TruffleBoundary
     @ExportMessage
-    public Object toDisplayString(
+    public TruffleString toDisplayString(
         @SuppressWarnings("unused") final boolean allowSideEffect,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems
+        @Cached ImageNode imageNode,
+        @Cached TruffleString.ConcatNode concatNode
     ) {
         // Prepare the result
-        StringBuilder resultBuilder = new StringBuilder("[");
+        TruffleString res = OPEN_BRACK;
 
         // Iterate over the list values
         for (int i = 0; i < this.size(); i++) {
             Object elem = this.get(i);
-
-            // Get the element string
-            String elemString;
-            if (elem instanceof String) {
-                elemString = StringUtils.toRepr((String) elems.toDisplayString(elem));
-            } else {
-                elemString = (String) elems.toDisplayString(elem);
+            res = concatNode.execute(res, imageNode.execute(elem), Constants.STRING_ENCODING, true);
+            if (i < this.size() - 1) {
+                res = concatNode.execute(res, COMMA, Constants.STRING_ENCODING, true);
             }
-
-            // Add the element string to the result
-            resultBuilder.append(elemString);
-            if (i < this.size() - 1) resultBuilder.append(", ");
         }
 
         // Return the result
-        resultBuilder.append("]");
-        return resultBuilder.toString();
+        res = concatNode.execute(res, CLOSE_BRACK, Constants.STRING_ENCODING, true);
+        return res;
     }
 
     /** Tell the interop API that the list can be cast to a boolean. */

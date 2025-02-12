@@ -11,9 +11,11 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
@@ -21,6 +23,7 @@ import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 
 /**
@@ -81,7 +84,7 @@ public final class LKQLPattern extends BasicLKQLValue {
     // ----- Instance methods -----
 
     /** Get whether the given string contains a substring that validate the regex. */
-    public boolean contains(String string) {
+    public boolean contains(TruffleString string) {
         try {
             Object resultObject = InteropLibrary.getUncached()
                 .invokeMember(this.regexObject, "exec", string, 0);
@@ -94,7 +97,7 @@ public final class LKQLPattern extends BasicLKQLValue {
     }
 
     /** Get the index of the first matched group in the given string, return -1 if there is none. */
-    public int find(String string) {
+    public int find(TruffleString string) {
         try {
             Object resultObject = InteropLibrary.getUncached()
                 .invokeMember(this.regexObject, "exec", string, 0);
@@ -139,11 +142,16 @@ public final class LKQLPattern extends BasicLKQLValue {
     }
 
     /** Get the displayable string for the interop library. */
-    @Override
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
-        return "pattern<\"" + this.regexString + "\">";
+    public TruffleString toDisplayString(
+        @SuppressWarnings("unused") final boolean allowSideEffects,
+        @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+    ) {
+        return fromJavaStringNode.execute(
+            "pattern<\"" + this.regexString + "\">",
+            Constants.STRING_ENCODING
+        );
     }
 
     /** Tell the interop library that the value has members. */
@@ -180,10 +188,10 @@ public final class LKQLPattern extends BasicLKQLValue {
         }
 
         // Get the first arguments as a string
-        if (!LKQLTypeSystemGen.isString(args[0])) {
+        if (!LKQLTypeSystemGen.isTruffleString(args[0])) {
             throw UnsupportedTypeException.create(args, "String is required as first argument");
         }
-        final String arg = LKQLTypeSystemGen.asString(args[0]);
+        final TruffleString arg = LKQLTypeSystemGen.asTruffleString(args[0]);
 
         // Call the valid method
         return switch (member) {

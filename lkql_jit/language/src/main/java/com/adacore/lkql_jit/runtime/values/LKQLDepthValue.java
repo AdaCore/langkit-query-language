@@ -6,12 +6,15 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 
 /**
@@ -71,8 +74,11 @@ public final class LKQLDepthValue extends BasicLKQLValue {
     /** Get the displayable string for the interop library. */
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
-        return this.toString();
+    public TruffleString toDisplayString(
+        @SuppressWarnings("unused") final boolean allowSideEffects,
+        @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+    ) {
+        return fromJavaStringNode.execute(this.toString(), Constants.STRING_ENCODING);
     }
 
     // ----- Override methods -----

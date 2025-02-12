@@ -16,6 +16,7 @@ import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.strings.TruffleString;
 import java.math.BigInteger;
 
 /**
@@ -110,8 +111,8 @@ public abstract class Expr extends LKQLNode {
      * @throws UnexpectedResultException If the node cannot be evaluated as a string.
      */
     @SuppressWarnings("unused")
-    public String executeString(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectString(executeGeneric(frame));
+    public TruffleString executeString(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectTruffleString(executeGeneric(frame));
     }
 
     /**

@@ -9,16 +9,19 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents a Libadalang property access in LKQL. */
@@ -136,11 +139,13 @@ public class LKQLProperty extends BasicLKQLValue {
     }
 
     /** Get the displayable string for the interop library. */
-    @Override
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
-        return "property<" + this.name + ">";
+    public TruffleString toDisplayString(
+        @SuppressWarnings("unused") final boolean allowSideEffects,
+        @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+    ) {
+        return fromJavaStringNode.execute("property<" + this.name + ">", Constants.STRING_ENCODING);
     }
 
     /** Tell the interop library that the value is not executable. */

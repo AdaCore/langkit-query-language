@@ -8,10 +8,13 @@ package com.adacore.lkql_jit.nodes.patterns;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLPattern;
+import com.adacore.lkql_jit.utils.Constants;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.strings.TruffleString;
 
 /**
  * This node represents a regular expression pattern in the LKQL language.
@@ -41,13 +44,19 @@ public abstract class RegexPattern extends ValuePattern {
     @Specialization
     public boolean onAdaNode(
         @SuppressWarnings("unused") VirtualFrame frame,
-        Libadalang.AdaNode node
+        Libadalang.AdaNode node,
+        @Cached TruffleString.FromJavaStringNode fromJavaStringNode
     ) {
-        return (node != LKQLNull.INSTANCE && this.pattern.contains(node.getText()));
+        return (
+            node != LKQLNull.INSTANCE &&
+            this.pattern.contains(
+                    fromJavaStringNode.execute(node.getText(), Constants.STRING_ENCODING)
+                )
+        );
     }
 
     @Specialization
-    public boolean onString(@SuppressWarnings("unused") VirtualFrame frame, String value) {
+    public boolean onString(@SuppressWarnings("unused") VirtualFrame frame, TruffleString value) {
         return pattern.contains(value);
     }
 

@@ -391,7 +391,7 @@ public final class LKQLContext {
      * @param toPrint The string to print.
      */
     @CompilerDirectives.TruffleBoundary
-    public void print(String toPrint) {
+    public void print(Object toPrint) {
         System.out.print(toPrint);
     }
 
@@ -401,7 +401,7 @@ public final class LKQLContext {
      * @param toPrint The string to print.
      */
     @CompilerDirectives.TruffleBoundary
-    public void println(String toPrint) {
+    public void println(Object toPrint) {
         System.out.println(toPrint);
     }
 

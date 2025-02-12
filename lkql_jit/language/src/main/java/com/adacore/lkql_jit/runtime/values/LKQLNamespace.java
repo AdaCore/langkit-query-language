@@ -5,12 +5,13 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.lkql_jit.nodes.utils.ImageNode;
 import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.runtime.values.bases.ObjectLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -21,6 +22,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +30,27 @@ import java.util.Map;
 /** This class represents the namespaces in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
 public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
+
+    // ----- Constants -----
+
+    private static final TruffleString OPEN_BRACK = TruffleString.fromJavaStringUncached(
+        "Namespace(",
+        Constants.STRING_ENCODING
+    );
+    private static final TruffleString CLOSE_BRACK = TruffleString.fromJavaStringUncached(
+        ")",
+        Constants.STRING_ENCODING
+    );
+    private static final TruffleString COLON = TruffleString.fromJavaStringUncached(
+        ": ",
+        Constants.STRING_ENCODING
+    );
+    private static final TruffleString COMMA = TruffleString.fromJavaStringUncached(
+        ", ",
+        Constants.STRING_ENCODING
+    );
+
+    // ----- Properties -----
 
     public final String documentation;
 
@@ -114,37 +137,46 @@ public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
     /** Get the displayable string for the interop library. */
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    Object toDisplayString(
+    public TruffleString toDisplayString(
         @SuppressWarnings("unused") final boolean allowSideEffects,
         @CachedLibrary("this") DynamicObjectLibrary thisLibrary,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elemLibrary
+        @Cached ImageNode imageNode,
+        @Cached TruffleString.ConcatNode concatNode,
+        @Cached TruffleString.FromJavaStringNode fromJavaStringNode
     ) {
         // Prepare the result string builder and get the keys of the object
-        StringBuilder resultBuilder = new StringBuilder("Namespace(");
+        TruffleString res = OPEN_BRACK;
         Object[] keys = thisLibrary.getKeyArray(this);
 
         // Iterate over keys and add the values
         for (int i = 0; i < keys.length; i++) {
-            // Get key/value
-            Object key = keys[i];
+            String key = (String) keys[i];
             Object value = thisLibrary.getOrDefault(this, key, null);
+            res = concatNode.execute(
+                res,
+                concatNode.execute(
+                    fromJavaStringNode.execute(key, Constants.STRING_ENCODING),
+                    concatNode.execute(
+                        COLON,
+                        imageNode.execute(value),
+                        Constants.STRING_ENCODING,
+                        true
+                    ),
+                    Constants.STRING_ENCODING,
+                    true
+                ),
+                Constants.STRING_ENCODING,
+                true
+            );
 
-            // Create the string of the value
-            String valueString;
-            if (value instanceof String) {
-                valueString = StringUtils.toRepr((String) elemLibrary.toDisplayString(value));
-            } else {
-                valueString = (String) elemLibrary.toDisplayString(value);
+            if (i < keys.length - 1) {
+                res = concatNode.execute(res, COMMA, Constants.STRING_ENCODING, true);
             }
-
-            // Add the strings to the result
-            resultBuilder.append(key).append(": ").append(valueString);
-            if (i < keys.length - 1) resultBuilder.append(", ");
         }
 
         // Return the string result
-        resultBuilder.append(")");
-        return resultBuilder.toString();
+        res = concatNode.execute(res, CLOSE_BRACK, Constants.STRING_ENCODING, true);
+        return res;
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.strings.TruffleString;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -28,6 +29,9 @@ import java.util.List;
  * @author Hugo GUERRIER
  */
 public final class ReflectionUtils {
+
+    private static final TruffleString.ToJavaStringNode toJavaStringNode =
+        TruffleString.ToJavaStringNode.getUncached();
 
     /**
      * Refine the LKQL argument in a langkit argument.
@@ -46,7 +50,9 @@ public final class ReflectionUtils {
             try {
                 String resString;
                 try {
-                    resString = LKQLTypeSystemGen.expectString(res);
+                    resString = toJavaStringNode.execute(
+                        LKQLTypeSystemGen.expectTruffleString(res)
+                    );
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_STRING,

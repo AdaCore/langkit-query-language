@@ -10,10 +10,12 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
+import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the null value in LKQL. */
@@ -27,6 +29,11 @@ public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, 
 
     /** The identity hash of the only instance of the LKQL null. */
     private static final int IDENTITY_HASH = System.identityHashCode(INSTANCE);
+
+    private static final TruffleString IMAGE = TruffleString.fromJavaStringUncached(
+        "null",
+        Constants.STRING_ENCODING
+    );
 
     // ----- Constructors -----
 

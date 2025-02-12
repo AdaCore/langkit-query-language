@@ -12,8 +12,11 @@ import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.strings.TruffleString;
 import java.util.ArrayList;
 
 /** This class contains all built-in methods for the analysis unit type in the LKQL language. */
@@ -34,8 +37,11 @@ public final class AnalysisUnitMethods {
     abstract static class NameExpr extends BuiltInBody {
 
         @Specialization
-        public String onUnit(AnalysisUnit self) {
-            return self.getFileName();
+        public TruffleString onUnit(
+            AnalysisUnit self,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
+            return fromJavaStringNode.execute(self.getFileName(), Constants.STRING_ENCODING);
         }
     }
 
@@ -59,8 +65,11 @@ public final class AnalysisUnitMethods {
     abstract static class TextExpr extends BuiltInBody {
 
         @Specialization
-        public String onUnit(AnalysisUnit self) {
-            return self.getText();
+        public TruffleString onUnit(
+            AnalysisUnit self,
+            @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+        ) {
+            return fromJavaStringNode.execute(self.getText(), Constants.STRING_ENCODING);
         }
     }
 }

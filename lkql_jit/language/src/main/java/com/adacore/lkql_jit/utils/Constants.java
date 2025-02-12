@@ -5,6 +5,9 @@
 
 package com.adacore.lkql_jit.utils;
 
+import com.oracle.truffle.api.strings.TruffleString;
+import java.io.File;
+
 /**
  * This class contains all constant values of the LKQL JIT implementation.
  *
@@ -26,6 +29,9 @@ public class Constants {
      */
     public static final String SPECIALIZED_LIB_LIMIT = "3";
 
+    /** Encoding of strings in the LKQL engine. */
+    public static final TruffleString.Encoding STRING_ENCODING = TruffleString.Encoding.UTF_8;
+
     // ----- LKQL values -----
 
     /** Identifier of LKQL in the GraalVM system. */
@@ -42,6 +48,14 @@ public class Constants {
 
     /** Environment variable which contains the paths to look LKQL rules in. */
     public static final String LKQL_RULES_PATH = "LKQL_RULES_PATH";
+
+    // ----- Useful truffle strings -----
+
+    /** The system dependent file separator. */
+    public static final TruffleString PATH_SEP = TruffleString.fromJavaStringUncached(
+        File.separator,
+        STRING_ENCODING
+    );
 
     // ----- Function default values -----
 

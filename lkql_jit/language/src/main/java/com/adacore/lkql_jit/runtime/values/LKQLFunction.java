@@ -9,6 +9,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
@@ -19,6 +20,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 import java.util.ArrayList;
 
@@ -132,11 +134,13 @@ public class LKQLFunction extends BasicLKQLValue {
     }
 
     /** Get the displayable string for the interop library. */
-    @Override
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
-        return "function<" + this.name + ">";
+    public TruffleString toDisplayString(
+        @SuppressWarnings("unused") final boolean allowSideEffects,
+        @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+    ) {
+        return fromJavaStringNode.execute("function<" + this.name + ">", Constants.STRING_ENCODING);
     }
 
     /** Tell the interop library that the value is executable. */

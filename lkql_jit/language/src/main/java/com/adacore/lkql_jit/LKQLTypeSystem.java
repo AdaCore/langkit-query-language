@@ -17,6 +17,7 @@ import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
+import com.oracle.truffle.api.strings.TruffleString;
 import java.math.BigInteger;
 
 /**
@@ -30,7 +31,7 @@ import java.math.BigInteger;
         boolean.class,
         long.class,
         BigInteger.class,
-        String.class,
+        TruffleString.class,
         LKQLPattern.class,
         LKQLFunction.class,
         LKQLSelector.class,

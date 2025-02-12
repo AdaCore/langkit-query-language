@@ -9,6 +9,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -20,10 +21,16 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.strings.TruffleString;
 
 /** This class is the base for all LKQL object-like values. */
 @ExportLibrary(InteropLibrary.class)
 public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue {
+
+    private static final TruffleString OBJECT_LKQL_VALUE_STR = TruffleString.fromJavaStringUncached(
+        "<object_lkql_value>",
+        Constants.STRING_ENCODING
+    );
 
     protected static final DynamicObjectLibrary uncachedObjectLibrary =
         DynamicObjectLibrary.getUncached();
@@ -111,8 +118,8 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
      * classes which export the interop library must implement it.
      */
     @ExportMessage
-    public String toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
-        return "<object_lkql_value>";
+    public TruffleString toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+        return OBJECT_LKQL_VALUE_STR;
     }
 
     /** Tell the interop library that this value has members. */

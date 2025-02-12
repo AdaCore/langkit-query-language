@@ -20,6 +20,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.strings.TruffleString;
 
 /**
  * This node represents a constructor call in the LKQL language. For example new IntLiteral("42").
@@ -38,6 +39,11 @@ public final class ConstructorCall extends Expr {
     /** Node for the conversions to rewriting node. */
     @Child
     private RewritingNodeConverter rewritingNodeConverter = RewritingNodeConverterNodeGen.create();
+
+    /** Node to convert Truffle strings into Java strings. */
+    @Child
+    private TruffleString.ToJavaStringNode toJavaStringNode =
+        TruffleString.ToJavaStringNode.create();
 
     // ----- Attributes -----
 
@@ -143,7 +149,7 @@ public final class ConstructorCall extends Expr {
             try {
                 return rewritingContext.createTokenNode(
                     this.nodeKind,
-                    this.args[0].getArgExpr().executeString(frame)
+                    this.toJavaStringNode.execute(this.args[0].getArgExpr().executeString(frame))
                 );
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(

@@ -12,6 +12,7 @@ import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLObject;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.strings.TruffleString;
 import java.math.BigInteger;
 
 /**
@@ -62,6 +63,12 @@ public final class LKQLTypesHelper {
 
     /** The string representing the LKQL lazy list type. */
     public static final String LKQL_LAZY_LIST = "LazyList";
+
+    /** Lazy list type as a Truffle string. */
+    public static final TruffleString LKQL_LAZY_LIST_TS = TruffleString.fromJavaStringUncached(
+        LKQL_LAZY_LIST,
+        Constants.STRING_ENCODING
+    );
 
     /** The string representing the LKQL selector list type. */
     public static final String LKQL_SELECTOR_LIST = "SelectorList";
@@ -164,7 +171,7 @@ public final class LKQLTypesHelper {
             obj instanceof Integer
         ) {
             return LKQL_INTEGER;
-        } else if (LKQLTypeSystemGen.isString(obj)) {
+        } else if (LKQLTypeSystemGen.isTruffleString(obj)) {
             return LKQL_STRING;
         } else if (LKQLTypeSystemGen.isLKQLPattern(obj)) {
             return LKQL_PATTERN;

@@ -6,11 +6,12 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
+import com.adacore.lkql_jit.nodes.utils.ImageNode;
 import com.adacore.lkql_jit.runtime.values.bases.ArrayLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -18,11 +19,27 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents a tuple in LKQL. */
 @ExportLibrary(InteropLibrary.class)
 public class LKQLTuple extends ArrayLKQLValue implements Indexable {
+
+    // ----- Constants -----
+
+    private static final TruffleString OPEN_BRACK = TruffleString.fromJavaStringUncached(
+        "(",
+        Constants.STRING_ENCODING
+    );
+    private static final TruffleString CLOSE_BRACK = TruffleString.fromJavaStringUncached(
+        ")",
+        Constants.STRING_ENCODING
+    );
+    private static final TruffleString COMMA = TruffleString.fromJavaStringUncached(
+        ", ",
+        Constants.STRING_ENCODING
+    );
 
     // ----- Attributes -----
 
@@ -80,33 +97,26 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
     /** Get the displayable string for the interop library. */
     @CompilerDirectives.TruffleBoundary
     @ExportMessage
-    public Object toDisplayString(
+    public TruffleString toDisplayString(
         @SuppressWarnings("unused") final boolean allowSideEffect,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary interopLibrary
+        @Cached TruffleString.ConcatNode concatNode,
+        @Cached ImageNode imageNode
     ) {
         // Prepare the result
-        StringBuilder resultBuilder = new StringBuilder("(");
+        TruffleString res = OPEN_BRACK;
 
         // Iterate over the list values
         for (int i = 0; i < this.content.length; i++) {
             Object elem = this.content[i];
-
-            // Get the element string
-            String elemString;
-            if (elem instanceof String) {
-                elemString = StringUtils.toRepr((String) interopLibrary.toDisplayString(elem));
-            } else {
-                elemString = (String) interopLibrary.toDisplayString(elem);
+            res = concatNode.execute(res, imageNode.execute(elem), Constants.STRING_ENCODING, true);
+            if (i < this.content.length - 1) {
+                res = concatNode.execute(res, COMMA, Constants.STRING_ENCODING, true);
             }
-
-            // Add the element string to the result
-            resultBuilder.append(elemString);
-            if (i < this.content.length - 1) resultBuilder.append(", ");
         }
 
         // Return the result
-        resultBuilder.append(")");
-        return resultBuilder.toString();
+        res = concatNode.execute(res, CLOSE_BRACK, Constants.STRING_ENCODING, true);
+        return res;
     }
 
     /** Tell the interop library that tuple has array elements. */

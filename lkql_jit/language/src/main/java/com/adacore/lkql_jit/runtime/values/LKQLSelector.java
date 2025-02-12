@@ -9,12 +9,15 @@ import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLSelectorList;
+import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the selector values in LKQL. */
@@ -105,11 +108,13 @@ public class LKQLSelector extends BasicLKQLValue {
     }
 
     /** Get the displayable string for the interop library. */
-    @Override
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
-        return "selector<" + this.name + ">";
+    public TruffleString toDisplayString(
+        @SuppressWarnings("unused") final boolean allowSideEffects,
+        @Cached TruffleString.FromJavaStringNode fromJavaStringNode
+    ) {
+        return fromJavaStringNode.execute("selector<" + this.name + ">", Constants.STRING_ENCODING);
     }
 
     /** Tell the interop library that the value is not executable. */
