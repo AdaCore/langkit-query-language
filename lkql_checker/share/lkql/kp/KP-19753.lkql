@@ -1,0 +1,6 @@
+@check(help="possible occurrence of KP 19753",
+       message="possible occurrence of KP 19753")
+fun kp_19753(node) =
+    |" Flag loop body which have a raise statement as first non-null statement.
+    node is BaseLoopStmt
+    when [n for n in node.f_stmts.children if n is not NullStmt]?[1] is RaiseStmt
