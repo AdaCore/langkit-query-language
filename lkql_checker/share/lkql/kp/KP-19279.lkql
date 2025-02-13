@@ -23,7 +23,7 @@ fun contains_dynamic_bounds(agg) =
                                     not tn.p_is_static_subtype()
                                 | n@Name                                      =>
                                     n.p_referenced_decl()?.p_type_expression() is SubtypeIndication(
-                                        p_is_static_subtype(): false
+                                        p_is_statically_constrained(): false
                                     )
                             )
                         | Name(p_name_designated_type(): not null) =>

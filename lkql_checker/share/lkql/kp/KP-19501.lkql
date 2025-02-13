@@ -15,8 +15,8 @@ fun is_dynamic_subtyped_entity(name) =
                    | DefiningName => name.p_basic_decl()
                    | Name => name.p_referenced_decl();
         decl is (ComponentDef | DiscriminantSpec | ObjectDecl | ParamSpec)
-        when decl.f_type_expr is (SubtypeIndication | Name)(
-            p_is_static_subtype(): false
+        when decl.f_type_expr is (SubtypeIndication)(
+            p_is_statically_constrained(): false
         )
     }
 
@@ -27,7 +27,7 @@ fun array_index_has_kp(expr, array_decl, child_n) =
     |" ``child_n``.
     match expr.f_suffix[child_n]?.f_r_expr
     | e when is_static_int_attr(e) =>
-        if array_decl.f_type_expr.p_is_static_subtype()
+        if array_decl.f_type_expr.p_is_statically_constrained()
         then array_index_has_kp(expr, array_decl, child_n + 1)
     | null => false
     | *    => array_index_has_kp(expr, array_decl, child_n + 1)
@@ -61,6 +61,6 @@ fun kp_19501(node) =
         is_dynamic_subtyped_entity(node.f_dest)
     | QualExpr(f_suffix: ParenExpr(f_expr: operand)) =>
         is_static_int_attr(operand) and
-        node.f_prefix is (SubtypeIndication | Name)(
-            p_is_static_subtype(): false
+        node.f_prefix is (Name)(
+            p_name_designated_type(): BaseTypeDecl(p_is_statically_constrained(): false)
         )
