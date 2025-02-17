@@ -113,8 +113,7 @@ public final class NodeCheckerFunction {
                                     new SourceSectionWrapper(this.callNode.getSourceSection()));
                     if (context.isCheckerDebug()) {
                         context.getLogger().severe(e.getMessage());
-                        context.getLogger()
-                                .severe(e.adaStackTrace.orElse("ERROR: can't get Ada stack trace"));
+                        context.getLogger().severe(e.stackTrace());
                     }
                     continue;
                 }
