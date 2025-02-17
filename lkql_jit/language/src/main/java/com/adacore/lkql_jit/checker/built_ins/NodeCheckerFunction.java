@@ -120,9 +120,7 @@ public final class NodeCheckerFunction {
                         );
                     if (context.isCheckerDebug()) {
                         context.getLogger().severe(e.getMessage());
-                        context
-                            .getLogger()
-                            .severe(e.adaStackTrace.orElse("ERROR: can't get Ada stack trace"));
+                        context.getLogger().severe(e.nativeStackTrace());
                     }
                     continue;
                 }
