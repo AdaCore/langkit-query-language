@@ -74,6 +74,7 @@ if __name__ == "__main__":
             "--no-fallback",
             "--language:regex",
             "--initialize-at-build-time=com.adacore.lkql_jit,com.adacore.liblkqllang",
+            "-H:-UseContainerSupport",
         ]
 
         if args.build_mode in ("dev", "debug"):
