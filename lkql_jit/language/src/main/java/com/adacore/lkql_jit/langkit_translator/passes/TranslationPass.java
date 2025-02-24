@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.AllBuiltIns;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.TranslatorException;
@@ -278,8 +279,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             return new ReadPrelude(location, this.scriptFrames.getPrelude(symbol));
         }
         // Finally look in the LKQL built-ins
-        else if (this.scriptFrames.isBuiltIn(symbol)) {
-            return new ReadBuiltIn(location, this.scriptFrames.getBuiltIn(symbol));
+        else if (AllBuiltIns.functions().containsKey(symbol)) {
+            return new ReadBuiltIn(location, AllBuiltIns.functions().get(symbol).getLeft());
         }
         // If we're in interactive mode and the symbol hasn't been found any other way, issue a
         // ReadDynamic, which will read from the global scope. This is only necessary in

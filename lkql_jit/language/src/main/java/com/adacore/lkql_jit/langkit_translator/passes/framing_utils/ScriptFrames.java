@@ -25,9 +25,6 @@ public final class ScriptFrames {
 
     // ----- Attributes -----
 
-    /** LKQL built-ins with their slot. */
-    private final Map<String, Integer> builtIns;
-
     /** Root node frame. */
     private final AbstractNodeFrame root;
 
@@ -38,23 +35,9 @@ public final class ScriptFrames {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new script frames description.
-     *
-     * @param builtIns The built-in symbols.
-     * @param root The root node frame of the script frames description.
-     * @param globalScope
-     */
-    public ScriptFrames(
-        final List<String> builtIns,
-        final AbstractNodeFrame root,
-        GlobalScope globalScope
-    ) {
+    /** Create a new script frames description. */
+    public ScriptFrames(final AbstractNodeFrame root, GlobalScope globalScope) {
         this.globalScope = globalScope;
-        this.builtIns = new HashMap<>();
-        for (int i = 0; i < builtIns.size(); i++) {
-            this.builtIns.put(builtIns.get(i), i);
-        }
         this.root = root;
         this.current = null;
     }
@@ -72,20 +55,18 @@ public final class ScriptFrames {
         if (this.current == null) {
             if (!this.root.node.equals(node)) {
                 throw new TranslatorException(
-                    "Cannot enter the root frame because of node inequality"
-                );
+                        "Cannot enter the root frame because of node inequality");
             }
             this.current = this.root;
         } else {
             if (!this.current.children.containsKey(node)) {
                 throw new TranslatorException(
-                    "Cannot enter the frame, " +
-                    node +
-                    " isn't in the children" +
-                    " (current: " +
-                    this.current.node +
-                    ")"
-                );
+                        "Cannot enter the frame, "
+                                + node
+                                + " isn't in the children"
+                                + " (current: "
+                                + this.current.node
+                                + ")");
             }
             this.current = this.current.children.get(node);
         }
@@ -128,28 +109,6 @@ public final class ScriptFrames {
 
     public int getPrelude(final String symbol) {
         return globalScope.preludeMap.get(symbol);
-    }
-
-    // --- Symbol methods
-
-    /**
-     * Get if the given symbol is a built-in
-     *
-     * @param symbol The symbol to look for.
-     * @return True if the symbol is in the built-in, false else.
-     */
-    public boolean isBuiltIn(final String symbol) {
-        return this.builtIns.containsKey(symbol);
-    }
-
-    /**
-     * Get the built-in slot for the given built-in symbol.
-     *
-     * @param symbol The symbol to get the slot for.
-     * @return The built-in slot.
-     */
-    public int getBuiltIn(final String symbol) {
-        return this.builtIns.get(symbol);
     }
 
     /**
@@ -245,9 +204,7 @@ public final class ScriptFrames {
 
     @Override
     public String toString() {
-        return (
-            "ScriptFrames(" + "\n\tbuilt_ins: " + this.builtIns + "\n\troot: " + this.root + "\n)"
-        );
+        return "ScriptFrames(" + "\n\troot: " + this.root + "\n)";
     }
 
     // ----- Inner classes -----
@@ -259,7 +216,6 @@ public final class ScriptFrames {
 
         /** Pseudo mutable record to store information about a binding. */
         public static final class BindingInfo {
-
             private static final BindingInfo NONE = new BindingInfo(-1);
 
             private final int slot;
@@ -301,9 +257,7 @@ public final class ScriptFrames {
          * @param parent The parent of the node frame.
          */
         protected AbstractNodeFrame(
-            final Liblkqllang.LkqlNode node,
-            final AbstractNodeFrame parent
-        ) {
+                final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
             this.node = node;
             this.parent = parent;
             this.children = new HashMap<>();
@@ -444,6 +398,7 @@ public final class ScriptFrames {
          */
         public NodeFrame(final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
             super(node, parent);
+
             this.parameters = new HashMap<>();
             this.closure = new HashMap<>();
             this.closingBindings = new HashMap<>();
