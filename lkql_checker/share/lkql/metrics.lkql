@@ -39,7 +39,7 @@ fun statement_complexity(body, exempt_case=false) =
         | e@ExitStmt(f_cond_expr: not null) => 1
         | s@SelectStmt(
             f_guards: guards,
-            f_else_stmts: elses_stmts,
+            f_else_part: elses_stmts,
             f_then_abort_part: then_abort_part
         ) => guards.children_count
              + (if elses_stmts.children_count == 0 then 0 else 1)

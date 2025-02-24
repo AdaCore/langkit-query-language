@@ -36,10 +36,32 @@ procedure Proc (I : in out Integer; S : String) is   --  FLAG Complexity 7
             when 2 => null;
             when 3 => null;
             when 4 => null;
-            when others => I := if I > 0 then 1 elsif False then 2 else 3;
+            when others => I := (if I > 0 then 1 elsif False then 2 else 3);
          end case;
       end E1;
    end Prot;
+
+   task U is
+      entry E1;
+      entry E2;
+      entry E3;
+      entry E4;
+   end U;
+
+   task body U is  --  FLAG Complexity 6
+   begin
+      select
+         accept E1;
+      or
+         accept E2;
+      or
+         accept E3;
+      or
+         accept E4;
+      or
+         terminate;
+      end select;
+   end U;
 
 begin
    if I in 1 .. 10 then

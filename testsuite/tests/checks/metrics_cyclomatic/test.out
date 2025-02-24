@@ -2,9 +2,9 @@ proc.adb:1:1: rule violation: cyclomatic complexity is too high: 7
 1  |  procedure Proc (I : in out Integer; S : String) is   --  FLAG Complexity 7
    | _^
    ||
-   || ~~~ 58 other lines ~~~
+   || ~~~ 80 other lines ~~~
    ||
-60 || end Proc;
+82 || end Proc;
    ||_________^
 
 proc.adb:8:4: rule violation: cyclomatic complexity is too high: 6
@@ -33,4 +33,13 @@ proc.adb:32:7: rule violation: cyclomatic complexity is too high: 7
    ||
 41 ||       end E1;
    ||_____________^
+
+proc.adb:51:4: rule violation: cyclomatic complexity is too high: 6
+51 |     task body U is  --  FLAG Complexity 6
+   | ____^
+   ||
+   || ~~~ 12 other lines ~~~
+   ||
+64 ||    end U;
+   ||_________^
 
