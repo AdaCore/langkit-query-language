@@ -1692,36 +1692,10 @@ package body Gnatcheck.Diagnoses is
    procedure Print_Out_Diagnoses is
       Diagnoses_Reported : Natural := 0;
       Limit_Exceeded     : Boolean := False;
-      GPS_Prefix         : constant String := "check:";
-
-      function Preprocess_Diag (Diag : String) return String;
-      --  Add GPS_Prefix if Progress_Indicator_Mode is True, and remove any
-      --  trailing GNAT tag following the "[-gnat<x>]" format.
 
       procedure Counted_Print_Diagnosis
         (Position : Error_Messages_Storage.Cursor);
       --  Print diagnosis until reaching Max_Diagnoses
-
-      ---------------------
-      -- Preprocess_Diag --
-      ---------------------
-
-      function Preprocess_Diag (Diag : String) return String is
-      begin
-         if Arg.Progress_Indicator_Mode.Get then
-            declare
-               Idx : constant Natural := Index (Diag, ": ");
-            begin
-               return
-                 Diag (Diag'First .. Idx + 1)
-                 & GPS_Prefix
-                 & ' '
-                 & Strip_Tag (Diag (Idx + 2 .. Diag'Last));
-            end;
-         else
-            return Strip_Tag (Diag);
-         end if;
-      end Preprocess_Diag;
 
       -----------------------------
       -- Counted_Print_Diagnosis --
@@ -1743,7 +1717,7 @@ package body Gnatcheck.Diagnoses is
                then
                   Diagnoses_Reported := @ + 1;
                   Print
-                    (Preprocess_Diag
+                    (Strip_Tag
                        (Image (Error_Messages_Storage.Element (Position))));
                end if;
             end if;
