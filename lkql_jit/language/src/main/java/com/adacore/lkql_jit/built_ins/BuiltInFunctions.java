@@ -186,7 +186,12 @@ public class BuiltInFunctions {
                 writer.write("^^^^^^^^^^^^^^^^^\n");
                 writer.write("\n");
 
-                for (var func : AllBuiltIns.allFunctions()) {
+                for (var p : AllBuiltIns.functions()
+                    .values()
+                    .stream()
+                    .sorted(Comparator.comparing(f -> f.getRight().name))
+                    .toList()) {
+                    var func = p.getRight();
                     writer.write(".. function:: ");
                     writer.write(func.getName());
                     writer.write("(" + String.join(", ", func.parameterNames) + ")");
