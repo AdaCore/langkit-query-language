@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.runtime;
 
 import com.adacore.lkql_jit.built_ins.AllBuiltIns;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.checker.BaseChecker;
 import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
@@ -48,16 +47,13 @@ public final class GlobalScope {
 
     /** Create a new global scope. */
     public GlobalScope() {
-        var builtInFunctions = AllBuiltIns.allFunctions();
         this.checkers = new HashMap<>();
-        this.builtIns = new Object[builtInFunctions.size() + AllBuiltIns.allMethods().size()];
         this.metaTables = new HashMap<>();
         this.globalObjects = new HashMap<>();
 
-        // Add the built-in functions
-        for (int i = 0; i < builtInFunctions.size(); i++) {
-            BuiltInFunctionValue function = builtInFunctions.get(i);
-            builtIns[i] = function;
+        this.builtIns = new Object[AllBuiltIns.functions().size()];
+        for (var f : AllBuiltIns.functions().values()) {
+            this.builtIns[f.getLeft()] = f.getRight();
         }
 
         // Add the built-in methods

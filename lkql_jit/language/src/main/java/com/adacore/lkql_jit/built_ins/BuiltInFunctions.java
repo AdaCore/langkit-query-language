@@ -194,11 +194,12 @@ public class BuiltInFunctions {
                 writer.write("^^^^^^^^^^^^^^^^^\n");
                 writer.write("\n");
 
-                List<BuiltInFunctionValue> sortedBuiltinFunctions = AllBuiltIns.allFunctions()
+                for (var p : AllBuiltIns.functions()
+                    .values()
                     .stream()
-                    .sorted((l, r) -> l.getExecutableName().compareTo(r.getExecutableName()))
-                    .collect(Collectors.toList());
-                for (var func : sortedBuiltinFunctions) {
+                    .sorted(Comparator.comparing(f -> f.getRight().getExecutableName()))
+                    .toList()) {
+                    var func = p.getRight();
                     writer.write(".. function:: ");
                     writer.write(func.getExecutableName());
                     writer.write("(" + String.join(", ", func.parameterNames) + ")");
