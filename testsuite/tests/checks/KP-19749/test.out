@@ -1,0 +1,12 @@
+flags.adb:1:1: rule violation: possible occurrence of KP 19749
+1 | pragma Task_Dispatching_Policy (FIFO_Within_Priorities);   --  FLAG
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+flags.adb:2:1: rule violation: possible occurrence of KP 19749
+2 | pragma Locking_Policy (Ceiling_Locking);                   --  FLAG
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+flags.adb:3:1: rule violation: possible occurrence of KP 19749
+3 | pragma Queuing_Policy (FIFO_Queuing);                      --  FLAG
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
