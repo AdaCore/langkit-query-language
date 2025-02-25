@@ -10,11 +10,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a block expression in the LKQL language
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a block expression in the LKQL language */
 public final class BlockExpr extends Expr {
 
     // ----- Children -----

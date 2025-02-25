@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.runtime.values.AdaNodeProxy;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -17,7 +18,7 @@ import com.oracle.truffle.api.source.SourceSection;
  * {@link NodeKindPattern}. The type of node is decided in the lowering
  * pass, thanks to a flag set when entering a pass node.
  */
-public final class DynamicNodeKindPattern extends NodePattern {
+public final class DynamicNodeKindPattern extends Pattern {
 
     // ----- Attributes -----
 

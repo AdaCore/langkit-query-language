@@ -12,7 +12,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
 /** This node represents all type of arguments in the LKQL language. */
-public abstract class Arg extends LKQLNode {
+public abstract sealed class Arg extends LKQLNode permits NamedArg, ExprArg {
 
     // ----- Attributes -----
 

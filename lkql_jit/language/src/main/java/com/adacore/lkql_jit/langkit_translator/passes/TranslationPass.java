@@ -9,7 +9,6 @@ import static com.adacore.lkql_jit.options.IterationUtils.toStream;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.AllBuiltIns;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.TranslatorException;
@@ -39,7 +38,7 @@ import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
-import com.adacore.lkql_jit.nodes.expressions.value_read.*;
+import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.adacore.lkql_jit.nodes.pass.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
@@ -56,15 +55,11 @@ import java.util.*;
  *
  * @author Hugo GUERRIER
  */
-public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode> {
+public final class TranslationPass
+    extends BaseTranslationPass
+    implements Liblkqllang.BasicVisitor<LKQLNode> {
 
     // ----- Attributes -----
-
-    /** The source of the AST to translate. */
-    private final Source source;
-
-    /** The frame descriptions for the LKQL script. */
-    private final ScriptFrames frames;
 
     /** Flag to handle some nodes differently if found inside pass declaration */
     private boolean inPass = false;
@@ -78,33 +73,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      * @param frames The descriptions of the script frames.
      */
     public TranslationPass(final Source source, final ScriptFrames frames) {
-        this.source = source;
-        this.frames = frames;
-    }
-
-    // ----- Instance methods -----
-
-    /**
-     * Create the source location for the given node.
-     *
-     * @param node The node to create the source location for.
-     * @return The source location.
-     */
-    private SourceSection loc(final Liblkqllang.LkqlNode node) {
-        return SourceSectionWrapper.createSection(node.getSourceLocationRange(), this.source);
-    }
-
-    private RuntimeException translationError(Liblkqllang.LkqlNode node, String message) {
-        var ctx = LKQLLanguage.getContext(null);
-        ctx
-            .getDiagnosticEmitter()
-            .emitDiagnostic(
-                CheckerUtils.MessageKind.ERROR,
-                message,
-                null,
-                SourceSectionWrapper.create(node.getSourceLocationRange(), source)
-            );
-        return LKQLRuntimeException.fromMessage("Errors during analysis");
+        super(source, frames);
     }
 
     private RuntimeException multipleSameNameKeys(Liblkqllang.LkqlNode node, String key) {
@@ -260,42 +229,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.Identifier identifier) {
-        // Get the identifier string
-        final String symbol = identifier.getText();
-        final SourceSection location = loc(identifier);
-
-        // First look for the symbol in the frame local bindings
-        if (this.frames.isBinding(symbol) && this.frames.isBindingDeclared(symbol)) {
-            return new ReadLocal(location, this.frames.getBinding(symbol));
-        }
-        // In a second time look in the parameters of the frame
-        else if (this.frames.isParameter(symbol)) {
-            return new ReadParameter(location, this.frames.getParameter(symbol));
-        }
-        // Then look in the closure for the symbol
-        else if (this.frames.isClosure(symbol)) {
-            final var slotInfo = this.frames.getClosure(symbol);
-            if (this.frames.isClosureDeclared(symbol)) {
-                return ReadClosureNodeGen.create(location, slotInfo.slot(), slotInfo.isGlobal());
-            } else {
-                return new ReadClosureUnsafe(location, slotInfo.slot(), symbol);
-            }
-        } else if (this.frames.isPrelude(symbol)) {
-            return new ReadPrelude(location, this.frames.getPrelude(symbol));
-        }
-        // Finally look in the LKQL built-ins
-        else if (AllBuiltIns.functions().containsKey(symbol)) {
-            return new ReadBuiltIn(location, AllBuiltIns.functions().get(symbol).getLeft());
-        }
-        // If we're in interactive mode and the symbol hasn't been found any other way, issue a
-        // ReadDynamic, which will read from the global scope. This is only necessary in
-        // interactive mode.
-        else if (this.source.isInteractive()) {
-            return new ReadDynamic(location, symbol);
-        }
-
-        // If the symbol hasn't been found, throw an exception
-        throw translationError(identifier, "Unknown symbol: " + symbol);
+        return buildRead(identifier.getText(), loc(identifier));
     }
 
     /**
@@ -473,36 +407,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.ArgList argList) {
-        // Prepare the argument list
-        final List<Arg> arguments = new ArrayList<>();
-
-        // Visit all argument to create the argument list and perform static checks
-        boolean namedPhase = false;
-        final Set<String> seenNames = new HashSet<>();
-        for (Liblkqllang.LkqlNode arg : argList.children()) {
-            final Arg curArg = (Arg) arg.accept(this);
-
-            // Verify the position after named arguments
-            if (curArg instanceof ExprArg) {
-                if (namedPhase) {
-                    throw LKQLRuntimeException.positionAfterNamedArgument(curArg);
-                }
-            }
-            // Verify the same name arguments
-            else if (curArg instanceof NamedArg namedArg) {
-                namedPhase = true;
-                if (seenNames.contains(namedArg.getArgStringName())) {
-                    throw LKQLRuntimeException.multipleSameNameArgument(curArg);
-                }
-                seenNames.add(namedArg.getArgStringName());
-            }
-
-            // Add the argument to the list
-            arguments.add(curArg);
-        }
-
-        // Return the new argument list node
-        return new ArgList(loc(argList), arguments.toArray(new Arg[0]));
+        var args = Arrays.stream(argList.children()).map(a -> (Arg) a.accept(this)).toList();
+        return buildArgs(args, loc(argList));
     }
 
     // --- Parameters
@@ -1954,16 +1860,16 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Register pass as fake function
         final String name = passDecl.fPassName().getText();
-        scriptFrames.declareBinding(name);
-        final int slot = scriptFrames.getBinding(name);
+        frames.declareBinding(name);
+        final int slot = frames.getBinding(name);
         final Liblkqllang.Identifier previousName = passDecl.fPreviousPassName();
         final Optional<Integer> previousSlot = previousName.isNone()
             ? Optional.empty()
-            : Optional.of(scriptFrames.getBinding(previousName.getText()));
+            : Optional.of(frames.getBinding(previousName.getText()));
 
         // Enter pass lexical environement
         inPass = true;
-        scriptFrames.enterFrame(passDecl);
+        frames.enterFrame(passDecl);
 
         final int nbFakeArgs = Constants.PASS_FAKE_ARGS.length;
         final var readParameters = new ReadParameter[nbFakeArgs];
@@ -1971,7 +1877,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             final String argName = Constants.PASS_FAKE_ARGS[i];
             readParameters[i] = new ReadParameter(
                 source.createUnavailableSection(),
-                scriptFrames.getParameter(argName)
+                frames.getParameter(argName)
             );
         }
 
@@ -1993,8 +1899,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         final var funExpr = new FunExpr(
             location,
-            scriptFrames.getFrameDescriptor(),
-            scriptFrames.getClosureDescriptor(),
+            frames.getFrameDescriptor(),
+            frames.getClosureDescriptor(),
             Constants.PASS_FAKE_ARGS,
             new Expr[Constants.PASS_FAKE_ARGS.length],
             docstring.isNone() ? "" : parseStringLiteral(docstring),
@@ -2004,7 +1910,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Cleanup
         inPass = false;
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         final var functionDecl = new FunctionDeclaration(location, null, slot, funExpr);
 
@@ -2092,7 +1998,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.RunPass runPass) {
         final var name = runPass.fStart().getText();
-        final int slot = scriptFrames.getBinding(name);
+        final int slot = frames.getBinding(name);
         return new RunPass(loc(runPass), slot);
     }
 

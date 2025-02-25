@@ -5,7 +5,9 @@
 
 package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
+import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.exception.TranslatorException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
@@ -59,7 +61,7 @@ public final class ScriptFrames {
      *
      * @param node The node associated to the frame to enter in.
      */
-    public void enterFrame(final Liblkqllang.LkqlNode node) {
+    public void enterFrame(final NodeInterface node) {
         if (this.current == null) {
             if (!this.root.node.equals(node)) {
                 throw new TranslatorException(
@@ -248,13 +250,13 @@ public final class ScriptFrames {
         // --- General attributes
 
         /** The node associated with the frame. */
-        protected final Liblkqllang.LkqlNode node;
+        protected final NodeInterface node;
 
         /** The parent node frame. */
         protected final AbstractNodeFrame parent;
 
         /** List of the children node frames. */
-        protected final Map<Liblkqllang.LkqlNode, AbstractNodeFrame> children;
+        protected final Map<Object, AbstractNodeFrame> children;
 
         /** Bindings in the frame, those are local variables declared in the frame. */
         protected final Map<String, BindingInfo> bindings;
@@ -267,10 +269,7 @@ public final class ScriptFrames {
          * @param node Associated node.
          * @param parent The parent of the node frame.
          */
-        protected AbstractNodeFrame(
-            final Liblkqllang.LkqlNode node,
-            final AbstractNodeFrame parent
-        ) {
+        protected AbstractNodeFrame(final NodeInterface node, final AbstractNodeFrame parent) {
             this.node = node;
             this.parent = parent;
             this.children = new HashMap<>();
@@ -409,7 +408,7 @@ public final class ScriptFrames {
          * @param node The node associated with the frame description.
          * @param parent The parent node frame description, this can be null.
          */
-        public NodeFrame(final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
+        public NodeFrame(final NodeInterface node, final AbstractNodeFrame parent) {
             super(node, parent);
             this.parameters = new HashMap<>();
             this.closure = new HashMap<>();
@@ -452,7 +451,10 @@ public final class ScriptFrames {
         public void addBinding(final String symbol) {
             // Get a new slot in the frame descriptor builder
             final int slot;
-            if (this.node instanceof Liblkqllang.TopLevelList) {
+            if (
+                this.node instanceof Liblkqllang.TopLevelList ||
+                this.node instanceof Liblktlang.LangkitRoot
+            ) {
                 slot = this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, symbol, null);
             } else {
                 slot = this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, null, null);
@@ -610,7 +612,7 @@ public final class ScriptFrames {
          * @param node The node associated to the frame.
          * @param parent The node frame parent.
          */
-        public VirtualNodeFrame(final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
+        public VirtualNodeFrame(final NodeInterface node, final AbstractNodeFrame parent) {
             super(node, parent);
         }
 

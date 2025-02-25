@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
-import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.lkql_jit.built_ins.AllBuiltIns;
 import com.adacore.lkql_jit.exception.TranslatorException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
@@ -44,7 +44,7 @@ public final class ScriptFramesBuilder {
      *
      * @param node The node associated with the frame builder.
      */
-    public void openFrame(final Liblkqllang.LkqlNode node) {
+    public void openFrame(final NodeInterface node) {
         openFrame(node, false);
     }
 
@@ -53,7 +53,7 @@ public final class ScriptFramesBuilder {
      *
      * @param node the node associated with the frame builder
      */
-    public void openVirtualFrame(final Liblkqllang.LkqlNode node) {
+    public void openVirtualFrame(final NodeInterface node) {
         openFrame(node, true);
     }
 
@@ -63,7 +63,7 @@ public final class ScriptFramesBuilder {
      * @param node The node associated with the frame builder.
      * @param isVirtual If the frame is virtual.
      */
-    private void openFrame(final Liblkqllang.LkqlNode node, final boolean isVirtual) {
+    private void openFrame(final NodeInterface node, final boolean isVirtual) {
         // Create the new frame
         final NodeFrameBuilder newFrame = new NodeFrameBuilder(node, this.current, isVirtual);
 
@@ -175,8 +175,8 @@ public final class ScriptFramesBuilder {
 
         // ----- Attributes -----
 
-        /** LKQL node associated with the frame builder. */
-        private final Liblkqllang.LkqlNode node;
+        /** Syntactical node associated with the frame builder. */
+        private final NodeInterface node;
 
         /** Parent node frame builder. */
         private final NodeFrameBuilder parent;
@@ -206,7 +206,7 @@ public final class ScriptFramesBuilder {
          * @param isVirtual If the frame is a virtual one.
          */
         private NodeFrameBuilder(
-            final Liblkqllang.LkqlNode node,
+            final NodeInterface node,
             final NodeFrameBuilder parent,
             final boolean isVirtual
         ) {
@@ -259,7 +259,7 @@ public final class ScriptFramesBuilder {
                 (this.isVirtual ? "<virtual>" : "") +
                 "(" +
                 "node: " +
-                this.node.getImage() +
+                node.getImage() +
                 (this.bindings.size() > 0 ? ", bindings: " + this.bindings : "") +
                 (this.parameters.size() > 0 ? ", parameters: " + this.parameters : "") +
                 (this.children.size() > 0 ? ", children: " + this.children : "") +
