@@ -63,7 +63,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     private final Source source;
 
     /** The frame descriptions for the LKQL script. */
-    private final ScriptFrames scriptFrames;
+    private final ScriptFrames frames;
 
     // ----- Constructors -----
 
@@ -71,11 +71,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      * Create a new translation pass.
      *
      * @param source The source of the AST to translate.
-     * @param scriptFrames The descriptions of the script frames.
+     * @param frames The descriptions of the script frames.
      */
-    public TranslationPass(final Source source, final ScriptFrames scriptFrames) {
+    public TranslationPass(final Source source, final ScriptFrames frames) {
         this.source = source;
-        this.scriptFrames = scriptFrames;
+        this.frames = frames;
     }
 
     // ----- Instance methods -----
@@ -92,14 +92,12 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     private RuntimeException translationError(Liblkqllang.LkqlNode node, String message) {
         var ctx = LKQLLanguage.getContext(null);
-        ctx
-            .getDiagnosticEmitter()
-            .emitDiagnostic(
-                CheckerUtils.MessageKind.ERROR,
-                message,
-                null,
-                SourceSectionWrapper.create(node.getSourceLocationRange(), source)
-            );
+        ctx.getDiagnosticEmitter()
+                .emitDiagnostic(
+                        CheckerUtils.MessageKind.ERROR,
+                        message,
+                        null,
+                        SourceSectionWrapper.create(node.getSourceLocationRange(), source));
         return LKQLRuntimeException.fromMessage("Errors during analysis");
     }
 
@@ -195,7 +193,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.TopLevelList topLevelList) {
         // Enter the top level frame
-        this.scriptFrames.enterFrame(topLevelList);
+        this.frames.enterFrame(topLevelList);
 
         // Initialize the top level nodes list
         final List<LKQLNode> topLevelNodes = new ArrayList<>();
@@ -206,7 +204,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Exit the top level frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         String doc = null;
 
@@ -217,7 +215,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Return the top level node
         return new TopLevelList(
             loc(topLevelList),
-            this.scriptFrames.getFrameDescriptor(),
+            this.frames.getFrameDescriptor(),
             topLevelNodes.toArray(new LKQLNode[0]),
             this.source.isInteractive(),
             doc
@@ -261,28 +259,32 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final SourceSection location = loc(identifier);
 
         // First look for the symbol in the frame local bindings
-        if (this.scriptFrames.isBinding(symbol) && this.scriptFrames.isBindingDeclared(symbol)) {
-            return new ReadLocal(location, this.scriptFrames.getBinding(symbol));
+        if (this.frames.isBinding(symbol) && this.frames.isBindingDeclared(symbol)) {
+            return new ReadLocal(location, this.frames.getBinding(symbol));
         }
+
         // In a second time look in the parameters of the frame
-        else if (this.scriptFrames.isParameter(symbol)) {
-            return new ReadArgument(location, this.scriptFrames.getParameter(symbol));
+        else if (this.frames.isParameter(symbol)) {
+            return new ReadArgument(location, this.frames.getParameter(symbol));
         }
+
         // Then look in the closure for the symbol
-        else if (this.scriptFrames.isClosure(symbol)) {
-            final int slot = this.scriptFrames.getClosure(symbol);
-            if (this.scriptFrames.isClosureDeclared(symbol)) {
+        else if (this.frames.isClosure(symbol)) {
+            final int slot = this.frames.getClosure(symbol);
+            if (this.frames.isClosureDeclared(symbol)) {
                 return new ReadClosure(location, slot);
             } else {
                 return new ReadClosureUnsafe(location, slot, symbol);
             }
-        } else if (this.scriptFrames.isPrelude(symbol)) {
-            return new ReadPrelude(location, this.scriptFrames.getPrelude(symbol));
+        } else if (this.frames.isPrelude(symbol)) {
+            return new ReadPrelude(location, this.frames.getPrelude(symbol));
         }
+
         // Finally look in the LKQL built-ins
         else if (AllBuiltIns.functions().containsKey(symbol)) {
             return new ReadBuiltIn(location, AllBuiltIns.functions().get(symbol).getLeft());
         }
+
         // If we're in interactive mode and the symbol hasn't been found any other way, issue a
         // ReadDynamic, which will read from the global scope. This is only necessary in
         // interactive mode.
@@ -484,6 +486,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                     throw LKQLRuntimeException.positionAfterNamedArgument(curArg);
                 }
             }
+
             // Verify the same name arguments
             else if (curArg instanceof NamedArg namedArg) {
                 namedPhase = true;
@@ -718,8 +721,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr value = (Expr) valDecl.fValue().accept(this);
 
         // Get the slot for the name
-        this.scriptFrames.declareBinding(name);
-        final int slot = this.scriptFrames.getBinding(name);
+        this.frames.declareBinding(name);
+        final int slot = this.frames.getBinding(name);
 
         // Return the value declaration node
         return new ValueDeclaration(loc(valDecl), slot, value);
@@ -900,8 +903,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final String name = splatPattern.fBinding().getText();
 
         // Get the slot of the binding
-        this.scriptFrames.declareBinding(name);
-        final int slot = this.scriptFrames.getBinding(name);
+        this.frames.declareBinding(name);
+        final int slot = this.frames.getBinding(name);
 
         return new SplatPattern(loc(splatPattern), slot);
     }
@@ -918,8 +921,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final String name = bindingPattern.fBinding().getText();
 
         // Get the slot of the binding
-        this.scriptFrames.declareBinding(name);
-        final int slot = this.scriptFrames.getBinding(name);
+        this.frames.declareBinding(name);
+        final int slot = this.frames.getBinding(name);
 
         ValuePattern pattern = null;
         // Visit the associated value pattern
@@ -943,13 +946,13 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr nodeExpr = (Expr) isClause.fNodeExpr().accept(this);
 
         // Enter the "is" clause frame
-        this.scriptFrames.enterFrame(isClause);
+        this.frames.enterFrame(isClause);
 
         // Translate the is clause pattern
         final BasePattern pattern = (BasePattern) isClause.fPattern().accept(this);
 
         // Exit the frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         // Return the result
         return IsClauseNodeGen.create(loc(isClause), pattern, nodeExpr);
@@ -1106,7 +1109,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.Query query) {
         // Enter the query frame
-        this.scriptFrames.enterFrame(query);
+        this.frames.enterFrame(query);
 
         // Translate the query fields
         boolean followGenerics = false;
@@ -1132,7 +1135,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Exit the query frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         // Return the new query node
         return new Query(loc(query), queryKind, followGenerics, throughExpr, fromExpr, pattern);
@@ -1211,7 +1214,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Enter the list comprehension frame
-        this.scriptFrames.enterFrame(listComprehension);
+        this.frames.enterFrame(listComprehension);
 
         // Create the list comprehension associations
         final List<ComprehensionAssoc> assocList = new ArrayList<>();
@@ -1219,7 +1222,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             final Liblkqllang.ListCompAssoc assocBase =
                 (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
             final String name = assocBase.fBindingName().getText();
-            int slot = this.scriptFrames.getParameter(name);
+            int slot = this.frames.getParameter(name);
 
             assocList.add(new ComprehensionAssoc(loc(assocBase), name, slot, collections.get(i)));
         }
@@ -1232,8 +1235,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Create the result
         final ListComprehension res = new ListComprehension(
             loc(listComprehension),
-            this.scriptFrames.getFrameDescriptor(),
-            this.scriptFrames.getClosureDescriptor(),
+            this.frames.getFrameDescriptor(),
+            this.frames.getClosureDescriptor(),
             new ComprehensionAssocList(
                 loc(assocListBase),
                 assocList.toArray(new ComprehensionAssoc[0])
@@ -1243,7 +1246,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         );
 
         // Exit the frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         // Return the result
         return res;
@@ -1393,7 +1396,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.BlockExpr blockExpr) {
         // Enter the block expression frame
-        this.scriptFrames.enterFrame(blockExpr);
+        this.frames.enterFrame(blockExpr);
 
         // Create the declaration list
         final List<BlockBody> blockBody = new ArrayList<>();
@@ -1405,7 +1408,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr expr = (Expr) blockExpr.fExpr().accept(this);
 
         // Exit the block expression frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         // Return the result
         return new BlockExpr(loc(blockExpr), blockBody.toArray(new BlockBody[0]), expr);
@@ -1443,7 +1446,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     private FunExpr functionExprHelper(Liblkqllang.BaseFunction baseFunction) {
         // Enter the function frame
-        this.scriptFrames.enterFrame(baseFunction);
+        this.frames.enterFrame(baseFunction);
 
         // Translate the function fields
         final List<ParameterDeclaration> parameters = new ArrayList<>();
@@ -1457,15 +1460,15 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Return the new function expression node
         final FunExpr res = new FunExpr(
             loc(baseFunction),
-            this.scriptFrames.getFrameDescriptor(),
-            this.scriptFrames.getClosureDescriptor(),
+            this.frames.getFrameDescriptor(),
+            this.frames.getClosureDescriptor(),
             parameters.toArray(new ParameterDeclaration[0]),
             docstring.isNone() ? "" : parseStringLiteral(docstring),
             body
         );
 
         // Exit the function frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         // Return the result
         return res;
@@ -1481,8 +1484,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     public LKQLNode visit(Liblkqllang.FunDecl funDecl) {
         // Get the current slot of the name
         final String name = funDecl.fName().getText();
-        this.scriptFrames.declareBinding(name);
-        final int slot = this.scriptFrames.getBinding(name);
+        this.frames.declareBinding(name);
+        final int slot = this.frames.getBinding(name);
 
         // Translate the declaration annotation
         final Liblkqllang.DeclAnnotation annotationBase = funDecl.fAnnotation();
@@ -1584,7 +1587,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.SelectorArm selectorArm) {
         // Enter the arm frame
-        this.scriptFrames.enterFrame(selectorArm);
+        this.frames.enterFrame(selectorArm);
 
         // Translate the selector arm fields
         // TODO: Question on why many expressions by arm
@@ -1592,7 +1595,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr expr = (Expr) selectorArm.fExpr().accept(this);
 
         // Exit the arm frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         // Return the selector arm node
         return new SelectorArm(loc(selectorArm), pattern, expr);
@@ -1619,8 +1622,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             : parseStringLiteral(documentationBase);
 
         // Get the current slot to place the new selector in
-        this.scriptFrames.declareBinding(name);
-        final int slot = this.scriptFrames.getBinding(name);
+        this.frames.declareBinding(name);
+        final int slot = this.frames.getBinding(name);
 
         // Translate the declaration annotation
         final Liblkqllang.DeclAnnotation annotationBase = selectorDecl.fAnnotation();
@@ -1629,13 +1632,13 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             : (Annotation) annotationBase.accept(this);
 
         // Enter the selector frame
-        this.scriptFrames.enterFrame(selectorDecl);
+        this.frames.enterFrame(selectorDecl);
 
         // Get the "this" and "depth" bindings
-        this.scriptFrames.declareBinding(Constants.THIS_SYMBOL);
-        this.scriptFrames.declareBinding(Constants.DEPTH_SYMBOL);
-        final int thisSlot = this.scriptFrames.getBinding(Constants.THIS_SYMBOL);
-        final int depthSlot = this.scriptFrames.getBinding(Constants.DEPTH_SYMBOL);
+        this.frames.declareBinding(Constants.THIS_SYMBOL);
+        this.frames.declareBinding(Constants.DEPTH_SYMBOL);
+        final int thisSlot = this.frames.getBinding(Constants.THIS_SYMBOL);
+        final int depthSlot = this.frames.getBinding(Constants.DEPTH_SYMBOL);
 
         // Get the selector arms
         final List<SelectorArm> arms = new ArrayList<>();
@@ -1644,11 +1647,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Create the frame descriptor for the arms
-        FrameDescriptor frameDescriptor = this.scriptFrames.getFrameDescriptor();
-        ClosureDescriptor closureDescriptor = this.scriptFrames.getClosureDescriptor();
+        FrameDescriptor frameDescriptor = this.frames.getFrameDescriptor();
+        ClosureDescriptor closureDescriptor = this.frames.getClosureDescriptor();
 
         // Exit the selector frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         // Return the new selector declaration node
         return new SelectorDeclaration(
@@ -1698,8 +1701,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Get the slot for the binding
         final int bindingSlot;
         if (binding != null) {
-            this.scriptFrames.declareBinding(binding);
-            bindingSlot = this.scriptFrames.getBinding(binding);
+            this.frames.declareBinding(binding);
+            bindingSlot = this.frames.getBinding(binding);
         } else {
             bindingSlot = -1;
         }
@@ -1777,13 +1780,13 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final SelectorCall selectorCall = (SelectorCall) nodePatternSelector.fCall().accept(this);
 
         // Enter the node pattern selector frame
-        this.scriptFrames.enterFrame(nodePatternSelector.fPattern());
+        this.frames.enterFrame(nodePatternSelector.fPattern());
 
         // Translate the node pattern selector pattern
         final BasePattern pattern = (BasePattern) nodePatternSelector.fPattern().accept(this);
 
         // Exit the node pattern selector frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         nodePatternSelector.fPatternDetailDelimiter().accept(this);
 
@@ -1834,14 +1837,14 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.MatchArm matchArm) {
         // Enter the match arm frame
-        this.scriptFrames.enterFrame(matchArm);
+        this.frames.enterFrame(matchArm);
 
         // Translate the match arm fields
         final BasePattern pattern = (BasePattern) matchArm.fPattern().accept(this);
         final Expr expr = (Expr) matchArm.fExpr().accept(this);
 
         // Exit the match arm frame
-        this.scriptFrames.exitFrame();
+        this.frames.exitFrame();
 
         // Return the new match arm
         return new MatchArm(loc(matchArm), pattern, expr);
@@ -1887,8 +1890,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final String name = anImport.fName().getText();
 
         // Get the slot to place the import in
-        this.scriptFrames.declareBinding(name);
-        final int slot = this.scriptFrames.getBinding(name);
+        this.frames.declareBinding(name);
+        final int slot = this.frames.getBinding(name);
 
         // Return the import node
         return new Import(loc(anImport), name, slot);
