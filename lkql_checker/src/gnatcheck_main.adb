@@ -8,11 +8,11 @@ with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded;
-with Ada.Text_IO;             use Ada.Text_IO;
+with Ada.Text_IO; use Ada.Text_IO;
 
 with Checker_App;
 
-with GNAT.OS_Lib;       use GNAT.OS_Lib;
+with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
@@ -46,12 +46,12 @@ procedure Gnatcheck_Main is
    E_Missing_Rule      : constant := 5; --  Bad rule name or bad rule parameter
    E_Bad_Rules         : constant := 6; --  Other problem with rules options
 
-   function File_Name (Id : String; Job : Natural) return String is
-     (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
+   function File_Name (Id : String; Job : Natural) return String
+   is (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
    --  Return the full path for a temp file with a given Id
 
-   function Default_LKQL_Rule_Options_File return String is
-     (Gnatcheck_Prj.Get_Project_Relative_File ("rules.lkql"));
+   function Default_LKQL_Rule_Options_File return String
+   is (Gnatcheck_Prj.Get_Project_Relative_File ("rules.lkql"));
    --  Get the default LKQL rule options file name.
 
    procedure Setup_Search_Paths;
@@ -103,17 +103,17 @@ procedure Gnatcheck_Main is
          end if;
       end Add_Path;
 
-      Executable : String_Access := Locate_Exec_On_Path
-        (Ada.Command_Line.Command_Name);
+      Executable : String_Access :=
+        Locate_Exec_On_Path (Ada.Command_Line.Command_Name);
    begin
       if Executable = null then
-         raise Program_Error with
-            "cannot locate " & Ada.Command_Line.Command_Name;
+         raise Program_Error
+           with "cannot locate " & Ada.Command_Line.Command_Name;
       end if;
 
       declare
          Prefix : constant String :=
-            Containing_Directory (Containing_Directory (Executable.all));
+           Containing_Directory (Containing_Directory (Executable.all));
 
          Lkql : constant String := Compose (Compose (Prefix, "share"), "lkql");
          Kp   : constant String := Compose (Lkql, "kp");
@@ -204,7 +204,7 @@ procedure Gnatcheck_Main is
          Files_Per_Job := (@ + 1) / 2;
          Num_Jobs := @ * 2;
 
-      --  Reduce number of jobs if too few files
+         --  Reduce number of jobs if too few files
 
       elsif Files_Per_Job < Minimum_Files then
          Files_Per_Job := Minimum_Files;
@@ -222,13 +222,12 @@ procedure Gnatcheck_Main is
 
       Close (File);
 
-      Total_Jobs := Num_Jobs +
-                      (if Analyze_Compiler_Output then 1 else 0);
+      Total_Jobs := Num_Jobs + (if Analyze_Compiler_Output then 1 else 0);
 
       if not Arg.Quiet_Mode and not Arg.Progress_Indicator_Mode.Get then
          Print
            ("Jobs remaining:" & Integer'Image (Total_Jobs) & ASCII.CR,
-            New_Line => False,
+            New_Line    => False,
             Log_Message => False);
       end if;
 
@@ -276,24 +275,29 @@ procedure Gnatcheck_Main is
                   begin
                      Percent (1) := '(';
                      Print
-                       ("completed" & Integer'Image (Current)
-                        & " out of" & Integer'Image (Total_Jobs) & " "
-                        & Percent & "%)...",
+                       ("completed"
+                        & Integer'Image (Current)
+                        & " out of"
+                        & Integer'Image (Total_Jobs)
+                        & " "
+                        & Percent
+                        & "%)...",
                         Log_Message => False);
                   end;
                elsif not Arg.Quiet_Mode then
                   Print
-                    (Message =>
+                    (Message     =>
                        "Jobs remaining:"
                        & Integer'Image (Total_Jobs - Current)
-                       & "     " & ASCII.CR,
-                     New_Line => False,
+                       & "     "
+                       & ASCII.CR,
+                     New_Line    => False,
                      Log_Message => False);
                end if;
 
                if Pid = GPRbuild_Pid then
-                  Analyze_Output (Global_Report_Dir.all & "gprbuild.err",
-                                  Status);
+                  Analyze_Output
+                    (Global_Report_Dir.all & "gprbuild.err", Status);
                   exit when Current = Total_Jobs;
 
                else
@@ -368,8 +372,8 @@ procedure Gnatcheck_Main is
          --  Now that some processes are free, spawn gprbuild in background
 
          if Analyze_Compiler_Output then
-            GPRbuild_Pid := Spawn_GPRbuild
-                              (Global_Report_Dir.all & "gprbuild.err");
+            GPRbuild_Pid :=
+              Spawn_GPRbuild (Global_Report_Dir.all & "gprbuild.err");
          end if;
 
          --  Wait for remaining children
@@ -494,8 +498,7 @@ begin
    if Arg.Ignore_Files.Get /= Null_Unbounded_String then
       if Is_Regular_File (To_String (Arg.Ignore_Files.Get)) then
          Exempted_Units :=
-           new String'(Normalize_Pathname
-                         (To_String (Arg.Ignore_Files.Get)));
+           new String'(Normalize_Pathname (To_String (Arg.Ignore_Files.Get)));
       else
          Error (To_String (Arg.Ignore_Files.Get) & " not found");
          raise Parameter_Error;
@@ -535,8 +538,8 @@ begin
    --  Force some switches and perform some checks for gnatkp
 
    if Gnatkp_Mode then
-      Max_Diagnoses  := 0;
-      Log_Mode       := False;
+      Max_Diagnoses := 0;
+      Log_Mode := False;
 
       if Target = Null_Unbounded_String
         or else RTS_Path = Null_Unbounded_String
@@ -560,7 +563,8 @@ begin
       if Is_Regular_File (Default_LKQL_Rule_Options_File) then
          Error
            ("cannot emit the LKQL rule file, "
-            & Default_LKQL_Rule_Options_File & " already exists");
+            & Default_LKQL_Rule_Options_File
+            & " already exists");
          OS_Exit (E_Error);
       end if;
 
@@ -621,19 +625,19 @@ begin
      (if Tool_Failures /= 0
         or else Detected_Internal_Error /= 0
         or else Error_From_Warning
-      then                                    E_Error
-      elsif Missing_Rule_File_Detected   then E_Missing_Rule_File
-      elsif Bad_Rule_Detected            then E_Missing_Rule
+      then E_Error
+      elsif Missing_Rule_File_Detected then E_Missing_Rule_File
+      elsif Bad_Rule_Detected then E_Missing_Rule
       elsif Rule_Option_Problem_Detected then E_Bad_Rules
-      elsif Missing_File_Detected        then E_Missing_Source
+      elsif Missing_File_Detected then E_Missing_Source
 
       --  If we are here, no problem with gnatcheck execution or rule
       --  option or missing file definition is detected, so we can trust
       --  gnatcheck results.
 
       elsif (Detected_Non_Exempted_Violations > 0
-      or else Detected_Compiler_Error > 0)
-      and then not Arg.Brief_Mode
+             or else Detected_Compiler_Error > 0)
+        and then not Arg.Brief_Mode
       then E_Violation
       else E_Success);
 

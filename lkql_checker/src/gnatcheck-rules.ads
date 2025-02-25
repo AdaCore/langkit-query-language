@@ -31,8 +31,8 @@ package Gnatcheck.Rules is
    package Rident is new System.Rident;
    pragma Warnings (On);
 
-   package Exemption_Parameters is new Ada.Containers.Indefinite_Ordered_Sets
-     (Element_Type => String);
+   package Exemption_Parameters is new
+     Ada.Containers.Indefinite_Ordered_Sets (Element_Type => String);
    --  Needed to keep/process strings that can be used as rule parameters for
    --  rule exemptions.
 
@@ -80,6 +80,7 @@ package Gnatcheck.Rules is
          when True =>
             Alias_Name : Unbounded_String;
             --  Name of the alias as the user wrote it
+
          when False =>
             null;
       end case;
@@ -90,8 +91,10 @@ package Gnatcheck.Rules is
 
    type Rule_Instance_Access is access all Rule_Instance'Class;
 
-   package Rule_Instance_Vector is new Ada.Containers.Vectors
-     (Index_Type => Natural, Element_Type => Rule_Instance_Access);
+   package Rule_Instance_Vector is new
+     Ada.Containers.Vectors
+       (Index_Type   => Natural,
+        Element_Type => Rule_Instance_Access);
 
    type Rule_Info is record
       Name : Unbounded_String;
@@ -136,39 +139,39 @@ package Gnatcheck.Rules is
       Instances : Rule_Instance_Vector.Vector;
       --  Enabled instances of the rule
 
-      XML_Rule_Help : access procedure
-        (Rule : Rule_Info; Indent_Level : Natural);
+      XML_Rule_Help :
+        access procedure (Rule : Rule_Info; Indent_Level : Natural);
       --  Access to the function to print rule information (including those
       --  about rule parameters) in XML format, The template prints out the
       --  following string:
       --
       --  <check switch="+RRule_Name" label="brief rule help"/>
 
-      Allowed_As_Exemption_Parameter : access function
-        (Param : String) return Boolean;
+      Allowed_As_Exemption_Parameter :
+        access function (Param : String) return Boolean;
       --  Access to the function required to get whether a given exemption
       --  parameter is allowed for the rule.
 
-      Rule_Param_From_Diag : access function
-        (Diag : String) return String;
+      Rule_Param_From_Diag : access function (Diag : String) return String;
       --  Access to a function which assumes that
       --  `Allows_Parametrized_Exemption (Rule)` is True and `Diag` is a
       --  diagnosis emitted for `Rule`. This function returns the formal
       --  parameter name which `Diag` has been generated for.
 
-      Create_Instance : access function
-        (Is_Alias : Boolean) return Rule_Instance_Access;
+      Create_Instance :
+        access function (Is_Alias : Boolean) return Rule_Instance_Access;
       --  Access to the function required to create a new instance of the given
       --  rule. This function allocate a new instance record and return an
       --  access to it. The returned instance must be freed when not needed
       --  anymore.
 
-      Process_Rule_Parameter : access procedure
-        (Rule          : Rule_Id;
-         Instance_Name : String;
-         Param         : String;
-         Enable        : Boolean;
-         Defined_At    : String);
+      Process_Rule_Parameter :
+        access procedure
+          (Rule          : Rule_Id;
+           Instance_Name : String;
+           Param         : String;
+           Enable        : Boolean;
+           Defined_At    : String);
       --  Access to the function required to process a given parameter. This
       --  function updates the global instances map according to the
       --  provided `Param` and `Enable` values. This function also check for
@@ -190,8 +193,7 @@ package Gnatcheck.Rules is
    ------------------------------------
 
    function Create_Rule
-     (Param_Kind : Rule_Param_Kind;
-      Rule_Name  : String) return Rule_Info;
+     (Param_Kind : Rule_Param_Kind; Rule_Name : String) return Rule_Info;
    --  Allocate a new rule information record with the given param kind. The
    --  returned pointer should be freed by the caller.
 
@@ -230,8 +232,7 @@ package Gnatcheck.Rules is
    -----------------------------------------------------------------
 
    procedure Process_Instance_Params_Object
-     (Instance      : in out Rule_Instance;
-      Params_Object : in out JSON_Value)
+     (Instance : in out Rule_Instance; Params_Object : in out JSON_Value)
    is null;
    --  Process the given JSON value as an arguments object for `Rule`. This
    --  object contains argument names as keys, associated with their value
@@ -245,7 +246,7 @@ package Gnatcheck.Rules is
 
    procedure Map_Parameters
      (Instance : in out Rule_Instance;
-      Args : in out Rule_Argument_Vectors.Vector)
+      Args     : in out Rule_Argument_Vectors.Vector)
    is null;
    --  After parameters have been processed, store the relevant parameters for
    --  Rule in Map.
@@ -259,8 +260,7 @@ package Gnatcheck.Rules is
    --  print out actual parameter settings.
 
    procedure XML_Print_Rule_Instance
-     (Instance     : Rule_Instance;
-      Indent_Level : Natural := 0);
+     (Instance : Rule_Instance; Indent_Level : Natural := 0);
    --  Print the rule instance information follwing the XML file format
 
    ------------------------------------------
@@ -277,8 +277,8 @@ package Gnatcheck.Rules is
    function Annotate_Diag (Instance : Rule_Instance'Class) return String;
    --  Return a string to annotate a diagnostic about the rule instance
 
-   procedure Free is new Ada.Unchecked_Deallocation
-     (Rule_Instance'Class, Rule_Instance_Access);
+   procedure Free is new
+     Ada.Unchecked_Deallocation (Rule_Instance'Class, Rule_Instance_Access);
    --  Free the memory allocated for a rule instance
 
    ---------------------------------------
@@ -290,22 +290,25 @@ package Gnatcheck.Rules is
    end record;
    --  Represents an instance of a rule with only one integer parameter
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_Integer_Parameter_Instance;
       Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_Integer_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : One_Integer_Parameter_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : One_Integer_Parameter_Instance;
-      Indent_Level : Natural := 0);
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : One_Integer_Parameter_Instance; Indent_Level : Natural := 0);
 
    ---------------------------------------
    -- "One boolean parameter" instances --
@@ -318,22 +321,25 @@ package Gnatcheck.Rules is
    end record;
    --  Represents an instance of a rule with only one boolean parameter
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_Boolean_Parameter_Instance;
       Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_Boolean_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : One_Boolean_Parameter_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : One_Boolean_Parameter_Instance;
-      Indent_Level : Natural := 0);
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : One_Boolean_Parameter_Instance; Indent_Level : Natural := 0);
 
    --------------------------------------
    -- "One string parameter" instances --
@@ -345,26 +351,29 @@ package Gnatcheck.Rules is
    end record;
    --  Represents an instance of a rule with only one string parameter
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_String_Parameter_Instance;
       Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_String_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : One_String_Parameter_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : One_String_Parameter_Instance;
-      Indent_Level : Natural := 0);
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : One_String_Parameter_Instance; Indent_Level : Natural := 0);
 
    function Load_File
-     (Instance : in out One_String_Parameter_Instance'Class;
-      To_Load  : String) return Boolean;
+     (Instance : in out One_String_Parameter_Instance'Class; To_Load : String)
+      return Boolean;
    --  Load the `File_Name` file content in the rule parameter, then returns
    --  if the file loading was successful.
 
@@ -376,11 +385,13 @@ package Gnatcheck.Rules is
    with null record;
    --  Represents an instance of a rule with only on array parameter
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_Array_Parameter_Instance;
       Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_Array_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
@@ -397,20 +408,24 @@ package Gnatcheck.Rules is
    end record;
    --  Represents an instance of a rule with one integer and boolean parameters
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_Integer_Or_Booleans_Parameter_Instance;
       Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_Integer_Or_Booleans_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : One_Integer_Or_Booleans_Parameter_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
+   overriding
+   procedure XML_Print_Rule_Instance
      (Instance     : One_Integer_Or_Booleans_Parameter_Instance;
       Indent_Level : Natural := 0);
 
@@ -432,22 +447,25 @@ package Gnatcheck.Rules is
    end record;
    --  Represents an instance of a rule about identifier suffixes
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Suffixes_Instance;
       Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Identifier_Suffixes_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Identifier_Suffixes_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Identifier_Suffixes_Instance;
-      Indent_Level : Natural := 0);
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Identifier_Suffixes_Instance; Indent_Level : Natural := 0);
 
    -----------------------------------
    -- Identifier_Prefixes instances --
@@ -468,22 +486,25 @@ package Gnatcheck.Rules is
    end record;
    --  Represents an instance of a rule about identifier prefixes
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Prefixes_Instance;
       Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Identifier_Prefixes_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Identifier_Prefixes_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Identifier_Prefixes_Instance;
-      Indent_Level : Natural := 0);
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Identifier_Prefixes_Instance; Indent_Level : Natural := 0);
 
    ---------------------------------
    -- Identifier_Casing instances --
@@ -501,77 +522,84 @@ package Gnatcheck.Rules is
    end record;
    --  Represents an instance of a rule about identifiers casing
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Casing_Instance;
       Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Identifier_Casing_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Identifier_Casing_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Identifier_Casing_Instance;
-      Indent_Level : Natural := 0);
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Identifier_Casing_Instance; Indent_Level : Natural := 0);
 
    ---------------------------
    -- Forbidden_* instances --
    ---------------------------
 
    type Forbidden_Instance is new Rule_Instance with record
-      All_Flag  : Tri_State := Unset;
-      Forbidden,
-      Allowed   : Unbounded_Wide_Wide_String :=
+      All_Flag           : Tri_State := Unset;
+      Forbidden, Allowed : Unbounded_Wide_Wide_String :=
         Null_Unbounded_Wide_Wide_String;
    end record;
    --  Represents an instance of a rule about forbiddening things
 
-   overriding procedure Process_Instance_Params_Object
-     (Instance      : in out Forbidden_Instance;
-      Params_Object : in out JSON_Value);
+   overriding
+   procedure Process_Instance_Params_Object
+     (Instance : in out Forbidden_Instance; Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Forbidden_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Forbidden_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Forbidden_Instance;
-      Indent_Level : Natural := 0);
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Forbidden_Instance; Indent_Level : Natural := 0);
 
    -----------------------------------------
    -- Silent_Exception_Handlers instances --
    -----------------------------------------
 
    type Silent_Exception_Handlers_Instance is new Rule_Instance with record
-      Subprograms,
-      Subprogram_Regexps : Unbounded_Wide_Wide_String :=
+      Subprograms, Subprogram_Regexps : Unbounded_Wide_Wide_String :=
         Null_Unbounded_Wide_Wide_String;
    end record;
    --  Represents an instance of a rule about silent exception handlers
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out Silent_Exception_Handlers_Instance;
       Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Silent_Exception_Handlers_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Silent_Exception_Handlers_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
+   overriding
+   procedure XML_Print_Rule_Instance
      (Instance     : Silent_Exception_Handlers_Instance;
       Indent_Level : Natural := 0);
 
@@ -584,22 +612,24 @@ package Gnatcheck.Rules is
    end record;
    --  Represents an instance of a rule with arbitrary parameters
 
-   overriding procedure Process_Instance_Params_Object
-     (Instance      : in out Custom_Instance;
-      Params_Object : in out JSON_Value);
+   overriding
+   procedure Process_Instance_Params_Object
+     (Instance : in out Custom_Instance; Params_Object : in out JSON_Value);
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Custom_Instance;
       Args     : in out Rule_Argument_Vectors.Vector);
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Custom_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Custom_Instance;
-      Indent_Level : Natural := 0);
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Custom_Instance; Indent_Level : Natural := 0);
 
    ------------------------------
    -- Compiler-based instances --

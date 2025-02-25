@@ -11,8 +11,8 @@ with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
 with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
-with GNAT.OS_Lib;                use GNAT.OS_Lib;
+with GNAT.Directory_Operations; use GNAT.Directory_Operations;
+with GNAT.OS_Lib;               use GNAT.OS_Lib;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
@@ -55,7 +55,7 @@ package body Gnatcheck.Source_Table is
    type String_Loc is access all String;
 
    type SF_Record is record
-      Source_Name  : String_Loc;
+      Source_Name : String_Loc;
       --  Stores the source name with full directory information in absolute
       --  form.
 
@@ -87,13 +87,14 @@ package body Gnatcheck.Source_Table is
       --  the list of options to be passed to the compiler to create the tree.
    end record;
 
-   package Source_File_Table is new GNAT.Table (
-     Table_Component_Type => SF_Record,
-     Table_Index_Type     => SF_Id,
-     Table_Low_Bound      => First_SF_Id,
-     Table_Initial        => 100,
-     Table_Increment      => 100,
-     Table_Name           => "Source file table");
+   package Source_File_Table is new
+     GNAT.Table
+       (Table_Component_Type => SF_Record,
+        Table_Index_Type     => SF_Id,
+        Table_Low_Bound      => First_SF_Id,
+        Table_Initial        => 100,
+        Table_Increment      => 100,
+        Table_Name           => "Source file table");
 
    Source_Table : Source_File_Table.Table_Ptr renames Source_File_Table.Table;
 
@@ -146,8 +147,7 @@ package body Gnatcheck.Source_Table is
    --  Similar to File_Find, but looks for the file with the same short name.
 
    function Non_Case_Sensitive_File_Find
-     (SF_Name        : String;
-      Use_Short_Name : Boolean := False) return SF_Id;
+     (SF_Name : String; Use_Short_Name : Boolean := False) return SF_Id;
    --  Used as a part of the implementation of File_Find. Tries to locate the
    --  argument in the source table when all the path/file names are converted
    --  to lower case.
@@ -171,7 +171,7 @@ package body Gnatcheck.Source_Table is
    procedure Add_Source_To_Process
      (Fname              : String;
       Arg_Project        : Arg_Project_Type'Class;
-      Duplication_Report : Boolean   := True;
+      Duplication_Report : Boolean := True;
       Status             : SF_Status := Waiting);
    --  Fname is treated as the name of the file to process by the tool. We try
    --  to add this file to the table of files to process. The following checks
@@ -213,9 +213,9 @@ package body Gnatcheck.Source_Table is
    -- Source file access/update routines not used outside this package --
    ----------------------------------------------------------------------
 
-   procedure Set_Source_Name       (SF : SF_Id; N : String);
+   procedure Set_Source_Name (SF : SF_Id; N : String);
    procedure Set_Short_Source_Name (SF : SF_Id; N : String);
-   procedure Set_Suffixless_Name   (SF : SF_Id; N : String);
+   procedure Set_Suffixless_Name (SF : SF_Id; N : String);
 
    ---------------------------
    -- Add_Source_To_Process --
@@ -251,23 +251,25 @@ package body Gnatcheck.Source_Table is
       if not Res.Is_Defined then
          if Is_Regular_File (Fname) then
             Warning
-              (Fname & " is not in the analysed project closure ("
-               & String (Arg_Project.Tree.Root_Project.Name) & ")");
+              (Fname
+               & " is not in the analysed project closure ("
+               & String (Arg_Project.Tree.Root_Project.Name)
+               & ")");
          else
             Warning (Fname & " not found");
          end if;
          Missing_File_Detected := True;
          return;
       else
-         Short_Source_Name_String :=
-           new String'(Res.Path_Name.String_Value);
+         Short_Source_Name_String := new String'(Res.Path_Name.String_Value);
       end if;
 
-      Full_Source_Name_String := new String'
-        (Normalize_Pathname
-           (Short_Source_Name_String.all,
-            Resolve_Links  => False,
-            Case_Sensitive => True));
+      Full_Source_Name_String :=
+        new String'
+          (Normalize_Pathname
+             (Short_Source_Name_String.all,
+              Resolve_Links  => False,
+              Case_Sensitive => True));
       Free (Short_Source_Name_String);
 
       Short_Source_Name_String := new String'(Base_Name (Fname));
@@ -284,12 +286,14 @@ package body Gnatcheck.Source_Table is
             end if;
             return;
 
-         --  Else, look for files with the same name but with a difference path
          else
+            --  Else, look for files with the same name but with a difference
+            --  path.
             Old_SF := Same_Name_File_Find (Full_Source_Name_String.all);
             if Present (Old_SF) then
                Error
-                 ("more than one version of " & Short_Source_Name_String.all
+                 ("more than one version of "
+                  & Short_Source_Name_String.all
                   & " processed");
             end if;
          end if;
@@ -298,7 +302,7 @@ package body Gnatcheck.Source_Table is
       --  If we are here, we have to store the file in the table
       Source_File_Table.Append (New_SF_Record);
       Last_Arg_Source := Source_File_Table.Last;
-      New_SF          := Last_Arg_Source;
+      New_SF := Last_Arg_Source;
 
       if Present (Hash_Table (Hash_Index)) then
          Old_SF := Hash_Table (Hash_Index);
@@ -315,12 +319,12 @@ package body Gnatcheck.Source_Table is
 
       Set_Source_Name (New_SF, Full_Source_Name_String.all);
       Set_Short_Source_Name (New_SF, Short_Source_Name_String.all);
-      Set_Source_Status     (New_SF, Status);
+      Set_Source_Status (New_SF, Status);
 
       First_Idx := Short_Source_Name_String'First;
-      Last_Idx  := Short_Source_Name_String'Last;
+      Last_Idx := Short_Source_Name_String'Last;
 
-      for J in reverse  First_Idx + 1 .. Last_Idx loop
+      for J in reverse First_Idx + 1 .. Last_Idx loop
          if Short_Source_Name_String (J) = '.' then
             Last_Idx := J - 1;
             exit;
@@ -434,11 +438,9 @@ package body Gnatcheck.Source_Table is
       L_Last : constant Natural := L'Last;
       R_Last : constant Natural := R'Last;
 
-      L_Dir_Separator : Natural :=
-        Index (L, [Directory_Separator], Backward);
+      L_Dir_Separator : Natural := Index (L, [Directory_Separator], Backward);
 
-      R_Dir_Separator : Natural :=
-        Index (R, [Directory_Separator], Backward);
+      R_Dir_Separator : Natural := Index (R, [Directory_Separator], Backward);
 
       Base_L : constant String := Base_Name (L);
       Base_R : constant String := Base_Name (R);
@@ -448,9 +450,7 @@ package body Gnatcheck.Source_Table is
          return Base_L'Length < Base_R'Length;
       end if;
 
-      if L_Dir_Separator = 0 and then
-         R_Dir_Separator = 0
-      then
+      if L_Dir_Separator = 0 and then R_Dir_Separator = 0 then
          return L < R;
       end if;
 
@@ -462,9 +462,7 @@ package body Gnatcheck.Source_Table is
          R_Dir_Separator := R'First;
       end if;
 
-      if L (L_Dir_Separator .. L_Last) =
-         R (R_Dir_Separator .. R_Last)
-      then
+      if L (L_Dir_Separator .. L_Last) = R (R_Dir_Separator .. R_Last) then
          return L < R;
       else
          return L (L_Dir_Separator .. L_Last) < R (R_Dir_Separator .. R_Last);
@@ -487,8 +485,8 @@ package body Gnatcheck.Source_Table is
 
    function First_File_In_Temp_Storage return String is
    begin
-      return Ada.Directories.Simple_Name
-        (Element (First (Temporary_File_Storage)));
+      return
+        Ada.Directories.Simple_Name (Element (First (Temporary_File_Storage)));
    end First_File_In_Temp_Storage;
 
    --------------------------------
@@ -510,7 +508,7 @@ package body Gnatcheck.Source_Table is
       subtype Int_0_12 is Integer range 0 .. 12;
       --  Used to avoid when others on case jump below
 
-      Name_Len    : constant Natural                := File_Name'Length;
+      Name_Len    : constant Natural := File_Name'Length;
       Name_Buffer : constant String (1 .. Name_Len) := To_Lower (File_Name);
       --  This allows us to use from Namet without any change at all
 
@@ -530,19 +528,31 @@ package body Gnatcheck.Source_Table is
       if Name_Len > 12 then
          Even_Name_Len := (Name_Len) / 2 * 2;
 
-         return ((((((((((((
-           Character'Pos (Name_Buffer (01))) * 2 +
-           Character'Pos (Name_Buffer (Even_Name_Len - 10))) * 2 +
-           Character'Pos (Name_Buffer (03))) * 2 +
-           Character'Pos (Name_Buffer (Even_Name_Len - 08))) * 2 +
-           Character'Pos (Name_Buffer (05))) * 2 +
-           Character'Pos (Name_Buffer (Even_Name_Len - 06))) * 2 +
-           Character'Pos (Name_Buffer (07))) * 2 +
-           Character'Pos (Name_Buffer (Even_Name_Len - 04))) * 2 +
-           Character'Pos (Name_Buffer (09))) * 2 +
-           Character'Pos (Name_Buffer (Even_Name_Len - 02))) * 2 +
-           Character'Pos (Name_Buffer (11))) * 2 +
-           Character'Pos (Name_Buffer (Even_Name_Len))) mod Hash_Num;
+         return
+           ((((((((((((Character'Pos (Name_Buffer (01)))
+                      * 2
+                      + Character'Pos (Name_Buffer (Even_Name_Len - 10)))
+                     * 2
+                     + Character'Pos (Name_Buffer (03)))
+                    * 2
+                    + Character'Pos (Name_Buffer (Even_Name_Len - 08)))
+                   * 2
+                   + Character'Pos (Name_Buffer (05)))
+                  * 2
+                  + Character'Pos (Name_Buffer (Even_Name_Len - 06)))
+                 * 2
+                 + Character'Pos (Name_Buffer (07)))
+                * 2
+                + Character'Pos (Name_Buffer (Even_Name_Len - 04)))
+               * 2
+               + Character'Pos (Name_Buffer (09)))
+              * 2
+              + Character'Pos (Name_Buffer (Even_Name_Len - 02)))
+             * 2
+             + Character'Pos (Name_Buffer (11)))
+            * 2
+            + Character'Pos (Name_Buffer (Even_Name_Len)))
+           mod Hash_Num;
       end if;
 
       --  For the cases of 1-12 characters, all characters participate in the
@@ -555,118 +565,194 @@ package body Gnatcheck.Source_Table is
             return 0;
 
          when 1 =>
-            return
-               Character'Pos (Name_Buffer (1));
+            return Character'Pos (Name_Buffer (1));
 
          when 2 =>
-            return ((
-              Character'Pos (Name_Buffer (1))) * 64 +
-              Character'Pos (Name_Buffer (2))) mod Hash_Num;
+            return
+              ((Character'Pos (Name_Buffer (1)))
+               * 64
+               + Character'Pos (Name_Buffer (2)))
+              mod Hash_Num;
 
          when 3 =>
-            return (((
-              Character'Pos (Name_Buffer (1))) * 16 +
-              Character'Pos (Name_Buffer (3))) * 16 +
-              Character'Pos (Name_Buffer (2))) mod Hash_Num;
+            return
+              (((Character'Pos (Name_Buffer (1)))
+                * 16
+                + Character'Pos (Name_Buffer (3)))
+               * 16
+               + Character'Pos (Name_Buffer (2)))
+              mod Hash_Num;
 
          when 4 =>
-            return ((((
-              Character'Pos (Name_Buffer (1))) * 8 +
-              Character'Pos (Name_Buffer (2))) * 8 +
-              Character'Pos (Name_Buffer (3))) * 8 +
-              Character'Pos (Name_Buffer (4))) mod Hash_Num;
+            return
+              ((((Character'Pos (Name_Buffer (1)))
+                 * 8
+                 + Character'Pos (Name_Buffer (2)))
+                * 8
+                + Character'Pos (Name_Buffer (3)))
+               * 8
+               + Character'Pos (Name_Buffer (4)))
+              mod Hash_Num;
 
          when 5 =>
-            return (((((
-              Character'Pos (Name_Buffer (4))) * 8 +
-              Character'Pos (Name_Buffer (1))) * 4 +
-              Character'Pos (Name_Buffer (3))) * 4 +
-              Character'Pos (Name_Buffer (5))) * 8 +
-              Character'Pos (Name_Buffer (2))) mod Hash_Num;
+            return
+              (((((Character'Pos (Name_Buffer (4)))
+                  * 8
+                  + Character'Pos (Name_Buffer (1)))
+                 * 4
+                 + Character'Pos (Name_Buffer (3)))
+                * 4
+                + Character'Pos (Name_Buffer (5)))
+               * 8
+               + Character'Pos (Name_Buffer (2)))
+              mod Hash_Num;
 
          when 6 =>
-            return ((((((
-              Character'Pos (Name_Buffer (5))) * 4 +
-              Character'Pos (Name_Buffer (1))) * 4 +
-              Character'Pos (Name_Buffer (4))) * 4 +
-              Character'Pos (Name_Buffer (2))) * 4 +
-              Character'Pos (Name_Buffer (6))) * 4 +
-              Character'Pos (Name_Buffer (3))) mod Hash_Num;
+            return
+              ((((((Character'Pos (Name_Buffer (5)))
+                   * 4
+                   + Character'Pos (Name_Buffer (1)))
+                  * 4
+                  + Character'Pos (Name_Buffer (4)))
+                 * 4
+                 + Character'Pos (Name_Buffer (2)))
+                * 4
+                + Character'Pos (Name_Buffer (6)))
+               * 4
+               + Character'Pos (Name_Buffer (3)))
+              mod Hash_Num;
 
          when 7 =>
-            return (((((((
-              Character'Pos (Name_Buffer (4))) * 4 +
-              Character'Pos (Name_Buffer (3))) * 4 +
-              Character'Pos (Name_Buffer (1))) * 4 +
-              Character'Pos (Name_Buffer (2))) * 2 +
-              Character'Pos (Name_Buffer (5))) * 2 +
-              Character'Pos (Name_Buffer (7))) * 2 +
-              Character'Pos (Name_Buffer (6))) mod Hash_Num;
+            return
+              (((((((Character'Pos (Name_Buffer (4)))
+                    * 4
+                    + Character'Pos (Name_Buffer (3)))
+                   * 4
+                   + Character'Pos (Name_Buffer (1)))
+                  * 4
+                  + Character'Pos (Name_Buffer (2)))
+                 * 2
+                 + Character'Pos (Name_Buffer (5)))
+                * 2
+                + Character'Pos (Name_Buffer (7)))
+               * 2
+               + Character'Pos (Name_Buffer (6)))
+              mod Hash_Num;
 
          when 8 =>
-            return ((((((((
-              Character'Pos (Name_Buffer (2))) * 4 +
-              Character'Pos (Name_Buffer (1))) * 4 +
-              Character'Pos (Name_Buffer (3))) * 2 +
-              Character'Pos (Name_Buffer (5))) * 2 +
-              Character'Pos (Name_Buffer (7))) * 2 +
-              Character'Pos (Name_Buffer (6))) * 2 +
-              Character'Pos (Name_Buffer (4))) * 2 +
-              Character'Pos (Name_Buffer (8))) mod Hash_Num;
+            return
+              ((((((((Character'Pos (Name_Buffer (2)))
+                     * 4
+                     + Character'Pos (Name_Buffer (1)))
+                    * 4
+                    + Character'Pos (Name_Buffer (3)))
+                   * 2
+                   + Character'Pos (Name_Buffer (5)))
+                  * 2
+                  + Character'Pos (Name_Buffer (7)))
+                 * 2
+                 + Character'Pos (Name_Buffer (6)))
+                * 2
+                + Character'Pos (Name_Buffer (4)))
+               * 2
+               + Character'Pos (Name_Buffer (8)))
+              mod Hash_Num;
 
          when 9 =>
-            return (((((((((
-              Character'Pos (Name_Buffer (2))) * 4 +
-              Character'Pos (Name_Buffer (1))) * 4 +
-              Character'Pos (Name_Buffer (3))) * 4 +
-              Character'Pos (Name_Buffer (4))) * 2 +
-              Character'Pos (Name_Buffer (8))) * 2 +
-              Character'Pos (Name_Buffer (7))) * 2 +
-              Character'Pos (Name_Buffer (5))) * 2 +
-              Character'Pos (Name_Buffer (6))) * 2 +
-              Character'Pos (Name_Buffer (9))) mod Hash_Num;
+            return
+              (((((((((Character'Pos (Name_Buffer (2)))
+                      * 4
+                      + Character'Pos (Name_Buffer (1)))
+                     * 4
+                     + Character'Pos (Name_Buffer (3)))
+                    * 4
+                    + Character'Pos (Name_Buffer (4)))
+                   * 2
+                   + Character'Pos (Name_Buffer (8)))
+                  * 2
+                  + Character'Pos (Name_Buffer (7)))
+                 * 2
+                 + Character'Pos (Name_Buffer (5)))
+                * 2
+                + Character'Pos (Name_Buffer (6)))
+               * 2
+               + Character'Pos (Name_Buffer (9)))
+              mod Hash_Num;
 
          when 10 =>
-            return ((((((((((
-              Character'Pos (Name_Buffer (01))) * 2 +
-              Character'Pos (Name_Buffer (02))) * 2 +
-              Character'Pos (Name_Buffer (08))) * 2 +
-              Character'Pos (Name_Buffer (03))) * 2 +
-              Character'Pos (Name_Buffer (04))) * 2 +
-              Character'Pos (Name_Buffer (09))) * 2 +
-              Character'Pos (Name_Buffer (06))) * 2 +
-              Character'Pos (Name_Buffer (05))) * 2 +
-              Character'Pos (Name_Buffer (07))) * 2 +
-              Character'Pos (Name_Buffer (10))) mod Hash_Num;
+            return
+              ((((((((((Character'Pos (Name_Buffer (01)))
+                       * 2
+                       + Character'Pos (Name_Buffer (02)))
+                      * 2
+                      + Character'Pos (Name_Buffer (08)))
+                     * 2
+                     + Character'Pos (Name_Buffer (03)))
+                    * 2
+                    + Character'Pos (Name_Buffer (04)))
+                   * 2
+                   + Character'Pos (Name_Buffer (09)))
+                  * 2
+                  + Character'Pos (Name_Buffer (06)))
+                 * 2
+                 + Character'Pos (Name_Buffer (05)))
+                * 2
+                + Character'Pos (Name_Buffer (07)))
+               * 2
+               + Character'Pos (Name_Buffer (10)))
+              mod Hash_Num;
 
          when 11 =>
-            return (((((((((((
-              Character'Pos (Name_Buffer (05))) * 2 +
-              Character'Pos (Name_Buffer (01))) * 2 +
-              Character'Pos (Name_Buffer (06))) * 2 +
-              Character'Pos (Name_Buffer (09))) * 2 +
-              Character'Pos (Name_Buffer (07))) * 2 +
-              Character'Pos (Name_Buffer (03))) * 2 +
-              Character'Pos (Name_Buffer (08))) * 2 +
-              Character'Pos (Name_Buffer (02))) * 2 +
-              Character'Pos (Name_Buffer (10))) * 2 +
-              Character'Pos (Name_Buffer (04))) * 2 +
-              Character'Pos (Name_Buffer (11))) mod Hash_Num;
+            return
+              (((((((((((Character'Pos (Name_Buffer (05)))
+                        * 2
+                        + Character'Pos (Name_Buffer (01)))
+                       * 2
+                       + Character'Pos (Name_Buffer (06)))
+                      * 2
+                      + Character'Pos (Name_Buffer (09)))
+                     * 2
+                     + Character'Pos (Name_Buffer (07)))
+                    * 2
+                    + Character'Pos (Name_Buffer (03)))
+                   * 2
+                   + Character'Pos (Name_Buffer (08)))
+                  * 2
+                  + Character'Pos (Name_Buffer (02)))
+                 * 2
+                 + Character'Pos (Name_Buffer (10)))
+                * 2
+                + Character'Pos (Name_Buffer (04)))
+               * 2
+               + Character'Pos (Name_Buffer (11)))
+              mod Hash_Num;
 
          when 12 =>
-            return ((((((((((((
-              Character'Pos (Name_Buffer (03))) * 2 +
-              Character'Pos (Name_Buffer (02))) * 2 +
-              Character'Pos (Name_Buffer (05))) * 2 +
-              Character'Pos (Name_Buffer (01))) * 2 +
-              Character'Pos (Name_Buffer (06))) * 2 +
-              Character'Pos (Name_Buffer (04))) * 2 +
-              Character'Pos (Name_Buffer (08))) * 2 +
-              Character'Pos (Name_Buffer (11))) * 2 +
-              Character'Pos (Name_Buffer (07))) * 2 +
-              Character'Pos (Name_Buffer (09))) * 2 +
-              Character'Pos (Name_Buffer (10))) * 2 +
-              Character'Pos (Name_Buffer (12))) mod Hash_Num;
+            return
+              ((((((((((((Character'Pos (Name_Buffer (03)))
+                         * 2
+                         + Character'Pos (Name_Buffer (02)))
+                        * 2
+                        + Character'Pos (Name_Buffer (05)))
+                       * 2
+                       + Character'Pos (Name_Buffer (01)))
+                      * 2
+                      + Character'Pos (Name_Buffer (06)))
+                     * 2
+                     + Character'Pos (Name_Buffer (04)))
+                    * 2
+                    + Character'Pos (Name_Buffer (08)))
+                   * 2
+                   + Character'Pos (Name_Buffer (11)))
+                  * 2
+                  + Character'Pos (Name_Buffer (07)))
+                 * 2
+                 + Character'Pos (Name_Buffer (09)))
+                * 2
+                + Character'Pos (Name_Buffer (10)))
+               * 2
+               + Character'Pos (Name_Buffer (12)))
+              mod Hash_Num;
 
       end case;
    end Hash;
@@ -720,8 +806,7 @@ package body Gnatcheck.Source_Table is
       GNAT.Task_Lock.Lock;
 
       for J in Next_Source .. Last_Argument_Source loop
-         if Source_Status (J) = Waiting
-           and then Source_Info (J) /= Ignore_Unit
+         if Source_Status (J) = Waiting and then Source_Info (J) /= Ignore_Unit
          then
             for K in Next_Source + 1 .. J - 1 loop
                if Source_Status (K) in Waiting then
@@ -749,9 +834,7 @@ package body Gnatcheck.Source_Table is
    ----------------------------------
 
    function Non_Case_Sensitive_File_Find
-     (SF_Name        : String;
-      Use_Short_Name : Boolean := False)
-      return           SF_Id
+     (SF_Name : String; Use_Short_Name : Boolean := False) return SF_Id
    is
       Result       : SF_Id := No_SF_Id;
       Next_SF      : SF_Id;
@@ -792,9 +875,13 @@ package body Gnatcheck.Source_Table is
          begin
             Percent (1) := '(';
             Info
-              ("completed" & Integer'Image (Current) & " out of"
-               & Integer'Image (Total_Sources) & " "
-               & Percent & "%)...");
+              ("completed"
+               & Integer'Image (Current)
+               & " out of"
+               & Integer'Image (Total_Sources)
+               & " "
+               & Percent
+               & "%)...");
          end;
       end if;
 
@@ -804,7 +891,7 @@ package body Gnatcheck.Source_Table is
       elsif not (Arg.Quiet_Mode or else Arg.Progress_Indicator_Mode.Get) then
          Print
            ("Units remaining:" & N & "     " & ASCII.CR,
-            New_Line => False,
+            New_Line    => False,
             Log_Message => False);
       end if;
 
@@ -841,8 +928,7 @@ package body Gnatcheck.Source_Table is
          File_Name_Len := 0;
 
          while Ada.Text_IO.End_Of_Line (Arg_File)
-            and then
-               not End_Of_File (Arg_File)
+           and then not End_Of_File (Arg_File)
          loop
             Skip_Line (Arg_File);
          end loop;
@@ -880,10 +966,8 @@ package body Gnatcheck.Source_Table is
                Get (Arg_File, Next_Ch);
 
                while not (Next_Ch = '"'
-                  or else
-                     Next_Ch = ASCII.LF
-                  or else
-                     Next_Ch = ASCII.CR)
+                          or else Next_Ch = ASCII.LF
+                          or else Next_Ch = ASCII.CR)
                loop
                   File_Name_Len := File_Name_Len + 1;
                   File_Name_Buffer (File_Name_Len) := Next_Ch;
@@ -895,9 +979,7 @@ package body Gnatcheck.Source_Table is
                   Get (Arg_File, Next_Ch);
                end loop;
 
-               if Next_Ch = '"'
-                 and then
-                  not Ada.Text_IO.End_Of_Line (Arg_File)
+               if Next_Ch = '"' and then not Ada.Text_IO.End_Of_Line (Arg_File)
                then
                   --  skip trailing '"'
                   Get (Arg_File, Next_Ch);
@@ -920,7 +1002,7 @@ package body Gnatcheck.Source_Table is
          return File_Name_Buffer (1 .. File_Name_Len);
       end Get_File_Name;
 
-   --  Start of processing for Read_Args_From_File
+      --  Start of processing for Read_Args_From_File
 
    begin
       if Argument_File_Specified then
@@ -962,7 +1044,8 @@ package body Gnatcheck.Source_Table is
    --------------------------
 
    procedure Temp_Storage_Iterate
-     (Action : not null access procedure (File_Name : String)) is
+     (Action : not null access procedure (File_Name : String))
+   is
       C : Temporary_File_Storages.Cursor := First (Temporary_File_Storage);
    begin
       while C /= No_Element loop
@@ -1000,8 +1083,8 @@ package body Gnatcheck.Source_Table is
    -------------------------
 
    function Same_Name_File_Find (Short_SF_Name : String) return SF_Id is
-      Result     : SF_Id := No_SF_Id;
-      Next_SF    : SF_Id;
+      Result  : SF_Id := No_SF_Id;
+      Next_SF : SF_Id;
    begin
       Next_SF := Hash_Table (Hash (Short_SF_Name));
 
@@ -1073,7 +1156,7 @@ package body Gnatcheck.Source_Table is
       if Present (SF) then
          Set_Source_Info (SF, Ignore_Unit);
 
-      --  Only warn if no sources are specified explicitly
+         --  Only warn if no sources are specified explicitly
 
       elsif not (File_List_Specified
                  or else (Argument_File_Specified
@@ -1096,8 +1179,10 @@ package body Gnatcheck.Source_Table is
       case S is
          when Not_A_Legal_Source =>
             Illegal_Sources := Illegal_Sources + 1;
+
          when Error_Detected =>
             Tool_Failures := Tool_Failures + 1;
+
          when others =>
             null;
       end case;
@@ -1109,7 +1194,7 @@ package body Gnatcheck.Source_Table is
    -- Set_Suffixless_Name --
    -------------------------
 
-   procedure Set_Suffixless_Name   (SF : SF_Id; N : String) is
+   procedure Set_Suffixless_Name (SF : SF_Id; N : String) is
    begin
       Source_Table (SF).Suffixless_Name := new String'(N);
    end Set_Suffixless_Name;
@@ -1145,9 +1230,8 @@ package body Gnatcheck.Source_Table is
    -- Store_Sources_To_Process --
    ------------------------------
 
-   procedure Store_Sources_To_Process
-     (Fname : String;
-      Store : Boolean := True) is
+   procedure Store_Sources_To_Process (Fname : String; Store : Boolean := True)
+   is
    begin
       if Store then
          Include (Temporary_File_Storage, Fname);
@@ -1186,10 +1270,10 @@ package body Gnatcheck.Source_Table is
    procedure Parse_File_List (File_List_Name : String) is
       subtype Unbounded_String is Ada.Strings.Unbounded.Unbounded_String;
 
-      Arg_File         : File_Type;
-      Next_Ch          : Character;
-      End_Of_Line      : Boolean;
-      Tmp_Str          : Unbounded_String;
+      Arg_File    : File_Type;
+      Next_Ch     : Character;
+      End_Of_Line : Boolean;
+      Tmp_Str     : Unbounded_String;
 
       function Get_File_Name return Unbounded_String;
       --  Reads from Par_File_Name the name of the next file (the file to read
@@ -1265,8 +1349,7 @@ package body Gnatcheck.Source_Table is
                   Get (Arg_File, Next_Ch);
                end loop;
 
-               if Next_Ch = '"'
-                 and then not Ada.Text_IO.End_Of_Line (Arg_File)
+               if Next_Ch = '"' and then not Ada.Text_IO.End_Of_Line (Arg_File)
                then
                   --  skip trailing '"'
                   Get (Arg_File, Next_Ch);
@@ -1317,15 +1400,13 @@ package body Gnatcheck.Source_Table is
    -- Process_Sources --
    ---------------------
 
-   procedure Process_Sources
-     (Ctx : Checker_App.Lkql_Context)
-   is
+   procedure Process_Sources (Ctx : Checker_App.Lkql_Context) is
       Next_SF : SF_Id;
 
       use Libadalang.Iterators;
 
-      function Strip_LF (S : String) return String is
-      (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
+      function Strip_LF (S : String) return String
+      is (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
       --  Remove trailing LF if any
 
    begin
@@ -1378,8 +1459,8 @@ package body Gnatcheck.Source_Table is
                     (Full_File_Name => File_Name (Next_SF),
                      Sloc           => (1, 1),
                      Message        =>
-                        "internal error: " &
-                        Strip_LF (Exception_Information (E)),
+                       "internal error: "
+                       & Strip_LF (Exception_Information (E)),
                      Diagnosis_Kind => Internal_Error,
                      SF             => Next_SF);
                end if;
@@ -1400,17 +1481,17 @@ package body Gnatcheck.Source_Table is
       --  Use a project unit provider, even with the implicit project
       if not In_Aggregate_Project then
          if Partition = null then
-            Partition :=
-              Create_Project_Unit_Providers (Gnatcheck_Prj.Tree);
+            Partition := Create_Project_Unit_Providers (Gnatcheck_Prj.Tree);
          end if;
 
          --  We can ignore multiple partitions: this will only occur with
          --  aggregate projects, which are handled specially in lalcheck.adb
 
-         Ctx.Analysis_Ctx := Create_Context
-           (Charset       => Charset,
-            Unit_Provider => Partition (Partition'First).Provider,
-            Event_Handler => EHR_Object);
+         Ctx.Analysis_Ctx :=
+           Create_Context
+             (Charset       => Charset,
+              Unit_Provider => Partition (Partition'First).Provider,
+              Event_Handler => EHR_Object);
 
          --  Setup the configuration pragma mapping by reading the
          --  configuration file given by the project.
@@ -1436,8 +1517,8 @@ package body Gnatcheck.Source_Table is
          Ctx.Cached_Rules := new Rules_By_Kind_Array_Subt;
       end;
 
-      Ctx.LKQL_Analysis_Context := Liblkqllang.Analysis.Create_Context
-        (Charset => "utf-8");
+      Ctx.LKQL_Analysis_Context :=
+        Liblkqllang.Analysis.Create_Context (Charset => "utf-8");
 
       return Ctx;
 

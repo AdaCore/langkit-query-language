@@ -8,9 +8,9 @@ with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 
-with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
+with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.OS_Lib;
-with GNAT.String_Split;          use GNAT.String_Split;
+with GNAT.String_Split;         use GNAT.String_Split;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
@@ -18,7 +18,7 @@ with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
 
-with Langkit_Support.Text;       use Langkit_Support.Text;
+with Langkit_Support.Text; use Langkit_Support.Text;
 
 package body Gnatcheck.Rules is
 
@@ -51,46 +51,49 @@ package body Gnatcheck.Rules is
    is (To_String (To_Wide_Wide_String (S)));
    --  Convert an Unbounded_Wide_Wide_String to a String
 
-   function From_Boolean (B : Boolean) return Tri_State is
-     (if B then On else Off);
+   function From_Boolean (B : Boolean) return Tri_State
+   is (if B then On else Off);
    --  Get the `Tri_State` value corresponding to the given boolean
 
-   function Param_Name
-     (Rule : Rule_Info; Index : Positive) return Text_Type is
-     (Rule.Parameters.Child
-       (Index).As_Parameter_Decl.F_Param_Identifier.Text);
+   function Param_Name (Rule : Rule_Info; Index : Positive) return Text_Type
+   is (Rule.Parameters.Child (Index)
+         .As_Parameter_Decl
+         .F_Param_Identifier
+         .Text);
    --  Get the name of the rule parameter at the given index
 
-   function Param_Name
-     (Rule : Rule_Info; Index : Positive) return String is
-     (To_String (Param_Name (Rule, Index)));
+   function Param_Name (Rule : Rule_Info; Index : Positive) return String
+   is (To_String (Param_Name (Rule, Index)));
    --  Same as the previous `Param_Name` but returns the result as a string
 
    function Param_Name
-     (Instance : Rule_Instance'Class; Index : Positive) return String is
-     (Param_Name (All_Rules (Instance.Rule), Index));
+     (Instance : Rule_Instance'Class; Index : Positive) return String
+   is (Param_Name (All_Rules (Instance.Rule), Index));
 
-   function Rule_Name (Instance : Rule_Instance_Access) return String is
-     (Rule_Name (Instance.all));
+   function Rule_Name (Instance : Rule_Instance_Access) return String
+   is (Rule_Name (Instance.all));
    --  Shortcut function to get the rule name from an instance reference
 
-   function Instance_Name (Instance : Rule_Instance_Access) return String is
-     (Instance_Name (Instance.all));
+   function Instance_Name (Instance : Rule_Instance_Access) return String
+   is (Instance_Name (Instance.all));
    --  Shortcut function to get the instance name from its reference
 
    procedure Turn_Instance_Off (Instance : Rule_Instance_Access);
    --  Shortcut procedure to turn an instance off from its address
 
-   function XML_Head (Instance : Rule_Instance'Class) return String is
-     (if Instance.Is_Alias then
-        "<rule alias=""" & Instance_Name (Instance) & """ of=""" &
-        Rule_Name (Instance) & """>"
-      else
-        "<rule id=""" & Rule_Name (Instance) & """>");
+   function XML_Head (Instance : Rule_Instance'Class) return String
+   is (if Instance.Is_Alias
+       then
+         "<rule alias="""
+         & Instance_Name (Instance)
+         & """ of="""
+         & Rule_Name (Instance)
+         & """>"
+       else "<rule id=""" & Rule_Name (Instance) & """>");
    --  Function to get the XML header tag for a rule instance XML display
 
-   function XML_Param (Param : String) return String is
-     ("<parameter>" & Param & "</parameter>");
+   function XML_Param (Param : String) return String
+   is ("<parameter>" & Param & "</parameter>");
    --  Function to get a parameter XML tag with `Parm` in it
 
    procedure Print_XML_Params
@@ -102,7 +105,8 @@ package body Gnatcheck.Rules is
    --  XML formatted param tags (using `XML_Param` function).
    --  This procedure adds to each parameter value `Prefix` and `Suffix`.
 
-   function XML_Foot return String is ("</rule>");
+   function XML_Foot return String
+   is ("</rule>");
    --  Function to get the XML footer for a rule instance XML display
 
    procedure Process_String_Arg
@@ -125,17 +129,13 @@ package body Gnatcheck.Rules is
    --  format. See `Gnatcheck.Rules.Rule_Info.XML_Rule_Help` where those
    --  procedures are stored.
 
-   procedure No_Param_XML_Help
-     (Rule : Rule_Info; Indent_Level : Natural);
+   procedure No_Param_XML_Help (Rule : Rule_Info; Indent_Level : Natural);
 
-   procedure Int_Param_XML_Help
-     (Rule : Rule_Info; Indent_Level : Natural);
+   procedure Int_Param_XML_Help (Rule : Rule_Info; Indent_Level : Natural);
 
-   procedure Bool_Param_XML_Help
-     (Rule : Rule_Info; Indent_Level : Natural);
+   procedure Bool_Param_XML_Help (Rule : Rule_Info; Indent_Level : Natural);
 
-   procedure String_Param_XML_Help
-     (Rule : Rule_Info; Indent_Level : Natural);
+   procedure String_Param_XML_Help (Rule : Rule_Info; Indent_Level : Natural);
 
    procedure Id_Suffix_Param_XML_Help
      (Rule : Rule_Info; Indent_Level : Natural);
@@ -156,34 +156,47 @@ package body Gnatcheck.Rules is
    -- Allowed exemption parameter functions --
    -------------------------------------------
 
-   function No_Exemption_Param_Allowed
-     (Ignored_Param : String) return Boolean is (False);
+   function No_Exemption_Param_Allowed (Ignored_Param : String) return Boolean
+   is (False);
 
    function All_Exemption_Parameter_Allowed
-     (Ignored_Param : String) return Boolean is (True);
+     (Ignored_Param : String) return Boolean
+   is (True);
 
-   function Id_Suffix_Allowed_Exemption_Param
-     (Param : String) return Boolean is
-   (To_Lower (Param) in
-      "access" | "access_obj" | "class_access" | "class_subtype" |
-      "constant" | "renaming" | "interrupt" | "type");
+   function Id_Suffix_Allowed_Exemption_Param (Param : String) return Boolean
+   is (To_Lower (Param)
+       in "access"
+        | "access_obj"
+        | "class_access"
+        | "class_subtype"
+        | "constant"
+        | "renaming"
+        | "interrupt"
+        | "type");
 
-   function Id_Prefix_Allowed_Exemption_Param
-     (Param : String) return Boolean is
-   (To_Lower (Param) in
-      "type" | "concurrent" | "access" | "class_access" | "subprogram_access" |
-      "derived" | "constant" | "enum" | "exception" | "exclusive");
+   function Id_Prefix_Allowed_Exemption_Param (Param : String) return Boolean
+   is (To_Lower (Param)
+       in "type"
+        | "concurrent"
+        | "access"
+        | "class_access"
+        | "subprogram_access"
+        | "derived"
+        | "constant"
+        | "enum"
+        | "exception"
+        | "exclusive");
 
-   function Id_Casing_Allowed_Exemption_Param
-     (Param : String) return Boolean is
-   (To_Lower (Param) in
-      "type" | "constant" | "enum" | "exception" | "others" | "exclude");
+   function Id_Casing_Allowed_Exemption_Param (Param : String) return Boolean
+   is (To_Lower (Param)
+       in "type" | "constant" | "enum" | "exception" | "others" | "exclude");
 
    ---------------------------------------------
    -- Rule parameter from diagnosis functions --
    ---------------------------------------------
 
-   function No_Param_From_Diag (Ignored_Diag : String) return String is ("");
+   function No_Param_From_Diag (Ignored_Diag : String) return String
+   is ("");
 
    function Id_Suffix_Param_From_Diag (Diag : String) return String;
 
@@ -247,8 +260,7 @@ package body Gnatcheck.Rules is
    --  processing function (see `Gnatcheck.Rules.Rule_Info`).
 
    function Get_Or_Create_Instance
-     (Id            : Rule_Id;
-      Instance_Name : String) return Rule_Instance_Access;
+     (Id : Rule_Id; Instance_Name : String) return Rule_Instance_Access;
    --  Helper function to create an instance with the given name and return a
    --  pointer to it. This function adds the created instance to the global
    --  instance map.
@@ -262,8 +274,7 @@ package body Gnatcheck.Rules is
    --  whether the dictionnary load was successful.
 
    procedure Emit_Wrong_Parameter
-     (Instance : Rule_Instance_Access;
-      Param    : String);
+     (Instance : Rule_Instance_Access; Param : String);
    --  Procedure to call when a wrong parameter is encountered during a
    --  parameter processing. This display an error message and set the
    --  `Bad_Rule_Detected` flag to True.
@@ -277,20 +288,17 @@ package body Gnatcheck.Rules is
    --  allowed with "-R". This procedure set `Bad_Rule_Detected` to True.
 
    procedure Emit_Redefining
-     (Instance   : Rule_Instance_Access;
-      Param      : String;
-      Defined_At : String);
+     (Instance : Rule_Instance_Access; Param : String; Defined_At : String);
    --  Procedure to call to emit an error message about a parameter being
    --  redefined. This proceduren set `Bad_Rule_Detected` to True.
 
    procedure Emit_File_Load_Error
-     (Instance  : Rule_Instance_Access;
-      File_Name : String);
+     (Instance : Rule_Instance_Access; File_Name : String);
    --  Procedure to call to emit an error about file which cannot be loaded.
    --  This procedure set `Bad_Rule_Detected` to True.
 
-   function Defined_Str (Defined_At : String) return String is
-     (if Defined_At = "" then "command line" else Defined_At);
+   function Defined_Str (Defined_At : String) return String
+   is (if Defined_At = "" then "command line" else Defined_At);
    --  Helper function to return Defined_At if not null, or "command line"
 
    procedure No_Param_Process
@@ -502,19 +510,22 @@ package body Gnatcheck.Rules is
          end if;
 
          Next_Dir_Sep :=
-           Index (Name (EV_Start + 2 .. EV_End),
-                  Set => To_Set (Character_Ranges'
-                           (('/', '/'),
-                            (GNAT.OS_Lib.Directory_Separator,
-                             GNAT.OS_Lib.Directory_Separator))));
+           Index
+             (Name (EV_Start + 2 .. EV_End),
+              Set =>
+                To_Set
+                  (Character_Ranges'
+                     (('/', '/'),
+                      (GNAT.OS_Lib.Directory_Separator,
+                       GNAT.OS_Lib.Directory_Separator))));
 
          if Next_Dir_Sep /= 0 then
             EV_End := Next_Dir_Sep - 1;
          end if;
 
-         Append (Result, Expand_Env_Var (Name (EV_Start ..  EV_End)));
+         Append (Result, Expand_Env_Var (Name (EV_Start .. EV_End)));
 
-         EV_Start   := Next_Env_Start;
+         EV_Start := Next_Env_Start;
          Text_Start := EV_End + 1;
       end loop;
 
@@ -527,8 +538,7 @@ package body Gnatcheck.Rules is
 
    function Find_File (Name : String) return String is
       Rule_File_Dir : constant String :=
-        Dir_Name
-          (Gnatcheck.Rules.Rule_Table.Processed_Rule_File_Name);
+        Dir_Name (Gnatcheck.Rules.Rule_Table.Processed_Rule_File_Name);
 
    begin
       if GNAT.OS_Lib.Is_Regular_File (Rule_File_Dir & Name) then
@@ -617,8 +627,7 @@ package body Gnatcheck.Rules is
             Append (Buffer, C);
          elsif Buffer /= "" then
             XML_Report
-              (XML_Param (Prefix & To_String (Buffer) & Suffix),
-               Indent_Level);
+              (XML_Param (Prefix & To_String (Buffer) & Suffix), Indent_Level);
             Set_Unbounded_String (Buffer, "");
          end if;
       end loop;
@@ -638,8 +647,9 @@ package body Gnatcheck.Rules is
          declare
             Field_Val : constant String :=
               (if Normalize
-               then Remove_Spaces
-                 (To_Lower (Expect_Literal (Params_Object, Param_Name)))
+               then
+                 Remove_Spaces
+                   (To_Lower (Expect_Literal (Params_Object, Param_Name)))
                else Expect_Literal (Params_Object, Param_Name));
          begin
             Set_Unbounded_Wide_Wide_String
@@ -655,8 +665,7 @@ package body Gnatcheck.Rules is
    -- No_Param_XML_Help --
    -----------------------
 
-   procedure No_Param_XML_Help
-     (Rule : Rule_Info; Indent_Level : Natural) is
+   procedure No_Param_XML_Help (Rule : Rule_Info; Indent_Level : Natural) is
    begin
       Print
         (Indent_Level * Indent_String
@@ -671,8 +680,7 @@ package body Gnatcheck.Rules is
    -- Int_Param_XML_Help --
    ------------------------
 
-   procedure Int_Param_XML_Help
-     (Rule : Rule_Info; Indent_Level : Natural) is
+   procedure Int_Param_XML_Help (Rule : Rule_Info; Indent_Level : Natural) is
    begin
       Print
         (Indent_Level * Indent_String
@@ -691,8 +699,7 @@ package body Gnatcheck.Rules is
    -- Bool_Param_XML_Help --
    -------------------------
 
-   procedure Bool_Param_XML_Help
-     (Rule : Rule_Info; Indent_Level : Natural) is
+   procedure Bool_Param_XML_Help (Rule : Rule_Info; Indent_Level : Natural) is
    begin
       Print
         (Indent_Level * Indent_String
@@ -705,7 +712,8 @@ package body Gnatcheck.Rules is
       Print
         (Indent_Level * Indent_String
          & "<check switch=""+R"
-         & Rule_Name (Rule) & ":"
+         & Rule_Name (Rule)
+         & ":"
          & Param_Name (Rule, 2)
          & """ label="""
          & To_String (Rule.Help_Info)
@@ -716,8 +724,8 @@ package body Gnatcheck.Rules is
    -- String_Param_XML_Help --
    ---------------------------
 
-   procedure String_Param_XML_Help
-     (Rule : Rule_Info; Indent_Level : Natural) is
+   procedure String_Param_XML_Help (Rule : Rule_Info; Indent_Level : Natural)
+   is
    begin
       Print
         (Indent_Level * Indent_String
@@ -749,14 +757,20 @@ package body Gnatcheck.Rules is
            (Indent_Level * Indent_String
             & "<field switch=""+R"
             & Rule_Name (Rule)
-            & ":" & Param & '"'
+            & ":"
+            & Param
+            & '"'
             & " label="""
-            & "suffix for " & Help & " names"
+            & "suffix for "
+            & Help
+            & " names"
             & " (empty string disables check)"""
             & " separator=""="""
             & " switch-off=""-R"
             & Rule_Name (Rule)
-            & ":" & Param & '"'
+            & ":"
+            & Param
+            & '"'
             & "/>");
       end Print_Help;
    begin
@@ -833,14 +847,19 @@ package body Gnatcheck.Rules is
            (Indent_Level * Indent_String
             & "<field switch=""+R"
             & Rule_Name (Rule)
-            & ":" & Param & '"'
+            & ":"
+            & Param
+            & '"'
             & " label="""
-            & "prefix for " & Help
+            & "prefix for "
+            & Help
             & " (empty string disables check)"""
             & " separator=""="""
             & " switch-off=""-R"
             & Rule_Name (Rule)
-            & ":" & Param & '"'
+            & ":"
+            & Param
+            & '"'
             & "/>");
       end Print_Help;
 
@@ -881,7 +900,10 @@ package body Gnatcheck.Rules is
          Print
            (Indent_Level * Indent_String
             & "<combo switch=""+RIdentifier_Casing:"
-            & Par & '"' & " label=""" & Descr
+            & Par
+            & '"'
+            & " label="""
+            & Descr
             & " casing"" separator=""="">");
          Print
            ((Indent_Level + 1) * Indent_String
@@ -925,33 +947,41 @@ package body Gnatcheck.Rules is
    begin
       Print
         (Indent_Level * Indent_String
-         & "<check switch=""+R" & Name
+         & "<check switch=""+R"
+         & Name
          & ":ALL"""
          & " label="""
-         & "detect all " & Str
+         & "detect all "
+         & Str
          & " except explicitly disabled""/>");
 
       Print
         (Indent_Level * Indent_String
-         & "<check switch=""+R" & Name
+         & "<check switch=""+R"
+         & Name
          & ":GNAT"""
          & " label="""
-         & "detect all GNAT " & Str
+         & "detect all GNAT "
+         & Str
          & " except explicitly disabled""/>");
 
       Print
         (Indent_Level * Indent_String
-         & "<field switch=""+R" & Name
+         & "<field switch=""+R"
+         & Name
          & """ label="""
-         & "detect specified " & Str
+         & "detect specified "
+         & Str
          & " (use ',' as separator)"""
          & " separator="":""/>");
 
       Print
         (Indent_Level * Indent_String
-         & "<field switch=""-R"  & Name
+         & "<field switch=""-R"
+         & Name
          & """ label="""
-         & "do not detect specified " & Str
+         & "do not detect specified "
+         & Str
          & " (use ',' as separator)"""
          & " separator="":""/>");
    end Forbidden_Param_XML_Help;
@@ -1008,9 +1038,7 @@ package body Gnatcheck.Rules is
 
    function Id_Prefix_Param_From_Diag (Diag : String) return String is
    begin
-      if Index (Diag, "task") /= 0
-        or else Index (Diag, "protected") /= 0
-      then
+      if Index (Diag, "task") /= 0 or else Index (Diag, "protected") /= 0 then
          return "concurrent";
       elsif Index (Diag, "access-to-class") /= 0 then
          return "class_access";
@@ -1039,8 +1067,7 @@ package body Gnatcheck.Rules is
    -- Id_Casing_Param_From_Diag --
    -------------------------------
 
-   function Id_Casing_Param_From_Diag (Diag : String) return String
-   is
+   function Id_Casing_Param_From_Diag (Diag : String) return String is
       First_Idx : Natural := Index (Diag, " for ");
    begin
       if First_Idx > 0 then
@@ -1049,6 +1076,7 @@ package body Gnatcheck.Rules is
          case Diag (First_Idx) is
             when 'c' =>
                return "constant";
+
             when 'e' =>
                if Diag (First_Idx + 1) = 'n' then
                   return "enum";
@@ -1058,9 +1086,11 @@ package body Gnatcheck.Rules is
 
             when 's' =>
                return "type";
+
             when others =>
-               raise Constraint_Error with
-                 "identifier_Casing: bug in exemption parameter processing";
+               raise Constraint_Error
+                 with
+                   "identifier_Casing: bug in exemption parameter processing";
          end case;
       end if;
 
@@ -1077,19 +1107,17 @@ package body Gnatcheck.Rules is
    -- Forbidden_Param_From_Diag --
    -------------------------------
 
-   function Forbidden_Param_From_Diag (Diag : String) return String
-   is
-      First_Idx :  Natural := Index (Diag, " ", Going => Backward) + 1;
-      Last_Idx  :  Natural := Diag'Last;
+   function Forbidden_Param_From_Diag (Diag : String) return String is
+      First_Idx : Natural := Index (Diag, " ", Going => Backward) + 1;
+      Last_Idx  : Natural := Diag'Last;
    begin
       if Arg.Show_Rule.Get then
 
          --  The diagnosis has the following format:
          --     foo.adb:nn:mm: use of pragma Bar [Rule_Name]
-         Last_Idx  := First_Idx - 2;
-         First_Idx := Index (Diag (Diag'First ..  Last_Idx),
-                             " ",
-                             Going => Backward) + 1;
+         Last_Idx := First_Idx - 2;
+         First_Idx :=
+           Index (Diag (Diag'First .. Last_Idx), " ", Going => Backward) + 1;
       end if;
 
       return To_Lower (Diag (First_Idx .. Last_Idx));
@@ -1154,8 +1182,8 @@ package body Gnatcheck.Rules is
    function Create_Int_Or_Bools_Instance
      (Is_Alias : Boolean) return Rule_Instance_Access is
    begin
-      return new One_Integer_Or_Booleans_Parameter_Instance
-        (Is_Alias => Is_Alias);
+      return
+        new One_Integer_Or_Booleans_Parameter_Instance (Is_Alias => Is_Alias);
    end Create_Int_Or_Bools_Instance;
 
    -------------------------------
@@ -1173,7 +1201,7 @@ package body Gnatcheck.Rules is
    -------------------------------
 
    function Create_Id_Prefix_Instance
-     (Is_Alias : Boolean) return Rule_Instance_Access  is
+     (Is_Alias : Boolean) return Rule_Instance_Access is
    begin
       return new Identifier_Prefixes_Instance (Is_Alias => Is_Alias);
    end Create_Id_Prefix_Instance;
@@ -1225,8 +1253,7 @@ package body Gnatcheck.Rules is
    ----------------------------
 
    function Get_Or_Create_Instance
-     (Id            : Rule_Id;
-      Instance_Name : String) return Rule_Instance_Access
+     (Id : Rule_Id; Instance_Name : String) return Rule_Instance_Access
    is
       Rule                     : constant Rule_Info := All_Rules (Id);
       Normalized_Rule_Name     : constant String :=
@@ -1280,8 +1307,7 @@ package body Gnatcheck.Rules is
    --------------------------
 
    procedure Emit_Wrong_Parameter
-     (Instance : Rule_Instance_Access;
-      Param    : String) is
+     (Instance : Rule_Instance_Access; Param : String) is
    begin
       Error ("(" & Instance_Name (Instance) & ") wrong parameter: " & Param);
       Bad_Rule_Detected := True;
@@ -1313,15 +1339,17 @@ package body Gnatcheck.Rules is
    ---------------------
 
    procedure Emit_Redefining
-     (Instance   : Rule_Instance_Access;
-      Param      : String;
-      Defined_At : String) is
+     (Instance : Rule_Instance_Access; Param : String; Defined_At : String) is
    begin
       Error
-        ("redefining at " & Defined_Str (Defined_At)
-         & " parameter" & (if Param = "" then "" else " " & Param)
-         & " for rule " & Instance_Name (Instance)
-         & " defined at " & Defined_Str (To_String (Instance.Defined_At)));
+        ("redefining at "
+         & Defined_Str (Defined_At)
+         & " parameter"
+         & (if Param = "" then "" else " " & Param)
+         & " for rule "
+         & Instance_Name (Instance)
+         & " defined at "
+         & Defined_Str (To_String (Instance.Defined_At)));
       Rule_Option_Problem_Detected := True;
    end Emit_Redefining;
 
@@ -1330,8 +1358,7 @@ package body Gnatcheck.Rules is
    --------------------------
 
    procedure Emit_File_Load_Error
-     (Instance  : Rule_Instance_Access;
-      File_Name : String) is
+     (Instance : Rule_Instance_Access; File_Name : String) is
    begin
       Error
         ("(" & Instance_Name (Instance) & "): cannot load file " & File_Name);
@@ -1356,11 +1383,14 @@ package body Gnatcheck.Rules is
       if Param /= "" then
          Error
            ("no parameter can be set for rule "
-            & Gnatcheck.Rules.Instance_Name (Instance) & ", "
-            & Param & " ignored");
+            & Gnatcheck.Rules.Instance_Name (Instance)
+            & ", "
+            & Param
+            & " ignored");
          Bad_Rule_Detected := True;
 
-      --  Just enable the instance following the command line
+         --  Just enable the instance following the command line
+
       else
          if Enable then
             Instance.Defined_At := To_Unbounded_String (Defined_At);
@@ -1383,8 +1413,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_Integer_Parameter_Instance renames
-        One_Integer_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_Integer_Parameter_Instance
+        renames One_Integer_Parameter_Instance (Instance.all);
    begin
       --  If the param is empty and the command line is enabling the instance,
       --  emit an error
@@ -1394,11 +1424,11 @@ package body Gnatcheck.Rules is
          end if;
          Turn_Instance_Off (Instance);
 
-      --  Else, the param has a value
       else
+         --  Else, the param has a value
          if Enable then
-            if Arg.Check_Redefinition.Get and then
-              Tagged_Instance.Param /= Integer'First
+            if Arg.Check_Redefinition.Get
+              and then Tagged_Instance.Param /= Integer'First
             then
                Emit_Redefining (Instance, "", Defined_At);
             end if;
@@ -1419,9 +1449,9 @@ package body Gnatcheck.Rules is
                   Turn_Instance_Off (Instance);
             end;
 
-         --  If the command line is disabling the rule, the parameter should
-         --  be empty.
          else
+            --  If the command line is disabling the rule, the parameter
+            --  should be empty.
             Emit_No_Parameter_Allowed (Instance);
             Turn_Instance_Off (Instance);
          end if;
@@ -1441,8 +1471,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_Boolean_Parameter_Instance renames
-        One_Boolean_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_Boolean_Parameter_Instance
+        renames One_Boolean_Parameter_Instance (Instance.all);
    begin
       --  If the param is empty, just enable or disable the instance
       if Param = "" then
@@ -1452,15 +1482,15 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, if the parameter has a different value from the LKQL parameter
-      --  name, emit an error.
       elsif Param_Name (All_Rules (Rule), 2) /= To_Lower (Param) then
+         --  Else, if the parameter has a different value from the LKQL
+         --  parameter name, emit an error.
          Emit_Wrong_Parameter (Instance, Param);
          Turn_Instance_Off (Instance);
 
-      --  Else, if the command line is enabling the rule, the parameter is not
-      --  empty and is valid. Just set the instance parameter value.
       elsif Enable then
+         --  Else, if the command line is enabling the rule, the parameter is
+         --  not empty and is valid. Just set the instance parameter value.
          if Arg.Check_Redefinition.Get and then Tagged_Instance.Param /= Unset
          then
             Emit_Redefining (Instance, Param, Defined_At);
@@ -1469,8 +1499,9 @@ package body Gnatcheck.Rules is
          Tagged_Instance.Param := On;
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
-      --  Else the command line is disabling the rule so no parameter allowed
       else
+         --  Else the command line is disabling the rule so no parameter
+         --  allowed.
          Emit_No_Parameter_Allowed (Instance);
          Turn_Instance_Off (Instance);
       end if;
@@ -1489,8 +1520,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_String_Parameter_Instance renames
-        One_String_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_String_Parameter_Instance
+        renames One_String_Parameter_Instance (Instance.all);
    begin
       --  If the param is empty and the command line enable the instance, emit
       --  an error message.
@@ -1501,12 +1532,13 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the parameter is not empty, if the instance is enabled check
-      --  the parameter value and enable the instance.
       elsif Enable then
-         if Arg.Check_Redefinition.Get and then
-           not Ada.Strings.Wide_Wide_Unbounded."="
-             (Tagged_Instance.Param, Null_Unbounded_Wide_Wide_String)
+         --  Else, the parameter is not empty, if the instance is enabled
+         --  check the parameter value and enable the instance.
+         if Arg.Check_Redefinition.Get
+           and then not Ada.Strings.Wide_Wide_Unbounded."="
+                          (Tagged_Instance.Param,
+                           Null_Unbounded_Wide_Wide_String)
          then
             Emit_Redefining (Instance, Param, Defined_At);
          end if;
@@ -1517,18 +1549,18 @@ package body Gnatcheck.Rules is
             if not Tagged_Instance.Load_File (To_Load => Param) then
                Emit_File_Load_Error (Instance, Param);
             end if;
-
-         --  Other cases: Just add the parameter to the instance acual params
          else
+            --  Other cases: Just add the parameter to the instance actual
+            --  parameters
             Append (Tagged_Instance.Param, To_Wide_Wide_String (Param));
          end if;
 
          --  Set the instance definition location
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
-      --  Else, emit a message about no parameter allowed for instance
-      --  disabling.
       else
+         --  Else, emit a message about no parameter allowed for instance
+         --  disabling.
          Emit_No_Parameter_Allowed (Instance);
          Turn_Instance_Off (Instance);
       end if;
@@ -1547,8 +1579,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_Array_Parameter_Instance renames
-        One_Array_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_Array_Parameter_Instance
+        renames One_Array_Parameter_Instance (Instance.all);
    begin
       --  If the param is empty, just disable the instance following the
       --  command line.
@@ -1557,12 +1589,13 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the param is not empty, if the command line is enabling the
-      --  instance process the parameter.
       elsif Enable then
-         if Arg.Check_Redefinition.Get and then
-           not Ada.Strings.Wide_Wide_Unbounded."="
-             (Tagged_Instance.Param, Null_Unbounded_Wide_Wide_String)
+         --  Else, the param is not empty, if the command line is enabling the
+         --  instance process the parameter.
+         if Arg.Check_Redefinition.Get
+           and then not Ada.Strings.Wide_Wide_Unbounded."="
+                          (Tagged_Instance.Param,
+                           Null_Unbounded_Wide_Wide_String)
          then
             Emit_Redefining (Instance, Param, Defined_At);
          end if;
@@ -1571,24 +1604,28 @@ package body Gnatcheck.Rules is
          --  should be read by the `Load_Dictionary` function.
          if Rule_Name (Instance) = "name_clashes" then
             if Load_Dictionary
-              (Instance,
-               Expand_Env_Variables (Param),
-               Tagged_Instance.Param)
+                 (Instance,
+                  Expand_Env_Variables (Param),
+                  Tagged_Instance.Param)
             then
                Ada.Strings.Unbounded.Set_Unbounded_String
-               (Tagged_Instance.File, Param);
+                 (Tagged_Instance.File, Param);
                Instance.Defined_At := To_Unbounded_String (Defined_At);
             else
                Turn_Instance_Off (Instance);
             end if;
-
-         --  Other cases: Append the array to the instance actual parameter
-         --  as a comma separated list.
          else
+            --  Other cases: Append the array to the instance actual parameter
+            --  as a comma separated list.
+
             --  Check the parameter value for special rules
             if (Rule_Name (Instance) = "parameters_out_of_order"
-                and then Param not in
-                  "in" | "defaulted_in" | "in_out" | "access" | "out")
+                and then Param
+                         not in "in"
+                              | "defaulted_in"
+                              | "in_out"
+                              | "access"
+                              | "out")
               or else (Rule_Name (Instance) = "actual_parameters"
                        and then Slice_Count (Create (Param, ":")) /= 3)
             then
@@ -1604,9 +1641,10 @@ package body Gnatcheck.Rules is
             Instance.Defined_At := To_Unbounded_String (Defined_At);
          end if;
 
-      --  Else, the parameter is not empty and the command line is disabling
-      --  the instance. Thus emit an error and disable the instance.
       else
+         --  Else, the parameter is not empty and the command line is
+         --  disabling the instance. Thus emit an error and disable the
+         --  instance.
          Emit_No_Parameter_Allowed (Instance);
          Turn_Instance_Off (Instance);
       end if;
@@ -1625,8 +1663,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_Integer_Or_Booleans_Parameter_Instance renames
-        One_Integer_Or_Booleans_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_Integer_Or_Booleans_Parameter_Instance
+        renames One_Integer_Or_Booleans_Parameter_Instance (Instance.all);
       Int_Param_Value : Integer;
       Param_Found     : Boolean := False;
    begin
@@ -1645,8 +1683,8 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else the param has a value but we don't know which one
       else
+         --  Else the param has a value but we don't know which one
          if Enable then
 
             --  First try to extract an integer from the param
@@ -1675,10 +1713,8 @@ package body Gnatcheck.Rules is
 
             --  Then find the relevant boolean if no integer has been parsed
             if not Param_Found then
-               for J in 2 .. All_Rules (Rule).Parameters.Last_Child_Index
-               loop
-                  if Param_Name (All_Rules (Rule), J) = To_Lower (Param)
-                  then
+               for J in 2 .. All_Rules (Rule).Parameters.Last_Child_Index loop
+                  if Param_Name (All_Rules (Rule), J) = To_Lower (Param) then
                      if Arg.Check_Redefinition.Get
                        and then Tagged_Instance.Boolean_Params (J) = On
                      then
@@ -1698,9 +1734,9 @@ package body Gnatcheck.Rules is
                Turn_Instance_Off (Instance);
             end if;
 
-         --  Else, the command line is disabling the rule with a parameter.
-         --  This is forbidden.
          else
+            --  Else, the command line is disabling the instance with a
+            --  parameter, this is forbidden.
             Emit_No_Parameter_Allowed (Instance);
             Turn_Instance_Off (Instance);
          end if;
@@ -1720,15 +1756,14 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Identifier_Suffixes_Instance renames
-        Identifier_Suffixes_Instance (Instance.all);
+      Tagged_Instance : Identifier_Suffixes_Instance
+        renames Identifier_Suffixes_Instance (Instance.all);
       Paren_Index     : Natural;
       Norm_Param      : constant String := Remove_Spaces (Param);
       Lower_Param     : constant String := To_Lower (Param);
 
       procedure Set_Field
-        (Field : out Unbounded_Wide_Wide_String;
-         Value : String);
+        (Field : out Unbounded_Wide_Wide_String; Value : String);
       --  Set `Field` to `Value`
 
       ---------------
@@ -1736,12 +1771,9 @@ package body Gnatcheck.Rules is
       ---------------
 
       procedure Set_Field
-        (Field : out Unbounded_Wide_Wide_String;
-         Value : String) is
+        (Field : out Unbounded_Wide_Wide_String; Value : String) is
       begin
-         Set_Unbounded_Wide_Wide_String
-           (Field,
-            To_Wide_Wide_String (Value));
+         Set_Unbounded_Wide_Wide_String (Field, To_Wide_Wide_String (Value));
       end Set_Field;
 
    begin
@@ -1752,9 +1784,10 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, if the command line is enabling the instance then verify and
-      --  process the parameter.
       elsif Enable then
+         --  Else, if the command line is enabling the instance then verify
+         --  and process the parameter.
+
          --  Set the instance definition location
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
@@ -1824,16 +1857,16 @@ package body Gnatcheck.Rules is
               (Tagged_Instance.Interrupt_Suffix,
                Norm_Param (Norm_Param'First + 17 .. Norm_Param'Last));
 
-         --  If the parameter has not been matched, emit a wrong parameter
-         --  error and disable the instance.
          else
+            --  If the parameter has not been matched, emit a wrong parameter
+            --  error and disable the instance.
             Emit_Wrong_Parameter (Instance, Param);
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the command line is disabling the instance with a parameter,
-      --  this is forbidden.
       else
+         --  Else, the command line is disabling the instance with a
+         --  parameter, this is forbidden.
          Emit_No_Parameter_Allowed (Instance);
          Turn_Instance_Off (Instance);
       end if;
@@ -1852,15 +1885,14 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Identifier_Prefixes_Instance renames
-        Identifier_Prefixes_Instance (Instance.all);
+      Tagged_Instance : Identifier_Prefixes_Instance
+        renames Identifier_Prefixes_Instance (Instance.all);
       Col_Index       : Natural;
       Norm_Param      : constant String := Remove_Spaces (Param);
       Lower_Param     : constant String := To_Lower (Param);
 
       procedure Set_Field
-        (Field : out Unbounded_Wide_Wide_String;
-         Value : String);
+        (Field : out Unbounded_Wide_Wide_String; Value : String);
       --  Set `Field` to `Value`
 
       ---------------
@@ -1868,12 +1900,9 @@ package body Gnatcheck.Rules is
       ---------------
 
       procedure Set_Field
-        (Field : out Unbounded_Wide_Wide_String;
-         Value : String) is
+        (Field : out Unbounded_Wide_Wide_String; Value : String) is
       begin
-         Set_Unbounded_Wide_Wide_String
-           (Field,
-            To_Wide_Wide_String (Value));
+         Set_Unbounded_Wide_Wide_String (Field, To_Wide_Wide_String (Value));
       end Set_Field;
 
    begin
@@ -1884,9 +1913,10 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, if the command line enable the instance then check and process
-      --  the parameter value.
       elsif Enable then
+         --  Else, if the command line enable the instance then check and
+         --  process the parameter value.
+
          --  Set the instance definition location
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
@@ -1958,16 +1988,16 @@ package body Gnatcheck.Rules is
               (Tagged_Instance.Enum_Prefix,
                Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last));
 
-         --  If the param hasn't been matched, emit an error and disable the
-         --  instance.
          else
+            --  If the param hasn't been matched, emit an error and disable
+            --  the instance.
             Emit_Wrong_Parameter (Instance, Param);
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the command line is disabling the instance with a parameter,
-      --  this is forbidden.
       else
+         --  Else, the command line is disabling the instance with a
+         --  parameter, this is forbidden.
          Emit_No_Parameter_Allowed (Instance);
          Turn_Instance_Off (Instance);
       end if;
@@ -1986,22 +2016,19 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Identifier_Casing_Instance renames
-        Identifier_Casing_Instance (Instance.all);
+      Tagged_Instance : Identifier_Casing_Instance
+        renames Identifier_Casing_Instance (Instance.all);
       Norm_Param      : constant String := To_Lower (Remove_Spaces (Param));
 
       procedure Check_And_Set
-        (S     : in out Unbounded_Wide_Wide_String;
-         Val   : String;
-         Label : String);
-      --  Check the parameter redefinition for `S` and set the `S` to the given
-      --  `Val`. `Label` is the name of the parameter, it is used for error
-      --  emission.
+        (S : in out Unbounded_Wide_Wide_String; Val : String; Label : String);
+      --  Check the parameter redefinition for `S` and set the `S` to the
+      --  given `Val`. `Label` is the name of the parameter, it is used for
+      --  error emission.
 
       procedure Check_And_Set
-        (S     : in out Unbounded_Wide_Wide_String;
-         Val   : String;
-         Label : String) is
+        (S : in out Unbounded_Wide_Wide_String; Val : String; Label : String)
+      is
       begin
          if Arg.Check_Redefinition.Get and then Length (S) /= 0 then
             Emit_Redefining (Instance, Label, Defined_At);
@@ -2018,9 +2045,10 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, if the command line enable the instance, check the parameter
-      --  and update the instance.
       elsif Enable then
+         --  Else, if the command line enable the instance, check the
+         --  parameter and update the instance.
+
          --  Set the instance definition location
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
@@ -2056,30 +2084,29 @@ package body Gnatcheck.Rules is
 
          elsif Has_Prefix (Norm_Param, "exclude=") then
             if Load_Dictionary
-              (Instance,
-               Expand_Env_Variables
-                 (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last)),
-               Tagged_Instance.Exclude)
+                 (Instance,
+                  Expand_Env_Variables
+                    (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last)),
+                  Tagged_Instance.Exclude)
             then
                Set_Unbounded_Wide_Wide_String
                  (Tagged_Instance.Exclude_File,
-                  To_Wide_Wide_String (Norm_Param
-                    (Norm_Param'First + 8 .. Norm_Param'Last)));
+                  To_Wide_Wide_String
+                    (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last)));
             else
                Turn_Instance_Off (Instance);
             end if;
 
-         --  If the parameter hasn't been processed here, then the param value
-         --  is wrong. Emit an error and disable the instance.
          else
+            --  If the parameter hasn't been processed here, then the param
+            --  value is wrong. Emit an error and disable the instance.
             Emit_Wrong_Parameter (Instance, Param);
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the command line is disabling the instance and the parameter
-      --  is not empty. This is forbidden so emit an error message and disable
-      --  the instance.
       else
+         --  Else, the command line is disabling the instance with a
+         --  parameter, this is forbidden.
          Emit_No_Parameter_Allowed (Instance);
          Turn_Instance_Off (Instance);
       end if;
@@ -2090,75 +2117,75 @@ package body Gnatcheck.Rules is
    -----------------------------
 
    GNAT_Attributes : constant Wide_Wide_String :=
-     "abort_signal,address_size,asm_input,asm_output," &
-     "atomic_always_lock_free,bit,bit_position,code_address," &
-     "compiler_version,constant_indexing,default_bit_order," &
-     "default_scalar_storage_order,default_iterator,deref," &
-     "elaborated,enabled,fast_math,finalization_size,fixed_value," &
-     "has_access_values,has_discriminants,has_tagged_values," &
-     "implicit_dereference,initialized,integer_value,invalid_value," &
-     "iterator_element,iterable,library_level,lock_free,loop_entry," &
-     "machine_size,max_integer_size,maximum_alignment,mechanism_code," &
-     "null_parameter,object_size,overlaps_storage,passed_by_reference," &
-     "pool_address,range_length,ref,restriction_set,result," &
-     "scalar_storage_order,small_denominator,small_numerator,storage_unit," &
-     "system_allocator_alignment,target_name,to_address,type_class," &
-     "type_key,unconstrained_array,universal_literal_string," &
-     "unrestricted_access,update,vads_size,valid_scalars,value_size," &
-     "variable_indexing,wchar_t_size,word_size,from_any,img,to_any," &
-     "typecode,valid_value,elab_body,elab_spec,elab_subp_body," &
-     "simple_storage_pool,stub_type,secondary_stack_size";
+     "abort_signal,address_size,asm_input,asm_output,"
+     & "atomic_always_lock_free,bit,bit_position,code_address,"
+     & "compiler_version,constant_indexing,default_bit_order,"
+     & "default_scalar_storage_order,default_iterator,deref,"
+     & "elaborated,enabled,fast_math,finalization_size,fixed_value,"
+     & "has_access_values,has_discriminants,has_tagged_values,"
+     & "implicit_dereference,initialized,integer_value,invalid_value,"
+     & "iterator_element,iterable,library_level,lock_free,loop_entry,"
+     & "machine_size,max_integer_size,maximum_alignment,mechanism_code,"
+     & "null_parameter,object_size,overlaps_storage,passed_by_reference,"
+     & "pool_address,range_length,ref,restriction_set,result,"
+     & "scalar_storage_order,small_denominator,small_numerator,storage_unit,"
+     & "system_allocator_alignment,target_name,to_address,type_class,"
+     & "type_key,unconstrained_array,universal_literal_string,"
+     & "unrestricted_access,update,vads_size,valid_scalars,value_size,"
+     & "variable_indexing,wchar_t_size,word_size,from_any,img,to_any,"
+     & "typecode,valid_value,elab_body,elab_spec,elab_subp_body,"
+     & "simple_storage_pool,stub_type,secondary_stack_size";
    --  List of GNAT implementation defined attributes
 
    GNAT_Pragmas : constant Wide_Wide_String :=
-     "ada_83,ada_95,ada_05,ada_2005,ada_12,ada_2012,ada_2022," &
-     "aggregate_individually_assign,allow_integer_address,annotate," &
-     "assume_no_invalid_values,c_pass_by_copy,check_float_overflow," &
-     "check_name,check_policy,compile_time_error,compile_time_warning," &
-     "compiler_unit,compiler_unit_warning,component_alignment," &
-     "convention_identifier,debug_policy,default_scalar_storage_order," &
-     "disable_atomic_synchronization,elaboration_checks,eliminate," &
-     "enable_atomic_synchronization,extend_system,extensions_allowed," &
-     "external_name_casing,fast_math,favor_top_level,gnat_annotate," &
-     "ignore_pragma implicit_packing,initialize_scalars,interrupt_state," &
-     "license,no_component_reordering,no_heap_finalization,no_run_time," &
-     "no_strict_aliasing,optimize_alignment,overflow_mode," &
-     "overriding_renamings,persistent_bss,prefix_exception_messages," &
-     "profile_warnings,propagate_exceptions,rational,ravenscar," &
-     "rename_pragma,restricted_run_time,restriction_warnings," &
-     "short_circuit_and_or,short_descriptors,source_file_name," &
-     "source_file_name_project,spark_mode,style_checks," &
-     "suppress_exception_locations,unevaluated_use_of_old,use_vads_size," &
-     "validity_checks,warning_as_error,warnings,wide_character_encoding," &
-     "abort_defer,abstract_state,assert_and_cut,assume,async_readers," &
-     "async_writers,attribute_definition,check,comment,common_object," &
-     "complete_representation,complex_representation," &
-     "constant_after_elaboration,contract_cases,cpp_class,cpp_constructor," &
-     "cpp_virtual,cpp_vtable,cuda_execute,cuda_global,deadline_floor," &
-     "debug,default_initial_condition,depends,effective_reads," &
-     "effective_writes,export_function,export_object,export_procedure," &
-     "export_valued_procedure,extensions_visible,external," &
-     "finalize_storage_only,ghost,global,ident,implementation_defined," &
-     "import_function,import_object,import_procedure," &
-     "import_valued_procedure,initial_condition,initializes,inline_always," &
-     "inline_generic,interface,interface_name,interrupt_priority," &
-     "invariant,keep_names,link_with,linker_alias,linker_constructor," &
-     "linker_destructor,linker_section,lock_free,loop_invariant," &
-     "loop_optimize,loop_variant,machine_attribute,main,main_storage," &
-     "max_entry_queue_depth,max_queue_length,no_body,no_caching," &
-     "no_elaboration_code_all,no_inline,no_tagged_streams,obsolescent," &
-     "ordered,part_of,passive,post,postcondition,post_class,pre," &
-     "precondition,predicate,pre_class,provide_shift_operators," &
-     "psect_object,pure_function,refined_depends,refined_global," &
-     "refined_post,refined_state,remote_access_type,secondary_stack_size," &
-     "share_generic,simple_storage_pool_type,source_reference," &
-     "static_elaboration_desired,stream_convert,subprogram_variant," &
-     "subtitle,suppress_all,suppress_debug_info,suppress_initialization," &
-     "task_info,task_name,task_storage,test_case,thread_local_storage," &
-     "time_slice,title,type_invariant,type_invariant_class," &
-     "unimplemented_unit,universal_aliasing,unmodified,unreferenced," &
-     "unreferenced_objects,unreserve_all_interrupts,unused," &
-     "volatile_full_access,volatile_function,weak_external";
+     "ada_83,ada_95,ada_05,ada_2005,ada_12,ada_2012,ada_2022,"
+     & "aggregate_individually_assign,allow_integer_address,annotate,"
+     & "assume_no_invalid_values,c_pass_by_copy,check_float_overflow,"
+     & "check_name,check_policy,compile_time_error,compile_time_warning,"
+     & "compiler_unit,compiler_unit_warning,component_alignment,"
+     & "convention_identifier,debug_policy,default_scalar_storage_order,"
+     & "disable_atomic_synchronization,elaboration_checks,eliminate,"
+     & "enable_atomic_synchronization,extend_system,extensions_allowed,"
+     & "external_name_casing,fast_math,favor_top_level,gnat_annotate,"
+     & "ignore_pragma implicit_packing,initialize_scalars,interrupt_state,"
+     & "license,no_component_reordering,no_heap_finalization,no_run_time,"
+     & "no_strict_aliasing,optimize_alignment,overflow_mode,"
+     & "overriding_renamings,persistent_bss,prefix_exception_messages,"
+     & "profile_warnings,propagate_exceptions,rational,ravenscar,"
+     & "rename_pragma,restricted_run_time,restriction_warnings,"
+     & "short_circuit_and_or,short_descriptors,source_file_name,"
+     & "source_file_name_project,spark_mode,style_checks,"
+     & "suppress_exception_locations,unevaluated_use_of_old,use_vads_size,"
+     & "validity_checks,warning_as_error,warnings,wide_character_encoding,"
+     & "abort_defer,abstract_state,assert_and_cut,assume,async_readers,"
+     & "async_writers,attribute_definition,check,comment,common_object,"
+     & "complete_representation,complex_representation,"
+     & "constant_after_elaboration,contract_cases,cpp_class,cpp_constructor,"
+     & "cpp_virtual,cpp_vtable,cuda_execute,cuda_global,deadline_floor,"
+     & "debug,default_initial_condition,depends,effective_reads,"
+     & "effective_writes,export_function,export_object,export_procedure,"
+     & "export_valued_procedure,extensions_visible,external,"
+     & "finalize_storage_only,ghost,global,ident,implementation_defined,"
+     & "import_function,import_object,import_procedure,"
+     & "import_valued_procedure,initial_condition,initializes,inline_always,"
+     & "inline_generic,interface,interface_name,interrupt_priority,"
+     & "invariant,keep_names,link_with,linker_alias,linker_constructor,"
+     & "linker_destructor,linker_section,lock_free,loop_invariant,"
+     & "loop_optimize,loop_variant,machine_attribute,main,main_storage,"
+     & "max_entry_queue_depth,max_queue_length,no_body,no_caching,"
+     & "no_elaboration_code_all,no_inline,no_tagged_streams,obsolescent,"
+     & "ordered,part_of,passive,post,postcondition,post_class,pre,"
+     & "precondition,predicate,pre_class,provide_shift_operators,"
+     & "psect_object,pure_function,refined_depends,refined_global,"
+     & "refined_post,refined_state,remote_access_type,secondary_stack_size,"
+     & "share_generic,simple_storage_pool_type,source_reference,"
+     & "static_elaboration_desired,stream_convert,subprogram_variant,"
+     & "subtitle,suppress_all,suppress_debug_info,suppress_initialization,"
+     & "task_info,task_name,task_storage,test_case,thread_local_storage,"
+     & "time_slice,title,type_invariant,type_invariant_class,"
+     & "unimplemented_unit,universal_aliasing,unmodified,unreferenced,"
+     & "unreferenced_objects,unreserve_all_interrupts,unused,"
+     & "volatile_full_access,volatile_function,weak_external";
    --  List of GNAT implementation defined pragmas
 
    procedure Forbidden_Param_Process
@@ -2170,26 +2197,24 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Forbidden_Instance renames
-        Forbidden_Instance (Instance.all);
+      Tagged_Instance : Forbidden_Instance
+        renames Forbidden_Instance (Instance.all);
       Lower_Param     : constant String := To_Lower (Param);
 
       procedure Process_Param
-        (Param : String;
-         Field : in out Unbounded_Wide_Wide_String);
+        (Param : String; Field : in out Unbounded_Wide_Wide_String);
       --  Process `Lower_Param` to update the `Field` according to it
 
       procedure Process_Allowed_List (List : String);
-      --  Process `List` as a list of allowed items and add them in the current
-      --  instance.
+      --  Process `List` as a list of allowed items and add them in the
+      --  current instance.
 
       -------------------
       -- Process_Param --
       -------------------
 
       procedure Process_Param
-        (Param : String;
-         Field : in out Unbounded_Wide_Wide_String)
+        (Param : String; Field : in out Unbounded_Wide_Wide_String)
       is
          Rule_Name : constant String := Gnatcheck.Rules.Rule_Name (Instance);
       begin
@@ -2209,9 +2234,8 @@ package body Gnatcheck.Rules is
             else
                Append (Field, To_Wide_Wide_String (Param));
             end if;
-
-         --  Other cases: Just add the param to `Field`
          else
+            --  Other cases: Just add the param to `Field`
             Append (Field, To_Wide_Wide_String (Param));
          end if;
       end Process_Param;
@@ -2221,9 +2245,9 @@ package body Gnatcheck.Rules is
       --------------------------
 
       procedure Process_Allowed_List (List : String) is
-         Sep_Index : Natural := Index (List, ";");
+         Sep_Index  : Natural := Index (List, ";");
          Item_Start : Natural := List'First;
-         Item_End : Natural :=
+         Item_End   : Natural :=
            (if Sep_Index = 0 then List'Last else Sep_Index - 1);
       begin
          while Item_Start < List'Last loop
@@ -2243,9 +2267,9 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the parameter is not empty. If the command line is enabling the
-      --  instance then process the parameter to update the instance.
       elsif Enable then
+         --  Else, the parameter is not empty. If the command line is enabling
+         --  the instance then process the parameter to update the instance.
          if Lower_Param = "all" then
             Tagged_Instance.All_Flag := On;
          elsif Has_Prefix (Lower_Param, "allowed=") then
@@ -2256,10 +2280,9 @@ package body Gnatcheck.Rules is
          end if;
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
-      --  Else, the command line is disabling the instance with a non-empty
-      --  parameter. This is forbidden so emit an error and disable the
-      --  instance.
       else
+         --  Else, the command line is disabling the instance with a
+         --  parameter, this is forbidden.
          Emit_No_Parameter_Allowed (Instance);
          Turn_Instance_Off (Instance);
       end if;
@@ -2278,21 +2301,18 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Silent_Exception_Handlers_Instance renames
-        Silent_Exception_Handlers_Instance (Instance.all);
+      Tagged_Instance : Silent_Exception_Handlers_Instance
+        renames Silent_Exception_Handlers_Instance (Instance.all);
 
-      procedure Add_To
-        (Str : in out Unbounded_Wide_Wide_String;
-         Val : String);
+      procedure Add_To (Str : in out Unbounded_Wide_Wide_String; Val : String);
       --  Add `Val` to `Str`, separated with ","
 
       ------------
       -- Add_To --
       ------------
 
-      procedure Add_To
-        (Str : in out Unbounded_Wide_Wide_String;
-         Val : String) is
+      procedure Add_To (Str : in out Unbounded_Wide_Wide_String; Val : String)
+      is
       begin
          if Length (Str) /= 0 then
             Append (Str, ",");
@@ -2308,21 +2328,21 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the parameter is not empty. If the command line is enabling the
-      --  instance then process the parameter to update the instance.
       elsif Enable then
+         --  Else, the parameter is not empty. If the command line is enabling
+         --  the instance then process the parameter to update the instance.
          if Param (Param'First) = '"' then
-            Add_To (Tagged_Instance.Subprogram_Regexps,
-                    Param (Param'First + 1 .. Param'Last - 1));
+            Add_To
+              (Tagged_Instance.Subprogram_Regexps,
+               Param (Param'First + 1 .. Param'Last - 1));
          else
             Add_To (Tagged_Instance.Subprograms, To_Lower (Param));
          end if;
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
-      --  Else, the command line is disabling the instance with a non-empty
-      --  parameter. This is forbidden so emit an error message and disable
-      --  the instance.
       else
+         --  Else, the command line is disabling the instance with a
+         --  parameter, this is forbidden.
          Emit_No_Parameter_Allowed (Instance);
          Turn_Instance_Off (Instance);
       end if;
@@ -2341,8 +2361,7 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Custom_Instance renames
-        Custom_Instance (Instance.all);
+      Tagged_Instance : Custom_Instance renames Custom_Instance (Instance.all);
       R_Name          : constant String := Rule_Name (Rule);
       First_Equal     : Natural;
       Found           : Boolean := False;
@@ -2354,9 +2373,10 @@ package body Gnatcheck.Rules is
             Turn_Instance_Off (Instance);
          end if;
 
-      --  Else, the parameter is not empty. If the command line is enabling the
-      --  instance then process the parameter.
       elsif Enable then
+         --  Else, the parameter is not empty. If the command line is enabling
+         --  the instance then process the parameter.
+
          --  Special case for the "USE_Clauses" rule
          if R_Name = "use_clauses" then
             if To_Lower (Param) = "exempt_operator_packages" then
@@ -2380,13 +2400,15 @@ package body Gnatcheck.Rules is
 
          Instance.Defined_At := To_Unbounded_String (Defined_At);
 
-         --  Get the first "=" index, if this index is 0 then there is an error
-         --  in the parameter syntax.
+         --  Get the first "=" index, if this index is 0 then there is an
+         --  error in the parameter syntax.
          First_Equal := Index (Param, "=");
          if First_Equal = 0 then
             Error
-              ("(" & Gnatcheck.Rules.Instance_Name (Instance)
-               & ") missing = in parameter argument: " & Param);
+              ("("
+               & Gnatcheck.Rules.Instance_Name (Instance)
+               & ") missing = in parameter argument: "
+               & Param);
             Bad_Rule_Detected := True;
             Turn_Instance_Off (Instance);
             return;
@@ -2399,8 +2421,7 @@ package body Gnatcheck.Rules is
               To_Lower (Param (Param'First .. First_Equal - 1));
          begin
             for J in 1 .. All_Rules (Rule).Parameters.Last_Child_Index loop
-               if Gnatcheck.Rules.Param_Name
-                 (All_Rules (Rule), J) = Param_Name
+               if Gnatcheck.Rules.Param_Name (All_Rules (Rule), J) = Param_Name
                then
                   Found := True;
                   exit;
@@ -2413,23 +2434,24 @@ package body Gnatcheck.Rules is
                Tagged_Instance.Arguments.Append
                  (Rule_Argument'
                     (Name  => To_Unbounded_Text (To_Text (Param_Name)),
-                     Value => To_Unbounded_Text (To_Text
-                       (Param (First_Equal + 1 .. Param'Last)))));
-
-            --  Else, display an error and disable the instance
+                     Value =>
+                       To_Unbounded_Text
+                         (To_Text (Param (First_Equal + 1 .. Param'Last)))));
             else
+               --  Else, display an error and disable the instance
                Error
-                 ("(" & Gnatcheck.Rules.Instance_Name (Instance)
-                  & ") unknown parameter: " & Param_Name);
+                 ("("
+                  & Gnatcheck.Rules.Instance_Name (Instance)
+                  & ") unknown parameter: "
+                  & Param_Name);
                Bad_Rule_Detected := True;
                Turn_Instance_Off (Instance);
             end if;
          end;
 
-      --  Else, the command line is disabling the instance with a non-empty
-      --  parameter. This is forbidden so emit an error message and disable
-      --  the instance.
       else
+         --  Else, the command line is disabling the instance with a
+         --  parameter, this is forbidden.
          Emit_No_Parameter_Allowed (Instance);
          Turn_Instance_Off (Instance);
       end if;
@@ -2461,16 +2483,14 @@ package body Gnatcheck.Rules is
    procedure Append_Bool_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
       Name  : Text_Type;
-      Value : Tri_State)
-   is
+      Value : Tri_State) is
    begin
       if Value /= Unset then
          Args.Append
            (Rule_Argument'
               (Name  => To_Unbounded_Text (Name),
                Value =>
-                 To_Unbounded_Text
-                   (if Value = On then "true" else "false")));
+                 To_Unbounded_Text (if Value = On then "true" else "false")));
       end if;
    end Append_Bool_Param;
 
@@ -2486,9 +2506,9 @@ package body Gnatcheck.Rules is
       if Length (Value) /= 0 then
          Args.Append
            (Rule_Argument'
-             (Name  => To_Unbounded_Text (Name),
-              Value => To_Unbounded_Text
-                         ('"' & To_Wide_Wide_String (Value) & '"')));
+              (Name  => To_Unbounded_Text (Name),
+               Value =>
+                 To_Unbounded_Text ('"' & To_Wide_Wide_String (Value) & '"')));
       end if;
    end Append_String_Param;
 
@@ -2520,8 +2540,8 @@ package body Gnatcheck.Rules is
          Append (Param, """]");
          Args.Append
            (Rule_Argument'
-             (Name  => To_Unbounded_Text (Name),
-              Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+              (Name  => To_Unbounded_Text (Name),
+               Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
       end if;
    end Append_Array_Param;
 
@@ -2553,7 +2573,9 @@ package body Gnatcheck.Rules is
       procedure Error is
       begin
          Gnatcheck.Output.Error
-           ("(" & Instance_Name (Instance) & ") wrong parameter: "
+           ("("
+            & Instance_Name (Instance)
+            & ") wrong parameter: "
             & To_String (Instance.Param));
          Turn_Instance_Off (Instance_Name (Instance));
          Bad_Rule_Detected := True;
@@ -2594,7 +2616,9 @@ package body Gnatcheck.Rules is
         and then Slice_Count (Create (To_String (Instance.Param), ",")) /= 5
       then
          Error
-           ("(" & Instance_Name (Instance) & ") requires 5 parameters, got: "
+           ("("
+            & Instance_Name (Instance)
+            & ") requires 5 parameters, got: "
             & To_String (Instance.Param));
          Bad_Rule_Detected := True;
          Turn_Instance_Off (Instance_Name (Instance));
@@ -2608,7 +2632,7 @@ package body Gnatcheck.Rules is
             Param        : Unbounded_Wide_Wide_String;
             C            : Wide_Wide_Character;
             Num_Elements : Positive := 1;
-            Lower        : Boolean  := True;
+            Lower        : Boolean := True;
          begin
             Append (Param, "[(""");
 
@@ -2616,7 +2640,7 @@ package body Gnatcheck.Rules is
                C := Element (Instance.Param, J);
 
                case C is
-                  when '"'    =>
+                  when '"' =>
                      if Num_Elements = 3 then
                         if Element (Instance.Param, J - 1) = ':' then
                            Append (Param, '|');
@@ -2632,12 +2656,12 @@ package body Gnatcheck.Rules is
                         Append (Param, "\""");
                      end if;
 
-                  when ':'    =>
+                  when ':' =>
                      Append (Param, """, """);
                      Num_Elements := @ + 1;
                      Lower := True;
 
-                  when ','    =>
+                  when ',' =>
                      Append (Param, """), (""");
                      Num_Elements := 1;
                      Lower := True;
@@ -2650,15 +2674,15 @@ package body Gnatcheck.Rules is
             Append (Param, """)]");
             Args.Append
               (Rule_Argument'
-                (Name  => To_Unbounded_Text (Param_Name (Rule, 2)),
-                 Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+                 (Name  => To_Unbounded_Text (Param_Name (Rule, 2)),
+                  Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
          end;
 
-      --  If the rule is "exception_propagation_from_callbacks" then add
-      --  the instance parameter to the argument vector as string tuples.
       elsif Rule.Name = "exception_propagation_from_callbacks"
         and then Last /= 0
       then
+         --  If the rule is "exception_propagation_from_callbacks" then add
+         --  the instance parameter to the argument vector as string tuples.
          declare
             Param      : Unbounded_Wide_Wide_String;
             Str        : constant Wide_Wide_String :=
@@ -2677,8 +2701,9 @@ package body Gnatcheck.Rules is
                   Next_Comma := Str'Last + 1;
                end if;
 
-               Dot := Find_Char
-                 (Str (Current .. Next_Comma - 1), '.', Backward => True);
+               Dot :=
+                 Find_Char
+                   (Str (Current .. Next_Comma - 1), '.', Backward => True);
 
                if Dot = 0 then
                   Error;
@@ -2698,13 +2723,13 @@ package body Gnatcheck.Rules is
             Append (Param, """)]");
             Args.Append
               (Rule_Argument'
-                (Name  => To_Unbounded_Text (Param_Name (Rule, 2)),
-                 Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+                 (Name  => To_Unbounded_Text (Param_Name (Rule, 2)),
+                  Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
          end;
 
-      --  In other cases, just add the instance parameter as a comma separated
-      --  string array.
       else
+         --  In other cases, just add the instance parameter as a comma
+         --  separated string array.
          Append_Array_Param (Args, Param_Name (Rule, 2), Instance.Param);
       end if;
    end Handle_Array_Param;
@@ -2718,8 +2743,7 @@ package body Gnatcheck.Rules is
    -----------------
 
    function Create_Rule
-     (Param_Kind : Rule_Param_Kind;
-      Rule_Name  : String) return Rule_Info
+     (Param_Kind : Rule_Param_Kind; Rule_Name : String) return Rule_Info
    is
       Res : Rule_Info;
    begin
@@ -2731,26 +2755,32 @@ package body Gnatcheck.Rules is
             Res.XML_Rule_Help := No_Param_XML_Help'Access;
             Res.Create_Instance := Create_No_Param_Instance'Access;
             Res.Process_Rule_Parameter := No_Param_Process'Access;
+
          when One_Integer =>
             Res.XML_Rule_Help := Int_Param_XML_Help'Access;
             Res.Create_Instance := Create_Int_Instance'Access;
             Res.Process_Rule_Parameter := Int_Param_Process'Access;
+
          when One_Boolean =>
             Res.XML_Rule_Help := Bool_Param_XML_Help'Access;
             Res.Create_Instance := Create_Bool_Instance'Access;
             Res.Process_Rule_Parameter := Bool_Param_Process'Access;
+
          when One_String =>
             Res.XML_Rule_Help := String_Param_XML_Help'Access;
             Res.Create_Instance := Create_String_Instance'Access;
             Res.Process_Rule_Parameter := String_Param_Process'Access;
+
          when One_Array =>
             Res.XML_Rule_Help := String_Param_XML_Help'Access;
             Res.Create_Instance := Create_Array_Instance'Access;
             Res.Process_Rule_Parameter := Array_Param_Process'Access;
+
          when One_Integer_Or_Booleans =>
             Res.XML_Rule_Help := No_Param_XML_Help'Access;
             Res.Create_Instance := Create_Int_Or_Bools_Instance'Access;
             Res.Process_Rule_Parameter := Int_Or_Bools_Param_Process'Access;
+
          when Custom =>
             if Rule_Name = "identifier_suffixes" then
                Res.XML_Rule_Help := Id_Suffix_Param_XML_Help'Access;
@@ -2784,8 +2814,8 @@ package body Gnatcheck.Rules is
                  Silent_Exc_Handler_Param_Process'Access;
 
             elsif Rule_Name = "forbidden_attributes"
-               or else Rule_Name = "forbidden_pragmas"
-               or else Rule_Name = "forbidden_aspects"
+              or else Rule_Name = "forbidden_pragmas"
+              or else Rule_Name = "forbidden_aspects"
             then
                Res.XML_Rule_Help := Forbidden_Param_XML_Help'Access;
                Res.Allowed_As_Exemption_Parameter :=
@@ -2832,8 +2862,12 @@ package body Gnatcheck.Rules is
    procedure Print_Rule_Help (Rule : Rule_Info) is
    begin
       Print
-        (" " & Rule_Name (Rule) & " - " & To_String (Rule.Help_Info) & " - " &
-         Rule.Remediation_Level'Img);
+        (" "
+         & Rule_Name (Rule)
+         & " - "
+         & To_String (Rule.Help_Info)
+         & " - "
+         & Rule.Remediation_Level'Img);
    end Print_Rule_Help;
 
    ---------------------------------------
@@ -2849,9 +2883,9 @@ package body Gnatcheck.Rules is
    is
       Mode_String : constant String :=
         (case Mode is
-            when General    => "rules",
-            when Ada_Only   => "ada_rules",
-            when Spark_Only => "spark_rules");
+           when General => "rules",
+           when Ada_Only => "ada_rules",
+           when Spark_Only => "spark_rules");
 
       Instance_Names : String_Vector;
       Instance       : Rule_Instance_Access;
@@ -2867,33 +2901,38 @@ package body Gnatcheck.Rules is
       procedure Postprocess_Args is
          Lower_Rule_Name : constant String := To_Lower (Rule_Name (Rule));
       begin
-         --  For "headers" and "name_clashes" rules, set the argument value to
-         --  the name of the file.
          if Lower_Rule_Name = "headers"
            or else Lower_Rule_Name = "name_clashes"
          then
+            --  For "headers" and "name_clashes" rules, set the argument value
+            --  to the name of the file.
             declare
                Str_Instance : constant One_String_Parameter_Instance :=
                  One_String_Parameter_Instance (Instance.all);
-               Filename : constant Text_Type :=
+               Filename     : constant Text_Type :=
                  To_Text (To_String (Str_Instance.File));
             begin
                Set_Unbounded_Wide_Wide_String
                  (Args (1).Value, '"' & Filename & '"');
             end;
 
-         --  For the "identifier_suffixes" rule, process the "access_suffix"
-         --  arg to format it like `<access_suffix>(<access_access_suffix>)`.
          elsif Lower_Rule_Name = "identifier_suffixes" then
+            --  For the "identifier_suffixes" rule, process the
+            --  "access_suffix" arg to format it like
+            --  `<access_suffix>(<access_access_suffix>)`.
             declare
                Id_Suf_Instance : constant Identifier_Suffixes_Instance :=
                  Identifier_Suffixes_Instance (Instance.all);
-               To_Delete : Natural := 0;
-               Acc_Suf_Value : constant Text_Type := To_Text
-                 ((if Length (Id_Suf_Instance.Access_Access_Suffix) = 0
-                   then Id_Suf_Instance.Access_Suffix
-                   else Id_Suf_Instance.Access_Suffix &
-                       '(' & Id_Suf_Instance.Access_Access_Suffix & ')'));
+               To_Delete       : Natural := 0;
+               Acc_Suf_Value   : constant Text_Type :=
+                 To_Text
+                   ((if Length (Id_Suf_Instance.Access_Access_Suffix) = 0
+                     then Id_Suf_Instance.Access_Suffix
+                     else
+                       Id_Suf_Instance.Access_Suffix
+                       & '('
+                       & Id_Suf_Instance.Access_Access_Suffix
+                       & ')'));
             begin
                for I in Args.First_Index .. Args.Last_Index loop
                   if Args (I).Name = "access_suffix" then
@@ -2908,13 +2947,13 @@ package body Gnatcheck.Rules is
                end if;
             end;
 
-         --  For the "identifier_casing" rule, if there is a "exclude" file,
-         --  add it into the argument list.
          elsif Lower_Rule_Name = "identifier_casing" then
+            --  For the "identifier_casing" rule, if there is a "exclude"
+            --  file, add it into the argument list.
             declare
                Id_Cas_Instance : constant Identifier_Casing_Instance :=
                  Identifier_Casing_Instance (Instance.all);
-               Filename : constant Text_Type :=
+               Filename        : constant Text_Type :=
                  To_Text (Id_Cas_Instance.Exclude_File);
             begin
                for I in Args.First_Index .. Args.Last_Index loop
@@ -2925,16 +2964,18 @@ package body Gnatcheck.Rules is
                end loop;
             end;
 
-         --  For the "silent_exception_handlers", process all subprogram
-         --  regexps to add a '|' char before
          elsif Lower_Rule_Name = "silent_exception_handlers" then
+            --  For the "silent_exception_handlers", process all subprogram
+            --  regexps to add a '|' char before
             declare
                Subp_Value : Unbounded_Text_Type;
             begin
                for I in Args.First_Index .. Args.Last_Index loop
                   if Args (I).Name = "subprograms" then
-                     Append (Subp_Value, Slice
-                       (Args (I).Value, 2, Length (Args (I).Value) - 1));
+                     Append
+                       (Subp_Value,
+                        Slice
+                          (Args (I).Value, 2, Length (Args (I).Value) - 1));
                   elsif Args (I).Name = "subprogram_regexps" then
                      for R of Parse_LKQL_List (To_String (Args (I).Value)) loop
                         if Length (Subp_Value) /= 0 then
@@ -2946,10 +2987,11 @@ package body Gnatcheck.Rules is
                end loop;
 
                Args.Clear;
-               Args.Append (Rule_Argument'
-                 (Name  => To_Unbounded_Text ("subprograms"),
-                  Value => To_Unbounded_Text
-                    ('[' & To_Text (Subp_Value) & ']')));
+               Args.Append
+                 (Rule_Argument'
+                    (Name  => To_Unbounded_Text ("subprograms"),
+                     Value =>
+                       To_Unbounded_Text ('[' & To_Text (Subp_Value) & ']')));
             end;
          end if;
       end Postprocess_Args;
@@ -2971,14 +3013,14 @@ package body Gnatcheck.Rules is
             end if;
             First_Rule := False;
 
-         --  Else, print a comma
          else
+            --  Else, print a comma
             Put_Line (Rule_File, ",");
          end if;
          Put (Rule_File, "    " & Rule_Name (Rule));
 
          for Name of Instance_Names loop
-            Instance    := All_Rule_Instances (Name);
+            Instance := All_Rule_Instances (Name);
             First_Param := True;
             Args.Clear;
             Map_Parameters (Instance.all, Args);
@@ -3001,8 +3043,9 @@ package body Gnatcheck.Rules is
                if Instance.Is_Alias then
                   Put
                     (Rule_File,
-                     "instance_name: """ & To_String (Instance.Alias_Name) &
-                     """");
+                     "instance_name: """
+                     & To_String (Instance.Alias_Name)
+                     & """");
                   First_Param := False;
                end if;
 
@@ -3015,8 +3058,9 @@ package body Gnatcheck.Rules is
                   end if;
                   Put
                     (Rule_File,
-                     To_String (To_Wide_Wide_String (Param.Name)) & ": " &
-                     To_String (To_Wide_Wide_String (Param.Value)));
+                     To_String (To_Wide_Wide_String (Param.Name))
+                     & ": "
+                     & To_String (To_Wide_Wide_String (Param.Value)));
                end loop;
 
                Put (Rule_File, "}");
@@ -3036,8 +3080,7 @@ package body Gnatcheck.Rules is
    procedure Print_Compiler_Rule_To_LKQL_File
      (Compiler_Rule : Rule_Id;
       Rule_File     : File_Type;
-      First_Rule    : in out Boolean)
-   is
+      First_Rule    : in out Boolean) is
    begin
       --  First of all, check that the rule is enabled
       if not Is_Enabled (Compiler_Rule) then
@@ -3061,12 +3104,10 @@ package body Gnatcheck.Rules is
       else
          Put
            (Rule_File,
-            "[" &
-            Active_Restrictions_List
-              (Separator => ", ",
-               Elem_Prefix => """",
-               Elem_Postfix => """") &
-            "]");
+            "["
+            & Active_Restrictions_List
+                (Separator => ", ", Elem_Prefix => """", Elem_Postfix => """")
+            & "]");
       end if;
 
       --  Close the instances list
@@ -3090,9 +3131,9 @@ package body Gnatcheck.Rules is
 
    function Instance_Name (Instance : Rule_Instance'Class) return String is
    begin
-      return (if Instance.Is_Alias
-              then To_String (Instance.Alias_Name)
-              else Rule_Name (Instance));
+      return
+        (if Instance.Is_Alias then To_String (Instance.Alias_Name)
+         else Rule_Name (Instance));
    end Instance_Name;
 
    -------------------
@@ -3102,11 +3143,12 @@ package body Gnatcheck.Rules is
    function Annotate_Diag (Instance : Rule_Instance'Class) return String is
    begin
       if Arg.Show_Rule.Get then
-         return " [" &
-                (if Instance.Is_Alias
-                 then To_String (Instance.Alias_Name) & "|"
-                 else "") &
-                Rule_Name (Instance) & "]";
+         return
+           " ["
+           & (if Instance.Is_Alias then To_String (Instance.Alias_Name) & "|"
+              else "")
+           & Rule_Name (Instance)
+           & "]";
       else
          return "";
       end if;
@@ -3118,7 +3160,8 @@ package body Gnatcheck.Rules is
    -- Process_Instance_Params_Object --
    ------------------------------------
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_Integer_Parameter_Instance;
       Params_Object : in out JSON_Value)
    is
@@ -3128,7 +3171,8 @@ package body Gnatcheck.Rules is
       Params_Object.Unset_Field (P_Name);
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_Boolean_Parameter_Instance;
       Params_Object : in out JSON_Value)
    is
@@ -3141,7 +3185,8 @@ package body Gnatcheck.Rules is
       end if;
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_String_Parameter_Instance;
       Params_Object : in out JSON_Value)
    is
@@ -3160,17 +3205,17 @@ package body Gnatcheck.Rules is
             end if;
          end;
 
-      --  Else, handle the parameter as a simple string
       else
+         --  Else, handle the parameter as a simple string
          Set_Unbounded_Wide_Wide_String
-            (Instance.Param,
-            To_Wide_Wide_String
-              (Expect_Literal (Params_Object, P_Name)));
+           (Instance.Param,
+            To_Wide_Wide_String (Expect_Literal (Params_Object, P_Name)));
          Params_Object.Unset_Field (P_Name);
       end if;
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_Array_Parameter_Instance;
       Params_Object : in out JSON_Value)
    is
@@ -3180,7 +3225,7 @@ package body Gnatcheck.Rules is
       --  dictionary file.
       if Rule_Name (Instance) = "name_clashes" then
          declare
-            Param_Value : constant String :=
+            Param_Value  : constant String :=
               Expect_Literal (Params_Object, "dictionary_file");
             File_Content : constant Unbounded_String :=
               Load_Dictionary_File (Expand_Env_Variables (Param_Value));
@@ -3196,58 +3241,68 @@ package body Gnatcheck.Rules is
             end if;
          end;
 
-      --  Else, handle the real array parametrized rules
       elsif Params_Object.Has_Field (P_Name) then
+         --  Else, handle the real array parametrized rules
          declare
             Param_Value : constant String_Vector :=
-               Expect_Literal (Params_Object, P_Name);
-            Res : String_Vector;
+              Expect_Literal (Params_Object, P_Name);
+            Res         : String_Vector;
          begin
 
             --  Special case for the "parameters_out_of_order" rule to verify
             --  that the argument value contains valid values.
             if Rule_Name (Instance) = "parameters_out_of_order" then
                for S of Param_Value loop
-                  if To_Lower (S) not in
-                    "in" | "defaulted_in" | "in_out" | "access" | "out"
+                  if To_Lower (S)
+                     not in "in" | "defaulted_in" | "in_out" | "access" | "out"
                   then
-                     raise Invalid_Value with
-                       "'" & P_Name & "' should contains only 'in', " &
-                       "'defaulted_in', 'in_out', 'access' or 'out' strings";
+                     raise Invalid_Value
+                       with
+                         "'"
+                         & P_Name
+                         & "' should contains only 'in', 'defaulted_in', "
+                         & "'in_out', 'access' or 'out' strings";
                   end if;
                end loop;
 
-            --  Special case for the "actual_parameters" rule which should
-            --  have a list of three-elem tuples of strings.
             elsif Rule_Name (Instance) = "actual_parameters" then
+               --  Special case for the "actual_parameters" rule which should
+               --  have a list of three-elem tuples of strings.
                begin
                   for S of Param_Value loop
                      Res.Append (Join (Parse_String_Tuple (S), ":"));
                   end loop;
                exception
                   when Invalid_Type =>
-                     raise Invalid_Type with
-                       "'" & P_Name & "' should be a list of string " &
-                       "tuples";
+                     raise Invalid_Type
+                       with
+                         "'"
+                         & P_Name
+                         & "' should be a list of string "
+                         & "tuples";
                end;
 
-            --  Special case for the "exception_propagation_from_callbacks"
-            --  rule which should have a list of two-elems tuples of strings.
             elsif Rule_Name (Instance) = "exception_propagation_from_callbacks"
             then
+               --  Special case for the "exception_propagation_from_callbacks"
+               --  rule which should have a list of two-elems tuples of
+               --  strings.
                begin
                   for S of Param_Value loop
                      Res.Append (Join (Parse_String_Tuple (S), "."));
                   end loop;
                exception
                   when Invalid_Type =>
-                     raise Invalid_Type with
-                       "'" & P_Name & "' should be a list of string " &
-                       "tuples";
+                     raise Invalid_Type
+                       with
+                         "'"
+                         & P_Name
+                         & "' should be a list of string "
+                         & "tuples";
                end;
 
-            --  Else the rule parameter is just a list of strings
             else
+               --  Else the rule parameter is just a list of strings
                Res := Param_Value;
             end if;
             Set_Unbounded_Wide_Wide_String
@@ -3257,7 +3312,8 @@ package body Gnatcheck.Rules is
       end if;
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out One_Integer_Or_Booleans_Parameter_Instance;
       Params_Object : in out JSON_Value) is
    begin
@@ -3270,8 +3326,8 @@ package body Gnatcheck.Rules is
                Instance.Integer_Param :=
                  Expect_Literal (Params_Object, Param_Name (Instance, I));
 
-            --  If it fails, then the argument should be a boolean
             exception
+               --  If it fails, then the argument should be a boolean
                when Invalid_Type =>
                   Instance.Boolean_Params (I) :=
                     From_Boolean
@@ -3283,7 +3339,8 @@ package body Gnatcheck.Rules is
       end loop;
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Suffixes_Instance;
       Params_Object : in out JSON_Value) is
    begin
@@ -3306,7 +3363,7 @@ package body Gnatcheck.Rules is
       --  Process the "access_suffix" special string argument
       if Params_Object.Has_Field ("access_suffix") then
          declare
-            Arg : constant String :=
+            Arg         : constant String :=
               Expect_Literal (Params_Object, "access_suffix");
             Paren_Index : Natural;
          begin
@@ -3342,12 +3399,13 @@ package body Gnatcheck.Rules is
         (Params_Object, "interrupt_suffix", Instance.Interrupt_Suffix);
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Prefixes_Instance;
       Params_Object : in out JSON_Value)
    is
       Derived_Param : String_Vector;
-      Col_Index : Natural;
+      Col_Index     : Natural;
    begin
       --  Process the exclusive boolean argument
       if Params_Object.Has_Field ("exclusive") then
@@ -3373,8 +3431,8 @@ package body Gnatcheck.Rules is
                  (Instance.Derived_Prefix,
                   To_Wide_Wide_String (S (Col_Index .. S'Last)));
             else
-               raise Invalid_Value with
-                 "'derived' elements should contain a colon";
+               raise Invalid_Value
+                 with "'derived' elements should contain a colon";
             end if;
          end loop;
          Params_Object.Unset_Field ("derived");
@@ -3397,7 +3455,8 @@ package body Gnatcheck.Rules is
       Process_String_Arg (Params_Object, "enum", Instance.Enum_Prefix);
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Casing_Instance;
       Params_Object : in out JSON_Value) is
    begin
@@ -3412,8 +3471,7 @@ package body Gnatcheck.Rules is
             Params_Object.Unset_Field ("exclude");
             if File_Content /= Null_Unbounded_String then
                Set_Unbounded_Wide_Wide_String
-                 (Instance.Exclude_File,
-                  To_Wide_Wide_String (Exclude_File));
+                 (Instance.Exclude_File, To_Wide_Wide_String (Exclude_File));
                Set_Unbounded_Wide_Wide_String
                  (Instance.Exclude,
                   To_Wide_Wide_String (To_String (File_Content)));
@@ -3442,13 +3500,12 @@ package body Gnatcheck.Rules is
         (Params_Object, "others", Instance.Others_Casing, Normalize => True);
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
-     (Instance      : in out Forbidden_Instance;
-      Params_Object : in out JSON_Value)
+   overriding
+   procedure Process_Instance_Params_Object
+     (Instance : in out Forbidden_Instance; Params_Object : in out JSON_Value)
    is
       procedure Process_List_Field
-        (Field_Name : String;
-         Field : in out Unbounded_Wide_Wide_String);
+        (Field_Name : String; Field : in out Unbounded_Wide_Wide_String);
       --  Get the given `Field_Name` in the arguments object, if presents, get
       --  a string vector from it and add its comma separated items in `Field`.
 
@@ -3457,8 +3514,7 @@ package body Gnatcheck.Rules is
       ------------------------
 
       procedure Process_List_Field
-        (Field_Name : String;
-         Field : in out Unbounded_Wide_Wide_String)
+        (Field_Name : String; Field : in out Unbounded_Wide_Wide_String)
       is
          Val : String_Vector;
       begin
@@ -3502,7 +3558,8 @@ package body Gnatcheck.Rules is
       Process_List_Field ("allowed", Instance.Allowed);
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
+   overriding
+   procedure Process_Instance_Params_Object
      (Instance      : in out Silent_Exception_Handlers_Instance;
       Params_Object : in out JSON_Value)
    is
@@ -3531,9 +3588,9 @@ package body Gnatcheck.Rules is
       end if;
    end Process_Instance_Params_Object;
 
-   overriding procedure Process_Instance_Params_Object
-     (Instance      : in out Custom_Instance;
-      Params_Object : in out JSON_Value) is
+   overriding
+   procedure Process_Instance_Params_Object
+     (Instance : in out Custom_Instance; Params_Object : in out JSON_Value) is
    begin
       for I in 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index loop
          declare
@@ -3542,10 +3599,10 @@ package body Gnatcheck.Rules is
             if Params_Object.Has_Field (P_Name) then
                Instance.Arguments.Append
                  (Rule_Argument'
-                   (Name => To_Unbounded_Text (To_Text (P_Name)),
-                    Value => To_Unbounded_Text
-                               (To_Text
-                                  (Expect (Params_Object, P_Name)))));
+                    (Name  => To_Unbounded_Text (To_Text (P_Name)),
+                     Value =>
+                       To_Unbounded_Text
+                         (To_Text (Expect (Params_Object, P_Name)))));
                Params_Object.Unset_Field (P_Name);
             end if;
          end;
@@ -3556,7 +3613,8 @@ package body Gnatcheck.Rules is
    -- Map_Parameters --
    --------------------
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_Integer_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
@@ -3564,7 +3622,8 @@ package body Gnatcheck.Rules is
         (Args, Param_Name (All_Rules (Instance.Rule), 2), Instance.Param);
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_Boolean_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
@@ -3572,7 +3631,8 @@ package body Gnatcheck.Rules is
         (Args, Param_Name (All_Rules (Instance.Rule), 2), Instance.Param);
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_String_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
@@ -3580,28 +3640,33 @@ package body Gnatcheck.Rules is
         (Args, Param_Name (All_Rules (Instance.Rule), 2), Instance.Param);
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_Array_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
       Handle_Array_Param (Args, Instance);
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out One_Integer_Or_Booleans_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_Int_Param
-        (Args, Param_Name
-          (All_Rules (Instance.Rule), 2), Instance.Integer_Param);
+        (Args,
+         Param_Name (All_Rules (Instance.Rule), 2),
+         Instance.Integer_Param);
       for J in 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index loop
          Append_Bool_Param
-           (Args, Param_Name
-             (All_Rules (Instance.Rule), J), Instance.Boolean_Params (J));
+           (Args,
+            Param_Name (All_Rules (Instance.Rule), J),
+            Instance.Boolean_Params (J));
       end loop;
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Identifier_Suffixes_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
@@ -3613,25 +3678,23 @@ package body Gnatcheck.Rules is
         (Args, "class_access_suffix", Instance.Class_Access_Suffix);
       Append_String_Param
         (Args, "class_subtype_suffix", Instance.Class_Subtype_Suffix);
-      Append_String_Param
-        (Args, "constant_suffix", Instance.Constant_Suffix);
-      Append_String_Param
-        (Args, "renaming_suffix", Instance.Renaming_Suffix);
+      Append_String_Param (Args, "constant_suffix", Instance.Constant_Suffix);
+      Append_String_Param (Args, "renaming_suffix", Instance.Renaming_Suffix);
       Append_String_Param
         (Args, "access_obj_suffix", Instance.Access_Obj_Suffix);
       Append_String_Param
         (Args, "interrupt_suffix", Instance.Interrupt_Suffix);
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Identifier_Prefixes_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_String_Param (Args, "type", Instance.Type_Prefix);
       Append_String_Param (Args, "concurrent", Instance.Concurrent_Prefix);
       Append_String_Param (Args, "access", Instance.Access_Prefix);
-      Append_String_Param
-        (Args, "class_access", Instance.Class_Access_Prefix);
+      Append_String_Param (Args, "class_access", Instance.Class_Access_Prefix);
       Append_String_Param
         (Args, "subprogram_access", Instance.Subprogram_Access_Prefix);
       Append_String_Param (Args, "constant", Instance.Constant_Prefix);
@@ -3642,12 +3705,13 @@ package body Gnatcheck.Rules is
       if Instance.Exclusive = Off then
          Args.Append
            (Rule_Argument'
-             (Name  => To_Unbounded_Text ("exclusive"),
-              Value => To_Unbounded_Text ("false")));
+              (Name  => To_Unbounded_Text ("exclusive"),
+               Value => To_Unbounded_Text ("false")));
       end if;
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Identifier_Casing_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
@@ -3659,22 +3723,24 @@ package body Gnatcheck.Rules is
       Append_Array_Param (Args, "exclude", Instance.Exclude);
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Forbidden_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
       if Instance.All_Flag = On then
          Args.Append
            (Rule_Argument'
-             (Name  => To_Unbounded_Text ("all"),
-              Value => To_Unbounded_Text ("true")));
+              (Name  => To_Unbounded_Text ("all"),
+               Value => To_Unbounded_Text ("true")));
       end if;
 
       Append_Array_Param (Args, "forbidden", Instance.Forbidden);
       Append_Array_Param (Args, "allowed", Instance.Allowed);
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Silent_Exception_Handlers_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
@@ -3683,7 +3749,8 @@ package body Gnatcheck.Rules is
         (Args, "subprogram_regexps", Instance.Subprogram_Regexps);
    end Map_Parameters;
 
-   overriding procedure Map_Parameters
+   overriding
+   procedure Map_Parameters
      (Instance : in out Custom_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
@@ -3708,7 +3775,8 @@ package body Gnatcheck.Rules is
       Put (Rule_File, "+R" & Rule_Name (Instance));
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : One_Integer_Parameter_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0) is
@@ -3721,7 +3789,8 @@ package body Gnatcheck.Rules is
       end if;
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : One_Boolean_Parameter_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0) is
@@ -3734,7 +3803,8 @@ package body Gnatcheck.Rules is
       end if;
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : One_String_Parameter_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0) is
@@ -3750,7 +3820,8 @@ package body Gnatcheck.Rules is
       end if;
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : One_Integer_Or_Booleans_Parameter_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0)
@@ -3774,12 +3845,13 @@ package body Gnatcheck.Rules is
       end loop;
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Identifier_Prefixes_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0)
    is
-      First_Param       : Boolean         := True;
+      First_Param       : Boolean := True;
       Rule_Name_Padding : constant String :=
         [1 .. Instance_Name (Instance)'Length + 3 => ' '];
 
@@ -3809,8 +3881,9 @@ package body Gnatcheck.Rules is
                   Put (Rule_File, Get_Indent_String);
                end loop;
 
-               Put (Rule_File,
-                    Rule_Name_Padding & Param & "=" & To_String (Prefix));
+               Put
+                 (Rule_File,
+                  Rule_Name_Padding & Param & "=" & To_String (Prefix));
             end if;
          end if;
       end Print;
@@ -3839,9 +3912,10 @@ package body Gnatcheck.Rules is
                if C /= ',' then
                   Put (Rule_File, C);
                else
-                  Print ("Derived",
-                         Null_Unbounded_Wide_Wide_String,
-                         Force => True);
+                  Print
+                    ("Derived",
+                     Null_Unbounded_Wide_Wide_String,
+                     Force => True);
                end if;
             end;
          end loop;
@@ -3856,12 +3930,13 @@ package body Gnatcheck.Rules is
       end if;
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Identifier_Suffixes_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0)
    is
-      First_Param       : Boolean         := True;
+      First_Param       : Boolean := True;
       Rule_Name_Padding : constant String :=
         [1 .. Instance_Name (Instance)'Length + 3 => ' '];
 
@@ -3885,8 +3960,9 @@ package body Gnatcheck.Rules is
                   Put (Rule_File, Get_Indent_String);
                end loop;
 
-               Put (Rule_File,
-                    Rule_Name_Padding & Param & "=" & To_String (Suffix));
+               Put
+                 (Rule_File,
+                  Rule_Name_Padding & Param & "=" & To_String (Suffix));
             end if;
          end if;
       end Print;
@@ -3911,12 +3987,13 @@ package body Gnatcheck.Rules is
       Print ("Interrupt_Suffix", Instance.Interrupt_Suffix);
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Identifier_Casing_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0)
    is
-      First_Param       : Boolean         := True;
+      First_Param       : Boolean := True;
       Rule_Name_Padding : constant String :=
         [1 .. Instance_Name (Instance)'Length + 3 => ' '];
 
@@ -3946,8 +4023,9 @@ package body Gnatcheck.Rules is
                   Put (Rule_File, Get_Indent_String);
                end loop;
 
-               Put (Rule_File,
-                    Rule_Name_Padding & Param & "=" & To_String (Casing));
+               Put
+                 (Rule_File,
+                  Rule_Name_Padding & Param & "=" & To_String (Casing));
             end if;
          end if;
       end Print;
@@ -3973,15 +4051,15 @@ package body Gnatcheck.Rules is
             if C /= ',' then
                Put (Rule_File, C);
             else
-               Print ("Exclude",
-                      Null_Unbounded_Wide_Wide_String,
-                      Force => True);
+               Print
+                 ("Exclude", Null_Unbounded_Wide_Wide_String, Force => True);
             end if;
          end loop;
       end if;
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Forbidden_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0)
@@ -4036,7 +4114,8 @@ package body Gnatcheck.Rules is
       end if;
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Silent_Exception_Handlers_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0)
@@ -4091,7 +4170,8 @@ package body Gnatcheck.Rules is
       Print (Instance.Subprogram_Regexps, Quote => True);
    end Print_Rule_Instance_To_File;
 
-   overriding procedure Print_Rule_Instance_To_File
+   overriding
+   procedure Print_Rule_Instance_To_File
      (Instance     : Custom_Instance;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0)
@@ -4110,9 +4190,11 @@ package body Gnatcheck.Rules is
             Put (Rule_File, Indent_Level * Indent_String);
          end if;
 
-         Put (Rule_File,
-              To_String (To_Wide_Wide_String (Param.Name)) & "=" &
-              To_String (To_Wide_Wide_String (Param.Value)));
+         Put
+           (Rule_File,
+            To_String (To_Wide_Wide_String (Param.Name))
+            & "="
+            & To_String (To_Wide_Wide_String (Param.Value)));
       end loop;
    end Print_Rule_Instance_To_File;
 
@@ -4121,15 +4203,15 @@ package body Gnatcheck.Rules is
    -----------------------------
 
    procedure XML_Print_Rule_Instance
-     (Instance     : Rule_Instance;
-      Indent_Level : Natural := 0) is
+     (Instance : Rule_Instance; Indent_Level : Natural := 0) is
    begin
       XML_Report (XML_Head (Instance) & XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : One_Integer_Parameter_Instance;
-      Indent_Level : Natural := 0) is
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : One_Integer_Parameter_Instance; Indent_Level : Natural := 0)
+   is
    begin
       XML_Report (XML_Head (Instance), Indent_Level);
 
@@ -4140,9 +4222,10 @@ package body Gnatcheck.Rules is
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : One_Boolean_Parameter_Instance;
-      Indent_Level : Natural := 0) is
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : One_Boolean_Parameter_Instance; Indent_Level : Natural := 0)
+   is
    begin
       XML_Report (XML_Head (Instance), Indent_Level);
 
@@ -4155,21 +4238,21 @@ package body Gnatcheck.Rules is
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : One_String_Parameter_Instance;
-      Indent_Level : Natural := 0) is
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : One_String_Parameter_Instance; Indent_Level : Natural := 0) is
    begin
       XML_Report (XML_Head (Instance), Indent_Level);
 
       if Length (Instance.Param) /= 0 then
-         XML_Report
-           (XML_Param (To_String (Instance.Param)), Indent_Level + 1);
+         XML_Report (XML_Param (To_String (Instance.Param)), Indent_Level + 1);
       end if;
 
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
+   overriding
+   procedure XML_Print_Rule_Instance
      (Instance     : One_Integer_Or_Booleans_Parameter_Instance;
       Indent_Level : Natural := 0) is
    begin
@@ -4191,9 +4274,9 @@ package body Gnatcheck.Rules is
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Identifier_Prefixes_Instance;
-      Indent_Level : Natural := 0)
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Identifier_Prefixes_Instance; Indent_Level : Natural := 0)
    is
       Prefix_Specified : Boolean := False;
 
@@ -4209,8 +4292,7 @@ package body Gnatcheck.Rules is
       begin
          if Length (Prefix) /= 0 then
             XML_Report
-              (XML_Param (Param & "=" & To_String (Prefix)),
-               Indent_Level + 1);
+              (XML_Param (Param & "=" & To_String (Prefix)), Indent_Level + 1);
             Prefix_Specified := True;
          end if;
       end Print;
@@ -4237,9 +4319,9 @@ package body Gnatcheck.Rules is
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Identifier_Suffixes_Instance;
-      Indent_Level : Natural := 0)
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Identifier_Suffixes_Instance; Indent_Level : Natural := 0)
    is
       procedure Print (Param : String; Suffix : Unbounded_Wide_Wide_String);
       --  Print in XML format the value `Suffix` for parameter `Param` if
@@ -4253,8 +4335,7 @@ package body Gnatcheck.Rules is
       begin
          if Length (Suffix) /= 0 then
             XML_Report
-              (XML_Param (Param & "=" & To_String (Suffix)),
-               Indent_Level + 1);
+              (XML_Param (Param & "=" & To_String (Suffix)), Indent_Level + 1);
          end if;
       end Print;
 
@@ -4265,10 +4346,12 @@ package body Gnatcheck.Rules is
 
       if Length (Instance.Access_Suffix) /= 0 then
          XML_Report
-           (XML_Param ("Access_Suffix=" & To_String (Instance.Access_Suffix) &
-                       (if Length (Instance.Access_Access_Suffix) /= 0 then
-                          "(" & To_String (Instance.Access_Access_Suffix) & ")"
-                        else "")),
+           (XML_Param
+              ("Access_Suffix="
+               & To_String (Instance.Access_Suffix)
+               & (if Length (Instance.Access_Access_Suffix) /= 0
+                  then "(" & To_String (Instance.Access_Access_Suffix) & ")"
+                  else "")),
             Indent_Level + 1);
       end if;
 
@@ -4282,9 +4365,9 @@ package body Gnatcheck.Rules is
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Identifier_Casing_Instance;
-      Indent_Level : Natural := 0)
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Identifier_Casing_Instance; Indent_Level : Natural := 0)
    is
       procedure Print (Param : String; Casing : Unbounded_Wide_Wide_String);
       --  Print in XML format the value `Casing` for parameter `Param` if
@@ -4298,8 +4381,7 @@ package body Gnatcheck.Rules is
       begin
          if Length (Casing) /= 0 then
             XML_Report
-              (XML_Param (Param & "=" & To_String (Casing)),
-               Indent_Level + 1);
+              (XML_Param (Param & "=" & To_String (Casing)), Indent_Level + 1);
          end if;
       end Print;
 
@@ -4313,16 +4395,14 @@ package body Gnatcheck.Rules is
       Print ("Others", Instance.Others_Casing);
 
       Print_XML_Params
-        (To_String (Instance.Exclude),
-         Indent_Level + 1,
-         Prefix => "Exclude=");
+        (To_String (Instance.Exclude), Indent_Level + 1, Prefix => "Exclude=");
 
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Forbidden_Instance;
-      Indent_Level : Natural := 0) is
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Forbidden_Instance; Indent_Level : Natural := 0) is
    begin
       XML_Report (XML_Head (Instance), Indent_Level);
 
@@ -4336,7 +4416,8 @@ package body Gnatcheck.Rules is
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
+   overriding
+   procedure XML_Print_Rule_Instance
      (Instance     : Silent_Exception_Handlers_Instance;
       Indent_Level : Natural := 0) is
    begin
@@ -4352,17 +4433,18 @@ package body Gnatcheck.Rules is
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
 
-   overriding procedure XML_Print_Rule_Instance
-     (Instance     : Custom_Instance;
-      Indent_Level : Natural := 0) is
+   overriding
+   procedure XML_Print_Rule_Instance
+     (Instance : Custom_Instance; Indent_Level : Natural := 0) is
    begin
       XML_Report (XML_Head (Instance), Indent_Level);
 
       for Arg of Instance.Arguments loop
          XML_Report
            (XML_Param
-             (To_String (To_Wide_Wide_String (Arg.Name)) & "=" &
-              To_String (To_Wide_Wide_String (Arg.Value))),
+              (To_String (To_Wide_Wide_String (Arg.Name))
+               & "="
+               & To_String (To_Wide_Wide_String (Arg.Value))),
             Indent_Level + 1);
       end loop;
 
@@ -4374,12 +4456,12 @@ package body Gnatcheck.Rules is
    ---------------
 
    function Load_File
-     (Instance : in out One_String_Parameter_Instance'Class;
-      To_Load  : String) return Boolean
+     (Instance : in out One_String_Parameter_Instance'Class; To_Load : String)
+      return Boolean
    is
       Abs_Name : constant String := Find_File (To_Load);
-      Str  : GNAT.OS_Lib.String_Access;
-      Last : Natural;
+      Str      : GNAT.OS_Lib.String_Access;
+      Last     : Natural;
    begin
       if Abs_Name /= "" then
          Str := Read_File (Abs_Name);
@@ -4396,7 +4478,7 @@ package body Gnatcheck.Rules is
             end if;
 
             Ada.Strings.Wide_Wide_Unbounded.Set_Unbounded_Wide_Wide_String
-            (Instance.Param, To_Wide_Wide_String (Str (1 .. Last)));
+              (Instance.Param, To_Wide_Wide_String (Str (1 .. Last)));
             GNAT.OS_Lib.Free (Str);
          end if;
          return True;

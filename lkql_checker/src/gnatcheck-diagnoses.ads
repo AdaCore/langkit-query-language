@@ -37,11 +37,9 @@ package Gnatcheck.Diagnoses is
      Compile ("^""([^\s:]+)\s*(?::\s*(.*))?""$");
    --  Matcher for a rule name and potential arguments
 
-   Match_Rule_Param : constant Pattern_Matcher :=
-     Compile ("([^,]+)?\s*,?\s*");
+   Match_Rule_Param : constant Pattern_Matcher := Compile ("([^,]+)?\s*,?\s*");
 
-   Match_Rule_Warning_Param : constant Pattern_Matcher :=
-     Compile ("(\.?\w)");
+   Match_Rule_Warning_Param : constant Pattern_Matcher := Compile ("(\.?\w)");
 
    Common_Exempt_Comment_Match : constant String :=
      "\s+(line\s+)?(on|off)\s+([^\s]+)[^#]*(?:##(.*))?";
@@ -66,7 +64,7 @@ package Gnatcheck.Diagnoses is
       --  Compiler diagnoses generated for illegal (non-compilable) sources
       Internal_Error
       --  Internal gnatcheck error
-      );
+     );
 
    procedure Store_Diagnosis
      (Text           : String;
@@ -157,8 +155,7 @@ package Gnatcheck.Diagnoses is
    --  differs.
 
    procedure Check_Unclosed_Rule_Exemptions
-     (SF   : SF_Id;
-      Unit : LAL.Analysis.Analysis_Unit);
+     (SF : SF_Id; Unit : LAL.Analysis.Analysis_Unit);
    --  Is supposed to be called in the very end of processing of the source
    --  corresponding to SF. Checks if there exist some exempted rules. For each
    --  such rule, a warning is issued and exemption is turned OFF. Unit

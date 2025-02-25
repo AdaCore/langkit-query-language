@@ -43,27 +43,26 @@ package Gnatcheck.String_Utilities is
    --  Removes surrounding quotes or double-quotes from the provided string
    --  if any, else just return the string.
 
-   function Escape_Quotes (S : String) return String is
-     (Replace (S, """", "\"""));
+   function Escape_Quotes (S : String) return String
+   is (Replace (S, """", "\"""));
    --  Escape all quotes in the given string by adding a '\` before each of
    --  them.
 
-   function Is_White_Space (Ch : Character) return Boolean is
-     (Ch in ' ' | ASCII.HT);
+   function Is_White_Space (Ch : Character) return Boolean
+   is (Ch in ' ' | ASCII.HT);
    --  Checks if the argument is either a space or HT character
 
    function Read_File (FD : File_Descriptor) return String_Access;
    function Read_File (File_Name : String) return String_Access;
    --  Reads the entire contents of the file
 
-   package String_Vectors is
-     new Ada.Containers.Indefinite_Vectors (Positive, String);
+   package String_Vectors is new
+     Ada.Containers.Indefinite_Vectors (Positive, String);
    subtype String_Vector is String_Vectors.Vector;
 
    function Split
-     (S          : String;
-      Sep        : Character;
-      Trim_Elems : Boolean := False) return String_Vector;
+     (S : String; Sep : Character; Trim_Elems : Boolean := False)
+      return String_Vector;
    --  Split the given ``S`` into multiple pieces, separating those when
    --  encountering ``Sep``.
    --  ``Trim_Elems`` sets whether this method should trim heading and trailing
@@ -121,20 +120,22 @@ package Gnatcheck.String_Utilities is
    -- Simple String to String map --
    ---------------------------------
 
-   package String_Maps is new Ada.Containers.Indefinite_Hashed_Maps
-     (Key_Type        => String,
-      Element_Type    => String,
-      Hash            => Ada.Strings.Hash,
-      Equivalent_Keys => "=");
+   package String_Maps is new
+     Ada.Containers.Indefinite_Hashed_Maps
+       (Key_Type        => String,
+        Element_Type    => String,
+        Hash            => Ada.Strings.Hash,
+        Equivalent_Keys => "=");
 
    -----------------------
    -- Simple String set --
    -----------------------
 
-   package String_Sets is new Ada.Containers.Indefinite_Hashed_Sets
-     (Element_Type        => String,
-      Hash                => Ada.Strings.Hash,
-      Equivalent_Elements => "=",
-      "="                 => "=");
+   package String_Sets is new
+     Ada.Containers.Indefinite_Hashed_Sets
+       (Element_Type        => String,
+        Hash                => Ada.Strings.Hash,
+        Equivalent_Elements => "=",
+        "="                 => "=");
 
 end Gnatcheck.String_Utilities;
