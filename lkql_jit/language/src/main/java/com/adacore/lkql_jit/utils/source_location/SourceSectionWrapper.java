@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.utils.source_location;
 
-import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.io.File;
@@ -15,7 +15,10 @@ import java.util.ArrayList;
 /** Implementation of SourceLocation wrapping Truffle's SourceSections. */
 public class SourceSectionWrapper implements SourceLocation {
 
-    public static SourceSection createSection(Liblkqllang.SourceLocationRange sloc, Source source) {
+    public static SourceSection createSection(
+        LangkitSupport.SourceLocationRange sloc,
+        Source source
+    ) {
         int end_col = sloc.end.column - 1;
         if (sloc.start.line == sloc.end.line) {
             end_col = Math.max(sloc.end.column - 1, sloc.start.column);
@@ -23,7 +26,10 @@ public class SourceSectionWrapper implements SourceLocation {
         return source.createSection(sloc.start.line, sloc.start.column, sloc.end.line, end_col);
     }
 
-    public static SourceSectionWrapper create(Liblkqllang.SourceLocationRange sloc, Source source) {
+    public static SourceSectionWrapper create(
+        LangkitSupport.SourceLocationRange sloc,
+        Source source
+    ) {
         return new SourceSectionWrapper(createSection(sloc, source));
     }
 
