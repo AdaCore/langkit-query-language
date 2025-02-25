@@ -26,8 +26,8 @@ package Rules_Factory is
    No_Paths : Path_Array (1 .. 0) := [others => <>];
 
    function All_Rules
-     (Ctx  : L.Analysis_Context;
-      Dirs : Path_Array := No_Paths) return Rule_Vector;
+     (Ctx : L.Analysis_Context; Dirs : Path_Array := No_Paths)
+      return Rule_Vector;
    --  Return a vector containing Rule_Command values for every implemented
    --  check.
 

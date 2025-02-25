@@ -89,7 +89,7 @@
 --  and 3 above. For step 2, see the procedure Process_Project_File
 --  that combines all the steps of loading and analyzing the project file.
 
-with GNAT.OS_Lib;       use GNAT.OS_Lib;
+with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GPR2.Containers;
 with GPR2.Project.Tree;
@@ -121,9 +121,7 @@ package Gnatcheck.Projects is
    --  If the tool is called with "... Pproj -U main_unit1 main_unit2 ...",
    --  main units are stored here.
 
-   procedure Store_Main_Unit
-     (Unit_Name : String;
-      Store     : Boolean := True);
+   procedure Store_Main_Unit (Unit_Name : String; Store : Boolean := True);
    --  Processes the result returned by GNAT.Comand_Line.Get_Argument provided
    --  that it is supposed to be the main unit name for '-U' project file
    --  option.
@@ -144,8 +142,7 @@ package Gnatcheck.Projects is
    --  setting for the given variable. If it is, overrides the stored value.
 
    procedure Append_Variables
-     (Args : in out Argument_List;
-      Last : in out Natural);
+     (Args : in out Argument_List; Last : in out Natural);
    --  Append a "-XVAR=value" string for each stored external variable
 
    function Subdir_Name return String;
@@ -172,8 +169,7 @@ package Gnatcheck.Projects is
    --  Returns access to project tree object
 
    procedure Store_Project_Source
-     (My_Project        : in out Arg_Project_Type;
-      Project_File_Name : String);
+     (My_Project : in out Arg_Project_Type; Project_File_Name : String);
    --  If Project_File_Name ends with ".gpr", it is taken to be the name of
    --  the project file; otherwise Project_File_Name & ".gpr" is used.
    --  Checks that:
@@ -183,8 +179,7 @@ package Gnatcheck.Projects is
    --  stores the name of the project file My_Project otherwise.
 
    procedure Store_CGPR_Source
-     (My_Project     : in out Arg_Project_Type;
-      CGPR_File_Name : String);
+     (My_Project : in out Arg_Project_Type; CGPR_File_Name : String);
    --  Stores configuration project file.
    --  Checks that:
    --    - this is the first --config option provided as a tool parameter;
@@ -197,8 +192,7 @@ package Gnatcheck.Projects is
    --  project file specified as a tool parameter.
 
    function Get_Project_Relative_File
-     (My_Project : Arg_Project_Type;
-      Filename   : String) return String;
+     (My_Project : Arg_Project_Type; Filename : String) return String;
    --  From the given ``Filename``, get the absolute path leading to it
    --  realtively to the current project file. If there is no specified
    --  project file, then get the file from the current directory.
@@ -241,17 +235,13 @@ package Gnatcheck.Projects is
    procedure Process_Rule_Options;
    --  Process all the rule options found as part of scanning arguments
 
-   procedure Add_Rule_Option
-     (Opt     : String;
-      Prepend : Boolean := False);
+   procedure Add_Rule_Option (Opt : String; Prepend : Boolean := False);
    --  Add the given ``Opt`` to the list of rule options processed by
    --  ``Process_Rule_Options`` as a command-line rule option (e.g. +R...).
    --  If ``Prepend`` is set to True, add the rule option at the start of
    --  the processing list.
 
-   procedure Add_Rule_By_Name
-     (Rule_Name : String;
-      Prepend   : Boolean := False);
+   procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False);
    --  Use ``Add_Rule_Option`` to forge a new rule option enabling the given
    --  rule without any parameter.
 
@@ -270,7 +260,7 @@ package Gnatcheck.Projects is
 
    procedure Scan_Arguments
      (My_Project : in out Arg_Project_Type;
-      First_Pass : Boolean    := False;
+      First_Pass : Boolean := False;
       Args       : GNAT.OS_Lib.Argument_List_Access := null);
    --  This procedure should be redefined for each tool project type. It
    --  should be called immediately after the call to Initialize_Option_Scan
@@ -320,8 +310,7 @@ package Gnatcheck.Projects is
    --  the name(s) of the report file(s) that is (are) expected to be created.
 
    procedure Report_Aggregated_Project_Exit_Code
-     (Aggregate_Prj : Arg_Project_Type;
-      Exit_Code     : Integer);
+     (Aggregate_Prj : Arg_Project_Type; Exit_Code : Integer);
    --  Starts a record about processing of an aggregated project in a summary
    --  report file if the tool argument project is an aggregate project. By
    --  default prints out the (text image of the) exit code.
@@ -360,7 +349,7 @@ private
    end record;
 
    function Tree
-     (My_Project : Arg_Project_Type)
-      return GPR2.Project.Tree.Object is (My_Project.Tree);
+     (My_Project : Arg_Project_Type) return GPR2.Project.Tree.Object
+   is (My_Project.Tree);
 
 end Gnatcheck.Projects;

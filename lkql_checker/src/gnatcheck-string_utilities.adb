@@ -72,8 +72,9 @@ package body Gnatcheck.String_Utilities is
    function Has_Prefix (X, Prefix : String) return Boolean is
    begin
       if X'Length >= Prefix'Length then
-         return To_Lower (X (X'First .. X'First + Prefix'Length - 1))
-                  = To_Lower (Prefix);
+         return
+           To_Lower (X (X'First .. X'First + Prefix'Length - 1))
+           = To_Lower (Prefix);
       end if;
 
       return False;
@@ -86,8 +87,9 @@ package body Gnatcheck.String_Utilities is
    function Has_Suffix (X, Suffix : String) return Boolean is
    begin
       if X'Length >= Suffix'Length then
-         return To_Lower (X (X'Last - Suffix'Length + 1 .. X'Last))
-                  = To_Lower (Suffix);
+         return
+           To_Lower (X (X'Last - Suffix'Length + 1 .. X'Last))
+           = To_Lower (Suffix);
       end if;
 
       return False;
@@ -116,10 +118,7 @@ package body Gnatcheck.String_Utilities is
    begin
       loop
          This_Read :=
-           Read
-             (FD,
-              A => Buffer.all'Address,
-              N => Length + 1 - Read_Ptr);
+           Read (FD, A => Buffer.all'Address, N => Length + 1 - Read_Ptr);
          Read_Ptr := Read_Ptr + Integer'Max (This_Read, 0);
          exit when This_Read <= 0 or else Read_Ptr = Length + 1;
       end loop;
@@ -170,7 +169,7 @@ package body Gnatcheck.String_Utilities is
       if S'Length > 1 then
          declare
             First_Char : constant Character := S (S'First);
-            Last_Char : constant Character := S (S'Last);
+            Last_Char  : constant Character := S (S'Last);
          begin
             if (First_Char = '"' and then Last_Char = '"')
               or else (First_Char = ''' and then Last_Char = ''')
@@ -188,9 +187,8 @@ package body Gnatcheck.String_Utilities is
    -----------
 
    function Split
-     (S          : String;
-      Sep        : Character;
-      Trim_Elems : Boolean := False) return String_Vector
+     (S : String; Sep : Character; Trim_Elems : Boolean := False)
+      return String_Vector
    is
       use Ada.Strings.Unbounded;
       use Ada.Strings;
@@ -200,8 +198,8 @@ package body Gnatcheck.String_Utilities is
    begin
       for C of S loop
          if C = Sep then
-            Res.Append (To_String
-              (if Trim_Elems then Trim (Acc, Both) else Acc));
+            Res.Append
+              (To_String (if Trim_Elems then Trim (Acc, Both) else Acc));
             Set_Unbounded_String (Acc, "");
          else
             Append (Acc, C);
@@ -215,8 +213,7 @@ package body Gnatcheck.String_Utilities is
    -- Join --
    ----------
 
-   function Join (V : String_Vector; Sep : String) return String
-   is
+   function Join (V : String_Vector; Sep : String) return String is
       use Ada.Strings;
       Res : Unbounded.Unbounded_String;
    begin
@@ -235,15 +232,17 @@ package body Gnatcheck.String_Utilities is
 
    package body Simple_String_Dictionary is
 
-      function Case_Insensitive_Equal (Left, Right : String) return Boolean is
-      (Left'Length = Right'Length and then To_Lower (Left) = To_Lower (Right));
+      function Case_Insensitive_Equal (Left, Right : String) return Boolean
+      is (Left'Length = Right'Length
+          and then To_Lower (Left) = To_Lower (Right));
       --  Case insensitive string equality check
 
-      package Dictionaries is new Ada.Containers.Indefinite_Hashed_Sets
-        (Element_Type        => String,
-         Hash                => Ada.Strings.Hash,
-         Equivalent_Elements => Case_Insensitive_Equal,
-         "="                 => Case_Insensitive_Equal);
+      package Dictionaries is new
+        Ada.Containers.Indefinite_Hashed_Sets
+          (Element_Type        => String,
+           Hash                => Ada.Strings.Hash,
+           Equivalent_Elements => Case_Insensitive_Equal,
+           "="                 => Case_Insensitive_Equal);
 
       Dictionary : Dictionaries.Set;
       Iterator   : Dictionaries.Cursor := Dictionaries.No_Element;
@@ -281,7 +280,7 @@ package body Gnatcheck.String_Utilities is
 
       function Is_Empty return Boolean is
       begin
-         return Dictionaries.Is_Empty  (Dictionary);
+         return Dictionaries.Is_Empty (Dictionary);
       end Is_Empty;
 
       ----------------------

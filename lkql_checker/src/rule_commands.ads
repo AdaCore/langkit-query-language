@@ -19,6 +19,7 @@ with Libadalang.Analysis;
 with Liblkqllang.Analysis;
 
 --  A diagnostic is composed of a collection of individual rule commands
+
 package Rule_Commands is
 
    package L renames Liblkqllang.Analysis;
@@ -27,7 +28,7 @@ package Rule_Commands is
    Rule_Error : exception;
 
    type Rule_Argument is record
-      Name  : Unbounded_Text_Type;
+      Name : Unbounded_Text_Type;
       --  Name of the argument
 
       Value : Unbounded_Text_Type;
@@ -38,8 +39,13 @@ package Rule_Commands is
      Ada.Containers.Vectors (Positive, Rule_Argument);
 
    type Rule_Param_Kind is
-     (No_Param, One_Integer, One_Boolean, One_String, One_Array,
-      One_Integer_Or_Booleans, Custom);
+     (No_Param,
+      One_Integer,
+      One_Boolean,
+      One_String,
+      One_Array,
+      One_Integer_Or_Booleans,
+      Custom);
    --  Specifies how parameters are handled by the rule
 
    type Remediation_Levels is (Trivial, Easy, Medium, Major, High, Complex);
@@ -48,34 +54,34 @@ package Rule_Commands is
    type Regexp_Access is access all GNAT.Regexp.Regexp;
 
    type Rule_Command is tagged record
-      Name          : Unbounded_Text_Type;
+      Name : Unbounded_Text_Type;
       --  Name of the Rule
 
-      Message       : Unbounded_Text_Type;
+      Message : Unbounded_Text_Type;
       --  Diagnostic messages associated with the rule.
       --  Defaults to Name if not specified.
 
-      Help          : Unbounded_Text_Type;
+      Help : Unbounded_Text_Type;
       --  Short help message associated with the rule.
       --  Defaults to Message if not specified.
 
-      Category      : Unbounded_Text_Type;
+      Category : Unbounded_Text_Type;
       --  Category of this rule, if relevant
 
-      Subcategory   : Unbounded_Text_Type;
+      Subcategory : Unbounded_Text_Type;
       --  Subcategory of this rule, if relevant
 
-      Lkql_Root     : L.Lkql_Node;
+      Lkql_Root : L.Lkql_Node;
       --  Root of the LKQL AST
 
       Function_Expr : L.Expr;
       --  Body expr of the LKQL function. Will be used in case of node checks,
       --  to directly eval the expr without creating a function scope.
 
-      Rule_Args    : Rule_Argument_Vectors.Vector;
+      Rule_Args : Rule_Argument_Vectors.Vector;
       --  Optional arguments to pass to the rule. Empty by default.
 
-      Code          : L.Lkql_Node;
+      Code : L.Lkql_Node;
       --  Store (cache) the code for the rule, so as to not recompute it
       --  everytime we want to evaluate it.
 
@@ -84,7 +90,7 @@ package Rule_Commands is
       --  returns a list of messages) or a node check (function that returns a
       --  node).
 
-      Kind_Pattern  : L.Node_Kind_Pattern;
+      Kind_Pattern : L.Node_Kind_Pattern;
       --  If we determined that the rule only needs to run on a specific node
       --  kind, store the corresponding node pattern here.
 
@@ -118,8 +124,8 @@ package Rule_Commands is
       Unit : Lk_Unit;
    end record;
 
-   package Eval_Diagnostic_Vectors
-   is new Ada.Containers.Vectors (Positive, Eval_Diagnostic);
+   package Eval_Diagnostic_Vectors is new
+     Ada.Containers.Vectors (Positive, Eval_Diagnostic);
 
    function Create_Rule_Command
      (Lkql_File_Path : String;

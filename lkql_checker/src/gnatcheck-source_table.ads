@@ -31,8 +31,8 @@ package Gnatcheck.Source_Table is
    Sources_Left  : Natural;
    --  Counters used to form and output progress information.
 
-   type SF_Status is (
-      Waiting,
+   type SF_Status is
+     (Waiting,
       --  Waiting for processing
 
       Not_A_Legal_Source,
@@ -44,7 +44,7 @@ package Gnatcheck.Source_Table is
 
       Processed
       --  The source file has been successfully processed
-      );
+     );
 
    type SF_Info is new Integer;
    --  The type to be used for the integer values associate with each source in
@@ -54,10 +54,13 @@ package Gnatcheck.Source_Table is
    --  Checks that SF is not is equal to No_SF_Id
 
    function Get_File_Names_Case_Sensitive return Integer;
-   pragma Import (C, Get_File_Names_Case_Sensitive,
-                  "__gnat_get_file_names_case_sensitive");
+   pragma
+     Import
+       (C,
+        Get_File_Names_Case_Sensitive,
+        "__gnat_get_file_names_case_sensitive");
    File_Names_Case_Sensitive : constant Boolean :=
-                                 Get_File_Names_Case_Sensitive /= 0;
+     Get_File_Names_Case_Sensitive /= 0;
    --  Set to indicate whether the operating system convention is for file
    --  names to be case sensitive (e.g., in Unix, set True), or non case
    --  sensitive (e.g., in Windows, set False). This code is taken as is from
@@ -66,8 +69,7 @@ package Gnatcheck.Source_Table is
    function File_Find
      (SF_Name        : String;
       Use_Short_Name : Boolean := False;
-      Case_Sensitive : Boolean := File_Names_Case_Sensitive)
-      return           SF_Id;
+      Case_Sensitive : Boolean := File_Names_Case_Sensitive) return SF_Id;
    --  Returns the Id of the file with name SF_Name stored in the files
    --  table. Returns No_SF_Id if the table does not contain such a file.
    --  if Use_Short_Name parameter is True, the short file name is used to
@@ -89,8 +91,7 @@ package Gnatcheck.Source_Table is
    --  the original casing of the name.
 
    procedure Store_Sources_To_Process
-     (Fname : String;
-      Store : Boolean := True);
+     (Fname : String; Store : Boolean := True);
    --  Fname is stored in an internal database as the name of the file to be
    --  processed by the tool. No check is made if Fname denotes an existing
    --  file.
@@ -194,8 +195,7 @@ package Gnatcheck.Source_Table is
    function Create_Context return Checker_App.Lkql_Context;
    --  Create the LKQL context
 
-   procedure Process_Sources
-     (Ctx : Checker_App.Lkql_Context);
+   procedure Process_Sources (Ctx : Checker_App.Lkql_Context);
    --  Procedure all sources. Only process pragma Annotate if Annotate_Only
    --  is true.
 
@@ -209,10 +209,9 @@ package Gnatcheck.Source_Table is
    function Short_Source_Name (SF : SF_Id) return String;
    --  Short file name with no directory information
 
-   function File_Name (SF : SF_Id) return String is
-     (if Arg.Full_Source_Locations.Get
-      then Source_Name (SF)
-      else Short_Source_Name (SF));
+   function File_Name (SF : SF_Id) return String
+   is (if Arg.Full_Source_Locations.Get then Source_Name (SF)
+       else Short_Source_Name (SF));
    --  Return a string corresponding to the file name of SF, taking
    --  Full_Source_Locations into account.
 
@@ -226,11 +225,11 @@ package Gnatcheck.Source_Table is
    --  Returns (sets) the full expanded Ada name of the compilation unit that
    --  is contained in the source.
 
-   function  Source_Status     (SF : SF_Id) return SF_Status;
+   function Source_Status (SF : SF_Id) return SF_Status;
    procedure Set_Source_Status (SF : SF_Id; S : SF_Status);
    --  Queries and updates the source status.
 
-   function  Source_Info     (SF : SF_Id) return SF_Info;
+   function Source_Info (SF : SF_Id) return SF_Info;
    procedure Set_Source_Info (SF : SF_Id; Info : SF_Info);
    --  Queries and updates the source Info value. The use of this value is up
    --  to the client of the source file table. You can store some integer-coded
@@ -296,9 +295,9 @@ package Gnatcheck.Source_Table is
    -- Problem counters --
    ----------------------
 
-   Illegal_Sources   : Natural := 0;
+   Illegal_Sources : Natural := 0;
 
-   Tool_Failures     : Natural := 0;
+   Tool_Failures : Natural := 0;
    --  Counter for tool failures a tool has recovered from
 
 end Gnatcheck.Source_Table;

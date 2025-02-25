@@ -10,7 +10,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Gnatcheck.Rules;              use Gnatcheck.Rules;
+with Gnatcheck.Rules; use Gnatcheck.Rules;
 
 package Gnatcheck.Compiler is
 
@@ -80,8 +80,7 @@ package Gnatcheck.Compiler is
    --  If some compiler errors are detected, set Errors to True.
 
    procedure Process_Restriction_Param
-     (Parameter : String;
-      Instance  : Rule_Instance_Access);
+     (Parameter : String; Instance : Rule_Instance_Access);
    --  Processes a parameter of a restriction (the restriction "rule") passed
    --  as an actual for Parameter. Only a single parameter should be passed,
    --  not a set of parameters separated by commas from the rule option.
@@ -93,8 +92,7 @@ package Gnatcheck.Compiler is
    --  activated restrictions.
 
    procedure Process_Style_Check_Param
-     (Param    : String;
-      Instance : Rule_Instance_Access);
+     (Param : String; Instance : Rule_Instance_Access);
    --  Processes a parameter of a style check (the style_check "rule") passed
    --  as an actual for Param. Only a single parameter should be passed, not a
    --  set of parameters separated by comma(s) from the rule option.
@@ -106,8 +104,7 @@ package Gnatcheck.Compiler is
    --  options.
 
    procedure Process_Warning_Param
-     (Param    : String;
-      Instance : Rule_Instance_Access);
+     (Param : String; Instance : Rule_Instance_Access);
    --  Processes a parameter of a warning (the warning "rule") passed as an
    --  actual for Param. Only a single parameter should be passed, not a set of
    --  parameters separated by comma(s) from the rule option.
@@ -126,8 +123,8 @@ package Gnatcheck.Compiler is
    --  function used the style check parameters saved as is, without any
    --  checks.
 
-   function Get_Specified_Style_Option return String is
-     (Get_Style_Option (7 .. Get_Style_Option'Last));
+   function Get_Specified_Style_Option return String
+   is (Get_Style_Option (7 .. Get_Style_Option'Last));
    --  Returns parameters of all the 'Style_Checks' rules specified for the
    --  given gnatcheck call, without adding anything to it and with no leading
    --  -gnaty.
@@ -135,16 +132,15 @@ package Gnatcheck.Compiler is
    function Get_Warning_Option return String;
    --  Returns the '-gnatwxxx' option to be used in the compiler call.
 
-   function Get_Specified_Warning_Option return String is
-     (Get_Warning_Option (7 .. Get_Warning_Option'Last));
+   function Get_Specified_Warning_Option return String
+   is (Get_Warning_Option (7 .. Get_Warning_Option'Last));
    --  Returns parameters of all the 'Warnings' rules specified for the given
    --  gnatcheck call, without adding anything to it and with no leading
    --  -gnatw.
 
    function Active_Restrictions_List
-     (Separator    : String;
-      Elem_Prefix  : String;
-      Elem_Postfix : String) return String;
+     (Separator : String; Elem_Prefix : String; Elem_Postfix : String)
+      return String;
    --  Get the string representation of the active restriction list, formatted
    --  as required.
 
@@ -171,8 +167,7 @@ package Gnatcheck.Compiler is
    --  worker's logs.
 
    function Spawn_LKQL_Rule_File_Parser
-     (LKQL_RF_Name : String;
-      Result_File : String) return Process_Id;
+     (LKQL_RF_Name : String; Result_File : String) return Process_Id;
    --  Spawn the executable which handles the LKQL rule config file parsing
    --  with the provided `LKQL_RF_Name` then return the process identifier
    --  associated to it. Redirects all output made by the process in the

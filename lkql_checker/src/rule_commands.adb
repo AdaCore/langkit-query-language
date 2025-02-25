@@ -9,7 +9,7 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Liblkqllang.Common;
 with Liblkqllang.Generic_API.Introspection;
 use Liblkqllang.Generic_API.Introspection;
-with Liblkqllang.Iterators; use Liblkqllang.Iterators;
+with Liblkqllang.Iterators;                 use Liblkqllang.Iterators;
 
 package body Rule_Commands is
 
@@ -31,19 +31,27 @@ package body Rule_Commands is
    begin
       case Node.Kind is
          when LCO.Lkql_Is_Clause =>
-            return Find_Toplevel_Node_Kind_Pattern
-              (Node.As_Is_Clause.F_Pattern);
+            return
+              Find_Toplevel_Node_Kind_Pattern (Node.As_Is_Clause.F_Pattern);
+
          when LCO.Lkql_Node_Kind_Pattern =>
             return Node.As_Node_Kind_Pattern;
+
          when LCO.Lkql_Extended_Node_Pattern =>
-            return Find_Toplevel_Node_Kind_Pattern
-              (Node.As_Extended_Node_Pattern.F_Node_Pattern);
+            return
+              Find_Toplevel_Node_Kind_Pattern
+                (Node.As_Extended_Node_Pattern.F_Node_Pattern);
+
          when LCO.Lkql_Filtered_Pattern =>
-            return Find_Toplevel_Node_Kind_Pattern
-              (Node.As_Filtered_Pattern.F_Pattern);
+            return
+              Find_Toplevel_Node_Kind_Pattern
+                (Node.As_Filtered_Pattern.F_Pattern);
+
          when LCO.Lkql_Binding_Pattern =>
-            return Find_Toplevel_Node_Kind_Pattern
-              (Node.As_Binding_Pattern.F_Value_Pattern);
+            return
+              Find_Toplevel_Node_Kind_Pattern
+                (Node.As_Binding_Pattern.F_Value_Pattern);
+
          when others =>
             return L.No_Node_Kind_Pattern;
       end case;
@@ -60,20 +68,29 @@ package body Rule_Commands is
          return No_Param;
       elsif Params.Last_Child_Index = 2 then
          case Params.Child (2).As_Parameter_Decl.F_Default_Expr.Kind is
-            when LCO.Lkql_Integer_Literal => return One_Integer;
-            when LCO.Lkql_Bool_Literal    => return One_Boolean;
-            when LCO.Lkql_String_Literal  => return One_String;
-            when LCO.Lkql_List_Literal    => return One_Array;
-            when others                   => null;
+            when LCO.Lkql_Integer_Literal =>
+               return One_Integer;
+
+            when LCO.Lkql_Bool_Literal =>
+               return One_Boolean;
+
+            when LCO.Lkql_String_Literal =>
+               return One_String;
+
+            when LCO.Lkql_List_Literal =>
+               return One_Array;
+
+            when others =>
+               null;
          end case;
       else
          if Params.Last_Child_Index <= 10
-           and then Params.Child (2).As_Parameter_Decl.F_Default_Expr.Kind in
-                    LCO.Lkql_Integer_Literal | LCO.Lkql_Bool_Literal
+           and then Params.Child (2).As_Parameter_Decl.F_Default_Expr.Kind
+                    in LCO.Lkql_Integer_Literal | LCO.Lkql_Bool_Literal
          then
             for J in 3 .. Params.Last_Child_Index loop
                if Params.Child (J).As_Parameter_Decl.F_Default_Expr.Kind
-                 not in LCO.Lkql_Bool_Literal
+                  not in LCO.Lkql_Bool_Literal
                then
                   return Custom;
                end if;
@@ -96,8 +113,7 @@ package body Rule_Commands is
       Impacts        : JSON_Value;
       Rc             : out Rule_Command) return Boolean
    is
-      Root    : constant L.Lkql_Node :=
-        Ctx.Get_From_File (Lkql_File_Path).Root;
+      Root : constant L.Lkql_Node := Ctx.Get_From_File (Lkql_File_Path).Root;
 
       Check_Annotation : constant L.Decl_Annotation :=
         Find_First
@@ -116,37 +132,37 @@ package body Rule_Commands is
       end if;
 
       declare
-         Fn                    : constant L.Fun_Decl :=
+         Fn                       : constant L.Fun_Decl :=
            Check_Annotation.Parent.As_Fun_Decl;
-         Msg_Arg               : constant L.Arg :=
+         Msg_Arg                  : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("message"));
-         Help_Arg              : constant L.Arg :=
+         Help_Arg                 : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("help"));
-         Category_Arg          : constant L.Arg :=
+         Category_Arg             : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("category"));
-         Subcategory_Arg       : constant L.Arg :=
+         Subcategory_Arg          : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name
              (To_Unbounded_Text ("subcategory"));
          Parametric_Exemption_Arg : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name
              (To_Unbounded_Text ("parametric_exemption"));
-         Remediation_Arg       : constant L.Arg :=
+         Remediation_Arg          : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name
              (To_Unbounded_Text ("remediation"));
-         Target_Arg            : constant L.Arg :=
+         Target_Arg               : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("target"));
-         Msg                   : Unbounded_Text_Type;
-         Help                  : Unbounded_Text_Type;
-         Category              : Unbounded_Text_Type;
-         Subcategory           : Unbounded_Text_Type;
-         Impact                : Regexp_Access;
-         Target                : Regexp_Access;
-         Remediation_Level     : Remediation_Levels := Medium;
-         Parametric_Exemption  : Boolean := False;
-         Name                  : constant Text_Type := Fn.F_Name.Text;
-         Toplevel_Node_Pattern : L.Node_Kind_Pattern;
+         Msg                      : Unbounded_Text_Type;
+         Help                     : Unbounded_Text_Type;
+         Category                 : Unbounded_Text_Type;
+         Subcategory              : Unbounded_Text_Type;
+         Impact                   : Regexp_Access;
+         Target                   : Regexp_Access;
+         Remediation_Level        : Remediation_Levels := Medium;
+         Parametric_Exemption     : Boolean := False;
+         Name                     : constant Text_Type := Fn.F_Name.Text;
+         Toplevel_Node_Pattern    : L.Node_Kind_Pattern;
 
-         Param_Kind            : Rule_Param_Kind;
+         Param_Kind : Rule_Param_Kind;
 
          use LCO, GNAT.Regexp;
 
@@ -168,10 +184,11 @@ package body Rule_Commands is
          procedure Check_String (Arg : L.Arg) is
          begin
             if Arg.P_Expr.Kind /= LCO.Lkql_String_Literal then
-               raise Rule_Error with
-                 "argument for @" &
-                 To_String (Check_Annotation.F_Name.Text) &
-                 " must be a string literal";
+               raise Rule_Error
+                 with
+                   "argument for @"
+                   & To_String (Check_Annotation.F_Name.Text)
+                   & " must be a string literal";
             end if;
          end Check_String;
 
@@ -247,16 +264,18 @@ package body Rule_Commands is
                  To_String (Target_Arg.P_Expr.As_String_Literal.Text);
             begin
                Target :=
-                 new Regexp'(Compile ("{" &
-                                      Str (Str'First + 1 .. Str'Last - 1) &
-                                      "}",
-                                      Glob => True, Case_Sensitive => False));
+                 new Regexp'
+                   (Compile
+                      ("{" & Str (Str'First + 1 .. Str'Last - 1) & "}",
+                       Glob           => True,
+                       Case_Sensitive => False));
 
             exception
                when others =>
-                  raise Rule_Error with
-                    "invalid argument for @" &
-                    To_String (Check_Annotation.F_Name.Text);
+                  raise Rule_Error
+                    with
+                      "invalid argument for @"
+                      & To_String (Check_Annotation.F_Name.Text);
             end;
          end if;
 
@@ -267,35 +286,38 @@ package body Rule_Commands is
                Str : constant String :=
                  To_String (Remediation_Arg.P_Expr.As_String_Literal.Text);
             begin
-               Remediation_Level := Remediation_Levels'Value
-                 (Str (Str'First + 1 .. Str'Last - 1));
+               Remediation_Level :=
+                 Remediation_Levels'Value
+                   (Str (Str'First + 1 .. Str'Last - 1));
             exception
                when others =>
-                  raise Rule_Error with
-                    "invalid argument for @" &
-                    To_String (Check_Annotation.F_Name.Text);
+                  raise Rule_Error
+                    with
+                      "invalid argument for @"
+                      & To_String (Check_Annotation.F_Name.Text);
             end;
          end if;
 
-         Rc := Rule_Command'
-           (Name                  => To_Unbounded_Text (To_Lower (Name)),
-            Message               => Msg,
-            Help                  => Help,
-            Category              => Category,
-            Subcategory           => Subcategory,
-            Lkql_Root             => Root,
-            Function_Expr         => Fn.F_Fun_Expr.F_Body_Expr,
-            Rule_Args             => <>,
-            Is_Unit_Check         =>
-              Check_Annotation.F_Name.Text = "unit_check",
-            Code                  => <>,
-            Kind_Pattern          => Toplevel_Node_Pattern,
-            Param_Kind            => Param_Kind,
-            Parameters            => Fn.F_Fun_Expr.F_Parameters,
-            Remediation_Level     => Remediation_Level,
-            Parametric_Exemption  => Parametric_Exemption,
-            Impact                => Impact,
-            Target                => Target);
+         Rc :=
+           Rule_Command'
+             (Name                 => To_Unbounded_Text (To_Lower (Name)),
+              Message              => Msg,
+              Help                 => Help,
+              Category             => Category,
+              Subcategory          => Subcategory,
+              Lkql_Root            => Root,
+              Function_Expr        => Fn.F_Fun_Expr.F_Body_Expr,
+              Rule_Args            => <>,
+              Is_Unit_Check        =>
+                Check_Annotation.F_Name.Text = "unit_check",
+              Code                 => <>,
+              Kind_Pattern         => Toplevel_Node_Pattern,
+              Param_Kind           => Param_Kind,
+              Parameters           => Fn.F_Fun_Expr.F_Parameters,
+              Remediation_Level    => Remediation_Level,
+              Parametric_Exemption => Parametric_Exemption,
+              Impact               => Impact,
+              Target               => Target);
          return True;
       end;
    end Create_Rule_Command;

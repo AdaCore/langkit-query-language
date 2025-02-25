@@ -11,18 +11,19 @@ with Libadalang.Analysis; use Libadalang.Analysis;
 with Rules_Factory; use Rules_Factory;
 
 --  TODO: Factor into another package, check what is dead. See #190
+
 package Checker_App is
 
    package LK renames Langkit_Support.Generic_API.Analysis;
    package LKI renames Langkit_Support.Generic_API.Introspection;
 
-   type Rules_By_Kind_Array
-   is array (LKI.Any_Type_Index range <>) of Rule_Vector;
+   type Rules_By_Kind_Array is
+     array (LKI.Any_Type_Index range <>) of Rule_Vector;
 
    type Rules_By_Kind is access all Rules_By_Kind_Array;
 
    type Lkql_Context is record
-      Analysis_Ctx : Analysis_Context;
+      Analysis_Ctx          : Analysis_Context;
       LKQL_Analysis_Context : L.Analysis_Context;
 
       Cached_Rules : Rules_By_Kind := null;

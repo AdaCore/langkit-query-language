@@ -19,16 +19,16 @@ with GNAT.Regexp;       use GNAT.Regexp;
 with GNAT.String_Split; use GNAT.String_Split;
 with GNAT.Table;
 
-with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
+with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;                use Gnatcheck.Ids;
-with Gnatcheck.Options;            use Gnatcheck.Options;
-with Gnatcheck.Output;             use Gnatcheck.Output;
+with Gnatcheck.Ids;              use Gnatcheck.Ids;
+with Gnatcheck.Options;          use Gnatcheck.Options;
+with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Rules;              use Gnatcheck.Rules;
-with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
-with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
+with Gnatcheck.Rules;            use Gnatcheck.Rules;
+with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
+with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with GPR2;
 with GPR2.Build.Compilation_Unit;
@@ -67,15 +67,15 @@ package body Gnatcheck.Projects is
    Project_Options  : GPR2.Options.Object;
 
    Rules_Attr            : constant GPR2.Q_Attribute_Id :=
-     (GPR2."+"("Check"), GPR2."+"("Rules"));
+     (GPR2."+" ("Check"), GPR2."+" ("Rules"));
    Rule_File_Attr        : constant GPR2.Q_Attribute_Id :=
-     (GPR2."+"("Check"), GPR2."+"("Rule_File"));
+     (GPR2."+" ("Check"), GPR2."+" ("Rule_File"));
    Default_Switches_Attr : constant GPR2.Q_Attribute_Id :=
-     (GPR2."+"("Check"), GPR2."+"("Default_Switches"));
+     (GPR2."+" ("Check"), GPR2."+" ("Default_Switches"));
    Switches_Attr         : constant GPR2.Q_Attribute_Id :=
-     (GPR2."+"("Check"), GPR2."+"("Switches"));
+     (GPR2."+" ("Check"), GPR2."+" ("Switches"));
    File_Patterns_Attr    : constant GPR2.Q_Attribute_Id :=
-     (GPR2."+"("CodePeer"), GPR2."+"("File_Patterns"));
+     (GPR2."+" ("CodePeer"), GPR2."+" ("File_Patterns"));
 
    ------------------------------
    -- External variables table --
@@ -87,37 +87,35 @@ package body Gnatcheck.Projects is
    -- GPR2 messages reporter --
    ----------------------------
 
-   type Gnatcheck_Reporter is new GPR2.Reporter.Object with
-     null record;
+   type Gnatcheck_Reporter is new GPR2.Reporter.Object with null record;
 
-   overriding procedure Internal_Report
-     (Self    : in out Gnatcheck_Reporter;
-      Message : GPR2.Message.Object);
+   overriding
+   procedure Internal_Report
+     (Self : in out Gnatcheck_Reporter; Message : GPR2.Message.Object);
 
-   overriding function Verbosity
+   overriding
+   function Verbosity
      (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level;
 
    Gpr2_Reporter : Gnatcheck_Reporter;
    --  Make libgpt2 report messages using the proper gnatcheck.Output API
 
-   function Report_Missing_File (Log : String) return Boolean is
-     (Index (Log, "source file") /= 0
-     and then
-      Index (Log, "not found") /= 0);
+   function Report_Missing_File (Log : String) return Boolean
+   is (Index (Log, "source file") /= 0 and then Index (Log, "not found") /= 0);
    --  Checks if Log reports about a missing source file.
 
    ------------
    -- Report --
    ------------
 
-   overriding procedure Internal_Report
-     (Self    : in out Gnatcheck_Reporter;
-      Message : GPR2.Message.Object)
-   is
+   overriding
+   procedure Internal_Report
+     (Self : in out Gnatcheck_Reporter; Message : GPR2.Message.Object) is
    begin
       case Message.Level is
          when GPR2.Message.Error =>
             Print (Message.Format);
+
          when GPR2.Message.Warning =>
             if Verbose_Mode then
                Print (Message.Format);
@@ -128,6 +126,7 @@ package body Gnatcheck.Projects is
             then
                Missing_File_Detected := True;
             end if;
+
          when others =>
             null;
       end case;
@@ -137,7 +136,8 @@ package body Gnatcheck.Projects is
    -- Verbosity --
    ---------------
 
-   overriding function Verbosity
+   overriding
+   function Verbosity
      (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level is
    begin
       return GPR2.Reporter.Regular;
@@ -193,8 +193,8 @@ package body Gnatcheck.Projects is
       List_Val : GNAT.OS_Lib.Argument_List_Access;
 
       function Load_List_Attribute
-        (Attr_Id : GPR2.Q_Attribute_Id;
-         Indexed : Boolean := False) return GNAT.OS_Lib.Argument_List_Access;
+        (Attr_Id : GPR2.Q_Attribute_Id; Indexed : Boolean := False)
+         return GNAT.OS_Lib.Argument_List_Access;
       --  Load the attribute designated by ``Attr_Id`` in the project ``Proj``
       --  as a list value, allocating and returning an ``Argument_List_Access``
       --  that the caller must free after usage.
@@ -209,24 +209,25 @@ package body Gnatcheck.Projects is
       --  as a single value, returning is as a ``String``.
 
       function Load_List_Attribute
-        (Attr_Id : GPR2.Q_Attribute_Id;
-         Indexed : Boolean := False) return GNAT.OS_Lib.Argument_List_Access
+        (Attr_Id : GPR2.Q_Attribute_Id; Indexed : Boolean := False)
+         return GNAT.OS_Lib.Argument_List_Access
       is
-         Attr    : constant GPR2.Project.Attribute.Object :=
-           (if Indexed
-            then Proj.Attribute (Attr_Id, Ada_Idx)
+         Attr : constant GPR2.Project.Attribute.Object :=
+           (if Indexed then Proj.Attribute (Attr_Id, Ada_Idx)
             else Proj.Attribute (Attr_Id));
-         Res     : GNAT.OS_Lib.Argument_List_Access;
+         Res  : GNAT.OS_Lib.Argument_List_Access;
       begin
          if Attr.Kind /= List then
             Error
-              (String (Proj.Path_Name.Simple_Name) & ": " & Image (Attr_Id)
+              (String (Proj.Path_Name.Simple_Name)
+               & ": "
+               & Image (Attr_Id)
                & " value must be a list");
             raise Parameter_Error;
          end if;
 
-         Res := new String_List
-           (Attr.Values.First_Index .. Attr.Values.Last_Index);
+         Res :=
+           new String_List (Attr.Values.First_Index .. Attr.Values.Last_Index);
          for J in Attr.Values.First_Index .. Attr.Values.Last_Index loop
             Res (J) := new String'(Attr.Values.Element (J).Text);
          end loop;
@@ -242,7 +243,9 @@ package body Gnatcheck.Projects is
       begin
          if Attr.Kind /= Single then
             Error
-              (String (Proj.Path_Name.Simple_Name) & ": " & Image (Attr_Id)
+              (String (Proj.Path_Name.Simple_Name)
+               & ": "
+               & Image (Attr_Id)
                & " value must be a single value");
             raise Parameter_Error;
          end if;
@@ -273,9 +276,7 @@ package body Gnatcheck.Projects is
       --  Process additional GNATcheck switches
       if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
          List_Val := Load_List_Attribute (Switches_Attr, Indexed => True);
-         Scan_Arguments
-           (My_Project => My_Project,
-            Args       => List_Val);
+         Scan_Arguments (My_Project => My_Project, Args => List_Val);
          Free (List_Val);
       end if;
    end Extract_Tool_Options;
@@ -287,8 +288,7 @@ package body Gnatcheck.Projects is
    procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type) is
       use type GPR2.Language_Id;
 
-      function Only_Ada_Mains
-        (Prj : GPR2.Project.View.Object) return Boolean;
+      function Only_Ada_Mains (Prj : GPR2.Project.View.Object) return Boolean;
       --  Returns whether the provided ``Prj`` project view defines only Ada
       --  mains.
 
@@ -299,8 +299,7 @@ package body Gnatcheck.Projects is
       -- Only_Ada_Mains --
       --------------------
 
-      function Only_Ada_Mains
-        (Prj : GPR2.Project.View.Object) return Boolean
+      function Only_Ada_Mains (Prj : GPR2.Project.View.Object) return Boolean
       is
          Src : GPR2.Build.Source.Object;
          CU  : GPR2.Build.Compilation_Unit.Unit_Location;
@@ -350,7 +349,7 @@ package body Gnatcheck.Projects is
       --  they are loaded individually using Load_Aggregated_Project and so
       --  we're similar to case one
       Root : constant GPR2.Project.View.Object :=
-               My_Project.Tree.Namespace_Root_Projects.First_Element;
+        My_Project.Tree.Namespace_Root_Projects.First_Element;
 
    begin
       if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
@@ -378,9 +377,7 @@ package body Gnatcheck.Projects is
          end if;
       else
          if not Arg.No_Subprojects.Get then
-            if Root.Has_Mains
-              and then Only_Ada_Mains (Root)
-            then
+            if Root.Has_Mains and then Only_Ada_Mains (Root) then
                --  No argument sources, no -U/--no-subprojects specified,
                --  root project has mains, all of mains are Ada.
                --  Process closure of those mains.
@@ -436,16 +433,16 @@ package body Gnatcheck.Projects is
    -------------------------------
 
    function Get_Project_Relative_File
-     (My_Project : Arg_Project_Type;
-      Filename   : String) return String is
+     (My_Project : Arg_Project_Type; Filename : String) return String is
    begin
       if Gnatcheck.Options.Gnatcheck_Prj.Is_Specified
         and then Gnatcheck.Options.Gnatcheck_Prj.Tree.Is_Defined
       then
-         return Normalize_Pathname
-           (GNAT.Directory_Operations.Dir_Name
-              (Gnatcheck_Prj.Tree.Root_Project.Path_Name.String_Value) &
-            Filename);
+         return
+           Normalize_Pathname
+             (GNAT.Directory_Operations.Dir_Name
+                (Gnatcheck_Prj.Tree.Root_Project.Path_Name.String_Value)
+              & Filename);
       else
          return Normalize_Pathname (Filename);
       end if;
@@ -484,23 +481,22 @@ package body Gnatcheck.Projects is
       for C in Agg_Context.Iterate loop
          Project_Options.Add_Switch
            (GPR2.Options.X,
-            String (External_Name_Value_Map_Package.Key (C)) & "=" &
-            External_Name_Value_Map_Package.Element (C));
+            String (External_Name_Value_Map_Package.Key (C))
+            & "="
+            & External_Name_Value_Map_Package.Element (C));
       end loop;
 
-      if not My_Project.Tree.Load (Project_Options,
-                                   Reporter     => Gpr2_Reporter,
-                                   With_Runtime => True,
-                                   Config       => Conf_Obj)
+      if not My_Project.Tree.Load
+               (Project_Options,
+                Reporter     => Gpr2_Reporter,
+                With_Runtime => True,
+                Config       => Conf_Obj)
       then
          if not My_Project.Tree.Has_Runtime_Project then
             Error ("no runtime information found");
          end if;
 
-         Error
-           (""""
-            & Get_Aggregated_Project
-            & """ processing failed");
+         Error ("""" & Get_Aggregated_Project & """ processing failed");
 
          raise Parameter_Error;
       end if;
@@ -560,28 +556,31 @@ package body Gnatcheck.Projects is
          Project_Options.Add_Switch (GPR2.Options.Resolve_Links);
       end if;
 
-      if not My_Project.Tree.Load (Project_Options,
-                                   Reporter         => Gpr2_Reporter,
-                                   Absent_Dir_Error => GPR2.No_Error,
-                                   With_Runtime     => True)
+      if not My_Project.Tree.Load
+               (Project_Options,
+                Reporter         => Gpr2_Reporter,
+                Absent_Dir_Error => GPR2.No_Error,
+                With_Runtime     => True)
       then
          raise Parameter_Error;
       end if;
 
       if not My_Project.Tree.Languages.Contains (GPR2.Ada_Language) then
          Error
-           ("""" & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
+           (""""
+            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
             & """ has no Ada sources, processing failed");
 
          raise Parameter_Error;
 
-      elsif not My_Project.Tree.Has_Runtime_Project  then
+      elsif not My_Project.Tree.Has_Runtime_Project then
          --  Issue with the configuration of Ada
          for Msg of My_Project.Tree.Configuration.Log_Messages loop
             Print (Msg.Format);
          end loop;
          Error
-           ("""" & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
+           (""""
+            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
             & """ processing failed");
 
          raise Parameter_Error;
@@ -628,8 +627,8 @@ package body Gnatcheck.Projects is
    -- Process_Project_File --
    --------------------------
 
-   procedure Process_Project_File
-     (My_Project : in out Arg_Project_Type'Class) is
+   procedure Process_Project_File (My_Project : in out Arg_Project_Type'Class)
+   is
    begin
       Set_External_Values (My_Project);
 
@@ -678,16 +677,15 @@ package body Gnatcheck.Projects is
       end if;
 
       if XML_Report_ON then
-         XML_Report ("<aggregated-project>",
-                     Indent_Level => 2);
+         XML_Report ("<aggregated-project>", Indent_Level => 2);
 
-         XML_Report ("<project-file>" & Aggregated_Prj_Name &
-                     "</project-file>",
-                     Indent_Level => 3);
+         XML_Report
+           ("<project-file>" & Aggregated_Prj_Name & "</project-file>",
+            Indent_Level => 3);
 
-         XML_Report ("<report-file>" & Expected_XML_Out_File &
-                     "</report-file>",
-                     Indent_Level => 3);
+         XML_Report
+           ("<report-file>" & Expected_XML_Out_File & "</report-file>",
+            Indent_Level => 3);
       end if;
    end Report_Aggregated_Project;
 
@@ -703,8 +701,8 @@ package body Gnatcheck.Projects is
         (+"Codepeer", GPR2.Project.Registry.Pack.Everywhere);
       GPR2.Project.Registry.Pack.Description.Set_Package_Description
         (+"Codepeer",
-         "This package specifies the options used when " &
-           "calling the tool 'codepeer'.");
+         "This package specifies the options used when "
+         & "calling the tool 'codepeer'.");
       Add
         (File_Patterns_Attr,
          Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
@@ -713,27 +711,27 @@ package body Gnatcheck.Projects is
          Is_Allowed_In        => Everywhere);
       GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
         (File_Patterns_Attr,
-         "If you want to override ada default file " &
-           "extensions (ada, ads, adb, spc & bdy), use this attribute " &
-           "which includes a list of file patterns where you can specify " &
-           "the following meta characters: * : matches any string of 0 " &
-           "or more characters, ? : matches any character, " &
-           " [list of chars] : matches any character listed, [char-char] " &
-           ": matches any character in given range, [^list of chars] : " &
-           "matches any character not listed. These patterns are case " &
-           "insensitive.");
+         "If you want to override ada default file "
+         & "extensions (ada, ads, adb, spc & bdy), use this attribute "
+         & "which includes a list of file patterns where you can specify "
+         & "the following meta characters: * : matches any string of 0 "
+         & "or more characters, ? : matches any character, "
+         & " [list of chars] : matches any character listed, [char-char] "
+         & ": matches any character in given range, [^list of chars] : "
+         & "matches any character not listed. These patterns are case "
+         & "insensitive.");
       GPR2.Project.Registry.Pack.Check_Attributes (+"Codepeer", False);
 
       GPR2.Project.Registry.Pack.Add
         (+"Check", GPR2.Project.Registry.Pack.Everywhere);
       GPR2.Project.Registry.Pack.Description.Set_Package_Description
         (+"Check",
-         "This package specifies the options used when " &
-           "calling the checking tool 'gnatcheck'. Its attribute " &
-           "Default_Switches has the same semantics as for the package " &
-           "Builder. The first string should always be -rules to specify " &
-           "that all the other options belong to the -rules section of " &
-           "the parameters to 'gnatcheck'.");
+         "This package specifies the options used when "
+         & "calling the checking tool 'gnatcheck'. Its attribute "
+         & "Default_Switches has the same semantics as for the package "
+         & "Builder. The first string should always be -rules to specify "
+         & "that all the other options belong to the -rules section of "
+         & "the parameters to 'gnatcheck'.");
       Add
         (Rules_Attr,
          Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
@@ -742,8 +740,8 @@ package body Gnatcheck.Projects is
          Is_Allowed_In        => Everywhere);
       GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
         (Rules_Attr,
-         "Value is a list of GNATcheck rule names to enable when running " &
-         "GNATcheck on this project.");
+         "Value is a list of GNATcheck rule names to enable when running "
+         & "GNATcheck on this project.");
       Add
         (Rule_File_Attr,
          Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
@@ -752,8 +750,8 @@ package body Gnatcheck.Projects is
          Is_Allowed_In        => Everywhere);
       GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
         (Rule_File_Attr,
-         "Value is the name of an LKQL rule file to use when running " &
-         "GNATcheck in this project.");
+         "Value is the name of an LKQL rule file to use when running "
+         & "GNATcheck in this project.");
       Add
         (Switches_Attr,
          Index_Type           => Language_Index,
@@ -762,17 +760,16 @@ package body Gnatcheck.Projects is
          Is_Allowed_In        => Everywhere);
       GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
         (Switches_Attr,
-         "Index is a language name. Value is a " &
-           "list of switches to be used when invoking 'gnatcheck' for a " &
-           "source of the language.");
-      Add_Alias (Name     => Default_Switches_Attr,
-                 Alias_Of => Switches_Attr);
+         "Index is a language name. Value is a "
+         & "list of switches to be used when invoking 'gnatcheck' for a "
+         & "source of the language.");
+      Add_Alias (Name => Default_Switches_Attr, Alias_Of => Switches_Attr);
       GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
         (Default_Switches_Attr,
-         "Index is a language name. Value is a " &
-           "list of switches to be used when invoking 'gnatcheck' for a " &
-           "source of the language, if there is no applicable attribute " &
-           "Switches.");
+         "Index is a language name. Value is a "
+         & "list of switches to be used when invoking 'gnatcheck' for a "
+         & "source of the language, if there is no applicable attribute "
+         & "Switches.");
       GPR2.Project.Registry.Pack.Check_Attributes (+"Check");
    end Register_Tool_Attributes;
 
@@ -798,8 +795,8 @@ package body Gnatcheck.Projects is
       --  Set GPR_TOOL, if needed
 
       for Cursor in Project_Options.Context.Iterate loop
-         if
-           Containers.External_Name_Value_Map_Package.Key (Cursor) = "GPR_TOOL"
+         if Containers.External_Name_Value_Map_Package.Key (Cursor)
+           = "GPR_TOOL"
          then
             GPR_TOOL_Set := True;
             exit;
@@ -822,20 +819,17 @@ package body Gnatcheck.Projects is
 
       Cur_Dir : constant GPR2.Path_Name.Object :=
         GPR2.Path_Name.Create_Directory
-          (GPR2.Filename_Type
-              (GNAT.Directory_Operations.Get_Current_Dir));
+          (GPR2.Filename_Type (GNAT.Directory_Operations.Get_Current_Dir));
 
-      Dir : constant String := String
-        (if not Arg.No_Object_Dir.Get and then Gnatcheck_Prj.Is_Specified
-         then
-           (if My_Project.Tree.Root_Project.Kind not in
-              GPR2.With_Object_Dir_Kind
-            then
-               My_Project.Tree.Root_Project.Path_Name.Dir_Name
-            else
-               My_Project.Tree.Root_Project.Object_Directory.Dir_Name)
-         else
-            Cur_Dir.Dir_Name);
+      Dir : constant String :=
+        String
+          (if not Arg.No_Object_Dir.Get and then Gnatcheck_Prj.Is_Specified
+           then
+             (if My_Project.Tree.Root_Project.Kind
+                 not in GPR2.With_Object_Dir_Kind
+              then My_Project.Tree.Root_Project.Path_Name.Dir_Name
+              else My_Project.Tree.Root_Project.Object_Directory.Dir_Name)
+           else Cur_Dir.Dir_Name);
    begin
       GNAT.OS_Lib.Free (Global_Report_Dir);
       Global_Report_Dir := new String'(Dir);
@@ -851,7 +845,8 @@ package body Gnatcheck.Projects is
       if Arg.Subdirs.Get = Null_Unbounded_String then
          return "gnatcheck";
       else
-         return To_String (Arg.Subdirs.Get)
+         return
+           To_String (Arg.Subdirs.Get)
            & GNAT.OS_Lib.Directory_Separator
            & "gnatcheck";
       end if;
@@ -880,8 +875,13 @@ package body Gnatcheck.Projects is
       then
          return "";
       elsif My_Project.Tree.Is_Defined then
-         return My_Project.Tree.
-           Configuration.Corresponding_View.Path_Name.String_Value;
+         return
+           My_Project
+             .Tree
+             .Configuration
+             .Corresponding_View
+             .Path_Name
+             .String_Value;
       else
          return My_Project.Source_CGPR.all;
       end if;
@@ -892,14 +892,11 @@ package body Gnatcheck.Projects is
    -----------------------------
 
    procedure Append_Variables
-     (Args : in out Argument_List;
-      Last : in out Natural)
-   is
+     (Args : in out Argument_List; Last : in out Natural) is
    begin
       for Var of X_Vars loop
          Last := Last + 1;
-         Args (Last) :=
-           new String'("-X" & Var);
+         Args (Last) := new String'("-X" & Var);
       end loop;
    end Append_Variables;
 
@@ -917,9 +914,7 @@ package body Gnatcheck.Projects is
    -- Store_Main_Unit --
    ---------------------
 
-   procedure Store_Main_Unit
-     (Unit_Name   : String;
-      Store       : Boolean := True) is
+   procedure Store_Main_Unit (Unit_Name : String; Store : Boolean := True) is
    begin
       if Store then
          Gnatcheck.Projects.Main_Unit.Include (GPR2.Filename_Type (Unit_Name));
@@ -931,12 +926,11 @@ package body Gnatcheck.Projects is
    --------------------------
 
    procedure Store_Project_Source
-     (My_Project         : in out Arg_Project_Type;
-      Project_File_Name  : String)
+     (My_Project : in out Arg_Project_Type; Project_File_Name : String)
    is
       Ext : constant String :=
-        (if Has_Suffix (Project_File_Name, Suffix => ".gpr")
-         then "" else ".gpr");
+        (if Has_Suffix (Project_File_Name, Suffix => ".gpr") then ""
+         else ".gpr");
 
    begin
       if Project_File_Set then
@@ -954,8 +948,7 @@ package body Gnatcheck.Projects is
    -----------------------
 
    procedure Store_CGPR_Source
-     (My_Project     : in out Arg_Project_Type;
-      CGPR_File_Name : String) is
+     (My_Project : in out Arg_Project_Type; CGPR_File_Name : String) is
    begin
       Project_Options.Add_Switch (GPR2.Options.Config, CGPR_File_Name);
    end Store_CGPR_Source;
@@ -964,8 +957,7 @@ package body Gnatcheck.Projects is
    -- Aggregate_Project_Report_Header --
    -------------------------------------
 
-   procedure Aggregate_Project_Report_Header
-     (My_Project : Arg_Project_Type) is
+   procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type) is
    begin
       if XML_Report_ON then
          XML_Report ("<?xml version=""1.0""?>");
@@ -987,8 +979,7 @@ package body Gnatcheck.Projects is
       end if;
 
       if XML_Report_ON then
-         XML_Report ("<aggregated-project-reports>",
-                     Indent_Level => 1);
+         XML_Report ("<aggregated-project-reports>", Indent_Level => 1);
       end if;
    end Aggregate_Project_Report_Header;
 
@@ -999,8 +990,7 @@ package body Gnatcheck.Projects is
    procedure Close_Aggregate_Project_Report (My_Project : Arg_Project_Type) is
    begin
       if XML_Report_ON then
-         XML_Report ("</aggregated-project-reports>",
-                     Indent_Level => 1);
+         XML_Report ("</aggregated-project-reports>", Indent_Level => 1);
          XML_Report ("</gnatcheck-report>");
       end if;
    end Close_Aggregate_Project_Report;
@@ -1010,27 +1000,30 @@ package body Gnatcheck.Projects is
    -----------------------------------------
 
    procedure Report_Aggregated_Project_Exit_Code
-     (Aggregate_Prj : Arg_Project_Type;
-      Exit_Code     : Integer)
+     (Aggregate_Prj : Arg_Project_Type; Exit_Code : Integer)
    is
       pragma Unreferenced (Aggregate_Prj);
    begin
       if Text_Report_ON then
-         Report ("Exit code is" & Exit_Code'Img & " (" &
-                 (case Exit_Code is
-                     when 0 => "no rule violation detected",
-                     when 1 => "rule violation(s) detected",
-                     when 2 => "tool failure, results cannot be trusted",
-                     when 3 => "no rule check performed",
-                     when others => "unknown")        & ")");
+         Report
+           ("Exit code is"
+            & Exit_Code'Img
+            & " ("
+            & (case Exit_Code is
+                 when 0 => "no rule violation detected",
+                 when 1 => "rule violation(s) detected",
+                 when 2 => "tool failure, results cannot be trusted",
+                 when 3 => "no rule check performed",
+                 when others => "unknown")
+            & ")");
       end if;
 
       if XML_Report_ON then
-         XML_Report ("<exit-code>" & Image (Exit_Code) & "</exit-code>",
-                     Indent_Level => 3);
+         XML_Report
+           ("<exit-code>" & Image (Exit_Code) & "</exit-code>",
+            Indent_Level => 3);
 
-         XML_Report ("</aggregated-project>",
-                     Indent_Level => 2);
+         XML_Report ("</aggregated-project>", Indent_Level => 2);
       end if;
    end Report_Aggregated_Project_Exit_Code;
 
@@ -1063,6 +1056,7 @@ package body Gnatcheck.Projects is
          case O.Kind is
             when File =>
                Process_Rule_File (To_String (O.Value));
+
             when Option =>
                Process_Rule_Option (To_String (O.Value), Defined_At => "");
          end case;
@@ -1074,10 +1068,7 @@ package body Gnatcheck.Projects is
    -- Add_Rule_Option --
    ---------------------
 
-   procedure Add_Rule_Option
-     (Opt     : String;
-      Prepend : Boolean := False)
-   is
+   procedure Add_Rule_Option (Opt : String; Prepend : Boolean := False) is
       use Ada.Strings.Unbounded;
 
       Opt_Rec : constant Option_Record :=
@@ -1094,9 +1085,7 @@ package body Gnatcheck.Projects is
    -- Add_Rule_By_Name --
    ----------------------
 
-   procedure Add_Rule_By_Name
-     (Rule_Name : String;
-      Prepend   : Boolean := False)
+   procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False)
    is
       Lower_Rule : constant String := To_Lower (Rule_Name);
       Prefix     : constant String :=
@@ -1113,8 +1102,7 @@ package body Gnatcheck.Projects is
       use Ada.Strings.Unbounded;
 
       Resolved_File : constant String :=
-        (if Is_Absolute_Path (File)
-         then File
+        (if Is_Absolute_Path (File) then File
          else
            (if Project_Relative
             then Gnatcheck_Prj.Get_Project_Relative_File (File)
@@ -1135,7 +1123,8 @@ package body Gnatcheck.Projects is
    function Is_Rule_Options_Empty return Boolean is
       use Ada.Strings.Unbounded;
    begin
-      return Rule_Options.Is_Empty
+      return
+        Rule_Options.Is_Empty
         and then LKQL_Rule_File_Name = Null_Unbounded_String;
    end Is_Rule_Options_Empty;
 
@@ -1145,13 +1134,13 @@ package body Gnatcheck.Projects is
 
    procedure Scan_Arguments
      (My_Project : in out Arg_Project_Type;
-      First_Pass : Boolean    := False;
+      First_Pass : Boolean := False;
       Args       : GNAT.OS_Lib.Argument_List_Access := null)
    is
 
       Unknown_Opt_Parse_Args : XString_Vector;
-      Args_After_Opt_Parse : Argument_List_Access;
-      Parser : Opt_Parser;
+      Args_After_Opt_Parse   : Argument_List_Access;
+      Parser                 : Opt_Parser;
 
       function To_Arg_List (Args : XString_Vector) return Argument_List_Access;
       function To_XString_Array
@@ -1159,8 +1148,8 @@ package body Gnatcheck.Projects is
 
       function To_Arg_List (Args : XString_Vector) return Argument_List_Access
       is
-         Ret : constant Argument_List_Access
-           := new String_List (1 .. Args.Last_Index);
+         Ret : constant Argument_List_Access :=
+           new String_List (1 .. Args.Last_Index);
       begin
          for I in Ret'Range loop
             Ret (I) := new String'(Args (I).To_String);
@@ -1198,19 +1187,21 @@ package body Gnatcheck.Projects is
          Goto_Section ("rules", Parser => Parser);
 
          loop
-            case GNAT.Command_Line.Getopt
-              ("* from=", Parser => Parser) is
-            --  We do not want to depend on the set of the currently
-            --  implemented rules
+            case GNAT.Command_Line.Getopt ("* from=", Parser => Parser) is
+               --  We do not want to depend on the set of the currently
+               --  implemented rules
+
                when ASCII.NUL =>
                   exit;
+
                when 'f' =>
                   Rule_Options.Append
-                     (Option_Record'(File,
+                    (Option_Record'
+                       (File,
                         To_Unbounded_String (Parameter (Parser => Parser))));
                   if not More_Then_One_Rule_File_Set then
                      Rule_File_Name :=
-                     new String'(Parameter (Parser => Parser));
+                       new String'(Parameter (Parser => Parser));
                      More_Then_One_Rule_File_Set := True;
                   else
                      Free (Rule_File_Name);
@@ -1233,10 +1224,10 @@ package body Gnatcheck.Projects is
          end loop;
       end Process_Sections;
 
-      Executable : String_Access := GNAT.OS_Lib.Locate_Exec_On_Path
-        (Ada.Command_Line.Command_Name);
+      Executable : String_Access :=
+        GNAT.OS_Lib.Locate_Exec_On_Path (Ada.Command_Line.Command_Name);
       Prefix     : constant String :=
-         Containing_Directory (Containing_Directory (Executable.all));
+        Containing_Directory (Containing_Directory (Executable.all));
       Lkql       : constant String :=
         Compose (Compose (Prefix, "share"), "lkql");
 
@@ -1244,7 +1235,7 @@ package body Gnatcheck.Projects is
       Initial_Char      : Character;
       Success           : Boolean;
 
-   --  Start of processing for Scan_Arguments
+      --  Start of processing for Scan_Arguments
 
    begin
       --  Set Legacy early so that this flag can be checked elsewhere.
@@ -1280,8 +1271,8 @@ package body Gnatcheck.Projects is
       end if;
 
       if Arg.Parser.Parse
-         ((if Args /= null then To_XString_Array (Args) else No_Arguments),
-          Unknown_Arguments => Unknown_Opt_Parse_Args)
+           ((if Args /= null then To_XString_Array (Args) else No_Arguments),
+            Unknown_Arguments => Unknown_Opt_Parse_Args)
       then
          Args_After_Opt_Parse := To_Arg_List (Unknown_Opt_Parse_Args);
          Initialize_Option_Scan
@@ -1306,16 +1297,17 @@ package body Gnatcheck.Projects is
       loop
          Initial_Char :=
            GNAT.Command_Line.Getopt
-             ("v h hx "                     &
-              "m? files= a "                &
-              "vP! "                        &   --  project-specific options
-              "-kp-version= "               &
-              "o= "                         &
-              "ox= "                        &
-              "log "                        &
-              "-subprocess "                &
-              "-version -help "             &
-              "nt xml",
+             ("v h hx "
+              & "m? files= a "
+              & "vP! "
+              &   --  project-specific options
+                                               "-kp-version= "
+              & "o= "
+              & "ox= "
+              & "log "
+              & "-subprocess "
+              & "-version -help "
+              & "nt xml",
               Parser => Parser);
 
          case Initial_Char is
@@ -1324,9 +1316,8 @@ package body Gnatcheck.Projects is
 
                loop
                   declare
-                     Arg    : constant String := Get_Argument
-                       (Do_Expansion => True,
-                        Parser       => Parser);
+                     Arg : constant String :=
+                       Get_Argument (Do_Expansion => True, Parser => Parser);
 
                   begin
                      exit when Arg = "";
@@ -1397,10 +1388,10 @@ package body Gnatcheck.Projects is
 
                   exception
                      when Constraint_Error =>
-                     Error
-                       ("Wrong Parameter of '-m' option: "
-                        & Parameter (Parser => Parser));
-                     raise Parameter_Error;
+                        Error
+                          ("Wrong Parameter of '-m' option: "
+                           & Parameter (Parser => Parser));
+                        raise Parameter_Error;
                   end;
                end if;
 
@@ -1408,7 +1399,7 @@ package body Gnatcheck.Projects is
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "nt" then
                      Text_Report_ON := False;
-                     XML_Report_ON  := True;
+                     XML_Report_ON := True;
                   end if;
                end if;
 
@@ -1420,7 +1411,7 @@ package body Gnatcheck.Projects is
 
                   elsif Full_Switch (Parser => Parser) = "ox" then
                      Set_XML_Report_File_Name (Parameter (Parser => Parser));
-                     XML_Report_ON          := True;
+                     XML_Report_ON := True;
                      Custom_XML_Report_File := True;
                   end if;
                end if;
@@ -1436,7 +1427,8 @@ package body Gnatcheck.Projects is
                      exception
                         when Constraint_Error =>
                            Error
-                             ("wrong switch parameter " & Parameter
+                             ("wrong switch parameter "
+                              & Parameter
                               & " for -vP");
                            raise Parameter_Error;
                      end;
@@ -1449,7 +1441,7 @@ package body Gnatcheck.Projects is
             when 'x' =>
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "xml" then
-                     XML_Report_ON  := True;
+                     XML_Report_ON := True;
                   end if;
                end if;
 
@@ -1490,9 +1482,7 @@ package body Gnatcheck.Projects is
          end case;
       end loop;
 
-      if Current_Section (Parser => Parser) = ""
-        and then not First_Pass
-      then
+      if Current_Section (Parser => Parser) = "" and then not First_Pass then
          Process_Sections;
       end if;
 
@@ -1512,13 +1502,14 @@ package body Gnatcheck.Projects is
    -- Store_Compiler_Option --
    ---------------------------
 
-   package Compiler_Switches is new GNAT.Table (
-      Table_Component_Type => String_Access,
-      Table_Index_Type     => Natural,
-      Table_Low_Bound      => 1,
-      Table_Initial        => 20,
-      Table_Increment      => 100,
-      Table_Name           => "Compiler options");
+   package Compiler_Switches is new
+     GNAT.Table
+       (Table_Component_Type => String_Access,
+        Table_Index_Type     => Natural,
+        Table_Low_Bound      => 1,
+        Table_Initial        => 20,
+        Table_Increment      => 100,
+        Table_Name           => "Compiler options");
 
    procedure Store_Compiler_Option (Switch : String) is
    begin
@@ -1588,8 +1579,10 @@ package body Gnatcheck.Projects is
         new String'(Global_Report_Dir.all & Gnatcheck_Config_File.all);
 
       Analyze_Compiler_Output :=
-        Use_gnaty_Option or Use_gnatw_Option or
-        Check_Restrictions or Arg.Check_Semantic.Get;
+        Use_gnaty_Option
+        or Use_gnatw_Option
+        or Check_Restrictions
+        or Arg.Check_Semantic.Get;
 
       if Analyze_Compiler_Output then
          Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);
@@ -1679,8 +1672,10 @@ package body Gnatcheck.Projects is
 
       --  Save compiler switches computed in Compiler_Arg_List
 
-      Compiler_Arg_List := new Argument_List'
-        (String_List (Compiler_Switches.Table (1 .. Compiler_Switches.Last)));
+      Compiler_Arg_List :=
+        new Argument_List'
+          (String_List
+             (Compiler_Switches.Table (1 .. Compiler_Switches.Last)));
 
       <<Processing_Aggregate_Project>>
 
