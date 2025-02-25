@@ -6,12 +6,13 @@
 package com.adacore.lkql_jit;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.checker.BaseChecker;
 import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.TopLevelList;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
 import com.adacore.lkql_jit.runtime.CallStack;
@@ -22,7 +23,6 @@ import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLogger;
-import com.oracle.truffle.api.source.Source;
 import java.io.File;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -605,29 +605,9 @@ public final class LKQLContext {
             if (argSource == null) {
                 argValue = null;
             } else {
-                try (var context = Liblkqllang.AnalysisContext.create()) {
-                    var unit = context.getUnitFromBuffer(
-                        argSource,
-                        "<rule_arg>",
-                        null,
-                        Liblkqllang.GrammarRule.EXPR_RULE
-                    );
-                    var root = unit.getRoot();
-                    var source = Source.newBuilder(
-                        Constants.LKQL_ID,
-                        argSource,
-                        "<rule_arg>"
-                    ).build();
-                    var node = language.translate(root, source);
-                    argValue = node.executeGeneric(null);
-                } catch (Exception e) {
-                    throw LKQLRuntimeException.fromMessage(
-                        "Rule argument value generated an " +
-                        "interpreter error: '" +
-                        argSource +
-                        "'"
-                    );
-                }
+                var tl = ((TopLevelList) language.translate(argSource, "<rule-arg>")).program;
+                var node = (Expr) tl[0];
+                argValue = node.executeGeneric(null);
             }
             instanceArgs.put(argName, argValue);
             this.instancesArgsCache.put(instanceId, instanceArgs);
