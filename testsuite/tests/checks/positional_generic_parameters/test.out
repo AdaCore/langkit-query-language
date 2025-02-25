@@ -6,6 +6,46 @@ pos.adb:10:15: rule violation: positional generic association
 10 |      (My_Int, Integer);                                --  FLAG (2)
    |               ^^^^^^^
 
+pos.adb:19:28: rule violation: positional generic association
+19 |    package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
+   |                            ^
+
+pos.adb:19:31: rule violation: positional generic association
+19 |    package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
+   |                               ^
+
+pos.adb:19:34: rule violation: positional generic association
+19 |    package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
+   |                                  ^
+
+pos.adb:20:28: rule violation: positional generic association
+20 |    package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
+   |                            ^
+
+pos.adb:20:31: rule violation: positional generic association
+20 |    package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
+   |                               ^
+
+pos.adb:21:28: rule violation: positional generic association
+21 |    package I_G_3 is new G (1, C =>  2, B => 3);  -- FLAG (1)
+   |                            ^
+
+pos.adb:25:29: rule violation: positional generic association
+25 |    package I_RG is new R_G (1, 2, 3); -- FLAG (3)
+   |                             ^
+
+pos.adb:25:32: rule violation: positional generic association
+25 |    package I_RG is new R_G (1, 2, 3); -- FLAG (3)
+   |                                ^
+
+pos.adb:25:35: rule violation: positional generic association
+25 |    package I_RG is new R_G (1, 2, 3); -- FLAG (3)
+   |                                   ^
+
+pos.adb:43:26: rule violation: positional generic association
+43 |    package I_D is new D (1);  -- FLAG
+   |                          ^
+
 Patched "pos.adb":
 ==================
 
@@ -21,6 +61,38 @@ procedure Pos (I : in out Integer) is
      (Source=>My_Int, Target=>Integer);                                --  FLAG (2)
 
    package My_Int_IO is new Ada.Text_IO.Integer_IO (My_Int);  --  NOFLAG
+
+   generic
+      A, B, C : Integer;
+   package G is
+   end G;
+
+   package I_G_1 is new G (A=>1, B=>2, C=>3);  -- FLAG (3)
+   package I_G_2 is new G (A=>1, B=>2, C => 3);  -- FLAG (2)
+   package I_G_3 is new G (A=>1, C =>  2, B => 3);  -- FLAG (1)
+
+   generic package R_G renames G;
+
+   package I_RG is new R_G (A=>1, B=>2, C=>3); -- FLAG (3)
+
+   generic
+      A : Integer;
+   package H is
+   end H;
+
+   package I_H is new H (1);  -- NOFLAG
+
+   generic package R_H renames H;
+
+   package I_RH is new R_H (1); -- NOFLAG
+
+   generic
+      A, B, C : Integer := 0;
+   package D is
+   end D;
+
+   package I_D is new D (A=>1);  -- FLAG
+
 begin
    null;
 end Pos;
