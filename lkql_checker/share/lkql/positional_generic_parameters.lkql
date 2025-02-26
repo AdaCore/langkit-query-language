@@ -1,14 +1,21 @@
+fun follow_renamings(gen_decl) =
+    |" If gen_decl is a renaming declaration, return the renamed generic
+    |" declaration, gen_decl otherwise.
+    match gen_decl
+    | r@GenericRenamingDecl => r.f_renames.p_referenced_decl()
+    | *                     => gen_decl
+
 fun check_generic(n) =
     |" Return true if the generic decl corresponding to n contains more than 1
     |" formal parameter.
-    [
+    reduce([
         (
             match x.f_decl
             | d@(ObjectDecl | NumberDecl) => d.f_ids.children_count
-            | *                            => 1
+            | *                           => 1
         )
-        for x in from n.p_referenced_decl().f_formal_part.f_decls select GenericFormal
-    ].length > 1
+        for x in from follow_renamings(n).f_formal_part.f_decls select GenericFormal
+    ], (acc, cur) => acc + cur, 0) > 1
 
 fun add_param_name(param, ctx) =
     ctx.set_child(
@@ -48,6 +55,5 @@ fun positional_generic_parameters(node) =
     )
     when l.children_count > 1
     or match g
-    | p@GenericSubpInstantiation    => check_generic(p.f_generic_subp_name)
-    | p@GenericPackageInstantiation => check_generic(p.f_generic_pkg_name)
-    | *                             => false
+    | g@GenericInstantiation => check_generic(g.p_designated_generic_decl())
+    | *                      => false
