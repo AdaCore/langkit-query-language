@@ -12,4 +12,7 @@ package Simple is
    type Element_Array is array (Index_Range range <>) of Element;
    Null_Element_Array : Element_Array (1 .. 0);  --  FLAG
 
+   subtype Sub_Element_Array is Element_Array;
+   Null_Sub_Element_Array : Sub_Element_Array (1 .. 0);  --  FLAG
+
 end Simple;
