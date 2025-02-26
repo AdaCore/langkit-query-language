@@ -181,6 +181,11 @@ Functions
     Get whether the given node is a Name representing the standard True
     literal.
 
+.. function:: is_tasking_construct(node)
+
+    Returns whether the given node is a construct related to Ada tasking,
+    in other words: All constructs described in the section 9 of Ada RM.
+
 .. function:: is_unchecked_conversion(node)
 
     Return true if node represents an instantiation of the
