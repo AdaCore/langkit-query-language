@@ -737,7 +737,7 @@ package body Gnatcheck.Output is
    begin
       Brief_Help;
       New_Line;
-      Put_Line ("Report bugs to report@adacore.com");
+      Put_Line ("Report bugs to support@adacore.com");
    end Print_Gnatcheck_Usage;
 
 end Gnatcheck.Output;
