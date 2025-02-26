@@ -54,9 +54,7 @@ package Gnatcheck.Output is
    --  Same as ``Info`` but send the message only if Stderr is a TTY. Also,
    --  ``Message`` is not added to the current ``Log_File``.
 
-   procedure Print
-     (Message : String;
-      New_Line, Log_Message : Boolean := True);
+   procedure Print (Message : String; New_Line, Log_Message : Boolean := True);
    --  Send the given message to ``Standard_Error``, eventually adding a
    --  newline following the ``New_Line`` parameter.
    --  If ``Log_Message`` is ``True``, add the message to the ``Log_File``.
@@ -126,23 +124,15 @@ package Gnatcheck.Output is
    --  Set_Report_File. They should not be called after the call to
    --  Close_Report_File
 
-   procedure Report
-     (Message      : String;
-      Indent_Level : Natural := 0);
-   procedure XML_Report
-     (Message      : String;
-      Indent_Level : Natural := 0);
+   procedure Report (Message : String; Indent_Level : Natural := 0);
+   procedure XML_Report (Message : String; Indent_Level : Natural := 0);
    --  Sends the Message into the tool (XML) report file. The line is then
    --  closed (by appending the EOL character(s)). If Indent_Level is not zero,
    --  Message is prepended by Indent_Level indentation string (currently the
    --  indentation string consists of three space characters).
 
-   procedure Report_No_EOL
-     (Message      : String;
-      Indent_Level : Natural := 0);
-   procedure XML_Report_No_EOL
-     (Message      : String;
-      Indent_Level : Natural := 0);
+   procedure Report_No_EOL (Message : String; Indent_Level : Natural := 0);
+   procedure XML_Report_No_EOL (Message : String; Indent_Level : Natural := 0);
    --  Similar to the previous routine, but it does not close the output line.
 
    procedure Report_EOL;

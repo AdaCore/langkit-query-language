@@ -109,10 +109,10 @@ package body Gnatcheck.Output is
       Final_Message : constant String :=
         (if Tool_Name then Executable & ": " else "")
         & (case Tag is
-           when Info => "info: ",
-           when Warning => "warning: ",
-           when Error => "error: ",
-           when None => "")
+             when Info => "info: ",
+             when Warning => "warning: ",
+             when Error => "error: ",
+             when None => "")
         & Message;
    begin
       --  Display the message in the standard error
@@ -158,10 +158,9 @@ package body Gnatcheck.Output is
    ----------------
 
    function Get_Number return String is
-      Report_File_Name : constant String := (if Text_Report_ON then
-                                                Get_Report_File_Name
-                                             else
-                                                Get_XML_Report_File_Name);
+      Report_File_Name : constant String :=
+        (if Text_Report_ON then Get_Report_File_Name
+         else Get_XML_Report_File_Name);
 
       Idx_1, Idx_2 : Natural;
    begin
@@ -177,9 +176,9 @@ package body Gnatcheck.Output is
          Idx_2 := Idx_2 - 1;
       end if;
 
-      Idx_1 := Index (Report_File_Name (Report_File_Name'First .. Idx_2),
-                      "_",
-                      Backward);
+      Idx_1 :=
+        Index
+          (Report_File_Name (Report_File_Name'First .. Idx_2), "_", Backward);
 
       pragma Assert (Idx_1 > 0);
       pragma Assert (Idx_1 < Idx_2);
@@ -197,8 +196,9 @@ package body Gnatcheck.Output is
          return "";
       end if;
 
-      pragma Assert
-        (Report_File_Name.all = Normalize_Pathname (Report_File_Name.all));
+      pragma
+        Assert
+          (Report_File_Name.all = Normalize_Pathname (Report_File_Name.all));
 
       return Report_File_Name.all;
    end Get_Report_File_Name;
@@ -213,9 +213,10 @@ package body Gnatcheck.Output is
          return "";
       end if;
 
-      pragma Assert
-        (XML_Report_File_Name.all =
-           Normalize_Pathname (XML_Report_File_Name.all));
+      pragma
+        Assert
+          (XML_Report_File_Name.all
+             = Normalize_Pathname (XML_Report_File_Name.all));
       return XML_Report_File_Name.all;
    end Get_XML_Report_File_Name;
 
@@ -257,9 +258,7 @@ package body Gnatcheck.Output is
    -- Print --
    -----------
 
-   procedure Print
-     (Message : String;
-      New_Line, Log_Message : Boolean := True)
+   procedure Print (Message : String; New_Line, Log_Message : Boolean := True)
    is
    begin
       Emit_Message (Message, New_Line => New_Line, Log_Message => Log_Message);
@@ -305,9 +304,7 @@ package body Gnatcheck.Output is
    -- Report --
    ------------
 
-   procedure Report
-     (Message      : String;
-      Indent_Level : Natural := 0) is
+   procedure Report (Message : String; Indent_Level : Natural := 0) is
    begin
       Report_No_EOL (Message, Indent_Level);
       Report_EOL;
@@ -317,9 +314,7 @@ package body Gnatcheck.Output is
    -- XML_Report --
    ----------------
 
-   procedure XML_Report
-     (Message      : String;
-      Indent_Level : Natural := 0) is
+   procedure XML_Report (Message : String; Indent_Level : Natural := 0) is
    begin
       XML_Report_No_EOL (Message, Indent_Level);
       XML_Report_EOL;
@@ -347,9 +342,7 @@ package body Gnatcheck.Output is
    -- Report_No_EOL --
    -------------------
 
-   procedure Report_No_EOL
-     (Message      : String;
-      Indent_Level : Natural := 0) is
+   procedure Report_No_EOL (Message : String; Indent_Level : Natural := 0) is
    begin
       for J in 1 .. Indent_Level loop
          Put (Report_File, Indent_String);
@@ -362,9 +355,8 @@ package body Gnatcheck.Output is
    -- XML_Report_No_EOL --
    -----------------------
 
-   procedure XML_Report_No_EOL
-     (Message      : String;
-      Indent_Level : Natural := 0) is
+   procedure XML_Report_No_EOL (Message : String; Indent_Level : Natural := 0)
+   is
    begin
       for J in 1 .. Indent_Level loop
          Put (XML_Report_File, Indent_String);
@@ -390,8 +382,8 @@ package body Gnatcheck.Output is
    -------------------------
 
    procedure Report_Missing_File (From_File, Missing_File : String) is
-      function Format_Filename (F : String) return String is
-        (if Arg.Full_Source_Locations.Get then F else Base_Name (F));
+      function Format_Filename (F : String) return String
+      is (if Arg.Full_Source_Locations.Get then F else Base_Name (F));
       --  Formats filename
    begin
       Warning
@@ -445,21 +437,23 @@ package body Gnatcheck.Output is
    begin
       if not Arg.Aggregated_Project then
          if Report_File_Name /= null
-           and then
-            Is_Absolute_Path (Report_File_Name.all)
+           and then Is_Absolute_Path (Report_File_Name.all)
          then
             Report_File_Name :=
               new String'(Normalize_Pathname (Report_File_Name.all));
          else
-            Report_File_Name := new String'(Normalize_Pathname
-              (Global_Report_Dir.all &
-                 (if Report_File_Name = null then Executable & ".out"
-                  else Report_File_Name.all)));
+            Report_File_Name :=
+              new String'
+                (Normalize_Pathname
+                   (Global_Report_Dir.all
+                    & (if Report_File_Name = null then Executable & ".out"
+                       else Report_File_Name.all)));
          end if;
 
          --  And in case of Aggregated_Project we already have in
          --  Report_File_Name the needed name with full path in absolute
          --  form
+
       end if;
 
       if Is_Regular_File (Report_File_Name.all) then
@@ -494,15 +488,18 @@ package body Gnatcheck.Output is
             XML_Report_File_Name :=
               new String'(Normalize_Pathname (XML_Report_File_Name.all));
          else
-            XML_Report_File_Name := new String'(Normalize_Pathname
-              (Global_Report_Dir.all &
-                 (if XML_Report_File_Name = null then Executable & ".xml"
-                  else XML_Report_File_Name.all)));
+            XML_Report_File_Name :=
+              new String'
+                (Normalize_Pathname
+                   (Global_Report_Dir.all
+                    & (if XML_Report_File_Name = null then Executable & ".xml"
+                       else XML_Report_File_Name.all)));
          end if;
 
          --  And in case of Aggregated_Project we already have in
          --  Report_File_Name the needed name with full path in absolute
          --  form
+
       end if;
 
       if Is_Regular_File (XML_Report_File_Name.all) then
@@ -613,117 +610,179 @@ package body Gnatcheck.Output is
 
       if Gnatkp_Mode then
          Put_Line ("gnatkp: the GNAT known problem detector");
-         Put_Line ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
+         Put_Line
+           ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
          Put_Line ("options:");
          Put_Line (" --version - Display version and exit");
          Put_Line (" --help    - Display usage and exit");
          Put_Line ("");
-         Put_Line (" -Pproject        - Use project file project. Only one such switch can be used");
-         Put_Line (" -U               - check all sources of the argument project");
-         Put_Line (" -U main          - check the closure of units rooted at unit main");
+         Put_Line
+           (" -Pproject        - Use project file project. Only one such switch can be used");
+         Put_Line
+           (" -U               - check all sources of the argument project");
+         Put_Line
+           (" -U main          - check the closure of units rooted at unit main");
          Put_Line (" --no-subprojects - process only sources of root project");
-         Put_Line (" -Xname=value     - specify an external reference for argument project file");
-         Put_Line (" --subdirs=dir    - specify subdirectory to place the result files into");
-         Put_Line (" -eL              - follow all symbolic links when processing project files");
+         Put_Line
+           (" -Xname=value     - specify an external reference for argument project file");
+         Put_Line
+           (" --subdirs=dir    - specify subdirectory to place the result files into");
+         Put_Line
+           (" -eL              - follow all symbolic links when processing project files");
          Put_Line (" -o filename      - specify the name of the report file");
          Put_Line ("");
-         Put_Line (" --target=targetname - specify a target for cross platforms");
+         Put_Line
+           (" --target=targetname - specify a target for cross platforms");
          Put_Line (" --RTS=<runtime>     - use runtime <runtime>");
          Put_Line ("");
-         Put_Line (" -h                       - print out the list of the available kp detectors");
-         Put_Line (" -jn                      - n is the maximal number of processes");
-         Put_Line (" -q                       - quiet mode (do not report detections in Stderr)");
+         Put_Line
+           (" -h                       - print out the list of the available kp detectors");
+         Put_Line
+           (" -jn                      - n is the maximal number of processes");
+         Put_Line
+           (" -q                       - quiet mode (do not report detections in Stderr)");
          Put_Line (" -v                       - verbose mode");
-         Put_Line (" -W, --warnings-as-errors - treat warning messages as errors");
-         Put_Line (" -l                       - full pathname for file locations");
+         Put_Line
+           (" -W, --warnings-as-errors - treat warning messages as errors");
+         Put_Line
+           (" -l                       - full pathname for file locations");
          Put_Line ("");
-         Put_Line (" --brief                - brief mode, only report detections in Stderr");
-         Put_Line (" --check-semantic       - check semantic validity of the source files");
-         Put_Line (" --charset=<charset>    - specify the charset of the source files");
-         Put_Line (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
-         Put_Line (" --rule-file=filename   - read kp configuration from the given LKQL file");
-         Put_Line (" -r, --rule [kp_id]     - enable the given kp detector during the GNATKP run (this option is cumulative)");
+         Put_Line
+           (" --brief                - brief mode, only report detections in Stderr");
+         Put_Line
+           (" --check-semantic       - check semantic validity of the source files");
+         Put_Line
+           (" --charset=<charset>    - specify the charset of the source files");
+         Put_Line
+           (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
+         Put_Line
+           (" --rule-file=filename   - read kp configuration from the given LKQL file");
+         Put_Line
+           (" -r, --rule [kp_id]     - enable the given kp detector during the GNATKP run (this option is cumulative)");
          Put_Line ("");
          Put_Line (" -from=filename    - read kp options from filename");
-         Put_Line (" +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
-         Put_Line ("   where <kp_id>   - ID of one of the currently implemented");
-         Put_Line ("                     detectors, use '-h' for the full list");
+         Put_Line
+           (" +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
+         Put_Line
+           ("   where <kp_id>   - ID of one of the currently implemented");
+         Put_Line
+           ("                     detectors, use '-h' for the full list");
          Put_Line ("");
-         Put_Line ("KP detectors must be specified either implicitly via --kp-version ");
+         Put_Line
+           ("KP detectors must be specified either implicitly via --kp-version ");
          Put_Line ("(and optionally --target), or explicitly via -rules");
          return;
       end if;
 
       Put_Line ("gnatcheck: the GNAT rule checking tool");
-      Put_Line ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");
+      Put_Line
+        ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");
       Put_Line ("options:");
       Put_Line (" --version - Display version and exit");
       Put_Line (" --help    - Display usage and exit");
       Put_Line ("");
-      Put_Line (" -Pproject        - Use project file project. Only one such switch can be used");
-      Put_Line (" -U               - check all sources of the argument project");
-      Put_Line (" -U main          - check the closure of units rooted at unit main");
+      Put_Line
+        (" -Pproject        - Use project file project. Only one such switch can be used");
+      Put_Line
+        (" -U               - check all sources of the argument project");
+      Put_Line
+        (" -U main          - check the closure of units rooted at unit main");
       Put_Line (" --no-subprojects - process only sources of root project");
-      Put_Line (" -Xname=value     - specify an external reference for argument project file");
-      Put_Line (" --subdirs=dir    - specify subdirectory to place the result files into");
-      Put_Line (" --no_objects_dir - place results into current dir instead of project dir");
-      Put_Line (" -eL              - follow all symbolic links when processing project files");
+      Put_Line
+        (" -Xname=value     - specify an external reference for argument project file");
+      Put_Line
+        (" --subdirs=dir    - specify subdirectory to place the result files into");
+      Put_Line
+        (" --no_objects_dir - place results into current dir instead of project dir");
+      Put_Line
+        (" -eL              - follow all symbolic links when processing project files");
       Put_Line ("");
-      Put_Line (" --ignore-project-switches - ignore switches specified in the project file");
-      Put_Line (" --target=targetname       - specify a target for cross platforms");
+      Put_Line
+        (" --ignore-project-switches - ignore switches specified in the project file");
+      Put_Line
+        (" --target=targetname       - specify a target for cross platforms");
       Put_Line (" --RTS=<runtime>           - use runtime <runtime>");
-      Put_Line (" --config=<cgpr>           - use configuration project <cgpr>");
+      Put_Line
+        (" --config=<cgpr>           - use configuration project <cgpr>");
       Put_Line ("");
-      Put_Line (" -h                       - print out the list of the currently implemented rules");
-      Put_Line (" -mn                      - n is the maximal number of diagnoses in Stderr");
-      Put_Line ("                            (n in 0 .. 1000, 0 means no limit); default is 0");
-      Put_Line (" -jn                      - n is the maximal number of processes");
-      Put_Line (" -q                       - quiet mode (do not report detections in Stderr)");
+      Put_Line
+        (" -h                       - print out the list of the currently implemented rules");
+      Put_Line
+        (" -mn                      - n is the maximal number of diagnoses in Stderr");
+      Put_Line
+        ("                            (n in 0 .. 1000, 0 means no limit); default is 0");
+      Put_Line
+        (" -jn                      - n is the maximal number of processes");
+      Put_Line
+        (" -q                       - quiet mode (do not report detections in Stderr)");
       Put_Line (" -t                       - report execution time in Stderr");
       Put_Line (" -v                       - verbose mode");
-      Put_Line (" -W, --warnings-as-errors - treat warning messages as errors");
-      Put_Line (" -l                       - full pathname for file locations");
-      Put_Line (" -log                     - duplicate all the messages sent to Stderr in gnatcheck.log");
+      Put_Line
+        (" -W, --warnings-as-errors - treat warning messages as errors");
+      Put_Line
+        (" -l                       - full pathname for file locations");
+      Put_Line
+        (" -log                     - duplicate all the messages sent to Stderr in gnatcheck.log");
       Put_Line (" -s                       - short form of the report file");
       Put_Line (" -xml                     - generate report in XML format");
-      Put_Line (" -nt                      - do not generate text report (enforces '-xml')");
+      Put_Line
+        (" -nt                      - do not generate text report (enforces '-xml')");
       Put_Line ("");
-      Put_Line (" --show-rule                - append rule names to diagnoses generated");
-      Put_Line (" --show-instantiation-chain - show instantiation chain for reported generic construct");
+      Put_Line
+        (" --show-rule                - append rule names to diagnoses generated");
+      Put_Line
+        (" --show-instantiation-chain - show instantiation chain for reported generic construct");
       Put_Line ("");
-      Put_Line (" --brief              - brief mode, only report detections in Stderr");
-      Put_Line (" --check-redefinition - issue warning if a rule parameter is redefined");
-      Put_Line (" --check-semantic     - check semantic validity of the source files");
-      Put_Line (" --charset=<charset>  - specify the charset of the source files");
+      Put_Line
+        (" --brief              - brief mode, only report detections in Stderr");
+      Put_Line
+        (" --check-redefinition - issue warning if a rule parameter is redefined");
+      Put_Line
+        (" --check-semantic     - check semantic validity of the source files");
+      Put_Line
+        (" --charset=<charset>  - specify the charset of the source files");
 
       if not Legacy then
-         Put_Line (" --rules-dir=<dir>    - specify an alternate directory containing rule files");
+         Put_Line
+           (" --rules-dir=<dir>    - specify an alternate directory containing rule files");
       end if;
 
       Put_Line ("");
-      Put_Line (" --include-file=filename - add the content of filename into generated report");
+      Put_Line
+        (" --include-file=filename - add the content of filename into generated report");
       Put_Line ("");
       Put_Line (" -o filename   - specify the name of the text report file");
-      Put_Line (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
+      Put_Line
+        (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
       Put_Line ("");
-      Put_Line (" filename                 - the name of the Ada source file to be analyzed.");
+      Put_Line
+        (" filename                 - the name of the Ada source file to be analyzed.");
       Put_Line ("                            Wildcards are allowed");
-      Put_Line (" -files=filename          - the name of the text file containing a list of Ada");
+      Put_Line
+        (" -files=filename          - the name of the text file containing a list of Ada");
       Put_Line ("                            source files to analyze");
-      Put_Line (" --ignore=filename        - do not process sources listed in filename");
-      Put_Line (" --rule-file=filename     - read rule configuration from the given LKQL file");
-      Put_Line (" -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)");
-      Put_Line (" --emit-lkql-rule-file    - emit a 'rules.lkql' file containing the rules configuration");
+      Put_Line
+        (" --ignore=filename        - do not process sources listed in filename");
+      Put_Line
+        (" --rule-file=filename     - read rule configuration from the given LKQL file");
+      Put_Line
+        (" -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)");
+      Put_Line
+        (" --emit-lkql-rule-file    - emit a 'rules.lkql' file containing the rules configuration");
       Put_Line ("");
       Put_Line ("rule_switches          - a list of the following switches");
       Put_Line ("   -from=filename      - read rule options from filename");
-      Put_Line ("   +R<rule_id>[:param] - turn ON a given rule [with given parameter]");
+      Put_Line
+        ("   +R<rule_id>[:param] - turn ON a given rule [with given parameter]");
       Put_Line ("   -R<rule_id>         - turn OFF a given rule");
-      Put_Line ("   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,");
-      Put_Line ("                         depending on the specified parameter");
+      Put_Line
+        ("   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,");
+      Put_Line
+        ("                         depending on the specified parameter");
       Put_Line ("where <rule_id> - ID of one of the currently implemented");
       Put_Line ("                  rules, use '-h' for the full list");
-      Put_Line ("      param     - string representing parameter(s) of a given rule, more than ");
+      Put_Line
+        ("      param     - string representing parameter(s) of a given rule, more than ");
       Put_Line ("                  one parameter can be set separated by ','");
 
       pragma Style_Checks ("M79");

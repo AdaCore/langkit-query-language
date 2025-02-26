@@ -3,7 +3,6 @@ with "liblkqllang";
 with "gpr2";
 
 project GNATcheck is
-
    type Build_Mode_Type is ("dev", "prod");
    Build_Mode : Build_Mode_Type := external
      ("BUILD_MODE", external ("LKQL_CHECKER_BUILD_MODE", "dev"));
@@ -39,4 +38,9 @@ project GNATcheck is
       for Default_Switches ("Ada") use Switches;
    end Compiler;
 
+   package Format is
+      for End_Of_Line ("Ada") use "lf";
+      for Charset ("Ada") use "utf-8";
+      for Width ("Ada") use "79";
+   end Format;
 end GNATcheck;

@@ -17,9 +17,7 @@ package Gnatcheck.Rules.Rule_Table is
    function Present (Rule : Rule_Id) return Boolean;
    --  Check if the argument represents an existing rule
 
-   procedure Process_Rule_Option
-     (Option     : String;
-      Defined_At : String);
+   procedure Process_Rule_Option (Option : String; Defined_At : String);
    --  Processes the rule option taken from the command line or from rule file.
    --
    --  The following options are supported:
@@ -105,20 +103,22 @@ package Gnatcheck.Rules.Rule_Table is
    --  Prints out the rule help (organized by categories) in XML format for
    --  GNAT Studio needs.
 
-   package Rule_Map is new Ada.Containers.Indefinite_Hashed_Maps
-     (Key_Type        => Rule_Id,
-      Element_Type    => Rule_Info,
-      Hash            => Hash,
-      Equivalent_Keys => "=");
+   package Rule_Map is new
+     Ada.Containers.Indefinite_Hashed_Maps
+       (Key_Type        => Rule_Id,
+        Element_Type    => Rule_Info,
+        Hash            => Hash,
+        Equivalent_Keys => "=");
    All_Rules : Rule_Map.Map;
    --  This map is used to store all parsed rules associated to their
    --  identifiers.
 
-   package Rule_Instance_Map is new Ada.Containers.Indefinite_Hashed_Maps
-     (Key_Type        => String,
-      Element_Type    => Rule_Instance_Access,
-      Hash            => Ada.Strings.Hash,
-      Equivalent_Keys => "=");
+   package Rule_Instance_Map is new
+     Ada.Containers.Indefinite_Hashed_Maps
+       (Key_Type        => String,
+        Element_Type    => Rule_Instance_Access,
+        Hash            => Ada.Strings.Hash,
+        Equivalent_Keys => "=");
    All_Rule_Instances : Rule_Instance_Map.Map;
    --  This global map contains all created instances, from their normalized
    --  name to their address. This map also contains instances for
@@ -138,8 +138,7 @@ package Gnatcheck.Rules.Rule_Table is
    --  If there is no rule designated by `Rule_Name`, this function returns the
    --  `No_Rule_Id` value.
 
-   function Get_Instance
-     (Instance_Name : String) return Rule_Instance_Access;
+   function Get_Instance (Instance_Name : String) return Rule_Instance_Access;
    --  Return an access to the rule instance associated with the given instance
    --  name. If there is no such instance, this function returns null.
 

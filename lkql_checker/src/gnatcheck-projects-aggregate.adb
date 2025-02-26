@@ -30,17 +30,17 @@ package body Gnatcheck.Projects.Aggregate is
    function "<" (L, R : Project_Record) return Boolean;
    --  These two functions compare project paths
 
-   package Aggregated_Projects_Sets is new Ada.Containers.Ordered_Sets
-     (Element_Type => Project_Record);
+   package Aggregated_Projects_Sets is new
+     Ada.Containers.Ordered_Sets (Element_Type => Project_Record);
    use Aggregated_Projects_Sets;
 
    Aggregated_Projects : Set;
 
    --  Project iterator - old-fashion manual iteration through the ordered set
    --  is used.
-   Iterator_Done   : Boolean := True;
-   Iterator_C      : Cursor  := No_Element;
-   Iterator_El     : Project_Record;
+   Iterator_Done : Boolean := True;
+   Iterator_C    : Cursor := No_Element;
+   Iterator_El   : Project_Record;
 
    Aggregated_Prj_Name : String_Access;
    --  The name of a project file passed as a parameter of '-A' option
@@ -86,7 +86,7 @@ package body Gnatcheck.Projects.Aggregate is
    ---------------------------------
 
    procedure Collect_Aggregated_Projects (Tree : GPR2.Project.Tree.Object) is
-      New_Prj_Rec     : Project_Record;
+      New_Prj_Rec : Project_Record;
    begin
       for Agg of Tree.Namespace_Root_Projects loop
          New_Prj_Rec.Project_Path := Agg.Path_Name;
@@ -98,14 +98,15 @@ package body Gnatcheck.Projects.Aggregate is
    -- Get_Aggregated_Prj_Src --
    ----------------------------
 
-   function Get_Aggregated_Prj_Src return GPR2.Path_Name.Object is
-     (Aggregated_Projects.First_Element.Project_Path);
+   function Get_Aggregated_Prj_Src return GPR2.Path_Name.Object
+   is (Aggregated_Projects.First_Element.Project_Path);
 
    ----------------------------
    -- Get_Aggregated_Project --
    ----------------------------
 
-   function Get_Aggregated_Project return String is (Aggregated_Prj_Name.all);
+   function Get_Aggregated_Project return String
+   is (Aggregated_Prj_Name.all);
 
    -------------------
    -- Next_Prj_Name --
@@ -125,14 +126,15 @@ package body Gnatcheck.Projects.Aggregate is
    -- Num_Of_Aggregated_Projects --
    --------------------------------
 
-   function Num_Of_Aggregated_Projects return Natural is
-     (Natural (Aggregated_Projects.Length));
+   function Num_Of_Aggregated_Projects return Natural
+   is (Natural (Aggregated_Projects.Length));
 
    -----------------------
    -- Prj_Iterator_Done --
    -----------------------
 
-   function Prj_Iterator_Done return Boolean is (Iterator_Done);
+   function Prj_Iterator_Done return Boolean
+   is (Iterator_Done);
 
    -----------------------
    -- Prj_Iterator_Next --
@@ -154,34 +156,29 @@ package body Gnatcheck.Projects.Aggregate is
    -- Process_Aggregated_Projects --
    ---------------------------------
 
-   procedure Process_Aggregated_Projects
-     (My_Project : Arg_Project_Type'Class)
+   procedure Process_Aggregated_Projects (My_Project : Arg_Project_Type'Class)
    is
-      Report_File_Name     : constant String := (if Text_Report_ON then
-                                                     Get_Report_File_Name
-                                                 else
-                                                     "");
-      XML_Report_File_Name : constant String := (if XML_Report_ON then
-                                                    Get_XML_Report_File_Name
-                                                 else
-                                                    "");
+      Report_File_Name     : constant String :=
+        (if Text_Report_ON then Get_Report_File_Name else "");
+      XML_Report_File_Name : constant String :=
+        (if XML_Report_ON then Get_XML_Report_File_Name else "");
 
       Count : Natural := 1;
       --  Counts iterations on aggregated projects, this number is used to
       --  create a unique name of the report files for each iteration
 
-      Prj_Out_File   : constant String  := Report_File_Name;
+      Prj_Out_File   : constant String := Report_File_Name;
       Prj_Out_First  : constant Natural := Prj_Out_File'First;
       Prj_Out_Last   : constant Natural := Prj_Out_File'Last;
-      Prj_Out_Dot    :          Natural := Index (Prj_Out_File, ".", Backward);
+      Prj_Out_Dot    : Natural := Index (Prj_Out_File, ".", Backward);
       Prj_Out_Suffix : constant String :=
         (if Prj_Out_Dot = 0 then ""
          else Prj_Out_File (Prj_Out_Dot .. Prj_Out_Last));
 
-      Prj_XML_File   : constant String  := XML_Report_File_Name;
+      Prj_XML_File   : constant String := XML_Report_File_Name;
       Prj_XML_First  : constant Natural := Prj_XML_File'First;
       Prj_XML_Last   : constant Natural := Prj_XML_File'Last;
-      Prj_XML_Dot    :          Natural := Index (Prj_XML_File, ".", Backward);
+      Prj_XML_Dot    : Natural := Index (Prj_XML_File, ".", Backward);
       Prj_XML_Suffix : constant String :=
         (if Prj_XML_Dot = 0 then ""
          else Prj_XML_File (Prj_XML_Dot .. Prj_XML_Last));
@@ -203,7 +200,8 @@ package body Gnatcheck.Projects.Aggregate is
    begin
       if Full_Tool_Name = null then
          Error
-           ("Cannot locate " & Executable
+           ("Cannot locate "
+            & Executable
             & " on PATH, possible installation problem");
          raise Fatal_Error;
       end if;
@@ -253,9 +251,7 @@ package body Gnatcheck.Projects.Aggregate is
 
       while not Prj_Iterator_Done loop
          if Verbose_Mode then
-            Info
-              ("Processing aggregated project "
-               & String (Next_Prj_Name));
+            Info ("Processing aggregated project " & String (Next_Prj_Name));
          end if;
 
          Free (Prj_Args (2));
@@ -263,34 +259,40 @@ package body Gnatcheck.Projects.Aggregate is
 
          Free (Out_Args (2));
 
-         Out_Args (2) := new String'
-           ((if Text_Report_ON then
-                Prj_Out_File (Prj_Out_First .. Prj_Out_Dot) & "_" &
-                Image (Count) & Prj_Out_Suffix
-             else
-                Prj_XML_File (Prj_XML_First .. Prj_XML_Dot) & "_" &
-                Image (Count) & Prj_XML_Suffix));
+         Out_Args (2) :=
+           new String'
+             ((if Text_Report_ON
+               then
+                 Prj_Out_File (Prj_Out_First .. Prj_Out_Dot)
+                 & "_"
+                 & Image (Count)
+                 & Prj_Out_Suffix
+               else
+                 Prj_XML_File (Prj_XML_First .. Prj_XML_Dot)
+                 & "_"
+                 & Image (Count)
+                 & Prj_XML_Suffix));
 
          if Out_Args_Count = 4 then
-            Out_Args (4) := new String'
-                (Prj_XML_File (Prj_XML_First .. Prj_XML_Dot) & "_" &
-                 Image (Count) & Prj_XML_Suffix);
+            Out_Args (4) :=
+              new String'
+                (Prj_XML_File (Prj_XML_First .. Prj_XML_Dot)
+                 & "_"
+                 & Image (Count)
+                 & Prj_XML_Suffix);
          end if;
 
          Report_Aggregated_Project
            (Aggregate_Prj          => My_Project,
             Aggregated_Prj_Name    => Prj_Args (2).all,
-            Expected_Text_Out_File => (if Text_Report_ON then
-                                          Out_Args (2).all
-                                       else
-                                          ""),
-            Expected_XML_Out_File  => (if XML_Report_ON then
-                                          (if Out_Args_Count = 2 then
-                                              Out_Args (2).all
-                                          else
-                                              Out_Args (4).all)
-                                       else
-                                          ""));
+            Expected_Text_Out_File =>
+              (if Text_Report_ON then Out_Args (2).all else ""),
+            Expected_XML_Out_File  =>
+              (if XML_Report_ON
+               then
+                 (if Out_Args_Count = 2 then Out_Args (2).all
+                  else Out_Args (4).all)
+               else ""));
 
          if Arg.Debug_Mode.Get then
             Put (Full_Tool_Name.all);
@@ -310,15 +312,16 @@ package body Gnatcheck.Projects.Aggregate is
             New_Line;
          end if;
 
-         Exit_Code := Spawn (Program_Name => Full_Tool_Name.all,
-                             Args         =>
-                               Prj_Args
-                               & Out_Args (1 .. Out_Args_Count)
-                               & Args (1 .. Arg_Count));
+         Exit_Code :=
+           Spawn
+             (Program_Name => Full_Tool_Name.all,
+              Args         =>
+                Prj_Args
+                & Out_Args (1 .. Out_Args_Count)
+                & Args (1 .. Arg_Count));
 
          Report_Aggregated_Project_Exit_Code
-           (Aggregate_Prj       => My_Project,
-            Exit_Code           => Exit_Code);
+           (Aggregate_Prj => My_Project, Exit_Code => Exit_Code);
 
          Prj_Iterator_Next;
          Count := Count + 1;
@@ -333,9 +336,9 @@ package body Gnatcheck.Projects.Aggregate is
 
    procedure Start_Prj_Iterator is
    begin
-      Iterator_Done   := False;
-      Iterator_C      := First (Aggregated_Projects);
-      Iterator_El     := Element (Iterator_C);
+      Iterator_Done := False;
+      Iterator_C := First (Aggregated_Projects);
+      Iterator_El := Element (Iterator_C);
    exception
       when others =>
          Error ("Cannot start iterator on aggregated projects");

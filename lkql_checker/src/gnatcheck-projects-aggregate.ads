@@ -38,8 +38,8 @@ package Gnatcheck.Projects.Aggregate is
    --  need to know this because the case when an aggregate project aggregates
    --  only one project is a useful special case.
 
-   function Get_Aggregated_Prj_Src return GPR2.Path_Name.Object with
-      Pre => Num_Of_Aggregated_Projects = 1;
+   function Get_Aggregated_Prj_Src return GPR2.Path_Name.Object
+   with Pre => Num_Of_Aggregated_Projects = 1;
    --  Returns the (single!) aggregate project source file
 
    -----------------------
@@ -51,8 +51,8 @@ package Gnatcheck.Projects.Aggregate is
    --  iterate through these projects, each of these projects is loaded and
    --  analyzed, and all the extracted data is stored in internal database.
 
-   procedure Start_Prj_Iterator with
-     Pre => Num_Of_Aggregated_Projects > 1;
+   procedure Start_Prj_Iterator
+   with Pre => Num_Of_Aggregated_Projects > 1;
    --  Initializes the iterator and sets it to the first project stored in the
    --  database
 
@@ -69,9 +69,8 @@ package Gnatcheck.Projects.Aggregate is
    --  The routines below updates or queries the information related to the
    --  project being accessed during iteration
 
-   procedure Process_Aggregated_Projects
-     (My_Project : Arg_Project_Type'Class) with
-      Pre => Num_Of_Aggregated_Projects > 1;
+   procedure Process_Aggregated_Projects (My_Project : Arg_Project_Type'Class)
+   with Pre => Num_Of_Aggregated_Projects > 1;
    --  Iterates through the projects being aggregated and spawns gnatcheck
    --  for each of them.
    --  This will create one specific report for each project being aggregated
