@@ -120,4 +120,6 @@ fun use_memberships(node, short_circuit = false) =
     ) when stdlib.is_predefined_op(op)
 
     # Find a first variable used as LHS (id) and pass it to check_expr
-    and check_expr(node, get_first_id(node), short_circuit)
+    and if not get_first_id(node) is null
+        then check_expr(node, get_first_id(node), short_circuit)
+        else false

@@ -1,32 +1,32 @@
-member.adb:5:7: rule violation: expression may be replaced by a membership test
-5 |     if A = 0            --  FLAG
-  | _______^
-  ||
-  || ~~~ 2 other lines ~~~
-  ||
-8 ||      or (A >= 3 and A <= 5)
-  ||___________________________^
-
-member.adb:13:7: rule violation: expression may be replaced by a membership test
-13 |     if A = 0            --  FLAG if short_circuit
+member.adb:8:7: rule violation: expression may be replaced by a membership test
+8  |     if A = 0            --  FLAG
    | _______^
-14 ||      or else (A >= 3 and A <= 5)
+   ||
+   || ~~~ 2 other lines ~~~
+   ||
+11 ||      or (A >= 3 and A <= 5)
+   ||___________________________^
+
+member.adb:16:7: rule violation: expression may be replaced by a membership test
+16 |     if A = 0            --  FLAG if short_circuit
+   | _______^
+17 ||      or else (A >= 3 and A <= 5)
    ||________________________________^
 
-member.adb:39:12: rule violation: expression may be replaced by a membership test
-39 |    Bool := A = B or (A >= 1 and A <= B);  --  FLAG
+member.adb:42:12: rule violation: expression may be replaced by a membership test
+42 |    Bool := A = B or (A >= 1 and A <= B);  --  FLAG
    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-member.adb:40:12: rule violation: expression may be replaced by a membership test
-40 |    Bool := A >= 1 and A <= B;             --  FLAG
+member.adb:43:12: rule violation: expression may be replaced by a membership test
+43 |    Bool := A >= 1 and A <= B;             --  FLAG
    |            ^^^^^^^^^^^^^^^^^
 
-member.adb:41:12: rule violation: expression may be replaced by a membership test
-41 |    Bool := A = 100 or A in S;             --  FLAG
+member.adb:44:12: rule violation: expression may be replaced by a membership test
+44 |    Bool := A = 100 or A in S;             --  FLAG
    |            ^^^^^^^^^^^^^^^^^
 
-member.adb:42:12: rule violation: expression may be replaced by a membership test
-42 |    Bool := A = 100 or A in 1 .. B;        --  FLAG
+member.adb:45:12: rule violation: expression may be replaced by a membership test
+45 |    Bool := A = 100 or A in 1 .. B;        --  FLAG
    |            ^^^^^^^^^^^^^^^^^^^^^^
 
 Patched "member.adb":
@@ -35,6 +35,9 @@ Patched "member.adb":
 procedure Member (A, B : Integer) is
    Bool : Boolean;
    subtype S is Integer range 1 .. B;
+   type E is (X, Y, Z);
+
+   function Func (A, B, C : Integer) return E is (X);
 begin
    if A in 0            --  FLAG
      |Natural
@@ -72,5 +75,10 @@ begin
    Bool := A in 1 ..B;             --  FLAG
    Bool := A in 100 |S;             --  FLAG
    Bool := A in 100 |1 .. B;        --  FLAG
+
+   if Func (1, 2, 3) in X or  -- NOFLAG
+      Func (3, 4, 5) in Y then
+      null;
+   end if;
 end Member;
 
