@@ -1,6 +1,9 @@
 procedure Member (A, B : Integer) is
    Bool : Boolean;
    subtype S is Integer range 1 .. B;
+   type E is (X, Y, Z);
+
+   function Func (A, B, C : Integer) return E is (X);
 begin
    if A = 0            --  FLAG
      or A in Natural
@@ -40,4 +43,9 @@ begin
    Bool := A >= 1 and A <= B;             --  FLAG
    Bool := A = 100 or A in S;             --  FLAG
    Bool := A = 100 or A in 1 .. B;        --  FLAG
+
+   if Func (1, 2, 3) in X or  -- NOFLAG
+      Func (3, 4, 5) in Y then
+      null;
+   end if;
 end Member;
