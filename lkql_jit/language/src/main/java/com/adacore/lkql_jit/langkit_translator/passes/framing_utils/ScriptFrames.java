@@ -52,22 +52,24 @@ public final class ScriptFrames {
      *
      * @param node The node associated to the frame to enter in.
      */
-    public void enterFrame(final LangkitSupport.Node node) {
+    public void enterFrame(final NodeInterface node) {
         if (this.current == null) {
             if (!this.root.node.equals(node)) {
                 throw new TranslatorException(
-                        "Cannot enter the root frame because of node inequality");
+                    "Cannot enter the root frame because of node inequality"
+                );
             }
             this.current = this.root;
         } else {
             if (!this.current.children.containsKey(node)) {
                 throw new TranslatorException(
-                        "Cannot enter the frame, "
-                                + node
-                                + " isn't in the children"
-                                + " (current: "
-                                + this.current.node
-                                + ")");
+                    "Cannot enter the frame, " +
+                    node +
+                    " isn't in the children" +
+                    " (current: " +
+                    this.current.node +
+                    ")"
+                );
             }
             this.current = this.current.children.get(node);
         }
@@ -217,6 +219,7 @@ public final class ScriptFrames {
 
         /** Pseudo mutable record to store information about a binding. */
         public static final class BindingInfo {
+
             private static final BindingInfo NONE = new BindingInfo(-1);
 
             private final int slot;
@@ -396,9 +399,8 @@ public final class ScriptFrames {
          * @param node The node associated with the frame description.
          * @param parent The parent node frame description, this can be null.
          */
-        public NodeFrame(final LangkitSupport.Node node, final AbstractNodeFrame parent) {
+        public NodeFrame(final NodeInterface node, final AbstractNodeFrame parent) {
             super(node, parent);
-
             this.parameters = new HashMap<>();
             this.closure = new HashMap<>();
             this.closingBindings = new HashMap<>();
