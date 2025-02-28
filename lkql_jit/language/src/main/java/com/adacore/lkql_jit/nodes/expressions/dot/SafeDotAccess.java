@@ -36,22 +36,23 @@ public abstract class SafeDotAccess extends BaseDotAccess {
      * @return The property reference or the field value.
      */
     @Specialization(
-            guards = {
-                "!receiver.isNone()",
-                "getBuiltIn(receiver) == null",
-                "receiver == property.getNode()",
-                "property.getDescription() != null"
-            },
-            limit = "1")
+        guards = {
+            "!receiver.isNone()",
+            "getBuiltIn(receiver) == null",
+            "receiver == property.getNode()",
+            "property.getDescription() != null",
+        },
+        limit = "1"
+    )
     protected Object onNodeCached(
-            @SuppressWarnings("unused") Libadalang.AdaNode receiver,
-            @Cached("create(member.getName(), receiver)") LKQLProperty property,
-            @Cached("property.isField()") boolean isField) {
+        @SuppressWarnings("unused") Libadalang.AdaNode receiver,
+        @Cached("create(member.getName(), receiver)") LKQLProperty property,
+        @Cached("property.isField()") boolean isField
+    ) {
         // If the method is a field
         if (isField) {
             return property.executeAsField(this);
         }
-
         // If the method is a property
         else {
             return property;
@@ -90,6 +91,9 @@ public abstract class SafeDotAccess extends BaseDotAccess {
     @Fallback
     protected void onGeneric(Object receiver) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(receiver), this);
+            LKQLTypesHelper.ADA_NODE,
+            LKQLTypesHelper.fromJava(receiver),
+            this
+        );
     }
 }

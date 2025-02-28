@@ -63,9 +63,10 @@ public abstract class Indexing extends Expr {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object indexTuple(
-            final LKQLTuple tuple,
-            final long index,
-            @CachedLibrary("tuple") InteropLibrary tupleLibrary) {
+        final LKQLTuple tuple,
+        final long index,
+        @CachedLibrary("tuple") InteropLibrary tupleLibrary
+    ) {
         try {
             return tupleLibrary.readArrayElement(tuple, index - 1);
         } catch (InvalidArrayIndexException e) {
@@ -127,10 +128,16 @@ public abstract class Indexing extends Expr {
     protected void indexError(Object collection, Object index) {
         if (!LKQLTypeSystemGen.isIndexable(collection)) {
             throw LKQLRuntimeException.wrongType(
-                    "list, tuple, node or iterator", LKQLTypesHelper.fromJava(collection), this);
+                "list, tuple, node or iterator",
+                LKQLTypesHelper.fromJava(collection),
+                this
+            );
         } else {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(index), this);
+                LKQLTypesHelper.LKQL_INTEGER,
+                LKQLTypesHelper.fromJava(index),
+                this
+            );
         }
     }
 
@@ -142,6 +149,9 @@ public abstract class Indexing extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"isSafe"}, new Object[] {this.isSafe});
+                indentLevel,
+                new String[] { "isSafe" },
+                new Object[] { this.isSafe }
+            );
     }
 }

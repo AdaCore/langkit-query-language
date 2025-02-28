@@ -63,12 +63,13 @@ public class LKQLSelectorList extends LKQLLazyList {
      */
     @CompilerDirectives.TruffleBoundary
     public LKQLSelectorList(
-            final SelectorRootNode rootNode,
-            final Closure closure,
-            final Object value,
-            final int maxDepth,
-            final int minDepth,
-            final int depth) {
+        final SelectorRootNode rootNode,
+        final Closure closure,
+        final Object value,
+        final int maxDepth,
+        final int minDepth,
+        final int depth
+    ) {
         this.rootNode = rootNode;
         this.closure = closure;
         this.dispatcher = SelectorDispatcherNodeGen.create();
@@ -88,8 +89,7 @@ public class LKQLSelectorList extends LKQLLazyList {
             // Get the first recurse item and execute the selector on it
             LKQLDepthValue nextNode = this.recursList.remove(0);
             LKQLRecValue result =
-                    this.dispatcher.executeDispatch(
-                            this.rootNode, this.closure.getContent(), nextNode);
+                this.dispatcher.executeDispatch(this.rootNode, this.closure.getContent(), nextNode);
 
             addToRecurs(result.recurseVal, result.depth);
             addToResult(result.resultVal, result.depth);
@@ -122,12 +122,13 @@ public class LKQLSelectorList extends LKQLLazyList {
     private void addResult(LKQLDepthValue value) {
         // If there is no defined depth
         if (this.exactDepth < 0) {
-            if ((this.maxDepth < 0 || value.depth <= this.maxDepth)
-                    && (this.minDepth < 0 || value.depth >= this.minDepth)) {
+            if (
+                (this.maxDepth < 0 || value.depth <= this.maxDepth) &&
+                (this.minDepth < 0 || value.depth >= this.minDepth)
+            ) {
                 this.cache.add(value);
             }
         }
-
         // Else, only get the wanted nodes
         else {
             if (value.depth == this.exactDepth) {

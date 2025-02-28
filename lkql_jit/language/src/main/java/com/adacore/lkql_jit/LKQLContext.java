@@ -35,12 +35,14 @@ import org.json.JSONTokener;
  * @author Hugo GUERRIER
  */
 public final class LKQLContext {
+
     private final LKQLLanguage language;
 
     // ----- Attributes -----
 
     /** Environment of the language. */
-    @CompilerDirectives.CompilationFinal private TruffleLanguage.Env env;
+    @CompilerDirectives.CompilationFinal
+    private TruffleLanguage.Env env;
 
     /** The global values of the LKQL execution. */
     private final GlobalScope global;
@@ -62,22 +64,23 @@ public final class LKQLContext {
     private Libadalang.ProjectManager projectManager;
 
     /** Event handler for the project manager. */
-    private final Libadalang.EventHandler eventHandler =
-            Libadalang.EventHandler.create(
-                    (ctx, name, from, found, notFoundIsError) -> {
-                        if (!found && notFoundIsError) {
-                            boolean isFatal = !this.keepGoingOnMissingFile();
-                            this.getDiagnosticEmitter()
-                                    .emitFileNotFound(
-                                            new LalLocationWrapper(from.getRoot(), this.linesCache),
-                                            name,
-                                            isFatal);
-                            if (isFatal) {
-                                this.env.getContext().closeExited(null, 1);
-                            }
-                        }
-                    },
-                    null);
+    private final Libadalang.EventHandler eventHandler = Libadalang.EventHandler.create(
+        (ctx, name, from, found, notFoundIsError) -> {
+            if (!found && notFoundIsError) {
+                boolean isFatal = !this.keepGoingOnMissingFile();
+                this.getDiagnosticEmitter()
+                    .emitFileNotFound(
+                        new LalLocationWrapper(from.getRoot(), this.linesCache),
+                        name,
+                        isFatal
+                    );
+                if (isFatal) {
+                    this.env.getContext().closeExited(null, 1);
+                }
+            }
+        },
+        null
+    );
 
     /**
      * The user-specified source files to analyze. If not explicitly specified, those will be the
@@ -129,7 +132,8 @@ public final class LKQLContext {
     // ----- Option caches -----
 
     /** Options object passed to the LKQL engine. */
-    @CompilerDirectives.CompilationFinal private LKQLOptions options = null;
+    @CompilerDirectives.CompilationFinal
+    private LKQLOptions options = null;
 
     /** The project's scenario variables. */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
@@ -140,7 +144,8 @@ public final class LKQLContext {
     private String[] ruleDirectories = null;
 
     /** Tool to emit diagnostics in the wanted format. */
-    @CompilerDirectives.CompilationFinal private CheckerUtils.DiagnosticEmitter emitter;
+    @CompilerDirectives.CompilationFinal
+    private CheckerUtils.DiagnosticEmitter emitter;
 
     // ----- Constructors -----
 
@@ -313,7 +318,8 @@ public final class LKQLContext {
             final var scenarioVarList = new ArrayList<Libadalang.ScenarioVariable>();
             for (var entry : this.getOptions().scenarioVariables().entrySet()) {
                 scenarioVarList.add(
-                        Libadalang.ScenarioVariable.create(entry.getKey(), entry.getValue()));
+                    Libadalang.ScenarioVariable.create(entry.getKey(), entry.getValue())
+                );
             }
             this.scenarioVars = scenarioVarList.toArray(new Libadalang.ScenarioVariable[0]);
         }
@@ -405,11 +411,10 @@ public final class LKQLContext {
     @CompilerDirectives.TruffleBoundary
     public CheckerUtils.DiagnosticEmitter getDiagnosticEmitter() {
         if (this.emitter == null) {
-            this.emitter =
-                    switch (this.getOptions().diagnosticOutputMode()) {
-                        case PRETTY -> new CheckerUtils.DefaultEmitter();
-                        case GNATCHECK -> new CheckerUtils.GNATcheckEmitter();
-                    };
+            this.emitter = switch (this.getOptions().diagnosticOutputMode()) {
+                case PRETTY -> new CheckerUtils.DefaultEmitter();
+                case GNATCHECK -> new CheckerUtils.GNATcheckEmitter();
+            };
         }
         return this.emitter;
     }
@@ -422,15 +427,14 @@ public final class LKQLContext {
         // Filter the Ada source file list
         String[] ignores = this.getIgnores();
         String[] usedSources =
-                this.specifiedSourceFiles.stream()
-                        .filter(
-                                source -> {
-                                    for (String ignore : ignores) {
-                                        if (source.contains(ignore)) return false;
-                                    }
-                                    return true;
-                                })
-                        .toArray(String[]::new);
+            this.specifiedSourceFiles.stream()
+                .filter(source -> {
+                    for (String ignore : ignores) {
+                        if (source.contains(ignore)) return false;
+                    }
+                    return true;
+                })
+                .toArray(String[]::new);
 
         // For each specified source file, store its corresponding analysis unit in the list of
         // specified units
@@ -470,7 +474,7 @@ public final class LKQLContext {
                     this.specifiedSourceFiles.add(sourceFile.getAbsolutePath());
                 } else {
                     this.getDiagnosticEmitter()
-                            .emitFileNotFound(null, file, !this.keepGoingOnMissingFile());
+                        .emitFileNotFound(null, file, !this.keepGoingOnMissingFile());
                 }
             }
         }
@@ -478,60 +482,66 @@ public final class LKQLContext {
         // Get the project file and use it if there is one
         final String projectFileName = this.getProjectFile();
         if (!projectFileName.isBlank()) {
-            this.projectManager =
-                    Libadalang.ProjectManager.create(
-                            projectFileName,
-                            this.getScenarioVars(),
-                            this.getTarget(),
-                            this.getRuntime(),
-                            this.getConfigFile(),
-                            true);
+            this.projectManager = Libadalang.ProjectManager.create(
+                projectFileName,
+                this.getScenarioVars(),
+                this.getTarget(),
+                this.getRuntime(),
+                this.getConfigFile(),
+                true
+            );
 
             // Forward the project diagnostics if there are some
             if (!this.projectManager.getDiagnostics().isEmpty()) {
                 this.getDiagnosticEmitter()
-                        .emitProjectErrors(
-                                new File(projectFileName).getName(),
-                                this.projectManager.getDiagnostics());
+                    .emitProjectErrors(
+                        new File(projectFileName).getName(),
+                        this.projectManager.getDiagnostics()
+                    );
             }
 
             // Get the subproject provided by the user
             final String[] subprojects =
-                    this.getOptions().subprojectFile().map(s -> new String[] {s}).orElse(null);
+                this.getOptions().subprojectFile().map(s -> new String[] { s }).orElse(null);
 
             // If no files were specified by the user, the files to analyze are those of the root
             // project (i.e. without recursing into project dependencies)
             if (this.specifiedSourceFiles.isEmpty()) {
                 this.specifiedSourceFiles.addAll(
                         Arrays.stream(
-                                        this.projectManager.getFiles(
-                                                Libadalang.SourceFileMode.ROOT_PROJECT,
-                                                subprojects))
-                                .toList());
+                            this.projectManager.getFiles(
+                                    Libadalang.SourceFileMode.ROOT_PROJECT,
+                                    subprojects
+                                )
+                        ).toList()
+                    );
             }
 
             // The `units()` built-in function must return all units of the project including units
             // from its dependencies. So let's retrieve all those files as well.
             this.allSourceFiles.addAll(
                     Arrays.stream(
-                                    this.projectManager.getFiles(
-                                            Libadalang.SourceFileMode.WHOLE_PROJECT, subprojects))
-                            .toList());
+                        this.projectManager.getFiles(
+                                Libadalang.SourceFileMode.WHOLE_PROJECT,
+                                subprojects
+                            )
+                    ).toList()
+                );
 
-            this.adaContext =
-                    this.projectManager.createContext(
-                            this.getOptions().subprojectFile().orElse(null),
-                            this.eventHandler,
-                            true,
-                            8);
+            this.adaContext = this.projectManager.createContext(
+                    this.getOptions().subprojectFile().orElse(null),
+                    this.eventHandler,
+                    true,
+                    8
+                );
         }
-
         // Else, either load the implicit project.
         else {
             // We should not get any scenario variable if we are being run without a project file.
             if (this.getScenarioVars().length != 0) {
                 throw LKQLRuntimeException.fromMessage(
-                        "Scenario variable specifications require a project file");
+                    "Scenario variable specifications require a project file"
+                );
             }
 
             // If the option is the empty string, the language implementation will end up setting it
@@ -539,20 +549,28 @@ public final class LKQLContext {
             String charset = this.getOptions().charset().orElse("");
 
             // Load the implicit project
-            this.projectManager =
-                    Libadalang.ProjectManager.createImplicit(
-                            this.getTarget(), this.getRuntime(), this.getConfigFile(), true);
+            this.projectManager = Libadalang.ProjectManager.createImplicit(
+                this.getTarget(),
+                this.getRuntime(),
+                this.getConfigFile(),
+                true
+            );
             this.allSourceFiles.addAll(
                     Arrays.stream(
-                                    this.projectManager.getFiles(
-                                            Libadalang.SourceFileMode.WHOLE_PROJECT))
-                            .toList());
+                        this.projectManager.getFiles(Libadalang.SourceFileMode.WHOLE_PROJECT)
+                    ).toList()
+                );
             final Libadalang.UnitProvider provider = this.projectManager.getProvider();
 
             // Create the ada context and store it in the LKQL context
-            this.adaContext =
-                    Libadalang.AnalysisContext.create(
-                            charset, null, provider, this.eventHandler, true, 8);
+            this.adaContext = Libadalang.AnalysisContext.create(
+                charset,
+                null,
+                provider,
+                this.eventHandler,
+                true,
+                8
+            );
 
             // In the absence of a project file, we consider for now that there are no configuration
             // pragmas.
@@ -576,7 +594,7 @@ public final class LKQLContext {
     @CompilerDirectives.TruffleBoundary
     public Object getRuleArg(String instanceId, String argName) {
         final Map<String, Object> instanceArgs =
-                this.instancesArgsCache.getOrDefault(instanceId, new HashMap<>());
+            this.instancesArgsCache.getOrDefault(instanceId, new HashMap<>());
 
         // If an argument is not already in the argument values cache, get its source from the
         // registered instances and evaluate it if some.
@@ -588,23 +606,27 @@ public final class LKQLContext {
                 argValue = null;
             } else {
                 try (var context = Liblkqllang.AnalysisContext.create()) {
-                    var unit =
-                            context.getUnitFromBuffer(
-                                    argSource,
-                                    "<rule_arg>",
-                                    null,
-                                    Liblkqllang.GrammarRule.EXPR_RULE);
+                    var unit = context.getUnitFromBuffer(
+                        argSource,
+                        "<rule_arg>",
+                        null,
+                        Liblkqllang.GrammarRule.EXPR_RULE
+                    );
                     var root = unit.getRoot();
-                    var source =
-                            Source.newBuilder(Constants.LKQL_ID, argSource, "<rule_arg>").build();
+                    var source = Source.newBuilder(
+                        Constants.LKQL_ID,
+                        argSource,
+                        "<rule_arg>"
+                    ).build();
                     var node = language.translate(root, source);
                     argValue = node.executeGeneric(null);
                 } catch (Exception e) {
                     throw LKQLRuntimeException.fromMessage(
-                            "Rule argument value generated an "
-                                    + "interpreter error: '"
-                                    + argSource
-                                    + "'");
+                        "Rule argument value generated an " +
+                        "interpreter error: '" +
+                        argSource +
+                        "'"
+                    );
                 }
             }
             instanceArgs.put(argName, argValue);
@@ -675,17 +697,19 @@ public final class LKQLContext {
         final Map<String, BaseChecker> allCheckers = this.global.getCheckers();
 
         // Lambda to dispatch checkers in the correct lists
-        final BiConsumer<BaseChecker, List<NodeChecker>> dispatchChecker =
-                (checker, nodeCheckers) -> {
-                    if (checker instanceof NodeChecker nodeChecker) {
-                        nodeCheckers.add(nodeChecker);
-                        if (nodeChecker.isFollowGenericInstantiations()) {
-                            needsToFollowInstantiations = true;
-                        }
-                    } else {
-                        unitCheckers.add((UnitChecker) checker);
-                    }
-                };
+        final BiConsumer<BaseChecker, List<NodeChecker>> dispatchChecker = (
+            checker,
+            nodeCheckers
+        ) -> {
+            if (checker instanceof NodeChecker nodeChecker) {
+                nodeCheckers.add(nodeChecker);
+                if (nodeChecker.isFollowGenericInstantiations()) {
+                    needsToFollowInstantiations = true;
+                }
+            } else {
+                unitCheckers.add((UnitChecker) checker);
+            }
+        };
 
         // If there are no required instance, check if we have to fall back on all checkers
         if (this.getRuleInstances().isEmpty() && this.getOptions().fallbackToAllRules()) {
@@ -693,11 +717,10 @@ public final class LKQLContext {
                 dispatchChecker.accept(checker, generalNodeCheckers);
             }
         }
-
         // Iterate over all rule instance to create the checker lists
         else {
-            for (Map.Entry<String, RuleInstance> instanceEntry :
-                    this.getRuleInstances().entrySet()) {
+            for (Map.Entry<String, RuleInstance> instanceEntry : this.getRuleInstances()
+                .entrySet()) {
                 final RuleInstance instance = instanceEntry.getValue();
 
                 // Get the checker associated to the rule instance
@@ -706,15 +729,17 @@ public final class LKQLContext {
                 // Verify that the instantiated rule exists
                 if (checker == null) {
                     throw LKQLRuntimeException.fromMessage(
-                            "Could not find any rule named " + instance.ruleName());
+                        "Could not find any rule named " + instance.ruleName()
+                    );
                 }
 
                 // If the engine is in "fixer" mode, check that the rule has an auto-fixing function
                 if (getEngineMode() == LKQLOptions.EngineMode.FIXER && checker.autoFix == null) {
                     throw LKQLRuntimeException.fromMessage(
-                            "Rule \""
-                                    + instance.ruleName()
-                                    + "\" is not defining any auto-fixing function");
+                        "Rule \"" +
+                        instance.ruleName() +
+                        "\" is not defining any auto-fixing function"
+                    );
                 }
 
                 // If the instance has a custom name, close the checker and set the alias name

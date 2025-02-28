@@ -47,8 +47,9 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization
     protected boolean neqUnit(
-            @SuppressWarnings("unused") final LKQLUnit left,
-            @SuppressWarnings("unused") final LKQLUnit right) {
+        @SuppressWarnings("unused") final LKQLUnit left,
+        @SuppressWarnings("unused") final LKQLUnit right
+    ) {
         return false;
     }
 
@@ -97,10 +98,11 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean neqPatterns(
-            final LKQLPattern left,
-            final LKQLPattern right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLPattern left,
+        final LKQLPattern right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -113,10 +115,11 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean neqFunctions(
-            final LKQLFunction left,
-            final LKQLFunction right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLFunction left,
+        final LKQLFunction right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -129,10 +132,11 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean neqPropertyRefs(
-            final LKQLProperty left,
-            final LKQLProperty right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLProperty left,
+        final LKQLProperty right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -145,10 +149,11 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean neqSelectors(
-            final LKQLSelector left,
-            final LKQLSelector right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLSelector left,
+        final LKQLSelector right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -161,10 +166,11 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean neqTuples(
-            final LKQLTuple left,
-            final LKQLTuple right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLTuple left,
+        final LKQLTuple right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -177,10 +183,11 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean neqLists(
-            final LKQLList left,
-            final LKQLList right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLList left,
+        final LKQLList right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -223,7 +230,9 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization
     protected boolean neqAnalysisUnits(
-            Libadalang.AnalysisUnit left, Libadalang.AnalysisUnit right) {
+        Libadalang.AnalysisUnit left,
+        Libadalang.AnalysisUnit right
+    ) {
         return !left.equals(right);
     }
 
@@ -248,10 +257,11 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean neqObjects(
-            final LKQLObject left,
-            final LKQLObject right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLObject left,
+        final LKQLObject right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -264,10 +274,11 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean neqNamespaces(
-            final LKQLNamespace left,
-            final LKQLNamespace right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLNamespace left,
+        final LKQLNamespace right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -280,7 +291,9 @@ public abstract class BinNeq extends BinOp {
      */
     @Fallback
     protected boolean neqNotComparable(
-            @SuppressWarnings("unused") Object left, @SuppressWarnings("unused") Object right) {
+        @SuppressWarnings("unused") Object left,
+        @SuppressWarnings("unused") Object right
+    ) {
         return true;
     }
 

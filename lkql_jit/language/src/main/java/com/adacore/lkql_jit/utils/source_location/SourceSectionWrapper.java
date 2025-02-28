@@ -80,6 +80,6 @@ public class SourceSectionWrapper implements SourceLocation {
 
     @Override
     public String toString() {
-        return "<SourceSection " + display() + ":" + endLine() + ":" + endColumn() + ">";
+        return ("<SourceSection " + display() + ":" + endLine() + ":" + endColumn() + ">");
     }
 }

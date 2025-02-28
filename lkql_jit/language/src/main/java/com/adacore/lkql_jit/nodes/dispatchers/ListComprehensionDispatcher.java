@@ -40,9 +40,10 @@ public abstract class ListComprehensionDispatcher extends Node {
      */
     @Specialization(guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()")
     protected static Object executeCached(
-            @SuppressWarnings("unused") ListComprehensionRootNode rootNode,
-            Object[] arguments,
-            @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode) {
+        @SuppressWarnings("unused") ListComprehensionRootNode rootNode,
+        Object[] arguments,
+        @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode
+    ) {
         return directCallNode.call(arguments);
     }
 
@@ -56,9 +57,10 @@ public abstract class ListComprehensionDispatcher extends Node {
      */
     @Specialization(replaces = "executeCached")
     protected static Object executeUncached(
-            ListComprehensionRootNode rootNode,
-            Object[] arguments,
-            @Cached IndirectCallNode indirectCallNode) {
+        ListComprehensionRootNode rootNode,
+        Object[] arguments,
+        @Cached IndirectCallNode indirectCallNode
+    ) {
         return indirectCallNode.call(rootNode.getRealCallTarget(), arguments);
     }
 

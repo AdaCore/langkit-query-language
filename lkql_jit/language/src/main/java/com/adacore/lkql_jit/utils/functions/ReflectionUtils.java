@@ -49,16 +49,16 @@ public final class ReflectionUtils {
                     resString = LKQLTypeSystemGen.expectString(res);
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.LKQL_STRING,
-                            LKQLTypesHelper.fromJava(e.getResult()),
-                            argument);
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        argument
+                    );
                 }
                 res = Libadalang.Symbol.create(resString);
             } catch (Libadalang.SymbolException e) {
                 throw LKQLRuntimeException.fromMessage(e.getMessage());
             }
         }
-
         // If the required type is a unit array
         else if (type.equals(Libadalang.AnalysisUnit[].class)) {
             LKQLList resList;
@@ -66,9 +66,10 @@ public final class ReflectionUtils {
                 resList = LKQLTypeSystemGen.expectLKQLList(res);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_LIST,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        argument);
+                    LKQLTypesHelper.LKQL_LIST,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    argument
+                );
             }
             Libadalang.AnalysisUnit[] resArray = new Libadalang.AnalysisUnit[(int) resList.size()];
             for (int i = 0; i < resList.size(); i++) {
@@ -76,9 +77,10 @@ public final class ReflectionUtils {
                     resArray[i] = LKQLTypeSystemGen.expectAnalysisUnit(resList.get(i));
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.ANALYSIS_UNIT,
-                            LKQLTypesHelper.fromJava(e.getResult()),
-                            argument);
+                        LKQLTypesHelper.ANALYSIS_UNIT,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        argument
+                    );
                 }
             }
             res = resArray;
@@ -100,16 +102,19 @@ public final class ReflectionUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static Object callProperty(
-            Libadalang.AdaNode node,
-            Libadalang.Reflection.Field fieldDescription,
-            Node caller,
-            ArgList argList,
-            Object... arguments)
-            throws LangkitException, UnsupportedTypeException {
+        Libadalang.AdaNode node,
+        Libadalang.Reflection.Field fieldDescription,
+        Node caller,
+        ArgList argList,
+        Object... arguments
+    ) throws LangkitException, UnsupportedTypeException {
         // Verify if there is more arguments than params
         if (arguments.length > fieldDescription.params.size()) {
             throw LKQLRuntimeException.wrongArity(
-                    fieldDescription.params.size(), arguments.length, argList);
+                fieldDescription.params.size(),
+                arguments.length,
+                argList
+            );
         }
 
         Object[] refinedArgs = new Object[fieldDescription.params.size()];
@@ -118,40 +123,52 @@ public final class ReflectionUtils {
             for (int i = 0; i < refinedArgs.length; i++) {
                 Libadalang.Reflection.Param currentParam = fieldDescription.params.get(i);
                 if (i < arguments.length) {
-                    refinedArgs[i] =
-                            refineArgument(arguments[i], currentParam.type, argList.getArgs()[i]);
+                    refinedArgs[i] = refineArgument(
+                        arguments[i],
+                        currentParam.type,
+                        argList.getArgs()[i]
+                    );
                 } else {
                     if (currentParam.defaultValue.isPresent()) {
                         refinedArgs[i] = currentParam.defaultValue.get();
                     } else {
                         throw LKQLRuntimeException.wrongArity(
-                                fieldDescription.params.size(), arguments.length, argList);
+                            fieldDescription.params.size(),
+                            arguments.length,
+                            argList
+                        );
                     }
                 }
             }
 
             // Call the method
             return LKQLTypesHelper.toLKQLValue(
-                    fieldDescription.javaMethod.invoke(node, refinedArgs));
+                fieldDescription.javaMethod.invoke(node, refinedArgs)
+            );
         } catch (IllegalArgumentException e) {
             // Explore the argument types
             for (int i = 0; i < refinedArgs.length; i++) {
                 if (!fieldDescription.params.get(i).type.isInstance(refinedArgs[i])) {
                     throw LKQLRuntimeException.conversionError(
-                            LKQLTypesHelper.fromJava(refinedArgs[i]),
-                            LKQLTypesHelper.debugName(fieldDescription.params.get(i).type),
-                            caller);
+                        LKQLTypesHelper.fromJava(refinedArgs[i]),
+                        LKQLTypesHelper.debugName(fieldDescription.params.get(i).type),
+                        caller
+                    );
                 }
             }
 
             // Throw a default exception
             throw LKQLRuntimeException.fromMessage(
-                    "Invalid argument type, but cannot find which", argList);
+                "Invalid argument type, but cannot find which",
+                argList
+            );
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
             if (targetException instanceof Libadalang.LangkitException langkitException) {
                 throw new LangkitException(
-                        langkitException.getMessage(), caller.getSourceSection());
+                    langkitException.getMessage(),
+                    caller.getSourceSection()
+                );
             } else if (targetException instanceof Error error) {
                 // Forward fatal errors without wrapping them in LKQLRuntimeExceptions: those
                 // shouldn't

@@ -26,39 +26,49 @@ public abstract class RewritingNodeConverter extends Node {
      * @param usageLocation The location of the conversion in the LKQL sources.
      */
     public abstract Libadalang.RewritingNode execute(
-            Object value, boolean ensureUntied, Node usageLocation);
+        Object value,
+        boolean ensureUntied,
+        Node usageLocation
+    );
 
     @Specialization
     protected Libadalang.RewritingNode onNull(
-            @SuppressWarnings("unused") LKQLNull nullValue,
-            @SuppressWarnings("unused") boolean ensureUntied,
-            @SuppressWarnings("unused") Node usageLocation) {
+        @SuppressWarnings("unused") LKQLNull nullValue,
+        @SuppressWarnings("unused") boolean ensureUntied,
+        @SuppressWarnings("unused") Node usageLocation
+    ) {
         return Libadalang.RewritingNode.NONE;
     }
 
     @Specialization(guards = "!node.isNone()")
     protected Libadalang.RewritingNode onAdaNode(
-            Libadalang.AdaNode node,
-            boolean ensureUntied,
-            @SuppressWarnings("unused") Node usageLocation) {
+        Libadalang.AdaNode node,
+        boolean ensureUntied,
+        @SuppressWarnings("unused") Node usageLocation
+    ) {
         final var res = node.getRewritingNode();
         return ensureUntied && res.isTied() ? res.clone() : res;
     }
 
     @Specialization
     protected Libadalang.RewritingNode onRewritingNode(
-            Libadalang.RewritingNode node,
-            boolean ensureUntied,
-            @SuppressWarnings("unused") Node usageLocation) {
+        Libadalang.RewritingNode node,
+        boolean ensureUntied,
+        @SuppressWarnings("unused") Node usageLocation
+    ) {
         return ensureUntied && node.isTied() ? node.clone() : node;
     }
 
     @Fallback
     protected Libadalang.RewritingNode notNode(
-            Object other, boolean ensureUntied, Node usageLocation) {
+        Object other,
+        boolean ensureUntied,
+        Node usageLocation
+    ) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.typeUnion(LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.REWRITING_NODE),
-                LKQLTypesHelper.fromJava(other),
-                usageLocation);
+            LKQLTypesHelper.typeUnion(LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.REWRITING_NODE),
+            LKQLTypesHelper.fromJava(other),
+            usageLocation
+        );
     }
 }

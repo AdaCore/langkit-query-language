@@ -43,6 +43,7 @@ public final class LKQLDepthValue extends BasicLKQLValue {
     /** Exported message to compare two LKQL depth nodes. */
     @ExportMessage
     public static class IsIdenticalOrUndefined {
+
         /** Compare two LKQL depth nodes. */
         @Specialization
         @CompilerDirectives.TruffleBoundary
@@ -53,8 +54,9 @@ public final class LKQLDepthValue extends BasicLKQLValue {
         /** Do the comparison with another element. */
         @Fallback
         protected static TriState onOther(
-                @SuppressWarnings("unused") final LKQLDepthValue receiver,
-                @SuppressWarnings("unused") final Object other) {
+            @SuppressWarnings("unused") final LKQLDepthValue receiver,
+            @SuppressWarnings("unused") final Object other
+        ) {
             return TriState.UNDEFINED;
         }
     }

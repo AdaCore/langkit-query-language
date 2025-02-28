@@ -47,8 +47,9 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization
     protected boolean eqUnit(
-            @SuppressWarnings("unused") final LKQLUnit left,
-            @SuppressWarnings("unused") final LKQLUnit right) {
+        @SuppressWarnings("unused") final LKQLUnit left,
+        @SuppressWarnings("unused") final LKQLUnit right
+    ) {
         return true;
     }
 
@@ -97,10 +98,11 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqPatterns(
-            final LKQLPattern left,
-            final LKQLPattern right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLPattern left,
+        final LKQLPattern right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -113,10 +115,11 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqFunctions(
-            final LKQLFunction left,
-            final LKQLFunction right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLFunction left,
+        final LKQLFunction right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -129,10 +132,11 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqPropertyRefs(
-            final LKQLProperty left,
-            final LKQLProperty right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLProperty left,
+        final LKQLProperty right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -145,10 +149,11 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqSelectors(
-            final LKQLSelector left,
-            final LKQLSelector right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLSelector left,
+        final LKQLSelector right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -161,10 +166,11 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqTuples(
-            final LKQLTuple left,
-            final LKQLTuple right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLTuple left,
+        final LKQLTuple right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -177,10 +183,11 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqLists(
-            final LKQLList left,
-            final LKQLList right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLList left,
+        final LKQLList right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -235,10 +242,11 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqObjects(
-            final LKQLObject left,
-            final LKQLObject right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLObject left,
+        final LKQLObject right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -251,10 +259,11 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqNamespaces(
-            final LKQLNamespace left,
-            final LKQLNamespace right,
-            @CachedLibrary("left") InteropLibrary leftLibrary,
-            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        final LKQLNamespace left,
+        final LKQLNamespace right,
+        @CachedLibrary("left") InteropLibrary leftLibrary,
+        @CachedLibrary("right") InteropLibrary rightLibrary
+    ) {
         return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
@@ -279,7 +288,9 @@ public abstract class BinEq extends BinOp {
      */
     @Fallback
     protected boolean eqNotComparable(
-            @SuppressWarnings("unused") Object left, @SuppressWarnings("unused") Object right) {
+        @SuppressWarnings("unused") Object left,
+        @SuppressWarnings("unused") Object right
+    ) {
         return false;
     }
 

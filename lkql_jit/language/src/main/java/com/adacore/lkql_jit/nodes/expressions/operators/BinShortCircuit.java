@@ -70,9 +70,10 @@ public abstract class BinShortCircuit extends Expr {
             leftValue = this.left.executeTruthy(frame).isTruthy();
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.left);
+                LKQLTypesHelper.LKQL_BOOLEAN,
+                LKQLTypesHelper.fromJava(e.getResult()),
+                this.left
+            );
         }
 
         // Execute the right value if needed
@@ -82,9 +83,10 @@ public abstract class BinShortCircuit extends Expr {
                 rightValue = this.right.executeTruthy(frame).isTruthy();
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.right);
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.right
+                );
             }
         }
 

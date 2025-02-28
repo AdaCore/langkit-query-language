@@ -52,15 +52,17 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
     /** Exported message to compare two lists. */
     @ExportMessage
     public static class IsIdenticalOrUndefined {
+
         /** Compare two LKQL lists. */
         @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
         public static TriState onList(
-                final BaseLKQLList left,
-                final BaseLKQLList right,
-                @CachedLibrary("left") InteropLibrary lefts,
-                @CachedLibrary("right") InteropLibrary rights,
-                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
-                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems) {
+            final BaseLKQLList left,
+            final BaseLKQLList right,
+            @CachedLibrary("left") InteropLibrary lefts,
+            @CachedLibrary("right") InteropLibrary rights,
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems
+        ) {
             try {
                 // Get the left list size and compare it with the right list
                 long size = lefts.getArraySize(left);
@@ -71,8 +73,9 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
                     Object leftElem = lefts.readArrayElement(left, i);
                     Object rightElem = rights.readArrayElement(right, i);
                     if (leftElems.hasIdentity(leftElem)) {
-                        if (!leftElems.isIdentical(leftElem, rightElem, rightElems))
-                            return TriState.FALSE;
+                        if (
+                            !leftElems.isIdentical(leftElem, rightElem, rightElems)
+                        ) return TriState.FALSE;
                     } else {
                         if (!ObjectUtils.equals(leftElem, rightElem)) return TriState.FALSE;
                     }
@@ -88,8 +91,9 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
         /** Do the comparison with another element. */
         @Fallback
         public static TriState onOther(
-                @SuppressWarnings("unused") final BaseLKQLList receiver,
-                @SuppressWarnings("unused") final Object other) {
+            @SuppressWarnings("unused") final BaseLKQLList receiver,
+            @SuppressWarnings("unused") final Object other
+        ) {
             return TriState.UNDEFINED;
         }
     }
@@ -97,9 +101,10 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
     /** Get the identity hash code for the given LKQL list */
     @ExportMessage
     public static int identityHashCode(
-            BaseLKQLList receiver,
-            @CachedLibrary("receiver") InteropLibrary receivers,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems) {
+        BaseLKQLList receiver,
+        @CachedLibrary("receiver") InteropLibrary receivers,
+        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems
+    ) {
         return arrayValueHashCode(receiver, receivers, elems);
     }
 
@@ -107,8 +112,9 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
     @CompilerDirectives.TruffleBoundary
     @ExportMessage
     public Object toDisplayString(
-            @SuppressWarnings("unused") final boolean allowSideEffect,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems) {
+        @SuppressWarnings("unused") final boolean allowSideEffect,
+        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems
+    ) {
         // Prepare the result
         StringBuilder resultBuilder = new StringBuilder("[");
 

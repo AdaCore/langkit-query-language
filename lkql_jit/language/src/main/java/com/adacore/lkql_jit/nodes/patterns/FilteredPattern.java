@@ -60,9 +60,10 @@ public final class FilteredPattern extends BasePattern {
                 return this.predicate.executeTruthy(frame).isTruthy();
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.predicate);
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.predicate
+                );
             }
         }
 

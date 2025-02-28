@@ -42,10 +42,12 @@ public interface SourceLocation {
     }
 
     public default String display(boolean gnuFormat) {
-        return fileName()
-                + ":"
-                + startLine()
-                + ":"
-                + (gnuFormat ? String.format("%02d", startColumn()) : startColumn());
+        return (
+            fileName() +
+            ":" +
+            startLine() +
+            ":" +
+            (gnuFormat ? String.format("%02d", startColumn()) : startColumn())
+        );
     }
 }

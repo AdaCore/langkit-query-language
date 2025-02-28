@@ -51,8 +51,9 @@ public abstract class BaseDotAccess extends Expr {
     protected BuiltInMethodValue getBuiltIn(Object receiver) {
         // Get the LKQL context
         LKQLContext context = LKQLLanguage.getContext(this);
-        Map<String, BuiltInMethodFactory> metaTable =
-                context.getGlobal().getMetaTable(LKQLTypesHelper.fromJava(receiver));
+        Map<String, BuiltInMethodFactory> metaTable = context
+            .getGlobal()
+            .getMetaTable(LKQLTypesHelper.fromJava(receiver));
 
         // Return the built-in method or null
         if (metaTable.containsKey(this.member.getName())) {
@@ -70,6 +71,9 @@ public abstract class BaseDotAccess extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"member"}, new Object[] {this.member});
+                indentLevel,
+                new String[] { "member" },
+                new Object[] { this.member }
+            );
     }
 }

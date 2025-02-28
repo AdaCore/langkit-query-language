@@ -66,7 +66,8 @@ public abstract class BasicLKQLValue implements LKQLValue {
             return thisUncachedLibrary.identityHashCode(this);
         } catch (UnsupportedMessageException e) {
             throw LKQLRuntimeException.shouldNotHappen(
-                    "All LKQL values must export an 'identityHashCode' message");
+                "All LKQL values must export an 'identityHashCode' message"
+            );
         }
     }
 }

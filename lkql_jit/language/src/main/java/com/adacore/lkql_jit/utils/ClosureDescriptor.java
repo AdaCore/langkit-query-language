@@ -39,10 +39,11 @@ public final class ClosureDescriptor {
      * @param closingClosures Closure values to enclose.
      */
     public ClosureDescriptor(
-            final int closureSize,
-            final Map<Integer, Integer> closingLocals,
-            final Map<Integer, Integer> closingParameters,
-            final Map<Integer, Integer> closingClosures) {
+        final int closureSize,
+        final Map<Integer, Integer> closingLocals,
+        final Map<Integer, Integer> closingParameters,
+        final Map<Integer, Integer> closingClosures
+    ) {
         this.closureSize = closureSize;
         this.closingLocals = closingLocals;
         this.closingParameters = closingParameters;

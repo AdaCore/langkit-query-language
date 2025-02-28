@@ -42,10 +42,12 @@ import java.util.Map;
 public class BuiltInFunctions {
 
     @BuiltInFunction(
-            name = "unique",
-            doc = "Given a collection, create a list with all duplicates removed")
+        name = "unique",
+        doc = "Given a collection, create a list with all duplicates removed"
+    )
     @BuiltInMethod(targetTypes = LKQLTypesHelper.LKQL_LIST, isProperty = true)
     abstract static class UniqueExpr extends BuiltInBody {
+
         @Specialization
         protected LKQLList onIndexable(Indexable indexable) {
             return new LKQLList(ArrayUtils.unique(indexable.getContent()).toArray(new Object[0]));
@@ -53,9 +55,11 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(
-            name = "pattern",
-            doc = "Given a regex pattern string, create a pattern object")
+        name = "pattern",
+        doc = "Given a regex pattern string, create a pattern object"
+    )
     abstract static class PatternExpr extends BuiltInBody {
+
         @Specialization
         protected LKQLPattern onValidArgs(String regex, @DefaultVal("true") boolean caseSensitive) {
             return new LKQLPattern(getCallNode(), regex, caseSensitive);
@@ -66,17 +70,21 @@ public class BuiltInFunctions {
     @BuiltInFunction(name = "print", doc = "Built-in print function. Prints the argument")
     @BuiltInMethod(isProperty = true)
     abstract static class PrintExpr extends BuiltInBody {
+
         @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
         protected LKQLUnit onBoolean(
-                Object toPrint,
-                @DefaultVal("true") boolean newLine,
-                @CachedLibrary("toPrint") InteropLibrary printingLibrary) {
+            Object toPrint,
+            @DefaultVal("true") boolean newLine,
+            @CachedLibrary("toPrint") InteropLibrary printingLibrary
+        ) {
             if (newLine) {
-                LKQLLanguage.getContext(null)
-                        .println((String) printingLibrary.toDisplayString(toPrint));
+                LKQLLanguage.getContext(null).println(
+                    (String) printingLibrary.toDisplayString(toPrint)
+                );
             } else {
-                LKQLLanguage.getContext(null)
-                        .print((String) printingLibrary.toDisplayString(toPrint));
+                LKQLLanguage.getContext(null).print(
+                    (String) printingLibrary.toDisplayString(toPrint)
+                );
             }
             return LKQLUnit.INSTANCE;
         }
@@ -85,6 +93,7 @@ public class BuiltInFunctions {
     @BuiltInFunction(name = "img", doc = "Return a string representation of an object")
     @BuiltInMethod(isProperty = true)
     abstract static class ImgExpr extends BuiltInBody {
+
         @Specialization
         protected String onString(String string) {
             return StringUtils.toRepr(string);
@@ -97,10 +106,12 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(
-            name = "doc",
-            doc = "Given any object, return the documentation associated with it")
+        name = "doc",
+        doc = "Given any object, return the documentation associated with it"
+    )
     @BuiltInMethod(isProperty = true)
     abstract static class DocExpr extends BuiltInBody {
+
         @Specialization
         protected String onLKQLValue(LKQLValue value) {
             return value.lkqlDocumentation();
@@ -113,37 +124,41 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(
-            name = "reduce",
-            doc =
-                    "Given a collection, a reduction function, and an initial value reduce the"
-                            + " result")
+        name = "reduce",
+        doc = "Given a collection, a reduction function, and an initial value reduce the" +
+        " result"
+    )
     @BuiltInMethod(
-            targetTypes = {
-                LKQLTypesHelper.LKQL_SELECTOR_LIST,
-                LKQLTypesHelper.LKQL_LAZY_LIST,
-                LKQLTypesHelper.LKQL_LIST
-            })
+        targetTypes = {
+            LKQLTypesHelper.LKQL_SELECTOR_LIST,
+            LKQLTypesHelper.LKQL_LAZY_LIST,
+            LKQLTypesHelper.LKQL_LIST,
+        }
+    )
     abstract static class ReduceExpr extends BuiltInBody {
+
         @Specialization(
-                limit = Constants.SPECIALIZED_LIB_LIMIT,
-                guards = "function.parameterNames.length == 2")
+            limit = Constants.SPECIALIZED_LIB_LIMIT,
+            guards = "function.parameterNames.length == 2"
+        )
         protected Object onValidArgs(
-                Iterable iterable,
-                LKQLFunction function,
-                Object initValue,
-                @CachedLibrary("function") InteropLibrary functionLibrary) {
+            Iterable iterable,
+            LKQLFunction function,
+            Object initValue,
+            @CachedLibrary("function") InteropLibrary functionLibrary
+        ) {
             Iterator iterator = iterable.iterator();
             while (iterator.hasNext()) {
                 try {
-                    initValue =
-                            functionLibrary.execute(
-                                    function,
-                                    function.closure.getContent(),
-                                    initValue,
-                                    iterator.next());
-                } catch (ArityException
-                        | UnsupportedTypeException
-                        | UnsupportedMessageException e) {
+                    initValue = functionLibrary.execute(
+                        function,
+                        function.closure.getContent(),
+                        initValue,
+                        iterator.next()
+                    );
+                } catch (
+                    ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                ) {
                     // TODO: Implement runtime checks in the LKQLFunction class and base computing
                     // on them (#138)
                     throw LKQLRuntimeException.fromJavaException(e, argNode(1));
@@ -154,9 +169,11 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(
-            name = "document_builtins",
-            doc = "Return a string in the RsT format containing documentation for all built-ins")
+        name = "document_builtins",
+        doc = "Return a string in the RsT format containing documentation for all built-ins"
+    )
     abstract static class DocumentBuiltinsExpr extends BuiltInBody {
+
         @CompilerDirectives.TruffleBoundary
         @Specialization
         public static String exec() {
@@ -174,10 +191,9 @@ public class BuiltInFunctions {
                     writer.write(func.getName());
                     writer.write("(" + String.join(", ", func.parameterNames) + ")");
                     writer.write("\n\n");
-                    writer.withIndent(
-                            () -> {
-                                writer.write(func.documentation);
-                            });
+                    writer.withIndent(() -> {
+                        writer.write(func.documentation);
+                    });
                     writer.write("\n");
                     writer.write("\n");
                 }
@@ -186,18 +202,21 @@ public class BuiltInFunctions {
                 writer.write("^^^^^^^^^^^^^^^\n");
                 writer.write("\n");
 
-                var sortedBuiltinMethods =
-                        new java.util.ArrayList<>(
-                                AllBuiltIns.allMethods().entrySet().stream()
-                                        .sorted(Map.Entry.comparingByKey())
-                                        .toList());
+                var sortedBuiltinMethods = new java.util.ArrayList<>(
+                    AllBuiltIns.allMethods()
+                        .entrySet()
+                        .stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .toList()
+                );
 
                 for (var entry : sortedBuiltinMethods) {
-
-                    var methods =
-                            entry.getValue().entrySet().stream()
-                                    .sorted(Map.Entry.comparingByKey())
-                                    .toList();
+                    var methods = entry
+                        .getValue()
+                        .entrySet()
+                        .stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .toList();
 
                     // Skip type if there are no methods to document
                     if (methods.size() == 0) {
@@ -213,17 +232,17 @@ public class BuiltInFunctions {
                         writer.write(".. method:: ");
                         writer.write(typeName + "." + method.getKey());
                         writer.write(
-                                "("
-                                        + String.join(
-                                                ", ",
-                                                Arrays.stream(method.getValue().paramNames)
-                                                        .toArray(String[]::new))
-                                        + ")");
+                            "(" +
+                            String.join(
+                                ", ",
+                                Arrays.stream(method.getValue().paramNames).toArray(String[]::new)
+                            ) +
+                            ")"
+                        );
                         writer.write("\n\n");
-                        writer.withIndent(
-                                () -> {
-                                    writer.write(method.getValue().documentation);
-                                });
+                        writer.withIndent(() -> {
+                            writer.write(method.getValue().documentation);
+                        });
                         writer.write("\n");
                         writer.write("\n");
                     }
@@ -237,12 +256,12 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(
-            name = "base_name",
-            doc = "Given a string that represents a file name, returns the basename")
-    @BuiltInMethod(
-            targetTypes = {LKQLTypesHelper.LKQL_STRING},
-            isProperty = true)
+        name = "base_name",
+        doc = "Given a string that represents a file name, returns the basename"
+    )
+    @BuiltInMethod(targetTypes = { LKQLTypesHelper.LKQL_STRING }, isProperty = true)
     abstract static class BaseNameExpr extends BuiltInBody {
+
         @Specialization
         protected String executeOnString(String fileName) {
             return FileUtils.baseName(fileName);
@@ -250,8 +269,9 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(
-            name = "concat",
-            doc = "Given a list of lists or strings, return a concatenated list or string")
+        name = "concat",
+        doc = "Given a list of lists or strings, return a concatenated list or string"
+    )
     abstract static class ConcatExpr extends BuiltInBody {
 
         protected static boolean isString(Object o) {
@@ -262,7 +282,7 @@ public class BuiltInFunctions {
             return LKQLTypeSystemGen.isLKQLList(o);
         }
 
-        @Specialization(guards = {"list.size() > 0", "isString(list.get(0))"})
+        @Specialization(guards = { "list.size() > 0", "isString(list.get(0))" })
         protected String onListOfStrings(LKQLList list) {
             // Create a string builder and add all strings in the list
             String result = LKQLTypeSystemGen.asString(list.get(0));
@@ -276,7 +296,7 @@ public class BuiltInFunctions {
             return result;
         }
 
-        @Specialization(guards = {"list.size() > 0", "isList(list.get(0))"})
+        @Specialization(guards = { "list.size() > 0", "isList(list.get(0))" })
         protected LKQLList onListOfLists(LKQLList list) {
             Object[] result = LKQLTypeSystemGen.asLKQLList(list.get(0)).getContent();
             for (int i = 1; i < list.size(); i++) {
@@ -292,15 +312,16 @@ public class BuiltInFunctions {
         @Specialization(guards = "notValidElem.size() > 0")
         @CompilerDirectives.TruffleBoundary
         protected LKQLList invalidElemType(
-                @SuppressWarnings("unused") LKQLList notValidElem,
-                @Cached("notValidElem.get(0)") Object elem) {
+            @SuppressWarnings("unused") LKQLList notValidElem,
+            @Cached("notValidElem.get(0)") Object elem
+        ) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_LIST
-                            + " of "
-                            + LKQLTypesHelper.typeUnion(
-                                    LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
-                    LKQLTypesHelper.fromJava(elem) + " element",
-                    argNode(0));
+                LKQLTypesHelper.LKQL_LIST +
+                " of " +
+                LKQLTypesHelper.typeUnion(LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
+                LKQLTypesHelper.fromJava(elem) + " element",
+                argNode(0)
+            );
         }
 
         @Specialization(guards = "emptyList.size() == 0")
@@ -311,25 +332,30 @@ public class BuiltInFunctions {
 
     @BuiltInFunction(name = "map", doc = "Given a collection, a mapping function")
     abstract static class MapExpr extends BuiltInBody {
+
         @Specialization(
-                limit = Constants.SPECIALIZED_LIB_LIMIT,
-                guards = "function.parameterNames.length == 1")
+            limit = Constants.SPECIALIZED_LIB_LIMIT,
+            guards = "function.parameterNames.length == 1"
+        )
         protected LKQLList onValidArgs(
-                Iterable iterable,
-                LKQLFunction function,
-                @CachedLibrary("function") InteropLibrary functionLibrary) {
+            Iterable iterable,
+            LKQLFunction function,
+            @CachedLibrary("function") InteropLibrary functionLibrary
+        ) {
             Object[] res = new Object[(int) iterable.size()];
             int i = 0;
             Iterator iterator = iterable.iterator();
 
             while (iterator.hasNext()) {
                 try {
-                    res[i] =
-                            functionLibrary.execute(
-                                    function, function.closure.getContent(), iterator.next());
-                } catch (ArityException
-                        | UnsupportedTypeException
-                        | UnsupportedMessageException e) {
+                    res[i] = functionLibrary.execute(
+                        function,
+                        function.closure.getContent(),
+                        iterator.next()
+                    );
+                } catch (
+                    ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                ) {
                     // TODO: Implement runtime checks in the LKQLFunction class and base computing
                     // on them (#138)
                     throw LKQLRuntimeException.fromJavaException(e, argNode(1));
@@ -342,9 +368,11 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(
-            name = "profile",
-            doc = "Given any object, if it is a callable, return its profile as text")
+        name = "profile",
+        doc = "Given any object, if it is a callable, return its profile as text"
+    )
     abstract static class ProfileExpr extends BuiltInBody {
+
         @Specialization
         protected String onLKQLValue(LKQLValue val) {
             return val.lkqlProfile();
@@ -357,16 +385,16 @@ public class BuiltInFunctions {
     }
 
     @BuiltInFunction(
-            name = "document_namespace",
-            doc = "Return a string in the RsT format containing documentation for all built-ins")
+        name = "document_namespace",
+        doc = "Return a string in the RsT format containing documentation for all built-ins"
+    )
     abstract static class DocumentNamespaceExpr extends BuiltInBody {
 
         private static void documentCallable(TextWriter writer, BasicLKQLValue callable) {
             writer.write(".. function:: " + callable.lkqlProfile() + "\n\n");
-            writer.withIndent(
-                    () -> {
-                        writer.write(callable.lkqlDocumentation());
-                    });
+            writer.withIndent(() -> {
+                writer.write(callable.lkqlDocumentation());
+            });
             writer.write("\n\n");
         }
 
@@ -375,7 +403,6 @@ public class BuiltInFunctions {
         protected String impl(LKQLNamespace namespace, String name) {
             var sw = new StringWriter();
             try (TextWriter writer = new TextWriter(sw)) {
-
                 var header = name + "'s API doc";
                 writer.write(header + "\n");
                 writer.write("-".repeat(header.length()));
@@ -384,11 +411,13 @@ public class BuiltInFunctions {
                 writer.write("Functions\n");
                 writer.write("^^^^^^^^^\n");
 
-                var functions =
-                        namespace.asMap().values().stream()
-                                .filter(LKQLTypeSystemGen::isLKQLFunction)
-                                .map(LKQLTypeSystemGen::asLKQLFunction)
-                                .sorted(Comparator.comparing(LKQLFunction::getName));
+                var functions = namespace
+                    .asMap()
+                    .values()
+                    .stream()
+                    .filter(LKQLTypeSystemGen::isLKQLFunction)
+                    .map(LKQLTypeSystemGen::asLKQLFunction)
+                    .sorted(Comparator.comparing(LKQLFunction::getName));
 
                 for (var func : functions.toList()) {
                     documentCallable(writer, func);
@@ -397,11 +426,13 @@ public class BuiltInFunctions {
                 writer.write("Selectors\n");
                 writer.write("^^^^^^^^^\n");
 
-                var selectors =
-                        namespace.asMap().values().stream()
-                                .filter(LKQLTypeSystemGen::isLKQLSelector)
-                                .map(LKQLTypeSystemGen::asLKQLSelector)
-                                .sorted(Comparator.comparing(LKQLSelector::lkqlProfile));
+                var selectors = namespace
+                    .asMap()
+                    .values()
+                    .stream()
+                    .filter(LKQLTypeSystemGen::isLKQLSelector)
+                    .map(LKQLTypeSystemGen::asLKQLSelector)
+                    .sorted(Comparator.comparing(LKQLSelector::lkqlProfile));
 
                 for (var sel : selectors.toList()) {
                     documentCallable(writer, sel);
@@ -417,18 +448,19 @@ public class BuiltInFunctions {
     @BuiltInFunction(name = "help", doc = "Print formatted help for the given object")
     @BuiltInMethod(isProperty = true)
     abstract static class HelpExpr extends BuiltInBody {
+
         @Specialization
         protected Object onLKQLValue(LKQLValue value) {
-            LKQLLanguage.getContext(callNode)
-                    .println(
-                            StringUtils.concat(
-                                    value.lkqlProfile(), "\n", value.lkqlDocumentation()));
+            LKQLLanguage.getContext(callNode).println(
+                StringUtils.concat(value.lkqlProfile(), "\n", value.lkqlDocumentation())
+            );
             return LKQLUnit.INSTANCE;
         }
     }
 
     @BuiltInFunction(name = "units", doc = "Return a list of all units")
     abstract static class UnitsExpr extends BuiltInBody {
+
         @Specialization
         protected LKQLList alwaysTrue() {
             return new LKQLList(LKQLLanguage.getContext(callNode).getAllUnits());
@@ -437,6 +469,7 @@ public class BuiltInFunctions {
 
     @BuiltInFunction(name = "specified_units", doc = "Return a list of units specified by the user")
     abstract static class SpecifiedUnitsExpr extends BuiltInBody {
+
         @Specialization
         protected LKQLList alwaysTrue() {
             return new LKQLList(LKQLLanguage.getContext(callNode).getSpecifiedUnits());

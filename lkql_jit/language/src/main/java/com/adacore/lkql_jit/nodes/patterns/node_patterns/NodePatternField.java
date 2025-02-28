@@ -58,11 +58,12 @@ public abstract class NodePatternField extends NodePatternDetail {
      * @param property The cached property reference.
      * @return True if the detail is valid, false else.
      */
-    @Specialization(guards = {"node == property.getNode()", "property.getDescription() != null"})
+    @Specialization(guards = { "node == property.getNode()", "property.getDescription() != null" })
     protected boolean fieldCached(
-            VirtualFrame frame,
-            @SuppressWarnings("unused") Libadalang.AdaNode node,
-            @Cached("create(fieldName, node)") LKQLProperty property) {
+        VirtualFrame frame,
+        @SuppressWarnings("unused") Libadalang.AdaNode node,
+        @Cached("create(fieldName, node)") LKQLProperty property
+    ) {
         // Get the value of the field
         Object value = property.executeAsField(this);
 
@@ -99,6 +100,9 @@ public abstract class NodePatternField extends NodePatternDetail {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"fieldName"}, new Object[] {this.fieldName});
+                indentLevel,
+                new String[] { "fieldName" },
+                new Object[] { this.fieldName }
+            );
     }
 }

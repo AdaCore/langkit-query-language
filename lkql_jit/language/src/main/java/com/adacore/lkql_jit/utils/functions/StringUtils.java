@@ -137,7 +137,7 @@ public final class StringUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static String toRepr(String source) {
-        return "\"" + source.replace("\"", "\\\"").replace("\n", "\\x0a") + "\"";
+        return ("\"" + source.replace("\"", "\\\"").replace("\n", "\\x0a") + "\"");
     }
 
     /**
@@ -149,14 +149,14 @@ public final class StringUtils {
     @CompilerDirectives.TruffleBoundary
     public static String translateEscapes(String toTranslate) {
         return toTranslate
-                .replace("\\n", "\n")
-                .replace("\\r", "\r")
-                .replace("\\t", "\t")
-                .replace("\\b", "\b")
-                .replace("\\f", "\f")
-                .replace("\\\"", "\"")
-                .replace("\\'", "'")
-                .replace("\\\\", "\\");
+            .replace("\\n", "\n")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t")
+            .replace("\\b", "\b")
+            .replace("\\f", "\f")
+            .replace("\\\"", "\"")
+            .replace("\\'", "'")
+            .replace("\\\\", "\\");
     }
 
     /**
@@ -197,16 +197,15 @@ public final class StringUtils {
         var lines = loc.getLines();
 
         // Create the function to start a line
-        Consumer<Integer> lineStarting =
-                (lineNum) -> {
-                    res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
-                    if (lineNum < 1) {
-                        res.append(" ".repeat(colSize));
-                    } else {
-                        res.append(fill(String.valueOf(lineNum), colSize));
-                    }
-                    res.append(" |").append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
-                };
+        Consumer<Integer> lineStarting = lineNum -> {
+            res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
+            if (lineNum < 1) {
+                res.append(" ".repeat(colSize));
+            } else {
+                res.append(fill(String.valueOf(lineNum), colSize));
+            }
+            res.append(" |").append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
+        };
 
         // If the source is single line
         if (lines.length == 1) {
@@ -215,47 +214,51 @@ public final class StringUtils {
             if (loc.startColumn() != loc.endColumn() + 1) {
                 res.append('\n');
                 lineStarting.accept(0);
-                res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                        .append(" ".repeat(loc.startColumn()))
-                        .append("^".repeat(Math.max(0, loc.endColumn() - loc.startColumn() + 1)));
+                res
+                    .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
+                    .append(" ".repeat(loc.startColumn()))
+                    .append("^".repeat(Math.max(0, loc.endColumn() - loc.startColumn() + 1)));
             }
         }
-
         // Else do the multiline display
         else {
             int difference = loc.endLine() - loc.startLine() - 1;
             lineStarting.accept(loc.startLine());
             res.append("  ").append(lines[0]).append("\n");
             lineStarting.accept(0);
-            res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append(" ")
-                    .append("_".repeat(loc.startColumn()))
-                    .append("^\n");
+            res
+                .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
+                .append(" ")
+                .append("_".repeat(loc.startColumn()))
+                .append("^\n");
 
             if (difference > 0) {
                 lineStarting.accept(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "").append("|\n");
                 lineStarting.accept(0);
-                res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                        .append('|')
-                        .append(" ~~~ ")
-                        .append(difference)
-                        .append(" other lines ~~~\n");
+                res
+                    .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
+                    .append('|')
+                    .append(" ~~~ ")
+                    .append(difference)
+                    .append(" other lines ~~~\n");
                 lineStarting.accept(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "").append("|\n");
             }
 
             lineStarting.accept(loc.endLine());
-            res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append("| ")
-                    .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "")
-                    .append(lines[lines.length - 1])
-                    .append('\n');
+            res
+                .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
+                .append("| ")
+                .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "")
+                .append(lines[lines.length - 1])
+                .append('\n');
             lineStarting.accept(0);
-            res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append("|")
-                    .append("_".repeat(Math.max(1, loc.endColumn())))
-                    .append("^");
+            res
+                .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
+                .append("|")
+                .append("_".repeat(Math.max(1, loc.endColumn())))
+                .append("^");
         }
 
         // Return the underlined sources

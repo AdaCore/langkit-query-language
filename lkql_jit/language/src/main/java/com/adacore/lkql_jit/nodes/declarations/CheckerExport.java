@@ -36,15 +36,17 @@ public class CheckerExport extends Declaration {
     // ----- Children -----
 
     /** The annotated function to export as a checker. */
-    @Child FunctionDeclaration functionDecl;
+    @Child
+    FunctionDeclaration functionDecl;
 
     // ----- Constructors -----
 
     public CheckerExport(
-            final SourceSection location,
-            final Annotation annotation,
-            final CheckerMode mode,
-            final FunctionDeclaration functionDecl) {
+        final SourceSection location,
+        final Annotation annotation,
+        final CheckerMode mode,
+        final FunctionDeclaration functionDecl
+    ) {
         super(location, annotation);
         this.mode = mode;
         this.functionDecl = functionDecl;
@@ -59,7 +61,9 @@ public class CheckerExport extends Declaration {
 
         // Export the checker in the current context
         this.exportChecker(
-                frame, (LKQLFunction) FrameUtils.readLocal(frame, this.functionDecl.slot));
+                frame,
+                (LKQLFunction) FrameUtils.readLocal(frame, this.functionDecl.slot)
+            );
 
         return LKQLUnit.INSTANCE;
     }
@@ -70,14 +74,12 @@ public class CheckerExport extends Declaration {
     private void exportChecker(VirtualFrame frame, LKQLFunction functionValue) {
         // Execute the annotation arguments
         final Object[] checkerArguments =
-                this.annotation
-                        .getArguments()
-                        .executeArgList(frame, Constants.CHECKER_PARAMETER_NAMES);
+            this.annotation.getArguments().executeArgList(frame, Constants.CHECKER_PARAMETER_NAMES);
 
         // Set the default values of the checker arguments
         for (int i = 0; i < checkerArguments.length; i++) {
-            if (checkerArguments[i] == null)
-                checkerArguments[i] = Constants.CHECKER_PARAMETER_DEFAULT_VALUES[i];
+            if (checkerArguments[i] == null) checkerArguments[i] =
+                Constants.CHECKER_PARAMETER_DEFAULT_VALUES[i];
         }
 
         // Verify the message and help
@@ -86,11 +88,11 @@ public class CheckerExport extends Declaration {
 
         // Verify the remediation mode
         final BaseChecker.Remediation remediation =
-                switch ((String) checkerArguments[5]) {
-                    case "EASY" -> BaseChecker.Remediation.EASY;
-                    case "MAJOR" -> BaseChecker.Remediation.MAJOR;
-                    default -> BaseChecker.Remediation.MEDIUM;
-                };
+            switch ((String) checkerArguments[5]) {
+                case "EASY" -> BaseChecker.Remediation.EASY;
+                case "MAJOR" -> BaseChecker.Remediation.MAJOR;
+                default -> BaseChecker.Remediation.MEDIUM;
+            };
 
         // Get the auto fix function
         final var autoFixObject = checkerArguments[10];
@@ -99,54 +101,59 @@ public class CheckerExport extends Declaration {
         // If there is an auto fix, the checker must be a node checker
         if (autoFixObject != null && this.mode == CheckerMode.UNIT) {
             throw LKQLRuntimeException.fromMessage(
-                    "Auto fixes not available for unit checks",
-                    autoFixArg.orElseGet(() -> this.annotation.getArguments().getArgs()[10]));
+                "Auto fixes not available for unit checks",
+                autoFixArg.orElseGet(() -> this.annotation.getArguments().getArgs()[10])
+            );
         }
 
         // Check that the auto fix object is a function
         if (autoFixObject != null && !LKQLTypeSystemGen.isLKQLFunction(autoFixObject)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_FUNCTION,
-                    LKQLTypesHelper.fromJava(autoFixObject),
-                    OptionalUtils.map(autoFixArg, a -> (LKQLNode) a.getArgExpr())
-                            .orElseGet(() -> this.annotation.getArguments().getArgs()[10]));
+                LKQLTypesHelper.LKQL_FUNCTION,
+                LKQLTypesHelper.fromJava(autoFixObject),
+                OptionalUtils.map(autoFixArg, a -> (LKQLNode) a.getArgExpr()).orElseGet(() ->
+                    this.annotation.getArguments().getArgs()[10]
+                )
+            );
         }
-        final var autoFix =
-                autoFixObject == null ? null : LKQLTypeSystemGen.asLKQLFunction(autoFixObject);
+        final var autoFix = autoFixObject == null
+            ? null
+            : LKQLTypeSystemGen.asLKQLFunction(autoFixObject);
 
         // Create the object value representing the checker
-        final BaseChecker checker =
-                this.mode == CheckerMode.NODE
-                        ? new NodeChecker(
-                                functionValue.name,
-                                functionValue,
-                                autoFix,
-                                (String) checkerArguments[0],
-                                (String) checkerArguments[1],
-                                (boolean) checkerArguments[2],
-                                (String) checkerArguments[3],
-                                (String) checkerArguments[4],
-                                remediation,
-                                (long) checkerArguments[6],
-                                (boolean) checkerArguments[7],
-                                (String) checkerArguments[8])
-                        : new UnitChecker(
-                                functionValue.name,
-                                functionValue,
-                                (String) checkerArguments[0],
-                                (String) checkerArguments[1],
-                                (boolean) checkerArguments[2],
-                                (String) checkerArguments[3],
-                                (String) checkerArguments[4],
-                                remediation,
-                                (long) checkerArguments[6],
-                                (boolean) checkerArguments[7],
-                                (String) checkerArguments[8]);
+        final BaseChecker checker = this.mode == CheckerMode.NODE
+            ? new NodeChecker(
+                functionValue.name,
+                functionValue,
+                autoFix,
+                (String) checkerArguments[0],
+                (String) checkerArguments[1],
+                (boolean) checkerArguments[2],
+                (String) checkerArguments[3],
+                (String) checkerArguments[4],
+                remediation,
+                (long) checkerArguments[6],
+                (boolean) checkerArguments[7],
+                (String) checkerArguments[8]
+            )
+            : new UnitChecker(
+                functionValue.name,
+                functionValue,
+                (String) checkerArguments[0],
+                (String) checkerArguments[1],
+                (boolean) checkerArguments[2],
+                (String) checkerArguments[3],
+                (String) checkerArguments[4],
+                remediation,
+                (long) checkerArguments[6],
+                (boolean) checkerArguments[7],
+                (String) checkerArguments[8]
+            );
 
         // Put the object in the context
         LKQLLanguage.getContext(this)
-                .getGlobal()
-                .addChecker(StringUtils.toLowerCase(functionValue.getName()), checker);
+            .getGlobal()
+            .addChecker(StringUtils.toLowerCase(functionValue.getName()), checker);
     }
 
     // ----- Override methods -----
@@ -154,7 +161,10 @@ public class CheckerExport extends Declaration {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel, new String[] {"mode"}, new Object[] {this.mode});
+                indentLevel,
+                new String[] { "mode" },
+                new Object[] { this.mode }
+            );
     }
 
     // ----- Inner classes -----
@@ -165,6 +175,6 @@ public class CheckerExport extends Declaration {
         NODE,
 
         /** The function is a unit checker. */
-        UNIT
+        UNIT,
     }
 }

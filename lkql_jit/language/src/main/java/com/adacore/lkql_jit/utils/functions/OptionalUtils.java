@@ -11,6 +11,7 @@ import java.util.function.Function;
 
 /** This class contains all utils for Optional objects beyond Truffle boundaries. */
 public class OptionalUtils {
+
     @CompilerDirectives.TruffleBoundary
     public static <T, U> Optional<U> map(Optional<T> opt, Function<? super T, ? extends U> f) {
         return opt.map(f);

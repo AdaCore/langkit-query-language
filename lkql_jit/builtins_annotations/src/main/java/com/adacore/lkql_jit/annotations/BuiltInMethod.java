@@ -13,7 +13,6 @@ import java.lang.annotation.*;
  */
 @Target(ElementType.TYPE)
 public @interface BuiltInMethod {
-
     /** Name for this built-in method. */
     String name() default "";
 

@@ -33,15 +33,19 @@ public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, 
     /** Private constructor for the null value. */
     private LKQLNull() {
         super(
-                Libadalang.Entity.create(
+            Libadalang.Entity.create(
+                Libadalang.PointerWrapper.nullPointer(),
+                Libadalang.EntityInfo.create(
+                    Libadalang.Metadata.create(
+                        false,
                         Libadalang.PointerWrapper.nullPointer(),
-                        Libadalang.EntityInfo.create(
-                                Libadalang.Metadata.create(
-                                        false,
-                                        Libadalang.PointerWrapper.nullPointer(),
-                                        Libadalang.PointerWrapper.nullPointer()),
-                                Libadalang.PointerWrapper.nullPointer(),
-                                false)));
+                        Libadalang.PointerWrapper.nullPointer()
+                    ),
+                    Libadalang.PointerWrapper.nullPointer(),
+                    false
+                )
+            )
+        );
     }
 
     // ----- Node methods -----
@@ -68,7 +72,9 @@ public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, 
     /** Tell the interop API if the given other value is null. */
     @ExportMessage
     static TriState isIdenticalOrUndefined(
-            @SuppressWarnings("unused") final LKQLNull receiver, final Object other) {
+        @SuppressWarnings("unused") final LKQLNull receiver,
+        final Object other
+    ) {
         return TriState.valueOf(receiver == other);
     }
 

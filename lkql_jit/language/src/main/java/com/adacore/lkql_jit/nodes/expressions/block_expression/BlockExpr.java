@@ -20,7 +20,8 @@ public final class BlockExpr extends Expr {
     // ----- Children -----
 
     /** The body parts of the expression block. */
-    @Children private final BlockBody[] body;
+    @Children
+    private final BlockBody[] body;
 
     /** The expression of the block, to return after the parts execution. */
     @Child

@@ -25,19 +25,20 @@ public class BuiltInFunctionValue extends LKQLFunction {
 
     /** Create a built-in function value. */
     public BuiltInFunctionValue(
-            String name,
-            String documentation,
-            String[] names,
-            String[] defaultValues,
-            BuiltInBody body) {
+        String name,
+        String documentation,
+        String[] names,
+        String[] defaultValues,
+        BuiltInBody body
+    ) {
         super(
-                new FunctionRootNode(null, null, false, body),
-                Closure.EMPTY,
-                name,
-                documentation,
-                names,
-                new Expr[names.length]);
-
+            new FunctionRootNode(null, null, false, body),
+            Closure.EMPTY,
+            name,
+            documentation,
+            names,
+            new Expr[names.length]
+        );
         stringDefaultVals = defaultValues;
     }
 
@@ -68,10 +69,10 @@ public class BuiltInFunctionValue extends LKQLFunction {
     @CompilerDirectives.TruffleBoundary
     private Expr getDefaultValAt(int i) {
         var prg =
-                ((TopLevelList)
-                                LKQLLanguage.getLanguage(rootNode.getBody())
-                                        .translate(stringDefaultVals[i], "<defaultval>"))
-                        .program;
+            ((TopLevelList) LKQLLanguage.getLanguage(rootNode.getBody()).translate(
+                    stringDefaultVals[i],
+                    "<defaultval>"
+                )).program;
         return (Expr) prg[0];
     }
 }

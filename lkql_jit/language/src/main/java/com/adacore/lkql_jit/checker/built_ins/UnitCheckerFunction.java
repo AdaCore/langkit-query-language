@@ -53,23 +53,26 @@ public final class UnitCheckerFunction {
                 } catch (LangkitException e) {
                     // Report LAL exception only in debug mode
                     if (context.isCheckerDebug()) {
-                        context.getDiagnosticEmitter()
-                                .emitDiagnostic(
-                                        CheckerUtils.MessageKind.ERROR,
-                                        e.getMsg(),
-                                        new LalLocationWrapper(unit.getRoot(), context.linesCache),
-                                        new SourceSectionWrapper(
-                                                e.getLocation().getSourceSection()),
-                                        checker.getName());
+                        context
+                            .getDiagnosticEmitter()
+                            .emitDiagnostic(
+                                CheckerUtils.MessageKind.ERROR,
+                                e.getMsg(),
+                                new LalLocationWrapper(unit.getRoot(), context.linesCache),
+                                new SourceSectionWrapper(e.getLocation().getSourceSection()),
+                                checker.getName()
+                            );
                     }
                 } catch (LKQLRuntimeException e) {
-                    context.getDiagnosticEmitter()
-                            .emitDiagnostic(
-                                    CheckerUtils.MessageKind.ERROR,
-                                    e.getErrorMessage(),
-                                    new LalLocationWrapper(unit.getRoot(), context.linesCache),
-                                    new SourceSectionWrapper(e.getLocation().getSourceSection()),
-                                    checker.getName());
+                    context
+                        .getDiagnosticEmitter()
+                        .emitDiagnostic(
+                            CheckerUtils.MessageKind.ERROR,
+                            e.getErrorMessage(),
+                            new LalLocationWrapper(unit.getRoot(), context.linesCache),
+                            new SourceSectionWrapper(e.getLocation().getSourceSection()),
+                            checker.getName()
+                        );
                 }
             }
 
@@ -86,10 +89,11 @@ public final class UnitCheckerFunction {
          * @param context The context for the execution.
          */
         private void applyUnitRule(
-                VirtualFrame frame,
-                UnitChecker checker,
-                Libadalang.AnalysisUnit unit,
-                LKQLContext context) {
+            VirtualFrame frame,
+            UnitChecker checker,
+            Libadalang.AnalysisUnit unit,
+            LKQLContext context
+        ) {
             // Get the function for the checker
             final LKQLFunction functionValue = checker.getFunction();
 
@@ -102,16 +106,13 @@ public final class UnitCheckerFunction {
             arguments[1] = unit;
             for (int i = 1; i < functionValue.getParameterDefaultValues().length; i++) {
                 String paramName = functionValue.parameterNames[i];
-                Object userDefinedArg =
-                        context.getRuleArg(
-                                (aliasName == null
-                                        ? lowerRuleName
-                                        : StringUtils.toLowerCase(aliasName)),
-                                paramName);
-                arguments[i + 1] =
-                        userDefinedArg == null
-                                ? functionValue.getParameterDefaultValues()[i].executeGeneric(frame)
-                                : userDefinedArg;
+                Object userDefinedArg = context.getRuleArg(
+                    (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
+                    paramName
+                );
+                arguments[i + 1] = userDefinedArg == null
+                    ? functionValue.getParameterDefaultValues()[i].executeGeneric(frame)
+                    : userDefinedArg;
             }
 
             // Put the closure in the arguments
@@ -120,14 +121,15 @@ public final class UnitCheckerFunction {
             // Get the message list from the checker function
             final Iterable violationList;
             try {
-                violationList =
-                        LKQLTypeSystemGen.expectIterable(
-                                this.interopLibrary.execute(functionValue, arguments));
+                violationList = LKQLTypeSystemGen.expectIterable(
+                    this.interopLibrary.execute(functionValue, arguments)
+                );
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_LIST,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        functionValue.getBody());
+                    LKQLTypesHelper.LKQL_LIST,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    functionValue.getBody()
+                );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
@@ -144,9 +146,10 @@ public final class UnitCheckerFunction {
                     message = LKQLTypeSystemGen.expectString(violation.getUncached("message"));
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.LKQL_STRING,
-                            LKQLTypesHelper.fromJava(e.getResult()),
-                            functionValue.getBody());
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        functionValue.getBody()
+                    );
                 }
 
                 // Get the violation location
@@ -167,18 +170,21 @@ public final class UnitCheckerFunction {
                     genericInstantiations = node.pGenericInstantiations();
                 } else {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.ADA_NODE,
-                            LKQLTypesHelper.fromJava(loc),
-                            functionValue.getBody());
+                        LKQLTypesHelper.ADA_NODE,
+                        LKQLTypesHelper.fromJava(loc),
+                        functionValue.getBody()
+                    );
                 }
 
-                context.getDiagnosticEmitter()
-                        .emitRuleViolation(
-                                checker,
-                                message,
-                                new LalLocationWrapper(slocRange, locUnit, context.linesCache),
-                                genericInstantiations,
-                                context);
+                context
+                    .getDiagnosticEmitter()
+                    .emitRuleViolation(
+                        checker,
+                        message,
+                        new LalLocationWrapper(slocRange, locUnit, context.linesCache),
+                        genericInstantiations,
+                        context
+                    );
             }
         }
     }

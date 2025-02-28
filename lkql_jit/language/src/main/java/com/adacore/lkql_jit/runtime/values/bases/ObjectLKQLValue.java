@@ -26,8 +26,7 @@ import com.oracle.truffle.api.object.Shape;
 public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue {
 
     protected static final DynamicObjectLibrary uncachedObjectLibrary =
-            DynamicObjectLibrary.getUncached();
-    ;
+        DynamicObjectLibrary.getUncached();
 
     // ----- Constructors -----
 
@@ -65,12 +64,13 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
      * @param rightValues Interop library to access the 'right' values messages.
      */
     protected static boolean objectValueEquals(
-            ObjectLKQLValue left,
-            ObjectLKQLValue right,
-            DynamicObjectLibrary lefts,
-            DynamicObjectLibrary rights,
-            InteropLibrary leftValues,
-            InteropLibrary rightValues) {
+        ObjectLKQLValue left,
+        ObjectLKQLValue right,
+        DynamicObjectLibrary lefts,
+        DynamicObjectLibrary rights,
+        InteropLibrary leftValues,
+        InteropLibrary rightValues
+    ) {
         // Get the objects key sets and compare their size
         Object[] leftKeys = lefts.getKeyArray(left);
         Object[] rightKeys = rights.getKeyArray(right);
@@ -127,23 +127,27 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
      */
     @ExportMessage
     public boolean isMemberReadable(
-            String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+        String member,
+        @CachedLibrary("this") DynamicObjectLibrary objectLibrary
+    ) {
         return objectLibrary.containsKey(this, member);
     }
 
     /** Get the existing members for the receiver object like value. */
     @ExportMessage
     public Object getMembers(
-            @SuppressWarnings("unused") boolean includeInternal,
-            @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+        @SuppressWarnings("unused") boolean includeInternal,
+        @CachedLibrary("this") DynamicObjectLibrary objectLibrary
+    ) {
         return new LKQLList(objectLibrary.getKeyArray(this));
     }
 
     /** Get the value of the wanted member in the receiver object like value. */
     @ExportMessage
     public Object readMember(
-            String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary)
-            throws UnknownIdentifierException {
+        String member,
+        @CachedLibrary("this") DynamicObjectLibrary objectLibrary
+    ) throws UnknownIdentifierException {
         final Object result = objectLibrary.getOrDefault(this, member, null);
         if (result == null) throw UnknownIdentifierException.create(member);
         return result;
@@ -173,7 +177,8 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
             return thisUncached.identityHashCode(this);
         } catch (UnsupportedMessageException e) {
             throw LKQLRuntimeException.shouldNotHappen(
-                    "All LKQL values must export an 'identityHashCode' message");
+                "All LKQL values must export an 'identityHashCode' message"
+            );
         }
     }
 }

@@ -66,9 +66,10 @@ public final class CondExpr extends Expr {
             conditionValue = this.condition.executeTruthy(frame).isTruthy();
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.condition);
+                LKQLTypesHelper.LKQL_BOOLEAN,
+                LKQLTypesHelper.fromJava(e.getResult()),
+                this.condition
+            );
         }
 
         // Execute the correct branching

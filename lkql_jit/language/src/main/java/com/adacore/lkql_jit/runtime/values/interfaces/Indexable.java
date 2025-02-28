@@ -13,7 +13,6 @@ import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
  * @author Hugo GUERRIER
  */
 public interface Indexable {
-
     /**
      * Get the element at the given index.
      *

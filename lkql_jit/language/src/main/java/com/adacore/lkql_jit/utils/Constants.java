@@ -76,24 +76,32 @@ public class Constants {
     // ----- Checker annotation helpers -----
 
     /** The names of the parameters for a checker annotation */
-    public static final String[] CHECKER_PARAMETER_NAMES =
-            new String[] {
-                "message",
-                "help",
-                "follow_generic_instantiations",
-                "category",
-                "subcategory",
-                "remediation",
-                "execution_cost",
-                "parametric_exemption",
-                "target",
-                "rule_name",
-                "auto_fix"
-            };
+    public static final String[] CHECKER_PARAMETER_NAMES = new String[] {
+        "message",
+        "help",
+        "follow_generic_instantiations",
+        "category",
+        "subcategory",
+        "remediation",
+        "execution_cost",
+        "parametric_exemption",
+        "target",
+        "rule_name",
+        "auto_fix",
+    };
 
     /** The default values for annotation parameters. */
-    public static final Object[] CHECKER_PARAMETER_DEFAULT_VALUES =
-            new Object[] {
-                null, null, false, "Misc", "Misc", "MEDIUM", 0L, false, "amd64", null, null
-            };
+    public static final Object[] CHECKER_PARAMETER_DEFAULT_VALUES = new Object[] {
+        null,
+        null,
+        false,
+        "Misc",
+        "Misc",
+        "MEDIUM",
+        0L,
+        false,
+        "amd64",
+        null,
+        null,
+    };
 }

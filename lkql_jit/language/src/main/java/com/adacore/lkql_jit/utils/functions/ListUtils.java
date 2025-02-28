@@ -15,6 +15,7 @@ import java.util.List;
  * @author Hugo GUERRIER
  */
 public final class ListUtils {
+
     @SafeVarargs
     @CompilerDirectives.TruffleBoundary
     public static <T> void addAll(List<T> lst, T... elems) {

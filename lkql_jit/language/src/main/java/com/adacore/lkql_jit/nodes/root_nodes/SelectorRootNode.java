@@ -34,7 +34,8 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
     // ----- Children -----
 
     /** The selector arms. */
-    @Children private final SelectorArm[] arms;
+    @Children
+    private final SelectorArm[] arms;
 
     // ----- Constructors -----
 
@@ -49,12 +50,13 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
      * @param arms The arms of the selector.
      */
     public SelectorRootNode(
-            TruffleLanguage<?> language,
-            FrameDescriptor frameDescriptor,
-            boolean isMemoized,
-            int thisSlot,
-            int depthSlot,
-            SelectorArm[] arms) {
+        TruffleLanguage<?> language,
+        FrameDescriptor frameDescriptor,
+        boolean isMemoized,
+        int thisSlot,
+        int depthSlot,
+        SelectorArm[] arms
+    ) {
         super(language, frameDescriptor);
         this.isMemoized = isMemoized;
         this.thisSlot = thisSlot;
