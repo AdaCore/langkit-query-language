@@ -22,15 +22,21 @@ public final class ScriptFramesBuilder {
 
     // ----- Attributes -----
 
-    /** Root node frame builder. This is where to start the building. */
+    /**
+     * Root node frame builder. This is where to start the building.
+     */
     private NodeFrameBuilder root;
 
-    /** Pointer to the current node frame builder. */
+    /**
+     * Pointer to the current node frame builder.
+     */
     private NodeFrameBuilder current;
 
     // ----- Constructors -----
 
-    /** Create a new script frames builder with the script root node. */
+    /**
+     * Create a new script frames builder with the script root node.
+     */
     public ScriptFramesBuilder() {
         this.root = null;
         this.current = null;
@@ -214,14 +220,15 @@ public final class ScriptFramesBuilder {
         /**
          * Create a new node frame builder with all required information.
          *
-         * @param node Associated node.
-         * @param parent Parent node frame builder, can be null.
+         * @param node      Associated node.
+         * @param parent    Parent node frame builder, can be null.
          * @param isVirtual If the frame is a virtual one.
          */
         private NodeFrameBuilder(
-                final LangkitSupport.Node node,
-                final NodeFrameBuilder parent,
-                final boolean isVirtual) {
+            final NodeInterface node,
+            final NodeFrameBuilder parent,
+            final boolean isVirtual
+        ) {
             this.node = node;
             this.parent = parent;
             this.children = new ArrayList<>();
@@ -266,15 +273,17 @@ public final class ScriptFramesBuilder {
 
         @Override
         public String toString() {
-            return "NodeFrameBuilder"
-                    + (this.isVirtual ? "<virtual>" : "")
-                    + "("
-                    + "node: "
-                    + node.getImage()
-                    + (this.bindings.size() > 0 ? ", bindings: " + this.bindings : "")
-                    + (this.parameters.size() > 0 ? ", parameters: " + this.parameters : "")
-                    + (this.children.size() > 0 ? ", children: " + this.children : "")
-                    + ")";
+            return (
+                "NodeFrameBuilder" +
+                (this.isVirtual ? "<virtual>" : "") +
+                "(" +
+                "node: " +
+                node.getImage() +
+                (this.bindings.size() > 0 ? ", bindings: " + this.bindings : "") +
+                (this.parameters.size() > 0 ? ", parameters: " + this.parameters : "") +
+                (this.children.size() > 0 ? ", children: " + this.children : "") +
+                ")"
+            );
         }
     }
 }
