@@ -43,7 +43,7 @@
         <config.npm></config.npm>
 
         <!-- NPM configuration -->
-        <config.npmInstallCache>./target/npm-cache</config.npmInstallCache>
+        <config.npmInstallCache>true</config.npmInstallCache>
         <config.npmrc></config.npmrc>
 
         <!-- List of the components to build with native image -->
