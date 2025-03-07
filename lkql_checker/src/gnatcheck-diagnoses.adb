@@ -541,13 +541,15 @@ package body Gnatcheck.Diagnoses is
 
    function Auxiliary_List_File_Name (S : String) return String is
       Prj_Out_File   : constant String :=
-        (if Text_Report_ON then Base_Name (Get_Report_File_Name)
+        (if Text_Report_ON
+         then Base_Name (Get_Report_File_Name)
          else Base_Name (Get_XML_Report_File_Name));
       Prj_Out_First  : constant Natural := Prj_Out_File'First;
       Prj_Out_Last   : constant Natural := Prj_Out_File'Last;
       Prj_Out_Dot    : Natural := Index (Prj_Out_File, ".", Backward);
       Prj_Out_Suffix : constant String :=
-        (if Prj_Out_Dot = 0 then ""
+        (if Prj_Out_Dot = 0
+         then ""
          else Prj_Out_File (Prj_Out_Dot .. Prj_Out_Last));
 
       Suff_Start : Natural;
@@ -839,7 +841,8 @@ package body Gnatcheck.Diagnoses is
          if Gnatcheck_Prj.Is_Specified then
             XML_Report
               (" project="""
-               & (if Arg.Aggregated_Project then Get_Aggregated_Project
+               & (if Arg.Aggregated_Project
+                  then Get_Aggregated_Project
                   else Gnatcheck_Prj.Source_Prj)
                & """>");
          else
@@ -1261,7 +1264,8 @@ package body Gnatcheck.Diagnoses is
 
          Append
            (Res,
-            (if Rule in Warnings_Id | Style_Checks_Id then El
+            (if Rule in Warnings_Id | Style_Checks_Id
+             then El
              else GNAT.Case_Util.To_Mixed (El)));
 
          Count := Count + 1;
@@ -2060,7 +2064,8 @@ package body Gnatcheck.Diagnoses is
                declare
                   Sep_Idx          : constant Natural := Index (Param, "=");
                   Restriction_Name : constant String :=
-                    (if Sep_Idx = 0 then Param
+                    (if Sep_Idx = 0
+                     then Param
                      else Param (Param'First .. Sep_Idx - 1));
                begin
                   if Is_Restriction_Active (Restriction_Name) then
@@ -2137,7 +2142,7 @@ package body Gnatcheck.Diagnoses is
                    Exempted_Name => To_Unbounded_String (Exempted_Name),
                    Detected      => 0));
 
-               --  Else, some actuals parameters has been provided
+            --  Else, some actuals parameters has been provided
 
             else
                --  Check that the object is not exempted with the same params
@@ -2301,7 +2306,8 @@ package body Gnatcheck.Diagnoses is
              .To_String;
 
          Just : constant String :=
-           (if Matches (4) = No_Match then ""
+           (if Matches (4) = No_Match
+            then ""
             else
               To_XString (Text (Matches (4).First .. Matches (4).Last))
                 .Trim
@@ -2342,8 +2348,10 @@ package body Gnatcheck.Diagnoses is
             end;
          else
             Process_Exempt_Action
-              (((if State = "on" then Exempt_Off
-                 elsif State = "off" then Exempt_On
+              (((if State = "on"
+                 then Exempt_Off
+                 elsif State = "off"
+                 then Exempt_On
                  else raise Constraint_Error with "should not happen"),
                 To_Unbounded_String (Rule),
                 Params              => <>,
@@ -2503,7 +2511,8 @@ package body Gnatcheck.Diagnoses is
          Diag_Column : constant Positive := Positive (Diag.Sloc.Column);
          SF          : constant SF_Id := Diag.SF;
          R_Name      : constant String :=
-           (if Diag.Diagnosis_Kind = Rule_Violation then Rule_Name (Diag.Rule)
+           (if Diag.Diagnosis_Kind = Rule_Violation
+            then Rule_Name (Diag.Rule)
             else "");
          I_Name      : constant String :=
            (if Diag.Instance /= null and then Diag.Instance.Is_Alias
@@ -2882,7 +2891,8 @@ package body Gnatcheck.Diagnoses is
       use Ada.Directories;
       File_Name : constant Unbounded_String :=
         To_Unbounded_String
-          (if Arg.Full_Source_Locations.Get then Full_File_Name
+          (if Arg.Full_Source_Locations.Get
+           then Full_File_Name
            else Simple_Name (Full_File_Name));
       Tmp       : Diag_Message :=
         (Text           => To_Unbounded_String (Message),
@@ -2992,10 +3002,14 @@ package body Gnatcheck.Diagnoses is
       M_Start     : Natural := Message'First;
    begin
       XML_Report_No_EOL
-        ((if Diag.Diagnosis_Kind = Exemption_Warning then "<exemption-problem"
-          elsif Diag.Diagnosis_Kind = Compiler_Error then "<compiler-error"
-          elsif Diag.Diagnosis_Kind = Internal_Error then "<internal-error"
-          elsif Exempted then "<exempted-violation"
+        ((if Diag.Diagnosis_Kind = Exemption_Warning
+          then "<exemption-problem"
+          elsif Diag.Diagnosis_Kind = Compiler_Error
+          then "<compiler-error"
+          elsif Diag.Diagnosis_Kind = Internal_Error
+          then "<internal-error"
+          elsif Exempted
+          then "<exempted-violation"
           else "<violation"),
          Indent_Level => Indentation);
 
@@ -3047,9 +3061,12 @@ package body Gnatcheck.Diagnoses is
       XML_Report
         ((if Diag.Diagnosis_Kind = Exemption_Warning
           then "</exemption-problem>"
-          elsif Diag.Diagnosis_Kind = Compiler_Error then "</compiler-error>"
-          elsif Diag.Diagnosis_Kind = Internal_Error then "</internal-error>"
-          elsif Exempted then "</exempted-violation>"
+          elsif Diag.Diagnosis_Kind = Compiler_Error
+          then "</compiler-error>"
+          elsif Diag.Diagnosis_Kind = Internal_Error
+          then "</internal-error>"
+          elsif Exempted
+          then "</exempted-violation>"
           else "</violation>"),
          Indent_Level => Indentation);
    end XML_Report_Diagnosis;

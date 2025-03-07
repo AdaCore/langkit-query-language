@@ -159,7 +159,8 @@ package body Gnatcheck.Output is
 
    function Get_Number return String is
       Report_File_Name : constant String :=
-        (if Text_Report_ON then Get_Report_File_Name
+        (if Text_Report_ON
+         then Get_Report_File_Name
          else Get_XML_Report_File_Name);
 
       Idx_1, Idx_2 : Natural;
@@ -446,13 +447,14 @@ package body Gnatcheck.Output is
               new String'
                 (Normalize_Pathname
                    (Global_Report_Dir.all
-                    & (if Report_File_Name = null then Executable & ".out"
+                    & (if Report_File_Name = null
+                       then Executable & ".out"
                        else Report_File_Name.all)));
          end if;
 
-         --  And in case of Aggregated_Project we already have in
-         --  Report_File_Name the needed name with full path in absolute
-         --  form
+      --  And in case of Aggregated_Project we already have in
+      --  Report_File_Name the needed name with full path in absolute
+      --  form
 
       end if;
 
@@ -492,13 +494,14 @@ package body Gnatcheck.Output is
               new String'
                 (Normalize_Pathname
                    (Global_Report_Dir.all
-                    & (if XML_Report_File_Name = null then Executable & ".xml"
+                    & (if XML_Report_File_Name = null
+                       then Executable & ".xml"
                        else XML_Report_File_Name.all)));
          end if;
 
-         --  And in case of Aggregated_Project we already have in
-         --  Report_File_Name the needed name with full path in absolute
-         --  form
+      --  And in case of Aggregated_Project we already have in
+      --  Report_File_Name the needed name with full path in absolute
+      --  form
 
       end if;
 
