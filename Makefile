@@ -10,6 +10,8 @@ endif
 PROCS=0 PREFIX=install
 PYTHON=python
 MAVEN=mvn
+NPM_INSTALL_CACHE=true
+NPMRC=
 BUILD_DIR=/undefined
 LKQL_DIR=$(BUILD_DIR)/lkql
 IMPACTDB_DIR=/undefined
@@ -27,6 +29,7 @@ else
 endif
 
 ADDITIONAL_MANAGE_ARGS=
+MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON)
 
 # WARNING: Note that for some reason parallelizing the build still doesn't work
 all: lkql gnatcheck build_lkql_native_jit doc
@@ -42,7 +45,7 @@ impacts:
 
 format:
 	gnatformat -P lkql_checker/gnatcheck.gpr --no-subprojects
-	$(MAVEN) -f lkql_jit spotless:apply
+	$(MAVEN) -f lkql_jit spotless:apply $(MAVEN_ARGS)
 
 gnatcheck: lkql
 	gnatformat -P lkql_checker/gnatcheck.gpr --no-subprojects --check
@@ -69,11 +72,11 @@ clean_lkql_jit:
 
 build_lkql_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean install
+	$(MAVEN) -f lkql_jit/ clean install $(MAVEN_ARGS)
 
 build_lkql_native_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean install -P native,$(BUILD_MODE)
+	$(MAVEN) -f lkql_jit/ clean install -P native,$(BUILD_MODE) $(MAVEN_ARGS)
 
 .PHONY: lkql_checker
 
