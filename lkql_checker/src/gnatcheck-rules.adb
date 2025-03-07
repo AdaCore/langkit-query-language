@@ -1389,7 +1389,7 @@ package body Gnatcheck.Rules is
             & " ignored");
          Bad_Rule_Detected := True;
 
-         --  Just enable the instance following the command line
+      --  Just enable the instance following the command line
 
       else
          if Enable then
@@ -3132,7 +3132,8 @@ package body Gnatcheck.Rules is
    function Instance_Name (Instance : Rule_Instance'Class) return String is
    begin
       return
-        (if Instance.Is_Alias then To_String (Instance.Alias_Name)
+        (if Instance.Is_Alias
+         then To_String (Instance.Alias_Name)
          else Rule_Name (Instance));
    end Instance_Name;
 
@@ -3145,7 +3146,8 @@ package body Gnatcheck.Rules is
       if Arg.Show_Rule.Get then
          return
            " ["
-           & (if Instance.Is_Alias then To_String (Instance.Alias_Name) & "|"
+           & (if Instance.Is_Alias
+              then To_String (Instance.Alias_Name) & "|"
               else "")
            & Rule_Name (Instance)
            & "]";

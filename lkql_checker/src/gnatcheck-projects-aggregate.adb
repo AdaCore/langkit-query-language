@@ -172,7 +172,8 @@ package body Gnatcheck.Projects.Aggregate is
       Prj_Out_Last   : constant Natural := Prj_Out_File'Last;
       Prj_Out_Dot    : Natural := Index (Prj_Out_File, ".", Backward);
       Prj_Out_Suffix : constant String :=
-        (if Prj_Out_Dot = 0 then ""
+        (if Prj_Out_Dot = 0
+         then ""
          else Prj_Out_File (Prj_Out_Dot .. Prj_Out_Last));
 
       Prj_XML_File   : constant String := XML_Report_File_Name;
@@ -180,7 +181,8 @@ package body Gnatcheck.Projects.Aggregate is
       Prj_XML_Last   : constant Natural := Prj_XML_File'Last;
       Prj_XML_Dot    : Natural := Index (Prj_XML_File, ".", Backward);
       Prj_XML_Suffix : constant String :=
-        (if Prj_XML_Dot = 0 then ""
+        (if Prj_XML_Dot = 0
+         then ""
          else Prj_XML_File (Prj_XML_Dot .. Prj_XML_Last));
 
       Prj_Args       : Argument_List (1 .. 2);
@@ -290,7 +292,8 @@ package body Gnatcheck.Projects.Aggregate is
             Expected_XML_Out_File  =>
               (if XML_Report_ON
                then
-                 (if Out_Args_Count = 2 then Out_Args (2).all
+                 (if Out_Args_Count = 2
+                  then Out_Args (2).all
                   else Out_Args (4).all)
                else ""));
 

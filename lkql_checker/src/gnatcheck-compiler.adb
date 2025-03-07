@@ -157,7 +157,8 @@ package body Gnatcheck.Compiler is
              (declare
                 Idx : constant Natural := Index (Diag, "warning: ");
               begin
-                (if Idx = 0 then Diag
+                (if Idx = 0
+                 then Diag
                  else
                    Diag (Diag'First .. Idx - 1)
                    & Diag (Idx + 9 .. Diag'Last))),
@@ -165,7 +166,8 @@ package body Gnatcheck.Compiler is
              (declare
                 Idx : constant Natural := Index (Diag, "(style) ");
               begin
-                (if Idx = 0 then Diag
+                (if Idx = 0
+                 then Diag
                  else
                    Diag (Diag'First .. Idx - 1)
                    & Diag (Idx + 8 .. Diag'Last))),
@@ -349,11 +351,14 @@ package body Gnatcheck.Compiler is
                  Index (Source => Msg (Last + 1 .. Msg_End), Pattern => "|");
 
                Rule_Name     : constant String :=
-                 (if Name_Split /= 0 then Msg (Name_Split + 1 .. Msg_End - 1)
-                  elsif Last /= 0 then Msg (Last + 1 .. Msg_End - 1)
+                 (if Name_Split /= 0
+                  then Msg (Name_Split + 1 .. Msg_End - 1)
+                  elsif Last /= 0
+                  then Msg (Last + 1 .. Msg_End - 1)
                   else "");
                Instance_Name : constant String :=
-                 (if Name_Split /= 0 then Msg (Last + 1 .. Name_Split - 1)
+                 (if Name_Split /= 0
+                  then Msg (Last + 1 .. Name_Split - 1)
                   else "");
 
                Instance : Rule_Instance_Access := null;
@@ -364,7 +369,8 @@ package body Gnatcheck.Compiler is
                end if;
                Instance :=
                  Get_Instance
-                   (if Instance_Name = "" then To_Lower (Rule_Name)
+                   (if Instance_Name = ""
+                    then To_Lower (Rule_Name)
                     else To_Lower (Instance_Name));
                Store_Diagnosis
                  (Full_File_Name => Gnatcheck.Source_Table.File_Name (SF),
@@ -378,7 +384,7 @@ package body Gnatcheck.Compiler is
                return;
             end;
 
-            --  An error message has been emitted
+         --  An error message has been emitted
          elsif Msg (Msg_Start .. Msg_Start + 6) = "error: " then
             Message_Kind := Error;
 
@@ -392,7 +398,7 @@ package body Gnatcheck.Compiler is
 
             Errors := True;
 
-            --  A warning has been emitted by gprbuild
+         --  A warning has been emitted by gprbuild
          elsif Msg (Msg_Start .. Msg_Start + 8) = "warning: " then
             if Index (Msg (Msg_Start .. Msg_End), ": violation of restriction")
               /= 0
@@ -410,11 +416,11 @@ package body Gnatcheck.Compiler is
                Message_Kind := Warning;
             end if;
 
-            --  A style check violation has been emitted
+         --  A style check violation has been emitted
          elsif Msg (Msg_Start .. Msg_Start + 6) = "(style)" then
             Message_Kind := Style;
 
-            --  Ignore anything else
+         --  Ignore anything else
          else
             return;
          end if;
@@ -436,7 +442,8 @@ package body Gnatcheck.Compiler is
             Diagnosis_Kind => Kind,
             SF             => SF,
             Rule           =>
-              (if Message_Kind = Error then No_Rule_Id
+              (if Message_Kind = Error
+               then No_Rule_Id
                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
@@ -1323,7 +1330,7 @@ package body Gnatcheck.Compiler is
             Style_To_Instance.Include ([C], Name);
          end loop;
 
-         --  Else, process the argument as a sequence of "gnaty" parameters.
+      --  Else, process the argument as a sequence of "gnaty" parameters.
 
       else
          I := Param'First;
@@ -1936,7 +1943,8 @@ package body Gnatcheck.Compiler is
       else
          First_Idx := First_Idx + String_To_Search'Length;
          Last_Idx :=
-           (if Diag (First_Idx) in '.' | '_' then First_Idx + 1
+           (if Diag (First_Idx) in '.' | '_'
+            then First_Idx + 1
             else First_Idx);
       end if;
 

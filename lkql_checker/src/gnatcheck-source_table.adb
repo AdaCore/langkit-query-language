@@ -1156,7 +1156,7 @@ package body Gnatcheck.Source_Table is
       if Present (SF) then
          Set_Source_Info (SF, Ignore_Unit);
 
-         --  Only warn if no sources are specified explicitly
+      --  Only warn if no sources are specified explicitly
 
       elsif not (File_List_Specified
                  or else (Argument_File_Specified

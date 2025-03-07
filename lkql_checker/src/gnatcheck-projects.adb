@@ -213,7 +213,8 @@ package body Gnatcheck.Projects is
          return GNAT.OS_Lib.Argument_List_Access
       is
          Attr : constant GPR2.Project.Attribute.Object :=
-           (if Indexed then Proj.Attribute (Attr_Id, Ada_Idx)
+           (if Indexed
+            then Proj.Attribute (Attr_Id, Ada_Idx)
             else Proj.Attribute (Attr_Id));
          Res  : GNAT.OS_Lib.Argument_List_Access;
       begin
@@ -929,7 +930,8 @@ package body Gnatcheck.Projects is
      (My_Project : in out Arg_Project_Type; Project_File_Name : String)
    is
       Ext : constant String :=
-        (if Has_Suffix (Project_File_Name, Suffix => ".gpr") then ""
+        (if Has_Suffix (Project_File_Name, Suffix => ".gpr")
+         then ""
          else ".gpr");
 
    begin
@@ -1102,7 +1104,8 @@ package body Gnatcheck.Projects is
       use Ada.Strings.Unbounded;
 
       Resolved_File : constant String :=
-        (if Is_Absolute_Path (File) then File
+        (if Is_Absolute_Path (File)
+         then File
          else
            (if Project_Relative
             then Gnatcheck_Prj.Get_Project_Relative_File (File)

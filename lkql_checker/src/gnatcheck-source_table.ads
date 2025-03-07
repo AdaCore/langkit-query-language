@@ -210,7 +210,8 @@ package Gnatcheck.Source_Table is
    --  Short file name with no directory information
 
    function File_Name (SF : SF_Id) return String
-   is (if Arg.Full_Source_Locations.Get then Source_Name (SF)
+   is (if Arg.Full_Source_Locations.Get
+       then Source_Name (SF)
        else Short_Source_Name (SF));
    --  Return a string corresponding to the file name of SF, taking
    --  Full_Source_Locations into account.

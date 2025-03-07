@@ -204,7 +204,7 @@ procedure Gnatcheck_Main is
          Files_Per_Job := (@ + 1) / 2;
          Num_Jobs := @ * 2;
 
-         --  Reduce number of jobs if too few files
+      --  Reduce number of jobs if too few files
 
       elsif Files_Per_Job < Minimum_Files then
          Files_Per_Job := Minimum_Files;
@@ -626,10 +626,14 @@ begin
         or else Detected_Internal_Error /= 0
         or else Error_From_Warning
       then E_Error
-      elsif Missing_Rule_File_Detected then E_Missing_Rule_File
-      elsif Bad_Rule_Detected then E_Missing_Rule
-      elsif Rule_Option_Problem_Detected then E_Bad_Rules
-      elsif Missing_File_Detected then E_Missing_Source
+      elsif Missing_Rule_File_Detected
+      then E_Missing_Rule_File
+      elsif Bad_Rule_Detected
+      then E_Missing_Rule
+      elsif Rule_Option_Problem_Detected
+      then E_Bad_Rules
+      elsif Missing_File_Detected
+      then E_Missing_Source
 
       --  If we are here, no problem with gnatcheck execution or rule
       --  option or missing file definition is detected, so we can trust

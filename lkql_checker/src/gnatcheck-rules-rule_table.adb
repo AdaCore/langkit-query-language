@@ -59,7 +59,8 @@ package body Gnatcheck.Rules.Rule_Table is
    --  in macro expansions
 
    function Get_Rule_File_Name (RF : String) return String
-   is (if Is_Absolute_Path (RF) then RF
+   is (if Is_Absolute_Path (RF)
+       then RF
        else Gnatcheck_Prj.Get_Project_Relative_File (RF));
    --  If gnatcheck is called with a project file, all the (relative) names
    --  of the rule files are considered as related to the project file
@@ -213,12 +214,12 @@ package body Gnatcheck.Rules.Rule_Table is
       if All_Rules.Contains (Try_Id) then
          return Try_Id;
 
-         --  Then try to get the rule from the instance map which contains all
-         --  defined aliases.
+      --  Then try to get the rule from the instance map which contains all
+      --  defined aliases.
       elsif All_Rule_Instances.Contains (Normalized_Rule_Name) then
          return All_Rule_Instances (Normalized_Rule_Name).Rule;
 
-         --  If not found, return the No_Rule identifier
+      --  If not found, return the No_Rule identifier
       else
          return No_Rule_Id;
       end if;
@@ -560,7 +561,7 @@ package body Gnatcheck.Rules.Rule_Table is
                               Rule_Option_Problem_Detected := True;
 
                               Success := True;
-                              --  To allow further processing of this rule file
+                           --  To allow further processing of this rule file
 
                            else
                               if Is_Regular_File (Rule_Buf (1 .. Rule_Len))
@@ -638,7 +639,7 @@ package body Gnatcheck.Rules.Rule_Table is
                   when '=' =>
                      if not Eq_Detected then
                         Eq_Detected := True;
-                        --  this means that we have '-from = <file_name>'
+                     --  this means that we have '-from = <file_name>'
 
                      else
                         --  a file name can not start from '='
@@ -749,7 +750,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
                   Rule_Option_Problem_Detected := True;
                   Success := True;
-                  --  To allow further processing of this rule file
+               --  To allow further processing of this rule file
 
                else
                   Include_RF_Name :=
@@ -775,7 +776,8 @@ package body Gnatcheck.Rules.Rule_Table is
                   & Image (Rule_Start_Line)
                   & ":"
                   & Image
-                      (if New_State = Indefinite then Current_Line
+                      (if New_State = Indefinite
+                       then Current_Line
                        else Current_Line - 1)
                   & " do not have format of rule option");
                Rule_Option_Problem_Detected := True;
@@ -847,7 +849,7 @@ package body Gnatcheck.Rules.Rule_Table is
             Analyze_Output (JSON_Config_File_Name, Success);
             Rule_Option_Problem_Detected := True;
 
-            --  Else, populate the global rule table with the rule config
+         --  Else, populate the global rule table with the rule config
 
          else
             Map_JSON_Object (Config_JSON.Value, Rule_Object_Mapper'Access);
@@ -1103,13 +1105,13 @@ package body Gnatcheck.Rules.Rule_Table is
                end;
                Turn_Instance_On (Instance);
 
-               --  Else, we just remove the instance from the global map
+            --  Else, we just remove the instance from the global map
 
             else
                Turn_Instance_Off (To_String (Instance_Name));
             end if;
 
-            --  If the rule is not compiler-based, we process it normally
+         --  If the rule is not compiler-based, we process it normally
 
          else
             if Word_Start = 0 then
@@ -1150,7 +1152,8 @@ package body Gnatcheck.Rules.Rule_Table is
       pragma Unreferenced (Instance_Id);
 
       Output_Rule_File   : constant String :=
-        (if Arg.Full_Source_Locations.Get then LKQL_Rule_File_Name
+        (if Arg.Full_Source_Locations.Get
+         then LKQL_Rule_File_Name
          else Base_Name (LKQL_Rule_File_Name));
       Rule_Name          : constant String := Instance_Object.Get ("ruleName");
       Instance_Name      : constant String :=
@@ -1226,7 +1229,7 @@ package body Gnatcheck.Rules.Rule_Table is
                Tagged_Instance.Arguments.Append_Vector
                  (Expect_Literal (Params_Object, "arg"));
 
-               --  Others expects a simple string
+            --  Others expects a simple string
 
             else
                declare
@@ -1241,8 +1244,8 @@ package body Gnatcheck.Rules.Rule_Table is
          --  Turn the newly created instance on
          Turn_Instance_On (Instance);
 
-         --  Else the rule is an LKQL check, check its presence, get the rule
-         --  template and call the processing function.
+      --  Else the rule is an LKQL check, check its presence, get the rule
+      --  template and call the processing function.
       elsif Present (R_Id) then
          Instance := All_Rules (R_Id).Create_Instance (Instance_Name /= "");
          Instance.Rule := R_Id;
@@ -1270,7 +1273,7 @@ package body Gnatcheck.Rules.Rule_Table is
          --  error for each.
          Params_Object.Map_JSON_Object (Report_Extra_Arg'Access);
 
-         --  Else the rule is not present, emit an error
+      --  Else the rule is not present, emit an error
       else
          Error_In_Rule_File ("unknown rule: " & Rule_Name);
       end if;
