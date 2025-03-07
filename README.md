@@ -26,14 +26,14 @@ paths.
 - Building LKQL is done via
 
 ```
-lkql/manage.py make
+lkm make
 ```
 
 - You can then make LKQL available (binaries, Ada libraries, and Python lib)
   via:
 
 ```
-eval `lkql/manage.py setenv`
+eval `lkm setenv`
 ```
 
 - LKQL checker (linter based on lkql) is built separately:
