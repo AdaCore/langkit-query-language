@@ -33,6 +33,7 @@ For information, the tested version of GraalVM is graalvm-ce-java17-22.3.1.
 $[langkit]> pip3 install -r requirement-pypi.txt
 $[langkit]> ./manage.py make
 $[langkit]> eval `./manage.py setenv`
+$[langkit]> export PATH="/path/to/langkit/scripts:$PATH"
 ```
 
 If you get a Python error about the langkit library, add the langkit directory to your `PYTHONPATH`
@@ -50,8 +51,8 @@ $[langkit]> mvn -f langkit/java_support install
 ### 2) Build and install Libadalang
 
 ```sh
-$[libadalang]> ./manage.py make --enable-java
-$[libadalang]> eval `./manage.py setenv`
+$[libadalang]> lkm make --enable-java
+$[libadalang]> eval `lkm setenv`
 ```
 
 Make sure the Java bindings are installed locally
@@ -63,8 +64,8 @@ $[libadalang]> mvn -f build/java install
 ### 3) Build and install Liblkqllang
 
 ```sh
-$[langkit-query-language/lkql]> ./manage.py make --enable-java
-$[langkit-query-language/lkql]> eval `./manage.py setenv`
+$[langkit-query-language/lkql]> lkm make --enable-java
+$[langkit-query-language/lkql]> eval `lkm setenv`
 ```
 
 As for Libadalang, make sure Java bindings are installed
