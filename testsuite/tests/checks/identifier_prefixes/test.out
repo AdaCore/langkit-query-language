@@ -1,60 +1,76 @@
-prefix.ads:8:9: rule violation: Root does not start with subtype prefix Type_
-8 |    type Root is new integer;                  --  FLAG
+prefix.ads:4:9: rule violation: Root does not start with subtype prefix Type_
+4 |    type Root is new integer;                  --  FLAG
   |         ^^^^
 
-prefix.ads:9:9: rule violation: Priv does not start with subtype prefix Type_
-9 |    type Priv is private;                      --  FLAG
+prefix.ads:5:9: rule violation: Priv does not start with subtype prefix Type_
+5 |    type Priv is private;                      --  FLAG
   |         ^^^^
 
-prefix.ads:14:9: rule violation: Type_CW does not start with access-to-class prefix CA_
-14 |    type Type_CW is access all Tag'Class;     --  FLAG
+prefix.ads:10:9: rule violation: Type_CW does not start with access-to-class prefix CA_
+10 |    type Type_CW is access all Tag'Class;     --  FLAG
    |         ^^^^^^^
 
-prefix.ads:16:12: rule violation: Type_CA_3 does not start with access-to-class prefix CA_
-16 |    subtype Type_CA_3 is CA_1;                --  FLAG
+prefix.ads:12:12: rule violation: Type_CA_3 does not start with access-to-class prefix CA_
+12 |    subtype Type_CA_3 is CA_1;                --  FLAG
    |            ^^^^^^^^^
 
-prefix.ads:20:9: rule violation: Enum_2 does not start with subtype prefix Type_
-20 |    type Enum_2      is                       --  FLAG
+prefix.ads:16:9: rule violation: Enum_2 does not start with subtype prefix Type_
+16 |    type Enum_2      is                       --  FLAG
    |         ^^^^^^
 
-prefix.ads:22:7: rule violation: B2 does not start with enumeration prefix E_
-22 |       B2);                                   --  FLAG
+prefix.ads:18:7: rule violation: B2 does not start with enumeration prefix E_
+18 |       B2);                                   --  FLAG
    |       ^^
 
-prefix.ads:25:13: rule violation: Bad_Enum does not start with enumeration prefix E_
-25 |    function Bad_Enum return Enum_2           --  FLAG
+prefix.ads:21:13: rule violation: Bad_Enum does not start with enumeration prefix E_
+21 |    function Bad_Enum return Enum_2           --  FLAG
    |             ^^^^^^^^
 
-prefix.ads:30:4: rule violation: Const2 does not start with constant prefix Const_
-30 |    Const2   : constant Enum_2      := B2;    --  FLAG
+prefix.ads:26:4: rule violation: Const2 does not start with constant prefix Const_
+26 |    Const2   : constant Enum_2      := B2;    --  FLAG
    |    ^^^^^^
 
-prefix.ads:31:4: rule violation: Private_Const does not start with constant prefix Const_
-31 |    Private_Const : constant Priv;            --  FLAG
+prefix.ads:27:4: rule violation: Private_Const does not start with constant prefix Const_
+27 |    Private_Const : constant Priv;            --  FLAG
    |    ^^^^^^^^^^^^^
 
-prefix.ads:34:4: rule violation: Const3 does not start with constant prefix Const_
-34 |    Const3   : Type_Enum_1 renames Const_C1;  --  FLAG
+prefix.ads:30:4: rule violation: Const3 does not start with constant prefix Const_
+30 |    Const3   : Type_Enum_1 renames Const_C1;  --  FLAG
    |    ^^^^^^
 
-prefix.ads:38:4: rule violation: Exc_2 does not start with exception prefix X_
-38 |    Exc_2   : exception;                      --  FLAG
+prefix.ads:34:4: rule violation: Exc_2 does not start with exception prefix X_
+34 |    Exc_2   : exception;                      --  FLAG
    |    ^^^^^
 
-prefix.ads:42:9: rule violation: Root2 does not start with derived prefix Root_
-42 |    type Root2 is new Root;                   --  FLAG
+prefix.ads:38:9: rule violation: Root2 does not start with derived prefix Root_
+38 |    type Root2 is new Root;                   --  FLAG
    |         ^^^^^
 
-prefix.ads:48:9: rule violation: Root4 does not start with derived prefix Root_
-48 |    type Root4 is new Type_Sub2;              --  FLAG
+prefix.ads:39:9: rule violation: Root_1 does not start with subtype prefix Type_
+39 |    type Root_1 is new Integer;               --  FLAG
+   |         ^^^^^^
+
+prefix.ads:45:9: rule violation: Root4 does not start with derived prefix Root_
+45 |    type Root4 is new Type_Sub2;              --  FLAG
    |         ^^^^^
 
-prefix.ads:55:14: rule violation: My_Task does not start with subtype prefix Type_
-55 |    task type My_Task is                      --  FLAG
+prefix.ads:52:14: rule violation: My_Task does not start with concurrent prefix Type_Conc_
+52 |    task type My_Task is                      --  FLAG
    |              ^^^^^^^
 
-prefix.ads:63:19: rule violation: My_Protected does not start with subtype prefix Type_
-63 |    protected type My_Protected is            --  FLAG
+prefix.ads:60:19: rule violation: My_Protected does not start with concurrent prefix Type_Conc_
+60 |    protected type My_Protected is            --  FLAG
    |                   ^^^^^^^^^^^^
+
+prefix.ads:64:9: rule violation: Type_Conc_Rec is not a concurrent but starts with Type_Conc_
+64 |    type Type_Conc_Rec is null record;        --  FLAG
+   |         ^^^^^^^^^^^^^
+
+prefix.ads:65:9: rule violation: Type_Conc_Der is not a concurrent but starts with Type_Conc_
+65 |    type Type_Conc_Der is new Integer;        --  FLAG
+   |         ^^^^^^^^^^^^^
+
+prefix.ads:67:4: rule violation: Const_Or_Node is not a constant but starts with Const_
+67 |    Const_Or_Node : Integer := 1;             --  FLAG
+   |    ^^^^^^^^^^^^^
 

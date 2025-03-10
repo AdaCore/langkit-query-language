@@ -1,27 +1,30 @@
 import stdlib
 
-fun get_derived(t, derived) = {
-   |" Return the element from derived corresponding to t, if any, or ""
-   val name = t.p_canonical_type()
-               .p_canonical_fully_qualified_name();
-   val res = [n for n in derived if name == n.split(":")[1]].to_list;
-   if not res then "" else res[res.length]
-}
+fun is_class_access(type_decl) =
+    |" Given a TypeDecl node, return whether the declared type is an access
+    |" to classwide values.
+    type_decl.f_type_def is TypeAccessDef(
+        f_subtype_indication: *(f_name: AttributeRef(
+            f_attribute: Identifier(p_name_is("Class"): true)
+        ))
+    )
 
 @unit_check(help="prefixes in defining names", remediation="EASY",
             parametric_exemption=true,
             category="Style", subcategory="Readability")
-fun identifier_prefixes(unit,
-                        type="-",
-                        concurrent="-",
-                        access="-",
-                        class_access="-",
-                        subprogram_access="-",
-                        derived=[],
-                        constant="-",
-                        exception="-",
-                        enum="-",
-                        exclusive=true) =
+fun identifier_prefixes(
+    unit,
+    type="-",
+    concurrent="-",
+    access="-",
+    class_access="-",
+    subprogram_access="-",
+    derived=[],
+    constant="-",
+    exception="-",
+    enum="-",
+    exclusive=true
+) =
     |" Flag each defining identifier that does not have a prefix corresponding
     |" to the kind of declaration it is defined by. The defining names in the
     |" following kinds of declarations are checked:
@@ -180,176 +183,252 @@ fun identifier_prefixes(unit,
     |"       Exc_2   : exception;                      --  FLAG
     |"    end Foo;
     {
-        fun check_exclusive(str, exclusive,
-                            type_exclusive=true, concurrent_exclusive=true,
-                            access_exclusive=true, class_access_exclusive=true,
-                            subprogram_access_exclusive=true,
-                            constant_exclusive=true, exception_exclusive=true,
-                            enum_exclusive=true) =
-            exclusive and
-            ((type_exclusive and str.starts_with(type)) or
-             (concurrent_exclusive and str.starts_with(concurrent)) or
-             (access_exclusive and str.starts_with(access)) or
-             (class_access_exclusive and str.starts_with(class_access)) or
-             (subprogram_access_exclusive and str.starts_with(subprogram_access)) or
-             (constant_exclusive and str.starts_with(constant)) or
-             (exception_exclusive and str.starts_with(exception)) or
-             (enum_exclusive and str.starts_with(enum)));
+        fun check_exclusive(
+            name,
+            expected_prefix,
+            type_exclusive=true,
+            concurrent_exclusive=true,
+            access_exclusive=true,
+            class_access_exclusive=true,
+            subprogram_access_exclusive=true,
+            constant_exclusive=true,
+            exception_exclusive=true,
+            enum_exclusive=true
+        ) =
+            |" If the ``exclusive`` rule's parameter is ``true``, this function
+            |" checks whether ``str`` starts with one of the provided prefixes and
+            |" returns a diagnostic string if so. Else it return unit.
+            |" Use ``xxx_exclusive`` parameters to exempt checking on a precise
+            |" prefix.
+            if exclusive
+            then [
+                name.text & " is not " & s[3] & " but starts with " & s[2]
+                for s in [
+                    (concurrent_exclusive, concurrent, "a concurrent"),
+                    (class_access_exclusive, class_access, "an access-to-class"),
+                    (subprogram_access_exclusive, subprogram_access, "an access-to-subprogram"),
+                    (access_exclusive, access, "an access"),
+                    (type_exclusive, type, "a type"),
+                    (constant_exclusive, constant, "a constant"),
+                    (exception_exclusive, exception, "an exception"),
+                    (enum_exclusive, enum, "an enumeration")
+                ]
+                if (
+                    s[1]
+                    and name.f_name.text.starts_with(s[2])
+                    and not expected_prefix.starts_with(s[2])
+                )
+            ]?[1]
+            else ();
 
-        fun check_enum(str) =
-            (enum != "-" and not str.starts_with(enum)) or
-            check_exclusive(str, exclusive=exclusive, enum_exclusive=false);
+        fun check_prefix_and_exclusive(
+            name,
+            expected_prefix,
+            prefix_kind,
+            check_previous_part_on=null,
+            type_exclusive=true,
+            concurrent_exclusive=true,
+            access_exclusive=true,
+            class_access_exclusive=true,
+            subprogram_access_exclusive=true,
+            constant_exclusive=true,
+            exception_exclusive=true,
+            enum_exclusive=true
+        ) =
+            if (
+                if check_previous_part_on is not null
+                then check_previous_part_on.p_previous_part() is (null | IncompleteTypeDecl)
+            ) then (
+                if expected_prefix != "-" and not name.f_name.text.starts_with(expected_prefix)
+                then name.text & " does not start with " & prefix_kind & " prefix " & expected_prefix
+                else check_exclusive(
+                    name,
+                    expected_prefix,
+                    type_exclusive,
+                    concurrent_exclusive,
+                    access_exclusive,
+                    class_access_exclusive,
+                    subprogram_access_exclusive,
+                    constant_exclusive,
+                    exception_exclusive,
+                    enum_exclusive
+                )
+            )
+            else ();
 
-        val str_prefix = " does not start with ";
+        fun check_enum(name) =
+            check_prefix_and_exclusive(
+                name,
+                enum,
+                "enumeration",
+                enum_exclusive=false
+            );
 
-        [{message: n.text &
-          (match n.parent
-           | p@(TaskTypeDecl | ProtectedTypeDecl |
-                SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
-             when p is not SingleTaskTypeDecl and concurrent != "-"
-           => str_prefix & "concurrent prefix " & concurrent
-           | (TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
-              AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
-              SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
-                          TypeAccessDef(f_subtype_indication: *(f_name:
-              AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
-             when class_access != "-" => str_prefix & "access-to-class prefix " & class_access
-           | (TypeDecl(f_type_def: AccessToSubpDef) |
-              SubtypeDecl(p_canonical_type():
-                          TypeDecl(f_type_def: AccessToSubpDef)))
-             when subprogram_access != "-" =>
-               str_prefix & "access-to-subprogram prefix " & subprogram_access
-           | (TypeDecl(f_type_def: AccessDef) |
-              SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
-             when access != "-" => str_prefix & "access prefix " & access
+        @memoized
+        fun get_derived(t) = {
+            |" Return the element from derived corresponding to t, if any, or ""
+            val name = t.p_canonical_type()
+                        .p_canonical_fully_qualified_name();
+            val res = [n for n in derived if name == n.split(":")[1]].to_list;
+            if not res then "" else res[res.length]
+        };
 
-           | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
-             when derived != [] and
-                  p.p_canonical_type().p_base_type() is t@BaseTypeDecl
-                  when get_derived(t, derived) != ""
-           => {
-                val t = p.p_canonical_type().p_base_type();
-                str_prefix & "derived prefix " & get_derived(t, derived)
-                  .split(":")[2]
-              }
-
-           | BaseTypeDecl    => str_prefix & "subtype prefix " & type
-           | EnumLiteralDecl => str_prefix & "enumeration prefix " & enum
-           | p => match p.parent
-                    | (ObjectDecl | NumberDecl) =>
-                        str_prefix & "constant prefix " & constant
-                    | SubpRenamingDecl         => str_prefix & "enumeration prefix " & enum
-                    | ExceptionDecl            => str_prefix & "exception prefix " & exception
-                    | * => " does not have an exclusive prefix"),
-          loc: n}
-        for n in from unit.root select node@DefiningName when match node.parent
-        # Concurrent types
-        | p@(TaskTypeDecl | ProtectedTypeDecl | TaskBody | ProtectedBody |
-             SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
-          when p is not SingleTaskTypeDecl and concurrent != "-"
-        =>
-            p.p_previous_part() is (null | IncompleteTypeDecl) and
-            (if node.f_name.text.starts_with(concurrent)
-             then check_exclusive(node.f_name.text,
-                                  exclusive=exclusive,
-                                  concurrent_exclusive=false))
-
-        # 'Class access
-        | (p@TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
-           AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
-           p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
-                         TypeAccessDef(f_subtype_indication: *(f_name:
-           AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
-          when class_access != "-"
-        =>
-            p?.p_previous_part() is (null | IncompleteTypeDecl) and
-            (if node.f_name.text.starts_with(class_access)
-             then check_exclusive(node.f_name.text,
-                                  exclusive=exclusive,
-                                  class_access_exclusive=false))
-
-        # Subprogram access
-        | (p@TypeDecl(f_type_def: AccessToSubpDef) |
-           p@SubtypeDecl(p_canonical_type():
-                         TypeDecl(f_type_def: AccessToSubpDef)))
-          when subprogram_access != "-"
-        =>
-            p?.p_previous_part() is (null | IncompleteTypeDecl) and
-            (if node.f_name.text.starts_with(subprogram_access)
-             then check_exclusive(node.f_name.text,
-                                  exclusive=exclusive,
-                                  subprogram_access_exclusive=false))
-
-        # Other access types
-        | (p@TypeDecl(f_type_def: AccessDef) |
-           p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
-          when access != "-"
-        =>
-            p?.p_previous_part() is (null | IncompleteTypeDecl) and
-            (if node.f_name.text.starts_with(access)
-             then check_exclusive(node.f_name.text,
-                                  exclusive=exclusive,
-                                  access_exclusive=false,
-                                  # If both an Access prefix and a Type prefix are
-                                  # set and the type prefix is a prefix of the access
-                                  # prefix, we don't want to flag this access because
-                                  # it broke the exclusivity of the type prefix.
-                                  type_exclusive=false))
-
-        # (Sub)Types derived from `derived`
-        | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
-          when derived != [] and
-               p.p_canonical_type().p_base_type() is t@BaseTypeDecl
-               when get_derived(t, derived) != ""
-        => {
-             val t = p.p_canonical_type().p_base_type();
-             p.p_previous_part() is (null | IncompleteTypeDecl) and
-             not node.f_name.text.starts_with(get_derived(t, derived)
-               .split(":")[2])
-           }
-
-        # Exclude IncompleteTypeDecl
-        | IncompleteTypeDecl => false
-
-        # Other types and subtypes
-        | p@BaseTypeDecl when p is not SingleTaskTypeDecl =>
-            p.p_previous_part() is (null | IncompleteTypeDecl) and
-            ((type != "-" and not node.f_name.text.starts_with(type)) or
-             check_exclusive(node.f_name.text,
-                             exclusive=exclusive,
-                             type_exclusive=false))
-
-        # Enums
-        | EnumLiteralDecl => check_enum(node.f_name.text)
-
-        # Look one level up for remaining cases
-        | p => match p.parent
-            # Constants
-            | ((ObjectDecl(p_is_constant_object(): true) when not node.p_previous_part())
-              | NumberDecl)
+        fun check_name(name) =
+            |" Given a DefiningName, check that it is validating all expressed
+            |" prefix constraints. Returns a string containing the message
+            |" explaining the constraint violation if the defining name is
+            |" invalid, unit else.
+            match name.parent
+            # Concurrent types
+            | p@(TaskTypeDecl | ProtectedTypeDecl | TaskBody | ProtectedBody
+                | SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
+              when p is not SingleTaskTypeDecl
+               and concurrent != "-"
             =>
-                (constant != "-" and not node.f_name.text.starts_with(constant)) or
-                check_exclusive(node.f_name.text,
-                                exclusive=exclusive,
-                                constant_exclusive=false)
+                check_prefix_and_exclusive(
+                    name,
+                    concurrent,
+                    "concurrent",
+                    check_previous_part_on=p,
+                    concurrent_exclusive=false
+                )
 
+            # 'Class access
+            | (
+                p@TypeDecl when is_class_access(p)
+                | p@SubtypeDecl(
+                    p_canonical_type(): td@TypeDecl when is_class_access(td)
+                )
+            ) when class_access != "-"
+            =>
+                check_prefix_and_exclusive(
+                    name,
+                    class_access,
+                    "access-to-class",
+                    check_previous_part_on=p,
+                    class_access_exclusive=false
+                )
 
-            # Function renaming an enum literal
-            | r@SubpRenamingDecl
-              when r.f_renames?.f_renamed_object?.p_referenced_decl() is EnumLiteralDecl
-            => check_enum(node.f_name.text)
+            # Subprogram access
+            | (
+                p@TypeDecl(f_type_def: AccessToSubpDef)
+                | p@SubtypeDecl(
+                    p_canonical_type(): TypeDecl(f_type_def: AccessToSubpDef)
+                )
+            ) when subprogram_access != "-"
+            =>
+                check_prefix_and_exclusive(
+                    name,
+                    subprogram_access,
+                    "access-to-subprogram",
+                    check_previous_part_on=p,
+                    subprogram_access_exclusive=false
+                )
 
-            # Exceptions
-            | ExceptionDecl =>
-                (exception != "-" and not node.f_name.text.starts_with(exception)) or
-                check_exclusive(node.f_name.text,
-                                exclusive=exclusive,
-                                exception_exclusive=false)
+            # Other access types
+            | (
+                p@TypeDecl(f_type_def: AccessDef)
+                | p@SubtypeDecl(
+                    p_canonical_type(): TypeDecl(f_type_def: AccessDef)
+                )
+            ) when access != "-"
+            =>
+                check_prefix_and_exclusive(
+                    name,
+                    access,
+                    "access",
+                    check_previous_part_on=p,
+                    # If both an Access prefix and a Type prefix are set and the
+                    # type prefix is a prefix of the access prefix, we don't
+                    # want to flag this access because it broke the exclusivity
+                    # of the type prefix.
+                    access_exclusive=false,
+                    type_exclusive=false
+                )
 
-            # Check all other defining names for exclusion except for completions
-            # and renaming-as-body
-            | p2 =>
-                (if p2 is (BodyNode | SubpRenamingDecl) then not p2.p_previous_part()) and
-                (if p2 is ObjectDecl then not node.p_previous_part()) and
-                check_exclusive(node.f_name.text, exclusive=exclusive)]
+            # (Sub)Types derived from `derived`
+            | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
+              when derived != []
+               and p.p_canonical_type().p_base_type() is t@BaseTypeDecl
+                   when get_derived(t) != ""
+            => {
+                val derived_res = get_derived(p.p_canonical_type().p_base_type());
+                if derived_res != ""
+                then check_prefix_and_exclusive(
+                    name,
+                    derived_res.split(":")[2],
+                    "derived",
+                    check_previous_part_on=p
+                )
+                else check_exclusive(name, "")
+            }
+
+            # Exclude IncompleteTypeDecl
+            | IncompleteTypeDecl => ()
+
+            # Other types and subtypes
+            | p@BaseTypeDecl
+              when p is not SingleTaskTypeDecl
+            =>
+                check_prefix_and_exclusive(
+                    name,
+                    type,
+                    "subtype",
+                    check_previous_part_on=p,
+                    type_exclusive=false
+                )
+
+            # Enums
+            | EnumLiteralDecl => check_enum(name)
+
+            # Look one level up for remaining cases
+            | p => match p.parent
+                # Constants
+                | (
+                    ObjectDecl(p_is_constant_object(): true)
+                    | NumberDecl
+                ) =>
+                    check_prefix_and_exclusive(
+                        name,
+                        constant,
+                        "constant",
+                        check_previous_part_on=name,
+                        constant_exclusive=false
+                    )
+
+                # Function renaming an enum literal
+                | r@SubpRenamingDecl
+                  when r.f_renames?.f_renamed_object?.p_referenced_decl?() is EnumLiteralDecl
+                =>
+                    check_enum(name)
+
+                # Exceptions
+                | ExceptionDecl =>
+                    check_prefix_and_exclusive(
+                        name,
+                        exception,
+                        "exception",
+                        exception_exclusive=false
+                    )
+
+                # Avoid checking declaration completions
+                | p@(BodyNode | SubpRenamingDecl | ObjectDecl) => {
+                    val n = if p is ObjectDecl then name else p;
+                    if n.p_previous_part() is (null | IncompleteTypeDecl)
+                    then check_exclusive(name, "")
+                    else ()
+                }
+
+                # All other cases, check the exclusivity
+                | * => check_exclusive(name, "");
+
+        # Iterate over all defining names and check prefixes for each
+        [
+            {message: s[2], loc: s[1]}
+            for s in [
+                (n, check_name(n))
+                for n in from unit.root select DefiningName
+            ]
+            if s[2] != ()
+        ]
     }

@@ -3,8 +3,10 @@ rule_name: Identifier_Prefixes
 project: 'prj.gpr'
 rule_arguments:
     identifier_prefixes.type: '"Type_"'
+    identifier_prefixes.concurrent: '"Type_Conc_"'
     identifier_prefixes.constant: '"Const_"'
     identifier_prefixes.exception: '"X_"'
     identifier_prefixes.enum: '"E_"'
     identifier_prefixes.derived: '["prefix.root:Root_"]'
     identifier_prefixes.class_access: '"CA_"'
+    identifier_prefixes.exclusive: "true"
