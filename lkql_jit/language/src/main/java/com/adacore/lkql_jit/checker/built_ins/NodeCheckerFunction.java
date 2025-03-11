@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.checker.built_ins;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
@@ -52,23 +53,23 @@ public final class NodeCheckerFunction {
         private final InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
         @Specialization
-        public Object alwaysTrue(VirtualFrame frame, Libadalang.AdaNode root) {
+        public Object alwaysTrue(VirtualFrame frame, LangkitSupport.NodeInterface root) {
             // Get the arguments
             final LKQLContext context = LKQLLanguage.getContext(this);
             final Libadalang.AnalysisUnit rootUnit;
 
             final NodeChecker[] allNodeCheckers = context.getAllNodeCheckers();
-            final NodeChecker[] adaNodeCheckers = context.getAdaNodeCheckers();
+            final NodeChecker[] adaNodeCheckers = context.getNodeInterfaceCheckers();
             final NodeChecker[] sparkNodeCheckers = context.getSparkNodeCheckers();
             final boolean mustFollowInstantiations = context.mustFollowInstantiations();
             final boolean hasSparkCheckers = sparkNodeCheckers.length > 0;
 
             try {
-                root = LKQLTypeSystemGen.expectAdaNode(frame.getArguments()[0]);
+                root = LKQLTypeSystemGen.expectNodeInterface(frame.getArguments()[0]);
                 rootUnit = root.getUnit();
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE,
+                    LKQLTypesHelper.NODE_INTERFACE,
                     LKQLTypesHelper.fromJava(e.getResult()),
                     this.callNode.getArgList().getArgs()[0]
                 );
@@ -83,7 +84,7 @@ public final class NodeCheckerFunction {
             while (!visitList.isEmpty()) {
                 // Get the current values
                 final VisitStep currentStep = visitList.remove(0);
-                final Libadalang.AdaNode currentNode = currentStep.node();
+                final LangkitSupport.NodeInterface currentNode = currentStep.node();
                 final boolean inGenericInstantiation = currentStep.inGenericInstantiation();
                 final boolean inSparkCode = currentStep.inSparkCode();
 
@@ -143,7 +144,7 @@ public final class NodeCheckerFunction {
 
                 // Add the children to the visit list
                 for (int i = currentNode.getChildrenCount() - 1; i >= 0; i--) {
-                    final Libadalang.AdaNode child = currentNode.getChild(i);
+                    final LangkitSupport.NodeInterface child = currentNode.getChild(i);
                     if (!child.isNone()) {
                         // No need to check if the child is a base subprogram body in SPARK mode if
                         // there is no
@@ -247,7 +248,7 @@ public final class NodeCheckerFunction {
         private void executeCheckers(
             VirtualFrame frame,
             VisitStep currentStep,
-            Libadalang.AdaNode currentNode,
+            LangkitSupport.NodeInterface currentNode,
             NodeChecker[] checkers,
             LKQLContext context
         ) {
@@ -297,7 +298,7 @@ public final class NodeCheckerFunction {
         private void applyNodeRule(
             VirtualFrame frame,
             NodeChecker checker,
-            Libadalang.AdaNode node,
+            LangkitSupport.NodeInterface node,
             LKQLContext context
         ) {
             // Get the function for the checker
@@ -368,10 +369,10 @@ public final class NodeCheckerFunction {
         private static void reportViolation(
             LKQLContext context,
             NodeChecker checker,
-            Libadalang.AdaNode node
+            LangkitSupport.NodeInterface node
         ) {
             if (node instanceof Libadalang.BasicDecl basicDecl) {
-                Libadalang.AdaNode definingName = basicDecl.pDefiningName();
+                LangkitSupport.NodeInterface definingName = basicDecl.pDefiningName();
                 node = definingName.isNone() ? node : definingName;
             }
             context
@@ -395,7 +396,7 @@ public final class NodeCheckerFunction {
             Libadalang.RewritingContext rewritingContext,
             InteropLibrary interopLibrary,
             NodeChecker checker,
-            Libadalang.AdaNode node
+            LangkitSupport.NodeInterface node
         ) {
             try {
                 interopLibrary.execute(
@@ -430,7 +431,7 @@ public final class NodeCheckerFunction {
          * @param inGenericInstantiation Whether the visit is currently in a generic instantiation.
          */
         private record VisitStep(
-            Libadalang.AdaNode node,
+            LangkitSupport.NodeInterface node,
             boolean inGenericInstantiation,
             boolean inSparkCode
         ) {}

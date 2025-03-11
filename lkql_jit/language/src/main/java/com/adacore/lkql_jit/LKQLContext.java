@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.checker.BaseChecker;
@@ -110,7 +111,7 @@ public final class LKQLContext {
     private Libadalang.AnalysisUnit[] allUnits;
 
     /** The root nodes of all the analysis units of the project. */
-    private Libadalang.AdaNode[] allUnitsRoots;
+    private LangkitSupport.NodeInterface[] allUnitsRoots;
 
     // ----- Checker attributes -----
 
@@ -124,7 +125,7 @@ public final class LKQLContext {
     private NodeChecker[] filteredGeneralNodeCheckers = null;
 
     /** Node checkers to run on non-SPARK nodes from the Ada sources. */
-    private NodeChecker[] filteredAdaNodeCheckers = null;
+    private NodeChecker[] filteredNodeInterfaceCheckers = null;
 
     /** Node checkers to run only on SPARK nodes from the Ada sources. */
     private NodeChecker[] filteredSparkNodeCheckers = null;
@@ -203,7 +204,7 @@ public final class LKQLContext {
         return this.allUnits;
     }
 
-    public Libadalang.AdaNode[] getAllUnitsRoots() {
+    public LangkitSupport.NodeInterface[] getAllUnitsRoots() {
         if (!this.parsed) {
             this.parseSources();
         }
@@ -451,7 +452,7 @@ public final class LKQLContext {
         // the units
         // of the project, as well as their root nodes.
         this.allUnits = new Libadalang.AnalysisUnit[this.allSourceFiles.size()];
-        this.allUnitsRoots = new Libadalang.AdaNode[this.allSourceFiles.size()];
+        this.allUnitsRoots = new LangkitSupport.NodeInterface[this.allSourceFiles.size()];
 
         for (int i = 0; i < this.allUnits.length; i++) {
             this.allUnits[i] = this.adaContext.getUnitFromFile(this.allSourceFiles.get(i));
@@ -657,11 +658,11 @@ public final class LKQLContext {
      *
      * @return The node checkers array for Ada code only.
      */
-    public NodeChecker[] getAdaNodeCheckers() {
-        if (this.filteredAdaNodeCheckers == null) {
+    public NodeChecker[] getNodeInterfaceCheckers() {
+        if (this.filteredNodeInterfaceCheckers == null) {
             this.initCheckerCaches();
         }
-        return this.filteredAdaNodeCheckers;
+        return this.filteredNodeInterfaceCheckers;
     }
 
     /**
@@ -761,7 +762,7 @@ public final class LKQLContext {
 
         // Set the checker caches
         this.filteredGeneralNodeCheckers = generalNodeCheckers.toArray(new NodeChecker[0]);
-        this.filteredAdaNodeCheckers = adaNodeCheckers.toArray(new NodeChecker[0]);
+        this.filteredNodeInterfaceCheckers = adaNodeCheckers.toArray(new NodeChecker[0]);
         this.filteredSparkNodeCheckers = sparkNodeCheckers.toArray(new NodeChecker[0]);
         this.filteredUnitCheckers = unitCheckers.toArray(new UnitChecker[0]);
     }

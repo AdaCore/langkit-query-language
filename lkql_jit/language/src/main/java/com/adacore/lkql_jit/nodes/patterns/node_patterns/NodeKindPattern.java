@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
@@ -21,7 +22,7 @@ public final class NodeKindPattern extends NodePattern {
     // ----- Attributes -----
 
     /** The Java class of the node kind. */
-    private final Class<? extends Libadalang.AdaNode> nodeClazz;
+    private final Class<? extends LangkitSupport.NodeInterface> nodeClazz;
 
     // ----- Constructors -----
 

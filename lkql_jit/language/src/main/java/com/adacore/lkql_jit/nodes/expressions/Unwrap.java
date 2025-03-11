@@ -48,9 +48,9 @@ public final class Unwrap extends Expr {
     public Object executeGeneric(VirtualFrame frame) {
         // Evaluate the node value and test it
         Object nodeValue = this.expr.executeGeneric(frame);
-        if (!LKQLTypeSystemGen.isAdaNode(nodeValue)) {
+        if (!LKQLTypeSystemGen.isNodeInterface(nodeValue)) {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.ADA_NODE,
+                LKQLTypesHelper.NODE_INTERFACE,
                 LKQLTypesHelper.fromJava(nodeValue),
                 this.expr
             );

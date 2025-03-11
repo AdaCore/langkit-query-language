@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
@@ -18,7 +19,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the null value in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, Truthy {
+public class LKQLNull implements LangkitSupport.NodeInterface, LKQLValue, Nullish, Truthy {
 
     // ----- Attributes -----
 

@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.utils;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
@@ -41,8 +42,8 @@ public abstract class RewritingNodeConverter extends Node {
     }
 
     @Specialization(guards = "!node.isNone()")
-    protected Libadalang.RewritingNode onAdaNode(
-        Libadalang.AdaNode node,
+    protected Libadalang.RewritingNode onNodeInterface(
+        LangkitSupport.NodeInterface node,
         boolean ensureUntied,
         @SuppressWarnings("unused") Node usageLocation
     ) {
@@ -66,7 +67,10 @@ public abstract class RewritingNodeConverter extends Node {
         Node usageLocation
     ) {
         throw LKQLRuntimeException.wrongType(
-            LKQLTypesHelper.typeUnion(LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.REWRITING_NODE),
+            LKQLTypesHelper.typeUnion(
+                LKQLTypesHelper.NODE_INTERFACE,
+                LKQLTypesHelper.REWRITING_NODE
+            ),
             LKQLTypesHelper.fromJava(other),
             usageLocation
         );

@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
@@ -205,7 +206,10 @@ public abstract class BinNeq extends BinOp {
      * @return The result of the non-equality verification.
      */
     @Specialization
-    protected boolean neqNodes(Libadalang.AdaNode left, Libadalang.AdaNode right) {
+    protected boolean neqNodes(
+        LangkitSupport.NodeInterface left,
+        LangkitSupport.NodeInterface right
+    ) {
         return !left.equals(right);
     }
 

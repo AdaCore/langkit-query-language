@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.utils;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
@@ -75,7 +76,7 @@ public final class LKQLTypesHelper {
     public static final String LKQL_REC_VALUE = "RecValue";
 
     /** The string representing the ada node type. */
-    public static final String ADA_NODE = "Node";
+    public static final String NODE_INTERFACE = "Node";
 
     /** The string representing the token type. */
     public static final String TOKEN = "Token";
@@ -112,7 +113,7 @@ public final class LKQLTypesHelper {
         LKQL_OBJECT,
         LKQL_NAMESPACE,
         LKQL_REC_VALUE,
-        ADA_NODE,
+        NODE_INTERFACE,
         TOKEN,
         ANALYSIS_UNIT,
         REWRITING_CONTEXT,
@@ -180,8 +181,8 @@ public final class LKQLTypesHelper {
             return LKQL_LIST;
         } else if (LKQLTypeSystemGen.isLKQLLazyList(obj)) {
             return LKQL_LAZY_LIST;
-        } else if (LKQLTypeSystemGen.isAdaNode(obj)) {
-            return ADA_NODE;
+        } else if (LKQLTypeSystemGen.isNodeInterface(obj)) {
+            return NODE_INTERFACE;
         } else if (LKQLTypeSystemGen.isToken(obj)) {
             return TOKEN;
         } else if (LKQLTypeSystemGen.isAnalysisUnit(obj)) {
@@ -267,8 +268,8 @@ public final class LKQLTypesHelper {
         else if (javaValue instanceof String) {
             return javaValue;
         }
-        // If the source is an AdaNode
-        else if (javaValue instanceof Libadalang.AdaNode adaNode) {
+        // If the source is an NodeInterface
+        else if (javaValue instanceof LangkitSupport.NodeInterface adaNode) {
             return adaNode.isNone() ? LKQLNull.INSTANCE : adaNode;
         }
         // If the source is a token

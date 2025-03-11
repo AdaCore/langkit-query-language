@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.checker.built_ins;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
@@ -156,21 +157,23 @@ public final class UnitCheckerFunction {
                 Object loc = violation.getUncached("loc");
                 final Libadalang.AnalysisUnit locUnit;
                 final Libadalang.SourceLocationRange slocRange;
-                final Libadalang.AdaNode[] genericInstantiations;
+                final LangkitSupport.NodeInterface[] genericInstantiations;
 
                 if (LKQLTypeSystemGen.isToken(loc)) {
                     final Libadalang.Token token = LKQLTypeSystemGen.asToken(loc);
                     locUnit = token.unit;
                     slocRange = token.sourceLocationRange;
-                    genericInstantiations = new Libadalang.AdaNode[0];
-                } else if (LKQLTypeSystemGen.isAdaNode(loc)) {
-                    final Libadalang.AdaNode node = LKQLTypeSystemGen.asAdaNode(loc);
+                    genericInstantiations = new LangkitSupport.NodeInterface[0];
+                } else if (LKQLTypeSystemGen.isNodeInterface(loc)) {
+                    final LangkitSupport.NodeInterface node = LKQLTypeSystemGen.asNodeInterface(
+                        loc
+                    );
                     locUnit = node.getUnit();
                     slocRange = node.getSourceLocationRange();
                     genericInstantiations = node.pGenericInstantiations();
                 } else {
                     throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ADA_NODE,
+                        LKQLTypesHelper.NODE_INTERFACE,
                         LKQLTypesHelper.fromJava(loc),
                         functionValue.getBody()
                     );

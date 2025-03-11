@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -93,7 +94,7 @@ public final class Query extends Expr {
     public Object executeGeneric(VirtualFrame frame) {
         // Prepare the working variable
         LKQLSelector through = null;
-        Libadalang.AdaNode[] fromNodes;
+        LangkitSupport.NodeInterface[] fromNodes;
 
         // Get the through expression
         if (this.throughExpr != null) {
@@ -113,18 +114,18 @@ public final class Query extends Expr {
             Object fromObject = this.fromExpr.executeGeneric(frame);
 
             // If the "from" is a sole node
-            if (LKQLTypeSystemGen.isAdaNode(fromObject)) {
-                fromNodes = new Libadalang.AdaNode[1];
-                fromNodes[0] = LKQLTypeSystemGen.asAdaNode(fromObject);
+            if (LKQLTypeSystemGen.isNodeInterface(fromObject)) {
+                fromNodes = new LangkitSupport.NodeInterface[1];
+                fromNodes[0] = LKQLTypeSystemGen.asNodeInterface(fromObject);
             }
             // Else, if the "from" is a list of node
             else if (LKQLTypeSystemGen.isLKQLList(fromObject)) {
                 // Verify the content of the list
                 LKQLList fromList = LKQLTypeSystemGen.asLKQLList(fromObject);
-                fromNodes = new Libadalang.AdaNode[(int) fromList.size()];
+                fromNodes = new LangkitSupport.NodeInterface[(int) fromList.size()];
                 for (int i = 0; i < fromList.size(); i++) {
                     try {
-                        fromNodes[i] = LKQLTypeSystemGen.expectAdaNode(fromList.get(i));
+                        fromNodes[i] = LKQLTypeSystemGen.expectNodeInterface(fromList.get(i));
                     } catch (UnexpectedResultException e) {
                         throw LKQLRuntimeException.wrongFromList(this.fromExpr);
                     }
@@ -143,23 +144,24 @@ public final class Query extends Expr {
         // If the query mode is all
         if (this.kind == Kind.ALL) {
             // Prepare the result
-            List<Libadalang.AdaNode> resNodes = new ArrayList<>();
+            List<LangkitSupport.NodeInterface> resNodes = new ArrayList<>();
 
             // For each root node, explore it and return the result
             for (int i = fromNodes.length - 1; i >= 0; i--) {
                 Iterable nodes = this.createNodeIterable(fromNodes[i], through);
-                List<Libadalang.AdaNode> result = this.exploreAll(frame, nodes.iterator());
+                List<LangkitSupport.NodeInterface> result =
+                    this.exploreAll(frame, nodes.iterator());
                 for (int j = 0; j < result.size(); j++) resNodes.add(result.get(j));
             }
 
             // Return the result list value
-            return new LKQLList(resNodes.toArray(new Libadalang.AdaNode[0]));
+            return new LKQLList(resNodes.toArray(new LangkitSupport.NodeInterface[0]));
         }
         // If the query mode is first
         else {
             for (int i = fromNodes.length - 1; i >= 0; i--) {
                 Iterable nodes = this.createNodeIterable(fromNodes[i], through);
-                Libadalang.AdaNode res = this.exploreFirst(frame, nodes.iterator());
+                LangkitSupport.NodeInterface res = this.exploreFirst(frame, nodes.iterator());
                 if (!res.isNone()) return res;
             }
 
@@ -177,14 +179,18 @@ public final class Query extends Expr {
      * @param nodeIterator The node iterator to explore
      * @return The list of the nodes that matches the pattern
      */
-    private List<Libadalang.AdaNode> exploreAll(VirtualFrame frame, Iterator nodeIterator) {
+    private List<LangkitSupport.NodeInterface> exploreAll(
+        VirtualFrame frame,
+        Iterator nodeIterator
+    ) {
         // Create the result list
-        List<Libadalang.AdaNode> resList = new ArrayList<>();
+        List<LangkitSupport.NodeInterface> resList = new ArrayList<>();
 
         // Iterate on all node in the iterator
         while (nodeIterator.hasNext()) {
             // Get the current node
-            Libadalang.AdaNode adaNode = (Libadalang.AdaNode) nodeIterator.next();
+            LangkitSupport.NodeInterface adaNode =
+                (LangkitSupport.NodeInterface) nodeIterator.next();
 
             if (this.pattern.executeValue(frame, adaNode)) {
                 resList.add(adaNode);
@@ -202,11 +208,12 @@ public final class Query extends Expr {
      * @param nodeIterator The node iterator to explore
      * @return The first matching node, null if none
      */
-    private Libadalang.AdaNode exploreFirst(VirtualFrame frame, Iterator nodeIterator) {
+    private LangkitSupport.NodeInterface exploreFirst(VirtualFrame frame, Iterator nodeIterator) {
         // Iterate on all node in the iterator
         while (nodeIterator.hasNext()) {
             // Get the current node
-            Libadalang.AdaNode adaNode = (Libadalang.AdaNode) nodeIterator.next();
+            LangkitSupport.NodeInterface adaNode =
+                (LangkitSupport.NodeInterface) nodeIterator.next();
 
             if (this.pattern.executeValue(frame, adaNode)) {
                 return adaNode;
@@ -225,7 +232,7 @@ public final class Query extends Expr {
      *     exploration
      * @return The iterator for the node exploration
      */
-    private Iterable createNodeIterable(Libadalang.AdaNode root, LKQLSelector through) {
+    private Iterable createNodeIterable(LangkitSupport.NodeInterface root, LKQLSelector through) {
         if (through == null) {
             return new ChildIterable(root, this.followGenerics);
         } else {
@@ -264,7 +271,7 @@ public final class Query extends Expr {
         // ----- Attributes -----
 
         /** The root of the iterable */
-        private final Libadalang.AdaNode root;
+        private final LangkitSupport.NodeInterface root;
 
         /** Whether the traversal should follow the generic instantiations */
         private final boolean followGenerics;
@@ -277,7 +284,7 @@ public final class Query extends Expr {
          * @param root The root node
          * @param followGenerics Whether the traversal should follow the ada generic instantiations
          */
-        public ChildIterable(Libadalang.AdaNode root, boolean followGenerics) {
+        public ChildIterable(LangkitSupport.NodeInterface root, boolean followGenerics) {
             this.root = root;
             this.followGenerics = followGenerics;
         }
@@ -306,7 +313,7 @@ public final class Query extends Expr {
         // ----- Attributes -----
 
         /** The queue to explore the children */
-        private final LinkedList<Libadalang.AdaNode> queue;
+        private final LinkedList<LangkitSupport.NodeInterface> queue;
 
         /** Whether the iterator should follow the generic instantiations */
         private final boolean followGenerics;
@@ -319,7 +326,7 @@ public final class Query extends Expr {
          * @param root The root of the exploration
          * @param followGenerics If the iterator should follow the ada generic instantiation
          */
-        public ChildIterator(Libadalang.AdaNode root, boolean followGenerics) {
+        public ChildIterator(LangkitSupport.NodeInterface root, boolean followGenerics) {
             this.queue = new LinkedList<>();
             this.queue.add(root);
             this.followGenerics = followGenerics;
@@ -341,12 +348,12 @@ public final class Query extends Expr {
         @Override
         public Object next() {
             // Get the next node
-            Libadalang.AdaNode next = this.queue.remove(0);
+            LangkitSupport.NodeInterface next = this.queue.remove(0);
 
             // Add the node child in the queue
             int childrenCount = next.getChildrenCount();
             for (int i = childrenCount - 1; i >= 0; i--) {
-                Libadalang.AdaNode child = next.getChild(i);
+                LangkitSupport.NodeInterface child = next.getChild(i);
                 if (!child.isNone()) {
                     this.queue.add(0, child);
                 }
@@ -384,7 +391,7 @@ public final class Query extends Expr {
          *
          * @param node The node to check
          */
-        private static boolean inGenericInstantiation(Libadalang.AdaNode node) {
+        private static boolean inGenericInstantiation(LangkitSupport.NodeInterface node) {
             return node.pGenericInstantiations().length > 0;
         }
 

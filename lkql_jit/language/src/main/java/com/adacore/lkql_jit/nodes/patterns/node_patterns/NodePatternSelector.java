@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.SelectorCall;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -50,10 +50,10 @@ public final class NodePatternSelector extends NodePatternDetail {
     /**
      * @see
      *     com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail#executeDetail(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.libadalang.Libadalang.AdaNode)
+     *     com.adacore.langkit_support.LangkitSupport.NodeInterface)
      */
     @Override
-    public boolean executeDetail(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean executeDetail(VirtualFrame frame, LangkitSupport.NodeInterface node) {
         return this.call.executeVerification(frame, node, this.pattern);
     }
 
