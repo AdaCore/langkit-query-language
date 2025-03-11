@@ -44,7 +44,7 @@ import java.math.BigInteger;
         Iterable.class,
         LangkitSupport.NodeInterface.class,
         Libadalang.Token.class,
-        Libadalang.AnalysisUnit.class,
+        LangkitSupport.AnalysisUnit.class,
         Libadalang.RewritingContext.class,
         Libadalang.RewritingNode.class,
         Libadalang.MemberReference.class,

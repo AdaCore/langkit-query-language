@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.checker.utils;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.BaseChecker;
@@ -42,7 +41,7 @@ public class CheckerUtils {
          * @param unit The unit from which to extract source lines
          */
         @CompilerDirectives.TruffleBoundary
-        public String[] getLines(Libadalang.AnalysisUnit unit) {
+        public String[] getLines(LangkitSupport.AnalysisUnit unit) {
             final LangkitSupport.NodeInterface root = unit.getRoot();
             String[] result = sourcesLines.get(root, null);
             if (result == null) {

@@ -56,7 +56,7 @@ public final class NodeCheckerFunction {
         public Object alwaysTrue(VirtualFrame frame, LangkitSupport.NodeInterface root) {
             // Get the arguments
             final LKQLContext context = LKQLLanguage.getContext(this);
-            final Libadalang.AnalysisUnit rootUnit;
+            final LangkitSupport.AnalysisUnit rootUnit;
 
             final NodeChecker[] allNodeCheckers = context.getAllNodeCheckers();
             final NodeChecker[] nodeCheckers = context.getNodeCheckers();
