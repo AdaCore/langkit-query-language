@@ -234,8 +234,8 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization
     protected boolean neqAnalysisUnits(
-        Libadalang.AnalysisUnit left,
-        Libadalang.AnalysisUnit right
+        LangkitSupport.AnalysisUnit left,
+        LangkitSupport.AnalysisUnit right
     ) {
         return !left.equals(right);
     }
