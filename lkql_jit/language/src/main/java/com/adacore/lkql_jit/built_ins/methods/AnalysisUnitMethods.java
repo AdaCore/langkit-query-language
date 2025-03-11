@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.libadalang.Libadalang.AnalysisUnit;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
@@ -25,7 +26,7 @@ public final class AnalysisUnitMethods {
 
         @Specialization
         public Object onUnit(AnalysisUnit self) {
-            Libadalang.AdaNode res = self.getRoot();
+            LangkitSupport.NodeInterface res = self.getRoot();
             return res.isNone() ? LKQLNull.INSTANCE : res;
         }
     }

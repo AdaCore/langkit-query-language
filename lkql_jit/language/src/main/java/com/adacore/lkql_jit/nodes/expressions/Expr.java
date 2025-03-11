@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -254,8 +255,9 @@ public abstract class Expr extends LKQLNode {
      * @throws UnexpectedResultException If the node cannot be evaluated as an ada node.
      */
     @SuppressWarnings("unused")
-    public Libadalang.AdaNode executeNode(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectAdaNode(executeGeneric(frame));
+    public LangkitSupport.NodeInterface executeNode(VirtualFrame frame)
+        throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectNodeInterface(executeGeneric(frame));
     }
 
     /**
