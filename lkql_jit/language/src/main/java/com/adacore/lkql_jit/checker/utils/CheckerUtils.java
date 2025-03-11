@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.checker.utils;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
@@ -30,7 +31,8 @@ public class CheckerUtils {
      */
     public static class SourceLinesCache {
 
-        private final EconomicMap<Libadalang.AdaNode, String[]> sourcesLines = EconomicMap.create();
+        private final EconomicMap<LangkitSupport.NodeInterface, String[]> sourcesLines =
+            EconomicMap.create();
 
         /**
          * Return the lines of code composing the given analysis unit as an array of Strings. This
@@ -41,7 +43,7 @@ public class CheckerUtils {
          */
         @CompilerDirectives.TruffleBoundary
         public String[] getLines(Libadalang.AnalysisUnit unit) {
-            final Libadalang.AdaNode root = unit.getRoot();
+            final LangkitSupport.NodeInterface root = unit.getRoot();
             String[] result = sourcesLines.get(root, null);
             if (result == null) {
                 result = StringUtils.separateLines(unit.getText());
@@ -67,7 +69,7 @@ public class CheckerUtils {
             BaseChecker checker,
             String message,
             SourceLocation violationLocation,
-            Libadalang.AdaNode[] genericInstantiations,
+            LangkitSupport.NodeInterface[] genericInstantiations,
             LKQLContext context
         );
 
@@ -192,7 +194,7 @@ public class CheckerUtils {
             BaseChecker checker,
             String message,
             SourceLocation violationLocation,
-            Libadalang.AdaNode[] genericInstantiations,
+            LangkitSupport.NodeInterface[] genericInstantiations,
             LKQLContext context
         ) {
             // Print the things
@@ -247,7 +249,7 @@ public class CheckerUtils {
             BaseChecker checker,
             String message,
             SourceLocation violationLocation,
-            Libadalang.AdaNode[] genericInstantiations,
+            LangkitSupport.NodeInterface[] genericInstantiations,
             LKQLContext context
         ) {
             // Append generic instantiation information to the message
@@ -259,7 +261,7 @@ public class CheckerUtils {
                     } else {
                         messageBuilder.append(" [instance at ");
                     }
-                    final Libadalang.AdaNode inst = genericInstantiations[i];
+                    final LangkitSupport.NodeInterface inst = genericInstantiations[i];
                     messageBuilder.append(FileUtils.baseName(inst.getUnit().getFileName()));
                     messageBuilder.append(":");
                     messageBuilder.append(inst.getSourceLocationRange().start.line);

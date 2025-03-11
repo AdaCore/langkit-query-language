@@ -58,8 +58,8 @@ public final class ExtendedNodePattern extends NodePattern {
     public boolean executeValue(VirtualFrame frame, Object value) {
         // Test the base pattern
         if (this.basePattern.executeValue(frame, value)) {
-            if (LKQLTypeSystemGen.isAdaNode(value)) {
-                var node = LKQLTypeSystemGen.asAdaNode(value);
+            if (LKQLTypeSystemGen.isNodeInterface(value)) {
+                var node = LKQLTypeSystemGen.asNodeInterface(value);
 
                 // Verify all details
                 for (NodePatternDetail detail : this.details) {
@@ -70,7 +70,7 @@ public final class ExtendedNodePattern extends NodePattern {
                 return true;
             } else {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE,
+                    LKQLTypesHelper.NODE_INTERFACE,
                     LKQLTypesHelper.fromJava(value),
                     this
                 );

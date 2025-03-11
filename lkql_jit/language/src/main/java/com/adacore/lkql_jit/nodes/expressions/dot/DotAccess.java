@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
@@ -94,7 +94,7 @@ public abstract class DotAccess extends BaseDotAccess {
         limit = "1"
     )
     protected Object onNodeCached(
-        @SuppressWarnings("unused") Libadalang.AdaNode receiver,
+        @SuppressWarnings("unused") LangkitSupport.NodeInterface receiver,
         @Cached("create(member.getName(), receiver)") LKQLProperty property,
         @Cached("property.isField()") boolean isField
     ) {
@@ -114,7 +114,7 @@ public abstract class DotAccess extends BaseDotAccess {
      * @return The property call or the file value.
      */
     @Specialization(replaces = "onNodeCached")
-    protected Object onNodeUncached(Libadalang.AdaNode receiver) {
+    protected Object onNodeUncached(LangkitSupport.NodeInterface receiver) {
         // Try the built_in
         Object builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {

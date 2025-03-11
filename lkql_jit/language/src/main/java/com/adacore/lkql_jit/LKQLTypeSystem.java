@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
@@ -41,7 +42,7 @@ import java.math.BigInteger;
         BaseLKQLList.class,
         Indexable.class,
         Iterable.class,
-        Libadalang.AdaNode.class,
+        LangkitSupport.NodeInterface.class,
         Libadalang.Token.class,
         Libadalang.AnalysisUnit.class,
         Libadalang.RewritingContext.class,
@@ -101,7 +102,7 @@ public abstract class LKQLTypeSystem {
         return (
             value instanceof Truthy ||
             value instanceof Boolean ||
-            value instanceof Libadalang.AdaNode
+            value instanceof LangkitSupport.NodeInterface
         );
     }
 
@@ -112,7 +113,7 @@ public abstract class LKQLTypeSystem {
         } else if (value instanceof Boolean b) {
             return Truthy.wrapBoolean(b);
         } else {
-            return Truthy.wrapBoolean(value instanceof Libadalang.AdaNode);
+            return Truthy.wrapBoolean(value instanceof LangkitSupport.NodeInterface);
         }
     }
 

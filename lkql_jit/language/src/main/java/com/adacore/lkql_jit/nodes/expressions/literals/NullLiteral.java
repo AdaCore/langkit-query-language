@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -45,7 +45,7 @@ public final class NullLiteral extends Expr {
      *     com.adacore.lkql_jit.nodes.expressions.Expr#executeNode(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
-    public Libadalang.AdaNode executeNode(VirtualFrame frame) {
+    public LangkitSupport.NodeInterface executeNode(VirtualFrame frame) {
         return LKQLNull.INSTANCE;
     }
 

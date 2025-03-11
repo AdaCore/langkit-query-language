@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.AdaNode;
 import com.adacore.libadalang.Libadalang.AnalysisUnit;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
@@ -27,18 +27,18 @@ import java.util.ArrayList;
  *
  * @author Hugo GUERRIER
  */
-@BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.ADA_NODE })
+@BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.NODE_INTERFACE })
 public final class NodeMethods {
 
     @BuiltInMethod(name = "children", doc = "Return the node's children", isProperty = true)
     abstract static class ChildrenExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList onNode(AdaNode self) {
+        public LKQLList onNode(NodeInterface self) {
             int childrenCount = self.getChildrenCount();
-            AdaNode[] res = new AdaNode[childrenCount];
+            NodeInterface[] res = new NodeInterface[childrenCount];
             for (int i = 0; i < childrenCount; i++) {
-                AdaNode child = self.getChild(i);
+                NodeInterface child = self.getChild(i);
                 res[i] = (child.isNone() ? LKQLNull.INSTANCE : child);
             }
             return new LKQLList(res);
@@ -49,8 +49,8 @@ public final class NodeMethods {
     abstract static class ParentExpr extends BuiltInBody {
 
         @Specialization
-        public AdaNode onNode(AdaNode self) {
-            AdaNode parent = self.parent();
+        public NodeInterface onNode(NodeInterface self) {
+            NodeInterface parent = self.parent();
             return parent.isNone() ? LKQLNull.INSTANCE : parent;
         }
     }
@@ -63,7 +63,7 @@ public final class NodeMethods {
     abstract static class ChildrenCountExpr extends BuiltInBody {
 
         @Specialization
-        public long onNode(AdaNode self) {
+        public long onNode(NodeInterface self) {
             return (long) self.getChildrenCount();
         }
     }
@@ -76,7 +76,7 @@ public final class NodeMethods {
     abstract static class DumpExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLUnit onNode(AdaNode self) {
+        public LKQLUnit onNode(NodeInterface self) {
             LKQLLanguage.getContext(this).print(self.dumpTree());
             return LKQLUnit.INSTANCE;
         }
@@ -86,7 +86,7 @@ public final class NodeMethods {
     abstract static class TextExpr extends BuiltInBody {
 
         @Specialization
-        public String onNode(AdaNode self) {
+        public String onNode(NodeInterface self) {
             return self.getText();
         }
     }
@@ -95,7 +95,7 @@ public final class NodeMethods {
     abstract static class ImageExpr extends BuiltInBody {
 
         @Specialization
-        public String onNode(AdaNode self) {
+        public String onNode(NodeInterface self) {
             return self.getImage();
         }
     }
@@ -104,7 +104,7 @@ public final class NodeMethods {
     abstract static class UnitExpr extends BuiltInBody {
 
         @Specialization
-        public AnalysisUnit onNode(AdaNode self) {
+        public AnalysisUnit onNode(NodeInterface self) {
             return self.getUnit();
         }
     }
@@ -113,7 +113,7 @@ public final class NodeMethods {
     abstract static class KindExpr extends BuiltInBody {
 
         @Specialization
-        public String onNode(AdaNode self) {
+        public String onNode(NodeInterface self) {
             return ReflectionUtils.getClassSimpleName(self);
         }
     }
@@ -122,7 +122,7 @@ public final class NodeMethods {
     abstract static class TokensExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList onNode(AdaNode self) {
+        public LKQLList onNode(NodeInterface self) {
             // Prepare the result
             ArrayList<Libadalang.Token> resList = new ArrayList<>();
             Libadalang.Token startToken = self.tokenStart();
@@ -145,7 +145,7 @@ public final class NodeMethods {
     abstract static class SameTokensExpr extends BuiltInBody {
 
         @Specialization
-        protected boolean onAdaNode(AdaNode leftNode, AdaNode rightNode) {
+        protected boolean onNodeInterface(NodeInterface leftNode, NodeInterface rightNode) {
             // Get the tokens
             Libadalang.Token leftToken = leftNode.tokenStart();
             Libadalang.Token rightToken = rightNode.tokenStart();
