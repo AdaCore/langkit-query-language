@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.utils.source_location;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import java.io.File;
@@ -19,12 +18,12 @@ import java.io.File;
  */
 public class LalLocationWrapper implements SourceLocation {
 
-    public final Libadalang.SourceLocationRange sourceLocationRange;
+    public final LangkitSupport.SourceLocationRange sourceLocationRange;
     public final CheckerUtils.SourceLinesCache sourceLinesCache;
     private final LangkitSupport.AnalysisUnit unit;
 
     public LalLocationWrapper(
-        Libadalang.SourceLocationRange sourceLocationRange,
+        LangkitSupport.SourceLocationRange sourceLocationRange,
         LangkitSupport.AnalysisUnit unit,
         CheckerUtils.SourceLinesCache sourceLinesCache
     ) {
