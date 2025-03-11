@@ -5,9 +5,9 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.langkit_support.LangkitSupport.AnalysisUnit;
 import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.AnalysisUnit;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;

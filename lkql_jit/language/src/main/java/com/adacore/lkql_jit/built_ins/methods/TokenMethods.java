@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang.Token;
 import com.adacore.lkql_jit.annotations.*;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
@@ -123,7 +123,7 @@ public final class TokenMethods {
     abstract static class UnitExpr extends BuiltInBody {
 
         @Specialization
-        public Libadalang.AnalysisUnit onToken(Token t) {
+        public LangkitSupport.AnalysisUnit onToken(Token t) {
             return t.unit;
         }
     }

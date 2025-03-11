@@ -277,7 +277,7 @@ public final class LKQLTypesHelper {
             return token;
         }
         // If the source is an analysis unit
-        else if (javaValue instanceof Libadalang.AnalysisUnit) {
+        else if (javaValue instanceof LangkitSupport.AnalysisUnit) {
             return javaValue;
         }
         // If the source is an array from libadalang

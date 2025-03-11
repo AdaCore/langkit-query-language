@@ -279,7 +279,10 @@ public abstract class BinEq extends BinOp {
      * @return The result of the equality verification.
      */
     @Specialization
-    protected boolean eqAnalysisUnits(Libadalang.AnalysisUnit left, Libadalang.AnalysisUnit right) {
+    protected boolean eqAnalysisUnits(
+        LangkitSupport.AnalysisUnit left,
+        LangkitSupport.AnalysisUnit right
+    ) {
         return left.equals(right);
     }
 

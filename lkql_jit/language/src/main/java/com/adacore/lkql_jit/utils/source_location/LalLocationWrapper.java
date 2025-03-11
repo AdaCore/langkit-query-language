@@ -21,11 +21,11 @@ public class LalLocationWrapper implements SourceLocation {
 
     public final Libadalang.SourceLocationRange sourceLocationRange;
     public final CheckerUtils.SourceLinesCache sourceLinesCache;
-    private final Libadalang.AnalysisUnit unit;
+    private final LangkitSupport.AnalysisUnit unit;
 
     public LalLocationWrapper(
         Libadalang.SourceLocationRange sourceLocationRange,
-        Libadalang.AnalysisUnit unit,
+        LangkitSupport.AnalysisUnit unit,
         CheckerUtils.SourceLinesCache sourceLinesCache
     ) {
         this.sourceLocationRange = sourceLocationRange;

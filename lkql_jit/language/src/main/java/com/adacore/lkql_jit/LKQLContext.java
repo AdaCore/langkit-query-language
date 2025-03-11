@@ -105,10 +105,10 @@ public final class LKQLContext {
      * The user-specified units to analyze. If not explicitly specified, those will be the units of
      * the root project.
      */
-    private Libadalang.AnalysisUnit[] specifiedUnits;
+    private LangkitSupport.AnalysisUnit[] specifiedUnits;
 
     /** All the units of the project, including those of its non-externally-built dependencies. */
-    private Libadalang.AnalysisUnit[] allUnits;
+    private LangkitSupport.AnalysisUnit[] allUnits;
 
     /** The root nodes of all the analysis units of the project. */
     private LangkitSupport.NodeInterface[] allUnitsRoots;
@@ -190,14 +190,14 @@ public final class LKQLContext {
         return this.global;
     }
 
-    public Libadalang.AnalysisUnit[] getSpecifiedUnits() {
+    public LangkitSupport.AnalysisUnit[] getSpecifiedUnits() {
         if (!this.parsed) {
             this.parseSources();
         }
         return this.specifiedUnits;
     }
 
-    public Libadalang.AnalysisUnit[] getAllUnits() {
+    public LangkitSupport.AnalysisUnit[] getAllUnits() {
         if (!this.parsed) {
             this.parseSources();
         }
@@ -442,7 +442,7 @@ public final class LKQLContext {
 
         // For each specified source file, store its corresponding analysis unit in the list of
         // specified units
-        this.specifiedUnits = new Libadalang.AnalysisUnit[usedSources.length];
+        this.specifiedUnits = new LangkitSupport.AnalysisUnit[usedSources.length];
         for (int i = 0; i < usedSources.length; i++) {
             this.specifiedUnits[i] = this.adaContext.getUnitFromFile(usedSources[i]);
         }
@@ -451,7 +451,7 @@ public final class LKQLContext {
         // all
         // the units
         // of the project, as well as their root nodes.
-        this.allUnits = new Libadalang.AnalysisUnit[this.allSourceFiles.size()];
+        this.allUnits = new LangkitSupport.AnalysisUnit[this.allSourceFiles.size()];
         this.allUnitsRoots = new LangkitSupport.NodeInterface[this.allSourceFiles.size()];
 
         for (int i = 0; i < this.allUnits.length; i++) {

@@ -42,7 +42,7 @@ public final class UnitCheckerFunction {
         private final InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
         @Specialization
-        public Object alwaysTrue(VirtualFrame frame, Libadalang.AnalysisUnit unit) {
+        public Object alwaysTrue(VirtualFrame frame, LangkitSupport.AnalysisUnit unit) {
             // Get the arguments
             LKQLContext context = LKQLLanguage.getContext(this);
             UnitChecker[] checkers = context.getUnitCheckersFiltered();
@@ -92,7 +92,7 @@ public final class UnitCheckerFunction {
         private void applyUnitRule(
             VirtualFrame frame,
             UnitChecker checker,
-            Libadalang.AnalysisUnit unit,
+            LangkitSupport.AnalysisUnit unit,
             LKQLContext context
         ) {
             // Get the function for the checker
@@ -155,7 +155,7 @@ public final class UnitCheckerFunction {
 
                 // Get the violation location
                 Object loc = violation.getUncached("loc");
-                final Libadalang.AnalysisUnit locUnit;
+                final LangkitSupport.AnalysisUnit locUnit;
                 final Libadalang.SourceLocationRange slocRange;
                 final LangkitSupport.NodeInterface[] genericInstantiations;
 
