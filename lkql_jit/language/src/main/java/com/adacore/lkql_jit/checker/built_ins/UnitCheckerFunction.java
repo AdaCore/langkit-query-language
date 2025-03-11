@@ -156,7 +156,7 @@ public final class UnitCheckerFunction {
                 // Get the violation location
                 Object loc = violation.getUncached("loc");
                 final LangkitSupport.AnalysisUnit locUnit;
-                final Libadalang.SourceLocationRange slocRange;
+                final LangkitSupport.SourceLocationRange slocRange;
                 final LangkitSupport.NodeInterface[] genericInstantiations;
 
                 if (LKQLTypeSystemGen.isToken(loc)) {
