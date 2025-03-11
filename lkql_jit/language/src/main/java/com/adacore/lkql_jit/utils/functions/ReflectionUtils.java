@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.utils.functions;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -102,7 +103,7 @@ public final class ReflectionUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static Object callProperty(
-        Libadalang.AdaNode node,
+        LangkitSupport.NodeInterface node,
         Libadalang.Reflection.Field fieldDescription,
         Node caller,
         ArgList argList,

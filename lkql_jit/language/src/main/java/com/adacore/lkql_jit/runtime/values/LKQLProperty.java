@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
@@ -34,25 +35,25 @@ public class LKQLProperty extends BasicLKQLValue {
     private final Libadalang.Reflection.Field description;
 
     /** The node associated to the property. */
-    private final Libadalang.AdaNode node;
+    private final LangkitSupport.NodeInterface node;
 
     // ----- Constructors -----
 
     /** Create a new LKQL property from its name and associated node. */
-    public LKQLProperty(final String name, final Libadalang.AdaNode node) {
+    public LKQLProperty(final String name, final LangkitSupport.NodeInterface node) {
         this.name = name;
         this.description = node.getFieldDescription(name);
         this.node = node;
     }
 
     /** Creation function used by the Truffle DSL to cached properties */
-    public static LKQLProperty create(final String name, final Libadalang.AdaNode node) {
+    public static LKQLProperty create(final String name, final LangkitSupport.NodeInterface node) {
         return new LKQLProperty(name, node);
     }
 
     // ----- Getters -----
 
-    public Libadalang.AdaNode getNode() {
+    public LangkitSupport.NodeInterface getNode() {
         return node;
     }
 
