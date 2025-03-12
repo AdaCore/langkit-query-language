@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.nodes.root_nodes;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import org.graalvm.collections.EconomicMap;
+import java.util.HashMap;
 
 /**
  * This root node is the base of all root node which can be memoized in LKQL.
@@ -19,8 +19,13 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
 
     // ----- Attributes -----
 
-    /** Cache to store the root node execution results. */
-    protected final EconomicMap<K, V> memoizationCache;
+    /**
+     * Cache to store the root node execution results.
+     *
+     * IMPORTANT: We don't use the {@link org.graalvm.collections.EconomicMap} class to represent
+     * the cache because there is an implementation error causing invalid cache hits.
+     */
+    protected final HashMap<K, V> memoizationCache;
 
     // ----- Constructors -----
 
@@ -35,7 +40,7 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
         final FrameDescriptor frameDescriptor
     ) {
         super(language, frameDescriptor);
-        this.memoizationCache = EconomicMap.create();
+        this.memoizationCache = new HashMap<>();
     }
 
     // ----- Instance methods -----
@@ -59,7 +64,7 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
      */
     @CompilerDirectives.TruffleBoundary
     protected V getMemoized(final K key) {
-        return this.memoizationCache.get(key, null);
+        return this.memoizationCache.get(key);
     }
 
     /**
