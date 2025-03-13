@@ -511,7 +511,7 @@ begin
    end if;
 
    --  Get the default LKQL rule file if none has been specified
-   if Is_Rule_Options_Empty then
+   if Is_Rule_Options_Empty and then Gnatcheck_Prj.Is_Specified then
       declare
          Def_LKQL : constant String := Default_LKQL_Rule_Options_File;
       begin
