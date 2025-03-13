@@ -1,7 +1,9 @@
 Without project file
 ====================
 
-main.adb:3:04: rule violation: goto statement
+gnatcheck: error: no rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
 
 With project file
 =================
