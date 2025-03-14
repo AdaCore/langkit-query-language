@@ -7,15 +7,12 @@ The syntax is not stable for now.
 
 ## High level overview
 
-[`lkql/`](lkql): Contains:
-* Langkit language definition for the LKQL parser
-* Implementation of the LKQL interpreter (in
-  [`lkql/extensions/src`](lkql/extensions/src)). Embedding the LKQL interpreter
-  only requires using the `lkql` project.
-* Command line app for the interpreter
+[`lkql/`](lkql): Langkit language definition for the LKQL parser.
 
-[`lkql_checker`](lkql_checker): LKQL command line checker. Can run "checks"
-    that will flag specific lines of code in a given Ada codebase.
+[`lkql_checker/`](lkql_checker): GNATcheck sources and predefined LKQL rules.
+
+[`lkql_jit/`](lkql_jit): LKQL reference implementation using the Truffle Java
+   framework.
 
 ## Building & using
 
@@ -29,14 +26,14 @@ paths.
 - Building LKQL is done via
 
 ```
-lkql/manage.py make
+lkm make
 ```
 
 - You can then make LKQL available (binaries, Ada libraries, and Python lib)
   via:
 
 ```
-eval `lkql/manage.py setenv`
+eval `lkm setenv`
 ```
 
 - LKQL checker (linter based on lkql) is built separately:

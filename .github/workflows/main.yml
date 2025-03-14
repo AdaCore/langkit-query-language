@@ -72,12 +72,12 @@ jobs:
 
       - name: Build LKQL
         run: |
-            eval `lkql/manage.py setenv`
+            eval `python -m langkit.scripts.lkm setenv`
             GPR_ARGS=-XLIBRARY_TYPE=relocatable make
 
       - name: Test LKQL
         run: |
-            eval `lkql/manage.py setenv`
+            eval `python -m langkit.scripts.lkm setenv`
             make test
 
       - name: Deploy
@@ -88,4 +88,3 @@ jobs:
           publish_dir: ./user_manual/build/html
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
-
