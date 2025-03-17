@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.langkit_support.LangkitSupport.AnalysisUnit;
 import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.libadalang.Libadalang;
@@ -124,9 +125,9 @@ public final class NodeMethods {
         @Specialization
         public LKQLList onNode(NodeInterface self) {
             // Prepare the result
-            ArrayList<Libadalang.Token> resList = new ArrayList<>();
-            Libadalang.Token startToken = self.tokenStart();
-            Libadalang.Token endToken = self.tokenEnd();
+            ArrayList<LangkitSupport.TokenInterface> resList = new ArrayList<>();
+            LangkitSupport.TokenInterface startToken = self.tokenStart();
+            LangkitSupport.TokenInterface endToken = self.tokenEnd();
             resList.add(startToken);
             while (!startToken.equals(endToken)) {
                 startToken = startToken.next();
@@ -134,7 +135,7 @@ public final class NodeMethods {
             }
 
             // Return the result
-            return new LKQLList(resList.toArray(new Libadalang.Token[0]));
+            return new LKQLList(resList.toArray(new LangkitSupport.TokenInterface[0]));
         }
     }
 
@@ -147,16 +148,16 @@ public final class NodeMethods {
         @Specialization
         protected boolean onNode(NodeInterface leftNode, NodeInterface rightNode) {
             // Get the tokens
-            Libadalang.Token leftToken = leftNode.tokenStart();
-            Libadalang.Token rightToken = rightNode.tokenStart();
+            LangkitSupport.TokenInterface leftToken = leftNode.tokenStart();
+            LangkitSupport.TokenInterface rightToken = rightNode.tokenStart();
 
-            Libadalang.Token leftEnd = leftNode.tokenEnd();
-            Libadalang.Token rightEnd = rightNode.tokenEnd();
+            LangkitSupport.TokenInterface leftEnd = leftNode.tokenEnd();
+            LangkitSupport.TokenInterface rightEnd = rightNode.tokenEnd();
 
             // Compare all the node's tokens
             while (!leftToken.isNone() && !rightToken.isNone()) {
-                if (leftToken.kind != rightToken.kind) return false;
-                if (leftToken.kind == Libadalang.TokenKind.ADA_IDENTIFIER) {
+                if (leftToken.getKind() != rightToken.getKind()) return false;
+                if (leftToken.getKind() == Libadalang.TokenKind.ADA_IDENTIFIER) {
                     if (
                         !ObjectUtils.equals(
                             StringUtils.toLowerCase(leftToken.getText()),
@@ -182,9 +183,9 @@ public final class NodeMethods {
         }
 
         /** Get the next token from the given one ignoring the trivias. */
-        private static Libadalang.Token next(Libadalang.Token t) {
-            Libadalang.Token res = t.next();
-            while (!res.isNone() && res.triviaIndex != 0) {
+        private static LangkitSupport.TokenInterface next(LangkitSupport.TokenInterface t) {
+            LangkitSupport.TokenInterface res = t.next();
+            while (!res.isNone() && res.isTrivia()) {
                 res = res.next();
             }
             return res;

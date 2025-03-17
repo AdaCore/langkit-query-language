@@ -183,7 +183,7 @@ public final class LKQLTypesHelper {
             return LKQL_LAZY_LIST;
         } else if (LKQLTypeSystemGen.isNodeInterface(obj)) {
             return NODE_INTERFACE;
-        } else if (LKQLTypeSystemGen.isToken(obj)) {
+        } else if (LKQLTypeSystemGen.isTokenInterface(obj)) {
             return TOKEN;
         } else if (LKQLTypeSystemGen.isAnalysisUnit(obj)) {
             return ANALYSIS_UNIT;
@@ -273,7 +273,7 @@ public final class LKQLTypesHelper {
             return node.isNone() ? LKQLNull.INSTANCE : node;
         }
         // If the source is a token
-        else if (javaValue instanceof Libadalang.Token token) {
+        else if (javaValue instanceof LangkitSupport.TokenInterface token) {
             return token;
         }
         // If the source is an analysis unit

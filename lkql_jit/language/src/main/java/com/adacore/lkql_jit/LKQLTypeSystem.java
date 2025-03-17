@@ -43,7 +43,7 @@ import java.math.BigInteger;
         Indexable.class,
         Iterable.class,
         LangkitSupport.NodeInterface.class,
-        Libadalang.Token.class,
+        LangkitSupport.TokenInterface.class,
         LangkitSupport.AnalysisUnit.class,
         Libadalang.RewritingContext.class,
         Libadalang.RewritingNode.class,

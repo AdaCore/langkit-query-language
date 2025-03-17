@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.checker.built_ins;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -159,10 +158,12 @@ public final class UnitCheckerFunction {
                 final LangkitSupport.SourceLocationRange slocRange;
                 final LangkitSupport.NodeInterface[] genericInstantiations;
 
-                if (LKQLTypeSystemGen.isToken(loc)) {
-                    final Libadalang.Token token = LKQLTypeSystemGen.asToken(loc);
-                    locUnit = token.unit;
-                    slocRange = token.sourceLocationRange;
+                if (LKQLTypeSystemGen.isTokenInterface(loc)) {
+                    final LangkitSupport.TokenInterface token = LKQLTypeSystemGen.asTokenInterface(
+                        loc
+                    );
+                    locUnit = token.getUnit();
+                    slocRange = token.getSourceLocationRange();
                     genericInstantiations = new LangkitSupport.NodeInterface[0];
                 } else if (LKQLTypeSystemGen.isNodeInterface(loc)) {
                     final LangkitSupport.NodeInterface node = LKQLTypeSystemGen.asNodeInterface(
