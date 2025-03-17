@@ -33,7 +33,7 @@ import org.graalvm.collections.Pair;
         "com.adacore.lkql_jit.annotations.BuiltInMethod",
     }
 )
-@SupportedSourceVersion(SourceVersion.RELEASE_17)
+@SupportedSourceVersion(SourceVersion.RELEASE_24)
 public class BuiltInProcessor extends AbstractProcessor {
 
     /** Suffix for generated built-in classes. */
