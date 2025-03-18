@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.AllBuiltIns;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
@@ -43,7 +42,7 @@ public class BaseTranslationPass {
         return LKQLRuntimeException.fromMessage("Errors during analysis");
     }
 
-    protected RuntimeException translationError(Liblkqllang.LkqlNode node, String message) {
+    protected RuntimeException translationError(LangkitSupport.NodeInterface node, String message) {
         var ctx = LKQLLanguage.getContext(null);
         ctx
             .getDiagnosticEmitter()

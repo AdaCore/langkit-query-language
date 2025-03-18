@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
 import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.exception.TranslatorException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
@@ -442,7 +443,10 @@ public final class ScriptFrames {
         public void addBinding(final String symbol) {
             // Get a new slot in the frame descriptor builder
             final int slot;
-            if (this.node instanceof Liblkqllang.TopLevelList) {
+            if (
+                this.node instanceof Liblkqllang.TopLevelList ||
+                this.node instanceof Liblktlang.LangkitRoot
+            ) {
                 slot = this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, symbol, null);
             } else {
                 slot = this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, null, null);

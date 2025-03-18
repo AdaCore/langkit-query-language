@@ -262,7 +262,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
 
             return lkqlRoot.accept(translationPass);
-        } else if (root instanceof Liblktlang.LktNode lktRoot) {
+        } else if (root instanceof Liblktlang.LangkitRoot lktRoot) {
             final ScriptFrames frames = LktPasses.Frames.buildFrames(lktRoot).build(
                 CONTEXT_REFERENCE.get(null).getGlobal()
             );

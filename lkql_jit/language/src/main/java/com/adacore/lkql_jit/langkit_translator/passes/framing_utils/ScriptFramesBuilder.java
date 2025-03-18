@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
 import com.adacore.langkit_support.LangkitSupport.NodeInterface;
-import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.built_ins.AllBuiltIns;
 import com.adacore.lkql_jit.exception.TranslatorException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
@@ -60,7 +59,7 @@ public final class ScriptFramesBuilder {
      *
      * @param node the node associated with the frame builder
      */
-    public void openVirtualFrame(final Liblkqllang.LkqlNode node) {
+    public void openVirtualFrame(final NodeInterface node) {
         openFrame(node, true);
     }
 
