@@ -15,6 +15,7 @@ import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -60,8 +61,12 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
             final BaseLKQLList right,
             @CachedLibrary("left") InteropLibrary lefts,
             @CachedLibrary("right") InteropLibrary rights,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems
+            @CachedLibrary(
+                limit = Constants.DISPATCHED_LIB_LIMIT
+            ) @Exclusive InteropLibrary leftElems,
+            @CachedLibrary(
+                limit = Constants.DISPATCHED_LIB_LIMIT
+            ) @Exclusive InteropLibrary rightElems
         ) {
             try {
                 // Get the left list size and compare it with the right list
@@ -103,7 +108,7 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
     public static int identityHashCode(
         BaseLKQLList receiver,
         @CachedLibrary("receiver") InteropLibrary receivers,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems
+        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) @Exclusive InteropLibrary elems
     ) {
         return arrayValueHashCode(receiver, receivers, elems);
     }
@@ -113,7 +118,7 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
     @ExportMessage
     public Object toDisplayString(
         @SuppressWarnings("unused") final boolean allowSideEffect,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems
+        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) @Exclusive InteropLibrary elems
     ) {
         // Prepare the result
         StringBuilder resultBuilder = new StringBuilder("[");

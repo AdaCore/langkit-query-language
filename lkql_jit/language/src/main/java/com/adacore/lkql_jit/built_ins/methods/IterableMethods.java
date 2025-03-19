@@ -37,7 +37,7 @@ public class IterableMethods {
     abstract static class EnumerateExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList execute(LKQLList receiver) {
+        public LKQLList doGeneric(LKQLList receiver) {
             // Create the result array and fill it
             final var resContent = new Object[(int) receiver.size()];
             long index = 1;
@@ -58,7 +58,7 @@ public class IterableMethods {
     abstract static class ToListExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList onIterable(Iterable self) {
+        public LKQLList doGeneric(Iterable self) {
             // Create a new list from the iterable
             List<Object> resList = new LinkedList<>();
             Iterator iterator = self.iterator();
@@ -75,7 +75,7 @@ public class IterableMethods {
     abstract static class LengthExpr extends BuiltInBody {
 
         @Specialization
-        public long onIterable(Iterable self) {
+        public long doGeneric(Iterable self) {
             return self.size();
         }
     }

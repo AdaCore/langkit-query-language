@@ -11,12 +11,14 @@ import com.adacore.lkql_jit.runtime.values.LKQLObject;
 import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.source.SourceSection;
 
+@GenerateInline(false)
 public abstract class ValueCombiner extends Node {
 
     // ----- Execution methods -----

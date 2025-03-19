@@ -13,10 +13,12 @@ import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
+@GenerateInline(false)
 public abstract class LKQLToBoolean extends Node {
 
     public abstract boolean execute(Object value);

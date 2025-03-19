@@ -8,7 +8,9 @@ package com.adacore.lkql_jit.nodes.dispatchers;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
@@ -19,6 +21,7 @@ import com.oracle.truffle.api.nodes.Node;
  *
  * @author Hugo GUERRIER
  */
+@GenerateInline(false)
 public abstract class SelectorDispatcher extends Node {
 
     /** Function to execute the selector root node and get the result. */
@@ -32,8 +35,11 @@ public abstract class SelectorDispatcher extends Node {
     /**
      * Execute the selector root node with the direct path.
      */
-    @Specialization(guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()")
-    protected static LKQLRecValue executeCached(
+    @Specialization(
+        guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()",
+        limit = Constants.SPECIALIZED_LIB_LIMIT
+    )
+    protected static LKQLRecValue onCached(
         @SuppressWarnings("unused") SelectorRootNode rootNode,
         Cell[] closure,
         Object value,
@@ -46,8 +52,8 @@ public abstract class SelectorDispatcher extends Node {
     /**
      * Execute the selector root node in an indirect way.
      */
-    @Specialization(replaces = "executeCached")
-    protected static LKQLRecValue executeUncached(
+    @Specialization(replaces = "onCached")
+    protected static LKQLRecValue onUncached(
         SelectorRootNode rootNode,
         Cell[] closure,
         Object value,

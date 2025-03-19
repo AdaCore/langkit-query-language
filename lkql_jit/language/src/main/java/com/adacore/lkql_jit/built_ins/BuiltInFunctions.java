@@ -269,7 +269,7 @@ public class BuiltInFunctions {
     abstract static class BaseNameExpr extends BuiltInBody {
 
         @Specialization
-        protected String executeOnString(String fileName) {
+        protected String doString(String fileName) {
             return FileUtils.baseName(fileName);
         }
     }

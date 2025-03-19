@@ -13,6 +13,7 @@ import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Idempotent;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -39,6 +40,7 @@ public class RecExprs {
         }
 
         @SuppressWarnings("unused")
+        @Idempotent
         public boolean hasUnpack() {
             return unpack;
         }
@@ -100,6 +102,7 @@ public class RecExprs {
         public abstract Object[] execute(Object value);
 
         @SuppressWarnings("unused")
+        @Idempotent
         public boolean hasUnpack() {
             return unpack;
         }

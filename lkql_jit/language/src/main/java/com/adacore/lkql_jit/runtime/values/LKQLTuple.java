@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -49,8 +50,12 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
             final LKQLTuple right,
             @CachedLibrary("left") InteropLibrary lefts,
             @CachedLibrary("right") InteropLibrary rights,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems
+            @CachedLibrary(
+                limit = Constants.DISPATCHED_LIB_LIMIT
+            ) @Exclusive InteropLibrary leftElems,
+            @CachedLibrary(
+                limit = Constants.DISPATCHED_LIB_LIMIT
+            ) @Exclusive InteropLibrary rightElems
         ) {
             return TriState.valueOf(
                 arrayValueEquals(left, right, lefts, rights, leftElems, rightElems)
@@ -72,7 +77,7 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
     public static int identityHashCode(
         LKQLTuple receiver,
         @CachedLibrary("receiver") InteropLibrary receivers,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems
+        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) @Exclusive InteropLibrary elems
     ) {
         return arrayValueHashCode(receiver, receivers, elems);
     }
@@ -82,7 +87,9 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
     @ExportMessage
     public Object toDisplayString(
         @SuppressWarnings("unused") final boolean allowSideEffect,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary interopLibrary
+        @CachedLibrary(
+            limit = Constants.DISPATCHED_LIB_LIMIT
+        ) @Exclusive InteropLibrary interopLibrary
     ) {
         // Prepare the result
         StringBuilder resultBuilder = new StringBuilder("(");

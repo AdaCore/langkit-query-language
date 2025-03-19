@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
 import com.adacore.lkql_jit.runtime.Cell;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -38,18 +39,23 @@ public abstract class ReadClosure extends BaseRead {
      */
 
     @Specialization(guards = "isPackageGlobal == true")
-    public Object onGlobal(VirtualFrame frame, @Cached("getValue(frame)") Object result) {
+    public Object onGlobal(
+        VirtualFrame frame,
+        @Cached(value = "getValue(frame)", neverDefault = true) Object result
+    ) {
         return result;
     }
 
-    protected Cell[] getClosure(VirtualFrame frame) {
-        return (Cell[]) frame.getArguments()[0];
-    }
-
-    @Specialization(guards = "cachedClosure == getClosure(frame)")
+    @Specialization(
+        guards = "cachedClosure == getClosure(frame)",
+        limit = Constants.SPECIALIZED_LIB_LIMIT
+    )
     public Object onCachedClosure(
         VirtualFrame frame,
-        @SuppressWarnings("unused") @Cached("getClosure(frame)") Cell[] cachedClosure,
+        @SuppressWarnings("unused") @Cached(
+            value = "getClosure(frame)",
+            dimensions = 1
+        ) Cell[] cachedClosure,
         @Cached("getValue(frame)") Object result
     ) {
         return result;
@@ -62,6 +68,10 @@ public abstract class ReadClosure extends BaseRead {
 
     public Object getValue(VirtualFrame frame) {
         return FrameUtils.readClosure(frame, this.slot);
+    }
+
+    protected Cell[] getClosure(VirtualFrame frame) {
+        return (Cell[]) frame.getArguments()[0];
     }
 
     @Override

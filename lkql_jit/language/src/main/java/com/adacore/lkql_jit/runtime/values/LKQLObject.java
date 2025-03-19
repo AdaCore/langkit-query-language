@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -85,8 +86,12 @@ public final class LKQLObject extends ObjectLKQLValue implements LKQLValue {
             final LKQLObject right,
             @CachedLibrary("left") DynamicObjectLibrary lefts,
             @CachedLibrary("right") DynamicObjectLibrary rights,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftValues,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightValues
+            @CachedLibrary(
+                limit = Constants.DISPATCHED_LIB_LIMIT
+            ) @Exclusive InteropLibrary leftValues,
+            @CachedLibrary(
+                limit = Constants.DISPATCHED_LIB_LIMIT
+            ) @Exclusive InteropLibrary rightValues
         ) {
             return TriState.valueOf(
                 objectValueEquals(left, right, lefts, rights, leftValues, rightValues)
@@ -116,7 +121,9 @@ public final class LKQLObject extends ObjectLKQLValue implements LKQLValue {
     Object toDisplayString(
         @SuppressWarnings("unused") final boolean allowSideEffects,
         @CachedLibrary("this") DynamicObjectLibrary thisLibrary,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary interopLibrary
+        @CachedLibrary(
+            limit = Constants.DISPATCHED_LIB_LIMIT
+        ) @Exclusive InteropLibrary interopLibrary
     ) {
         // Prepare the result string builder and get the keys of the object
         StringBuilder resultBuilder = new StringBuilder("{");
