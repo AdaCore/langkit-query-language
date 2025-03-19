@@ -31,13 +31,13 @@ Patched "stmt.adb":
 function Stmt (X : in out Integer) return Integer is
    Y : Integer;
 begin
-   return(if X = 1 then 1 else 2);if X = 1 then   --  NOFLAG
+   return(if X=1 then 1 else 2);if X = 1 then   --  NOFLAG
       null;
    else
       null;
    end if;
 
-   return(if X = 1 then 1 elsif X = 2 then 2 else 3);if X = 1 then   --  NOFLAG
+   return(if X=1 then 1 elsif X=2 then 2 else 3);if X = 1 then   --  NOFLAG
       return 1;
    elsif X = 2 then
       X := 2;
@@ -53,7 +53,7 @@ begin
       X := 0;
    end if;
 
-   X :=(if X >= 2 then X + 1 elsif X <= 0 then X - 1 else 0);if X > 0 then    --  NOFLAG
+   X:=(if X>=2 then X+1 elsif X<=0 then X-1 else 0);if X > 0 then    --  NOFLAG
       return 2;
    end if;
 

@@ -1,10 +1,4 @@
-# Flag a case statement if this statement has only two alternatives, one
-# containing exactly one choice, the other containing exactly one choice
-# or the `OTHERS' choice.
-# This rule has an optional parameter Except_Enums: exclude case statements on
-# enumerated types.
-
-fun to_if_stmt(case_stmt) =
+fun to_if_stmt(case_stmt, ctx) =
     |" This function turns the given "case" statement into a if statement.
     |" Assumes that the "case" has only 2 alternatives.
     {
@@ -16,33 +10,22 @@ fun to_if_stmt(case_stmt) =
         );
         match alts[2].f_choices[1]
         | OthersDesignator =>
-            new IfStmt(
-                f_cond_expr=cond,
-                f_then_stmts=alts[1].f_stmts,
-                f_alternatives=new ElsifStmtPartList(),
-                f_else_part=new ElsePart(alts[2].f_stmts)
+            ctx.create_from_template(
+                "if {} then {} else {} end if;",
+                "if_stmt_rule",
+                [cond, alts[1].f_stmts, alts[2].f_stmts]
             )
         | choice           =>
-            new IfStmt(
-                f_cond_expr=cond,
-                f_then_stmts=alts[1].f_stmts,
-                f_alternatives=new ElsifStmtPartList([
-                    new ElsifStmtPart(
-                        f_cond_expr=new RelationOp(
-                            f_left=case_stmt.f_expr,
-                            f_op=new OpEq(),
-                            f_right=choice
-                        ),
-                        f_stmts=alts[2].f_stmts
-                    )
-                ]),
-                f_else_part=null
+            ctx.create_from_template(
+                "if {} then {} elsif {} = {} then {} end if;",
+                "if_stmt_rule",
+                [cond, alts[1].f_stmts, case_stmt.f_expr, choice, alts[2].f_stmts]
             )
     }
 
 @check(message="CASE statement can be replaced with IF statement",
        category="Style", subcategory="Programming Practice",
-       auto_fix=(n, ctx) => ctx.replace(n, to_if_stmt(n)))
+       auto_fix=(n, ctx) => ctx.replace(n, to_if_stmt(n, ctx)))
 fun binary_case_statements(node, except_enums = false) =
     |" Flag a case statement if this statement has only two alternatives, one
     |" containing exactly one choice, the other containing exactly one choice

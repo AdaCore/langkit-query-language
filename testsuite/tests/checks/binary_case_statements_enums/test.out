@@ -24,7 +24,5 @@ begin
       when others => null;
    end case;
 
-   if 1 =1 then null;
-      else null;
-   end if;end Paths;
+   if 1=1 then null;else null;end if;end Paths;
 

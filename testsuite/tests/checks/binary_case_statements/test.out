@@ -31,13 +31,7 @@ Patched "binary_case_statements.adb":
 procedure Main is
    procedure Test (I : Integer);
 begin
-   if 1 =1 then null;
-      else null;
-   end if;if 1 =1 then Test (2);
-      elsif 1 =2 then Test (1);
-   end if;if True =True then null;
-      elsif True =False then null;
-   end if;case 1 is  --  NOFLAG
+   if 1=1 then null;else null;end if;if 1=1 then Test(2);elsif 1=2 then Test(1);end if;if True=True then null;elsif True=False then null;end if;case 1 is  --  NOFLAG
       when 1 | 2 => null;
       when others => null;
    end case;

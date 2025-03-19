@@ -10,29 +10,29 @@ fun replace_by_expr(if_stmt, ctx) =
     {
         val is_return = simple_return(if_stmt.f_then_stmts);
         val then_stmt = if_stmt.f_then_stmts[1];
-        val else_stmt = if_stmt.f_else_part.f_stmts[1];
-        val if_expr = new ParenExpr(new IfExpr(
-            f_cond_expr = if_stmt.f_cond_expr,
-            f_then_expr = if is_return then then_stmt.f_return_expr else then_stmt.f_expr,
-            f_else_expr = if is_return then else_stmt.f_return_expr else else_stmt.f_expr,
-            f_alternatives=new ElsifExprPartList([
-                {
-                    val stmt = part.f_stmts[1];
-                    new ElsifExprPart(
-                        f_cond_expr = part.f_cond_expr,
-                        f_then_expr = if is_return then stmt.f_return_expr else stmt.f_expr
-                    )
-                }
-                for part in if_stmt.f_alternatives.children
-            ].to_list)
-        ));
+        val expr_index = if is_return then 1 else 2;
+        val template_and_rule = (
+            if is_return
+            then ("return (if {} then {} {} else {});", "return_stmt_rule")
+            else (then_stmt.f_dest.text & " := (if {} then {} {} else {});", "assignment_stmt_rule")
+        );
         ctx.replace(
             if_stmt,
-            if is_return
-            then new ReturnStmt(if_expr)
-            else new AssignStmt(
-                f_dest = then_stmt.f_dest,
-                f_expr = if_expr
+            ctx.create_from_template(
+                template_and_rule[1],
+                template_and_rule[2],
+                [
+                    if_stmt.f_cond_expr,
+                    then_stmt[expr_index],
+                    new ElsifExprPartList([
+                        new ElsifExprPart(
+                            f_cond_expr = part.f_cond_expr,
+                            f_then_expr = part.f_stmts[1][expr_index]
+                        )
+                        for part in if_stmt.f_alternatives.children
+                    ].to_list),
+                    if_stmt.f_else_part.f_stmts[1][expr_index]
+                ]
             )
         )
     }
