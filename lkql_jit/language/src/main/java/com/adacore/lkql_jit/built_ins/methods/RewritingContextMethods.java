@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.built_ins.methods;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.libadalang.Libadalang.GrammarRule;
 import com.adacore.libadalang.Libadalang.MemberReference;
 import com.adacore.libadalang.Libadalang.RewritingContext;
 import com.adacore.libadalang.Libadalang.RewritingNode;
@@ -15,7 +16,9 @@ import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverter;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverterNodeGen;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -179,6 +182,41 @@ public final class RewritingContextMethods {
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }
             return ctx;
+        }
+    }
+
+    @BuiltInMethod(
+        name = "create_from_template",
+        doc = "Create a new node from the provided template, filling '{}' with provided" +
+        " argument, and parsing the template with the specified grammar rule"
+    )
+    public abstract static class CreateFromTemplateExpr extends BaseRewritingContextExpr {
+
+        @TruffleBoundary
+        private static GrammarRule ruleFromString(String ruleName) {
+            return GrammarRule.valueOf(ruleName.toUpperCase());
+        }
+
+        @Specialization
+        public RewritingNode doGeneric(
+            VirtualFrame frame,
+            RewritingContext ctx,
+            String template,
+            String grammarRule,
+            LKQLList arguments
+        ) {
+            // Translate the provided LKQL list into a rewriting node list
+            final var args = new RewritingNode[(int) arguments.size()];
+            for (int i = 0; i < args.length; i++) {
+                args[i] = convert(frame, arguments.get(i), true);
+            }
+
+            // Then call the internal function to process the template
+            try {
+                return ctx.createFromTemplate(template, ruleFromString(grammarRule), args);
+            } catch (Exception e) {
+                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+            }
         }
     }
 }

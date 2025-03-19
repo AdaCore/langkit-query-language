@@ -1,0 +1,8 @@
+@check(
+    message="Custom rule violation",
+    auto_fix=(n, ctx) => ctx.replace(
+        n,
+        ctx.create_from_template("Call_Something ({});", "call_stmt_rule", [n.f_label_name])
+    )
+)
+fun custom(node) = node is GotoStmt
