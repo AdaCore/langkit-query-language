@@ -432,7 +432,7 @@ public final class LktPasses {
             } else if (pattern instanceof Liblktlang.FilteredPattern filteredPattern) {
                 return new FilteredPattern(
                     loc(filteredPattern),
-                    (UnfilteredPattern) buildPattern(filteredPattern.fPattern()),
+                    buildPattern(filteredPattern.fPattern()),
                     buildExpr(filteredPattern.fPredicate())
                 );
             } else if (pattern instanceof Liblktlang.TypePattern typePattern) {
