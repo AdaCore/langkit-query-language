@@ -443,22 +443,22 @@ You can configure GNATcheck rules using an LKQL file, provided through the
 described in the following paragraph).
 
 By default, GNATcheck will look for a ``rules.lkql`` file besides the specified
-project file if any. If there is one and no other rule configuration has been
-provided (through an LKQL rule file, or through the rule options), GNATcheck
-will load it as the LKQL rule options file, as if it was provided through the
-``--rule-file`` option.
+project file if any. If one is found and no other rule configuration has been
+provided (either through the LKQL --rule-file option, or by the now deprecated
+legacy -rules options), GNATcheck will load the rule configuration file as if
+it was provided by the --rule-file option.
 
 .. note::
 
   You can use the ``--emit-lkql-rule-file`` CLI switch to generate an LKQL rule
-  file from a legacy rule configuration provided through the ``-rules``
-  section.
+  file from a legacy rule configuration provided by the ``-rules`` section.
 
-This file must be a valid LKQL file that exports at least a ``rules`` top-level
-symbol. This symbol must refer to an object value containing rules
-configuration; keys are GNATcheck rules to enable; and values are objects
-containing rule parameters. A rule parameter value can be a boolean, an
-integer, a string, or a list of strings.
+An LKQL rule file can be any valid LKQL file, the only requirement is that it
+must export a ``rules`` top-level symbol. This symbol defines an object value
+containing rules configuration; keys are GNATcheck rules to enable; and values
+are objects containing the rule parameters. A rule parameter value can be of
+the boolean, the integer, the string, or the list of strings type, as shown in
+the simple example below:
 
 ::
 
@@ -467,25 +467,13 @@ integer, a string, or a list of strings.
     Forbidden_Attributes: {Forbidden: ["GNAT"], Allowed: ["First", "Last"]}
   }
 
-For example, to map a boolean parameter from a ``+R`` rule option to an LKQL
-rule file, you have to associate a boolean LKQL value to the parameter name:
-
-::
-
-  +RGoto_Statements:Only_Unconditional
-
-maps to:
-
-::
-
-  val rules = @{
-    Goto_Statements: {Only_Unconditional: true}
-  }
+Please read the :ref:`Predefined_Rules` documentation to view examples on how
+to provide parameters to rules through LKQL rule files.
 
 .. attention::
 
   You cannot provide the same key twice; thus, the following code will result
-  in a runtime error.
+  in a GNATcheck error.
 
   ::
 
@@ -494,24 +482,42 @@ maps to:
       Forbidden_Attributes: {Forbidden: ["GNAT"], Allowed: ["First", "Last"]}
     }
 
-If you want to create many instances of the same rule, you can associate a list
-to the rule name and add an ``instance_name`` key in argument objects to define
-their names.
+  If you want to create multiple instances of the same rule, you can associate
+  a list value to the rule name in the rule configuration object. Elements of
+  this list must be parameter objects containing an additional
+  ``instance_name`` parameter defining the name of the instance described by
+  the enclosing object. If none is provided, the instance is named after the
+  rule it is instantiated from, as shown in the following example:
 
-::
+  ::
 
-  val rules = @{
-    Goto_Statements,
-    Forbidden_Attributes: [
-      {Forbidden: ["First", "Last"]},
-      {Forbidden: ["Length"], instance_name: "Length_Attr"}
-    ]
-  }
+    val rules = @{
+      Goto_Statements,
+      Forbidden_Attributes: [
+        # "Forbidden_Attributes" instance of the "Forbidden_Attributes" rule, checking for 'First and 'Last
+        {Forbidden: ["First", "Last"]},
 
-Additionally to the ``rules`` top-level symbol, the LKQL rule file may export ``ada_rules``
-and ``spark_rules`` symbols to enable associated rules, respectively, only on Ada code and
-only on SPARK code. Those symbols must also refer to an object value formatted like the
-``rules`` value.
+        # "Length_Attr" instance of the "Forbidden_Attributes" rule, checking for 'Length
+        {Forbidden: ["Length"], instance_name: "Length_Attr"}
+      ]
+    }
+
+  Moreover, each instance must be identifiable through a unique name, thus the
+  following configuration is invalid and will lead to a GNATCheck error:
+
+  ::
+
+    val rules = @{
+      Forbidden_Attributes: [
+        {Forbidden: ["First", "Last"], instance_name: "Instance"},
+        {Forbidden: ["Length"], instance_name: "Instance"},
+      ]
+    }
+
+Additionally to the ``rules`` top-level symbol, an LKQL rule file may export
+``ada_rules`` and ``spark_rules`` symbols to enable associated rules,
+respectively, only on Ada code or only on SPARK code. Those symbols must also
+refer to an object value formatted like the ``rules`` value.
 
 ::
 
@@ -540,10 +546,28 @@ the following configuration will raise an error:
     Warnings: "a"
   }
 
-.. note::
+.. attention::
 
-  Note that an LKQL rules config file may contain arbitrary computation logic; the only
-  rule for this type of file is to export a ``rules`` symbol referring to an object value.
+  Instance uniqueness must also be respected between all rule sets, meaning
+  that such config is invalid:
+
+  ::
+
+    val rules = @{
+      # Clashing with "Goto_Statement" in ada_rules
+      Goto_Statements,
+
+      # Clashing with "Forbid_Attr" instance in spark_rules
+      Forbidden_Attributes: {Forbidden: ["GNAT"], instance_name: "Forbid_Attr"}
+    }
+
+    val ada_rules = @{
+      Goto_Statements
+    }
+
+    val spark_rules = @{
+      Forbidden_Attributes: {Forbidden: ["Length"], instance_name: "Forbid_Attr"}
+    }
 
 
 .. _gnatcheck_Rule_Options:
