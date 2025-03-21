@@ -103,7 +103,14 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     /** A simple constructor for the library loading. */
     public LKQLLanguage() {
         super();
-        this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create();
+        this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create(
+            null,
+            null,
+            null,
+            null,
+            true,
+            1
+        );
         // Set the color support flag
         SUPPORT_COLOR = System.getenv("TERM") != null && System.console() != null;
     }
