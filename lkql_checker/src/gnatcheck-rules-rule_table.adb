@@ -1206,6 +1206,16 @@ package body Gnatcheck.Rules.Rule_Table is
    begin
       --  If the rule is a compiler check then get the argument and process it
       if Is_Compiler_Rule (R_Id) then
+         --  Ensure the source mode is "BOTH"
+         if Source_Mode_String /= "GENERAL" then
+            Error_In_Rule_File
+              ("cannot run compiler base rule """
+               & Rule_Name
+               & """ only on "
+               & Source_Mode_String
+               & " code");
+         end if;
+
          Instance := new Compiler_Instance (Instance_Name /= "");
          Instance.Rule := R_Id;
          Instance.Defined_At := To_Unbounded_String (Output_Rule_File);

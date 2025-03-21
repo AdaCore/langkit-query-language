@@ -28,3 +28,5 @@ tests:
   lkql_rule_file: extra_param.lkql
 - label: Multiple instance with the same name
   lkql_rule_file: instance_names.lkql
+- label: Compiler base rule in restricted rule set
+  lkql_rule_file: compiler_rule_in_restricted_source.lkql
