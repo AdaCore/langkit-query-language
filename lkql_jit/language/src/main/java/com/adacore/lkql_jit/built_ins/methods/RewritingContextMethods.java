@@ -187,8 +187,20 @@ public final class RewritingContextMethods {
 
     @BuiltInMethod(
         name = "create_from_template",
-        doc = "Create a new node from the provided template, filling '{}' with provided" +
-        " argument, and parsing the template with the specified grammar rule"
+        doc = """
+        Create a new node from the provided template, filling '{}' with provided
+        argument, and parsing the template with the specified grammar rule. Example:
+
+        .. code-block:: lkql
+
+          # Create a new BinOp node with OpAdd as operator, representing the addition of the value
+          # expressed by `my_other_node`, and "42".
+          ctx.create_from_template(
+              "{} + 42",
+              "expr_rule",
+              [my_other_node]
+          )
+        """
     )
     public abstract static class CreateFromTemplateExpr extends BaseRewritingContextExpr {
 
