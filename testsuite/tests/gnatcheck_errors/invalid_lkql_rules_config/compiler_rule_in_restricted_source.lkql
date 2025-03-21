@@ -1,0 +1,7 @@
+val rules = @{
+    Goto_Statements
+}
+
+val ada_rules = @{
+    Warnings: "a"
+}

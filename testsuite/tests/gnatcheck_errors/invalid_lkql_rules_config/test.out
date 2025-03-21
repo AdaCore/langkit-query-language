@@ -85,3 +85,9 @@ gnatcheck: error: Multiple instances with the same name: an_instance (instance_n
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
+
+Compiler base rule in restricted rule set
+=========================================
+
+gnatcheck: error: cannot run compiler base rule "warnings" only on ADA code (compiler_rule_in_restricted_source.lkql)
+>>>program returned status code 5
