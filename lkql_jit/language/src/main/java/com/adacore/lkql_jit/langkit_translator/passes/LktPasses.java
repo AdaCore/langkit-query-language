@@ -27,10 +27,9 @@ import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockExpr;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessWrapperNodeGen;
-import com.adacore.lkql_jit.nodes.expressions.literals.BigIntegerLiteral;
-import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
-import com.adacore.lkql_jit.nodes.expressions.literals.LongLiteral;
-import com.adacore.lkql_jit.nodes.expressions.literals.StringLiteral;
+import com.adacore.lkql_jit.nodes.expressions.literals.*;
+import com.adacore.lkql_jit.nodes.expressions.match.Match;
+import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.FilteredPattern;
@@ -69,7 +68,11 @@ public final class LktPasses {
         private static FrameKind needsFrame(LktNode node) {
             if ((node instanceof FunDecl) || (node instanceof Liblktlang.LangkitRoot)) {
                 return FrameKind.Concrete;
-            } else if ((node instanceof Liblktlang.BlockExpr) || (node instanceof Liblktlang.Isa)) {
+            } else if (
+                node instanceof Liblktlang.BlockExpr ||
+                node instanceof Liblktlang.Isa ||
+                node instanceof Liblktlang.PatternMatchBranch
+            ) {
                 return FrameKind.Virtual;
             } else {
                 return FrameKind.None;
@@ -321,6 +324,8 @@ public final class LktPasses {
                 } catch (NumberFormatException e) {
                     return new BigIntegerLiteral(loc(numLit), new BigInteger(numLit.getText()));
                 }
+            } else if (expr instanceof NullLit nullLit) {
+                return new NullLiteral(loc(nullLit));
             } else if (expr instanceof CallExpr callExpr) {
                 final Expr callee = buildExpr(callExpr.fName());
                 final ArgList arguments = buildArgs(
@@ -394,6 +399,20 @@ public final class LktPasses {
                         buildExpr(dotExpr.fPrefix())
                     )
                 );
+            } else if (expr instanceof MatchExpr matchExpr) {
+                Expr matchVal = buildExpr(matchExpr.fMatchExpr());
+                var arms = Arrays.stream(matchExpr.fBranches().children())
+                    .map(b -> (PatternMatchBranch) b)
+                    .map(b -> {
+                        frames.enterFrame(b);
+                        var pattern = buildPattern(b.fPattern());
+                        var branchExpr = buildExpr(b.fExpr());
+                        frames.exitFrame();
+                        return new MatchArm(loc(b), pattern, branchExpr);
+                    })
+                    .toList()
+                    .toArray(new MatchArm[0]);
+                return new Match(loc(matchExpr), matchVal, arms);
             } else {
                 throw LKQLRuntimeException.fromMessage(
                     "Translation for " + expr.getKind() + " not implemented"
@@ -404,6 +423,15 @@ public final class LktPasses {
         private BasePattern buildPattern(Liblktlang.BasePattern pattern) {
             if (pattern instanceof Liblktlang.NullPattern nullPattern) {
                 return new NullPattern(loc(nullPattern));
+            } else if (pattern instanceof Liblktlang.IntegerPattern integerPattern) {
+                try {
+                    return IntegerPatternNodeGen.create(
+                        loc(integerPattern),
+                        Integer.parseInt(integerPattern.getText())
+                    );
+                } catch (NumberFormatException e) {
+                    throw translationError(integerPattern, "Invalid number literal for pattern");
+                }
             } else if (pattern instanceof Liblktlang.UniversalPattern univPattern) {
                 return new UniversalPattern(loc(univPattern));
             } else if (pattern instanceof Liblktlang.RegexPattern regexPattern) {
