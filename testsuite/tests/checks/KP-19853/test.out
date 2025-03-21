@@ -1,0 +1,20 @@
+main.ads:63:9: rule violation: possible occurrence of KP 19853
+63 |    type Child_Pre is new T_Pre with null record;                        --  FLAG
+   |         ^^^^^^^^^
+
+main.ads:64:9: rule violation: possible occurrence of KP 19853
+64 |    type Child_Child_Pre is new Child_Pre with null record;              --  FLAG
+   |         ^^^^^^^^^^^^^^^
+
+main.ads:65:9: rule violation: possible occurrence of KP 19853
+65 |    type Child_Pre_Pragma is new T_Pre_Pragma with null record;          --  FLAG
+   |         ^^^^^^^^^^^^^^^^
+
+main.ads:66:9: rule violation: possible occurrence of KP 19853
+66 |    type Child_Post is new T_Post with null record;                      --  FLAG
+   |         ^^^^^^^^^^
+
+main.ads:67:9: rule violation: possible occurrence of KP 19853
+67 |    type Child_Post_Pragma is new T_Post_Pragma with null record;        --  FLAG
+   |         ^^^^^^^^^^^^^^^^^
+
