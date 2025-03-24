@@ -50,4 +50,4 @@ hi def link lkqlComment     Comment
 hi def link lkqlBlockString  String
 
 set comments=b:#,b:\|\" " lkql block strings treated like comments for formatting
-set formatoptions += crno " Automatically wrap, and insert comment lead on newline
+set formatoptions+=crno " Automatically wrap, and insert comment lead on newline
