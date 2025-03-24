@@ -966,7 +966,6 @@ class ObjectLiteral: Expr {
 |"                      select ObjectDecl [child] AspectAssoc
 class Query: Expr {
     @parse_field
-    @nullable
     unpack_from: Unpack
     @parse_field
     @nullable
@@ -988,7 +987,6 @@ class RecExpr: Expr {
     @parse_field
     recurse_expr: Expr
     @parse_field
-    @nullable
     result_unpack: Unpack
     @parse_field
     @nullable
