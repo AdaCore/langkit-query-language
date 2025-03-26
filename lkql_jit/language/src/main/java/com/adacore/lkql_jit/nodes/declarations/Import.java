@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.nodes.declarations;
 
-import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -94,27 +93,40 @@ public final class Import extends LKQLNode {
      */
     @CompilerDirectives.TruffleBoundary
     private LKQLNamespace importModule(File moduleFile) throws IOException {
+        final var context = LKQLLanguage.getContext(this);
+
+        // Prepare the source object from the LKQL file absolute path
+        Source source = Source.newBuilder(
+            Constants.LKQL_ID,
+            context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath())
+        )
+            .internal(true)
+            .build();
+
+        // Check that the file isn't already in the source chain, if so, it means that there
+        // is a circular dependency.
+        if (context.fromStack.contains(source)) {
+            throw LKQLRuntimeException.circularDependency(context.fromStack, source, this);
+        }
+
         // If the file is already in the cache
         if (importCache.containsKey(moduleFile)) {
             return importCache.get(moduleFile);
         }
         // Else, parse the source and execute the result to get the namespace
         else {
-            // Get the LKQL context
-            LKQLContext context = LKQLLanguage.getContext(this);
-
-            // Prepare the source
-            Source source = Source.newBuilder(
-                Constants.LKQL_ID,
-                context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath())
-            )
-                .internal(true)
-                .build();
+            // Add the parsed source to the chain
+            context.fromStack.add(source);
 
             // Get the current context and parse the file with the internal strategy
             CallTarget target = context.getEnv().parseInternal(source);
             LKQLNamespace res = (LKQLNamespace) target.call();
             importCache.put(moduleFile, res);
+
+            // Pop the previously added source from the chain
+            context.fromStack.pop();
+
+            // Finally return the namespace
             return res;
         }
     }
