@@ -785,6 +785,19 @@ LKQL will search for files:
   There is no way to create hierarchies of modules for now, only flat modules
   are supported.
 
+.. attention::
+
+  Circular dependencies are forbidden, thus the following files will raise an
+  error at runtime:
+
+  .. code-block:: lkql
+
+    # foo.lkql
+    import bar
+
+    # bar.lkql
+    import foo
+
 
 
 Query Language Subset
