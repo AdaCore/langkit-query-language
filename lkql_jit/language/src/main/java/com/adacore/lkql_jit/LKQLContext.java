@@ -16,6 +16,7 @@ import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
 import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.runtime.GlobalScope;
+import com.adacore.lkql_jit.runtime.ImportationStack;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
@@ -51,6 +52,9 @@ public final class LKQLContext {
 
     /** The call stack of the current language thread. */
     public final CallStack callStack = new CallStack();
+
+    /** The stack representing the current importation trace of the current language thread. */
+    public final ImportationStack importationStack = new ImportationStack();
 
     // ----- Ada project attributes -----
 

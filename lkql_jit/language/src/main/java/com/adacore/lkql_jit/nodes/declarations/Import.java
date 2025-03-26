@@ -94,12 +94,21 @@ public final class Import extends LKQLNode {
      */
     @CompilerDirectives.TruffleBoundary
     private LKQLNamespace importModule(File moduleFile) throws IOException {
+        // Check that the file isn't already in the importation stack, if so, it means that there
+        // is a circular dependency.
+        final var importationStack = LKQLLanguage.getContext(this).importationStack;
+        if (importationStack.importations.contains(moduleFile)) {
+            throw LKQLRuntimeException.circularDependency(importationStack, moduleFile, this);
+        }
         // If the file is already in the cache
         if (importCache.containsKey(moduleFile)) {
             return importCache.get(moduleFile);
         }
         // Else, parse the source and execute the result to get the namespace
         else {
+            // Push the current file on the importation stack
+            importationStack.importations.add(moduleFile);
+
             // Get the LKQL context
             LKQLContext context = LKQLLanguage.getContext(this);
 
@@ -115,6 +124,11 @@ public final class Import extends LKQLNode {
             CallTarget target = context.getEnv().parseInternal(source);
             LKQLNamespace res = (LKQLNamespace) target.call();
             importCache.put(moduleFile, res);
+
+            // Pop the current importation from the importation stack
+            importationStack.importations.pop();
+
+            // Finally return the namespace
             return res;
         }
     }

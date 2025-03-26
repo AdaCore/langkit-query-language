@@ -8,11 +8,13 @@ package com.adacore.lkql_jit.exception;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.runtime.CallStack;
+import com.adacore.lkql_jit.runtime.ImportationStack;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.nodes.Node;
+import java.io.File;
 import java.io.Serial;
 
 /**
@@ -155,6 +157,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         return LKQLRuntimeException.fromMessage("Expect a concrete kind", location);
     }
 
+    // --- Importation related exceptions
+
     /**
      * Create a new exception for a wrong import statement, if the module is not found.
      *
@@ -166,6 +170,23 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     public static LKQLRuntimeException moduleNotFound(String moduleName, Node location) {
         return LKQLRuntimeException.fromMessage(
             "Cannot import, module not found \"" + moduleName + "\"",
+            location
+        );
+    }
+
+    /** Create a new exception when there is a circular dependency. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeException circularDependency(
+        ImportationStack importStack,
+        File responsible,
+        Node location
+    ) {
+        return LKQLRuntimeException.fromMessage(
+            "Circular dependency in LKQL modules (" +
+            importStack.toString() +
+            " -> " +
+            responsible.getName() +
+            ")",
             location
         );
     }
