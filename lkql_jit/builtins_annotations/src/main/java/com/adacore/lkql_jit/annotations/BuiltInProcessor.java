@@ -257,8 +257,10 @@ public class BuiltInProcessor extends AbstractProcessor {
                         }
                     });
 
-                names.add("\"" + nameSB + "\"");
-                defaultVals.add(defaultVal != null ? "\"" + defaultVal + "\"" : "null");
+                names.add("\"" + escapeString(nameSB.toString()) + "\"");
+                defaultVals.add(
+                    (defaultVal != null ? "\"" + escapeString(defaultVal) + "\"" : "null")
+                );
             }
 
             return (
@@ -342,9 +344,9 @@ public class BuiltInProcessor extends AbstractProcessor {
 
                         return (
                             "          new BuiltInFunctionValue(\"" +
-                            fnAnnot.name() +
+                            escapeString(fnAnnot.name()) +
                             "\", \"" +
-                            fnAnnot.doc() +
+                            escapeString(fnAnnot.doc()) +
                             "\", " +
                             builtInArguments(builtInFn, false) +
                             ", BuiltInBody.create(" +
@@ -416,9 +418,9 @@ public class BuiltInProcessor extends AbstractProcessor {
                             "BuiltInMethodFactory." +
                             (isProperty ? "createAttribute" : "createMethod") +
                             "(\"" +
-                            name +
+                            escapeString(name) +
                             "\", \"" +
-                            doc +
+                            escapeString(doc) +
                             "\"" +
                             (isProperty ? "" : ", " + builtInArguments(builtInMethod, true)) +
                             ", BuiltInBody.create(" +
@@ -431,7 +433,7 @@ public class BuiltInProcessor extends AbstractProcessor {
                         return (
                             "            Pair.create(new String[] {" +
                             Arrays.stream(targetTypes)
-                                .map(t -> "\"" + t + "\"")
+                                .map(t -> "\"" + escapeString(t) + "\"")
                                 .collect(Collectors.joining(", ")) +
                             " }," +
                             wrapper +
@@ -447,5 +449,16 @@ public class BuiltInProcessor extends AbstractProcessor {
         }
 
         builtInPackages.add(Pair.create(packageName, className));
+    }
+
+    /** Return the `input` string with all special characters escaped. */
+    private static String escapeString(String input) {
+        return input
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
+            .replace("\b", "\\b")
+            .replace("\f", "\\f")
+            .replace("\"", "\\\"");
     }
 }
