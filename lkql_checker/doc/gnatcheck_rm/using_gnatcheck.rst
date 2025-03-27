@@ -411,11 +411,12 @@ file, as if it was provided through the ``--rule-file`` option.
   file from a legacy rule configuration provided through the ``-rules``
   section.
 
-This file must be a valid LKQL file that exports at least a ``rules`` top-level
-symbol. This symbol must refer to an object value containing rules
-configuration; keys are GNATcheck rules to enable; and values are objects
-containing rule parameters. A rule parameter value can be a boolean, an
-integer, a string, or a list of strings.
+An LKQL rule file can be any valid LKQL file, the only requirement is that it
+must export a ``rules`` top-level symbol. This symbol defines an object value
+containing rules configuration; keys are GNATcheck rules to enable; and values
+are list of objects, each one representing an instance of the rule with its
+parameters. A rule parameter value can be of the boolean, the integer, the
+string, or the list of strings type, as shown in the simple example below:
 
 ::
 
@@ -424,20 +425,11 @@ integer, a string, or a list of strings.
     Forbidden_Attributes: {Forbidden: ["GNAT"], Allowed: ["First", "Last"]}
   }
 
-For example, to map a boolean parameter from a ``+R`` rule option to an LKQL
-rule file, you have to associate a boolean LKQL value to the parameter name:
+Using the "@" object notation is strongly advised to make your configuration
+file way more understandable:
 
-::
-
-  +RGoto_Statements:Only_Unconditional
-
-maps to:
-
-::
-
-  val rules = @{
-    Goto_Statements: {Only_Unconditional: true}
-  }
+Please read the :ref:`Predefined_Rules` documentation to view examples on how
+to provide parameters to rules through LKQL rule files.
 
 .. attention::
 

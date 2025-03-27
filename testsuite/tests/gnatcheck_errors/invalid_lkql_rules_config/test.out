@@ -43,7 +43,7 @@ try "gnatcheck --help" for more information.
 Not valid arguments
 ===================
 
-gnatcheck: Rule arguments must be an object or indexable value (not_valid_args.lkql)
+gnatcheck: The value associated to a rule must be a list (not_valid_args.lkql)
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

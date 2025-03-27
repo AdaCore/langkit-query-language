@@ -7,6 +7,10 @@ package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.LKQLObject;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
@@ -92,5 +96,37 @@ public final class ObjectLiteral extends Expr {
     @Override
     public String toString(final int indentLevel) {
         return this.nodeRepresentation(indentLevel);
+    }
+
+    // ----- Inner classes -----
+
+    /** Wrapper node ensuring values of "@-objects" are lists. */
+    @NodeChild(value = "wrappedExpr", type = Expr.class)
+    public abstract static class AtObjectValueWrapper extends Expr {
+
+        // ----- Constructors -----
+
+        public AtObjectValueWrapper(SourceSection location) {
+            super(location);
+        }
+
+        // ----- Specializations -----
+
+        @Specialization
+        protected LKQLList onList(LKQLList list) {
+            return list;
+        }
+
+        @Fallback
+        protected LKQLList onOthers(Object obj) {
+            return new LKQLList(new Object[] {obj});
+        }
+
+        // ----- Override methods -----
+
+        @Override
+        public String toString(int indentLevel) {
+            return this.nodeRepresentation(indentLevel);
+        }
     }
 }
