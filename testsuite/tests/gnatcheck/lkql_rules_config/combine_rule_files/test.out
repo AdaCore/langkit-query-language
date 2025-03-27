@@ -45,7 +45,7 @@ try "gnatcheck --help" for more information.
 Rule file with ambiguous importation
 ====================================
 
-gnatcheck: ambiguous_import.lkql:1:01: Ambiguous importation, multiple "null_stmt" modules found (/other_rule_configs/null_stmt.lkql & /rule_configs/null_stmt.lkql) (ambiguous_import.lkql)
+gnatcheck: ambiguous_import.lkql:1:01: Ambiguous importation, multiple "null_stmt" modules found (<working-dir>/other_rule_configs/null_stmt.lkql & <working-dir>/rule_configs/null_stmt.lkql) (ambiguous_import.lkql)
 gnatcheck: No rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

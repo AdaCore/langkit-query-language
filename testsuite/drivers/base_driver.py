@@ -352,7 +352,7 @@ class BaseDriver(DiffTestDriver):
     @property
     def output_refiners(self) -> list[OutputRefiner]:
         result = super().output_refiners
-        result.append(Substitute(self.working_dir(), ""))
+        result.append(Substitute(self.working_dir(), "<working-dir>"))
         if self.test_env.get("canonicalize_backslashes", False):
             result.append(Substitute("\\", "/"))
         return result
