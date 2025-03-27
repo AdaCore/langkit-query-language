@@ -3,12 +3,6 @@ import os.path as P
 import re
 import xml.etree.ElementTree as ET
 
-from e3.testsuite.driver.diff import (
-    ReplacePath,
-    Substitute,
-    OutputRefiner,
-)
-
 from drivers.base_driver import BaseDriver, Flags
 
 
@@ -490,13 +484,6 @@ class GnatcheckDriver(BaseDriver):
         # Check the execution flagged lines
         if self.flag_checking:
             self.check_flags(flagged_lines)
-
-    @property
-    def output_refiners(self) -> list[OutputRefiner]:
-        result = super().output_refiners + [ReplacePath(self.working_dir())]
-        if self.test_env.get("canonicalize_backslashes", False):
-            result.append(Substitute("\\", "/"))
-        return result
 
     def parse_flagged_lines(self, output: str, format: str) -> Flags:
         assert format in self.output_formats
