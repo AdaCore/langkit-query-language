@@ -51,7 +51,7 @@ public final class ObjectLiteral extends Expr {
     public ObjectLiteral(final SourceSection location, final String[] keys, final Expr[] values) {
         super(location);
         this.keys = keys;
-        this.shape = Shape.newBuilder().build();
+        this.shape = LKQLObject.emptyShape();
         this.values = values;
         this.objectLibrary = DynamicObjectLibrary.getUncached();
     }
