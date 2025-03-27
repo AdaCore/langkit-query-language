@@ -10,7 +10,11 @@ from typing import TextIO
 
 from e3.fs import mkdir
 from e3.testsuite.control import YAMLTestControlCreator
-from e3.testsuite.driver.diff import DiffTestDriver
+from e3.testsuite.driver.diff import (
+    DiffTestDriver,
+    Substitute,
+    OutputRefiner,
+)
 from e3.testsuite.driver.classic import (
     TestAbortWithError, ProcessResult, TestSkip
 )
@@ -340,6 +344,14 @@ class BaseDriver(DiffTestDriver):
             status_code = p.wait()
 
         return (output.decode(), status_code)
+
+    @property
+    def output_refiners(self) -> list[OutputRefiner]:
+        result = super().output_refiners
+        result.append(Substitute(self.working_dir(), "<working-dir>"))
+        if self.test_env.get("canonicalize_backslashes", False):
+            result.append(Substitute("\\", "/"))
+        return result
 
     def parse_flagged_lines(self, output: str) -> Flags:
         """
