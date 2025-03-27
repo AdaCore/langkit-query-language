@@ -31,6 +31,7 @@ import com.adacore.lkql_jit.nodes.expressions.dot.*;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ComprehensionAssoc;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ComprehensionAssocList;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListComprehension;
+import com.adacore.lkql_jit.nodes.expressions.literals.ObjectLiteralFactory.AtObjectValueWrapperNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
@@ -1336,8 +1337,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             keys.add(key);
             final Liblkqllang.Expr exprBase = assoc.fExpr();
             values[i] = exprBase.isNone()
-                ? new ListLiteral(loc(assoc.fName()), new Expr[0])
-                : (Expr) exprBase.accept(this);
+                ? new ListLiteral(
+                    loc(assoc.fName()),
+                    new Expr[] { new ObjectLiteral(loc(assoc.fName()), new String[0], new Expr[0]) }
+                )
+                : AtObjectValueWrapperNodeGen.create(loc(exprBase), (Expr) exprBase.accept(this));
         }
 
         // Return the new object literal node because at object is juste syntactic sugar
