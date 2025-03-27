@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.nodes.utils;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -37,7 +38,15 @@ public abstract class RewritingNodeConverter extends Node {
         @SuppressWarnings("unused") boolean ensureUntied,
         @SuppressWarnings("unused") Node usageLocation
     ) {
-        return LangkitSupport.RewritingNodeInterface.getNONE();
+        /*
+         * TODO: Genericize LKQL issue or Java issue #502. Returning a "null" rewriting node requires to
+         * have either access to the None object or to a static method getNONE(), which is not
+         * feasible through Java interfaces nor abstract classes (I think). We could also simply
+         * return "new LangkitSupport.RewritingNode()" but here again interfaces do not accept
+         * constructors and I'm sure whether this is possible using abstract classes.
+         * So we just create the object directly in the interface but I would prefer to call a constructor.
+         */
+        return Libadalang.RewritingNode.NONE;
     }
 
     @Specialization(guards = "!node.isNone()")
