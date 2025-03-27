@@ -144,7 +144,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.ValDecl valDecl) {
         final String symbol = valDecl.fIdentifier().getText();
-        checkDuplicateBindings(symbol, valDecl.fIdentifier());
+        if (!valDecl.fIdentifier().getText().equals("_")) {
+            checkDuplicateBindings(symbol, valDecl.fIdentifier());
+        }
         this.scriptFramesBuilder.addBinding(symbol);
         final var annotation = valDecl.fAnnotation();
         if (!annotation.isNone()) {
