@@ -776,6 +776,9 @@ LKQL will search for files:
 1. That are in the same directory as the current file
 2. That are in the ``LKQL_PATH`` environment variable
 
+In case of multiple LKQL modules with the same name (two LKQL files named the
+same), an error is raised by the interpreter.
+
 .. note::
 
   There is no way to create hierarchies of modules for now, only flat modules
@@ -793,6 +796,25 @@ LKQL will search for files:
 
     # bar.lkql
     import foo
+
+.. attention::
+
+  In case of an ambiguous importation, the LKQL engine will raise a runtime
+  error. For example, the following example will raise an error if the
+  ``subdir`` directory is in the ``LKQL_PATH`` environment variable:
+
+  .. code-block:: lkql
+
+    # foo.lkql
+    val x = 42
+
+    # subdir/foo.lkql
+    val y = 50
+
+    # bar.lkql
+    import foo
+    print(foo.x)
+
 
 
 
