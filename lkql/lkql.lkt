@@ -10,7 +10,6 @@ lexer lkql_lexer {
     Coma <- ","
     SemiCol <- ";"
     Colon <- ":"
-    UnderScore <- "_"
     Eq <- "="
     EqEq <- "=="
     Neq <- "!="
@@ -65,7 +64,7 @@ lexer lkql_lexer {
     @symbol() Pass <- "pass"
     @symbol() RunPass <- "run_pass"
     Integer <- p"[0-9]+"
-    @symbol() Identifier <- p"[a-z][A-Za-z0-9_]*"
+    @symbol() Identifier <- p"[a-z_][A-Za-z0-9_]*"
     @symbol() UpperIdentifier <- p"[A-Za-z][A-Za-z0-9_]*"
     String <- p"\"(\\\\.|[^\"])*\""
     @trivia()

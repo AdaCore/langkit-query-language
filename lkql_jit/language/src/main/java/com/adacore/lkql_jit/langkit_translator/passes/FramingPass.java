@@ -72,7 +72,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      */
     private void checkDuplicateBindings(final String symbol, final Liblkqllang.LkqlNode node)
         throws LKQLRuntimeException {
-        if (this.scriptFramesBuilder.bindingExists(symbol)) {
+        if (!symbol.equals("_") && this.scriptFramesBuilder.bindingExists(symbol)) {
             throw framingError(node, "Already existing symbol: " + symbol);
         }
     }
