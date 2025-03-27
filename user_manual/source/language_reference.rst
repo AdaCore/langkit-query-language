@@ -113,7 +113,8 @@ Composite Data Types
 
 ``Object``
   Objects are heterogeneous records that can contain any number of key to value
-  mappings, where keys are labels and values are any valid LKQL value.
+  mappings, where keys are labels and values are any valid LKQL value. Objects
+  support concatenation.
 
 
 
@@ -740,15 +741,34 @@ LKQL has a few built-in operators available:
 
   true and false or (a == b) and (not c)
 
-- String and list concatenation
+- Value concatenation
 
 .. code-block:: lkql
 
+  # Strings concatenation
   "Hello " & name
 
 .. code-block:: lkql
 
+  # Lists concatenation
   [1, 2, 3] & [4, 5, 6]
+
+.. code-block:: lkql
+
+  # Objects concatenation
+  {a: 1} & {b: 2}
+
+.. note::
+
+  When concatenation object values, keys are combined in the result. In case of
+  conflicting keys, their values are recursively concatenated, as it is shown
+  in the following example:
+
+  .. code-block:: lkql
+
+    {a: 1} & {b: 2}           # Result: {a: 1, b: 2}
+    {a: [1, 2]} & {a: [3, 4]} # Result: {a: [1, 2, 3, 4]}
+    {a: 1} & {a: 2}           # Runtime error! Impossible to concatenate `Int`s
 
 
 Module Importation

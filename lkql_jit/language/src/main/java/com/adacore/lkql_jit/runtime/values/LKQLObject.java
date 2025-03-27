@@ -24,6 +24,10 @@ import com.oracle.truffle.api.utilities.TriState;
 @ExportLibrary(InteropLibrary.class)
 public final class LKQLObject extends ObjectLKQLValue implements LKQLValue {
 
+    // ----- Attributes -----*
+
+    private static final Shape.Builder shapeBuilder = Shape.newBuilder();
+
     // ----- Constructors -----
 
     /** Create a new LKQL object with its dynamic shape. */
@@ -38,11 +42,17 @@ public final class LKQLObject extends ObjectLKQLValue implements LKQLValue {
      * library so this is not designed for performance critical usages.
      */
     public static LKQLObject createUncached(final Object[] keys, final Object[] values) {
-        final LKQLObject res = new LKQLObject(Shape.newBuilder().build());
+        final LKQLObject res = new LKQLObject(emptyShape());
         for (int i = 0; i < keys.length; i++) {
             uncachedObjectLibrary.put(res, keys[i], values[i]);
         }
         return res;
+    }
+
+    /** Get an empty dynamic shape. */
+    @CompilerDirectives.TruffleBoundary
+    public static Shape emptyShape() {
+        return shapeBuilder.build();
     }
 
     // ----- Value methods -----
