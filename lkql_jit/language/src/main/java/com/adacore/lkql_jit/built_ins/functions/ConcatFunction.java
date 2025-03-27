@@ -36,7 +36,7 @@ public final class ConcatFunction {
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
                 NAME,
-                "Given a list of lists or strings, return a concatenated list or string",
+                "Given a list, return the result of the concatenation of all its elements",
                 new String[] {"lists"},
                 new Expr[] {null},
                 (VirtualFrame frame, FunCall call) -> {

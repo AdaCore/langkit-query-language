@@ -18,7 +18,7 @@ Builtin functions
 
 .. function:: concat(lists)
 
-    Given a list of lists or strings, return a concatenated list or string
+    Given a list, return the result of the concatenation of all its elements
 
 .. function:: reduce(indexable, fn, init)
 
@@ -358,4 +358,3 @@ Methods for `Token`
 .. method:: Token.unit(this)
 
     Return the unit for this token
-
