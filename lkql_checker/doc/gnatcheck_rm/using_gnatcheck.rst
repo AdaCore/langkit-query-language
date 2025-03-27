@@ -456,9 +456,9 @@ it was provided by the --rule-file option.
 An LKQL rule file can be any valid LKQL file, the only requirement is that it
 must export a ``rules`` top-level symbol. This symbol defines an object value
 containing rules configuration; keys are GNATcheck rules to enable; and values
-are objects containing the rule parameters. A rule parameter value can be of
-the boolean, the integer, the string, or the list of strings type, as shown in
-the simple example below:
+are list of objects, each one representing an instance of the rule with its
+parameters. A rule parameter value can be of the boolean, the integer, the
+string, or the list of strings type, as shown in the simple example below:
 
 ::
 
@@ -466,6 +466,9 @@ the simple example below:
     Goto_Statements,
     Forbidden_Attributes: {Forbidden: ["GNAT"], Allowed: ["First", "Last"]}
   }
+
+Using the "@" object notation is strongly advised to make your configuration
+file way more understandable:
 
 Please read the :ref:`Predefined_Rules` documentation to view examples on how
 to provide parameters to rules through LKQL rule files.

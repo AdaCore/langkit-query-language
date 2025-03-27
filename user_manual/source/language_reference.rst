@@ -503,16 +503,21 @@ An object literal is a literal representation of an object value:
 .. raw:: html
   :file: ../../lkql/build/railroad-diagrams/at_object_lit.svg
 
-"@" preceded object literals are similar to standard object literal with an
-empty list as default value for any key:
+"@" object literals are quite the same as standard objects literals, but each
+associated value is wrapped in a list (if not already one). You are also
+allowed to omit the associated expression when adding a key in the object. The
+default associated value is a list with only one element: an empty object.
 
 .. code-block:: lkql
 
-  # At object literal
-  @{a: 1, b, c: null, d}
+  # @-object literal
+  @{a: "Hello", b, c: 42, d}
 
   # Is similar to
-  {a: 1, b: [], c: null, d: []}
+  {a: ["Hello"], b: [{}], c: [42], d: [{}]}
+
+This "@" object notation are mainly used to express coding standards in LKQL
+rule configuration files, however, you can use it in any context.
 
 Object keys may contain upper-case characters at declaration, but the LKQL
 engine will lower them. This means that object keys are case-insensitive:
