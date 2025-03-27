@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.checker.built_ins;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -171,7 +172,8 @@ public final class UnitCheckerFunction {
                     );
                     locUnit = node.getUnit();
                     slocRange = node.getSourceLocationRange();
-                    genericInstantiations = node.pGenericInstantiations();
+                    // TODO: Genericize LKQL issue #500. Cannot interface Ada specific calls.
+                    genericInstantiations = ((Libadalang.AdaNode) node).pGenericInstantiations();
                 } else {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.NODE_INTERFACE,

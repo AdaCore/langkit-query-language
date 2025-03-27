@@ -390,7 +390,8 @@ public final class Query extends Expr {
          * @param node The node to check
          */
         private static boolean inGenericInstantiation(LangkitSupport.NodeInterface node) {
-            return node.pGenericInstantiations().length > 0;
+            // TODO: Genericize LKQL issue #500. Cannot interface Ada specific calls.
+            return ((Libadalang.AdaNode) node).pGenericInstantiations().length > 0;
         }
 
         // ----- Un-needed methods -----
