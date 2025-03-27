@@ -188,6 +188,7 @@ class BaseDriver(DiffTestDriver):
             self,
             args: list[str],
             parse_flags: bool = False,
+            lkql_path = "",
             **kwargs
         ) -> ProcessResult:
         """
@@ -204,6 +205,9 @@ class BaseDriver(DiffTestDriver):
             env['GNATCOV_TRACE_FILE'] = P.join(
                 self.traces_dir, f'prog-{self.trace_counter}.srctrace'
             )
+
+        # Add the provided LKQL path to environment variables
+        env["LKQL_PATH"] = lkql_path
 
         if (
             self.flag_checking_supported and
