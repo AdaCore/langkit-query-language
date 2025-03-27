@@ -271,7 +271,7 @@ public class BuiltInFunctions {
 
     @BuiltInFunction(
         name = "concat",
-        doc = "Given a list of lists or strings, return a concatenated list or string"
+        doc = "Given a list, return the result of the concatenation of all its elements"
     )
     abstract static class ConcatExpr extends BuiltInBody {
 

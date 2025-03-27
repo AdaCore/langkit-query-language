@@ -38,7 +38,7 @@ Builtin functions
 
 .. function:: concat(list)
 
-    Given a list of lists or strings, return a concatenated list or string
+    Given a list, return the result of the concatenation of all its elements
 
 .. function:: map(iterable, function)
 
