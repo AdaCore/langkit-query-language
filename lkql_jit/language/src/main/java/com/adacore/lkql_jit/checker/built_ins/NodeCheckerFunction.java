@@ -381,7 +381,8 @@ public final class NodeCheckerFunction {
                     checker,
                     checker.getMessage(),
                     new LangkitLocationWrapper(node, context.linesCache),
-                    node.pGenericInstantiations(),
+                    // TODO: Genericize LKQL issue #500. Cannot interface Ada specific calls.
+                    ((Libadalang.AdaNode) node).pGenericInstantiations(),
                     context
                 );
         }
