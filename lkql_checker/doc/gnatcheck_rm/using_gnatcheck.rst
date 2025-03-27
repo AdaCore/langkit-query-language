@@ -543,7 +543,7 @@ the following configuration will raise an error:
 ::
 
   val spark_rules = @{
-    Warnings: "a"
+    Warnings: {Arg: "a"}
   }
 
 .. attention::
