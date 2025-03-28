@@ -49,26 +49,30 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * This is the LKQL prelude. Those definitions are visible at the root of the LKQL context. This
      * is where we put all global definitions that must be accessible in every context
      */
+    /*
+     * TODO: Genericize LKQL issue #499. Cannot genericize the prelude because NODE_DESCRIPTION_MAP
+     * doesn't contain any node named NodeInterface but AdaNode here for Ada.
+     */
     private static final String PRELUDE_SOURCE =
         """
         selector children
         |" Yields all the descendants of the given node
-        | NodeInterface => rec(*this.children)
+        | AdaNode => rec(*this.children)
         | * => ()
 
         selector next_siblings
         |" Yields all the next siblings of the given node
-        | NodeInterface => rec(this.next_sibling())
+        | AdaNode => rec(this.next_sibling())
         | * => ()
 
         selector parent
         |" Yields all the enclosing parents of the given node
-        | NodeInterface => rec(this.parent)
+        | AdaNode => rec(this.parent)
         | * => ()
 
         selector prev_siblings
         |" Yields all the previous siblings of the given node
-        | NodeInterface => rec(this.previous_sibling())
+        | AdaNode => rec(this.previous_sibling())
         | * => ()
         """;
 
