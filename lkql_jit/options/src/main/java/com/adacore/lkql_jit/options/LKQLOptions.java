@@ -33,7 +33,8 @@ public record LKQLOptions(
     boolean keepGoingOnMissingFile,
     boolean showInstantiationChain,
     DiagnosticOutputMode diagnosticOutputMode,
-    AutoFixMode autoFixMode
+    AutoFixMode autoFixMode,
+    Set<String> autoTranslateUnits
 ) {
     // ----- Constructors -----
 
@@ -119,7 +120,13 @@ public record LKQLOptions(
             jsonLKQLOptions.getBoolean("keepGoingOnMissingFile"),
             jsonLKQLOptions.getBoolean("showInstantiationChain"),
             DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")),
-            AutoFixMode.valueOf(jsonLKQLOptions.getString("autoFixMode"))
+            AutoFixMode.valueOf(jsonLKQLOptions.getString("autoFixMode")),
+            jsonLKQLOptions
+                .getJSONArray("autoTranslateUnits")
+                .toList()
+                .stream()
+                .map(e -> (String) e)
+                .collect(Collectors.toSet())
         );
     }
 
@@ -157,7 +164,8 @@ public record LKQLOptions(
             .put("keepGoingOnMissingFile", keepGoingOnMissingFile)
             .put("showInstantiationChain", showInstantiationChain)
             .put("diagnosticOutputMode", diagnosticOutputMode.toString())
-            .put("autoFixMode", autoFixMode.toString());
+            .put("autoFixMode", autoFixMode.toString())
+            .put("autoTranslateUnits", new JSONArray(autoTranslateUnits));
     }
 
     // ----- Inner classes -----
@@ -224,8 +232,14 @@ public record LKQLOptions(
         private boolean showInstantiationChain = false;
         private DiagnosticOutputMode diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
         private AutoFixMode autoFixMode = AutoFixMode.DISPLAY;
+        private List<String> autoTranslateUnits = new ArrayList<>();
 
         // ----- Setters -----
+
+        public Builder autoTranslateUnits(List<String> autoTranslateUnits) {
+            this.autoTranslateUnits = autoTranslateUnits;
+            return this;
+        }
 
         public Builder engineMode(EngineMode em) {
             engineMode = em;
@@ -349,7 +363,8 @@ public record LKQLOptions(
                 keepGoingOnMissingFile,
                 showInstantiationChain,
                 diagnosticOutputMode,
-                autoFixMode
+                autoFixMode,
+                new HashSet<>(autoTranslateUnits)
             );
         }
     }

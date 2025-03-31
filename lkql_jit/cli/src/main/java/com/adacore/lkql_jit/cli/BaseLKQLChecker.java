@@ -130,7 +130,8 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
             .projectFile(this.args.project)
             .rulesDir(this.args.rulesDirs)
             .ruleInstances(getRuleInstances())
-            .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile);
+            .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
+            .autoTranslateUnits(this.args.autoTranslateUnits);
     }
 
     /** Get the rule instances defined be the user through the LKQL checker command-line. */
@@ -186,6 +187,12 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
 
         @CommandLine.Spec
         public picocli.CommandLine.Model.CommandSpec spec;
+
+        @CommandLine.Option(
+            names = { "--to-lkt" },
+            description = "List of units to auto translate to Lkt"
+        )
+        public List<String> autoTranslateUnits = new ArrayList<>();
 
         @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
         public boolean verbose;
