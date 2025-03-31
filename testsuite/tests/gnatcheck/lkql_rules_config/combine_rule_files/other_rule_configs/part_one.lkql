@@ -1,0 +1,5 @@
+import part_two
+
+val rules = part_two.rules & @{
+    Redundant_Null_Statements
+}

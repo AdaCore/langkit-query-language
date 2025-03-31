@@ -1,0 +1,5 @@
+import null_stmt
+
+val rules = null_stmt.rules & @{
+    Goto_Statements
+}
