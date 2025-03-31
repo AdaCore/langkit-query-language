@@ -87,6 +87,8 @@ if __name__ == "__main__":
                     "-H:+SourceLevelDebug",
                     "-H:+PreserveFramePointer",
                     "-H:+IncludeNodeSourcePositions",
+                    "-H:NativeLinkerOption=-Wl,--no-keep-memory",
+                    "-H:NativeLinkerOption=-Wl,--reduce-memory-overheads"
                 ]
             )
             if args.build_mode == "debug":

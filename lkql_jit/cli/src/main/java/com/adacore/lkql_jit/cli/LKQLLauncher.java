@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.cli;
 
 import com.adacore.lkql_jit.options.LKQLOptions;
+import com.adacore.lkql_jit.options.Refactorings.LKQLToLkt;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,6 +74,12 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             description = "The LKQL script to execute"
         )
         public String script = null;
+
+        @CommandLine.Option(
+            names = { "--to-lkt" },
+            description = "Automatically translate the script to Lkt"
+        )
+        public boolean toLkt;
 
         @CommandLine.Option(names = { "-i", "--interactive" }, description = "Run a REPL")
         public boolean interactive;
@@ -172,7 +179,19 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
             if (this.args.script != null) {
-                final Source source = Source.newBuilder("lkql", new File(this.args.script)).build();
+                Source source;
+                if (this.args.toLkt) {
+                    var lktSource = LKQLToLkt.lkqlToLkt(this.args.script);
+                    source = Source.newBuilder("lkql", lktSource, this.args.script).build();
+                    if (this.args.verbose) {
+                        System.out.println("Lkt source");
+                        System.out.println("==========");
+                        System.out.println(lktSource);
+                        System.out.println();
+                    }
+                } else {
+                    source = Source.newBuilder("lkql", new File(this.args.script)).build();
+                }
                 context.eval(source);
             }
 

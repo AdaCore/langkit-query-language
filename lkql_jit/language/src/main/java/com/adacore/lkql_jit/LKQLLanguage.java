@@ -17,6 +17,7 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
+import com.adacore.lkql_jit.options.Refactorings.LKQLToLkt;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
 import com.adacore.lkql_jit.utils.Constants;
@@ -27,6 +28,7 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Scanner;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.options.OptionDescriptors;
@@ -290,26 +292,41 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         var firstLine = new Scanner(source.getReader()).nextLine();
 
         LangkitSupport.AnalysisContext langkitCtx = null;
+
+        Source src;
+
         if (firstLine.startsWith("# lkql version:")) {
             if (firstLine.equals("# lkql version: 1")) {
                 // lkql V1 uses lkql syntax
                 langkitCtx = lkqlAnalysisContext;
+                src = source;
             } else if (firstLine.equals("# lkql version: 2")) {
                 // lkql V2 uses Lkt syntax
                 langkitCtx = lktAnalysisContext;
+                src = source;
+            } else if (firstLine.equals("# lkql version: 1to2")) {
+                var lines = source.getCharacters().toString().split("\n");
+
+                // Translate LKQL to Lkt (LKQL v2)
+                var newSrc = String.join("\n", Arrays.stream(lines).skip(1).toList());
+                var lktSrc = LKQLToLkt.lkqlToLkt(newSrc);
+
+                // Build a new source
+                src = Source.newBuilder(Constants.LKQL_ID, lktSrc, source.getName()).build();
             } else {
                 throw LKQLRuntimeException.fromMessage("Invalid lkql version");
             }
         } else {
             // By default, use lkql syntax
             langkitCtx = lkqlAnalysisContext;
+            src = source;
         }
 
         LangkitSupport.AnalysisUnit unit;
-        if (source.getPath() == null) {
-            unit = langkitCtx.getUnitFromBuffer(source.getCharacters().toString(), sourceName);
+        if (src.getPath() == null) {
+            unit = langkitCtx.getUnitFromBuffer(src.getCharacters().toString(), sourceName);
         } else {
-            unit = langkitCtx.getUnitFromFile(source.getPath());
+            unit = langkitCtx.getUnitFromFile(src.getPath());
         }
 
         final var diagnostics = unit.getDiagnostics();
@@ -324,7 +341,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                         CheckerUtils.MessageKind.ERROR,
                         diagnostic.getMessage().toString(),
                         null,
-                        SourceSectionWrapper.create(diagnostic.getSourceLocationRange(), source)
+                        SourceSectionWrapper.create(diagnostic.getSourceLocationRange(), src)
                     );
             }
             throw LKQLRuntimeException.fromMessage(
@@ -332,7 +349,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             );
         }
 
-        return translate(unit.getRoot(), source, false);
+        return translate(unit.getRoot(), src, false);
     }
 
     /**
