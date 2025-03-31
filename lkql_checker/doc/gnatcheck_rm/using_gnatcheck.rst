@@ -590,6 +590,62 @@ the following configuration will raise an error:
       Forbidden_Attributes: {Forbidden: ["Length"], instance_name: "Forbid_Attr"}
     }
 
+You cannot provide more than **one** LKQL rule file when running GNATcheck. In
+order to compose a rule file with another you have to use the
+:ref:`LKQL importation mechanism<module_importation>` and concatenate rule
+objects. Here is an example of LKQL rule file composition:
+
+.. code-block:: lkql
+
+  # common_rules.lkql
+
+  val rules = @{
+    Goto_Statements
+  }
+
+.. code-block:: lkql
+
+  # specific_rules.lkql
+
+  import common_rules
+
+  val rules = common_rules.rules & @{
+    Redundant_Null_Statements
+  }
+
+Then you can run GNATcheck with the ``specific_rules.lkql`` file as coding
+standard to perform rules defined in ``common_rules.lkql`` combined to the ones
+defined in ``specific_rules.lkql``.
+
+.. note::
+
+  You can use the ``--lkql-path`` command-line switch and the
+  ``Check'Lkql_Path`` GPR attribute to configure directories LKQL rule files
+  are going to be searched in.
+
+You can enable the same rule in multiple files, but the constraint about the
+instance name uniqueness remains valid, meaning that such configuration is
+invalid:
+
+.. code-block:: lkql
+
+  # common_rules.lkql
+
+  val rules = @{
+    Forbidden_Attributes: {Forbidden: ["First"], instance_name: "Forbid_Attr"}
+  }
+
+.. code-block:: lkql
+
+  # specific_rules.lkql
+
+  import common_rules
+
+  val rules = common_rules.rules & @{
+    Forbidden_Attributes: {Forbidden: ["Last"], instance_name: "Forbid_Attr"}
+  }
+  # error: This rule configuration defines two instances with the same name: "Forbid_Attr"
+
 
 .. _gnatcheck_Rule_Options:
 
