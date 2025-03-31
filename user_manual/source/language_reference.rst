@@ -776,6 +776,8 @@ LKQL has a few built-in operators available:
     {a: 1} & {a: 2}           # Runtime error! Impossible to concatenate `Int`s
 
 
+.. _module_importation:
+
 Module Importation
 ^^^^^^^^^^^^^^^^^^
 
