@@ -367,6 +367,16 @@ GNATcheck:
   file defining this attribute, then, an error is emitted and ``gnatcheck``
   will exit with an error code.
 
+``Lkql_Path``
+  Value is a list of directories to add to the ``LKQL_PATH`` environment
+  variable when GNATcheck is spawning the LKQL engine. This variable is
+  used to resolve module importations in LKQL sources. If not absolute, paths
+  provided through this attribute are relatives to the project file defining
+  it.
+
+  This attributes may work combined with the ``--lkql-path`` switch, in that
+  case, all directories are added to the ``LKQL_PATH`` environment variable.
+
 ``Switches``
   Index is a language name. Value is a list of additional switches to be used
   when invoking ``gnatcheck``.
@@ -387,6 +397,7 @@ GNATcheck:
     * ``-eL``
     * ``-r, --rule [rule_name]`` (use ``Rules`` attribute instead)
     * ``--rule-file=filename`` (use ``Rule_File`` attribute instead)
+    * ``--lkql-path=dir`` (use ``Lkql_Path`` attributes instead)
 
     If you're providing one of those switches through the ``Switches`` or the
     ``Default_Switches`` attribute, GNATcheck will emit an error message and

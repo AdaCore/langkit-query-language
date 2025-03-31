@@ -69,6 +69,8 @@ package body Gnatcheck.Projects is
      (GPR2."+"("Check"), GPR2."+"("Rules"));
    Rule_File_Attr        : constant GPR2.Q_Attribute_Id :=
      (GPR2."+"("Check"), GPR2."+"("Rule_File"));
+   Lkql_Path_Attr        : constant GPR2.Q_Attribute_Id :=
+     (GPR2."+"("Check"), GPR2."+"("Lkql_Path"));
    Default_Switches_Attr : constant GPR2.Q_Attribute_Id :=
      (GPR2."+"("Check"), GPR2."+"("Default_Switches"));
    Switches_Attr         : constant GPR2.Q_Attribute_Id :=
@@ -258,6 +260,17 @@ package body Gnatcheck.Projects is
             Set_LKQL_Rule_File
               (My_Project.Get_Project_Relative_File (Rule_File));
          end;
+      end if;
+
+      --  Process the LKQL path
+      if Proj.Has_Attribute (Lkql_Path_Attr) then
+         List_Val := Load_List_Attribute (Lkql_Path_Attr);
+         for Path of List_Val.all loop
+            Additional_Lkql_Paths.Append
+              (if Is_Absolute_Path (Path.all)
+               then Path.all
+               else Gnatcheck_Prj.Get_Project_Relative_File (Path.all));
+         end loop;
       end if;
 
       --  Process additional GNATcheck switches
@@ -755,6 +768,17 @@ package body Gnatcheck.Projects is
         (Rule_File_Attr,
          "Value is the name of an LKQL rule file to use when running " &
          "GNATcheck in this project.");
+      Add
+        (Lkql_Path_Attr,
+         Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
+         Value                => List,
+         Value_Case_Sensitive => True,
+         Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
+        (Lkql_Path_Attr,
+         "Value is a list of directories to add to the LKQL_PATH environment "
+         & "variable when GNATcheck is spawning the LKQL engine. This "
+         & "variable is used to resolve module importations in LKQL sources.");
       Add
         (Switches_Attr,
          Index_Type           => Language_Index,
