@@ -125,6 +125,8 @@ class GnatcheckDriver(BaseDriver):
           target and runtime when running in "gnatkp" mode. Default is True.
         - ``in_tty`` (bool): Whether to run GNATcheck in a pseudo TTY using the
           ``pty`` Python module.
+        - ``lkql_path`` (list[str]): A list of directories forwarded to the
+            `LKQL_PATH` environment variable when the test is run.
 
         - ``jobs`` (int): The number of jobs to forward to the GNATcheck command.
         - ``project`` (str): GPR build file to use (if any).
@@ -282,6 +284,8 @@ class GnatcheckDriver(BaseDriver):
                     f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
                 )
             )
+            test_env = dict(gnatcheck_env)
+
 
             pre_python = test_data.get('pre_python', None)
             post_python = test_data.get('post_python', None)
@@ -291,7 +295,14 @@ class GnatcheckDriver(BaseDriver):
             if pre_python:
                 capture_exec_python(pre_python)
 
-            # If the executable is gantkp, we must provide an explicit runtime
+            # If required, add provided directories to the LKQL_PATH variable
+            for d in test_data.get('lkql_path', []):
+                test_env['LKQL_PATH'] = os.pathsep.join([
+                    self.working_dir(d),
+                    test_env.get('LKQL_PATH', ""),
+                ])
+
+            # If the executable is gnatkp, we must provide an explicit runtime
             # and target
             if exe == "gnatkp" and test_data.get('gnatkp_autoconfig', True):
                 if not self.is_codepeer:
@@ -404,9 +415,9 @@ class GnatcheckDriver(BaseDriver):
                 exec_output = ""
                 status_code = 0
                 if test_data.get("in_tty"):
-                    exec_output, status_code = self.run_in_tty(args, env=gnatcheck_env)
+                    exec_output, status_code = self.run_in_tty(args, env=test_env)
                 else:
-                    p = self.shell(args, env=gnatcheck_env, catch_error=False, analyze_output=False)
+                    p = self.shell(args, env=test_env, catch_error=False, analyze_output=False)
                     exec_output = p.out
                     status_code = p.status
 
