@@ -1,0 +1,6 @@
+project Prj is
+   package Check is
+      for Rule_File use "without_overlapping.lkql";
+      for Lkql_Path use ("rule_configs");
+   end Check;
+end Prj;
