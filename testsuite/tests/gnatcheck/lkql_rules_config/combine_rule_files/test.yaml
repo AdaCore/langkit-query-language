@@ -15,6 +15,11 @@ tests:
     lkql_rule_file: with_overlapping.lkql
     lkql_path:
       - rule_configs
+  - label: Providing search paths through the '--lkql-path' CLI option
+    lkql_rule_file: without_overlapping.lkql
+    extra_args:
+      - --lkql-path
+      - rule_configs
 
   # Error testing
   - label: Rule file with an invalid importation

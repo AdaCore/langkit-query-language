@@ -238,6 +238,13 @@ The following switches control the general ``gnatcheck`` behavior
   Specify the charset of the source files. By default, ``ISO-8859-1`` is
   used if no charset is specified.
 
+  .. index:: --lkql-path
+
+``--lkql-path=dir``
+  Specify directory to add to the ``LKQL_PATH`` environment variable when
+  GNATcheck is spawning the LKQL engine. You can specify this option multiple
+  times to add multiple directories.
+
   .. index:: --rules-dir
 
 ``--rules-dir=dir``

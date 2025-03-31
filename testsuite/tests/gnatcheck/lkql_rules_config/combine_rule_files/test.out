@@ -12,6 +12,13 @@ main.adb:4:04: goto statement [goto_statements]
 main.adb:4:04: goto statement [unconditional_goto|goto_statements]
 main.adb:9:07: goto statement [goto_statements]
 
+Providing search paths through the '--lkql-path' CLI option
+===========================================================
+
+main.adb:3:04: redundant null statement [redundant_null_statements]
+main.adb:4:04: goto statement [goto_statements]
+main.adb:9:07: goto statement [goto_statements]
+
 Rule file with an invalid importation
 =====================================
 
