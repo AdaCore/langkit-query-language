@@ -1,0 +1,3 @@
+val rules = @{
+    Goto_Statements: {Only_Unconditional: true, instance_name: "unconditional_goto"}
+}

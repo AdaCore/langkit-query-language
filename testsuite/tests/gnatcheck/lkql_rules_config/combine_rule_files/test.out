@@ -1,0 +1,37 @@
+Without key overlapping
+=======================
+
+main.adb:3:04: rule violation: redundant null statement [redundant_null_statements]
+main.adb:4:04: rule violation: goto statement [goto_statements]
+main.adb:9:07: rule violation: goto statement [goto_statements]
+
+With key overlapping
+====================
+
+main.adb:4:04: rule violation: goto statement [goto_statements]
+main.adb:4:04: rule violation: goto statement [unconditional_goto|goto_statements]
+main.adb:9:07: rule violation: goto statement [goto_statements]
+
+Rule file with an invalid importation
+=====================================
+
+gnatcheck: error: invalid_import.lkql:1:01: Cannot import, module not found "null_stmt" (invalid_import.lkql)
+gnatcheck: error: no rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Rule file with circular importation
+===================================
+
+gnatcheck: error: part_two.lkql:1:01: Circular dependency in LKQL modules (circular_import.lkql -> part_one.lkql -> part_two.lkql -> part_one.lkql) (circular_import.lkql)
+gnatcheck: error: no rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Rule file with ambiguous importation
+====================================
+
+gnatcheck: error: ambiguous_import.lkql:1:01: Ambiguous importation, multiple "null_stmt" modules found (<working-dir>/other_rule_configs/null_stmt.lkql & <working-dir>/rule_configs/null_stmt.lkql) (ambiguous_import.lkql)
+gnatcheck: error: no rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
