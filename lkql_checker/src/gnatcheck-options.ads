@@ -14,6 +14,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with GNAT.OS_Lib;
 
 with Gnatcheck.Projects;
+with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 
@@ -179,6 +180,10 @@ package Gnatcheck.Options is
    --  This variable should contain a full list of compilation options to be
    --  passed to gcc.
 
+   Additional_Lkql_Paths : String_Vector;
+   --  Additional paths to add to the ``LKQL_PATH`` environment variable when
+   --  spawning the LKQL worker.
+
    Instance_Help_Emitted : Boolean := False;
    --  Whether the help message about the new instance system has already been
    --  emitted. This message should be removed in 26.0.
@@ -271,6 +276,16 @@ package Gnatcheck.Options is
            Help        =>
              "specify the charset of the source files (default is "
              & "latin-1)");
+
+      package Lkql_Path is new
+        Parse_Option_List
+          (Parser     => Parser,
+           Long       => "--lkql-path",
+           Arg_Type   => Unbounded_String,
+           Accumulate => True,
+           Help       =>
+             "specify directories to add to the 'LKQL_PATH' environment "
+             & "variable when spawning the LKQL worker");
 
       package Rules_Dirs is new
         Parse_Option_List
