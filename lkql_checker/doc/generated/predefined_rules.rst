@@ -5963,6 +5963,31 @@ the definition of exemption sections are:
 
 
 
+.. _Lowercase_Keywords:
+
+``Lowercase_Keywords``
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Lowercase_Keywords
+
+Flag Ada keywords that are not purely lowercase, such as ``BEGIN`` or
+``beGin``.
+
+Please note that this check is **not** language version sensitive. Every
+keyword from Ada 83 to Ada 2012 will be flagged. This means that this
+check might give false positives on usage of identifiers that are
+keywords in newer versions of Ada.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1,2
+
+   packagE Foo is -- FLAG
+   END Foo; -- FLAG
+
+
+
 .. _Max_Identifier_Length:
 
 ``Max_Identifier_Length``
