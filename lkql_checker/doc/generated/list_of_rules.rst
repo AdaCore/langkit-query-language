@@ -87,6 +87,7 @@ GNATcheck rules.
 * :ref:`Local_Instantiations`
 * :ref:`Local_Packages`
 * :ref:`Local_USE_Clauses`
+* :ref:`Lowercase_Keywords`
 * :ref:`Max_Identifier_Length`
 * :ref:`Maximum_Expression_Complexity`
 * :ref:`Maximum_Lines`

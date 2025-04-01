@@ -1,0 +1,37 @@
+val match_keyword = pattern(
+    "^(abort|abs|abstract|accept|access|aliased|all|and|array|"
+    & "at|begin|body|case|constant|declare|delay|delta|digits|"
+    & "do|else|elsif|end|entry|exception|exit|for|function|"
+    & "generic|goto|if|in|interface|is|limited|loop|mod|new|"
+    & "not|null|others|out|of|or|overriding|package|pragma|"
+    & "private|procedure|protected|raise|range|record|rem|"
+    & "renames|requeue|return|reverse|select|separate|some|"
+    & "subtype|synchronized|tagged|task|terminate|then|type|"
+    & "until|use|when|while|with|xor)$"
+)
+
+val match_uppercase = pattern("[A-Z]+")
+
+@unit_check(category="Style", subcategory="Readability")
+fun lowercase_keywords(unit) =
+    |" Flag Ada keywords that are not purely lowercase, such as ``BEGIN`` or
+    |" ``beGin``.
+    |"
+    |" Please note that this check is **not** language version sensitive. Every
+    |" keyword from Ada 83 to Ada 2012 will be flagged. This means that this
+    |" check might give false positives on usage of identifiers that are
+    |" keywords in newer versions of Ada.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1,2
+    |"
+    |"    packagE Foo is -- FLAG
+    |"    END Foo; -- FLAG
+    [
+        {message: "Keyword should be lowercase", loc: tok}
+        for tok in unit.tokens
+        if tok.text.to_lower_case.contains(match_keyword)
+            and tok.text.contains(match_uppercase)
+    ]

@@ -1,0 +1,12 @@
+test.adb:1:1: rule violation: Keyword should be lowercase
+1 | procedurE Test is  -- FLAG
+  | ^^^^^^^^^
+
+test.adb:3:4: rule violation: Keyword should be lowercase
+3 |    DECLARE  -- FLAG
+  |    ^^^^^^^
+
+test.adb:5:7: rule violation: Keyword should be lowercase
+5 |       NULL;  -- FLAG
+  |       ^^^^
+
