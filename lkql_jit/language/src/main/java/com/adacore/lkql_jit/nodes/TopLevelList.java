@@ -144,7 +144,7 @@ public final class TopLevelList extends LKQLNode {
                             .filter(File::canRead)
                             .map(f ->
                                 new Import(
-                                    null,
+                                    this.getSourceSection(),
                                     f.getName().replace(Constants.LKQL_EXTENSION, ""),
                                     -1
                                 )
