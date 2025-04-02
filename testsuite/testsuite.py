@@ -20,6 +20,33 @@ from drivers import (
     benchmarks_driver, refactor_driver
 )
 
+
+class StandardTestFinder(YAMLTestFinder):
+    """
+    Testcase finder to use in stadard mode.
+
+    This finder exclude test cases from the 'tests/perf/' directory to avoid
+    running them in standard mode. This allow performance exclusive test
+    cases.
+    This finder doesn't exclude all performance compatible tests because
+    we want to be able to write baseline/performance hybrid tests.
+    """
+
+    def probe(self,
+              testsuite: TestsuiteCore,
+              dirpath: str,
+              dirnames: list[str],
+              filenames: list[str]) -> TestFinderResult:
+        # Probe testcases as usual
+        result = super().probe(testsuite, dirpath, dirnames, filenames)
+
+        # Reject all tests which have 'tests/perf' in their directory name
+        if result is None or P.join("tests", "perf") in result.test_dir:
+            return None
+
+        return result
+
+
 class PerfTestFinder(YAMLTestFinder):
     """
     Testcase finder to use in perf mode.
@@ -49,32 +76,6 @@ class PerfTestFinder(YAMLTestFinder):
                 f"The '{result.driver_cls.__name__}' driver does not support"
                  " performance measuring"
             )
-
-        return result
-
-
-class StandardTestFinder(YAMLTestFinder):
-    """
-    Testcase finder to use in stadard mode.
-
-    This finder exclude test cases from the 'tests/perf/' directory to avoid
-    running them in standard mode. This allow performance exclusive test
-    cases.
-    This finder doesn't exclude all performance compatible tests because
-    we want to be able to write baseline/performance hybrid tests.
-    """
-
-    def probe(self,
-              testsuite: TestsuiteCore,
-              dirpath: str,
-              dirnames: list[str],
-              filenames: list[str]) -> TestFinderResult:
-        # Probe testcases as usual
-        result = super().probe(testsuite, dirpath, dirnames, filenames)
-
-        # Reject all tests which have 'tests/perf' in their directory name
-        if result is None or P.join("tests", "perf") in result.test_dir:
-            return None
 
         return result
 
