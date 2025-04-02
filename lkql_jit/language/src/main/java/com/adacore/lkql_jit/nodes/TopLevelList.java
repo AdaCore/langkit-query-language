@@ -142,7 +142,7 @@ public final class TopLevelList extends LKQLNode {
                                     .map(
                                             f ->
                                                     new Import(
-                                                            null,
+                                                            this.getSourceSection(),
                                                             f.getName()
                                                                     .replace(
                                                                             Constants
