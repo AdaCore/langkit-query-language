@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: overriding_marks
+input_sources: ['test.ads', 'test.adb', 'test-prim3.adb']
