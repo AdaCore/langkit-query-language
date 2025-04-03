@@ -7,7 +7,7 @@ import os.path as P
 import statistics
 import subprocess
 import sys
-from typing import TextIO, Callable
+from typing import TextIO, Callable, Any
 
 from e3.fs import mkdir, rm
 from e3.testsuite import Testsuite, logger, TestsuiteCore
@@ -20,7 +20,56 @@ from drivers import (
     benchmarks_driver, refactor_driver
 )
 
-class PerfTestFinder(YAMLTestFinder):
+
+class StandardTestFinder(YAMLTestFinder):
+    """
+    Testcase finder to use in stadard mode.
+
+    This finder exclude test cases from the 'tests/perf/' directory to avoid
+    running them in standard mode. This allow performance exclusive test
+    cases.
+    This finder doesn't exclude all performance compatible tests because
+    we want to be able to write baseline/performance hybrid tests.
+    """
+
+    def __init__(
+            self,
+            env_constraints: dict[str, Callable[[Any], bool]] | None = None
+        ):
+        """
+        Create a new standard test finder, with a given list of constraints to
+        check on the test environment.
+        """
+        super().__init__()
+        self.env_constraints = env_constraints
+
+    def verify_then_return(self, test: TestFinderResult) -> TestFinderResult | None:
+        """
+        Check that the provided test environment is validating all constraints
+        attached to this test finder.
+        """
+        if self.env_constraints:
+            for field, predicate in self.env_constraints.items():
+                if not predicate(test.test_env.get(field, None)):
+                    return None
+        return test
+
+    def probe(self,
+              testsuite: TestsuiteCore,
+              dirpath: str,
+              dirnames: list[str],
+              filenames: list[str]) -> TestFinderResult | None:
+        # Probe testcases as usual
+        result = super().probe(testsuite, dirpath, dirnames, filenames)
+
+        # Reject all tests which have 'tests/perf' in their directory name
+        if result is None or P.join("tests", "perf") in result.test_dir:
+            return None
+
+        return self.verify_then_return(result)
+
+
+class PerfTestFinder(StandardTestFinder):
     """
     Testcase finder to use in perf mode.
 
@@ -50,33 +99,7 @@ class PerfTestFinder(YAMLTestFinder):
                  " performance measuring"
             )
 
-        return result
-
-
-class StandardTestFinder(YAMLTestFinder):
-    """
-    Testcase finder to use in stadard mode.
-
-    This finder exclude test cases from the 'tests/perf/' directory to avoid
-    running them in standard mode. This allow performance exclusive test
-    cases.
-    This finder doesn't exclude all performance compatible tests because
-    we want to be able to write baseline/performance hybrid tests.
-    """
-
-    def probe(self,
-              testsuite: TestsuiteCore,
-              dirpath: str,
-              dirnames: list[str],
-              filenames: list[str]) -> TestFinderResult:
-        # Probe testcases as usual
-        result = super().probe(testsuite, dirpath, dirnames, filenames)
-
-        # Reject all tests which have 'tests/perf' in their directory name
-        if result is None or P.join("tests", "perf") in result.test_dir:
-            return None
-
-        return result
+        return self.verify_then_return(result)
 
 
 class LKQLTestsuite(Testsuite):
@@ -137,12 +160,24 @@ class LKQLTestsuite(Testsuite):
                  ' to get feedback quickly during development.'
         )
 
+        parser.add_argument(
+            '--only-with-auto-fix',
+            action='store_true',
+            help='Run only tests that uses the LKQL rewriting API through'
+                 ' checkers auto-fixing function.'
+        )
+
     @property
     def test_finders(self) -> list[TestFinder]:
+        # Create the test environment constraint list
+        env_constraints = dict()
+        if self.env.options.only_with_auto_fix:
+            env_constraints["auto_fix"] = lambda v: v == True
+
         return [
-            PerfTestFinder()
+            PerfTestFinder(env_constraints)
             if self.env.perf_mode else
-            StandardTestFinder()
+            StandardTestFinder(env_constraints)
         ]
 
     def set_up(self) -> None:
