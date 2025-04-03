@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: no_dependence
+rule_arguments:
+    no_dependence.unit_names: '["ada.unchecked_conversion", "unchecked_conversion"]'
+input_sources: ['test.adb']
