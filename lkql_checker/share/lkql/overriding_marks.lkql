@@ -1,0 +1,87 @@
+import stdlib
+
+@memoized
+fun range(n) =
+    |" Quick and dirty range function. Made to work-around the absence of
+    |" iterator.enumerate in GNATcheck 24.3
+    if n == 0 then [] else range(n - 1) & [n]
+
+fun match_signature(child_prim, parent_prim, child_type, parent_type) =
+    |" Custom signature matching function, made to handle the fact that in 24.3
+    |" LAL's base_subp_declarations doesn't work.
+{
+
+    fun match_types(child_ptype, parent_ptype) =
+        # Regular match types, except in the case where the parameter types
+        # match the controlling type
+        child_ptype.p_matching_type(parent_ptype)
+        or (child_ptype.p_matching_type(child_type)
+            and parent_ptype.p_matching_type(parent_type));
+
+    # Check that the names are the same
+    child_prim.p_defining_name().p_name_matches(parent_prim.p_defining_name())
+
+    and {
+        val child_spec = child_prim.p_subp_spec_or_null();
+        val parent_spec = parent_prim.p_subp_spec_or_null();
+
+        val child_params = child_spec.p_formal_params();
+        val parent_params = parent_spec.p_formal_params();
+
+        # Check that return type is the same
+        ((child_spec.p_returns() is null and parent_spec.p_returns() is null)
+         or (child_spec.p_returns() is not null and parent_spec.p_returns() is not null
+            and match_types(child_spec.p_returns().p_designated_type_decl(),
+                            parent_spec.p_returns().p_designated_type_decl())))
+
+        # Check that parameters types are the same
+        and child_params.length == parent_params.length
+        and stdlib.all([match_types(child_params[i].p_basic_decl().p_formal_type(),
+                                    parent_params[i].p_basic_decl().p_formal_type())
+                        for i in range(child_params.length)])
+    }
+}
+
+@check(category="Style", subcategory="Readability", message="Missing overriding mark")
+fun overriding_marks(node) =
+    |" Check that overriding subprograms are explicitly marked as such.
+    |"
+    |" This applies to all subprograms of a derived type that override a
+    |" primitive operation of the type, for both tagged and untagged types. In
+    |" particular, the declaration of a primitive operation of a type extension
+    |" that overrides an inherited operation must carry an overriding
+    |" indicator. Another case is the declaration of a function that overrides
+    |" a predefined operator (such as an equality operator).
+    |"
+    |" .. attention:: This doesn't apply to primitives of multiple untagged
+    |"    types, and as such, won't ever flag such overriding primitives.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 7
+    |"
+    |"    package Foo is
+    |"      type A is null record;
+    |"      procedure Prim (Self : A) is null;
+    |"
+    |"      type B is new A;
+    |"
+    |"      procedure Prim (Self : B) is null; -- FLAG
+    |"    end Foo;
+    # Select primitives subprograms
+    node is (BasicSubpDecl | BaseSubpBody) (
+        p_subp_spec_or_null(): BaseSubpSpec(
+            p_primitive_subp_first_type(): t@TypeDecl(
+                p_base_type(): bt@TypeDecl(
+                    p_get_primitives(): primitives@(not null)
+                    when stdlib.any([p for p in primitives if match_signature(node, p, t, bt)])
+                )
+            )
+        ),
+        f_overriding: OverridingUnspecified
+    )
+
+    # Body stubs can also take an "overriding" indicator. In that case, check
+    # the body.
+    or node is SubpBodyStub(p_previous_part_for_decl(): dcl) when overriding_marks(dcl)

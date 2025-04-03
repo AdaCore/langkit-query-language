@@ -6215,6 +6215,41 @@ first construct is flagged
 
 
 
+.. _Overriding_Marks:
+
+``Overriding_Marks``
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Overriding_Marks
+
+Check that overriding subprograms are explicitly marked as such.
+
+This applies to all subprograms of a derived type that override a
+primitive operation of the type, for both tagged and untagged types. In
+particular, the declaration of a primitive operation of a type extension
+that overrides an inherited operation must carry an overriding
+indicator. Another case is the declaration of a function that overrides
+a predefined operator (such as an equality operator).
+
+.. attention:: This doesn't apply to primitives of multiple untagged
+   types, and as such, won't ever flag such overriding primitives.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 7
+
+   package Foo is
+     type A is null record;
+     procedure Prim (Self : A) is null;
+
+     type B is new A;
+
+     procedure Prim (Self : B) is null; -- FLAG
+   end Foo;
+
+
+
 .. _Profile_Discrepancies:
 
 ``Profile_Discrepancies``

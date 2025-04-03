@@ -139,6 +139,7 @@ GNATcheck rules.
 * :ref:`Overloaded_Operators`
 * :ref:`Overly_Nested_Control_Structures`
 * :ref:`Overly_Nested_Scopes`
+* :ref:`Overriding_Marks`
 * :ref:`Parameters_Aliasing`
 * :ref:`Parameters_Out_Of_Order`
 * :ref:`POS_On_Enumeration_Types`
