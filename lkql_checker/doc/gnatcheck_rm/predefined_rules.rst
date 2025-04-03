@@ -6583,6 +6583,39 @@ A line containing one or more identifiers may end with a comment.
 
 
 
+.. _No_Dependence:
+
+``No_Dependence``
+^^^^^^^^^^^^^^^^^
+
+.. index:: No_Dependence
+
+Flag every explicit dependency (with clause) to any of the library units
+designated by names passed as parameters.
+
+This rule has the following optional parameter for the ``+R`` option and for
+LKQL rule options files:
+
+*Unit_Names: list[string]*
+   List of fully qualified names designating the library units that
+   should not be explicitly depended upon.
+
+The list of unit names is case insensitive. Any case can be used both in
+the parameter or in the code's with clauses.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   --  if the rule is activated as +RNo_Dependence:Unchecked_Conversion
+   with Unchecked_Conversion; -- FLAG
+
+   package Foo is
+   end Foo;
+
+
+
 .. _Numeric_Format:
 
 ``Numeric_Format``
