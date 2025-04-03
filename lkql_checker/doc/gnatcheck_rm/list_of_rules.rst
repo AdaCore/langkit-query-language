@@ -105,6 +105,7 @@ GNATcheck rules.
 * :ref:`Nested_Paths`
 * :ref:`Nested_Subprograms`
 * :ref:`No_Closing_Names`
+* :ref:`No_Dependence`
 * :ref:`No_Explicit_Real_Range`
 * :ref:`No_Inherited_Classwide_Pre`
 * :ref:`No_Others_In_Exception_Handlers`
