@@ -36,7 +36,7 @@ all: lkql gnatcheck build_lkql_native_jit doc
 
 lkql: build/bin/liblkqllang_parse
 
-doc: build_lkql_native_jit
+doc:
 	cd user_manual && make clean html
 	cd lkql_checker/doc && make generate html-all
 
