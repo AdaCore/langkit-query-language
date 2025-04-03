@@ -1,0 +1,44 @@
+test.ads:7:14: rule violation: Missing overriding mark
+7 |    procedure Prim1 (Self : T2; Other : Integer); -- FLAG
+  |              ^^^^^
+
+test.ads:8:13: rule violation: Missing overriding mark
+8 |    function Prim2 (Self : T2; Other : Integer) return String; -- FLAG
+  |             ^^^^^
+
+test.ads:26:14: rule violation: Missing overriding mark
+26 |    procedure Prim1 (Self : T6; Other : Integer);  -- FLAG
+   |              ^^^^^
+
+test.ads:27:13: rule violation: Missing overriding mark
+27 |    function Prim2 (Self : T6; Other : Integer) return String; -- FLAG
+   |             ^^^^^
+
+test.ads:28:14: rule violation: Missing overriding mark
+28 |    procedure Prim3 (Self : T6; Other : Integer);  -- FLAG
+   |              ^^^^^
+
+test.adb:9:14: rule violation: Missing overriding mark
+9 |    procedure Prim1 (Self : T2; Other : Integer) is null; -- FLAG
+  |              ^^^^^
+
+test.adb:10:13: rule violation: Missing overriding mark
+10 |    function Prim2 (Self : T2; Other : Integer) return String
+   |             ^^^^^
+
+test.adb:39:14: rule violation: Missing overriding mark
+39 |    procedure Prim1 (Self : T6; Other : Integer) is null;  -- FLAG
+   |              ^^^^^
+
+test.adb:40:13: rule violation: Missing overriding mark
+40 |    function Prim2 (Self : T6; Other : Integer) return String
+   |             ^^^^^
+
+test.adb:48:14: rule violation: Missing overriding mark
+48 |    procedure Prim3 (Self : T6; Other : Integer) is separate;
+   |              ^^^^^
+
+test-prim3.adb:2:11: rule violation: Missing overriding mark
+2 | procedure Prim3 (Self : T6; Other : Integer) is
+  |           ^^^^^
+
