@@ -84,7 +84,7 @@ public final class LktPasses {
          * if it should not be bound.
          */
         private static String getBindingName(LktNode node) {
-            if (node instanceof Decl d && !(node instanceof FunArgDecl)) {
+            if (node instanceof Decl d && !(node instanceof FunParamDecl)) {
                 return d.fSynName().getText();
             }
             return null;
@@ -100,8 +100,8 @@ public final class LktPasses {
                 builder.addBinding(bindingName);
             }
 
-            if (node instanceof FunArgDecl funArgDecl) {
-                builder.addParameter(funArgDecl.fSynName().getText());
+            if (node instanceof FunParamDecl funParamDecl) {
+                builder.addParameter(funParamDecl.fSynName().getText());
             }
 
             var frameKind = needsFrame(node);
@@ -188,7 +188,7 @@ public final class LktPasses {
 
             final List<ParameterDeclaration> parameters = new ArrayList<>();
             for (LktNode param : params.children()) {
-                parameters.add(buildParam((FunArgDecl) param));
+                parameters.add(buildParam((FunParamDecl) param));
             }
             final var lkqlBody = buildExpr(body);
 
@@ -206,11 +206,11 @@ public final class LktPasses {
             return res;
         }
 
-        public ParameterDeclaration buildParam(Liblktlang.FunArgDecl argDecl) {
-            String name = argDecl.fSynName().getText();
-            var defaultExpr = argDecl.fDefaultVal();
+        public ParameterDeclaration buildParam(Liblktlang.FunParamDecl paramDecl) {
+            String name = paramDecl.fSynName().getText();
+            var defaultExpr = paramDecl.fDefaultVal();
             return new ParameterDeclaration(
-                loc(argDecl),
+                loc(paramDecl),
                 name,
                 defaultExpr.isNone() ? null : buildExpr(defaultExpr)
             );
@@ -235,14 +235,14 @@ public final class LktPasses {
             );
         }
 
-        private Arg buildParam(Liblktlang.Param param) {
-            if (param.fName().isNone()) {
-                return new ExprArg(loc(param), buildExpr(param.fValue()));
+        private Arg buildArg(Liblktlang.Argument arg) {
+            if (arg.fName().isNone()) {
+                return new ExprArg(loc(arg), buildExpr(arg.fValue()));
             } else {
                 return new NamedArg(
-                    loc(param),
-                    new Identifier(loc(param.fName()), param.fName().getText()),
-                    buildExpr(param.fValue())
+                    loc(arg),
+                    new Identifier(loc(arg.fName()), arg.fName().getText()),
+                    buildExpr(arg.fValue())
                 );
             }
         }
@@ -252,10 +252,10 @@ public final class LktPasses {
                 loc(annotation),
                 annotation.fName().getText(),
                 buildArgs(
-                    Arrays.stream(annotation.fParams().fParams().children())
-                        .map(p -> buildParam((Param) p))
+                    Arrays.stream(annotation.fArgs().fArgs().children())
+                        .map(a -> buildArg((Argument) a))
                         .toList(),
-                    loc(annotation.fParams())
+                    loc(annotation.fArgs())
                 )
             );
         }
@@ -283,7 +283,7 @@ public final class LktPasses {
                     annotation,
                     name,
                     slot,
-                    createFunExpr(funDecl, fullDecl.fDoc(), funDecl.fBody(), funDecl.fArgs())
+                    createFunExpr(funDecl, fullDecl.fDoc(), funDecl.fBody(), funDecl.fParams())
                 );
 
                 if (annotation != null) {
@@ -330,7 +330,7 @@ public final class LktPasses {
                 final Expr callee = buildExpr(callExpr.fName());
                 final ArgList arguments = buildArgs(
                     Arrays.stream(callExpr.fArgs().children())
-                        .map(a -> buildParam((Param) a))
+                        .map(a -> buildArg((Argument) a))
                         .toList(),
                     loc(callExpr.fArgs())
                 );
