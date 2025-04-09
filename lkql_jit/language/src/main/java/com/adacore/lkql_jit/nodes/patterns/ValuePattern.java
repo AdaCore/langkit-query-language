@@ -12,7 +12,7 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public abstract class ValuePattern extends UnfilteredPattern {
+public abstract class ValuePattern extends BasePattern {
 
     /**
      * Create a new value pattern.
