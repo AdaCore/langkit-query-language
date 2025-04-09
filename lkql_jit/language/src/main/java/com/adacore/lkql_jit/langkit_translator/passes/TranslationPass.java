@@ -848,9 +848,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.FilteredPattern filteredPattern) {
         // Translate the filtered pattern fields
-        final UnfilteredPattern pattern = (UnfilteredPattern) filteredPattern
-            .fPattern()
-            .accept(this);
+        final BasePattern pattern = (BasePattern) filteredPattern.fPattern().accept(this);
         final Expr predicate = (Expr) filteredPattern.fPredicate().accept(this);
 
         // Create the new filtered pattern node

@@ -14,7 +14,7 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class BindingPattern extends UnfilteredPattern {
+public final class BindingPattern extends BasePattern {
 
     // ----- Attributes -----
 

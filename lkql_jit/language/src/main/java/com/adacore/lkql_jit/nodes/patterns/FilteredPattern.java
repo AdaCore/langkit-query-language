@@ -23,7 +23,7 @@ public final class FilteredPattern extends BasePattern {
     /** The pattern to filter. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private UnfilteredPattern pattern;
+    private BasePattern pattern;
 
     /** The predicate to do the filtering. */
     @Child
@@ -42,7 +42,7 @@ public final class FilteredPattern extends BasePattern {
      * @param pattern The pattern to filter.
      * @param predicate The predicate expression.
      */
-    public FilteredPattern(SourceSection location, UnfilteredPattern pattern, Expr predicate) {
+    public FilteredPattern(SourceSection location, BasePattern pattern, Expr predicate) {
         super(location);
         this.pattern = pattern;
         this.predicate = predicate;
