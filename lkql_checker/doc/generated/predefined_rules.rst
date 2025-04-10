@@ -6234,8 +6234,7 @@ that overrides an inherited operation must carry an overriding
 indicator. Another case is the declaration of a function that overrides
 a predefined operator (such as an equality operator).
 
-.. attention:: This doesn't apply to primitives of multiple untagged
-   types, and as such, won't ever flag such overriding primitives.
+Primitives of multiple untagged types are not flagged.
 
 .. rubric:: Example
 
