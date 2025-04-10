@@ -4579,6 +4579,21 @@ the pragma ``Restrictions`` or ``Restriction_Warnings``.
          Restrictions: {Arg: ["Max_Task_Entries=>2", "No_Access_Subprograms"]}
       }
 
+.. attention::
+   It is forbidden to provide the same restriction name in multiple instances
+   of the ``Restrictions`` rule. Meaning that such configuration is invalid and
+   will cause GNATcheck to issue an error message:
+
+   .. code-block:: lkql
+
+      val rules = @{
+         Restrictions: [
+            {Arg: ["Max_Task_Entries=>2", "No_Access_Subprograms"]},
+            {Arg: ["Max_Task_Entries=>6"], instance_name: "Another_Instance"}
+                  # ^^^^^^^^^^^^^^^^ The "Max_Task_Entries" name is provided in multiple instances of "Restrictions"
+         ]
+      }
+
 If your code contains pragmas ``Warnings`` with parameter ``Off``, this may
 result in false negatives for this rule, because the corresponding warnings
 generated during compilation will be suppressed. The workaround is to
@@ -5688,6 +5703,21 @@ mentioned above).
          Warnings: "u"
       }
 
+.. attention::
+   It is forbidden to provide the same parameter in multiple instance of the
+   ``Warnings`` rule. Meaning that such configuration is invalid and will cause
+   GNATcheck to issue an error message:
+
+   .. code-block:: lkql
+
+      val rules = @{
+         Warnings: [
+            {Arg: "u"},
+            {Arg: "u", instance_name: "Another_Instance"}
+                 # ^-- The "u" parameter is provided in multiple instances of "Warnings"
+         ]
+      }
+
 Note that ``s`` and ``e`` parameters, corresponding respectively to GNAT
 ``-gnatws`` and ``-gnatwe`` options, are not allowed for the ``Warnings``
 GNATcheck rule since they may have side effects on other rules.
@@ -6601,6 +6631,21 @@ the compiler style check that corresponds to ``-gnatyO`` style check option.
 
       val rules = @{
          Style_Checks: "xz"
+      }
+
+.. attention::
+   It is forbidden to provide the same parameter in multiple instances of the
+   ``Style_Checks`` rule. Meaning that such configuration is invalid and will
+   cause GNATcheck to issue an error message:
+
+   .. code-block:: lkql
+
+      val rules = @{
+         Style_Checks: [
+            {Arg: "xz"},
+            {Arg: "x", instance_name: "Another_Instance"}
+                 # ^-- The "x" parameter is provided in multiple instances of "Style_Checks"
+         ]
       }
 
 This rule allows parametric rule exemptions, the parameters
