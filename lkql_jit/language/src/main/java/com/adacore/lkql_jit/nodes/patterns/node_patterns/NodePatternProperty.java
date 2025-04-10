@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.runtime.values.AdaNodeProxy;
 import com.adacore.lkql_jit.runtime.values.LKQLProperty;
 import com.adacore.lkql_jit.utils.Constants;
@@ -41,7 +41,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     /** The expected value for the property call. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    protected BasePattern expected;
+    protected Pattern expected;
 
     // ----- Constructors -----
 
@@ -52,7 +52,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
         SourceSection location,
         String propertyName,
         Expr[] args,
-        BasePattern expected
+        Pattern expected
     ) {
         super(location);
         this.propertyName = propertyName;

@@ -13,13 +13,13 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
-public abstract class TuplePattern extends ValuePattern {
+public abstract class TuplePattern extends Pattern {
 
     /** The sub-patterns for this tuple pattern. */
     @Node.Children
-    private final BasePattern[] patterns;
+    private final Pattern[] patterns;
 
-    public TuplePattern(SourceSection location, BasePattern[] patterns) {
+    public TuplePattern(SourceSection location, Pattern[] patterns) {
         super(location);
         this.patterns = patterns;
     }

@@ -206,9 +206,10 @@ public final class ScriptFramesBuilder {
          * @param isVirtual If the frame is a virtual one.
          */
         private NodeFrameBuilder(
-                final Liblkqllang.LkqlNode node,
-                final NodeFrameBuilder parent,
-                final boolean isVirtual) {
+            final Liblkqllang.LkqlNode node,
+            final NodeFrameBuilder parent,
+            final boolean isVirtual
+        ) {
             this.node = node;
             this.parent = parent;
             this.children = new ArrayList<>();
@@ -253,15 +254,17 @@ public final class ScriptFramesBuilder {
 
         @Override
         public String toString() {
-            return "NodeFrameBuilder"
-                    + (this.isVirtual ? "<virtual>" : "")
-                    + "("
-                    + "node: "
-                    + this.node.getImage()
-                    + (this.bindings.size() > 0 ? ", bindings: " + this.bindings : "")
-                    + (this.parameters.size() > 0 ? ", parameters: " + this.parameters : "")
-                    + (this.children.size() > 0 ? ", children: " + this.children : "")
-                    + ")";
+            return (
+                "NodeFrameBuilder" +
+                (this.isVirtual ? "<virtual>" : "") +
+                "(" +
+                "node: " +
+                this.node.getImage() +
+                (this.bindings.size() > 0 ? ", bindings: " + this.bindings : "") +
+                (this.parameters.size() > 0 ? ", parameters: " + this.parameters : "") +
+                (this.children.size() > 0 ? ", children: " + this.children : "") +
+                ")"
+            );
         }
     }
 }

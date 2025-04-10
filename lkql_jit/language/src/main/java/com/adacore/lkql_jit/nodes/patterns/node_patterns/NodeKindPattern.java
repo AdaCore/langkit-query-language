@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -17,7 +18,7 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class NodeKindPattern extends NodePattern {
+public final class NodeKindPattern extends Pattern {
 
     // ----- Attributes -----
 
@@ -44,7 +45,7 @@ public final class NodeKindPattern extends NodePattern {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeValue(VirtualFrame, Object)
+     * @see Pattern#executeValue(VirtualFrame, Object)
      */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {

@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -25,7 +25,7 @@ public abstract class IsClause extends Expr {
     /** The pattern node to evaluate the "is" clause. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private BasePattern pattern;
+    private Pattern pattern;
 
     // ----- Constructors -----
 
@@ -35,7 +35,7 @@ public abstract class IsClause extends Expr {
      * @param location The token location in the source.
      * @param pattern The pattern to execute the is clause.
      */
-    protected IsClause(SourceSection location, BasePattern pattern) {
+    protected IsClause(SourceSection location, Pattern pattern) {
         super(location);
         this.pattern = pattern;
     }

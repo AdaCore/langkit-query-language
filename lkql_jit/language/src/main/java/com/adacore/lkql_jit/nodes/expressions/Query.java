@@ -10,7 +10,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLSelector;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
@@ -54,7 +54,7 @@ public final class Query extends Expr {
     /** The pattern to filter the query result */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private BasePattern pattern;
+    private Pattern pattern;
 
     // ----- Constructors -----
 
@@ -74,7 +74,7 @@ public final class Query extends Expr {
         boolean followGenerics,
         Expr throughExpr,
         Expr fromExpr,
-        BasePattern pattern
+        Pattern pattern
     ) {
         super(location);
         this.kind = kind;

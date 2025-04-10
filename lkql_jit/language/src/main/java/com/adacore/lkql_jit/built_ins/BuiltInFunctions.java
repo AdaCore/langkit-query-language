@@ -41,9 +41,7 @@ import com.oracle.truffle.api.nodes.RepeatingNode;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Module where most of the LKQL built-in functions are declared. General purpose built-in functions

@@ -44,10 +44,7 @@ public final class ScriptFrames {
      *
      * @param root The root node frame of the script frames description.
      */
-    public ScriptFrames(
-        final AbstractNodeFrame root,
-        GlobalScope globalScope
-    ) {
+    public ScriptFrames(final AbstractNodeFrame root, GlobalScope globalScope) {
         this.globalScope = globalScope;
         this.root = root;
         this.current = null;
@@ -66,18 +63,20 @@ public final class ScriptFrames {
         if (this.current == null) {
             if (!this.root.node.equals(node)) {
                 throw new TranslatorException(
-                        "Cannot enter the root frame because of node inequality");
+                    "Cannot enter the root frame because of node inequality"
+                );
             }
             this.current = this.root;
         } else {
             if (!this.current.children.containsKey(node)) {
                 throw new TranslatorException(
-                        "Cannot enter the frame, "
-                                + node
-                                + " isn't in the children"
-                                + " (current: "
-                                + this.current.node
-                                + ")");
+                    "Cannot enter the frame, " +
+                    node +
+                    " isn't in the children" +
+                    " (current: " +
+                    this.current.node +
+                    ")"
+                );
             }
             this.current = this.current.children.get(node);
         }
@@ -227,6 +226,7 @@ public final class ScriptFrames {
 
         /** Pseudo mutable record to store information about a binding. */
         public static final class BindingInfo {
+
             private static final BindingInfo NONE = new BindingInfo(-1);
 
             private final int slot;
@@ -268,7 +268,9 @@ public final class ScriptFrames {
          * @param parent The parent of the node frame.
          */
         protected AbstractNodeFrame(
-                final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
+            final Liblkqllang.LkqlNode node,
+            final AbstractNodeFrame parent
+        ) {
             this.node = node;
             this.parent = parent;
             this.children = new HashMap<>();
@@ -409,7 +411,6 @@ public final class ScriptFrames {
          */
         public NodeFrame(final Liblkqllang.LkqlNode node, final AbstractNodeFrame parent) {
             super(node, parent);
-
             this.parameters = new HashMap<>();
             this.closure = new HashMap<>();
             this.closingBindings = new HashMap<>();

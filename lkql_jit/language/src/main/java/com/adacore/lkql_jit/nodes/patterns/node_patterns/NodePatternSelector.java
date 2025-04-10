@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.nodes.patterns.SelectorCall;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -27,7 +27,7 @@ public final class NodePatternSelector extends NodePatternDetail {
     /** The pattern to check from the selector. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private BasePattern pattern;
+    private Pattern pattern;
 
     // ----- Constructors -----
 
@@ -38,7 +38,7 @@ public final class NodePatternSelector extends NodePatternDetail {
      * @param call The selector call.
      * @param pattern The pattern to check the selector.
      */
-    public NodePatternSelector(SourceSection location, SelectorCall call, BasePattern pattern) {
+    public NodePatternSelector(SourceSection location, SelectorCall call, Pattern pattern) {
         super(location);
         this.call = call;
         this.pattern = pattern;
