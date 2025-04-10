@@ -9,7 +9,7 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
 import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -28,7 +28,7 @@ public final class SelectorArm extends LKQLNode {
     /** The pattern to match. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private BasePattern pattern;
+    private Pattern pattern;
 
     /** The expression to return if the arm is executed. */
     @Child
@@ -44,7 +44,7 @@ public final class SelectorArm extends LKQLNode {
      * @param pattern The pattern for the arm.
      * @param expr The expression to return.
      */
-    public SelectorArm(SourceSection location, BasePattern pattern, Expr expr) {
+    public SelectorArm(SourceSection location, Pattern pattern, Expr expr) {
         super(location);
         this.pattern = pattern;
         this.expr = expr;

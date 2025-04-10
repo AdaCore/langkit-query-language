@@ -101,7 +101,7 @@ public final class SelectorCall extends LKQLNode {
     public boolean executeVerification(
         VirtualFrame frame,
         Libadalang.AdaNode node,
-        BasePattern pattern
+        Pattern pattern
     ) {
         // Get the selector list
         LKQLSelectorList selectorListValue = this.getSelectorList(frame, node);
@@ -206,11 +206,7 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to verify.
      * @return True of all nodes of the traversal verify the pattern, false else.
      */
-    private boolean isAll(
-        VirtualFrame frame,
-        LKQLSelectorList selectorListValue,
-        BasePattern pattern
-    ) {
+    private boolean isAll(VirtualFrame frame, LKQLSelectorList selectorListValue, Pattern pattern) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
@@ -230,11 +226,7 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to verify.
      * @return True if there is any node that verify the pattern, false else.
      */
-    private boolean isAny(
-        VirtualFrame frame,
-        LKQLSelectorList selectorListValue,
-        BasePattern pattern
-    ) {
+    private boolean isAny(VirtualFrame frame, LKQLSelectorList selectorListValue, Pattern pattern) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
@@ -257,7 +249,7 @@ public final class SelectorCall extends LKQLNode {
     private LKQLList getFilteredList(
         VirtualFrame frame,
         LKQLSelectorList selectorListValue,
-        BasePattern pattern
+        Pattern pattern
     ) {
         // Prepare the result
         List<Object> resList = new ArrayList<>();
@@ -285,7 +277,7 @@ public final class SelectorCall extends LKQLNode {
     private void doBinding(
         VirtualFrame frame,
         LKQLSelectorList selectorListValue,
-        BasePattern pattern
+        Pattern pattern
     ) {
         LKQLList listValue = this.getFilteredList(frame, selectorListValue, pattern);
         this.doBinding(frame, listValue);

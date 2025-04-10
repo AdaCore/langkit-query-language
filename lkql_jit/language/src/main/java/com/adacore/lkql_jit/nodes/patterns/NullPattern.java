@@ -15,7 +15,7 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class NullPattern extends ValuePattern {
+public final class NullPattern extends Pattern {
 
     // ----- Constructors -----
 
@@ -31,7 +31,7 @@ public final class NullPattern extends ValuePattern {
     // ----- Execution methods -----
 
     /**
-     * @see BasePattern#executeValue(VirtualFrame, Object)
+     * @see Pattern#executeValue(VirtualFrame, Object)
      */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {

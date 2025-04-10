@@ -18,7 +18,7 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public abstract class RegexPattern extends ValuePattern {
+public abstract class RegexPattern extends Pattern {
 
     // ----- Attributes -----
 

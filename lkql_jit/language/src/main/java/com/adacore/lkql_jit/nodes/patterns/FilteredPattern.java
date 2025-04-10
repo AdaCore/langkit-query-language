@@ -17,14 +17,14 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class FilteredPattern extends BasePattern {
+public final class FilteredPattern extends Pattern {
 
     // ----- Children -----
 
     /** The pattern to filter. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private BasePattern pattern;
+    private Pattern pattern;
 
     /** The predicate to do the filtering. */
     @Child
@@ -40,7 +40,7 @@ public final class FilteredPattern extends BasePattern {
      * @param pattern The pattern to filter.
      * @param predicate The predicate expression.
      */
-    public FilteredPattern(SourceSection location, BasePattern pattern, Expr predicate) {
+    public FilteredPattern(SourceSection location, Pattern pattern, Expr predicate) {
         super(location);
         this.pattern = pattern;
         this.predicate = predicate;
@@ -49,7 +49,7 @@ public final class FilteredPattern extends BasePattern {
     // ----- Execution methods -----
 
     /**
-     * @see BasePattern#executeValue(VirtualFrame, Object)
+     * @see Pattern#executeValue(VirtualFrame, Object)
      */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {

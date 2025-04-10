@@ -31,11 +31,11 @@ import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.FilteredPattern;
 import com.adacore.lkql_jit.nodes.patterns.NullPattern;
 import com.adacore.lkql_jit.nodes.patterns.OrPattern;
 import com.adacore.lkql_jit.nodes.patterns.ParenPattern;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.nodes.patterns.UniversalPattern;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.ExtendedNodePattern;
@@ -423,7 +423,7 @@ public final class LktPasses {
             }
         }
 
-        private BasePattern buildPattern(Liblktlang.Pattern pattern) {
+        private Pattern buildPattern(Liblktlang.Pattern pattern) {
             if (pattern instanceof Liblktlang.NullPattern nullPattern) {
                 return new NullPattern(loc(nullPattern));
             } else if (pattern instanceof Liblktlang.IntegerPattern integerPattern) {
@@ -443,16 +443,16 @@ public final class LktPasses {
                 return RegexPatternNodeGen.create(loc(regexPattern), regex);
             } else if (pattern instanceof Liblktlang.TuplePattern tuplePattern) {
                 // Get the sub-patterns inside the tuple pattern
-                final List<BasePattern> tuplePatterns = new ArrayList<>();
+                final List<Pattern> tuplePatterns = new ArrayList<>();
                 for (var p : tuplePattern.fSubPatterns().children()) {
                     tuplePatterns.add(buildPattern((Liblktlang.Pattern) p));
                 }
                 return TuplePatternNodeGen.create(
                     loc(tuplePattern),
-                    tuplePatterns.toArray(new BasePattern[0])
+                    tuplePatterns.toArray(new Pattern[0])
                 );
             } else if (pattern instanceof Liblktlang.ParenPattern parenPattern) {
-                final BasePattern p = buildPattern(parenPattern.fSubPattern());
+                final Pattern p = buildPattern(parenPattern.fSubPattern());
                 return new ParenPattern(loc(parenPattern), p);
             } else if (pattern instanceof Liblktlang.OrPattern orPattern) {
                 return new OrPattern(
@@ -470,7 +470,7 @@ public final class LktPasses {
                 return new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
             } else if (pattern instanceof Liblktlang.ExtendedPattern extendedPattern) {
                 // Translate the extended node pattern fields
-                final BasePattern nodePattern = buildPattern(extendedPattern.fSubPattern());
+                final Pattern nodePattern = buildPattern(extendedPattern.fSubPattern());
 
                 // Get the pattern details
                 final List<NodePatternDetail> details = new ArrayList<>();
@@ -495,7 +495,7 @@ public final class LktPasses {
             if (patternDetail instanceof Liblktlang.FieldPatternDetail fieldPatternDetail) {
                 // Translate the node pattern detail fields
                 final String name = fieldPatternDetail.fId().getText();
-                final BasePattern expected = buildPattern(fieldPatternDetail.fExpectedValue());
+                final Pattern expected = buildPattern(fieldPatternDetail.fExpectedValue());
 
                 // Return the new node pattern field detail
                 return NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);

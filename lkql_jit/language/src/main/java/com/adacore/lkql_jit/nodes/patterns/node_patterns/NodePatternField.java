@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.runtime.values.LKQLProperty;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -31,7 +31,7 @@ public abstract class NodePatternField extends NodePatternDetail {
     /** The expected value for the field. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    protected BasePattern expected;
+    protected Pattern expected;
 
     // ----- Constructors -----
 
@@ -42,7 +42,7 @@ public abstract class NodePatternField extends NodePatternDetail {
      * @param fieldName The name of the field to get.
      * @param expected The expected value for the field.
      */
-    protected NodePatternField(SourceSection location, String fieldName, BasePattern expected) {
+    protected NodePatternField(SourceSection location, String fieldName, Pattern expected) {
         super(location);
         this.fieldName = fieldName;
         this.expected = expected;

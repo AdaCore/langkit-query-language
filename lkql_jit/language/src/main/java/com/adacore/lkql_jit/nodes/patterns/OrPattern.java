@@ -13,19 +13,19 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class OrPattern extends ValuePattern {
+public final class OrPattern extends Pattern {
 
     // ----- Children -----
 
     /** The left part of the "or" pattern. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private BasePattern left;
+    private Pattern left;
 
     /** The right part of the "or" pattern. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private BasePattern right;
+    private Pattern right;
 
     // ----- Constructors -----
 
@@ -36,7 +36,7 @@ public final class OrPattern extends ValuePattern {
      * @param left The left part of the "or".
      * @param right The right part of the "or".
      */
-    public OrPattern(SourceSection location, BasePattern left, BasePattern right) {
+    public OrPattern(SourceSection location, Pattern left, Pattern right) {
         super(location);
         this.left = left;
         this.right = right;
@@ -45,7 +45,7 @@ public final class OrPattern extends ValuePattern {
     // ----- Execution methods -----
 
     /**
-     * @see BasePattern#executeValue(VirtualFrame, Object)
+     * @see Pattern#executeValue(VirtualFrame, Object)
      */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {

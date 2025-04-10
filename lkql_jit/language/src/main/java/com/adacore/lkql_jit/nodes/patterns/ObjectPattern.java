@@ -17,10 +17,10 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.SourceSection;
 
-public abstract class ObjectPattern extends ValuePattern {
+public abstract class ObjectPattern extends Pattern {
 
     @Node.Children
-    private final BasePattern[] patterns;
+    private final Pattern[] patterns;
 
     private final Shape shape;
 
@@ -31,7 +31,7 @@ public abstract class ObjectPattern extends ValuePattern {
 
     protected ObjectPattern(
         SourceSection location,
-        BasePattern[] patterns,
+        Pattern[] patterns,
         String[] keys,
         SplatPattern splat
     ) {

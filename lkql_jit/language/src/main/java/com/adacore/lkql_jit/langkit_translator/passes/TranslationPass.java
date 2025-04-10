@@ -741,7 +741,7 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.FilteredPattern filteredPattern) {
         // Translate the filtered pattern fields
-        final BasePattern pattern = (BasePattern) filteredPattern.fPattern().accept(this);
+        final Pattern pattern = (Pattern) filteredPattern.fPattern().accept(this);
         final Expr predicate = (Expr) filteredPattern.fPredicate().accept(this);
 
         // Create the new filtered pattern node
@@ -773,15 +773,12 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.ListPattern listPattern) {
         // Get the patterns inside the list
-        final List<BasePattern> listPatterns = new ArrayList<>();
+        final List<Pattern> listPatterns = new ArrayList<>();
         for (Liblkqllang.LkqlNode pattern : listPattern.fPatterns().children()) {
-            listPatterns.add((BasePattern) pattern.accept(this));
+            listPatterns.add((Pattern) pattern.accept(this));
         }
 
-        return ListPatternNodeGen.create(
-            loc(listPattern),
-            listPatterns.toArray(new BasePattern[0])
-        );
+        return ListPatternNodeGen.create(loc(listPattern), listPatterns.toArray(new Pattern[0]));
     }
 
     @Override
@@ -811,10 +808,10 @@ public final class TranslationPass
         this.frames.declareBinding(name);
         final int slot = this.frames.getBinding(name);
 
-        ValuePattern pattern = null;
+        Pattern pattern = null;
         // Visit the associated value pattern
         if (!bindingPattern.fValuePattern().isNone()) {
-            pattern = (ValuePattern) bindingPattern.fValuePattern().accept(this);
+            pattern = (Pattern) bindingPattern.fValuePattern().accept(this);
         }
 
         // Return the result binding pattern node
@@ -836,7 +833,7 @@ public final class TranslationPass
         this.frames.enterFrame(isClause);
 
         // Translate the is clause pattern
-        final BasePattern pattern = (BasePattern) isClause.fPattern().accept(this);
+        final Pattern pattern = (Pattern) isClause.fPattern().accept(this);
 
         // Exit the frame
         this.frames.exitFrame();
@@ -864,13 +861,13 @@ public final class TranslationPass
         SplatPattern splat = null;
         final int assocNumber = nodeList.getChildrenCount();
         var keys = new ArrayList<String>();
-        var patterns = new ArrayList<BasePattern>();
+        var patterns = new ArrayList<Pattern>();
 
         // Iterate on the object associations and get keys and patterns
         for (int i = 0; i < assocNumber; i++) {
             final var assoc = nodeList.getChild(i);
             if (assoc instanceof Liblkqllang.ObjectPatternAssoc objectPatternAssoc) {
-                patterns.add((BasePattern) objectPatternAssoc.fPattern().accept(this));
+                patterns.add((Pattern) objectPatternAssoc.fPattern().accept(this));
                 keys.add(objectPatternAssoc.fName().getText());
             } else if (assoc instanceof Liblkqllang.SplatPattern splatPattern) {
                 splat = (SplatPattern) this.visit(splatPattern);
@@ -881,7 +878,7 @@ public final class TranslationPass
 
         return ObjectPatternNodeGen.create(
             loc(objectPattern),
-            patterns.toArray(new BasePattern[0]),
+            patterns.toArray(new Pattern[0]),
             keys.toArray(new String[0]),
             splat
         );
@@ -918,15 +915,12 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.TuplePattern tuplePattern) {
         // Get the sub-patterns inside the tuple pattern
-        final List<BasePattern> tuplePatterns = new ArrayList<>();
+        final List<Pattern> tuplePatterns = new ArrayList<>();
         for (Liblkqllang.LkqlNode pattern : tuplePattern.fPatterns().children()) {
-            tuplePatterns.add((BasePattern) pattern.accept(this));
+            tuplePatterns.add((Pattern) pattern.accept(this));
         }
 
-        return TuplePatternNodeGen.create(
-            loc(tuplePattern),
-            tuplePatterns.toArray(new BasePattern[0])
-        );
+        return TuplePatternNodeGen.create(loc(tuplePattern), tuplePatterns.toArray(new Pattern[0]));
     }
 
     /**
@@ -938,7 +932,7 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.ParenPattern parenPattern) {
         // Translate the parented pattern
-        final BasePattern pattern = (BasePattern) parenPattern.fPattern().accept(this);
+        final Pattern pattern = (Pattern) parenPattern.fPattern().accept(this);
 
         // Return the new parented pattern node
         return new ParenPattern(loc(parenPattern), pattern);
@@ -953,8 +947,8 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.OrPattern orPattern) {
         // Translate the or pattern fields
-        final BasePattern left = (BasePattern) orPattern.fLeft().accept(this);
-        final BasePattern right = (BasePattern) orPattern.fRight().accept(this);
+        final Pattern left = (Pattern) orPattern.fLeft().accept(this);
+        final Pattern right = (Pattern) orPattern.fRight().accept(this);
 
         // Create the new or pattern node
         return new OrPattern(loc(orPattern), left, right);
@@ -969,7 +963,7 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.NotPattern notPattern) {
         // Translate the not pattern fields
-        final ValuePattern pattern = (ValuePattern) notPattern.fPattern().accept(this);
+        final Pattern pattern = (Pattern) notPattern.fPattern().accept(this);
 
         // Create the new not pattern
         return new NotPattern(loc(notPattern), pattern);
@@ -1010,7 +1004,7 @@ public final class TranslationPass
         final Liblkqllang.Expr fromExprBase = query.fFromExpr();
         final Expr fromExpr = fromExprBase.isNone() ? null : (Expr) fromExprBase.accept(this);
 
-        final BasePattern pattern = (BasePattern) query.fPattern().accept(this);
+        final Pattern pattern = (Pattern) query.fPattern().accept(this);
 
         // Get the query kind
         final Query.Kind queryKind;
@@ -1478,7 +1472,7 @@ public final class TranslationPass
 
         // Translate the selector arm fields
         // TODO: Question on why many expressions by arm
-        final BasePattern pattern = (BasePattern) selectorArm.fPattern().accept(this);
+        final Pattern pattern = (Pattern) selectorArm.fPattern().accept(this);
         final Expr expr = (Expr) selectorArm.fExpr().accept(this);
 
         // Exit the arm frame
@@ -1621,7 +1615,7 @@ public final class TranslationPass
     public LKQLNode visit(Liblkqllang.NodePatternField nodePatternField) {
         // Translate the node pattern detail fields
         final String name = nodePatternField.fIdentifier().getText();
-        final BasePattern expected = (BasePattern) nodePatternField.fExpectedValue().accept(this);
+        final Pattern expected = (Pattern) nodePatternField.fExpectedValue().accept(this);
 
         nodePatternField.fPatternDetailDelimiter().accept(this);
 
@@ -1640,9 +1634,7 @@ public final class TranslationPass
         // Translate the node pattern detail fields
         final String propertyName = nodePatternProperty.fCall().fName().getText();
         final ArgList argList = (ArgList) nodePatternProperty.fCall().fArguments().accept(this);
-        final BasePattern expected = (BasePattern) nodePatternProperty
-            .fExpectedValue()
-            .accept(this);
+        final Pattern expected = (Pattern) nodePatternProperty.fExpectedValue().accept(this);
 
         nodePatternProperty.fPatternDetailDelimiter().accept(this);
 
@@ -1670,7 +1662,7 @@ public final class TranslationPass
         this.frames.enterFrame(nodePatternSelector.fPattern());
 
         // Translate the node pattern selector pattern
-        final BasePattern pattern = (BasePattern) nodePatternSelector.fPattern().accept(this);
+        final Pattern pattern = (Pattern) nodePatternSelector.fPattern().accept(this);
 
         // Exit the node pattern selector frame
         this.frames.exitFrame();
@@ -1695,9 +1687,7 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.ExtendedNodePattern extendedNodePattern) {
         // Translate the extended node pattern fields
-        final ValuePattern nodePattern = (ValuePattern) extendedNodePattern
-            .fNodePattern()
-            .accept(this);
+        final Pattern nodePattern = (Pattern) extendedNodePattern.fNodePattern().accept(this);
 
         // Get the pattern details
         final List<NodePatternDetail> details = new ArrayList<>();
@@ -1727,7 +1717,7 @@ public final class TranslationPass
         this.frames.enterFrame(matchArm);
 
         // Translate the match arm fields
-        final BasePattern pattern = (BasePattern) matchArm.fPattern().accept(this);
+        final Pattern pattern = (Pattern) matchArm.fPattern().accept(this);
         final Expr expr = (Expr) matchArm.fExpr().accept(this);
 
         // Exit the match arm frame

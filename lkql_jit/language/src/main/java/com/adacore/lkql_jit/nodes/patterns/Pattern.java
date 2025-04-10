@@ -15,14 +15,14 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public abstract class BasePattern extends LKQLNode {
+public abstract class Pattern extends LKQLNode {
 
     /**
      * Create a new base pattern node.
      *
      * @param location The location of the node in the source.
      */
-    protected BasePattern(SourceSection location) {
+    protected Pattern(SourceSection location) {
         super(location);
     }
 
