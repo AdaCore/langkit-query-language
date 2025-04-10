@@ -38,7 +38,10 @@ import com.adacore.lkql_jit.nodes.patterns.OrPattern;
 import com.adacore.lkql_jit.nodes.patterns.ParenPattern;
 import com.adacore.lkql_jit.nodes.patterns.UniversalPattern;
 import com.adacore.lkql_jit.nodes.patterns.*;
+import com.adacore.lkql_jit.nodes.patterns.node_patterns.ExtendedNodePattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
+import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail;
+import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternFieldNodeGen;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.source.Source;
@@ -484,6 +487,25 @@ public final class LktPasses {
             } else {
                 throw LKQLRuntimeException.fromMessage(
                     "Translation for " + pattern.getKind() + " not implemented"
+                );
+            }
+        }
+
+        private NodePatternDetail buildPatternDetail(Liblktlang.PatternDetail patternDetail) {
+            if (patternDetail instanceof Liblktlang.FieldPatternDetail fieldPatternDetail) {
+                // Translate the node pattern detail fields
+                final String name = fieldPatternDetail.fId().getText();
+                final BasePattern expected = buildPattern(fieldPatternDetail.fExpectedValue());
+
+                // Return the new node pattern field detail
+                return NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);
+            } else if (patternDetail instanceof Liblktlang.PropertyPatternDetail) {
+                return null;
+            } else if (patternDetail instanceof Liblktlang.SelectorPatternDetail) {
+                return null;
+            } else {
+                throw LKQLRuntimeException.fromMessage(
+                    "Translation for " + patternDetail.getKind() + " not implemented"
                 );
             }
         }
