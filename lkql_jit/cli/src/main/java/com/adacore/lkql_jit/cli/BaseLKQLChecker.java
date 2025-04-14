@@ -193,7 +193,7 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
             names = { "--to-lkt" },
             description = "List of units to auto translate to Lkt"
         )
-        public List<String> autoTranslateUnits;
+        public List<String> autoTranslateUnits = new ArrayList<>();
 
         @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
         public boolean verbose;

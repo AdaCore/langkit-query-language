@@ -24,6 +24,8 @@ class InterpreterDriver(BaseDriver):
         # Build the process's arguments list
         args = [*self.lkql_exe, '--script-path', 'script.lkql']
 
+        auto_rewrite_sources = self.test_env.get('to_lkt', None)
+
         input_sources = self.test_env.get('input_sources', None)
         project = self.test_env.get('project', None)
         lkql_path = [
@@ -32,10 +34,23 @@ class InterpreterDriver(BaseDriver):
         ]
 
         if project:
-            args += ['-P', self.test_env['project']]
+            args += ['-P', project]
 
         if input_sources:
             args += input_sources
+
+        # If auto_rewrite_sources are present, then we run the interpreter
+        # twice, once with rewrite, and once without, so that we can compare
+        # the results.
+        if auto_rewrite_sources:
+            self.output += "lkql to lkt\n"
+            self.output += "===========\n"
+            new_args = args + ["--to-lkt"] + auto_rewrite_sources
+            self.check_run(new_args)
+
+            self.output += "\n"
+            self.output += "lkql run\n"
+            self.output += "========\n"
 
         # Run the interpreter
         self.check_run(args, lkql_path=os.pathsep.join(lkql_path))

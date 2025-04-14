@@ -31,6 +31,7 @@ import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
+import com.adacore.lkql_jit.nodes.patterns.BindingPattern;
 import com.adacore.lkql_jit.nodes.patterns.FilteredPattern;
 import com.adacore.lkql_jit.nodes.patterns.NullPattern;
 import com.adacore.lkql_jit.nodes.patterns.OrPattern;
@@ -484,6 +485,22 @@ public final class LktPasses {
                     nodePattern,
                     details.toArray(new NodePatternDetail[0])
                 );
+            } else if (pattern instanceof Liblktlang.BindingPattern bindingPattern) {
+                // Get the binding value name
+                final String name = bindingPattern.fDecl().fSynName().getText();
+
+                // Get the slot of the binding
+                this.frames.declareBinding(name);
+                final int slot = this.frames.getBinding(name);
+
+                Pattern ptn = null;
+                // Visit the associated value pattern
+                if (!bindingPattern.fSubPattern().isNone()) {
+                    ptn = buildPattern(bindingPattern.fSubPattern());
+                }
+
+                // Return the result binding pattern node
+                return new BindingPattern(loc(bindingPattern), slot, ptn);
             } else {
                 throw LKQLRuntimeException.fromMessage(
                     "Translation for " + pattern.getKind() + " not implemented"
