@@ -217,22 +217,6 @@ public final class LKQLTypesHelper {
     }
 
     /**
-     * Get the category of value for the given Java type. This category represents a kind of value
-     * from Libadalang which cannot be imported in the LKQL context.
-     *
-     * @param type The type to get the category for.
-     * @return The type category.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static String category(Class<?> type) {
-        if (type == Libadalang.CompletionItemIterator.class) {
-            return "ITERATOR_CATEGORY";
-        } else {
-            return type.getSimpleName();
-        }
-    }
-
-    /**
      * Convert a Java value into a LKQL value.
      *
      * @param javaValue The Java object.
