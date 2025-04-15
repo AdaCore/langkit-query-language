@@ -42,6 +42,21 @@ fun style_checks() =
     |"          Style_Checks: "xz"
     |"       }
     |"
+    |" .. attention::
+    |"    It is forbidden to provide the same parameter in multiple instances of the
+    |"    ``Style_Checks`` rule. Meaning that such configuration is invalid and will
+    |"    cause GNATcheck to issue an error message:
+    |"
+    |"    .. code-block:: lkql
+    |"
+    |"       val rules = @{
+    |"          Style_Checks: [
+    |"             {Arg: "xz"},
+    |"             {Arg: "x", instance_name: "Another_Instance"}
+    |"                  # ^-- The "x" parameter is provided in multiple instances of "Style_Checks"
+    |"          ]
+    |"       }
+    |"
     |" This rule allows parametric rule exemptions, the parameters
     |" that are allowed in the definition of exemption sections are the
     |" same as the parameters of the rule itself.

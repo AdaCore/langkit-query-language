@@ -32,6 +32,21 @@ fun restrictions() =
     |"          Restrictions: {Arg: ["Max_Task_Entries=>2", "No_Access_Subprograms"]}
     |"       }
     |"
+    |" .. attention::
+    |"    It is forbidden to provide the same restriction name in multiple instances
+    |"    of the ``Restrictions`` rule. Meaning that such configuration is invalid and
+    |"    will cause GNATcheck to issue an error message:
+    |"
+    |"    .. code-block:: lkql
+    |"
+    |"       val rules = @{
+    |"          Restrictions: [
+    |"             {Arg: ["Max_Task_Entries=>2", "No_Access_Subprograms"]},
+    |"             {Arg: ["Max_Task_Entries=>6"], instance_name: "Another_Instance"}
+    |"                   # ^^^^^^^^^^^^^^^^ The "Max_Task_Entries" name is provided in multiple instances of "Restrictions"
+    |"          ]
+    |"       }
+    |"
     |" If your code contains pragmas ``Warnings`` with parameter ``Off``, this may
     |" result in false negatives for this rule, because the corresponding warnings
     |" generated during compilation will be suppressed. The workaround is to

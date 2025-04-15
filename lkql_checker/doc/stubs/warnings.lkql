@@ -34,6 +34,21 @@ fun warnings() =
     |"          Warnings: "u"
     |"       }
     |"
+    |" .. attention::
+    |"    It is forbidden to provide the same parameter in multiple instance of the
+    |"    ``Warnings`` rule. Meaning that such configuration is invalid and will cause
+    |"    GNATcheck to issue an error message:
+    |"
+    |"    .. code-block:: lkql
+    |"
+    |"       val rules = @{
+    |"          Warnings: [
+    |"             {Arg: "u"},
+    |"             {Arg: "u", instance_name: "Another_Instance"}
+    |"                  # ^-- The "u" parameter is provided in multiple instances of "Warnings"
+    |"          ]
+    |"       }
+    |"
     |" Note that ``s`` and ``e`` parameters, corresponding respectively to GNAT
     |" ``-gnatws`` and ``-gnatwe`` options, are not allowed for the ``Warnings``
     |" GNATcheck rule since they may have side effects on other rules.
