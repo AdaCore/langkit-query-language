@@ -241,7 +241,7 @@ public final class LKQLTypesHelper {
             return javaValue;
         }
         // If the value is a character
-        else if (javaValue instanceof Libadalang.Char character) {
+        else if (javaValue instanceof LangkitSupport.CharInterface character) {
             return character.toString();
         }
         // If the source is a symbol
