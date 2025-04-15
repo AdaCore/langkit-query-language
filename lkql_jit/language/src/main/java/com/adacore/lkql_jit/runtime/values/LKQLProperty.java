@@ -9,7 +9,6 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -73,6 +72,7 @@ public class LKQLProperty extends BasicLKQLValue {
      * @param caller The locatable which called the execution.
      * @param arguments The argument for the property call.
      */
+    @CompilerDirectives.TruffleBoundary
     public Object executeAsProperty(Node caller, ArgList argList, Object... arguments) {
         try {
             return ReflectionUtils.callProperty(
@@ -83,10 +83,7 @@ public class LKQLProperty extends BasicLKQLValue {
                 arguments
             );
         } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(
-                LKQLTypesHelper.category(e.getType()),
-                caller
-            );
+            throw LKQLRuntimeException.unsupportedType(e.getType().getSimpleName(), caller);
         }
     }
 
@@ -95,14 +92,12 @@ public class LKQLProperty extends BasicLKQLValue {
      *
      * @param caller The locatable which called the execution.
      */
+    @CompilerDirectives.TruffleBoundary
     public Object executeAsField(Node caller) {
         try {
             return ReflectionUtils.callProperty(this.node, this.description, caller, null);
         } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(
-                LKQLTypesHelper.category(e.getType()),
-                caller
-            );
+            throw LKQLRuntimeException.unsupportedType(e.getType().getSimpleName(), caller);
         }
     }
 
