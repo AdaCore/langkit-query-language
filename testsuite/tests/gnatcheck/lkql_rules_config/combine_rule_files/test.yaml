@@ -1,0 +1,37 @@
+driver: gnatcheck
+format: brief
+input_sources:
+ - main.adb
+show_rule: True
+check_flags: False
+
+tests:
+  # Valid configurations testing
+  - label: Without key overlapping
+    lkql_rule_file: without_overlapping.lkql
+    lkql_path:
+      - rule_configs
+  - label: With key overlapping
+    lkql_rule_file: with_overlapping.lkql
+    lkql_path:
+      - rule_configs
+  - label: Providing search paths through the '--lkql-path' CLI option
+    lkql_rule_file: without_overlapping.lkql
+    extra_args:
+      - --lkql-path
+      - rule_configs
+  - label: Providing search paths through the GPR file
+    project: prj
+
+  # Error testing
+  - label: Rule file with an invalid importation
+    lkql_rule_file: invalid_import.lkql
+  - label: Rule file with circular importation
+    lkql_rule_file: circular_import.lkql
+    lkql_path:
+      - other_rule_configs
+  - label: Rule file with ambiguous importation
+    lkql_rule_file: ambiguous_import.lkql
+    lkql_path:
+      - rule_configs
+      - other_rule_configs

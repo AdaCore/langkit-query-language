@@ -3,12 +3,6 @@ import os.path as P
 import re
 import xml.etree.ElementTree as ET
 
-from e3.testsuite.driver.diff import (
-    ReplacePath,
-    Substitute,
-    OutputRefiner,
-)
-
 from drivers.base_driver import BaseDriver, Flags
 
 
@@ -134,6 +128,8 @@ class GnatcheckDriver(BaseDriver):
           True.
         - ``in_tty`` (bool): Whether to run GNATcheck in a pseudo TTY using the
           ``pty`` Python module.
+        - ``lkql_path`` (list[str]): A list of directories forwarded to the
+            `LKQL_PATH` environment variable when the test is run.
 
         - ``jobs`` (int): The number of jobs to forward to the GNATcheck command.
         - ``project`` (str): GPR build file to use (if any).
@@ -209,16 +205,17 @@ class GnatcheckDriver(BaseDriver):
     def run(self) -> None:
         gnatcheck_env = dict(os.environ)
 
-        # Here we don't want to pollute the LKQL_RULES_PATH with this
-        # repository's LKQL rules: GNATcheck will find those itself by looking
-        # next to its executable. If we let this variable, we might end up
-        # with duplicate definitions of rules, for example if this repository
+        # Here we don't want to pollute the LKQL_RULES_PATH and LKQL_PATH with
+        # this repository's LKQL rules: GNATcheck will find those itself by
+        # looking next to its executable. If we let this variable, we might end
+        # up with duplicate definitions of rules, for example if this repository
         # is a copy of the original LKQL repository (which is actually what
         # happens in production: the checkout used for testing is separate
         # from that used for building).
         gnatcheck_env["LKQL_RULES_PATH"] = getattr(
             self.env, "gnatcheck_rules_path", ""
         )
+        gnatcheck_env["LKQL_PATH"] = ""
 
         # Get the test provided custom GNATcheck worker
         custom_worker = self.test_env.get('worker', None)
@@ -294,6 +291,8 @@ class GnatcheckDriver(BaseDriver):
                     f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
                 )
             )
+            test_env = dict(gnatcheck_env)
+
 
             pre_python = test_data.get('pre_python', None)
             post_python = test_data.get('post_python', None)
@@ -302,6 +301,13 @@ class GnatcheckDriver(BaseDriver):
             # for this test, run it and capture its output
             if pre_python:
                 capture_exec_python(pre_python)
+
+            # If required, add provided directories to the LKQL_PATH variable
+            for d in test_data.get('lkql_path', []):
+                test_env['LKQL_PATH'] = os.pathsep.join([
+                    self.working_dir(d),
+                    test_env.get('LKQL_PATH', ""),
+                ])
 
             # Set the target if one has been provided
             if test_data.get('target'):
@@ -425,9 +431,9 @@ class GnatcheckDriver(BaseDriver):
                 exec_output = ""
                 status_code = 0
                 if test_data.get("in_tty"):
-                    exec_output, status_code = self.run_in_tty(args, env=gnatcheck_env)
+                    exec_output, status_code = self.run_in_tty(args, env=test_env)
                 else:
-                    p = self.shell(args, env=gnatcheck_env, catch_error=False, analyze_output=False)
+                    p = self.shell(args, env=test_env, catch_error=False, analyze_output=False)
                     exec_output = p.out
                     status_code = p.status
 
@@ -516,14 +522,6 @@ class GnatcheckDriver(BaseDriver):
         # Check the execution flagged lines
         if self.flag_checking:
             self.check_flags(flagged_lines)
-
-    @property
-    def output_refiners(self) -> list[OutputRefiner]:
-        result = super().output_refiners
-        result.append(Substitute(self.working_dir(), "<working-dir>"))
-        if self.test_env.get("canonicalize_backslashes", False):
-            result.append(Substitute("\\", "/"))
-        return result
 
     def parse_flagged_lines(self, output: str, format: str) -> Flags:
         assert format in self.output_formats

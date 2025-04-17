@@ -13,7 +13,12 @@ import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.source.Source;
+import java.io.File;
 import java.io.Serial;
+import java.util.Stack;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * This exception means that there is an error in the LKQL execution.
@@ -155,6 +160,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         return LKQLRuntimeException.fromMessage("Expect a concrete kind", location);
     }
 
+    // --- Importation related exceptions
+
     /**
      * Create a new exception for a wrong import statement, if the module is not found.
      *
@@ -166,6 +173,42 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     public static LKQLRuntimeException moduleNotFound(String moduleName, Node location) {
         return LKQLRuntimeException.fromMessage(
             "Cannot import, module not found \"" + moduleName + "\"",
+            location
+        );
+    }
+
+    /** Create a new exception in the case of multiple matching files for an import statement. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeException ambiguousImport(
+        String moduleName,
+        Iterable<File> possibleFiles,
+        Node location
+    ) {
+        return LKQLRuntimeException.fromMessage(
+            "Ambiguous importation, multiple \"" +
+            moduleName +
+            "\" modules found (" +
+            StreamSupport.stream(possibleFiles.spliterator(), false)
+                .map(File::getAbsolutePath)
+                .collect(Collectors.joining(" & ")) +
+            ")",
+            location
+        );
+    }
+
+    /** Create a new exception when there is a circular dependency. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeException circularDependency(
+        Stack<Source> importStack,
+        Source responsible,
+        Node location
+    ) {
+        return LKQLRuntimeException.fromMessage(
+            "Circular dependency in LKQL modules (" +
+            importStack.stream().map(Source::getName).collect(Collectors.joining(" -> ")) +
+            " -> " +
+            responsible.getName() +
+            ")",
             location
         );
     }

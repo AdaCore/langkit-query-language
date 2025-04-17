@@ -113,7 +113,8 @@ Composite Data Types
 
 ``Object``
   Objects are heterogeneous records that can contain any number of key to value
-  mappings, where keys are labels and values are any valid LKQL value.
+  mappings, where keys are labels and values are any valid LKQL value. Objects
+  support concatenation.
 
 
 
@@ -502,16 +503,21 @@ An object literal is a literal representation of an object value:
 .. raw:: html
   :file: ../../lkql/build/railroad-diagrams/at_object_lit.svg
 
-"@" preceded object literals are similar to standard object literal with an
-empty list as default value for any key:
+"@" object literals are quite the same as standard objects literals, but each
+associated value is wrapped in a list (if not already one). You are also
+allowed to omit the associated expression when adding a key in the object. The
+default associated value is a list with only one element: an empty object.
 
 .. code-block:: lkql
 
-  # At object literal
-  @{a: 1, b, c: null, d}
+  # @-object literal
+  @{a: "Hello", b, c: 42, d}
 
   # Is similar to
-  {a: 1, b: [], c: null, d: []}
+  {a: ["Hello"], b: [{}], c: [42], d: [{}]}
+
+This "@" object notation are mainly used to express coding standards in LKQL
+rule configuration files, however, you can use it in any context.
 
 Object keys may contain upper-case characters at declaration, but the LKQL
 engine will lower them. This means that object keys are case-insensitive:
@@ -740,16 +746,37 @@ LKQL has a few built-in operators available:
 
   true and false or (a == b) and (not c)
 
-- String and list concatenation
+- Value concatenation
 
 .. code-block:: lkql
 
+  # Strings concatenation
   "Hello " & name
 
 .. code-block:: lkql
 
+  # Lists concatenation
   [1, 2, 3] & [4, 5, 6]
 
+.. code-block:: lkql
+
+  # Objects concatenation
+  {a: 1} & {b: 2}
+
+.. note::
+
+  When concatenation object values, keys are combined in the result. In case of
+  conflicting keys, their values are recursively concatenated, as it is shown
+  in the following example:
+
+  .. code-block:: lkql
+
+    {a: 1} & {b: 2}           # Result: {a: 1, b: 2}
+    {a: [1, 2]} & {a: [3, 4]} # Result: {a: [1, 2, 3, 4]}
+    {a: 1} & {a: 2}           # Runtime error! Impossible to concatenate `Int`s
+
+
+.. _module_importation:
 
 Module Importation
 ^^^^^^^^^^^^^^^^^^
@@ -776,10 +803,45 @@ LKQL will search for files:
 1. That are in the same directory as the current file
 2. That are in the ``LKQL_PATH`` environment variable
 
+In case of multiple LKQL modules with the same name (two LKQL files named the
+same), an error is raised by the interpreter.
+
 .. note::
 
   There is no way to create hierarchies of modules for now, only flat modules
   are supported.
+
+.. attention::
+
+  Circular dependencies are forbidden, thus the following files will raise an
+  error at runtime:
+
+  .. code-block:: lkql
+
+    # foo.lkql
+    import bar
+
+    # bar.lkql
+    import foo
+
+.. attention::
+
+  In case of an ambiguous importation, the LKQL engine will raise a runtime
+  error. For example, the following example will raise an error if the
+  ``subdir`` directory is in the ``LKQL_PATH`` environment variable:
+
+  .. code-block:: lkql
+
+    # foo.lkql
+    val x = 42
+
+    # subdir/foo.lkql
+    val y = 50
+
+    # bar.lkql
+    import foo
+    print(foo.x)
+
 
 
 

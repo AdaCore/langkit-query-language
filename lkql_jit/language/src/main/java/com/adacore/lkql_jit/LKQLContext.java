@@ -52,6 +52,9 @@ public final class LKQLContext {
     /** The call stack of the current language thread. */
     public final CallStack callStack = new CallStack();
 
+    /** The stack representing the current LKQL source chain. */
+    public final Stack<Source> fromStack = new Stack<>();
+
     // ----- Ada project attributes -----
 
     /** The analysis context for the ada files. */

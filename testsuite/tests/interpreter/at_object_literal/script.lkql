@@ -9,3 +9,5 @@ print(x.key1.length)
 print(x.key2)
 print(x.key2.length)
 print(x.key3)
+
+print(x)
