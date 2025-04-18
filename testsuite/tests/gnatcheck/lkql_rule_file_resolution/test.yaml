@@ -11,4 +11,3 @@ tests:
     project: prj/with_valid.gpr
   - label: With a project provided invalid rule file
     project: prj/with_invalid.gpr
-canonicalize_backslashes: True
