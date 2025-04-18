@@ -1,9 +1,0 @@
-driver: gnatcheck
-format: brief
-project: prj.gpr
-rules:
-  - +RGOTO_Statements
-control:
-  - [SKIP,
-     "os != 'windows'",
-     "Disable this test on non-Windows systems due to path formatting"]
