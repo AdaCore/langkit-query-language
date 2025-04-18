@@ -18,10 +18,10 @@ package Gnatcheck.Compiler is
    -- Runtime helpers --
    ---------------------
 
-   function Has_Access_To_Codepeer return Boolean;
-   --  Returns whether the current gnatcheck process can access to the codepeer
+   function Should_Use_Codepeer_Target return Boolean;
+   --  Returns whether the current gnatcheck process should use the codepeer
    --  tools. This function tests if the `codepeer-gnatls` executable can be
-   --  accessed.
+   --  accessed when no other regular toolchain can be found.
 
    function GPRbuild_Exec return String;
    --  Return the executable name to use in order to spawn a GPRBuild process
