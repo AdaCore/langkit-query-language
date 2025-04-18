@@ -5,4 +5,3 @@ rules:
 extra_args:
   - --emit-lkql-rule-file
 post_python: "cat('rules.lkql', sort=False)"
-canonicalize_backslashes: True
