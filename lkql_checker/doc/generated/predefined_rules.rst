@@ -5963,6 +5963,31 @@ the definition of exemption sections are:
 
 
 
+.. _Lowercase_Keywords:
+
+``Lowercase_Keywords``
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Lowercase_Keywords
+
+Flag Ada keywords that are not purely lowercase, such as ``BEGIN`` or
+``beGin``.
+
+Please note that this check is **not** language version sensitive. Every
+keyword from Ada 83 to Ada 2012 will be flagged. This means that this
+check might give false positives on usage of identifiers that are
+keywords in newer versions of Ada.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1,2
+
+   packagE Foo is -- FLAG
+   END Foo; -- FLAG
+
+
+
 .. _Max_Identifier_Length:
 
 ``Max_Identifier_Length``
@@ -6098,6 +6123,39 @@ A line containing one or more identifiers may end with a comment.
 
 
 
+.. _No_Dependence:
+
+``No_Dependence``
+^^^^^^^^^^^^^^^^^
+
+.. index:: No_Dependence
+
+Flag every explicit dependency (with clause) to any of the library units
+designated by names passed as parameters.
+
+This rule has the following optional parameter for the ``+R`` option and for
+LKQL rule options files:
+
+*Unit_Names: list[string]*
+   List of fully qualified names designating the library units that
+   should not be explicitly depended upon.
+
+The list of unit names is case insensitive. Any case can be used both in
+the parameter or in the code's with clauses.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   --  if the rule is activated as +RNo_Dependence:Unchecked_Conversion
+   with Unchecked_Conversion; -- FLAG
+
+   package Foo is
+   end Foo;
+
+
+
 .. _Numeric_Format:
 
 ``Numeric_Format``
@@ -6187,6 +6245,41 @@ first construct is flagged
       Tmp := I;
       I := J; J := Tmp;      --  FLAG
    end Swap;
+
+
+
+.. _Overriding_Marks:
+
+``Overriding_Marks``
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Overriding_Marks
+
+Check that overriding subprograms are explicitly marked as such.
+
+This applies to all subprograms of a derived type that override a
+primitive operation of the type, for both tagged and untagged types. In
+particular, the declaration of a primitive operation of a type extension
+that overrides an inherited operation must carry an overriding
+indicator. Another case is the declaration of a function that overrides
+a predefined operator (such as an equality operator).
+
+.. attention:: This doesn't apply to primitives of multiple untagged
+   types, and as such, won't ever flag such overriding primitives.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 7
+
+   package Foo is
+     type A is null record;
+     procedure Prim (Self : A) is null;
+
+     type B is new A;
+
+     procedure Prim (Self : B) is null; -- FLAG
+   end Foo;
 
 
 
