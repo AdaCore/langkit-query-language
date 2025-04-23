@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -133,7 +134,7 @@ public final class ConstructorCall extends Expr {
      */
     @Override
     @ExplodeLoop
-    public Libadalang.RewritingNode executeRewritingNode(VirtualFrame frame) {
+    public LangkitSupport.RewritingNodeInterface executeRewritingNode(VirtualFrame frame) {
         // Get the rewriting context from the language global context
         final var rewritingContext = LKQLLanguage.getContext(this).getRewritingContext();
 
@@ -156,11 +157,14 @@ public final class ConstructorCall extends Expr {
         // Else, if the node is a list node, evaluate the first argument as a list
         else if (this.isListNode) {
             if (this.args.length == 0) {
-                return rewritingContext.createNode(this.nodeKind, new Libadalang.RewritingNode[0]);
+                return rewritingContext.createNode(
+                    this.nodeKind,
+                    new LangkitSupport.RewritingNodeInterface[0]
+                );
             } else {
                 try {
                     final var objectArgs = this.args[0].getArgExpr().executeList(frame).content;
-                    final var args = new Libadalang.RewritingNode[objectArgs.length];
+                    final var args = new LangkitSupport.RewritingNodeInterface[objectArgs.length];
                     for (int i = 0; i < objectArgs.length; i++) {
                         args[i] = this.rewritingNodeConverter.execute(
                                 objectArgs[i],
@@ -180,7 +184,7 @@ public final class ConstructorCall extends Expr {
         }
         // Else, evaluate all arguments as rewriting nodes and call the constructor
         else {
-            final var args = new Libadalang.RewritingNode[this.args.length];
+            final var args = new LangkitSupport.RewritingNodeInterface[this.args.length];
             for (int i = 0; i < args.length; i++) {
                 args[i] = this.rewritingNodeConverter.execute(
                         this.args[i].getArgExpr().executeGeneric(frame),

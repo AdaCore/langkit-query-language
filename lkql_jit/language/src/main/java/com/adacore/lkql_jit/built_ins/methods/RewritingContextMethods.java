@@ -5,11 +5,11 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.langkit_support.LangkitSupport.RewritingNodeInterface;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.libadalang.Libadalang.GrammarRule;
 import com.adacore.libadalang.Libadalang.MemberReference;
 import com.adacore.libadalang.Libadalang.RewritingContext;
-import com.adacore.libadalang.Libadalang.RewritingNode;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
@@ -31,7 +31,7 @@ public final class RewritingContextMethods {
         @Child
         RewritingNodeConverter argToRewritingNode = RewritingNodeConverterNodeGen.create();
 
-        public RewritingNode convert(VirtualFrame frame, Object node, boolean ensureTied) {
+        public RewritingNodeInterface convert(VirtualFrame frame, Object node, boolean ensureTied) {
             return argToRewritingNode.execute(node, ensureTied, this.callNode);
         }
     }
@@ -210,7 +210,7 @@ public final class RewritingContextMethods {
         }
 
         @Specialization
-        public RewritingNode doGeneric(
+        public RewritingNodeInterface doGeneric(
             VirtualFrame frame,
             RewritingContext ctx,
             String template,
@@ -218,7 +218,7 @@ public final class RewritingContextMethods {
             LKQLList arguments
         ) {
             // Translate the provided LKQL list into a rewriting node list
-            final var args = new RewritingNode[(int) arguments.size()];
+            final var args = new RewritingNodeInterface[(int) arguments.size()];
             for (int i = 0; i < args.length; i++) {
                 args[i] = convert(frame, arguments.get(i), true);
             }

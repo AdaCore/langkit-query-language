@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.nodes.utils;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -26,23 +25,23 @@ public abstract class RewritingNodeConverter extends Node {
      *     created.
      * @param usageLocation The location of the conversion in the LKQL sources.
      */
-    public abstract Libadalang.RewritingNode execute(
+    public abstract LangkitSupport.RewritingNodeInterface execute(
         Object value,
         boolean ensureUntied,
         Node usageLocation
     );
 
     @Specialization
-    protected Libadalang.RewritingNode onNull(
+    protected LangkitSupport.RewritingNodeInterface onNull(
         @SuppressWarnings("unused") LKQLNull nullValue,
         @SuppressWarnings("unused") boolean ensureUntied,
         @SuppressWarnings("unused") Node usageLocation
     ) {
-        return Libadalang.RewritingNode.NONE;
+        return LangkitSupport.RewritingNodeInterface.getNONE();
     }
 
     @Specialization(guards = "!node.isNone()")
-    protected Libadalang.RewritingNode onNode(
+    protected LangkitSupport.RewritingNodeInterface onNode(
         LangkitSupport.NodeInterface node,
         boolean ensureUntied,
         @SuppressWarnings("unused") Node usageLocation
@@ -52,8 +51,8 @@ public abstract class RewritingNodeConverter extends Node {
     }
 
     @Specialization
-    protected Libadalang.RewritingNode onRewritingNode(
-        Libadalang.RewritingNode node,
+    protected LangkitSupport.RewritingNodeInterface onRewritingNode(
+        LangkitSupport.RewritingNodeInterface node,
         boolean ensureUntied,
         @SuppressWarnings("unused") Node usageLocation
     ) {
@@ -61,7 +60,7 @@ public abstract class RewritingNodeConverter extends Node {
     }
 
     @Fallback
-    protected Libadalang.RewritingNode notNode(
+    protected LangkitSupport.RewritingNodeInterface notNode(
         Object other,
         boolean ensureUntied,
         Node usageLocation

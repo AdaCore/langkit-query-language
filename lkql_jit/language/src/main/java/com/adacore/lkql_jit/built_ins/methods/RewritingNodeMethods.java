@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
@@ -24,7 +24,7 @@ public final class RewritingNodeMethods {
     public abstract static class CloneExpr extends BuiltInBody {
 
         @Specialization
-        public Object execute(Libadalang.RewritingNode node) {
+        public Object execute(LangkitSupport.RewritingNodeInterface node) {
             return node.clone();
         }
     }
