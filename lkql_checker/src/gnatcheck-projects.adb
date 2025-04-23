@@ -783,7 +783,7 @@ package body Gnatcheck.Projects is
 
    procedure Set_Default_Target is
    begin
-      if not Gnatkp_Mode and then Has_Access_To_Codepeer then
+      if not Gnatkp_Mode and then Should_Use_Codepeer_Target then
          GPR2.KB.Set_Default_Target ("codepeer");
       end if;
    end Set_Default_Target;

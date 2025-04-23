@@ -1504,21 +1504,32 @@ package body Gnatcheck.Compiler is
       end if;
    end Restriction_Rule_Parameter;
 
-   ----------------------------
-   -- Has_Access_To_Codepeer --
-   ----------------------------
+   --------------------------------
+   -- Should_Use_Codepeer_Target --
+   --------------------------------
 
-   function Has_Access_To_Codepeer return Boolean
-   is
-      Gnatls : String_Access := Locate_Exec_On_Path ("codepeer-gnatls");
-      Res   : Boolean := False;
+   function Should_Use_Codepeer_Target return Boolean is
+      Regular_Gnatls : String_Access := Locate_Exec_On_Path ("gnatls");
    begin
-      if Gnatls /= null then
-         Res := True;
-         Free (Gnatls);
+      --  If we could find a regular gnatls, it means there is a native
+      --  toolchain, that takes precedence over a potential codepeer toolchain.
+      if Regular_Gnatls /= null then
+         Free (Regular_Gnatls);
+         return False;
       end if;
-      return Res;
-   end Has_Access_To_Codepeer;
+
+      --  If we couldn't, look for a codepeer toolchain.
+      declare
+         Gnatls : String_Access := Locate_Exec_On_Path ("codepeer-gnatls");
+      begin
+         if Gnatls /= null then
+            Free (Gnatls);
+            return True;
+         end if;
+      end;
+
+      return False;
+   end Should_Use_Codepeer_Target;
 
    -------------------
    -- GPRbuild_Exec --
@@ -1526,7 +1537,7 @@ package body Gnatcheck.Compiler is
 
    function GPRbuild_Exec return String is
    begin
-      if Has_Access_To_Codepeer then
+      if Should_Use_Codepeer_Target then
          return "codepeer-gprbuild";
       else
          return "gprbuild";
@@ -1631,7 +1642,7 @@ package body Gnatcheck.Compiler is
          if Target /= Null_Unbounded_String then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--target=" & To_String (Target));
-         elsif Has_Access_To_Codepeer then
+         elsif Should_Use_Codepeer_Target then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--target=codepeer");
          end if;
@@ -1778,7 +1789,7 @@ package body Gnatcheck.Compiler is
       Args (8) := new String'("--restricted-to-languages=ada");
       Num_Args := 8;
 
-      if Has_Access_To_Codepeer then
+      if Should_Use_Codepeer_Target then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--target=codepeer");
       end if;
