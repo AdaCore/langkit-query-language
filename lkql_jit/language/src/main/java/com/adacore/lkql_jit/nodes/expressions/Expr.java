@@ -277,9 +277,9 @@ public abstract class Expr extends LKQLNode {
      * @throws UnexpectedResultException If the node cannot be evaluated as a rewriting context.
      */
     @SuppressWarnings("unused")
-    public Libadalang.RewritingNode executeRewritingNode(VirtualFrame frame)
+    public LangkitSupport.RewritingNodeInterface executeRewritingNode(VirtualFrame frame)
         throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectRewritingNode(executeGeneric(frame));
+        return LKQLTypeSystemGen.expectRewritingNodeInterface(executeGeneric(frame));
     }
 
     /**

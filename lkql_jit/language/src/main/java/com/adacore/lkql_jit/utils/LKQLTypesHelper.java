@@ -195,7 +195,7 @@ public final class LKQLTypesHelper {
             return LKQL_NAMESPACE;
         } else if (LKQLTypeSystemGen.isRewritingContext(obj)) {
             return REWRITING_CONTEXT;
-        } else if (LKQLTypeSystemGen.isRewritingNode(obj)) {
+        } else if (LKQLTypeSystemGen.isRewritingNodeInterface(obj)) {
             return REWRITING_NODE;
         } else {
             return defaultValue;
