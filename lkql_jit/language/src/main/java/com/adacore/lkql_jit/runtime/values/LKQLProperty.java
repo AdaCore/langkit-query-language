@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
@@ -31,8 +30,8 @@ public class LKQLProperty extends BasicLKQLValue {
     /** The name of the Libadalang property. */
     private final String name;
 
-    /** Description of the Libadalang property with its Java method and parameters. */
-    private final Libadalang.Reflection.Field description;
+    /** Description of the property with its Java method and parameters. */
+    private final LangkitSupport.Reflection.Field description;
 
     /** The node associated to the property. */
     private final LangkitSupport.NodeInterface node;
@@ -57,7 +56,7 @@ public class LKQLProperty extends BasicLKQLValue {
         return node;
     }
 
-    public Libadalang.Reflection.Field getDescription() {
+    public LangkitSupport.Reflection.Field getDescription() {
         return description;
     }
 
