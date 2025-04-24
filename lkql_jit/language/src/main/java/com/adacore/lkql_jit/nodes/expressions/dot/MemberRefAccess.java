@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
@@ -21,7 +22,7 @@ public class MemberRefAccess extends Expr {
     // ----- Attributes -----
 
     /** The member reference, result of this node execution. */
-    private final Libadalang.MemberReference memberRef;
+    private final LangkitSupport.MemberReferenceInterface memberRef;
 
     // ----- Constructors -----
 
@@ -45,7 +46,7 @@ public class MemberRefAccess extends Expr {
     }
 
     @Override
-    public Libadalang.MemberReference executeMemberReference(VirtualFrame frame) {
+    public LangkitSupport.MemberReferenceInterface executeMemberReference(VirtualFrame frame) {
         return this.memberRef;
     }
 

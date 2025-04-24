@@ -288,8 +288,8 @@ public abstract class Expr extends LKQLNode {
      * @throws UnexpectedResultException If the node cannot be evaluated as a member reference.
      */
     @SuppressWarnings("unused")
-    public Libadalang.MemberReference executeMemberReference(VirtualFrame frame)
+    public LangkitSupport.MemberReferenceInterface executeMemberReference(VirtualFrame frame)
         throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectMemberReference(executeGeneric(frame));
+        return LKQLTypeSystemGen.expectMemberReferenceInterface(executeGeneric(frame));
     }
 }

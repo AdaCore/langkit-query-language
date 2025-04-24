@@ -5,10 +5,10 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.langkit_support.LangkitSupport.MemberReferenceInterface;
 import com.adacore.langkit_support.LangkitSupport.RewritingContextInterface;
 import com.adacore.langkit_support.LangkitSupport.RewritingNodeInterface;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.MemberReference;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
@@ -71,7 +71,7 @@ public final class RewritingContextMethods {
             VirtualFrame frame,
             RewritingContextInterface ctx,
             Object node,
-            MemberReference memberRef,
+            MemberReferenceInterface memberRef,
             Object newValue
         ) {
             // Get the method arguments
