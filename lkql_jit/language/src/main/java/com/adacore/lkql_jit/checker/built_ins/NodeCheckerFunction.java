@@ -393,7 +393,7 @@ public final class NodeCheckerFunction {
         @CompilerDirectives.TruffleBoundary
         private static void callAutoFix(
             LKQLContext context,
-            Libadalang.RewritingContext rewritingContext,
+            LangkitSupport.RewritingContextInterface rewritingContext,
             InteropLibrary interopLibrary,
             NodeChecker checker,
             LangkitSupport.NodeInterface node
