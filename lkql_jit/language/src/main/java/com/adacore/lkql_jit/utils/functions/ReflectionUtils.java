@@ -61,7 +61,9 @@ public final class ReflectionUtils {
             }
         }
         // If the required type is a unit array
-        else if (type.equals(LangkitSupport.AnalysisUnit[].class)) {
+        // TODO: Genericise LKQL issue #501. Can't make this code work using the LangkitSupport
+        //  interface (convert a LangkitSupport.AnalysisUnit array to an LKQL list.
+        else if (type.equals(Libadalang.AnalysisUnit[].class)) {
             LKQLList resList;
             try {
                 resList = LKQLTypeSystemGen.expectLKQLList(res);
@@ -73,7 +75,8 @@ public final class ReflectionUtils {
                 );
             }
             LangkitSupport.AnalysisUnit[] resArray =
-                new LangkitSupport.AnalysisUnit[(int) resList.size()];
+                // TODO: Genericise LKQL issue. See comment above.
+                new Libadalang.AnalysisUnit[(int) resList.size()];
             for (int i = 0; i < resList.size(); i++) {
                 try {
                     resArray[i] = LKQLTypeSystemGen.expectAnalysisUnit(resList.get(i));
