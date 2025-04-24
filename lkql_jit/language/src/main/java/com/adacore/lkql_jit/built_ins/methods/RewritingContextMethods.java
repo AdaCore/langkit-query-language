@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.built_ins.methods;
 import com.adacore.langkit_support.LangkitSupport.RewritingContextInterface;
 import com.adacore.langkit_support.LangkitSupport.RewritingNodeInterface;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.GrammarRule;
 import com.adacore.libadalang.Libadalang.MemberReference;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
@@ -18,7 +17,6 @@ import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverter;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverterNodeGen;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -208,11 +206,6 @@ public final class RewritingContextMethods {
     )
     public abstract static class CreateFromTemplateExpr extends BaseRewritingContextExpr {
 
-        @TruffleBoundary
-        private static GrammarRule ruleFromString(String ruleName) {
-            return GrammarRule.valueOf(ruleName.toUpperCase());
-        }
-
         @Specialization
         public RewritingNodeInterface doGeneric(
             VirtualFrame frame,
@@ -229,7 +222,7 @@ public final class RewritingContextMethods {
 
             // Then call the internal function to process the template
             try {
-                return ctx.createFromTemplate(template, ruleFromString(grammarRule), args);
+                return ctx.createFromTemplate(template, grammarRule, args);
             } catch (Exception e) {
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }
