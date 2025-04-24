@@ -230,7 +230,7 @@ public final class LKQLContext {
      * operation is a success then discard the current rewriting context. Otherwise, close it. This
      * method assumes that the current rewriting context is not null.
      */
-    public Libadalang.RewritingApplyResult applyOrCloseRewritingContext() {
+    public LangkitSupport.RewritingApplyResult applyOrCloseRewritingContext() {
         final var res = this.rewritingContext.apply();
         if (!res.success) {
             this.rewritingContext.close();
