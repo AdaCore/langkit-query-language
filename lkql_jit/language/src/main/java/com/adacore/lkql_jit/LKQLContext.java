@@ -59,7 +59,7 @@ public final class LKQLContext {
     // ----- Ada project attributes -----
 
     /** The analysis context for the ada files. */
-    private Libadalang.AnalysisContext adaContext;
+    private LangkitSupport.AnalysisContext adaContext;
 
     /** The rewriting context, opened from the Ada analysis context. */
     private LangkitSupport.RewritingContext rewritingContext;
@@ -567,7 +567,7 @@ public final class LKQLContext {
             final Libadalang.UnitProvider provider = this.projectManager.getProvider();
 
             // Create the ada context and store it in the LKQL context
-            this.adaContext = Libadalang.AnalysisContext.create(
+            this.adaContext = LangkitSupport.AnalysisContext.create(
                 charset,
                 null,
                 provider,
