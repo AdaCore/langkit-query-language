@@ -50,7 +50,9 @@ public final class RewritingContextMethods {
 
             // Replace the given node and return the rewriting context
             try {
-                toReplace.replace(byNode);
+                if (byNode != null) {
+                    toReplace.replace(byNode);
+                }
             } catch (Libadalang.LangkitException e) {
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }
