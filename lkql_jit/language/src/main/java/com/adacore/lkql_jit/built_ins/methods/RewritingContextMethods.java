@@ -5,10 +5,10 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.langkit_support.LangkitSupport.MemberReference;
 import com.adacore.langkit_support.LangkitSupport.RewritingContext;
 import com.adacore.langkit_support.LangkitSupport.RewritingNode;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.MemberReference;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;

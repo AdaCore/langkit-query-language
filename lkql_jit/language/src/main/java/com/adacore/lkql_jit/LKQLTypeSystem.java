@@ -47,7 +47,7 @@ import java.math.BigInteger;
         LangkitSupport.AnalysisUnit.class,
         Libadalang.RewritingContext.class,
         LangkitSupport.RewritingNode.class,
-        Libadalang.MemberReference.class,
+        LangkitSupport.MemberReference.class,
         LKQLNamespace.class,
         LKQLObject.class,
         Truthy.class,
