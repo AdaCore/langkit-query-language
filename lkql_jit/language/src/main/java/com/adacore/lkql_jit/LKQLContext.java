@@ -567,7 +567,11 @@ public final class LKQLContext {
             final Libadalang.UnitProvider provider = this.projectManager.getProvider();
 
             // Create the ada context and store it in the LKQL context
-            this.adaContext = LangkitSupport.AnalysisContext.create(
+            /*
+             * TODO: Genericize LKQL or Java issue. Requires to make create static but not possible
+             * via an interface nor an abstract class.
+             */
+            this.adaContext = Libadalang.AnalysisContext.create(
                 charset,
                 null,
                 provider,
