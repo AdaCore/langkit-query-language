@@ -1506,8 +1506,8 @@ package body Gnatcheck.Source_Table is
       declare
          use Checker_App;
 
-         Root_Node_Type : LKI.Type_Ref
-           renames LKI.Root_Node_Type (Ada_Lang_Id);
+         Root_Node_Type : LKI.Type_Ref renames
+           LKI.Root_Node_Type (Ada_Lang_Id);
          subtype Rules_By_Kind_Array_Subt is
            Rules_By_Kind_Array
              (LKI.To_Index (Root_Node_Type)

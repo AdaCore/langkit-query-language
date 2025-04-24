@@ -81,8 +81,8 @@ package body Gnatcheck.JSON_Utilities is
         and then Field_Value (Field_Value'First) = '['
         and then Field_Value (Field_Value'Last) = ']'
       then
-         for C
-           of Field_Value ((Field_Value'First + 1) .. (Field_Value'Last - 1))
+         for C of
+           Field_Value ((Field_Value'First + 1) .. (Field_Value'Last - 1))
          loop
             case C is
                when ',' =>
