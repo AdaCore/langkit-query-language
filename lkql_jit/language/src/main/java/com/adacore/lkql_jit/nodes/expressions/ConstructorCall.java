@@ -43,7 +43,7 @@ public final class ConstructorCall extends Expr {
     // ----- Attributes -----
 
     /** Kind of the node to create. */
-    public final Libadalang.NodeKind nodeKind;
+    public final LangkitSupport.NodeKindInterface nodeKind;
 
     /** Whether the created node is a token node. */
     public final boolean isTokenNode;
