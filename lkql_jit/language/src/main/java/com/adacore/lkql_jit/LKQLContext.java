@@ -62,7 +62,7 @@ public final class LKQLContext {
     private Libadalang.AnalysisContext adaContext;
 
     /** The rewriting context, opened from the Ada analysis context. */
-    private Libadalang.RewritingContext rewritingContext;
+    private LangkitSupport.RewritingContextInterface rewritingContext;
 
     /** The project manager for the ada project. */
     private Libadalang.ProjectManager projectManager;
@@ -215,7 +215,7 @@ public final class LKQLContext {
         return this.rewritingContext != null;
     }
 
-    public Libadalang.RewritingContext getRewritingContext() {
+    public LangkitSupport.RewritingContextInterface getRewritingContext() {
         if (this.rewritingContext == null) {
             if (!this.parsed) {
                 this.parseSources();
