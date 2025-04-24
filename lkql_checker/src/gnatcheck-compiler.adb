@@ -40,8 +40,8 @@ package body Gnatcheck.Compiler is
 
    type Message_Kinds is (Not_A_Message, Warning, Style, Restriction, Error);
 
-   function To_Mixed (A : String) return String
-   renames GNAT.Case_Util.To_Mixed;
+   function To_Mixed (A : String) return String renames
+     GNAT.Case_Util.To_Mixed;
 
    procedure Process_Style_Options (Param : String);
    --  Stores Param as parameter of the compiler -gnaty... option as is,
@@ -1342,8 +1342,8 @@ package body Gnatcheck.Compiler is
                when '1' .. '9' =>
                   C := '0';
 
-                  --  -gnatyLxx and -gnatyMxxx are represented respectively by
-                  --  "L" and "M". Skip all digits directly after the flag.
+               --  -gnatyLxx and -gnatyMxxx are represented respectively by
+               --  "L" and "M". Skip all digits directly after the flag.
 
                when 'L' | 'M' =>
                   while I < Param'Last and then Param (I + 1) in '0' .. '9'

@@ -1094,8 +1094,8 @@ package body Gnatcheck.Rules.Rule_Table is
                end if;
 
                declare
-                  Tagged_Instance : Compiler_Instance
-                    renames Compiler_Instance (Instance.all);
+                  Tagged_Instance : Compiler_Instance renames
+                    Compiler_Instance (Instance.all);
                begin
                   while Word_Start /= 0 loop
                      Tagged_Instance.Arguments.Append
@@ -1231,8 +1231,8 @@ package body Gnatcheck.Rules.Rule_Table is
          end if;
 
          declare
-            Tagged_Instance : Compiler_Instance
-              renames Compiler_Instance (Instance.all);
+            Tagged_Instance : Compiler_Instance renames
+              Compiler_Instance (Instance.all);
          begin
             --  Restrictions rule expect a string list as argument
             if R_Id = Restrictions_Id then
@@ -1319,8 +1319,8 @@ package body Gnatcheck.Rules.Rule_Table is
       for Instance of All_Rule_Instances loop
          if Is_Compiler_Rule (Instance.Rule) then
             declare
-               Tagged_Instance : Compiler_Instance
-                 renames Compiler_Instance (Instance.all);
+               Tagged_Instance : Compiler_Instance renames
+                 Compiler_Instance (Instance.all);
             begin
                for Arg of Tagged_Instance.Arguments loop
                   if Instance.Rule = Restrictions_Id then

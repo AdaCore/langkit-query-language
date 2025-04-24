@@ -1414,8 +1414,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_Integer_Parameter_Instance
-        renames One_Integer_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_Integer_Parameter_Instance renames
+        One_Integer_Parameter_Instance (Instance.all);
    begin
       --  If the param is empty and the command line is enabling the instance,
       --  emit an error
@@ -1472,8 +1472,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_Boolean_Parameter_Instance
-        renames One_Boolean_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_Boolean_Parameter_Instance renames
+        One_Boolean_Parameter_Instance (Instance.all);
    begin
       --  If the param is empty, just enable or disable the instance
       if Param = "" then
@@ -1521,8 +1521,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_String_Parameter_Instance
-        renames One_String_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_String_Parameter_Instance renames
+        One_String_Parameter_Instance (Instance.all);
    begin
       --  If the param is empty and the command line enable the instance, emit
       --  an error message.
@@ -1580,8 +1580,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_Array_Parameter_Instance
-        renames One_Array_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_Array_Parameter_Instance renames
+        One_Array_Parameter_Instance (Instance.all);
    begin
       --  If the param is empty, just disable the instance following the
       --  command line.
@@ -1664,8 +1664,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : One_Integer_Or_Booleans_Parameter_Instance
-        renames One_Integer_Or_Booleans_Parameter_Instance (Instance.all);
+      Tagged_Instance : One_Integer_Or_Booleans_Parameter_Instance renames
+        One_Integer_Or_Booleans_Parameter_Instance (Instance.all);
       Int_Param_Value : Integer;
       Param_Found     : Boolean := False;
    begin
@@ -1757,8 +1757,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Identifier_Suffixes_Instance
-        renames Identifier_Suffixes_Instance (Instance.all);
+      Tagged_Instance : Identifier_Suffixes_Instance renames
+        Identifier_Suffixes_Instance (Instance.all);
       Paren_Index     : Natural;
       Norm_Param      : constant String := Remove_Spaces (Param);
       Lower_Param     : constant String := To_Lower (Param);
@@ -1886,8 +1886,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Identifier_Prefixes_Instance
-        renames Identifier_Prefixes_Instance (Instance.all);
+      Tagged_Instance : Identifier_Prefixes_Instance renames
+        Identifier_Prefixes_Instance (Instance.all);
       Col_Index       : Natural;
       Norm_Param      : constant String := Remove_Spaces (Param);
       Lower_Param     : constant String := To_Lower (Param);
@@ -2017,8 +2017,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Identifier_Casing_Instance
-        renames Identifier_Casing_Instance (Instance.all);
+      Tagged_Instance : Identifier_Casing_Instance renames
+        Identifier_Casing_Instance (Instance.all);
       Norm_Param      : constant String := To_Lower (Remove_Spaces (Param));
 
       procedure Check_And_Set
@@ -2198,8 +2198,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Forbidden_Instance
-        renames Forbidden_Instance (Instance.all);
+      Tagged_Instance : Forbidden_Instance renames
+        Forbidden_Instance (Instance.all);
       Lower_Param     : constant String := To_Lower (Param);
 
       procedure Process_Param
@@ -2302,8 +2302,8 @@ package body Gnatcheck.Rules is
    is
       Instance        : constant Rule_Instance_Access :=
         Get_Or_Create_Instance (Rule, Instance_Name);
-      Tagged_Instance : Silent_Exception_Handlers_Instance
-        renames Silent_Exception_Handlers_Instance (Instance.all);
+      Tagged_Instance : Silent_Exception_Handlers_Instance renames
+        Silent_Exception_Handlers_Instance (Instance.all);
 
       procedure Add_To (Str : in out Unbounded_Wide_Wide_String; Val : String);
       --  Add `Val` to `Str`, separated with ","

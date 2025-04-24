@@ -1142,8 +1142,8 @@ package body Gnatcheck.Diagnoses is
       --  given params.
       if Postponed_Param_Exempt_Sections.Contains (Id) then
          declare
-            Exem_Sections : Parametrized_Exemption_Sections.Set
-              renames Postponed_Param_Exempt_Sections (Id) (SF);
+            Exem_Sections : Parametrized_Exemption_Sections.Set renames
+              Postponed_Param_Exempt_Sections (Id) (SF);
             Param         : constant String := Rule_Parameter (Diag, Rule);
             pragma Assert (Param /= "" or else Rule = Warnings_Id);
          begin
