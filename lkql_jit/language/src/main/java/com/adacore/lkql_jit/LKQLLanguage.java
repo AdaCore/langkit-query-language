@@ -111,8 +111,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // columns counting is based on characters:
         // https://www.graalvm.org/truffle/javadoc/com/oracle/truffle/api/source/Source.html#createSection(int,int,int,int)
         this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create(
-            null,
-            null,
+            (String) null,
+            (Liblkqllang.FileReader) null,
             null,
             null,
             true,
