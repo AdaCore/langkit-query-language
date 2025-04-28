@@ -8,6 +8,6 @@ gnatcheck: error: no existing file to process
 With a file not in the project closure
 ======================================
 
-gnatcheck: warning: src/proc2.adb is not in the analysed project closure (Default)
+gnatcheck: warning: src/proc2.adb is not in the analyzed project closure (Default)
 gnatcheck: error: no existing file to process
 >>>program returned status code 3
