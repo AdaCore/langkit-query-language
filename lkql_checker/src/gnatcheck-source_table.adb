@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2005-2024, AdaCore
+--  Copyright (C) 2005-2025, AdaCore
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
@@ -252,7 +252,7 @@ package body Gnatcheck.Source_Table is
          if Is_Regular_File (Fname) then
             Warning
               (Fname
-               & " is not in the analysed project closure ("
+               & " is not in the analyzed project closure ("
                & String (Arg_Project.Tree.Root_Project.Name)
                & ")");
          else
