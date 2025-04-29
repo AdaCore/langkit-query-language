@@ -5,11 +5,10 @@ fun is_downward_conv(expr_type, t) =
     |" of tagged types
     expr_type is AdaNode
     and t is AdaNode
-    and t.p_full_view() is target@BaseTypeDecl
       # Compare specific types in case one or the other is the classwide
       # version
-      when target.p_specific_type() != expr_type.p_specific_type()
-       and target.p_is_derived_type(expr_type)
+      when t.p_full_view().p_specific_type() != expr_type.p_full_view().p_specific_type()
+       and t.p_is_derived_type(expr_type)
 
 fun is_tagged(typ) =
     |" Whether typ is tagged or an access to a tagged type
