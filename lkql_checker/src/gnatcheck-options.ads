@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2005-2024, AdaCore
+--  Copyright (C) 2005-2025, AdaCore
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
@@ -22,12 +22,12 @@ with GPR2.Options;
 
 package Gnatcheck.Options is
 
-   Gnatcheck_Version : constant String := "25.0w";
+   Gnatcheck_Version : constant String := "26.0w";
    --  Full major.minor version for Gnatcheck
 
    Date : constant String := "unknown date";
 
-   Current_Year : constant String := "2024";
+   Current_Year : constant String := "2025";
 
    Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
 
