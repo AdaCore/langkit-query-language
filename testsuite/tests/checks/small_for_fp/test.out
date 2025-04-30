@@ -1,0 +1,4 @@
+small.adb:2:9: rule violation: fixed point type declaration with no 'Small clause
+2 |    type T1 is delta 0.01 range -1.0 .. 1.0;  -- FLAG
+  |         ^^
+
