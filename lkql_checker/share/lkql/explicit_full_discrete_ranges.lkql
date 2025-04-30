@@ -24,4 +24,5 @@ fun explicit_full_discrete_ranges(node) =
     |"       for J in Idx loop
     |"          L := L + J;
     |"       end loop;
-    node is BinOp(f_op: OpDoubleDot) when full_range(node.f_left, node.f_right)
+    node is BinOp(parent: not RangeSpec, f_op: OpDoubleDot)
+    when full_range(node.f_left, node.f_right)
