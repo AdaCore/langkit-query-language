@@ -40,8 +40,8 @@ package body Gnatcheck.Compiler is
 
    type Message_Kinds is (Not_A_Message, Warning, Style, Restriction, Error);
 
-   function To_Mixed (A : String) return String renames
-     GNAT.Case_Util.To_Mixed;
+   function To_Mixed (A : String) return String
+   renames GNAT.Case_Util.To_Mixed;
 
    procedure Process_Style_Options (Param : String);
    --  Stores Param as parameter of the compiler -gnaty... option as is,
