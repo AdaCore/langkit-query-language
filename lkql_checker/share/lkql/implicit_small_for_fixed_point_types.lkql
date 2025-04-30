@@ -22,3 +22,4 @@ fun implicit_small_for_fixed_point_types(node) =
     |"    end Foo;
     node is TypeDecl(any children: OrdinaryFixedPointDef,
                      p_has_aspect("Small"): false)
+    and node is not FormalTypeDecl
