@@ -1,0 +1,51 @@
+Without key overlapping
+=======================
+
+main.adb:3:04: redundant null statement [redundant_null_statements]
+main.adb:4:04: goto statement [goto_statements]
+main.adb:9:07: goto statement [goto_statements]
+
+With key overlapping
+====================
+
+main.adb:4:04: goto statement [goto_statements]
+main.adb:4:04: goto statement [unconditional_goto|goto_statements]
+main.adb:9:07: goto statement [goto_statements]
+
+Providing search paths through the '--lkql-path' CLI option
+===========================================================
+
+main.adb:3:04: redundant null statement [redundant_null_statements]
+main.adb:4:04: goto statement [goto_statements]
+main.adb:9:07: goto statement [goto_statements]
+
+Providing search paths through the GPR file
+===========================================
+
+main.adb:3:04: redundant null statement [redundant_null_statements]
+main.adb:4:04: goto statement [goto_statements]
+main.adb:9:07: goto statement [goto_statements]
+
+Rule file with an invalid importation
+=====================================
+
+gnatcheck: invalid_import.lkql:1:01: Cannot import, module not found "null_stmt" (invalid_import.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Rule file with circular importation
+===================================
+
+gnatcheck: part_two.lkql:1:01: Circular dependency in LKQL modules (circular_import.lkql -> part_one.lkql -> part_two.lkql -> part_one.lkql) (circular_import.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+Rule file with ambiguous importation
+====================================
+
+gnatcheck: ambiguous_import.lkql:1:01: Ambiguous importation, multiple "null_stmt" modules found (/other_rule_configs/null_stmt.lkql & /rule_configs/null_stmt.lkql) (ambiguous_import.lkql)
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

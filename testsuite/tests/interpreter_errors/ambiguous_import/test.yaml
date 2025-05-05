@@ -1,0 +1,5 @@
+driver: 'interpreter'
+project: 'default_project/default.gpr'
+lkql_path:
+  - others
+canonicalize_backslashes: True

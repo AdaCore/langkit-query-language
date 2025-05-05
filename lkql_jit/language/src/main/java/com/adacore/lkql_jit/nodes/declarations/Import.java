@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.nodes.declarations;
 
-import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -94,6 +93,22 @@ public final class Import extends LKQLNode {
      */
     @CompilerDirectives.TruffleBoundary
     private LKQLNamespace importModule(File moduleFile) throws IOException {
+        final var context = LKQLLanguage.getContext(this);
+
+        // Prepare the source object from the LKQL file absolute path
+        Source source =
+                Source.newBuilder(
+                                Constants.LKQL_ID,
+                                context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath()))
+                        .internal(true)
+                        .build();
+
+        // Check that the file isn't already in the source chain, if so, it means that there
+        // is a circular dependency.
+        if (context.fromStack.contains(source)) {
+            throw LKQLRuntimeException.circularDependency(context.fromStack, source, this);
+        }
+
         // If the file is already in the cache
         if (importCache.containsKey(moduleFile)) {
             return importCache.get(moduleFile);
@@ -101,22 +116,18 @@ public final class Import extends LKQLNode {
 
         // Else, parse the source and execute the result to get the namespace
         else {
-            // Get the LKQL context
-            LKQLContext context = LKQLLanguage.getContext(this);
-
-            // Prepare the source
-            Source source =
-                    Source.newBuilder(
-                                    Constants.LKQL_ID,
-                                    context.getEnv()
-                                            .getPublicTruffleFile(moduleFile.getAbsolutePath()))
-                            .internal(true)
-                            .build();
+            // Add the parsed source to the chain
+            context.fromStack.add(source);
 
             // Get the current context and parse the file with the internal strategy
             CallTarget target = context.getEnv().parseInternal(source);
             LKQLNamespace res = (LKQLNamespace) target.call();
             importCache.put(moduleFile, res);
+
+            // Pop the previously added source from the chain
+            context.fromStack.pop();
+
+            // Finally return the namespace
             return res;
         }
     }
@@ -131,42 +142,50 @@ public final class Import extends LKQLNode {
     private File getModuleFile() {
         // Create the module file name
         final String moduleFileName = this.name + Constants.LKQL_EXTENSION;
+        final String lkqlPath = System.getenv().getOrDefault(Constants.LKQL_PATH, "");
+        final List<File> searchDirs = new ArrayList<>();
 
-        // Search in the current directory if the location is not null
+        // Add the current directory to the searching dirs if the location is not null
         if (this.location != null) {
-            File currentModuleTry = new File(this.getLocation().getDir(), moduleFileName);
-            if (currentModuleTry.isFile() && currentModuleTry.canRead()) {
-                return currentModuleTry;
-            }
+            searchDirs.add(this.getLocation().getDir());
         }
 
         // Compute the directories to import from
-        String lkqlPath = System.getenv().getOrDefault(Constants.LKQL_PATH, "");
-        List<File> importableDirs =
-                new ArrayList<>(
-                        Arrays.stream(StringUtils.splitPaths(lkqlPath))
-                                .filter(s -> !s.isEmpty() && !s.isBlank())
-                                .map(File::new)
-                                .toList());
+        searchDirs.addAll(
+                Arrays.stream(StringUtils.splitPaths(lkqlPath))
+                        .filter(s -> !s.isEmpty() && !s.isBlank())
+                        .map(File::new)
+                        .toList());
 
-        importableDirs.addAll(
+        searchDirs.addAll(
                 Arrays.stream(LKQLLanguage.getContext(this).getRuleDirectories())
                         .filter(s -> !s.isEmpty() && !s.isBlank())
                         .map(File::new)
                         .toList());
 
         // Search in the importable directories
-        for (File dir : importableDirs) {
+        SortedSet<File> matchingFiles = new TreeSet<>();
+        for (File dir : searchDirs) {
             if (dir != null && dir.isDirectory()) {
                 File moduleTry = new File(dir, moduleFileName);
                 if (moduleTry.isFile() && moduleTry.canRead()) {
-                    return moduleTry;
+                    matchingFiles.add(moduleTry);
                 }
             }
         }
 
+        // If there is only one result, the importation is valid
+        if (matchingFiles.size() == 1) {
+            return matchingFiles.first();
+        }
+        // Raise an exception if multiple matching files has been found
+        else if (matchingFiles.size() > 1) {
+            throw LKQLRuntimeException.ambiguousImport(this.name, matchingFiles, this);
+        }
         // Raise an exception if the module file is not found
-        throw LKQLRuntimeException.moduleNotFound(this.name, this);
+        else {
+            throw LKQLRuntimeException.moduleNotFound(this.name, this);
+        }
     }
 
     // ----- Override methods -----

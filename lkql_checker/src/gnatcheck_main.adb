@@ -129,6 +129,10 @@ procedure Gnatcheck_Main is
 
          Add_Path ("LD_LIBRARY_PATH", Lib);
          Add_Path ("LD_LIBRARY_PATH", Lib_LAL);
+
+         for Path of Additional_Lkql_Paths loop
+            Add_Path ("LKQL_PATH", Path);
+         end loop;
       end;
 
       Free (Executable);
@@ -468,6 +472,13 @@ begin
    --  command-line.
    for Rule of Arg.Rules.Get loop
       Add_Rule_By_Name (To_String (Rule), Prepend => True);
+   end loop;
+
+   --  Add the command-line LKQL_PATH elements to the vector of additional
+   --  searching paths.
+   for Working_Dir_Path of Arg.Lkql_Path.Get loop
+      Additional_Lkql_Paths.Append
+        (Normalize_Pathname (To_String (Working_Dir_Path)));
    end loop;
 
    --  Then analyze the command-line parameters

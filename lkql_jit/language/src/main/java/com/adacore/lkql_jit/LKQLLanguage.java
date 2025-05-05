@@ -218,6 +218,12 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Translate the LKQL AST from Langkit to a Truffle AST
         result = (TopLevelList) translate(lkqlLangkitRoot, request.getSource());
 
+        // If the current parsing request is the root request, initialize the context source chain
+        // with the current source.
+        if (!request.getSource().isInternal()) {
+            getContext(result).fromStack.add(request.getSource());
+        }
+
         // Print the Truffle AST if the JIT is in debug mode
         if (getContext(result).isVerbose()) {
             System.out.println(

@@ -238,6 +238,13 @@ The following switches control the general ``gnatcheck`` behavior
   Specify the charset of the source files. By default, ``ISO-8859-1`` is
   used if no charset is specified.
 
+  .. index:: --lkql-path
+
+``--lkql-path=dir``
+  Specify directory to add to the ``LKQL_PATH`` environment variable when
+  GNATcheck is spawning the LKQL engine. You can specify this option multiple
+  times to add multiple directories.
+
   .. index:: --rules-dir
 
 ``--rules-dir=dir``
@@ -360,6 +367,16 @@ GNATcheck:
   file defining this attribute, then, an error is emitted and ``gnatcheck``
   will exit with an error code.
 
+``Lkql_Path``
+  Value is a list of directories to add to the ``LKQL_PATH`` environment
+  variable when GNATcheck is spawning the LKQL engine. This variable is
+  used to resolve module importations in LKQL sources. If not absolute, paths
+  provided through this attribute are relatives to the project file defining
+  it.
+
+  This attributes may work combined with the ``--lkql-path`` switch, in that
+  case, all directories are added to the ``LKQL_PATH`` environment variable.
+
 ``Switches``
   Index is a language name. Value is a list of additional switches to be used
   when invoking ``gnatcheck``.
@@ -380,6 +397,7 @@ GNATcheck:
     * ``-eL``
     * ``-r, --rule [rule_name]`` (use ``Rules`` attribute instead)
     * ``--rule-file=filename`` (use ``Rule_File`` attribute instead)
+    * ``--lkql-path=dir`` (use ``Lkql_Path`` attributes instead)
 
     If you're providing one of those switches through the ``Switches`` or the
     ``Default_Switches`` attribute, GNATcheck will emit an error message and
@@ -411,11 +429,12 @@ file, as if it was provided through the ``--rule-file`` option.
   file from a legacy rule configuration provided through the ``-rules``
   section.
 
-This file must be a valid LKQL file that exports at least a ``rules`` top-level
-symbol. This symbol must refer to an object value containing rules
-configuration; keys are GNATcheck rules to enable; and values are objects
-containing rule parameters. A rule parameter value can be a boolean, an
-integer, a string, or a list of strings.
+An LKQL rule file can be any valid LKQL file, the only requirement is that it
+must export a ``rules`` top-level symbol. This symbol defines an object value
+containing rules configuration; keys are GNATcheck rules to enable; and values
+are list of objects, each one representing an instance of the rule with its
+parameters. A rule parameter value can be of the boolean, the integer, the
+string, or the list of strings type, as shown in the simple example below:
 
 ::
 
@@ -424,20 +443,11 @@ integer, a string, or a list of strings.
     Forbidden_Attributes: {Forbidden: ["GNAT"], Allowed: ["First", "Last"]}
   }
 
-For example, to map a boolean parameter from a ``+R`` rule option to an LKQL
-rule file, you have to associate a boolean LKQL value to the parameter name:
+Using the "@" object notation is strongly advised to make your configuration
+file way more understandable:
 
-::
-
-  +RGoto_Statements:Only_Unconditional
-
-maps to:
-
-::
-
-  val rules = @{
-    Goto_Statements: {Only_Unconditional: true}
-  }
+Please read the :ref:`Predefined_Rules` documentation to view examples on how
+to provide parameters to rules through LKQL rule files.
 
 .. attention::
 
@@ -491,6 +501,62 @@ only on SPARK code. Those symbols must also refer to an object value formatted l
 
   Note that an LKQL rules config file may contain arbitrary computation logic; the only
   rule for this type of file is to export a ``rules`` symbol referring to an object value.
+
+You cannot provide more than **one** LKQL rule file when running GNATcheck. In
+order to compose a rule file with another you have to use the
+:ref:`LKQL importation mechanism<module_importation>` and concatenate rule
+objects. Here is an example of LKQL rule file composition:
+
+.. code-block:: lkql
+
+  # common_rules.lkql
+
+  val rules = @{
+    Goto_Statements
+  }
+
+.. code-block:: lkql
+
+  # specific_rules.lkql
+
+  import common_rules
+
+  val rules = common_rules.rules & @{
+    Redundant_Null_Statements
+  }
+
+Then you can run GNATcheck with the ``specific_rules.lkql`` file as coding
+standard to perform rules defined in ``common_rules.lkql`` combined to the ones
+defined in ``specific_rules.lkql``.
+
+.. note::
+
+  You can use the ``--lkql-path`` command-line switch and the
+  ``Check'Lkql_Path`` GPR attribute to configure directories LKQL rule files
+  are going to be searched in.
+
+You can enable the same rule in multiple files, but the constraint about the
+instance name uniqueness remains valid, meaning that such configuration is
+invalid:
+
+.. code-block:: lkql
+
+  # common_rules.lkql
+
+  val rules = @{
+    Forbidden_Attributes: {Forbidden: ["First"], instance_name: "Forbid_Attr"}
+  }
+
+.. code-block:: lkql
+
+  # specific_rules.lkql
+
+  import common_rules
+
+  val rules = common_rules.rules & @{
+    Forbidden_Attributes: {Forbidden: ["Last"], instance_name: "Forbid_Attr"}
+  }
+  # error: This rule configuration defines two instances with the same name: "Forbid_Attr"
 
 
 .. _gnatcheck_Rule_Options:
