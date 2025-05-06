@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.Source;
@@ -351,6 +352,15 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException nullReceiver(Node location) {
         return LKQLRuntimeException.fromMessage("Null receiver in dot access", location);
+    }
+
+    /** Create an exception when there is a collision during an object combination. */
+    @TruffleBoundary
+    public static LKQLRuntimeException objectCombiningCollision(
+            String collidingMember, Node location) {
+        return LKQLRuntimeException.fromMessage(
+                "Cannot combine objects, both define the \"" + collidingMember + "\" member",
+                location);
     }
 
     // --- Argument exception

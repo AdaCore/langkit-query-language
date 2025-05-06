@@ -101,7 +101,8 @@ public class StrMethods {
                             "Given a string, returns whether it ends with the given suffix",
                             new String[] {"suffix"},
                             new Expr[] {null},
-                            new EndsWithExpr()));
+                            new EndsWithExpr()),
+                    ObjectMethods.combineEntry);
 
     // ----- Inner classes -----
 

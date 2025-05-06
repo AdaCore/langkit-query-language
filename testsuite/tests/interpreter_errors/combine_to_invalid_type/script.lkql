@@ -1,0 +1,2 @@
+# Combine a string to an integer
+print("a".combine(2))

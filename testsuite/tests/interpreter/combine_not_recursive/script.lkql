@@ -1,0 +1,2 @@
+print({a: 1}.combine({b: 2}, recursive=false))
+print({a: "A"}.combine({a: "B"}, recursive=false))

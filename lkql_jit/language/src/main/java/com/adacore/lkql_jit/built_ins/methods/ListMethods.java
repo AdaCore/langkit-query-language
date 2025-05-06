@@ -79,6 +79,7 @@ public class ListMethods {
                                     UniqueFunction.NAME,
                                     BuiltInMethodFactory.fromFunctionValue(
                                             UniqueFunction.getValue(), true)),
-                            sublistFunction),
+                            sublistFunction,
+                            ObjectMethods.combineEntry),
                     IterableMethods.methods);
 }
