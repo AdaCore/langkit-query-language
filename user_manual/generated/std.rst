@@ -199,6 +199,10 @@ Methods for `LazyList`
 
 Methods for `List`
 """"""""""""""""""
+.. method:: List.combine(this, right, recursive)
+
+    Combine two LKQL values if possible and return the result, recursively if required
+
 .. method:: List.doc(this)
 
     Given any object, return the documentation associated with it
@@ -335,6 +339,10 @@ Methods for `Node`
 
 Methods for `Object`
 """"""""""""""""""""
+.. method:: Object.combine(this, right, recursive)
+
+    Combine two LKQL values if possible and return the result, recursively if required
+
 .. method:: Object.doc(this)
 
     Given any object, return the documentation associated with it
@@ -546,6 +554,10 @@ Methods for `Str`
 .. method:: Str.base_name(this)
 
     Given a string that represents a file name, returns the basename
+
+.. method:: Str.combine(this, right, recursive)
+
+    Combine two LKQL values if possible and return the result, recursively if required
 
 .. method:: Str.contains(this, to_find)
 
