@@ -1,7 +1,0 @@
-{"a": 1, "b": 2}
-{"a": "AB"}
-{"a": [1, 2, 3, 4], "b": "hello", "c": "world"}
-{"a": 1, "b": 2, "c": 3}
-script.lkql:5:7: error: Unsupported operation: Int & Int
-5 | print({a: 1} & {a: 2})
-  |       ^^^^^^^^^^^^^^^

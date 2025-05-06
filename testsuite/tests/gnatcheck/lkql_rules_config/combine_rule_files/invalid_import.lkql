@@ -1,3 +1,3 @@
 import null_stmt
 
-val rules = null_stmt.rules @{}
+val rules = null_stmt.rules.combine(@{})
