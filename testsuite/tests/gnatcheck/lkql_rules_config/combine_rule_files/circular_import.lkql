@@ -1,5 +1,5 @@
 import part_one
 
-val rules = part_one.rules & @{
-    Goto_Statements
-}
+val rules = part_one.rules.combine(
+    @{ Goto_Statements }
+)
