@@ -12,18 +12,19 @@
 import stdlib
 
 fun unconstrained_array_type(type, except_string) =
-    if type is SubtypeDecl
-    then type.f_subtype.f_constraint is not Constraint and
-         unconstrained_array_type(type.p_canonical_type(), except_string)
-    else if type is TypeDecl(f_type_def: DerivedTypeDef)
-    then type.f_type_def.f_subtype_indication.f_constraint is not Constraint and
-         unconstrained_array_type(type.p_base_type(), except_string)
-    else type is TypeDecl(p_is_array_type(): true,
-                          f_type_def: ArrayTypeDef(f_indices:
-                                                     UnconstrainedArrayIndices))
-         when not (except_string and
-                   type.p_root_type().p_fully_qualified_name()
-                   == "Standard.String")
+    match type
+    | SubtypeDecl => (
+        type.f_subtype.f_constraint is not Constraint and
+        unconstrained_array_type(type.p_canonical_type(), except_string)
+    )
+    | TypeDecl(f_type_def: def@DerivedTypeDef) => (
+        def.f_subtype_indication.f_constraint is not Constraint and
+        unconstrained_array_type(type.p_base_type(), except_string)
+    )
+    | TypeDecl(
+        p_is_array_type(): true,
+        f_type_def: ArrayTypeDef(f_indices: UnconstrainedArrayIndices)
+    ) => if except_string then type.p_root_type().p_fully_qualified_name() == "Standard.String"
 
 @check(message="function returns unconstrained array",
        follow_generic_instantiations=true, category="Feature")
