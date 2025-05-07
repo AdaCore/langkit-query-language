@@ -1,3 +1,11 @@
+derived.ads:12:13: rule violation: function returns unconstrained array
+12 |    function Get_Unconstrained return Unconstrained is ("");        --  FLAG
+   |             ^^^^^^^^^^^^^^^^^
+
+derived.ads:13:13: rule violation: function returns unconstrained array
+13 |    function Get_D_Unconstrained return D_Unconstrained is ("");    --  FLAG
+   |             ^^^^^^^^^^^^^^^^^^^
+
 generics.ads:6:13: rule violation: function returns unconstrained array
 6 |    function Image (X : Integer) return String;   --  FLAG 
   |             ^^^^^
@@ -37,4 +45,12 @@ stub.adb:5:13: rule violation: function returns unconstrained array
 stub.adb:8:13: rule violation: function returns unconstrained array
 8 |    function Subp2 (I : Integer) return String is separate; --  FLAG
   |             ^^^^^
+
+subtypes.ads:12:13: rule violation: function returns unconstrained array
+12 |    function Get_Unconstrained return Unconstrained is ("");        --  FLAG
+   |             ^^^^^^^^^^^^^^^^^
+
+subtypes.ads:13:13: rule violation: function returns unconstrained array
+13 |    function Get_S_Unconstrained return S_Unconstrained is ("");    --  FLAG
+   |             ^^^^^^^^^^^^^^^^^^^
 
