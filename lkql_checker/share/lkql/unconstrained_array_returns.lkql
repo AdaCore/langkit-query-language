@@ -13,7 +13,7 @@ fun unconstrained_array_type(type, except_string) =
     | TypeDecl(
         p_is_array_type(): true,
         f_type_def: ArrayTypeDef(f_indices: UnconstrainedArrayIndices)
-    ) => if except_string then type.p_root_type().p_fully_qualified_name() == "Standard.String"
+    ) => if except_string then type.p_root_type().p_fully_qualified_name().to_lower_case != "standard.string"
 
 @check(message="function returns unconstrained array",
        follow_generic_instantiations=true, category="Feature")
