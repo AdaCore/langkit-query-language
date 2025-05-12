@@ -1080,7 +1080,7 @@ package body Gnatcheck.Projects is
       for O of Rule_Options loop
          case O.Kind is
             when File =>
-               Process_Rule_File (To_String (O.Value));
+               Process_Legacy_Rule_File (To_String (O.Value));
 
             when Legacy_Option =>
                Process_Legacy_Rule_Option
@@ -1094,7 +1094,8 @@ package body Gnatcheck.Projects is
    -- Add_Legacy_Rule_Option --
    ----------------------------
 
-   procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False) is
+   procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False)
+   is
       use Ada.Strings.Unbounded;
 
       Opt_Rec : constant Option_Record :=
