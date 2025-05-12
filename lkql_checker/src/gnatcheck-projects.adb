@@ -1226,11 +1226,11 @@ package body Gnatcheck.Projects is
                      (Option_Record'(File,
                         To_Unbounded_String (Parameter (Parser => Parser))));
                   if not More_Then_One_Rule_File_Set then
-                     Rule_File_Name :=
-                     new String'(Parameter (Parser => Parser));
+                     Legacy_Rule_File_Name :=
+                       new String'(Parameter (Parser => Parser));
                      More_Then_One_Rule_File_Set := True;
                   else
-                     Free (Rule_File_Name);
+                     Free (Legacy_Rule_File_Name);
                   end if;
 
                when others =>
