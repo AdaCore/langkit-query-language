@@ -7992,8 +7992,7 @@ Flag unconditional ``exit`` statements.
 Flag each function returning an unconstrained array. Function declarations,
 function bodies (and body stubs) having no separate specifications,
 and generic function instantiations are flagged.
-Function calls and function renamings are
-not flagged.
+Function calls and function renamings are not flagged.
 
 Generic function declarations, and function declarations in generic
 packages, are not flagged.  Instead, this rule flags the results of
