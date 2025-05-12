@@ -527,9 +527,7 @@ package body Gnatcheck.Rules is
 
    function Find_File (Name : String) return String is
       Rule_File_Dir : constant String :=
-        Dir_Name
-          (Gnatcheck.Rules.Rule_Table.Processed_Rule_File_Name);
-
+        Dir_Name (Gnatcheck.Rules.Rule_Table.Processed_Legacy_Rule_File_Name);
    begin
       if GNAT.OS_Lib.Is_Regular_File (Rule_File_Dir & Name) then
          return Rule_File_Dir & Name;

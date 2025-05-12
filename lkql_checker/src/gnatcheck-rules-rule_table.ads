@@ -89,7 +89,7 @@ package Gnatcheck.Rules.Rule_Table is
    --  related information (tag maps, compiler options...).
    --  This should be called after rule options processing.
 
-   function Processed_Rule_File_Name return String;
+   function Processed_Legacy_Rule_File_Name return String;
    --  Returns the full path to the rule file currently being processed.
    --  Returns an empty string if no rule file is processed at the moment of
    --  the call.
