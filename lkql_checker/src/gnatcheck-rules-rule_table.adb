@@ -1339,18 +1339,18 @@ package body Gnatcheck.Rules.Rule_Table is
       Set_Compiler_Checks;
    end Process_Compiler_Instances;
 
-   ------------------------------
-   -- Processed_Rule_File_Name --
-   ------------------------------
+   -------------------------------------
+   -- Processed_Legacy_Rule_File_Name --
+   -------------------------------------
 
-   function Processed_Rule_File_Name return String is
+   function Processed_Legacy_Rule_File_Name return String is
    begin
       if Rule_File_Stack.Is_Empty then
          return "";
       else
          return Rule_File_Stack.Table (Rule_File_Stack.Last).Full_Name.all;
       end if;
-   end Processed_Rule_File_Name;
+   end Processed_Legacy_Rule_File_Name;
 
    ---------------
    -- Rule_Name --
