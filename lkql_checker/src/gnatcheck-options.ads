@@ -214,7 +214,7 @@ package Gnatcheck.Options is
    --  Flags used to detect if all the rules specified for a given gnatcheck
    --  call, should be set when parsing rule options
 
-   Rule_File_Name : GNAT.OS_Lib.String_Access;
+   Legacy_Rule_File_Name : GNAT.OS_Lib.String_Access;
    --  If More_Then_One_Rule_File_Set is OFF and if a rule file has been
    --  processed, keeps the name of this file, otherwise is null.
 

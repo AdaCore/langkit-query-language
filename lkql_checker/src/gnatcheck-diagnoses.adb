@@ -1292,13 +1292,13 @@ package body Gnatcheck.Diagnoses is
            ("<coding-standard from-file=""", Indent_Level => 1);
       end if;
 
-      if not Individual_Rules_Set and then Rule_File_Name /= null then
+      if not Individual_Rules_Set and then Legacy_Rule_File_Name /= null then
          if Text_Report_ON then
-            Report (Rule_File_Name.all);
+            Report (Legacy_Rule_File_Name.all);
          end if;
 
          if XML_Report_ON then
-            XML_Report (Rule_File_Name.all & """>");
+            XML_Report (Legacy_Rule_File_Name.all & """>");
          end if;
       else
          --  Creating the list of active rules
