@@ -1056,7 +1056,7 @@ package body Gnatcheck.Projects is
    -- Process_Rule_Options --
    --------------------------
 
-   type Option_Kind is (File, Legacy_Option);
+   type Option_Kind is (File, Legacy_Option, Single_Rule_Name);
 
    type Option_Record is record
       Kind  : Option_Kind;
@@ -1085,6 +1085,9 @@ package body Gnatcheck.Projects is
             when Legacy_Option =>
                Process_Legacy_Rule_Option
                  (To_String (O.Value), Defined_At => "");
+
+            when Single_Rule_Name =>
+               Process_Single_Rule_Name (To_String (O.Value));
          end case;
       end loop;
       Process_Compiler_Instances;
@@ -1114,11 +1117,16 @@ package body Gnatcheck.Projects is
 
    procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False)
    is
-      Lower_Rule : constant String := To_Lower (Rule_Name);
-      Prefix     : constant String :=
-        (if Lower_Rule = "all" then "+" else "+R");
+      use Ada.Strings.Unbounded;
+
+      Opt_Rec : constant Option_Record :=
+        (Single_Rule_Name, To_Unbounded_String (Trim (Rule_Name, Both)));
    begin
-      Add_Legacy_Rule_Option (Prefix & Lower_Rule, Prepend => Prepend);
+      if Prepend then
+         Rule_Options.Prepend (Opt_Rec);
+      else
+         Rule_Options.Append (Opt_Rec);
+      end if;
    end Add_Rule_By_Name;
 
    ------------------------

@@ -17,6 +17,11 @@ package Gnatcheck.Rules.Rule_Table is
    function Present (Rule : Rule_Id) return Boolean;
    --  Check if the argument represents an existing rule
 
+   procedure Process_Single_Rule_Name (Rule_Name : String);
+   --  Process the provided rule name by instantiating the corresponding rule
+   --  with its default configuration. If the lowered provided `Rule_Name` is
+   --  "all", then all available rules are enabled.
+
    procedure Process_Legacy_Rule_Option (Option : String; Defined_At : String);
    --  Processes the rule option taken from the command line or from rule file.
    --
