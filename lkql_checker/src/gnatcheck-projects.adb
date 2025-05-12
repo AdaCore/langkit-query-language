@@ -1086,7 +1086,7 @@ package body Gnatcheck.Projects is
       for O of Rule_Options loop
          case O.Kind is
             when File =>
-               Process_Rule_File (To_String (O.Value));
+               Process_Legacy_Rule_File (To_String (O.Value));
             when Legacy_Option =>
                Process_Legacy_Rule_Option
                  (To_String (O.Value), Defined_At => "");

@@ -371,12 +371,12 @@ package body Gnatcheck.Rules.Rule_Table is
       return All_Rules.Contains (Rule) or else Is_Compiler_Rule (Rule);
    end Present;
 
-   -----------------------
-   -- Process_Rule_File --
-   -----------------------
+   ------------------------------
+   -- Process_Legacy_Rule_File --
+   ------------------------------
 
-   procedure Process_Rule_File (RF_Name : String) is
-      RF           : File_Type;
+   procedure Process_Legacy_Rule_File (RF_Name : String) is
+      RF : File_Type;
 
       Rule_Start_Line : Natural := 1;
       --  Number of the line of the rule file where the latest beginning of a
@@ -575,7 +575,8 @@ package body Gnatcheck.Rules.Rule_Table is
                               if Is_Regular_File
                                 (Rule_Buf (1 .. Rule_Len))
                               then
-                                 Process_Rule_File (Rule_Buf (1 .. Rule_Len));
+                                 Process_Legacy_Rule_File
+                                   (Rule_Buf (1 .. Rule_Len));
                               else
                                  Error ("can not locate rule file " &
                                  Rule_Buf (1 .. Rule_Len));
@@ -754,7 +755,7 @@ package body Gnatcheck.Rules.Rule_Table is
                     new String'(Get_Rule_File_Name (Rule_Buf (1 .. Rule_Len)));
 
                   if Is_Regular_File (Include_RF_Name.all) then
-                     Process_Rule_File (Include_RF_Name.all);
+                     Process_Legacy_Rule_File (Include_RF_Name.all);
                   else
                      Error ("can not locate rule file " &
                      Rule_Buf (1 .. Rule_Len));
@@ -793,7 +794,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
          --  Exception info will be generated in main driver
          raise;
-   end Process_Rule_File;
+   end Process_Legacy_Rule_File;
 
    ----------------------------
    -- Process_LKQL_Rule_File --
