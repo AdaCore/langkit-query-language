@@ -99,7 +99,7 @@ package body Gnatcheck.Projects is
      (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level;
 
    Gpr2_Reporter : Gnatcheck_Reporter;
-   --  Make libgpt2 report messages using the proper gnatcheck.Output API
+   --  Make libgpr2 report messages using the proper ``Gnatcheck.Output`` API.
 
    function Report_Missing_File (Log : String) return Boolean
    is (Index (Log, "source file") /= 0 and then Index (Log, "not found") /= 0);
