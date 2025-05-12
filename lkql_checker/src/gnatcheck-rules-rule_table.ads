@@ -49,7 +49,7 @@ package Gnatcheck.Rules.Rule_Table is
    --  Defined_At should be set to an empty string when processing the rule
    --  option from a command line, or to the short name of the rule file.
 
-   procedure Process_Rule_File (RF_Name : String);
+   procedure Process_Legacy_Rule_File (RF_Name : String);
    --  Processes a set of rule options stored in the rule configuration file.
    --  RF_Name is the name of this rule file.
    --
