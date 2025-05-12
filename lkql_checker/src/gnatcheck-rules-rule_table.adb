@@ -1019,7 +1019,7 @@ package body Gnatcheck.Rules.Rule_Table is
             end if;
          end loop;
 
-         --  We start by getting the instanciated rule identifier, and verify
+         --  We start by getting the instantiated rule identifier, and verify
          --  its existence.
          Rule := Get_Rule (Option (Word_Start .. Word_End));
          if not Present (Rule) then
@@ -1041,7 +1041,7 @@ package body Gnatcheck.Rules.Rule_Table is
                else Rule_Name (Rule)));
          Instance := Get_Instance (To_String (Instance_Name));
 
-         --  Check that the option is not instanciating a rule with an already
+         --  Check that the option is not instantiating a rule with an already
          --  registered instance name. If the option is trying to disable an
          --  instance, check that this instance exists.
          if Enable and then Instance /= null then
@@ -1078,7 +1078,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
          --  We need to process compiler-based rules in a separate way
          if Is_Compiler_Rule (Rule) then
-            --  Get the rule paramater and perform the initial verification
+            --  Get the rule parameter and perform the initial verification
             if not Check_For_Compiler_Rule (Rule, To_String (Instance_Name))
             then
                Bad_Rule_Detected := True;
