@@ -11,7 +11,6 @@ In command-line
 ===============
 
 gnatcheck: rule instance with the same name already exists: "goto_statements" previously instantiated at command line
-if you want to pass multiple parameters to a rule you should use the comma separated notation: e.g. +RMy_Rule:Param1,Param2
 >>>program returned status code 5
 
 In command-line and rule options
