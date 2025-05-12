@@ -1095,12 +1095,12 @@ package body Gnatcheck.Projects is
       Process_Compiler_Instances;
    end Process_Rule_Options;
 
-   ---------------------
-   -- Add_Rule_Option --
-   ---------------------
+   ----------------------------
+   -- Add_Legacy_Rule_Option --
+   ----------------------------
 
-   procedure Add_Rule_Option
-     (Opt     : String;
+   procedure Add_Legacy_Rule_Option
+     (Opt : String;
       Prepend : Boolean := False)
    is
       use Ada.Strings.Unbounded;
@@ -1113,7 +1113,7 @@ package body Gnatcheck.Projects is
       else
          Rule_Options.Append (Opt_Rec);
       end if;
-   end Add_Rule_Option;
+   end Add_Legacy_Rule_Option;
 
    ----------------------
    -- Add_Rule_By_Name --
@@ -1127,7 +1127,7 @@ package body Gnatcheck.Projects is
       Prefix     : constant String :=
         (if Lower_Rule = "all" then "+" else "+R");
    begin
-      Add_Rule_Option (Prefix & Lower_Rule, Prepend => Prepend);
+      Add_Legacy_Rule_Option (Prefix & Lower_Rule, Prepend => Prepend);
    end Add_Rule_By_Name;
 
    ------------------------
@@ -1234,7 +1234,7 @@ package body Gnatcheck.Projects is
                   end if;
 
                when others =>
-                  Add_Rule_Option (Full_Switch (Parser => Parser));
+                  Add_Legacy_Rule_Option (Full_Switch (Parser => Parser));
                   Individual_Rules_Set := True;
             end case;
             if not Rules_Depreciation_Emitted then
