@@ -1056,7 +1056,7 @@ package body Gnatcheck.Projects is
    -- Process_Rule_Options --
    --------------------------
 
-   type Option_Kind is (File, Option);
+   type Option_Kind is (File, Legacy_Option);
 
    type Option_Record is record
       Kind  : Option_Kind;
@@ -1082,7 +1082,7 @@ package body Gnatcheck.Projects is
             when File =>
                Process_Rule_File (To_String (O.Value));
 
-            when Option =>
+            when Legacy_Option =>
                Process_Rule_Option (To_String (O.Value), Defined_At => "");
          end case;
       end loop;
@@ -1097,7 +1097,7 @@ package body Gnatcheck.Projects is
       use Ada.Strings.Unbounded;
 
       Opt_Rec : constant Option_Record :=
-        (Option, To_Unbounded_String (Trim (Opt, Both)));
+        (Legacy_Option, To_Unbounded_String (Trim (Opt, Both)));
    begin
       if Prepend then
          Rule_Options.Prepend (Opt_Rec);
