@@ -538,7 +538,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
                      case Old_State is
                         when In_Rule_Option =>
-                           Process_Rule_Option
+                           Process_Legacy_Rule_Option
                              (Rule_Buf (1 .. Rule_Len),
                               Rule_File_Base
                               & ":"
@@ -727,7 +727,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
          case Old_State is
             when In_Rule_Option =>
-               Process_Rule_Option
+               Process_Legacy_Rule_Option
                  (Rule_Buf (1 .. Rule_Len),
                   Rule_File_Base
                   & ":"
@@ -862,11 +862,12 @@ package body Gnatcheck.Rules.Rule_Table is
       end if;
    end Process_LKQL_Rule_File;
 
-   -------------------------
-   -- Process_Rule_Option --
-   -------------------------
+   --------------------------------
+   -- Process_Legacy_Rule_Option --
+   --------------------------------
 
-   procedure Process_Rule_Option (Option : String; Defined_At : String) is
+   procedure Process_Legacy_Rule_Option (Option : String; Defined_At : String)
+   is
       First_Idx    : constant Natural := Option'First;
       Last_Idx     : constant Natural := Option'Last;
       Lower_Option : constant String := To_Lower (Option);
@@ -1138,7 +1139,7 @@ package body Gnatcheck.Rules.Rule_Table is
            ("unknown rule option: " & Option & ", ignored" & Diag_Defined_At);
          Rule_Option_Problem_Detected := True;
       end if;
-   end Process_Rule_Option;
+   end Process_Legacy_Rule_Option;
 
    -------------------------
    -- Process_Rule_Object --
