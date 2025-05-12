@@ -4,6 +4,7 @@ input_sources:
  - main.adb
 show_rule: True
 check_flags: False
+canonicalize_backslashes: True
 
 tests:
   # Valid configurations testing
