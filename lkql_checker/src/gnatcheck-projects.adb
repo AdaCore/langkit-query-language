@@ -1225,10 +1225,10 @@ package body Gnatcheck.Projects is
                   Rule_Options.Append
                      (Option_Record'(File,
                         To_Unbounded_String (Parameter (Parser => Parser))));
-                  if not More_Then_One_Rule_File_Set then
+                  if not More_Than_One_Legacy_Rule_File_Set then
                      Legacy_Rule_File_Name :=
                        new String'(Parameter (Parser => Parser));
-                     More_Then_One_Rule_File_Set := True;
+                     More_Than_One_Legacy_Rule_File_Set := True;
                   else
                      Free (Legacy_Rule_File_Name);
                   end if;
