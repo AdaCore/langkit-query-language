@@ -1088,7 +1088,8 @@ package body Gnatcheck.Projects is
             when File =>
                Process_Rule_File (To_String (O.Value));
             when Legacy_Option =>
-               Process_Rule_Option (To_String (O.Value), Defined_At => "");
+               Process_Legacy_Rule_Option
+                 (To_String (O.Value), Defined_At => "");
          end case;
       end loop;
       Process_Compiler_Instances;

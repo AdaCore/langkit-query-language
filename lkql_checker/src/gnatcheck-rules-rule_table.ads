@@ -17,9 +17,7 @@ package Gnatcheck.Rules.Rule_Table is
    function Present (Rule : Rule_Id) return Boolean;
    --  Check if the argument represents an existing rule
 
-   procedure Process_Rule_Option
-     (Option     : String;
-      Defined_At : String);
+   procedure Process_Legacy_Rule_Option (Option : String; Defined_At : String);
    --  Processes the rule option taken from the command line or from rule file.
    --
    --  The following options are supported:
@@ -61,7 +59,7 @@ package Gnatcheck.Rules.Rule_Table is
    --  The rule file may contain empty lines, Ada-style comment lines and lines
    --  containing the rule options, Rule options written in the rule file have
    --  the same syntax as rule options given in the command line (see the
-   --  documentation for Process_Rule_Option, except that +/-GLOBAL rule
+   --  documentation for Process_Legacy_Rule_Option, except that +/-GLOBAL rule
    --  option is not allowed in the rule configuration file), but they can be
    --  written in the free format, that is:
    --
@@ -77,7 +75,7 @@ package Gnatcheck.Rules.Rule_Table is
    --  interpreted as an empty line, a comment line or a rule option is
    --  ignored. Any rule option that does not satisfy the requirements stated
    --  in the description of the rule options in documentation of
-   --  Process_Rule_Option is also ignored.
+   --  Process_Legacy_Rule_Option is also ignored.
 
    procedure Process_LKQL_Rule_File (LKQL_RF_Name : String);
    --  Process the given LKQL file as a rule configuration file and populate
