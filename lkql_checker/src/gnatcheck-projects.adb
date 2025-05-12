@@ -95,7 +95,7 @@ package body Gnatcheck.Projects is
       Message : String);
 
    Gpr2_Reporter : Gnatcheck_Reporter;
-   --  Make libgpt2 report messages using the proper gnatcheck.Output API
+   --  Make libgpr2 report messages using the proper ``Gnatcheck.Output`` API.
 
    ------------
    -- Report --
