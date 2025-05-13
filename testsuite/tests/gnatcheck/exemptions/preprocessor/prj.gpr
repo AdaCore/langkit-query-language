@@ -1,0 +1,8 @@
+project Prj is
+   for Source_Dirs use (".");
+   for main use ("test.adb");
+
+   package Compiler is
+      for Switches ("Ada") use ("-gnateG", "-gnateDX=Y");
+   end Compiler;
+end Prj;

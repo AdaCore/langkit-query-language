@@ -50,7 +50,6 @@ with GPR2.Project.Registry.Attribute;
 with GPR2.Project.Registry.Attribute.Description;
 with GPR2.Project.Registry.Pack;
 with GPR2.Project.Registry.Pack.Description;
-with GPR2.Project.View;
 with GPR2.Reporter.Console;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
