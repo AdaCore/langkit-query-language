@@ -93,6 +93,7 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GPR2.Containers;
 with GPR2.Project.Tree;
+with GPR2.Project.View;
 
 package Gnatcheck.Projects is
 
@@ -167,6 +168,10 @@ package Gnatcheck.Projects is
    function Tree
      (My_Project : Arg_Project_Type) return GPR2.Project.Tree.Object;
    --  Returns access to project tree object
+
+   function View
+     (My_Project : Arg_Project_Type) return GPR2.Project.View.Object;
+   --  Returns access to project view object
 
    procedure Store_Project_Source
      (My_Project : in out Arg_Project_Type; Project_File_Name : String);
@@ -344,6 +349,7 @@ private
 
    type Arg_Project_Type is tagged record
       Tree        : aliased GPR2.Project.Tree.Object;
+      View        : aliased GPR2.Project.View.Object;
       Source_Prj  : String_Access;
       Source_CGPR : String_Access;
    end record;
@@ -351,5 +357,9 @@ private
    function Tree
      (My_Project : Arg_Project_Type) return GPR2.Project.Tree.Object
    is (My_Project.Tree);
+
+   function View
+     (My_Project : Arg_Project_Type) return GPR2.Project.View.Object
+   is (My_Project.View);
 
 end Gnatcheck.Projects;
