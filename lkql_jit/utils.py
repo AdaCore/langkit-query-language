@@ -82,25 +82,6 @@ class GraalManager:
         )
 
 
-def component_template(dir):
-    """
-    Create a graal component directory hierarchy in the given directory.
-
-    :param dir: The directory to create the hierarchy.
-    :return The directories from the created hierarchy.
-    """
-    meta_dir = P.join(dir, "META-INF")
-    lang_dir = P.join(dir, "languages", "lkql")
-    bin_dir = P.join(lang_dir, "bin")
-
-    os.makedirs(dir)
-    os.makedirs(meta_dir)
-    os.makedirs(lang_dir)
-    os.makedirs(bin_dir)
-
-    return meta_dir, lang_dir, bin_dir
-
-
 def is_windows():
     """
     Return if the current platform is Windows.
