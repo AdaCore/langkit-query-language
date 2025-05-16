@@ -25,9 +25,11 @@ with GPR2.Path_Name;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
 
+with Langkit_Support.File_Readers; use Langkit_Support.File_Readers;
 with Langkit_Support.Generic_API.Introspection;
 
 with Libadalang.Analysis;         use Libadalang.Analysis;
+with Libadalang.Preprocessing;    use Libadalang.Preprocessing;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
 with Libadalang.Generic_API;      use Libadalang.Generic_API;
@@ -1475,8 +1477,11 @@ package body Gnatcheck.Source_Table is
    Partition : GPR2_Provider_And_Projects_Array_Access;
 
    function Create_Context return Checker_App.Lkql_Context is
-      Charset : constant String := To_String (Arg.Charset.Get);
-      Ctx     : Checker_App.Lkql_Context;
+      Charset        : constant String := To_String (Arg.Charset.Get);
+      Ctx            : Checker_App.Lkql_Context;
+      File_Reader    : File_Reader_Reference;
+      Default_Config : File_Config;
+      File_Configs   : File_Config_Maps.Map;
    begin
       --  Use a project unit provider, even with the implicit project
       if not In_Aggregate_Project then
@@ -1487,11 +1492,21 @@ package body Gnatcheck.Source_Table is
          --  We can ignore multiple partitions: this will only occur with
          --  aggregate projects, which are handled specially in lalcheck.adb
 
+         --  Setup the file reader with preprocessing support
+         Extract_Preprocessor_Data_From_Project
+           (Gnatcheck_Prj.Tree,
+            Gnatcheck_Prj.View,
+            Default_Config,
+            File_Configs);
+
+         File_Reader := Create_Preprocessor (Default_Config, File_Configs);
+
          Ctx.Analysis_Ctx :=
            Create_Context
              (Charset       => Charset,
               Unit_Provider => Partition (Partition'First).Provider,
-              Event_Handler => EHR_Object);
+              Event_Handler => EHR_Object,
+              File_Reader   => File_Reader);
 
          --  Setup the configuration pragma mapping by reading the
          --  configuration file given by the project.

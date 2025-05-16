@@ -1,0 +1,7 @@
+description: |
+  This test checks that no rule exemption is processed when exemption pragma or
+  comment is included in code ignored by the preprocessor.
+driver: gnatcheck
+show_rule: True
+project: prj.gpr
+lkql_rule_file: rules.lkql
