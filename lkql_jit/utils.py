@@ -58,28 +58,7 @@ class GraalManager:
                 if is_windows()
                 else P.join(self.home, "bin", "native-image")
             )
-            if not P.isfile(self._native_image):
-                raise RuntimeError(
-                    "Native-image tool is not available in your GraalVM"
-                    "installation, install it with 'gu'"
-                )
         return self._native_image
-
-    @property
-    def jar(self):
-        return (
-            P.join(self.home, "bin", "jar.exe")
-            if is_windows()
-            else P.join(self.home, "bin", "jar")
-        )
-
-    @property
-    def gu(self):
-        return (
-            P.join(self.home, "bin", "gu.cmd")
-            if is_windows()
-            else P.join(self.home, "bin", "gu")
-        )
 
 
 def is_windows():
@@ -106,17 +85,7 @@ def parse_args():
         help="Define the JIT build mode",
     )
     parser.add_argument("--native-components", help="Native components to build")
-    parser.add_argument("--lkql-version", help="The version of LKQL you're building")
-    parser.add_argument(
-        "--graal-version", help="Version of GraalVM you're building with"
-    )
+    parser.add_argument("--classpath", help="Classpath to forward")
 
     # Parse the command line and return the result
     return parser.parse_args()
-
-
-def missing_module(name, file):
-    return RuntimeError(
-        f"File '{P.realpath(file)}' not found. Make sure you ran `mvn package`"
-        f" for the '{name}' module."
-    )

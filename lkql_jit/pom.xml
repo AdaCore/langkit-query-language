@@ -12,7 +12,7 @@
         <module>language</module>
         <module>options</module>
         <module>cli</module>
-        <module>native</module>
+        <module>standalone</module>
         <module>benchmarks</module>
         <module>builtins_annotations</module>
     </modules>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>lkql_jit</artifactId>
+        <groupId>com.adacore</groupId>
+        <version>0.1.0</version>
+    </parent>
+
+    <artifactId>standalone</artifactId>
+
+    <build>
+        <plugins>
+            <!-- Copy all dependencies into a "lib" file to easily expose a standalone JVM version of LKQL -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                            <includeScope>runtime</includeScope>
+                            <excludeArtifactIds>builtins_annotations</excludeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Don't generate a JAR archive since there are no sources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <skipIfEmpty>true</skipIfEmpty>
+                </configuration>
+            </plugin>
+
+            <!-- Configure the Python scripts execution -->
+            <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <version>3.0.0</version>
+                <executions>
+                    <!-- make.py execution -->
+                    <execution>
+                        <id>make_native</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${config.python}</executable>
+                            <commandlineArgs>
+                                ${basedir}/make_native.py
+                                --native-components ${config.nativeComponents}
+                                --build-mode ${config.buildMode}
+                                --classpath %classpath
+                            </commandlineArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Skip the Spotless check because everything is handled by the parent -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.40.0</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>cli</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+    </dependencies>
+
+</project>
