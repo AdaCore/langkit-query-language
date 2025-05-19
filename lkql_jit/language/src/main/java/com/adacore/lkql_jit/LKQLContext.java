@@ -59,7 +59,7 @@ public final class LKQLContext {
     // ----- Ada project attributes -----
 
     /** The analysis context for the ada files. */
-    private LangkitSupport.AnalysisContextInterface adaContext;
+    private LangkitSupport.AnalysisContextInterface analysisContext;
 
     /** The rewriting context, opened from the Ada analysis context. */
     private LangkitSupport.RewritingContextInterface rewritingContext;
@@ -176,7 +176,7 @@ public final class LKQLContext {
             this.rewritingContext.close();
         }
         this.eventHandler.close();
-        this.adaContext.close();
+        this.analysisContext.close();
         if (this.projectManager != null) this.projectManager.close();
     }
 
@@ -220,7 +220,7 @@ public final class LKQLContext {
             if (!this.parsed) {
                 this.parseSources();
             }
-            this.rewritingContext = this.adaContext.startRewriting();
+            this.rewritingContext = this.analysisContext.startRewriting();
         }
         return this.rewritingContext;
     }
@@ -444,7 +444,7 @@ public final class LKQLContext {
         // specified units
         this.specifiedUnits = new LangkitSupport.AnalysisUnit[usedSources.length];
         for (int i = 0; i < usedSources.length; i++) {
-            this.specifiedUnits[i] = this.adaContext.getUnitFromFile(usedSources[i]);
+            this.specifiedUnits[i] = this.analysisContext.getUnitFromFile(usedSources[i]);
         }
 
         // For each source file of the project, store its corresponding analysis unit in the list of
@@ -455,7 +455,7 @@ public final class LKQLContext {
         this.allUnitsRoots = new LangkitSupport.NodeInterface[this.allSourceFiles.size()];
 
         for (int i = 0; i < this.allUnits.length; i++) {
-            this.allUnits[i] = this.adaContext.getUnitFromFile(this.allSourceFiles.get(i));
+            this.allUnits[i] = this.analysisContext.getUnitFromFile(this.allSourceFiles.get(i));
             this.allUnitsRoots[i] = this.allUnits[i].getRoot();
         }
 
@@ -532,7 +532,7 @@ public final class LKQLContext {
                     ).toList()
                 );
 
-            this.adaContext = this.projectManager.createContext(
+            this.analysisContext = this.projectManager.createContext(
                     this.getOptions().subprojectFile().orElse(null),
                     this.eventHandler,
                     true,
@@ -567,7 +567,7 @@ public final class LKQLContext {
             final Libadalang.UnitProvider provider = this.projectManager.getProvider();
 
             // Create the ada context and store it in the LKQL context
-            this.adaContext = LangkitSupport.AnalysisContextInterface.create(
+            this.analysisContext = LangkitSupport.AnalysisContextInterface.create(
                 charset,
                 null,
                 provider,
@@ -578,7 +578,7 @@ public final class LKQLContext {
 
             // In the absence of a project file, we consider for now that there are no configuration
             // pragmas.
-            this.adaContext.setConfigPragmasMapping(null, null);
+            this.analysisContext.setConfigPragmasMapping(null, null);
         }
     }
 
