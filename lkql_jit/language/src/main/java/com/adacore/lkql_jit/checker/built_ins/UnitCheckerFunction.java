@@ -23,7 +23,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
+import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -59,7 +59,7 @@ public final class UnitCheckerFunction {
                             .emitDiagnostic(
                                 CheckerUtils.MessageKind.ERROR,
                                 e.getMsg(),
-                                new LalLocationWrapper(unit.getRoot(), context.linesCache),
+                                new LangkitLocationWrapper(unit.getRoot(), context.linesCache),
                                 new SourceSectionWrapper(e.getLocation().getSourceSection()),
                                 checker.getName()
                             );
@@ -70,7 +70,7 @@ public final class UnitCheckerFunction {
                         .emitDiagnostic(
                             CheckerUtils.MessageKind.ERROR,
                             e.getErrorMessage(),
-                            new LalLocationWrapper(unit.getRoot(), context.linesCache),
+                            new LangkitLocationWrapper(unit.getRoot(), context.linesCache),
                             new SourceSectionWrapper(e.getLocation().getSourceSection()),
                             checker.getName()
                         );
@@ -184,7 +184,7 @@ public final class UnitCheckerFunction {
                     .emitRuleViolation(
                         checker,
                         message,
-                        new LalLocationWrapper(slocRange, locUnit, context.linesCache),
+                        new LangkitLocationWrapper(slocRange, locUnit, context.linesCache),
                         genericInstantiations,
                         context
                     );

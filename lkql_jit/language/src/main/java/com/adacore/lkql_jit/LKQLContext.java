@@ -19,7 +19,7 @@ import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
+import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLogger;
@@ -74,7 +74,7 @@ public final class LKQLContext {
                 boolean isFatal = !this.keepGoingOnMissingFile();
                 this.getDiagnosticEmitter()
                     .emitFileNotFound(
-                        new LalLocationWrapper(from.getRoot(), this.linesCache),
+                        new LangkitLocationWrapper(from.getRoot(), this.linesCache),
                         name,
                         isFatal
                     );
