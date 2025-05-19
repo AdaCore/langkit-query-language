@@ -59,7 +59,7 @@ public final class NodeCheckerFunction {
             final Libadalang.AnalysisUnit rootUnit;
 
             final NodeChecker[] allNodeCheckers = context.getAllNodeCheckers();
-            final NodeChecker[] adaNodeCheckers = context.getNodeInterfaceCheckers();
+            final NodeChecker[] nodeCheckers = context.getNodeCheckers();
             final NodeChecker[] sparkNodeCheckers = context.getSparkNodeCheckers();
             final boolean mustFollowInstantiations = context.mustFollowInstantiations();
             final boolean hasSparkCheckers = sparkNodeCheckers.length > 0;
@@ -139,7 +139,7 @@ public final class NodeCheckerFunction {
                             context
                         );
                 } else {
-                    this.executeCheckers(frame, currentStep, currentNode, adaNodeCheckers, context);
+                    this.executeCheckers(frame, currentStep, currentNode, nodeCheckers, context);
                 }
 
                 // Add the children to the visit list

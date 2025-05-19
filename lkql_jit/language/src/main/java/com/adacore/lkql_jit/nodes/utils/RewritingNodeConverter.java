@@ -42,7 +42,7 @@ public abstract class RewritingNodeConverter extends Node {
     }
 
     @Specialization(guards = "!node.isNone()")
-    protected Libadalang.RewritingNode onNodeInterface(
+    protected Libadalang.RewritingNode onNode(
         LangkitSupport.NodeInterface node,
         boolean ensureUntied,
         @SuppressWarnings("unused") Node usageLocation
