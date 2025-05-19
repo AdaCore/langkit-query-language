@@ -23,7 +23,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
+import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -116,7 +116,7 @@ public final class NodeCheckerFunction {
                         .emitDiagnostic(
                             CheckerUtils.MessageKind.ERROR,
                             e.getMessage(),
-                            new LalLocationWrapper(currentNode, context.linesCache),
+                            new LangkitLocationWrapper(currentNode, context.linesCache),
                             new SourceSectionWrapper(this.callNode.getSourceSection())
                         );
                     if (context.isCheckerDebug()) {
@@ -267,7 +267,7 @@ public final class NodeCheckerFunction {
                                 .emitDiagnostic(
                                     CheckerUtils.MessageKind.ERROR,
                                     e.getMsg(),
-                                    new LalLocationWrapper(currentNode, context.linesCache),
+                                    new LangkitLocationWrapper(currentNode, context.linesCache),
                                     new SourceSectionWrapper(e.getLoc()),
                                     checker.getName()
                                 );
@@ -278,7 +278,7 @@ public final class NodeCheckerFunction {
                             .emitDiagnostic(
                                 CheckerUtils.MessageKind.ERROR,
                                 e.getErrorMessage(),
-                                new LalLocationWrapper(currentNode, context.linesCache),
+                                new LangkitLocationWrapper(currentNode, context.linesCache),
                                 e.getSourceLoc(),
                                 checker.getName()
                             );
@@ -380,7 +380,7 @@ public final class NodeCheckerFunction {
                 .emitRuleViolation(
                     checker,
                     checker.getMessage(),
-                    new LalLocationWrapper(node, context.linesCache),
+                    new LangkitLocationWrapper(node, context.linesCache),
                     node.pGenericInstantiations(),
                     context
                 );

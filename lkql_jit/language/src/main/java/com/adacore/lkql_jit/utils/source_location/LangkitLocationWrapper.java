@@ -16,13 +16,13 @@ import java.io.File;
  * <p>TODO: At some point we want to use the generic baseclass in the shared langkit Java library.
  * See eng/libadalang/langkit-query-language#269
  */
-public class LalLocationWrapper implements SourceLocation {
+public class LangkitLocationWrapper implements SourceLocation {
 
     public final LangkitSupport.SourceLocationRange sourceLocationRange;
     public final CheckerUtils.SourceLinesCache sourceLinesCache;
     private final LangkitSupport.AnalysisUnit unit;
 
-    public LalLocationWrapper(
+    public LangkitLocationWrapper(
         LangkitSupport.SourceLocationRange sourceLocationRange,
         LangkitSupport.AnalysisUnit unit,
         CheckerUtils.SourceLinesCache sourceLinesCache
@@ -32,7 +32,7 @@ public class LalLocationWrapper implements SourceLocation {
         this.sourceLinesCache = sourceLinesCache;
     }
 
-    public LalLocationWrapper(
+    public LangkitLocationWrapper(
         LangkitSupport.NodeInterface node,
         CheckerUtils.SourceLinesCache sourceLinesCache
     ) {
