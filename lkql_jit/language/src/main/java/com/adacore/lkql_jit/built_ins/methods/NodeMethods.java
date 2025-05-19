@@ -145,7 +145,7 @@ public final class NodeMethods {
     abstract static class SameTokensExpr extends BuiltInBody {
 
         @Specialization
-        protected boolean onNodeInterface(NodeInterface leftNode, NodeInterface rightNode) {
+        protected boolean onNode(NodeInterface leftNode, NodeInterface rightNode) {
             // Get the tokens
             Libadalang.Token leftToken = leftNode.tokenStart();
             Libadalang.Token rightToken = rightNode.tokenStart();

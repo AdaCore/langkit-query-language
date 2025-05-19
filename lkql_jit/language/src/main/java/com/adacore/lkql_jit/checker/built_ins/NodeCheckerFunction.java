@@ -59,7 +59,7 @@ public final class NodeCheckerFunction {
             final Libadalang.AnalysisUnit rootUnit;
 
             final NodeChecker[] allNodeCheckers = context.getAllNodeCheckers();
-            final NodeChecker[] adaNodeCheckers = context.getNodeInterfaceCheckers();
+            final NodeChecker[] adaNodeCheckers = context.getNodeCheckers();
             final NodeChecker[] sparkNodeCheckers = context.getSparkNodeCheckers();
             final boolean mustFollowInstantiations = context.mustFollowInstantiations();
             final boolean hasSparkCheckers = sparkNodeCheckers.length > 0;

@@ -125,7 +125,7 @@ public final class LKQLContext {
     private NodeChecker[] filteredGeneralNodeCheckers = null;
 
     /** Node checkers to run on non-SPARK nodes from the Ada sources. */
-    private NodeChecker[] filteredNodeInterfaceCheckers = null;
+    private NodeChecker[] filteredNodeCheckers = null;
 
     /** Node checkers to run only on SPARK nodes from the Ada sources. */
     private NodeChecker[] filteredSparkNodeCheckers = null;
@@ -658,11 +658,11 @@ public final class LKQLContext {
      *
      * @return The node checkers array for Ada code only.
      */
-    public NodeChecker[] getNodeInterfaceCheckers() {
-        if (this.filteredNodeInterfaceCheckers == null) {
+    public NodeChecker[] getNodeCheckers() {
+        if (this.filteredNodeCheckers == null) {
             this.initCheckerCaches();
         }
-        return this.filteredNodeInterfaceCheckers;
+        return this.filteredNodeCheckers;
     }
 
     /**
@@ -762,7 +762,7 @@ public final class LKQLContext {
 
         // Set the checker caches
         this.filteredGeneralNodeCheckers = generalNodeCheckers.toArray(new NodeChecker[0]);
-        this.filteredNodeInterfaceCheckers = adaNodeCheckers.toArray(new NodeChecker[0]);
+        this.filteredNodeCheckers = adaNodeCheckers.toArray(new NodeChecker[0]);
         this.filteredSparkNodeCheckers = sparkNodeCheckers.toArray(new NodeChecker[0]);
         this.filteredUnitCheckers = unitCheckers.toArray(new UnitChecker[0]);
     }
