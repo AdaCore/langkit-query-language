@@ -39,7 +39,7 @@ public abstract class RegexPattern extends ValuePattern {
     }
 
     @Specialization
-    public boolean onNodeInterface(
+    public boolean onNode(
         @SuppressWarnings("unused") VirtualFrame frame,
         LangkitSupport.NodeInterface node
     ) {

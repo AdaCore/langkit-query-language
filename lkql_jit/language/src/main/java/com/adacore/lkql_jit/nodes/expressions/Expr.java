@@ -248,11 +248,11 @@ public abstract class Expr extends LKQLNode {
     }
 
     /**
-     * Execute the expression as an ada node.
+     * Execute the expression as a node.
      *
      * @param frame The frame for execution.
-     * @return The result of the node execution as an ada node.
-     * @throws UnexpectedResultException If the node cannot be evaluated as an ada node.
+     * @return The result of the node execution as an node.
+     * @throws UnexpectedResultException If the node cannot be evaluated as a node.
      */
     @SuppressWarnings("unused")
     public LangkitSupport.NodeInterface executeNode(VirtualFrame frame)

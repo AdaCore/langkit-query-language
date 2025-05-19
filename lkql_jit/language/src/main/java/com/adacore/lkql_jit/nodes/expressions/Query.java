@@ -189,11 +189,10 @@ public final class Query extends Expr {
         // Iterate on all node in the iterator
         while (nodeIterator.hasNext()) {
             // Get the current node
-            LangkitSupport.NodeInterface adaNode =
-                (LangkitSupport.NodeInterface) nodeIterator.next();
+            LangkitSupport.NodeInterface node = (LangkitSupport.NodeInterface) nodeIterator.next();
 
-            if (this.pattern.executeValue(frame, adaNode)) {
-                resList.add(adaNode);
+            if (this.pattern.executeValue(frame, node)) {
+                resList.add(node);
             }
         }
 
@@ -212,11 +211,10 @@ public final class Query extends Expr {
         // Iterate on all node in the iterator
         while (nodeIterator.hasNext()) {
             // Get the current node
-            LangkitSupport.NodeInterface adaNode =
-                (LangkitSupport.NodeInterface) nodeIterator.next();
+            LangkitSupport.NodeInterface node = (LangkitSupport.NodeInterface) nodeIterator.next();
 
-            if (this.pattern.executeValue(frame, adaNode)) {
-                return adaNode;
+            if (this.pattern.executeValue(frame, node)) {
+                return node;
             }
         }
 

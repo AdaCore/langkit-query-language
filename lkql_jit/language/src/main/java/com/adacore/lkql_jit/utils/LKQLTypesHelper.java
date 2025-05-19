@@ -75,7 +75,7 @@ public final class LKQLTypesHelper {
 
     public static final String LKQL_REC_VALUE = "RecValue";
 
-    /** The string representing the ada node type. */
+    /** The string representing the node type. */
     public static final String NODE_INTERFACE = "Node";
 
     /** The string representing the token type. */
@@ -269,8 +269,8 @@ public final class LKQLTypesHelper {
             return javaValue;
         }
         // If the source is an NodeInterface
-        else if (javaValue instanceof LangkitSupport.NodeInterface adaNode) {
-            return adaNode.isNone() ? LKQLNull.INSTANCE : adaNode;
+        else if (javaValue instanceof LangkitSupport.NodeInterface node) {
+            return node.isNone() ? LKQLNull.INSTANCE : node;
         }
         // If the source is a token
         else if (javaValue instanceof Libadalang.Token token) {

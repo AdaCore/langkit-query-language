@@ -125,7 +125,7 @@ public final class LKQLContext {
     private NodeChecker[] filteredGeneralNodeCheckers = null;
 
     /** Node checkers to run on non-SPARK nodes from the Ada sources. */
-    private NodeChecker[] filteredNodeInterfaceCheckers = null;
+    private NodeChecker[] filteredNodeCheckers = null;
 
     /** Node checkers to run only on SPARK nodes from the Ada sources. */
     private NodeChecker[] filteredSparkNodeCheckers = null;
@@ -658,11 +658,11 @@ public final class LKQLContext {
      *
      * @return The node checkers array for Ada code only.
      */
-    public NodeChecker[] getNodeInterfaceCheckers() {
-        if (this.filteredNodeInterfaceCheckers == null) {
+    public NodeChecker[] getNodeCheckers() {
+        if (this.filteredNodeCheckers == null) {
             this.initCheckerCaches();
         }
-        return this.filteredNodeInterfaceCheckers;
+        return this.filteredNodeCheckers;
     }
 
     /**
@@ -695,7 +695,7 @@ public final class LKQLContext {
     private void initCheckerCaches() {
         // Prepare the working variables
         final List<NodeChecker> generalNodeCheckers = new ArrayList<>();
-        final List<NodeChecker> adaNodeCheckers = new ArrayList<>();
+        final List<NodeChecker> nodeCheckers = new ArrayList<>();
         final List<NodeChecker> sparkNodeCheckers = new ArrayList<>();
         final List<UnitChecker> unitCheckers = new ArrayList<>();
         final Map<String, BaseChecker> allCheckers = this.global.getCheckers();
@@ -703,10 +703,10 @@ public final class LKQLContext {
         // Lambda to dispatch checkers in the correct lists
         final BiConsumer<BaseChecker, List<NodeChecker>> dispatchChecker = (
             checker,
-            nodeCheckers
+            nodeCheckerList
         ) -> {
             if (checker instanceof NodeChecker nodeChecker) {
-                nodeCheckers.add(nodeChecker);
+                nodeCheckerList.add(nodeChecker);
                 if (nodeChecker.isFollowGenericInstantiations()) {
                     needsToFollowInstantiations = true;
                 }
@@ -754,7 +754,7 @@ public final class LKQLContext {
 
                 switch (instance.sourceMode()) {
                     case GENERAL -> dispatchChecker.accept(checker, generalNodeCheckers);
-                    case ADA -> dispatchChecker.accept(checker, adaNodeCheckers);
+                    case ADA -> dispatchChecker.accept(checker, nodeCheckers);
                     case SPARK -> dispatchChecker.accept(checker, sparkNodeCheckers);
                 }
             }
@@ -762,7 +762,7 @@ public final class LKQLContext {
 
         // Set the checker caches
         this.filteredGeneralNodeCheckers = generalNodeCheckers.toArray(new NodeChecker[0]);
-        this.filteredNodeInterfaceCheckers = adaNodeCheckers.toArray(new NodeChecker[0]);
+        this.filteredNodeCheckers = nodeCheckers.toArray(new NodeChecker[0]);
         this.filteredSparkNodeCheckers = sparkNodeCheckers.toArray(new NodeChecker[0]);
         this.filteredUnitCheckers = unitCheckers.toArray(new UnitChecker[0]);
     }
