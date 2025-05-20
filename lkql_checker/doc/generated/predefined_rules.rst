@@ -6251,12 +6251,12 @@ first construct is flagged
 
 
 
-.. _Overriding_Marks:
+.. _Overriding_Indicators:
 
-``Overriding_Marks``
-^^^^^^^^^^^^^^^^^^^^
+``Overriding_Indicators``
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. index:: Overriding_Marks
+.. index:: Overriding_Indicators
 
 Check that overriding subprograms are explicitly marked as such.
 
