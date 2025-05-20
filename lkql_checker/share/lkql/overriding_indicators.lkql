@@ -42,8 +42,8 @@ fun match_signature(child_prim, parent_prim, child_type, parent_type) =
     }
 }
 
-@check(category="Style", subcategory="Readability", message="Missing overriding mark")
-fun overriding_marks(node) =
+@check(category="Style", subcategory="Readability", message="Missing overriding indicator")
+fun overriding_indicators(node) =
     |" Check that overriding subprograms are explicitly marked as such.
     |"
     |" This applies to all subprograms of a derived type that override a
@@ -86,4 +86,4 @@ fun overriding_marks(node) =
 
     # Body stubs can also take an "overriding" indicator. In that case, check
     # the body.
-    or node is SubpBodyStub(p_previous_part_for_decl() is dcl@*) when overriding_marks(dcl)
+    or node is SubpBodyStub(p_previous_part_for_decl() is dcl@*) when overriding_indicators(dcl)
