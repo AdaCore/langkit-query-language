@@ -1,0 +1,8 @@
+test_83.adb:1:1: rule violation: Keyword should be lowercase
+1 | procedurE Test_83 IS -- FLAG
+  | ^^^^^^^^^
+
+test_83.adb:1:19: rule violation: Keyword should be lowercase
+1 | procedurE Test_83 IS -- FLAG
+  |                   ^^
+
