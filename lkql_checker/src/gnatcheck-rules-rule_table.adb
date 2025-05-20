@@ -118,7 +118,6 @@ package body Gnatcheck.Rules.Rule_Table is
    --  that the instance cannot be instantiated at ``Instantiation_Location``
    --  because it has already be registered.
 
-
    procedure Process_Rule_Object
      (LKQL_Rule_File_Name : String;
       Instance_Id : String;
