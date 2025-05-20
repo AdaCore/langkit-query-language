@@ -1,0 +1,8 @@
+test_95.adb:2:14: rule violation: Keyword should be lowercase
+2 |    type A is Abstract Tagged null record; -- FLAG (2)
+  |              ^^^^^^^^
+
+test_95.adb:2:23: rule violation: Keyword should be lowercase
+2 |    type A is Abstract Tagged null record; -- FLAG (2)
+  |                       ^^^^^^
+
