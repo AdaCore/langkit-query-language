@@ -99,7 +99,7 @@ package body Gnatcheck.Projects is
      (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level;
 
    Gpr2_Reporter : Gnatcheck_Reporter;
-   --  Make libgpt2 report messages using the proper gnatcheck.Output API
+   --  Make libgpr2 report messages using the proper ``Gnatcheck.Output`` API.
 
    function Report_Missing_File (Log : String) return Boolean
    is (Index (Log, "source file") /= 0 and then Index (Log, "not found") /= 0);
@@ -1056,7 +1056,7 @@ package body Gnatcheck.Projects is
    -- Process_Rule_Options --
    --------------------------
 
-   type Option_Kind is (File, Option);
+   type Option_Kind is (File, Legacy_Option, Single_Rule_Name);
 
    type Option_Record is record
       Kind  : Option_Kind;
@@ -1080,31 +1080,36 @@ package body Gnatcheck.Projects is
       for O of Rule_Options loop
          case O.Kind is
             when File =>
-               Process_Rule_File (To_String (O.Value));
+               Process_Legacy_Rule_File (To_String (O.Value));
 
-            when Option =>
-               Process_Rule_Option (To_String (O.Value), Defined_At => "");
+            when Legacy_Option =>
+               Process_Legacy_Rule_Option
+                 (To_String (O.Value), Defined_At => "");
+
+            when Single_Rule_Name =>
+               Process_Single_Rule_Name (To_String (O.Value));
          end case;
       end loop;
       Process_Compiler_Instances;
    end Process_Rule_Options;
 
-   ---------------------
-   -- Add_Rule_Option --
-   ---------------------
+   ----------------------------
+   -- Add_Legacy_Rule_Option --
+   ----------------------------
 
-   procedure Add_Rule_Option (Opt : String; Prepend : Boolean := False) is
+   procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False)
+   is
       use Ada.Strings.Unbounded;
 
       Opt_Rec : constant Option_Record :=
-        (Option, To_Unbounded_String (Trim (Opt, Both)));
+        (Legacy_Option, To_Unbounded_String (Trim (Opt, Both)));
    begin
       if Prepend then
          Rule_Options.Prepend (Opt_Rec);
       else
          Rule_Options.Append (Opt_Rec);
       end if;
-   end Add_Rule_Option;
+   end Add_Legacy_Rule_Option;
 
    ----------------------
    -- Add_Rule_By_Name --
@@ -1112,11 +1117,16 @@ package body Gnatcheck.Projects is
 
    procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False)
    is
-      Lower_Rule : constant String := To_Lower (Rule_Name);
-      Prefix     : constant String :=
-        (if Lower_Rule = "all" then "+" else "+R");
+      use Ada.Strings.Unbounded;
+
+      Opt_Rec : constant Option_Record :=
+        (Single_Rule_Name, To_Unbounded_String (Trim (Rule_Name, Both)));
    begin
-      Add_Rule_Option (Prefix & Lower_Rule, Prepend => Prepend);
+      if Prepend then
+         Rule_Options.Prepend (Opt_Rec);
+      else
+         Rule_Options.Append (Opt_Rec);
+      end if;
    end Add_Rule_By_Name;
 
    ------------------------
@@ -1225,16 +1235,16 @@ package body Gnatcheck.Projects is
                     (Option_Record'
                        (File,
                         To_Unbounded_String (Parameter (Parser => Parser))));
-                  if not More_Then_One_Rule_File_Set then
-                     Rule_File_Name :=
+                  if not More_Than_One_Legacy_Rule_File_Set then
+                     Legacy_Rule_File_Name :=
                        new String'(Parameter (Parser => Parser));
-                     More_Then_One_Rule_File_Set := True;
+                     More_Than_One_Legacy_Rule_File_Set := True;
                   else
-                     Free (Rule_File_Name);
+                     Free (Legacy_Rule_File_Name);
                   end if;
 
                when others =>
-                  Add_Rule_Option (Full_Switch (Parser => Parser));
+                  Add_Legacy_Rule_Option (Full_Switch (Parser => Parser));
                   Individual_Rules_Set := True;
             end case;
             if not Rules_Depreciation_Emitted then

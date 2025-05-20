@@ -209,14 +209,14 @@ package Gnatcheck.Options is
    --  section of the report file. If this option is not set, this section is
    --  not created in the report file.
 
-   Individual_Rules_Set        : Boolean := False;
-   More_Then_One_Rule_File_Set : Boolean := False;
+   Individual_Rules_Set               : Boolean := False;
+   More_Than_One_Legacy_Rule_File_Set : Boolean := False;
    --  Flags used to detect if all the rules specified for a given gnatcheck
    --  call, should be set when parsing rule options
 
-   Rule_File_Name : GNAT.OS_Lib.String_Access;
-   --  If More_Then_One_Rule_File_Set is OFF and if a rule file has been
-   --  processed, keeps the name of this file, otherwise is null.
+   Legacy_Rule_File_Name : GNAT.OS_Lib.String_Access;
+   --  If ``More_Than_One_Legacy_Rule_File_Set`` is OFF and if a rule file has
+   --  been processed, keeps the name of this file, otherwise is null.
 
    LKQL_Rule_File_Name : Unbounded_String := Null_Unbounded_String;
    --  Name of the LKQL file to process as a rule file. We assume that the
