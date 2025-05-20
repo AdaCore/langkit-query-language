@@ -1,5 +1,5 @@
 import uncond_goto_stmt
 
-val rules = uncond_goto_stmt.rules & @{
-    Goto_Statements
-}
+val rules = uncond_goto_stmt.rules.combine(
+    @{ Goto_Statements }
+)

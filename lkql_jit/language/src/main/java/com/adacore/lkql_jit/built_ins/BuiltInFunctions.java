@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.*;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.utils.ConcatenationNode;
+import com.adacore.lkql_jit.nodes.utils.ValueCombiner;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
@@ -292,6 +293,26 @@ public class BuiltInFunctions {
         @Specialization(guards = "list.size() == 0")
         protected LKQLList onEmptyList(@SuppressWarnings("unused") LKQLList list) {
             return new LKQLList(new Object[0]);
+        }
+    }
+
+    @BuiltInMethod(
+        name = "combine",
+        doc = "Combine two LKQL values if possible and return the result, recursively if required",
+        targetTypes = {
+            LKQLTypesHelper.LKQL_OBJECT, LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING,
+        }
+    )
+    abstract static class CombineExpr extends BuiltInBody {
+
+        @Specialization
+        protected Object onAll(
+            Object left,
+            Object right,
+            @DefaultVal("true") boolean recursive,
+            @Cached ValueCombiner combiner
+        ) {
+            return combiner.execute(left, right, recursive, this.callNode);
         }
     }
 
