@@ -42,8 +42,23 @@ fun match_signature(child_prim, parent_prim, child_type, parent_type) =
     }
 }
 
-@check(category="Style", subcategory="Readability", message="Missing overriding mark")
-fun overriding_marks(node) =
+fun is_overriding_subprogram(node) =
+    |" Returns whether the node passed as argument corresponds to an overriding
+    |" subprogram
+    node is (BasicSubpDecl | BaseSubpBody) (
+        p_subp_spec_or_null(): BaseSubpSpec(
+            p_primitive_subp_first_type(): t@TypeDecl(
+                p_base_type(): bt@TypeDecl(
+                    p_get_primitives(): primitives@(not null)
+                    when stdlib.any([p for p in primitives if match_signature(node, p, t, bt)])
+                )
+            )
+        )
+    )
+
+
+@check(category="Style", subcategory="Readability", message="missing overriding indicator")
+fun overriding_indicators(node) =
     |" Check that overriding subprograms are explicitly marked as such.
     |"
     |" This applies to all subprograms of a derived type that override a
@@ -70,18 +85,15 @@ fun overriding_marks(node) =
     |"      procedure Prim (Self : B) is null; -- FLAG
     |"    end Foo;
     # Select primitives subprograms
-    node is (BasicSubpDecl | BaseSubpBody) (
-        p_subp_spec_or_null(): BaseSubpSpec(
-            p_primitive_subp_first_type(): t@TypeDecl(
-                p_base_type(): bt@TypeDecl(
-                    p_get_primitives(): primitives@(not null)
-                    when stdlib.any([p for p in primitives if match_signature(node, p, t, bt)])
-                )
-            )
-        ),
-        f_overriding: OverridingUnspecified
+    (
+        node is (BasicSubpDecl | BaseSubpBody) (f_overriding: OverridingUnspecified)
+        when is_overriding_subprogram(node)
     )
 
     # Body stubs can also take an "overriding" indicator. In that case, check
     # the body.
-    or node is SubpBodyStub(p_previous_part_for_decl(): dcl) when overriding_marks(dcl)
+    or (
+        node is SubpBodyStub(p_previous_part_for_decl(): dcl,
+                            f_overriding: OverridingUnspecified)
+        when is_overriding_subprogram(dcl)
+    )

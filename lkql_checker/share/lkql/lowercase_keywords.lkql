@@ -42,7 +42,7 @@ fun lowercase_keywords(unit, language_version="ada_2022") =
     |"    packagE Foo is -- FLAG
     |"    END Foo; -- FLAG
     [
-        {message: "Keyword should be lowercase", loc: tok}
+        {message: "reserved words should be lowercase", loc: tok}
         for tok in unit.tokens
         if tok.text.to_lower_case.contains(keyword_matcher(language_version))
             and not tok.previous().kind == "tick"

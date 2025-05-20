@@ -1,6 +1,6 @@
 import stdlib
 
-@check(category="Style", subcategory="Readability", message="Forbidden dependency")
+@check(category="Style", subcategory="Readability", message="forbidden dependence")
 fun no_dependence(node, unit_names=[]) =
     |" Flag every explicit dependency (with clause) to any of the library units
     |" designated by names passed as parameters.

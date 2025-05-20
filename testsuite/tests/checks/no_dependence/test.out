@@ -1,8 +1,8 @@
-test.adb:1:6: rule violation: Forbidden dependency
+test.adb:1:6: rule violation: forbidden dependence
 1 | with Ada.Unchecked_Conversion; -- FLAG
   |      ^^^^^^^^^^^^^^^^^^^^^^^^
 
-test.adb:2:6: rule violation: Forbidden dependency
+test.adb:2:6: rule violation: forbidden dependence
 2 | with Unchecked_Conversion; -- FLAG
   |      ^^^^^^^^^^^^^^^^^^^^
 
