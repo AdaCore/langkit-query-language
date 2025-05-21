@@ -497,6 +497,16 @@ only on SPARK code. Those symbols must also refer to an object value formatted l
     Ada_2022_In_Ghost_Code
   }
 
+Please note that compiler based rules (:ref:`Warnings`, :ref:`Restrictions` and
+:ref:`Style_Checks`) cannot be restricted to Ada or SPARK code. Consequently,
+the following configuration will raise an error:
+
+::
+
+  val spark_rules = @{
+    Warnings: "a"
+  }
+
 .. note::
 
   Note that an LKQL rules config file may contain arbitrary computation logic; the only
