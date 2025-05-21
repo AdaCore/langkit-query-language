@@ -131,6 +131,10 @@ Methods for `LazyList`
 
 Methods for `List`
 """"""""""""""""""
+.. method:: List.combine(this, right, recursive)
+
+    Combine two LKQL values if possible and return the result, recursively if required
+
 .. method:: List.enumerate(this)
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
@@ -201,6 +205,12 @@ Methods for `Node`
 
     Given an ast node, return its analysis unit
 
+Methods for `Object`
+""""""""""""""""""""
+.. method:: Object.combine(this, right, recursive)
+
+    Combine two LKQL values if possible and return the result, recursively if required
+
 Methods for `RewritingContext`
 """"""""""""""""""""""""""""""
 .. method:: RewritingContext.add_first(this, list_node, new_node)
@@ -264,6 +274,10 @@ Methods for `Str`
 .. method:: Str.base_name(this)
 
     Given a string that represents a file name, returns the basename
+
+.. method:: Str.combine(this, right, recursive)
+
+    Combine two LKQL values if possible and return the result, recursively if required
 
 .. method:: Str.contains(this, to_find)
 

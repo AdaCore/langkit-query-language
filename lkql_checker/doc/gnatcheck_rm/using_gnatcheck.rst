@@ -504,8 +504,8 @@ only on SPARK code. Those symbols must also refer to an object value formatted l
 
 You cannot provide more than **one** LKQL rule file when running GNATcheck. In
 order to compose a rule file with another you have to use the
-:ref:`LKQL importation mechanism<module_importation>` and concatenate rule
-objects. Here is an example of LKQL rule file composition:
+:ref:`LKQL importation mechanism<module_importation>` and combine rule objects.
+Here is an example of LKQL rule file composition:
 
 .. code-block:: lkql
 
@@ -521,9 +521,9 @@ objects. Here is an example of LKQL rule file composition:
 
   import common_rules
 
-  val rules = common_rules.rules & @{
-    Redundant_Null_Statements
-  }
+  val rules = common_rules.rules.combine(
+    @{ Redundant_Null_Statements }
+  )
 
 Then you can run GNATcheck with the ``specific_rules.lkql`` file as coding
 standard to perform rules defined in ``common_rules.lkql`` combined to the ones
@@ -553,9 +553,12 @@ invalid:
 
   import common_rules
 
-  val rules = common_rules.rules & @{
-    Forbidden_Attributes: {Forbidden: ["Last"], instance_name: "Forbid_Attr"}
-  }
+  val rules = common_rules.rules.combine(@{
+    Forbidden_Attributes: {
+      Forbidden: ["Last"],
+      instance_name: "Forbid_Attr"
+    }
+  })
   # error: This rule configuration defines two instances with the same name: "Forbid_Attr"
 
 

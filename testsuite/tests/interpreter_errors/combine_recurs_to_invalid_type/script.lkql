@@ -1,0 +1,2 @@
+# Combine an object with integer values
+print({a: 1}.combine({a: 2}))

@@ -45,6 +45,7 @@ public final class BuiltInsHolder {
     public final Map<String, Map<String, BuiltInMethodFactory>> builtInMethods =
             Map.ofEntries(
                     create(LKQLTypesHelper.LKQL_LIST, ListMethods.methods),
+                    create(LKQLTypesHelper.LKQL_OBJECT, ObjectMethods.methods),
                     create(LKQLTypesHelper.LKQL_STRING, StrMethods.methods),
                     create(LKQLTypesHelper.ADA_NODE, NodeMethods.methods),
                     create(LKQLTypesHelper.ANALYSIS_UNIT, AnalysisUnitMethods.methods),
@@ -60,7 +61,6 @@ public final class BuiltInsHolder {
                     create(LKQLTypesHelper.LKQL_PROPERTY_REF, null),
                     create(LKQLTypesHelper.LKQL_SELECTOR, null),
                     create(LKQLTypesHelper.LKQL_TUPLE, null),
-                    create(LKQLTypesHelper.LKQL_OBJECT, null),
                     create(LKQLTypesHelper.LKQL_NAMESPACE, null));
 
     public final Map<String, BuiltInMethodFactory> commonMethods =
