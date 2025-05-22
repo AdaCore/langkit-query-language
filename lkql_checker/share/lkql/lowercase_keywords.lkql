@@ -1,0 +1,50 @@
+val re_83 =
+    "abort|abs|accept|access|aliased|all|and|array|"
+    & "at|begin|body|case|constant|declare|delay|delta|digits|"
+    & "do|else|elsif|end|entry|exception|exit|for|function|"
+    & "generic|goto|if|in|is|limited|loop|mod|new|"
+    & "not|null|others|out|of|or|package|pragma|"
+    & "private|procedure|raise|range|record|rem|"
+    & "renames|return|reverse|select|separate|"
+    & "subtype|task|terminate|then|type|"
+    & "use|when|while|with|xor"
+val re_95 = "abstract|protected|requeue|tagged|until"
+val re_2005 = "interface|overriding|synchronized"
+val re_2012 = "some"
+
+@memoized
+fun keyword_matcher(language_version) =
+    |" Return a regex matcher that matches keywords, given a language version
+    pattern("^(" & (match language_version
+                    | "ada_83" => re_83
+                    | "ada_95" => re_83 & "|" & re_95
+                    | "ada_2005" => re_83 & "|" & re_95 & "|" & re_2005
+                    | "ada_2012" => re_83 & "|" & re_95 & "|" & re_2005 & "|" & re_2012
+                    | "ada_2022" => re_83 & "|" & re_95 & "|" & re_2005 & "|" & re_2012) & ")$")
+
+val match_uppercase = pattern("[A-Z]+")
+
+@unit_check(category="Style", subcategory="Readability")
+fun lowercase_keywords(unit, language_version="ada_2022") =
+    |" Flag Ada keywords that are not purely lowercase, such as ``BEGIN`` or
+    |" ``beGin``.
+    |"
+    |" Please note that this check is **not** language version sensitive. Every
+    |" keyword from Ada 83 to Ada 2012 will be flagged. This means that this
+    |" check might give false positives on usage of identifiers that are
+    |" keywords in newer versions of Ada.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 1,2
+    |"
+    |"    packagE Foo is -- FLAG
+    |"    END Foo; -- FLAG
+    [
+        {message: "reserved words should be lowercase", loc: tok}
+        for tok in unit.tokens
+        if tok.text.to_lower_case.contains(keyword_matcher(language_version))
+            and not tok.previous().kind == "tick"
+            and tok.text.contains(match_uppercase)
+    ]

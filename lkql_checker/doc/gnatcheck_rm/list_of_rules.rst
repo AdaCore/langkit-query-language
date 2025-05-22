@@ -85,6 +85,7 @@ GNATcheck rules.
 * :ref:`Local_Instantiations`
 * :ref:`Local_Packages`
 * :ref:`Local_USE_Clauses`
+* :ref:`Lowercase_Keywords`
 * :ref:`Max_Identifier_Length`
 * :ref:`Maximum_Expression_Complexity`
 * :ref:`Maximum_Lines`
@@ -104,6 +105,7 @@ GNATcheck rules.
 * :ref:`Nested_Paths`
 * :ref:`Nested_Subprograms`
 * :ref:`No_Closing_Names`
+* :ref:`No_Dependence`
 * :ref:`No_Explicit_Real_Range`
 * :ref:`No_Inherited_Classwide_Pre`
 * :ref:`No_Others_In_Exception_Handlers`
@@ -136,6 +138,7 @@ GNATcheck rules.
 * :ref:`Overloaded_Operators`
 * :ref:`Overly_Nested_Control_Structures`
 * :ref:`Overly_Nested_Scopes`
+* :ref:`Overriding_Indicators`
 * :ref:`Parameters_Aliasing`
 * :ref:`Parameters_Out_Of_Order`
 * :ref:`POS_On_Enumeration_Types`

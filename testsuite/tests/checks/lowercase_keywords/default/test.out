@@ -1,0 +1,12 @@
+test.adb:1:1: rule violation: reserved words should be lowercase
+1 | procedurE Test is  -- FLAG
+  | ^^^^^^^^^
+
+test.adb:5:4: rule violation: reserved words should be lowercase
+5 |    DECLARE  -- FLAG
+  |    ^^^^^^^
+
+test.adb:7:7: rule violation: reserved words should be lowercase
+7 |       NULL;  -- FLAG
+  |       ^^^^
+

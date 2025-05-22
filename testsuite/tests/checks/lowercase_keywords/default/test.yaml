@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: lowercase_keywords
+input_sources: ['test.adb']
+control:
+  - [SKIP, "mode == 'ada'", "Ada implementation crashes on that test"]
