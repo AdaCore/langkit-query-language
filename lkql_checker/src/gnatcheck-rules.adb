@@ -242,7 +242,7 @@ package body Gnatcheck.Rules is
    -------------------------------------------
 
    --  The following are functions to handle rule parameter parsing, they are
-   --  used during the `Gnatcheck.Rules.Rule_Table.Process_Rule_Option`
+   --  used during the `Gnatcheck.Rules.Rule_Table.Process_Legacy_Rule_Option`
    --  procedure. Each rule info record has an associated actual parameter
    --  processing function (see `Gnatcheck.Rules.Rule_Info`).
 
@@ -527,9 +527,7 @@ package body Gnatcheck.Rules is
 
    function Find_File (Name : String) return String is
       Rule_File_Dir : constant String :=
-        Dir_Name
-          (Gnatcheck.Rules.Rule_Table.Processed_Rule_File_Name);
-
+        Dir_Name (Gnatcheck.Rules.Rule_Table.Processed_Legacy_Rule_File_Name);
    begin
       if GNAT.OS_Lib.Is_Regular_File (Rule_File_Dir & Name) then
          return Rule_File_Dir & Name;

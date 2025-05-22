@@ -246,8 +246,8 @@ package Gnatcheck.Projects is
    procedure Process_Rule_Options;
    --  Process all the rule options found as part of scanning arguments
 
-   procedure Add_Rule_Option
-     (Opt     : String;
+   procedure Add_Legacy_Rule_Option
+     (Opt : String;
       Prepend : Boolean := False);
    --  Add the given ``Opt`` to the list of rule options processed by
    --  ``Process_Rule_Options`` as a command-line rule option (e.g. +R...).
@@ -256,9 +256,9 @@ package Gnatcheck.Projects is
 
    procedure Add_Rule_By_Name
      (Rule_Name : String;
-      Prepend   : Boolean := False);
-   --  Use ``Add_Rule_Option`` to forge a new rule option enabling the given
-   --  rule without any parameter.
+      Prepend : Boolean := False);
+   --  Use ``Add_Legacy_Rule_Option`` to forge a new rule option enabling the
+   --  given rule without any parameter.
 
    procedure Set_LKQL_Rule_File (File : String);
    --  Set the given ``File`` as the LKQL rule file to process during the

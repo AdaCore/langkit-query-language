@@ -103,6 +103,21 @@ package body Gnatcheck.Rules.Rule_Table is
    function Has_Name_Parameter (R : Rident.All_Restrictions) return Boolean;
    --  Tries to guess what kind of parameter the argument restriction has.
 
+   function Check_Rule_Exists
+     (Rule_Name : String; Instantiation_Location : String) return Boolean;
+   --  Check that provided ``Rule`` designates an existing rule, return
+   --  ``True`` in that case. Otherwise, set ``Bad_Rule_Detected`` to
+   --  ``True`` and return ``False``.
+
+   function Check_Instance_Is_Unique
+     (Instance_Name, Instantiation_Location : String) return Boolean;
+   --  Return whether the given instance name isn't already registered in the
+   --  global instance table.
+   --  In case the instance name is already registered this function also sets
+   --  ``Bad_Rule_Detected`` to ``True``, and displays an error message telling
+   --  that the instance cannot be instantiated at ``Instantiation_Location``
+   --  because it has already be registered.
+
    procedure Process_Rule_Object
      (LKQL_Rule_File_Name : String;
       Instance_Id : String;
@@ -332,6 +347,51 @@ package body Gnatcheck.Rules.Rule_Table is
       return Result;
    end Has_Natural_Parameter;
 
+   -----------------------
+   -- Check_Rule_Exists --
+   -----------------------
+
+   function Check_Rule_Exists
+     (Rule_Name : String; Instantiation_Location : String) return Boolean
+   is
+      Rule : constant Rule_Id := Get_Rule (Rule_Name);
+   begin
+      if not Present (Rule) then
+         Error
+           ("unknown rule: "
+            & Rule_Name
+            & ", ignored"
+            & Instantiation_Location);
+         Bad_Rule_Detected := True;
+         return False;
+      end if;
+      return True;
+   end Check_Rule_Exists;
+
+   ------------------------------
+   -- Check_Instance_Is_Unique --
+   ------------------------------
+
+   function Check_Instance_Is_Unique
+     (Instance_Name, Instantiation_Location : String) return Boolean
+   is
+      Instance : constant Rule_Instance_Access := Get_Instance (Instance_Name);
+   begin
+      if Instance /= null then
+         Error
+           ("rule instance with the same name already exists: """
+            & Instance_Name
+            & """ previously instantiated at "
+            & (if Instance.Defined_At /= ""
+               then To_String (Instance.Defined_At)
+               else "command line")
+            & Instantiation_Location);
+         Bad_Rule_Detected := True;
+         return False;
+      end if;
+      return True;
+   end Check_Instance_Is_Unique;
+
    ----------------
    -- Is_Enabled --
    ----------------
@@ -371,12 +431,12 @@ package body Gnatcheck.Rules.Rule_Table is
       return All_Rules.Contains (Rule) or else Is_Compiler_Rule (Rule);
    end Present;
 
-   -----------------------
-   -- Process_Rule_File --
-   -----------------------
+   ------------------------------
+   -- Process_Legacy_Rule_File --
+   ------------------------------
 
-   procedure Process_Rule_File (RF_Name : String) is
-      RF           : File_Type;
+   procedure Process_Legacy_Rule_File (RF_Name : String) is
+      RF : File_Type;
 
       Rule_Start_Line : Natural := 1;
       --  Number of the line of the rule file where the latest beginning of a
@@ -549,7 +609,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
                      case Old_State is
                         when In_Rule_Option =>
-                           Process_Rule_Option
+                           Process_Legacy_Rule_Option
                              (Rule_Buf (1 .. Rule_Len),
                               Rule_File_Base & ":" &
                               Image (Last_Rule_Opt_Start_Line_Old) & ":" &
@@ -575,7 +635,8 @@ package body Gnatcheck.Rules.Rule_Table is
                               if Is_Regular_File
                                 (Rule_Buf (1 .. Rule_Len))
                               then
-                                 Process_Rule_File (Rule_Buf (1 .. Rule_Len));
+                                 Process_Legacy_Rule_File
+                                   (Rule_Buf (1 .. Rule_Len));
                               else
                                  Error ("can not locate rule file " &
                                  Rule_Buf (1 .. Rule_Len));
@@ -730,7 +791,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
          case Old_State is
             when In_Rule_Option =>
-               Process_Rule_Option
+               Process_Legacy_Rule_Option
                  (Rule_Buf (1 .. Rule_Len),
                   Rule_File_Base & ":" & Image (Last_Rule_Opt_Start_Line) &
                   ":" & Image (Last_Rule_Opt_Start_Col));
@@ -754,7 +815,7 @@ package body Gnatcheck.Rules.Rule_Table is
                     new String'(Get_Rule_File_Name (Rule_Buf (1 .. Rule_Len)));
 
                   if Is_Regular_File (Include_RF_Name.all) then
-                     Process_Rule_File (Include_RF_Name.all);
+                     Process_Legacy_Rule_File (Include_RF_Name.all);
                   else
                      Error ("can not locate rule file " &
                      Rule_Buf (1 .. Rule_Len));
@@ -793,7 +854,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
          --  Exception info will be generated in main driver
          raise;
-   end Process_Rule_File;
+   end Process_Legacy_Rule_File;
 
    ----------------------------
    -- Process_LKQL_Rule_File --
@@ -861,13 +922,55 @@ package body Gnatcheck.Rules.Rule_Table is
       end if;
    end Process_LKQL_Rule_File;
 
-   -------------------------
-   -- Process_Rule_Option --
-   -------------------------
+   ------------------------------
+   -- Process_Single_Rule_Name --
+   ------------------------------
 
-   procedure Process_Rule_Option
-     (Option     : String;
-      Defined_At : String)
+   procedure Process_Single_Rule_Name (Rule_Name : String) is
+      Lower_Rule_Name : constant String := To_Lower (Rule_Name);
+      Rule            : constant Rule_Id := Get_Rule (Lower_Rule_Name);
+   begin
+      --  Handle cases where the rule is "all"
+      if Lower_Rule_Name = "all" then
+         Turn_All_Rules_On;
+         return;
+      end if;
+
+      --  First, check that the designated rule exists
+      if not Check_Rule_Exists (Lower_Rule_Name, "") then
+         return;
+      end if;
+
+      --  Then, check that the rule isn't already instantiated
+      if not Check_Instance_Is_Unique (Lower_Rule_Name, "") then
+         return;
+      end if;
+
+      --  Finally, check that the designated rule is not a compiler rule
+      if Is_Compiler_Rule (Rule) then
+         Error
+           ("Cannot enable a compiler based rule through the '--rule' CLI "
+            & "option");
+         Bad_Rule_Detected := True;
+         return;
+      end if;
+
+      --  Finally create a new default instance for the rule
+      declare
+         New_Instance : constant Rule_Instance_Access :=
+           All_Rules (Rule).Create_Instance (False);
+      begin
+         New_Instance.Rule := Rule;
+         New_Instance.Source_Mode := General;
+         Turn_Instance_On (New_Instance);
+      end;
+   end Process_Single_Rule_Name;
+
+   --------------------------------
+   -- Process_Legacy_Rule_Option --
+   --------------------------------
+
+   procedure Process_Legacy_Rule_Option (Option : String; Defined_At : String)
    is
       First_Idx    : constant Natural := Option'First;
       Last_Idx     : constant Natural := Option'Last;
@@ -1022,16 +1125,17 @@ package body Gnatcheck.Rules.Rule_Table is
             end if;
          end loop;
 
-         --  We start by getting the instanciated rule identifier, and verify
+         --  We start by getting the instantiated rule identifier, and verify
          --  its existence.
-         Rule := Get_Rule (Option (Word_Start .. Word_End));
-         if not Present (Rule) then
-            Error
-              ("unknown rule: " & Option (Word_Start .. Word_End) &
-               ", ignored" & Diag_Defined_At);
-            Bad_Rule_Detected := True;
-            return;
-         end if;
+         declare
+            R_Name : constant String := Option (Word_Start .. Word_End);
+         begin
+            if Check_Rule_Exists (R_Name, Diag_Defined_At) then
+               Rule := Get_Rule (Option (Word_Start .. Word_End));
+            else
+               return;
+            end if;
+         end;
 
          --  Then we get the instance name, either the user defined one, or
          --  the default: the rule name.
@@ -1041,16 +1145,13 @@ package body Gnatcheck.Rules.Rule_Table is
              else Rule_Name (Rule)));
          Instance := Get_Instance (To_String (Instance_Name));
 
-         --  Check that the option is not instanciating a rule with an already
+         --  Check that the option is not instantiating a rule with an already
          --  registered instance name. If the option is trying to disable an
          --  instance, check that this instance exists.
-         if Enable and then Instance /= null then
-            Error
-              ("rule instance with the same name already exists: """        &
-               To_String (Instance_Name) & """ previously instantiated at " &
-               (if Instance.Defined_At /= ""
-                then To_String (Instance.Defined_At)
-                else "command line") & Diag_Defined_At);
+         if Enable
+           and then not Check_Instance_Is_Unique
+                          (To_String (Instance_Name), Diag_Defined_At)
+         then
             if not Instance_Help_Emitted then
                Info
                  ("if you want to pass multiple parameters to a rule you " &
@@ -1058,7 +1159,6 @@ package body Gnatcheck.Rules.Rule_Table is
                   "+RMy_Rule:Param1,Param2");
                Instance_Help_Emitted := True;
             end if;
-            Bad_Rule_Detected := True;
             return;
          elsif not Enable and then Instance = null then
             Error
@@ -1074,7 +1174,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
          --  We need to process compiler-based rules in a separate way
          if Is_Compiler_Rule (Rule) then
-            --  Get the rule paramater and perform the initial verification
+            --  Get the rule parameter and perform the initial verification
             if not Check_For_Compiler_Rule (Rule, To_String (Instance_Name))
             then
                Bad_Rule_Detected := True;
@@ -1134,7 +1234,7 @@ package body Gnatcheck.Rules.Rule_Table is
                  Diag_Defined_At);
          Rule_Option_Problem_Detected := True;
       end if;
-   end Process_Rule_Option;
+   end Process_Legacy_Rule_Option;
 
    -------------------------
    -- Process_Rule_Object --
@@ -1323,18 +1423,18 @@ package body Gnatcheck.Rules.Rule_Table is
       Set_Compiler_Checks;
    end Process_Compiler_Instances;
 
-   ------------------------------
-   -- Processed_Rule_File_Name --
-   ------------------------------
+   -------------------------------------
+   -- Processed_Legacy_Rule_File_Name --
+   -------------------------------------
 
-   function Processed_Rule_File_Name return String is
+   function Processed_Legacy_Rule_File_Name return String is
    begin
       if Rule_File_Stack.Is_Empty then
          return "";
       else
          return Rule_File_Stack.Table (Rule_File_Stack.Last).Full_Name.all;
       end if;
-   end Processed_Rule_File_Name;
+   end Processed_Legacy_Rule_File_Name;
 
    ---------------
    -- Rule_Name --
