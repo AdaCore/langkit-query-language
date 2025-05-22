@@ -28,14 +28,22 @@ fun instantiations() =
 fun types() =
     |" Return a list of TypeDecl matching all type conversions (both as source
     |" and target), subtype declarations and type derivations in the project.
-    unique(concat([[c.p_referenced_decl(),
-                    c.f_suffix[1].f_r_expr.p_expression_type()]
-                   for c in select CallExpr(p_referenced_decl(): TypeDecl)].
-                  to_list) &
-           [s.f_subtype.f_name.p_referenced_decl()
-            for s in select SubtypeDecl].to_list &
-           [c.f_type_def.f_subtype_indication?.f_name?.p_referenced_decl()
-            for c in select TypeDecl(f_type_def: DerivedTypeDef)].to_list)
+    unique(
+        concat(
+            [
+                [c.p_referenced_decl(), c.f_suffix[1].f_r_expr.p_expression_type()]
+                for c in select CallExpr(p_kind: "type_conversion")
+            ].to_list
+        ) &
+        [
+            s.f_subtype.f_name.p_referenced_decl()
+            for s in select SubtypeDecl
+        ].to_list &
+        [
+            c.f_type_def.f_subtype_indication?.f_name?.p_referenced_decl()
+            for c in select TypeDecl(f_type_def: DerivedTypeDef)
+        ].to_list
+    )
 
 @check(help="integer type may be replaced by an enumeration (global analysis required)",
        message="integer type may be replaced by an enumeration",
