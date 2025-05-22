@@ -876,8 +876,8 @@ activated.
 .. attention::
 
   Please not that for now it isn't possible to provide an exempted name which
-  designates an instance of a compiler-based rule (``Warnings``,
-  ``Style_Checks`` and ``Restrictions``).
+  designates an instance of a compiler-based rule (:ref:`Warnings`,
+  :ref:`Style_Checks` and :ref:`Restrictions`) with a custom name.
 
 A source code section where an exemption is active for a given rule is
 delimited by an ``exempt_on`` and ``exempt_off`` annotation pair:
