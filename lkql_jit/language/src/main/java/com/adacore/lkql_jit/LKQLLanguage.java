@@ -100,7 +100,12 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     /** A simple constructor for the library loading. */
     public LKQLLanguage() {
         super();
-        this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create();
+        // We create an LKQL analysis context with a tab-stop size of 1 since Truffle.Source
+        // columns counting is based on characters:
+        // https://www.graalvm.org/truffle/javadoc/com/oracle/truffle/api/source/Source.html#createSection(int,int,int,int)
+        this.lkqlAnalysisContext =
+                Liblkqllang.AnalysisContext.create(null, null, null, null, true, 1);
+
         // Set the color support flag
         SUPPORT_COLOR = System.getenv("TERM") != null && System.console() != null;
     }
