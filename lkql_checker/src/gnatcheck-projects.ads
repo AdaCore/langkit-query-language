@@ -324,10 +324,6 @@ package Gnatcheck.Projects is
    -- General project file processing --
    -------------------------------------
 
-   procedure Set_Default_Target;
-   --  If codepeer is on PATH, replaces default target with "codepeer",
-   --  does nothing in gnatkp mode.
-
    procedure Initialize_Environment;
    --  Initializes the environment for extracting the information from the
    --  project file. This includes setting the parameters specific for the
