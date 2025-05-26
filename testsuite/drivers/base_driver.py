@@ -187,12 +187,15 @@ class BaseDriver(DiffTestDriver):
     def check_run(
             self,
             args: list[str],
-            parse_flags: bool = False,
+            check_flags: bool = False,
             lkql_path = "",
             **kwargs
         ) -> ProcessResult:
         """
         Run a process and check that its output is the expected one.
+
+        :param check_flags: Whether to perform the flag checking process after
+            the test run.
         """
         env = dict(os.environ)
 
@@ -212,7 +215,7 @@ class BaseDriver(DiffTestDriver):
         if (
             self.flag_checking_supported and
             self.flag_checking and
-            parse_flags
+            check_flags
         ):
             run_result = self.shell(args, env=env, **kwargs)
             self.check_flags(self.parse_flagged_lines(run_result.out))
