@@ -71,7 +71,7 @@ class CheckerDriver(BaseDriver):
                 assert auto_fix_mode in ["DISPLAY", "NEW_FILE", "PATCH_FILE"]
                 self.check_run(
                     self.lkql_fix_exe + args + ['--auto-fix-mode', auto_fix_mode],
-                    parse_flags=False,
+                    check_flags=False,
                     catch_error=False,
                 )
 

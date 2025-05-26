@@ -187,7 +187,7 @@ class BaseDriver(DiffTestDriver):
     def check_run(
             self,
             args: list[str],
-            check_flags: bool = False,
+            check_flags: bool = True,
             lkql_path = "",
             **kwargs
         ) -> ProcessResult:

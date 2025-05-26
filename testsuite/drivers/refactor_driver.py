@@ -15,6 +15,7 @@ class RefactorDriver(BaseDriver):
     """
 
     perf_supported = True
+    flag_checking_supported = False
 
     def run(self) -> None:
         self.check_run([
