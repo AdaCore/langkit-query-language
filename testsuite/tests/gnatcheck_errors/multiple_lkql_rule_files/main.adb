@@ -1,6 +1,6 @@
 procedure Main is
 begin
-   null;      --  FLAG
+   null;      --  NOFLAG
    goto lbl;  --  NOFLAG
    <<lbl>>
 end Main;
