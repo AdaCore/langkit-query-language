@@ -15,8 +15,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.utilities.TriState;
 
 /**
- * This class represents an ada node with the depth information. TODO : This value will change when
- * all Libadalang objects will be wrapped in interop LKQL values (#154).
+ * This class represents an LKQL Value with the depth information.
  */
 @ExportLibrary(InteropLibrary.class)
 public final class LKQLDepthValue extends BasicLKQLValue {
