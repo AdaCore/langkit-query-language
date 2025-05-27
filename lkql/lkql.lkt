@@ -1,6 +1,5 @@
 lexer lkql_lexer {
 
-    BigLongRArrow
     @trivia()
     Whitespace <- p"[ \\t\\n\\r]"
     Dot <- "."
