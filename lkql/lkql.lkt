@@ -38,57 +38,32 @@ lexer lkql_lexer {
     LArrow <- "<-"
     BigRArrow <- "=>"
     Box <- "<>"
-    @symbol()
-    Let <- "let"
-    @symbol()
-    SelectTok <- "select"
-    @symbol()
-    FromTok <- "from"
-    @symbol()
-    ThroughTok <- "through"
-    @symbol()
-    When <- "when"
-    @symbol()
-    Val <- "val"
-    @symbol()
-    Fun <- "fun"
-    @symbol()
-    Import <- "import"
-    @symbol()
-    Selector <- "selector"
-    @symbol()
-    Match <- "match"
-    @symbol()
-    Rec <- "rec"
-    @symbol()
-    For <- "for"
-    @symbol()
-    Skip <- "skip"
-    @symbol()
-    Is <- "is"
-    @symbol()
-    In <- "in"
-    @symbol()
-    TrueLit <- "true"
-    @symbol()
-    FalseLit <- "false"
-    @symbol()
-    If <- "if"
-    @symbol()
-    Else <- "else"
-    @symbol()
-    Then <- "then"
-    @symbol()
-    Not <- "not"
-    @symbol()
-    Null <- "null"
-    @symbol()
-    New <- "new"
+    @symbol() Let <- "let"
+    @symbol() SelectTok <- "select"
+    @symbol() FromTok <- "from"
+    @symbol() ThroughTok <- "through"
+    @symbol() When <- "when"
+    @symbol() Val <- "val"
+    @symbol() Fun <- "fun"
+    @symbol() Import <- "import"
+    @symbol() Selector <- "selector"
+    @symbol() Match <- "match"
+    @symbol() Rec <- "rec"
+    @symbol() For <- "for"
+    @symbol() Skip <- "skip"
+    @symbol() Is <- "is"
+    @symbol() In <- "in"
+    @symbol() TrueLit <- "true"
+    @symbol() FalseLit <- "false"
+    @symbol() If <- "if"
+    @symbol() Else <- "else"
+    @symbol() Then <- "then"
+    @symbol() Not <- "not"
+    @symbol() Null <- "null"
+    @symbol() New <- "new"
     Integer <- p"[0-9]+"
-    @symbol()
-    Identifier <- p"[a-z][A-Za-z0-9_]*"
-    @symbol()
-    UpperIdentifier <- p"[A-Za-z][A-Za-z0-9_]*"
+    @symbol() Identifier <- p"[a-z][A-Za-z0-9_]*"
+    @symbol() UpperIdentifier <- p"[A-Za-z][A-Za-z0-9_]*"
     String <- p"\"(\\\\.|[^\"])*\""
     @trivia()
     Comment <- p"#(.?)+"
