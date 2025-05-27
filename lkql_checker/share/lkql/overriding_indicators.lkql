@@ -86,7 +86,7 @@ fun overriding_indicators(node) =
     |"      procedure Prim (Self : B) is null; -- FLAG
     |"    end Foo;
     # Select primitives subprograms
-    (node is (BasicSubpDecl or BaseSubpBody) (f_overriding is OverridingUnspecified)
+    (node is (ClassicSubpDecl or BaseSubpBody) (f_overriding is OverridingUnspecified)
      when is_overriding_subprogram(node))
 
     # Body stubs can also take an "overriding" indicator. In that case, check
