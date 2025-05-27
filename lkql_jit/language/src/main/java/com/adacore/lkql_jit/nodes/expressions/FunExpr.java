@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.ParameterDeclaration;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
@@ -45,18 +44,13 @@ public final class FunExpr extends Expr {
 
     /**
      * Create a new function expression node.
-     *
-     * @param location The location of the node in the source.
-     * @param frameDescriptor The frame descriptor for the function root node.
-     * @param closureDescriptor The closure descriptor for the function.
-     * @param parameters The parameters of the function.
-     * @param body The body of the function.
      */
     public FunExpr(
         final SourceSection location,
         final FrameDescriptor frameDescriptor,
         final ClosureDescriptor closureDescriptor,
-        final ParameterDeclaration[] parameters,
+        final String[] parameterNames,
+        final Expr[] parameterDefaultValues,
         final String documentation,
         final Expr body
     ) {
@@ -68,19 +62,9 @@ public final class FunExpr extends Expr {
             false,
             body
         );
-        this.parameterNames = new String[parameters.length];
-        this.parameterValues = new Expr[parameters.length];
+        this.parameterNames = parameterNames;
+        this.parameterValues = parameterDefaultValues;
         this.documentation = documentation;
-
-        this.initParams(parameters);
-    }
-
-    /** Initialize the parameter fields */
-    private void initParams(ParameterDeclaration[] parameters) {
-        for (int i = 0; i < parameters.length; i++) {
-            this.parameterNames[i] = parameters[i].getName();
-            this.parameterValues[i] = parameters[i].getDefaultValue();
-        }
     }
 
     // ----- Execution methods -----

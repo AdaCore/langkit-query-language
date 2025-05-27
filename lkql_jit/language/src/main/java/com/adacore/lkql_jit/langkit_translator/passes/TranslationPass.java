@@ -5,6 +5,8 @@
 
 package com.adacore.lkql_jit.langkit_translator.passes;
 
+import static com.adacore.lkql_jit.options.IterationUtils.toStream;
+
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
@@ -510,13 +512,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.ParameterDecl parameterDecl) {
-        // Translate the parameter declaration fields
-        final String name = parameterDecl.fParamIdentifier().getText();
-        final Liblkqllang.Expr defaultExpr = parameterDecl.fDefaultExpr();
-        final Expr defaultValue = defaultExpr.isNone() ? null : (Expr) defaultExpr.accept(this);
-
-        // Return the new parameter declaration
-        return new ParameterDeclaration(loc(parameterDecl), name, defaultValue);
+        return null;
     }
 
     @Override
@@ -1446,21 +1442,22 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Enter the function frame
         this.scriptFrames.enterFrame(baseFunction);
 
-        // Translate the function fields
-        final List<ParameterDeclaration> parameters = new ArrayList<>();
-        for (Liblkqllang.LkqlNode param : baseFunction.fParameters().children()) {
-            parameters.add((ParameterDeclaration) param.accept(this));
-        }
-        final Expr body = (Expr) baseFunction.fBodyExpr().accept(this);
-
-        final var docstring = baseFunction.pDoc();
+        var names = toStream(baseFunction.fParameters())
+            .map(p -> p.fParamIdentifier().getText())
+            .toArray(String[]::new);
+        var defaultVals = toStream(baseFunction.fParameters())
+            .map(p -> p.fDefaultExpr().isNone() ? null : (Expr) p.fDefaultExpr().accept(this))
+            .toArray(Expr[]::new);
+        var body = (Expr) baseFunction.fBodyExpr().accept(this);
+        var docstring = baseFunction.pDoc();
 
         // Return the new function expression node
-        final FunExpr res = new FunExpr(
+        var res = new FunExpr(
             loc(baseFunction),
             this.scriptFrames.getFrameDescriptor(),
             this.scriptFrames.getClosureDescriptor(),
-            parameters.toArray(new ParameterDeclaration[0]),
+            names,
+            defaultVals,
             docstring.isNone() ? "" : parseStringLiteral(docstring),
             body
         );
