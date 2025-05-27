@@ -128,23 +128,18 @@ class GnatcheckDriver(BaseDriver):
         """
         Parse the full formatted GNATcheck output.
         """
-        # Prepare the result
-        res = Flags()
+        # Remove useless parts of the full output
+        try:
+            output = output[output.index("2. Exempted Coding Standard Violations"):]
+            output = output[:output.index("5. Language violations")]
 
-        # Parse the gnatcheck full output
-        is_parsing = False
-        for line in output.splitlines():
-            if not is_parsing:
-                is_parsing = "2. Exempted Coding Standard Violations" in line
-            else:
-                search_result = cls.flag_line_pattern.search(line)
-                if search_result is not None:
-                    (file, _, line_num) = search_result.groups()
-                    res.add_flag(file, int(line_num))
-                is_parsing = "5. Language violations" not in line
-
-        # Return the result
-        return res
+            # Then use the "short" parser since we remove the useless part of the
+            # "full" format.
+            return cls._parse_short_and_brief(output)
+        except ValueError:
+            # When catching this error, it means that the `index` method failed
+            # to find required textual bounds.
+            return {}
 
     @classmethod
     def _parse_short_and_brief(cls, output: str) -> Flags:
@@ -158,7 +153,7 @@ class GnatcheckDriver(BaseDriver):
         for line in output.splitlines():
             search_result = cls.flag_line_pattern.search(line)
             if search_result is not None:
-                (file, _, line_num) = search_result.groups()
+                (file, _, line_num, _) = search_result.groups()
                 res.add_flag(file, int(line_num))
 
         # Return the result
