@@ -28,6 +28,10 @@ class CheckerDriver(BaseDriver):
     perf_supported = True
     flag_checking_supported = True
 
+    _flag_line_pattern = re.compile(
+        rf"^({BaseDriver.ada_file_pattern}):(\d+):\d+: rule violation: .*$"
+    )
+
     def run(self) -> None:
         args = []
 
@@ -93,17 +97,12 @@ class CheckerDriver(BaseDriver):
                             self.output += f.read()
 
     def parse_flagged_lines(self, output: str) -> Flags:
-        # Compile the pattern to match a checker output
-        pattern = re.compile(
-            r"^([a-zA-Z][a-zA-Z0-9_\-]*\.(adb|ads)):(\d+):\d+: rule violation: .*$"
-        )
-
         # Prepare the result
         res = Flags()
 
         # For each line of the output search the groups in the line
         for line in output.splitlines():
-            search_result = pattern.search(line)
+            search_result = self._flag_line_pattern.search(line)
             if search_result is not None:
                 (file, _, line_num) = search_result.groups()
                 res.add_flag(file, int(line_num))

@@ -6,79 +6,6 @@ import xml.etree.ElementTree as ET
 from drivers.base_driver import BaseDriver, Flags
 
 
-# --- GNATcheck output parsing functions
-
-_flag_line_pattern = re.compile(
-    r"^([a-zA-Z][a-zA-Z0-9_\.\-]*\.(adb|ads|ada|ada_spec)):(\d+):\d+: .*$"
-)
-
-def _parse_full(output: str) -> Flags:
-    """
-    Parse the full formatted gnatcheck output.
-    """
-    # Prepare the result
-    res = Flags()
-
-    # Parse the gnatcheck full output
-    is_parsing = False
-    for line in output.splitlines():
-        if not is_parsing:
-            is_parsing = "2. Exempted Coding Standard Violations" in line
-        else:
-            search_result = _flag_line_pattern.search(line)
-            if search_result is not None:
-                (file, _, line_num) = search_result.groups()
-                res.add_flag(file, int(line_num))
-            is_parsing = "5. Language violations" not in line
-
-    # Return the result
-    return res
-
-def _parse_short_and_brief(output: str) -> Flags:
-    """
-    Parse the short formatted gnatcheck output.
-    """
-    # Prepare the result
-    res = Flags()
-
-    # Parse the output
-    for line in output.splitlines():
-        search_result = _flag_line_pattern.search(line)
-        if search_result is not None:
-            (file, _, line_num) = search_result.groups()
-            res.add_flag(file, int(line_num))
-
-    # Return the result
-    return res
-
-def _parse_xml(output: str) -> Flags:
-    """
-    Parse the xml formatted gnatcheck output.
-    """
-    # Prepare the result
-    res = Flags()
-
-    # Parse the xml result
-    xml_tree = ET.fromstring(output)
-    violations = xml_tree.find("violations")
-
-    # If the "violations" tag exists in the output, parse it as a full XML output
-    if violations is not None:
-        for violation in violations:
-            file, line_num = violation.attrib["file"], int(violation.attrib["line"])
-            res.add_flag(file, line_num)
-
-    # Else the ouput is a brief XML one
-    else:
-        for elem in xml_tree.findall("*"):
-            if elem.tag in ("violation", "exemption-problem", "exempted-violation"):
-                file, line_num = elem.attrib["file"], int(elem.attrib["line"])
-                res.add_flag(file, line_num)
-
-    # Return the result
-    return res
-
-
 class GnatcheckDriver(BaseDriver):
     """
     This driver runs gnatcheck with the given arguments and compares the output
@@ -191,12 +118,88 @@ class GnatcheckDriver(BaseDriver):
         "gnatkp": "gnatkp"
     }
     output_formats = set(['brief', 'full', 'short', 'xml'])
-    parsers = {
-        'full': _parse_full,
-        'short': _parse_short_and_brief,
-        'brief': _parse_short_and_brief,
-        'xml': _parse_xml
-    }
+
+    flag_line_pattern = re.compile(
+        rf"^({BaseDriver.ada_file_pattern}):(\d+):\d+: (rule violation|warning|error): .*$"
+    )
+
+    @classmethod
+    def _parse_full(cls, output: str) -> Flags:
+        """
+        Parse the full formatted GNATcheck output.
+        """
+        # Prepare the result
+        res = Flags()
+
+        # Parse the gnatcheck full output
+        is_parsing = False
+        for line in output.splitlines():
+            if not is_parsing:
+                is_parsing = "2. Exempted Coding Standard Violations" in line
+            else:
+                search_result = cls.flag_line_pattern.search(line)
+                if search_result is not None:
+                    (file, _, line_num) = search_result.groups()
+                    res.add_flag(file, int(line_num))
+                is_parsing = "5. Language violations" not in line
+
+        # Return the result
+        return res
+
+    @classmethod
+    def _parse_short_and_brief(cls, output: str) -> Flags:
+        """
+        Parse the short formatted GNATcheck output.
+        """
+        # Prepare the result
+        res = Flags()
+
+        # Parse the output
+        for line in output.splitlines():
+            search_result = cls.flag_line_pattern.search(line)
+            if search_result is not None:
+                (file, _, line_num) = search_result.groups()
+                res.add_flag(file, int(line_num))
+
+        # Return the result
+        return res
+
+    @classmethod
+    def _parse_xml(cls, output: str) -> Flags:
+        """
+        Parse the XML formatted GNATcheck output.
+        """
+        # Prepare the result
+        res = Flags()
+
+        # Parse the xml result
+        xml_tree = ET.fromstring(output)
+        violations = xml_tree.find("violations")
+
+        # If the "violations" tag exists in the output, parse it as a full XML output
+        if violations is not None:
+            for violation in violations:
+                file, line_num = violation.attrib["file"], int(violation.attrib["line"])
+                res.add_flag(file, line_num)
+
+        # Else the ouput is a brief XML one
+        else:
+            for elem in xml_tree.findall("*"):
+                if elem.tag in ("violation", "exemption-problem", "exempted-violation"):
+                    file, line_num = elem.attrib["file"], int(elem.attrib["line"])
+                    res.add_flag(file, line_num)
+
+        # Return the result
+        return res
+
+    @classmethod
+    def parsers(cls):
+        return {
+            'full': cls._parse_full,
+            'short': cls._parse_short_and_brief,
+            'brief': cls._parse_short_and_brief,
+            'xml': cls._parse_xml
+        }
 
     @property
     def default_process_timeout(self):
@@ -525,4 +528,4 @@ class GnatcheckDriver(BaseDriver):
 
     def parse_flagged_lines(self, output: str, format: str) -> Flags:
         assert format in self.output_formats
-        return self.parsers[format](output)
+        return self.parsers()[format](output)

@@ -20,29 +20,6 @@ from e3.testsuite.driver.classic import (
 )
 
 
-_flag_pattern = re.compile(r"--\s*FLAG\s*(\((\d+)\))?\s*(.*)")
-_noflag_pattern = re.compile(r"--\s*NOFLAG")
-_ada_source_encodings = ['utf-8', 'iso-8859-1']
-
-
-def read_ada_file(file_name: str) -> tuple[list[str], str]:
-    """
-    Read the given Ada file with an automatic encoding detection strategy.
-    Returns a tuple containing the lines of the file and its encoding.
-
-    :param file_name: The Ada file to read.
-    """
-    with open(file_name, mode='rb') as ada_file:
-        ada_bytes = ada_file.read()
-        for encoding in _ada_source_encodings:
-            try:
-                lines = ada_bytes.decode(encoding).split('\n')
-                lines = lines[:-1] if not lines[-1] else lines
-                return (lines, encoding)
-            except ValueError as _:
-                pass
-
-
 class Flags:
     """
     Represents the flags in the source files.
@@ -124,6 +101,11 @@ class BaseDriver(DiffTestDriver):
     """
     Common code for all test drivers.
     """
+
+    flag_pattern = re.compile(r"--\s*FLAG\s*(\((\d+)\))?\s*(.*)")
+    noflag_pattern = re.compile(r"--\s*NOFLAG")
+    ada_file_pattern = r"[a-zA-Z][a-zA-Z0-9_\.\-]*\.(adb|ads|ada|ada_spec)"
+    ada_source_encodings = ['utf-8', 'iso-8859-1']
 
     perf_supported = False
     flag_checking_supported = False
@@ -398,13 +380,13 @@ class BaseDriver(DiffTestDriver):
         # For each file, read it and parse the annotations
         for ada_file_name in ada_sources:
             base_name = P.basename(ada_file_name)
-            ada_lines, _ = read_ada_file(ada_file_name)
+            ada_lines, _ = self.read_ada_file(ada_file_name)
             for line_num, line in enumerate(ada_lines, 1):
-                flag_search = _flag_pattern.search(line)
+                flag_search = self.flag_pattern.search(line)
                 if flag_search:
                     count = int(flag_search.group(2)) if flag_search.group(2) else 1
                     flag_annotations.add_flags(base_name, [line_num] * count)
-                elif _noflag_pattern.search(line):
+                elif self.noflag_pattern.search(line):
                     noflag_annotations.add_flag(base_name, line_num)
 
         # Return the tuple result
@@ -508,7 +490,7 @@ class BaseDriver(DiffTestDriver):
             if missing_flags.has_flags(base_name):
                 # Get the file lines and encoding
                 file_lines = []
-                ada_lines, file_encoding = read_ada_file(ada_file_name)
+                ada_lines, file_encoding = self.read_ada_file(ada_file_name)
                 file_lines = [line.rstrip() for line in ada_lines]
 
                 # For each missing flag we add in in the file lines
@@ -520,7 +502,7 @@ class BaseDriver(DiffTestDriver):
                     code, comment = split[0], split[1].strip() if len(split) == 2 else ""
 
                     # If there is already a "FLAG" annotation we have to count the number of it then rewrite it
-                    flag_search = _flag_pattern.search(f"-- {comment}")
+                    flag_search = self.flag_pattern.search(f"-- {comment}")
                     if flag_search:
                         count += int(flag_search.group(2) if flag_search.group(2) else 1)
                         comment = flag_search.group(3)
@@ -535,6 +517,24 @@ class BaseDriver(DiffTestDriver):
                 with open(ada_file_name, 'w', encoding=file_encoding) as ada_file:
                     for line in file_lines:
                         print(line, file=ada_file)
+
+    @classmethod
+    def read_ada_file(cls, file_name: str) -> tuple[list[str], str]:
+        """
+        Read the given Ada file with an automatic encoding detection strategy.
+        Returns a tuple containing the lines of the file and its encoding.
+
+        :param file_name: The Ada file to read.
+        """
+        with open(file_name, mode='rb') as ada_file:
+            ada_bytes = ada_file.read()
+            for encoding in cls.ada_source_encodings:
+                try:
+                    lines = ada_bytes.decode(encoding).split('\n')
+                    lines = lines[:-1] if not lines[-1] else lines
+                    return (lines, encoding)
+                except ValueError as _:
+                    pass
 
     def _define_lkql_executables(self) -> None:
         # If the mode is JIT
