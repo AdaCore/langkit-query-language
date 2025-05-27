@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.nodes.declarations.selector;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.declarations.Annotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LKQLSelector;
@@ -57,7 +58,6 @@ public final class SelectorDeclaration extends Declaration {
      * @param slot The slot to put the selector in.
      * @param thisSlot The slot for the "this" symbol.
      * @param depthSlot The slot for the "depth" symbol.
-     * @param arms The arms of the selector.
      */
     public SelectorDeclaration(
         SourceSection location,
@@ -69,7 +69,7 @@ public final class SelectorDeclaration extends Declaration {
         int slot,
         int thisSlot,
         int depthSlot,
-        SelectorArm[] arms
+        Expr body
     ) {
         super(location, annotation);
         this.closureDescriptor = closureDescriptor;
@@ -83,7 +83,7 @@ public final class SelectorDeclaration extends Declaration {
             annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
             thisSlot,
             depthSlot,
-            arms
+            body
         );
     }
 

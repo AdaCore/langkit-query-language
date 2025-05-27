@@ -5,9 +5,12 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
-import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
 import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -33,9 +36,9 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
 
     // ----- Children -----
 
-    /** The selector arms. */
-    @Children
-    private final SelectorArm[] arms;
+    /** The body of the selector */
+    @Child
+    private Expr body;
 
     // ----- Constructors -----
 
@@ -47,7 +50,6 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
      * @param isMemoized Whether the selector is memoized.
      * @param thisSlot The slot to put the "this" variable.
      * @param depthSlot The slot to put the "depth" variable.
-     * @param arms The arms of the selector.
      */
     public SelectorRootNode(
         TruffleLanguage<?> language,
@@ -55,13 +57,13 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
         boolean isMemoized,
         int thisSlot,
         int depthSlot,
-        SelectorArm[] arms
+        Expr body
     ) {
         super(language, frameDescriptor);
         this.isMemoized = isMemoized;
         this.thisSlot = thisSlot;
         this.depthSlot = depthSlot;
-        this.arms = arms;
+        this.body = body;
     }
 
     // ----- Execution methods -----
@@ -82,10 +84,8 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
         LKQLDepthValue value = (LKQLDepthValue) frame.getArguments()[1];
 
         // Try memoization
-        if (this.isMemoized) {
-            if (this.isMemoized(value)) {
-                return this.getMemoized(value);
-            }
+        if (this.isMemoized && this.isMemoized(value)) {
+            return this.getMemoized(value);
         }
 
         if (this.thisSlot > -1 && this.depthSlot > -1) {
@@ -94,15 +94,20 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
         }
 
         // Prepare the result
-        LKQLRecValue res = null;
+        LKQLRecValue res;
 
-        // Try to match an arm, if there is none, set the result to unit
-        for (SelectorArm arm : this.arms) {
-            res = arm.executeArm(frame, value);
-            if (res != null) break;
-        }
-        if (res == null) {
+        var val = this.body.executeGeneric(frame);
+        if (LKQLTypeSystemGen.isLKQLRecValue(val)) {
+            res = LKQLTypeSystemGen.asLKQLRecValue(val);
+            res.depth = value.depth + 1;
+        } else if (LKQLTypeSystemGen.isNullish(val)) {
             res = new LKQLRecValue(new Object[0], new Object[0]);
+        } else {
+            throw LKQLRuntimeException.wrongType(
+                LKQLTypesHelper.LKQL_REC_VALUE,
+                LKQLTypesHelper.fromJava(val),
+                this.body
+            );
         }
 
         // Do the memoization cache addition

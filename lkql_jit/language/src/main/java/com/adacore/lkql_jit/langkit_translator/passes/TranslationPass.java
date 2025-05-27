@@ -22,7 +22,6 @@ import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.declarations.*;
 import com.adacore.lkql_jit.nodes.declarations.selector.RecExpr;
-import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorDeclaration;
 import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
@@ -41,11 +40,9 @@ import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.value_read.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
-import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
@@ -1536,6 +1533,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return null;
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.SelectorArm selectorArm) {
+        return null;
+    }
+
     // --- Function calling
 
     /**
@@ -1572,29 +1574,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     }
 
     // --- Selector declaration
-
-    /**
-     * Visit a selector arm node.
-     *
-     * @param selectorArm The selector arm node from Langkit.
-     * @return The selector arm node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.SelectorArm selectorArm) {
-        // Enter the arm frame
-        this.scriptFrames.enterFrame(selectorArm);
-
-        // Translate the selector arm fields
-        // TODO: Question on why many expressions by arm
-        final BasePattern pattern = (BasePattern) selectorArm.fPattern().accept(this);
-        final Expr expr = (Expr) selectorArm.fExpr().accept(this);
-
-        // Exit the arm frame
-        this.scriptFrames.exitFrame();
-
-        // Return the selector arm node
-        return new SelectorArm(loc(selectorArm), pattern, expr);
-    }
 
     @Override
     public LKQLNode visit(Liblkqllang.SelectorArmList selectorArmList) {
@@ -1635,15 +1614,28 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final int thisSlot = this.scriptFrames.getBinding(Constants.THIS_SYMBOL);
         final int depthSlot = this.scriptFrames.getBinding(Constants.DEPTH_SYMBOL);
 
-        // Get the selector arms
-        final List<SelectorArm> arms = new ArrayList<>();
-        for (Liblkqllang.LkqlNode node : selectorDecl.fArms().children()) {
-            arms.add((SelectorArm) node.accept(this));
-        }
+        var arms = toStream(selectorDecl.fArms())
+            .map(a -> {
+                // Enter the arm's frame
+                this.scriptFrames.enterFrame(a);
+
+                // Translate the arm's fields
+                final BasePattern pattern = (BasePattern) a.fPattern().accept(this);
+                final Expr expr = (Expr) a.fExpr().accept(this);
+
+                // Exit the arm's frame
+                this.scriptFrames.exitFrame();
+
+                // Return the new match arm
+                return new MatchArm(loc(a), pattern, expr);
+            })
+            .toArray(MatchArm[]::new);
+
+        var match = new Match(loc(selectorDecl), new ReadLocal(loc(selectorDecl), thisSlot), arms);
 
         // Create the frame descriptor for the arms
-        FrameDescriptor frameDescriptor = this.scriptFrames.getFrameDescriptor();
-        ClosureDescriptor closureDescriptor = this.scriptFrames.getClosureDescriptor();
+        var frameDescriptor = this.scriptFrames.getFrameDescriptor();
+        var closureDescriptor = this.scriptFrames.getClosureDescriptor();
 
         // Exit the selector frame
         this.scriptFrames.exitFrame();
@@ -1659,7 +1651,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             slot,
             thisSlot,
             depthSlot,
-            arms.toArray(new SelectorArm[0])
+            match
         );
     }
 
