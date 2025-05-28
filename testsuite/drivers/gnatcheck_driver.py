@@ -3,7 +3,7 @@ import os.path as P
 import re
 import xml.etree.ElementTree as ET
 
-from drivers.base_driver import BaseDriver, Flags
+from drivers.base_driver import BaseDriver, TaggedLines
 
 
 class GnatcheckDriver(BaseDriver):
@@ -124,7 +124,7 @@ class GnatcheckDriver(BaseDriver):
     )
 
     @classmethod
-    def _parse_full(cls, output: str) -> Flags:
+    def _parse_full(cls, output: str) -> dict[str, TaggedLines]:
         """
         Parse the full formatted GNATcheck output.
         """
@@ -142,30 +142,33 @@ class GnatcheckDriver(BaseDriver):
             return {}
 
     @classmethod
-    def _parse_short_and_brief(cls, output: str) -> Flags:
+    def _parse_short_and_brief(cls, output: str) -> dict[str, TaggedLines]:
         """
         Parse the short formatted GNATcheck output.
         """
-        # Prepare the result
-        res = Flags()
+        res: dict[str, TaggedLines] = {}
 
-        # Parse the output
         for line in output.splitlines():
             search_result = cls.flag_line_pattern.search(line)
             if search_result is not None:
                 (file, _, line_num, _) = search_result.groups()
-                res.add_flag(file, int(line_num))
+                if not res.get(file):
+                    res[file] = TaggedLines()
+                res[file].tag_line(int(line_num))
 
-        # Return the result
         return res
 
     @classmethod
-    def _parse_xml(cls, output: str) -> Flags:
+    def _parse_xml(cls, output: str) -> dict[str, TaggedLines]:
         """
         Parse the XML formatted GNATcheck output.
         """
-        # Prepare the result
-        res = Flags()
+        res: dict[str, TaggedLines] = {}
+
+        def tag_line(file: str, line: int):
+            if not res.get(file):
+                res[file] = TaggedLines()
+            res[file].tag_line(line)
 
         # Parse the xml result
         xml_tree = ET.fromstring(output)
@@ -175,14 +178,14 @@ class GnatcheckDriver(BaseDriver):
         if violations is not None:
             for violation in violations:
                 file, line_num = violation.attrib["file"], int(violation.attrib["line"])
-                res.add_flag(file, line_num)
+                tag_line(file, line_num)
 
-        # Else the ouput is a brief XML one
+        # Else the output is a brief XML one
         else:
             for elem in xml_tree.findall("*"):
                 if elem.tag in ("violation", "exemption-problem", "exempted-violation"):
                     file, line_num = elem.attrib["file"], int(elem.attrib["line"])
-                    res.add_flag(file, line_num)
+                    tag_line(file, line_num)
 
         # Return the result
         return res
@@ -260,7 +263,11 @@ class GnatcheckDriver(BaseDriver):
             exec(global_python, globs, locs)
 
         # Prepare the execution flagged lines as an empty object
-        flagged_lines = Flags()
+        files_flagged_lines: dict[str, TaggedLines] = {}
+
+        def add_to_files_flagged_lines(to_add: dict[str, TaggedLines]):
+            for file, tagged_lines in to_add.items():
+                files_flagged_lines[file] = files_flagged_lines.get(file, TaggedLines()).combine(tagged_lines)
 
         def capture_exec_python(code: str) -> None:
             """
@@ -464,7 +471,7 @@ class GnatcheckDriver(BaseDriver):
 
                 # Get the lines flagged by the test running and add it to all flagged lines
                 if self.flag_checking and parse_output_for_flags:
-                    flagged_lines.add_other_flags(
+                    add_to_files_flagged_lines(
                         self.parse_flagged_lines(
                             (
                                 exec_output + report_file_content
@@ -519,8 +526,8 @@ class GnatcheckDriver(BaseDriver):
 
         # Check the execution flagged lines
         if self.flag_checking:
-            self.check_flags(flagged_lines)
+            self.check_flags(files_flagged_lines)
 
-    def parse_flagged_lines(self, output: str, format: str) -> Flags:
+    def parse_flagged_lines(self, output: str, format: str) -> dict[str, TaggedLines]:
         assert format in self.output_formats
         return self.parsers()[format](output)

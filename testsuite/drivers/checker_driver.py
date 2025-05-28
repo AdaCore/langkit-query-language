@@ -1,6 +1,6 @@
 import re
 
-from drivers.base_driver import BaseDriver, Flags
+from drivers.base_driver import BaseDriver, TaggedLines
 
 
 class CheckerDriver(BaseDriver):
@@ -96,16 +96,18 @@ class CheckerDriver(BaseDriver):
                             self.output += f"=== {pf} content:\n"
                             self.output += f.read()
 
-    def parse_flagged_lines(self, output: str) -> Flags:
+    def parse_flagged_lines(self, output: str) -> dict[str, TaggedLines]:
         # Prepare the result
-        res = Flags()
+        res: dict[str, TaggedLines] = {}
 
         # For each line of the output search the groups in the line
         for line in output.splitlines():
             search_result = self._flag_line_pattern.search(line)
             if search_result is not None:
                 (file, _, line_num) = search_result.groups()
-                res.add_flag(file, int(line_num))
+                if not res.get(file):
+                    res[file] = TaggedLines()
+                res[file].tag_line(int(line_num))
 
         # Return the result
         return res

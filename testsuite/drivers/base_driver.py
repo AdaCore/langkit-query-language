@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import errno
 import glob
 import os
@@ -6,7 +7,6 @@ import re
 import select
 import subprocess
 import sys
-from typing import TextIO
 
 from e3.fs import mkdir
 from e3.testsuite.control import YAMLTestControlCreator
@@ -20,81 +20,155 @@ from e3.testsuite.driver.classic import (
 )
 
 
-class Flags:
+@dataclass
+class TaggedLines:
     """
-    Represents the flags in the source files.
+    This class represents a set of lines that are tagged in a given buffer.
+    Each line may be tagged one or more times.
     """
 
-    _flags: dict[str, list[int]]
+    tagged_lines: dict[int, int]
 
-    def __init__(self) -> None:
-        self._flags = {}
+    def __init__(self):
+        self.tagged_lines = {}
 
-    def add_flag(self, file: str, line: int):
+    def tag_count(self, line: int) -> int:
         """
-        Add a flag to the file.
-
-        :param file: The file to add a flag for.
-        :param line: The line to flag in the file.
+        Get the count of tags on the provided `line`.
         """
-        current_flags = self._flags.get(file, [])
-        current_flags.append(line)
-        self._flags[file] = current_flags
+        return self.tagged_lines.get(line, 0)
 
-    def add_flags(self, file: str, lines: list[int]):
+    def tag_line(self, line: int, n: int = 1):
         """
-        Add all flags to the file.
-
-        :param file: The file to add the flags to.
-        :param flags: The flags to add.
+        Tag the `line` `n`th times.
         """
-        if len(lines) > 0:
-            current_flags = self._flags.get(file, [])
-            current_flags.extend(lines)
-            self._flags[file] = current_flags
+        self.tagged_lines[line] = self.tagged_lines.get(line, 0) + n
 
-    def add_other_flags(self, other):
+    def combine(self, other):
+        res = TaggedLines()
+        res.tagged_lines = dict(self.tagged_lines)
+        for line, count in other.tagged_lines.items():
+            res.tag_line(line, count)
+        return res
+
+
+@dataclass
+class FileFlags:
+
+    file_name: str
+    """
+    The base name of the file.
+    """
+
+    matching_sources: list[str]
+    """
+    Path to Ada source files which match the `file_name`.
+    """
+
+    flag_annotations: TaggedLines
+    """
+    All lines that are annotated with `FLAG`. The same line can be annotated
+    multiple times.
+    """
+
+    noflag_annotations: TaggedLines
+    """
+    All lines that are annotated with `NOFLAG`.
+    """
+
+    flagged_lines: TaggedLines
+    """
+    Lines that have been flagged by running the test.
+    """
+
+    @property
+    def errors(self) -> list[tuple[int, str]]:
         """
-        Add all flags from the other Flags object.
-
-        :param other: The other flags object to add from.
+        Get all errors by comparing `FLAG/NOFLAG` annotations and lines flagged
+        by the test run. Each element of the result list is a tuple containing
+        the number of the line with an error associated to the error message.
         """
-        for file, lines in other.items():
-            if len(lines) > 0:
-                current_flags = self._flags.get(file, [])
-                current_flags.extend(lines)
-                self._flags[file] = current_flags
+        res: list[tuple[int, str]] = []
 
-    def get_files(self) -> set[str]:
+        for line, count in self.flagged_lines.tagged_lines.items():
+            flag_count = self.flag_annotations.tag_count(line)
+            if self.noflag_annotations.tag_count(line) != 0:
+                res.append((line, "'NOFLAG' annotation violated"))
+            elif flag_count == 0:
+                res.append((
+                    line,
+                    f"no 'FLAG' annotation (line flagged {count} time(s))"
+                ))
+            elif flag_count != count:
+                res.append((
+                    line,
+                    f"unexpected flag count (expecting {flag_count}, actual {count})"
+                ))
+
+        for line, count in self.flag_annotations.tagged_lines.items():
+            if self.flagged_lines.tag_count(line) == 0:
+                res.append((
+                    line, f"line is never flagged (expecting {count} time(s))"
+                ))
+
+        return sorted(res, key=lambda t: t[0])
+
+    def add_missing_flags(self):
         """
-        Get the files which have flags.
+        Add the missing 'FLAG' annotations in the file designated by this
+        instance.
+
+        :param searching dir
         """
-        return self._flags.keys()
+        # Get the missing flag annotations
+        missing_flag_annotations = {
+            line: count
+            for line, count in self.flagged_lines.tagged_lines.items()
+            if self.flag_annotations.tag_count(line) < count
+        }
 
-    def has_flags(self, file: str) -> bool:
-        """
-        Get if the file has some flags.
+        # If there is no missing 'FLAG' just exit the function
+        if len(missing_flag_annotations) < 1:
+            return
 
-        :param file: The file to check the flags for.
-        """
-        return file in self._flags.keys()
+        # Get the source file to rewrite, ensuring there is only one matching
+        # source.
+        if len(self.matching_sources) > 1:
+            raise TestAbortWithError(
+                f"Cannot automatically add flags annotations in {self.file_name}, multiple sources are matching this name"
+            )
+        source = self.matching_sources[0]
 
-    def get_flags(self, file: str) -> list[int]:
-        """
-        Get the flags associated to the file.
+        # Get the file lines and encoding
+        source_lines = []
+        source_lines, source_encoding = BaseDriver.read_ada_file(source)
 
-        :param file: The file to get the flags for.
-        """
-        return self._flags.get(file,  [])
+        # For each line where an annotation is missing, add it before any other comment
+        for line, count in missing_flag_annotations.items():
+            # Split the source line to get the code and the comment parts
+            line_split = source_lines[line - 1].split("--")
+            code, comment = line_split[0], line_split[1].strip() if len(line_split) == 2 else ""
 
-    def items(self) -> set[tuple[str, list[int]]]:
-        return self._flags.items()
+            # Remove the already existing FLAG annotation if there is one
+            search_res = re.search(r"FLAG\s*(\(\d+\))?\s*(.*)", comment)
+            if search_res:
+                comment = search_res.group(2)
+            comment = " " + comment if comment else ""
 
-    def __str__(self) -> str:
-        return str(self._flags)
+            # Adjust space between code and comment
+            if not code.endswith(" "):
+                code += "  "
+            elif not code.endswith("  "):
+                code += " "
 
-    def __bool__(self) -> bool:
-        return len(self._flags) > 0
+            # Then  create the new annotation and rewrite the line
+            count_str = f"({count})" if count > 1 else ""
+            source_lines[line - 1] = f"{code}--  FLAG{count_str}{comment}"
+
+        # Finally write the modified lines in the source file
+        with open(source, 'w', encoding=source_encoding) as f:
+            for line in source_lines:
+                print(line, file=f)
 
 
 class BaseDriver(DiffTestDriver):
@@ -342,16 +416,14 @@ class BaseDriver(DiffTestDriver):
             result.append(Substitute("\\", "/"))
         return result
 
-    def parse_flagged_lines(self, output: str) -> Flags:
+    def parse_flagged_lines(self, output: str) -> dict[str, TaggedLines]:
         """
-        Parse the output of a call and return an object containing files
-        and their flagged lines.
-
-        :param output: The process output to parse.
+        Parse the output of a test run and return a dictionary associating each
+        Ada file to lines that have been flagged by the test.
         """
-        raise TestAbortWithError("Unimplemented output parsing method")
+        raise TestAbortWithError("Unimplemented flagged lines parsing")
 
-    def check_flags(self, execution_flags: Flags) -> None:
+    def check_flags(self, execution_flags: dict[str, TaggedLines]) -> None:
         """
         Check that the source flagged lines are correctly flagged by the test
         driver, otherwise display the differences and add missing FLAG if
@@ -359,164 +431,66 @@ class BaseDriver(DiffTestDriver):
 
         :param execution_flags: The source lines flagged by the output parsing.
         """
-        flag_annotations, noflag_annotations = self.count_source_flags()
-        missing_flags, noflag_violations, extra_flags = self.compare_flagged_lines(execution_flags, flag_annotations, noflag_annotations)
-        self.display_flag_errors(missing_flags, noflag_violations, extra_flags)
+        ada_source_names = set(
+            [
+                os.path.basename(f)
+                for f in glob.glob(P.join(self.test_dir(), "**/*.ad*"), recursive=True)
+            ]
+        )
+        all_flags: list[FileFlags] = []
+        for source_name in sorted(ada_source_names):
+            matching_sources = glob.glob(P.join(self.test_dir(), f"**/{source_name}"), recursive=True)
+            flags, noflags = self.count_annotations_in_files(matching_sources)
+            all_flags.append(
+                FileFlags(
+                    file_name=source_name,
+                    matching_sources=matching_sources,
+                    flag_annotations=flags,
+                    noflag_annotations=noflags,
+                    flagged_lines=execution_flags.get(source_name, TaggedLines())
+                )
+            )
+
+        # Collect all error messages for all analyzed files
+        errors_buffer: list[str] = []
+        for flags in all_flags:
+            errors = flags.errors
+            if errors:
+                errors_buffer.append(f"In file \"{flags.file_name}\":")
+                for line, msg in errors:
+                    errors_buffer.append(f"  - at line {line}: {msg}")
+                errors_buffer.append("")
+
+        # Raise an test failure if there are any errors
+        if errors_buffer:
+            self.output += "==== Errors in 'FLAG/NOFLAG' annotations ====\n\n"
+            self.output += "\n".join(errors_buffer)
+
+        # If required, add the missing 'FLAG' annotations
         if self.env.options.add_missing_flags:
-            self.add_missing_flags(missing_flags)
+            for flags in all_flags:
+                flags.add_missing_flags()
 
-    def count_source_flags(self) -> tuple[Flags, Flags]:
+    def count_annotations_in_files(self, files: list[str]) -> tuple[TaggedLines, TaggedLines]:
         """
-        Count the FLAG/NOFLAG annotations in the test Ada sources and return a tuple
-        containing (flag_annotations, noflag_annotation)
+        Count `FLAG/NOFLAG` annotations in the provided list of files and
+        return the result in a tuple structured like
+        `(flag_annotations, noflag_annotation)`.
         """
-        # Get all Ada sources of the test
-        ada_sources = glob.glob(P.join(self.test_dir(), "**/*.ad*"), recursive=True)
+        flags = TaggedLines()
+        noflags = TaggedLines()
 
-        # Prepare the result
-        flag_annotations = Flags()
-        noflag_annotations = Flags()
-
-        # For each file, read it and parse the annotations
-        for ada_file_name in ada_sources:
-            base_name = P.basename(ada_file_name)
-            ada_lines, _ = self.read_ada_file(ada_file_name)
-            for line_num, line in enumerate(ada_lines, 1):
+        for source in files:
+            lines, _ = self.read_ada_file(source)
+            for line_num, line in enumerate(lines, 1):
                 flag_search = self.flag_pattern.search(line)
                 if flag_search:
-                    count = int(flag_search.group(2)) if flag_search.group(2) else 1
-                    flag_annotations.add_flags(base_name, [line_num] * count)
+                    count = flag_search.group(2) or 1
+                    flags.tag_line(line_num, int(count))
                 elif self.noflag_pattern.search(line):
-                    noflag_annotations.add_flag(base_name, line_num)
+                    noflags.tag_line(line_num)
 
-        # Return the tuple result
-        return (flag_annotations, noflag_annotations)
-
-    def compare_flagged_lines(self,
-                              execution_flags: Flags,
-                              flag_annotations: Flags,
-                              noflag_annotations: Flags) -> tuple[Flags, Flags, Flags]:
-        """
-        Check that the flagged lines are correcty annotated. Return a tuple
-        containing missing flags, noflag violations and extra flag annotations.
-
-        :param execution_flags: The lines flagged by the output parsing.
-        :param flag_annotations: The FLAG annotations in the ada sources.
-        :param noflag_annotations: The NOFLAG annotations in the ada sources.
-        """
-        # Prepare the result objects
-        missing_flags = Flags()
-        noflag_violations = Flags()
-        extra_flags = Flags()
-
-        # For each file with execution flags
-        for file_name, lines in execution_flags.items():
-            source_flags = list(flag_annotations.get_flags(file_name))
-            source_noflags = noflag_annotations.get_flags(file_name)
-            for line in lines:
-                if line in source_noflags:
-                    noflag_violations.add_flag(file_name, line)
-                elif line in source_flags:
-                    source_flags.remove(line)
-                else:
-                    missing_flags.add_flag(file_name, line)
-            extra_flags.add_flags(file_name, source_flags)
-
-        # Return the results
-        return (missing_flags, noflag_violations, extra_flags)
-
-    def display_flag_errors(self,
-                            missing_flags: Flags,
-                            noflag_violations: Flags,
-                            extra_flags: Flags) -> None:
-        """
-        Display the flag annotations violations on the test output to force
-        a failure and show the user flag violations.
-
-        :param missing_flags: The missing flag annotations.
-        :param noflag_violation: The 'NOFLAG' annotation violations
-        :param extra_flags: The extra 'FLAG' annotations.
-        """
-        # If there is extra of missing flag create a message with the
-        # information and add it to the test output.
-        if missing_flags or noflag_violations or extra_flags:
-            failure_message = f"Errors in Ada sources FLAG annotations!{os.linesep * 2}"
-
-            # Function to display failure flags
-            def format_failure_flags(flags):
-                res = ""
-                for file in flags.get_files():
-                    lines = flags.get_flags(file)
-                    for line in sorted(list(set(lines))):
-                        count = lines.count(line)
-                        res += (
-                            f"  {file} at line {line}"
-                            f"{f' ({count} times)' if count > 1 else ''}"
-                            f"{os.linesep}"
-                        )
-                return res
-
-            # Output NOFLAG violations
-            if noflag_violations:
-                failure_message += (f"'NOFLAG' violations:{os.linesep}"
-                                    f"{format_failure_flags(noflag_violations)}")
-
-            # Output all missing flags
-            if missing_flags:
-                failure_message += (f"Missing 'FLAG' annotations:{os.linesep}"
-                                    f"{format_failure_flags(missing_flags)}")
-
-            # Output all extra flags
-            if extra_flags:
-                failure_message += (f"Extra 'FLAG' annotations:{os.linesep}"
-                                    f"{format_failure_flags(extra_flags)}")
-
-            self.output += failure_message
-
-    def add_missing_flags(self, missing_flags: Flags) -> None:
-        """
-        Add the missing "-- FLAG" annotations in the test ada sources.
-
-        :param missing_flags: The flags which are missing from the source.
-        """
-        # Get all Ada sources of the test
-        ada_sources = glob.glob(P.join(self.test_dir(), "**/*.ad*"), recursive=True)
-
-        # For each source if there a missing flag add it
-        for ada_file_name in ada_sources:
-            base_name = P.basename(ada_file_name)
-
-            # If the file has some missing flags
-            if missing_flags.has_flags(base_name):
-                # Get the file lines and encoding
-                file_lines = []
-                ada_lines, file_encoding = self.read_ada_file(ada_file_name)
-                file_lines = [line.rstrip() for line in ada_lines]
-
-                # For each missing flag we add in in the file lines
-                for line_num in set(missing_flags.get_flags(base_name)):
-                    count = missing_flags.get_flags(base_name).count(line_num)
-
-                    # Split the line to get the possible existing comment
-                    split = file_lines[line_num - 1].split("--")
-                    code, comment = split[0], split[1].strip() if len(split) == 2 else ""
-
-                    # If there is already a "FLAG" annotation we have to count the number of it then rewrite it
-                    flag_search = self.flag_pattern.search(f"-- {comment}")
-                    if flag_search:
-                        count += int(flag_search.group(2) if flag_search.group(2) else 1)
-                        comment = flag_search.group(3)
-
-                    # Join the fetched Ada statement and the comment with the "FLAG" annotation
-                    file_lines[line_num - 1] = "--".join((
-                        f"{code} " if code and code[-1].strip() else code,
-                        f"  FLAG{f' ({count})' if count > 1 else ''}{f' {comment}' if comment else ''}"
-                    ))
-
-                # Rewrite the file with the missing FLAG annotations
-                with open(ada_file_name, 'w', encoding=file_encoding) as ada_file:
-                    for line in file_lines:
-                        print(line, file=ada_file)
+        return (flags, noflags)
 
     @classmethod
     def read_ada_file(cls, file_name: str) -> tuple[list[str], str]:
