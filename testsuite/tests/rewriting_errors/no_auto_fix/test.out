@@ -1,5 +1,5 @@
 main.adb:3:4: rule violation: Custom rule violation
-3 |    goto lbl;
+3 |    goto lbl;  --  FLAG
   |    ^^^^^^^^^
 
 error: Rule "custom" is not defining any auto-fixing function

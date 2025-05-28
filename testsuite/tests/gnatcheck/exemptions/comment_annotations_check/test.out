@@ -22,7 +22,7 @@ main.adb:16:16: rule violation (exempted): expression function
 main.adb:25:16: rule violation (exempted): expression function
    (unjustified)
 main.adb:30:19: rule violation (exempted): implicit IN mode in parameter specification
-   (justify line off --  FLAG in valid exemptions)
+   (justify line off  --  NOFLAG (exempted))
 main.adb:33:19: rule violation (exempted): implicit IN mode in parameter specification
    (unjustified)
 main.adb:37:19: rule violation (exempted): implicit IN mode in parameter specification

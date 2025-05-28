@@ -12,7 +12,3 @@ With same restriction on multiple instances
 gnatcheck: error: cannot enable the same restriction in different rule instances: No_Calendar
 main.adb:2:06: rule violation: violation of restriction "No_Calendar" [no_calendar|restrictions]
 >>>program returned status code 5
-Errors in Ada sources FLAG annotations!
-
-Missing 'FLAG' annotations:
-  main.adb at line 2

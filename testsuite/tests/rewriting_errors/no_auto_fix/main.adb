@@ -1,4 +1,4 @@
 procedure Main is
 begin
-   goto lbl;
+   goto lbl;  --  FLAG
 end Main;

@@ -1,5 +1,5 @@
-Without project file
-====================
+Without project file (make sure the 'rules.lkql' file in the current directory is not used)
+===========================================================================================
 
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.

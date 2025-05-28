@@ -1,5 +1,5 @@
 procedure Main is
 begin
-   goto Test;  --  FLAG
+   goto Test;  --  NOFLAG
    <<Test>>
 end Main;

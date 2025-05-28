@@ -1,5 +1,5 @@
 main.adb:3:4: rule violation: Custom rule violation
-3 |     if False then
+3 |     if False then  --  FLAG
   | ____^
   ||
   || ~~~ 1 other lines ~~~
@@ -12,7 +12,7 @@ Patched "main.adb":
 
 procedure Main is
 begin
-   if REPLACED then
+   if REPLACED then  --  FLAG
       null;
    end if;
 end Main;
