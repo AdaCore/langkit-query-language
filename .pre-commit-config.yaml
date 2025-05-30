@@ -1,0 +1,20 @@
+repos:
+  - repo: local
+    hooks:
+      - id: gnatformat
+        name: Format GNATcheck sources
+        entry: gnatformat
+        language: system
+        files: "^lkql_checker/src/.*\\.ad(b|s)$"
+  - repo: local
+    hooks:
+      - id: maven-spotless
+        name: Format LKQL JIT sources
+        entry: python
+        args:
+          - utils/maven_wrapper.py
+          - spotless:apply
+        language: system
+        pass_filenames: false
+        require_serial: true
+        files: "^lkql_jit/.*\\.java$"
