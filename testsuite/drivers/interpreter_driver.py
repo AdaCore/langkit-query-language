@@ -19,6 +19,7 @@ class InterpreterDriver(BaseDriver):
     """
 
     perf_supported = True
+    flag_checking_supported = False
 
     def run(self) -> None:
         # Build the process's arguments list

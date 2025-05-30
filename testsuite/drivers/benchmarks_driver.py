@@ -12,6 +12,7 @@ class BenchmarksDriver(BaseDriver):
     """
 
     perf_supported = True
+    flag_checking_supported = False
 
     @property
     def baseline(self) -> tuple[str, str, bool]:

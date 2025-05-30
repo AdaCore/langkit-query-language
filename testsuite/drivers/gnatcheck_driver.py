@@ -3,80 +3,7 @@ import os.path as P
 import re
 import xml.etree.ElementTree as ET
 
-from drivers.base_driver import BaseDriver, Flags
-
-
-# --- GNATcheck output parsing functions
-
-_flag_line_pattern = re.compile(
-    r"^([a-zA-Z][a-zA-Z0-9_\.\-]*\.(adb|ads|ada|ada_spec)):(\d+):\d+: .*$"
-)
-
-def _parse_full(output: str) -> Flags:
-    """
-    Parse the full formatted gnatcheck output.
-    """
-    # Prepare the result
-    res = Flags()
-
-    # Parse the gnatcheck full output
-    is_parsing = False
-    for line in output.splitlines():
-        if not is_parsing:
-            is_parsing = "2. Exempted Coding Standard Violations" in line
-        else:
-            search_result = _flag_line_pattern.search(line)
-            if search_result is not None:
-                (file, _, line_num) = search_result.groups()
-                res.add_flag(file, int(line_num))
-            is_parsing = "5. Language violations" not in line
-
-    # Return the result
-    return res
-
-def _parse_short_and_brief(output: str) -> Flags:
-    """
-    Parse the short formatted gnatcheck output.
-    """
-    # Prepare the result
-    res = Flags()
-
-    # Parse the output
-    for line in output.splitlines():
-        search_result = _flag_line_pattern.search(line)
-        if search_result is not None:
-            (file, _, line_num) = search_result.groups()
-            res.add_flag(file, int(line_num))
-
-    # Return the result
-    return res
-
-def _parse_xml(output: str) -> Flags:
-    """
-    Parse the xml formatted gnatcheck output.
-    """
-    # Prepare the result
-    res = Flags()
-
-    # Parse the xml result
-    xml_tree = ET.fromstring(output)
-    violations = xml_tree.find("violations")
-
-    # If the "violations" tag exists in the output, parse it as a full XML output
-    if violations is not None:
-        for violation in violations:
-            file, line_num = violation.attrib["file"], int(violation.attrib["line"])
-            res.add_flag(file, line_num)
-
-    # Else the ouput is a brief XML one
-    else:
-        for elem in xml_tree.findall("*"):
-            if elem.tag in ("violation", "exemption-problem", "exempted-violation"):
-                file, line_num = elem.attrib["file"], int(elem.attrib["line"])
-                res.add_flag(file, line_num)
-
-    # Return the result
-    return res
+from drivers.base_driver import BaseDriver, TaggedLines
 
 
 class GnatcheckDriver(BaseDriver):
@@ -191,12 +118,86 @@ class GnatcheckDriver(BaseDriver):
         "gnatkp": "gnatkp"
     }
     output_formats = set(['brief', 'full', 'short', 'xml'])
-    parsers = {
-        'full': _parse_full,
-        'short': _parse_short_and_brief,
-        'brief': _parse_short_and_brief,
-        'xml': _parse_xml
-    }
+
+    flag_line_pattern = re.compile(
+        rf"^({BaseDriver.ada_file_pattern}):(\d+):\d+: (rule violation|warning|error): .*$"
+    )
+
+    @classmethod
+    def _parse_full(cls, output: str) -> dict[str, TaggedLines]:
+        """
+        Parse the full formatted GNATcheck output.
+        """
+        # Remove useless parts of the full output
+        try:
+            output = output[output.index("2. Exempted Coding Standard Violations"):]
+            output = output[:output.index("5. Language violations")]
+
+            # Then use the "short" parser since we remove the useless part of the
+            # "full" format.
+            return cls._parse_short_and_brief(output)
+        except ValueError:
+            # When catching this error, it means that the `index` method failed
+            # to find required textual bounds.
+            return {}
+
+    @classmethod
+    def _parse_short_and_brief(cls, output: str) -> dict[str, TaggedLines]:
+        """
+        Parse the short formatted GNATcheck output.
+        """
+        res: dict[str, TaggedLines] = {}
+
+        for line in output.splitlines():
+            search_result = cls.flag_line_pattern.search(line)
+            if search_result is not None:
+                (file, _, line_num, _) = search_result.groups()
+                if not res.get(file):
+                    res[file] = TaggedLines()
+                res[file].tag_line(int(line_num))
+
+        return res
+
+    @classmethod
+    def _parse_xml(cls, output: str) -> dict[str, TaggedLines]:
+        """
+        Parse the XML formatted GNATcheck output.
+        """
+        res: dict[str, TaggedLines] = {}
+
+        def tag_line(file: str, line: int):
+            if not res.get(file):
+                res[file] = TaggedLines()
+            res[file].tag_line(line)
+
+        # Parse the xml result
+        xml_tree = ET.fromstring(output)
+        violations = xml_tree.find("violations")
+
+        # If the "violations" tag exists in the output, parse it as a full XML output
+        if violations is not None:
+            for violation in violations:
+                file, line_num = violation.attrib["file"], int(violation.attrib["line"])
+                tag_line(file, line_num)
+
+        # Else the output is a brief XML one
+        else:
+            for elem in xml_tree.findall("*"):
+                if elem.tag in ("violation", "exemption-problem", "exempted-violation"):
+                    file, line_num = elem.attrib["file"], int(elem.attrib["line"])
+                    tag_line(file, line_num)
+
+        # Return the result
+        return res
+
+    @classmethod
+    def parsers(cls):
+        return {
+            'full': cls._parse_full,
+            'short': cls._parse_short_and_brief,
+            'brief': cls._parse_short_and_brief,
+            'xml': cls._parse_xml
+        }
 
     @property
     def default_process_timeout(self):
@@ -262,7 +263,11 @@ class GnatcheckDriver(BaseDriver):
             exec(global_python, globs, locs)
 
         # Prepare the execution flagged lines as an empty object
-        flagged_lines = Flags()
+        files_flagged_lines: dict[str, TaggedLines] = {}
+
+        def add_to_files_flagged_lines(to_add: dict[str, TaggedLines]):
+            for file, tagged_lines in to_add.items():
+                files_flagged_lines[file] = files_flagged_lines.get(file, TaggedLines()).combine(tagged_lines)
 
         def capture_exec_python(code: str) -> None:
             """
@@ -466,7 +471,7 @@ class GnatcheckDriver(BaseDriver):
 
                 # Get the lines flagged by the test running and add it to all flagged lines
                 if self.flag_checking and parse_output_for_flags:
-                    flagged_lines.add_other_flags(
+                    add_to_files_flagged_lines(
                         self.parse_flagged_lines(
                             (
                                 exec_output + report_file_content
@@ -521,8 +526,8 @@ class GnatcheckDriver(BaseDriver):
 
         # Check the execution flagged lines
         if self.flag_checking:
-            self.check_flags(flagged_lines)
+            self.check_flags(files_flagged_lines)
 
-    def parse_flagged_lines(self, output: str, format: str) -> Flags:
+    def parse_flagged_lines(self, output: str, format: str) -> dict[str, TaggedLines]:
         assert format in self.output_formats
-        return self.parsers[format](output)
+        return self.parsers()[format](output)

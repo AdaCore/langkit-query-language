@@ -14,6 +14,9 @@ class JavaDriver(BaseDriver):
     in the test directory.
     """
 
+    perf_supported = False
+    flag_checking_supported = False
+
     def run(self) -> None:
         # Get and check the test Java main file
         main_java_file = self.working_dir("Main.java")

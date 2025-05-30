@@ -2,7 +2,7 @@ driver: gnatcheck
 format: brief
 
 tests:
-  - label: Without project file
+  - label: Without project file (make sure the 'rules.lkql' file in the current directory is not used)
     input_sources:
       - main.adb
   - label: With project file

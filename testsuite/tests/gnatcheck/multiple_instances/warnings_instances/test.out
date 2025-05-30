@@ -12,7 +12,3 @@ gnatcheck: error: cannot enable the same warning in different rule instances: h
 main.adb:5:07: rule violation: declaration hides "Value" at line 2 [warnings:h]
 main.adb:5:07: rule violation: variable "Value" is assigned but never read [warnings:m]
 >>>program returned status code 5
-Errors in Ada sources FLAG annotations!
-
-Missing 'FLAG' annotations:
-  main.adb at line 5 (2 times)

@@ -1,7 +1,7 @@
 with Ada.Text_IO;  --  FLAG
 
 pragma Annotate (gnatcheck, Exempt_On, "Warnings", "Exempting unused unbounded");
-with Ada.Strings.Unbounded;  --  FLAG (as exempted)
+with Ada.Strings.Unbounded;  --  NOFLAG (exempted)
 pragma Annotate (gnatcheck, Exempt_Off, "Warnings");
 
 with Ada.Containers;  --  FLAG
@@ -12,7 +12,7 @@ begin
    <<x>>
 
    --## rule off Goto_Statements ## Exempting gotos
-   goto y;  --  FLAG (as exempted)
+   goto y;  --  NOFLAG (exempted)
    <<y>>
    --## rule on Goto_Statements
 

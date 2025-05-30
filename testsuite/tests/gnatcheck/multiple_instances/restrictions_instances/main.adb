@@ -1,5 +1,5 @@
 with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Calendar;  --  FLAG
+with Ada.Calendar;  --  FLAG (2)
 
 procedure Main is
    task T is

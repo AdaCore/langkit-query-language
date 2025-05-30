@@ -13,6 +13,10 @@ class ParserDriver(BaseDriver):
     Test arguments:
         - rule: name of the grammar rule to pass to `parse`
     """
+
+    perf_supported = False
+    flag_checking_supported = False
+
     def run(self) -> None:
         rule = self.test_env['rule']
 

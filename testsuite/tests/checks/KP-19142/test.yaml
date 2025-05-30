@@ -1,3 +1,5 @@
 driver: checker
 rule_name: KP_19142
 project: prj.gpr
+control:
+  - ["XFAIL", "True", "KP detector is invalid (eng/libadalang/langkit-query-language#506)"]

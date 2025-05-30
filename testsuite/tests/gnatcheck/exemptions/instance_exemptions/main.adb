@@ -7,12 +7,12 @@ procedure Main is
 
    pragma Annotate (Gnatcheck, Exempt_On, "ID_SUF: constant", "testing");
    type T_2 is new Integer;        --  FLAG
-   C_2 : constant Integer := 0;    --  FLAG (exempted)
+   C_2 : constant Integer := 0;    --  NOFLAG (exempted)
    pragma Annotate (Gnatcheck, Exempt_On, "ID_SUF", "testing");                  --  FLAG (already exempted with params)
    pragma Annotate (Gnatcheck, Exempt_On, "ID_SUF: constant", "testing");        --  FLAG (already exempted with same params)
    pragma Annotate (Gnatcheck, Exempt_On, "ID_SUF: constant, type", "testing");  --  FLAG (already exempted with the "constant" param)
    pragma Annotate (Gnatcheck, Exempt_On, "ID_SUF: type", "testing");
-   type T_3 is new Integer;        --  FLAG (exempted)
+   type T_3 is new Integer;        --  NOFLAG (exempted)
    pragma Annotate (Gnatcheck, Exempt_Off, "ID_SUF: type");
    pragma Annotate (Gnatcheck, Exempt_Off, "ID_SUF: constant");
 begin
@@ -29,30 +29,30 @@ begin
    --## rule off STYLE ## testing         --  FLAG (cannot exempt compiler based instance)
 
    --## rule off Redundant_Null_Statements ## testing
-   null;  --  FLAG (exempted)
+   null;  --  NOFLAG (exempted)
    --## rule on Redundant_Null_Statements
 
    --## rule off NULL ## testing
-   null;  --  FLAG (exempted)
+   null;  --  NOFLAG (exempted)
    --## rule on NULL
 
    --## rule off Goto_Statements ## testing
-   goto lbl;                       --  FLAG (2) (exempted)
-   if True then goto lbl; end if;  --  FLAG (exempted)
+   goto lbl;                       --  NOFLAG (exempted)
+   if True then goto lbl; end if;  --  NOFLAG (exempted)
    --## rule on Goto_Statements
 
    --## rule off GOTO ## testing
-   goto lbl;                       --  FLAG (2) (1 real, 1 exempted)
-   if True then goto lbl; end if;  --  FLAG (exempted)
+   goto lbl;                       --  FLAG (1 real, 1 exempted)
+   if True then goto lbl; end if;  --  NOFLAG (exempted)
    --## rule on GOTO
 
    --## rule off UNCOND_GOTO ## testing
-   goto lbl;                       --  FLAG (2) (1 real, 1 exempted)
+   goto lbl;                       --  FLAG (1 real, 1 exempted)
    if True then goto lbl; end if;  --  FLAG
    --## rule on UNCOND_GOTO
 
    --## rule off style_checks ## testing
-   if (True) then null; end if;  --  FLAG (exempted)
+   if (True) then null; end if;  --  NOFLAG (exempted)
    --## rule on style_checks
 
    --## rule off Goto_Statements ## testing
@@ -67,7 +67,7 @@ begin
    --## rule on GOTO              --  FLAG (no detection)
 
    pragma Annotate (Gnatcheck, Exempt_On, "Style_Checks: xz", "testing");
-   if (True) then null; end if;                                            --  FLAG (exempted)
+   if (True) then null; end if;                                            --  NOFLAG (exempted)
    pragma Annotate (Gnatcheck, Exempt_On, "Style_Checks", "testing");      --  FLAG (already exempted with params)
    pragma Annotate (Gnatcheck, Exempt_On, "Style_Checks: x", "testing");   --  FLAG (already exempted with the "x" param)
    pragma Annotate (Gnatcheck, Exempt_On, "Style_Checks: xz", "testing");  --  FLAG (already exempted with the same params)

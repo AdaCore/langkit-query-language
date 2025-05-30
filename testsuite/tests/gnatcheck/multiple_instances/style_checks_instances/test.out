@@ -11,7 +11,3 @@ With same style check on multiple instances
 gnatcheck: error: cannot enable the same style check in different rule instances: x
 main.adb:6:07: rule violation: redundant parentheses [extra_par|style_checks:x]
 >>>program returned status code 5
-Errors in Ada sources FLAG annotations!
-
-Missing 'FLAG' annotations:
-  main.adb at line 6

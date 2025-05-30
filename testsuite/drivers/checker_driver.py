@@ -1,6 +1,6 @@
 import re
 
-from drivers.base_driver import BaseDriver, Flags
+from drivers.base_driver import BaseDriver, TaggedLines
 
 
 class CheckerDriver(BaseDriver):
@@ -27,6 +27,10 @@ class CheckerDriver(BaseDriver):
 
     perf_supported = True
     flag_checking_supported = True
+
+    _flag_line_pattern = re.compile(
+        rf"^({BaseDriver.ada_file_pattern}):(\d+):\d+: rule violation: .*$"
+    )
 
     def run(self) -> None:
         args = []
@@ -71,7 +75,7 @@ class CheckerDriver(BaseDriver):
                 assert auto_fix_mode in ["DISPLAY", "NEW_FILE", "PATCH_FILE"]
                 self.check_run(
                     self.lkql_fix_exe + args + ['--auto-fix-mode', auto_fix_mode],
-                    parse_flags=False,
+                    check_flags=False,
                     catch_error=False,
                 )
 
@@ -92,21 +96,18 @@ class CheckerDriver(BaseDriver):
                             self.output += f"=== {pf} content:\n"
                             self.output += f.read()
 
-    def parse_flagged_lines(self, output: str) -> Flags:
-        # Compile the pattern to match a checker output
-        pattern = re.compile(
-            r"^([a-zA-Z][a-zA-Z0-9_\-]*\.(adb|ads)):(\d+):\d+: rule violation: .*$"
-        )
-
+    def parse_flagged_lines(self, output: str) -> dict[str, TaggedLines]:
         # Prepare the result
-        res = Flags()
+        res: dict[str, TaggedLines] = {}
 
         # For each line of the output search the groups in the line
         for line in output.splitlines():
-            search_result = pattern.search(line)
+            search_result = self._flag_line_pattern.search(line)
             if search_result is not None:
                 (file, _, line_num) = search_result.groups()
-                res.add_flag(file, int(line_num))
+                if not res.get(file):
+                    res[file] = TaggedLines()
+                res[file].tag_line(int(line_num))
 
         # Return the result
         return res
