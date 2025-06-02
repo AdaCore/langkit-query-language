@@ -23,6 +23,10 @@ import java.util.Map;
  */
 public final class ScriptFrames {
 
+    // Store information about a closure access, the slot, and whether the
+    // access is global (package top-level), and thus can be optimized.
+    public record ClosureSlotInfo(int slot, boolean isGlobal) {}
+
     // ----- Attributes -----
 
     /** LKQL built-ins with their slot. */
@@ -43,7 +47,6 @@ public final class ScriptFrames {
      *
      * @param builtIns The built-in symbols.
      * @param root The root node frame of the script frames description.
-     * @param globalScope
      */
     public ScriptFrames(
         final List<String> builtIns,
@@ -215,10 +218,10 @@ public final class ScriptFrames {
      * Get if the symbol is accessible in the closure of the current frame.
      *
      * @param symbol The symbol to look for.
-     * @return True of the symbol is accessible in the closure, false else.
+     * @return True if the symbol is accessible in the closure, false otherwise.
      */
     public boolean isClosure(final String symbol) {
-        return this.current.getClosure(symbol) > -1;
+        return this.current.getClosure(symbol).slot > -1;
     }
 
     /**
@@ -237,7 +240,7 @@ public final class ScriptFrames {
      * @param symbol The symbol to get the slot of.
      * @return The closure slot.
      */
-    public int getClosure(final String symbol) {
+    public ClosureSlotInfo getClosure(final String symbol) {
         return this.current.getClosure(symbol);
     }
 
@@ -374,7 +377,7 @@ public final class ScriptFrames {
          * @param symbol The symbol to get the slot of.
          * @return The closure slot or -1 if the symbol doesn't exist in the closure.
          */
-        public abstract int getClosure(String symbol);
+        public abstract ClosureSlotInfo getClosure(String symbol);
 
         // --- Children methods
 
@@ -537,44 +540,51 @@ public final class ScriptFrames {
         }
 
         @Override
-        public int getClosure(final String symbol) {
+        public ClosureSlotInfo getClosure(final String symbol) {
+            // Return -1 by default
+            if (this.parent == null) {
+                return new ClosureSlotInfo(-1, false);
+            }
+
+            // For the moment, we do a partial optimization: We only optimize  access to package
+            // level variables that are done from top-level functions.
+            //
+            // TODO: Make a more global optimization, see eng/libadalang/langkit-query-language#538
+            var isGlobal = this.parent.parent == null;
+
             // Look in the already existing closure symbols
             if (this.closure.containsKey(symbol)) {
-                return this.closure.get(symbol);
+                return new ClosureSlotInfo(this.closure.get(symbol), isGlobal);
             }
 
-            // Look in the parent if it is not null
-            if (this.parent != null) {
-                // Look in the parent bindings
-                final int bindingSlot = this.parent.getBinding(symbol).slot;
-                if (bindingSlot > -1) {
-                    final int slot = this.closureCounter++;
-                    this.closure.put(symbol, slot);
-                    this.closingBindings.put(slot, bindingSlot);
-                    return slot;
-                }
-
-                // Look in the parent parameters
-                final int parameterSlot = this.parent.getParameter(symbol);
-                if (parameterSlot > -1) {
-                    final int slot = this.closureCounter++;
-                    this.closure.put(symbol, slot);
-                    this.closingParameters.put(slot, parameterSlot);
-                    return slot;
-                }
-
-                // Look in the parent closure
-                final int closureSlot = this.parent.getClosure(symbol);
-                if (closureSlot > -1) {
-                    final int slot = this.closureCounter++;
-                    this.closure.put(symbol, slot);
-                    this.closingClosure.put(slot, closureSlot);
-                    return slot;
-                }
+            // Look in the parent bindings
+            final int bindingSlot = this.parent.getBinding(symbol).slot;
+            if (bindingSlot > -1) {
+                final int slot = this.closureCounter++;
+                this.closure.put(symbol, slot);
+                this.closingBindings.put(slot, bindingSlot);
+                return new ClosureSlotInfo(slot, isGlobal);
             }
 
-            // Return -1 by default
-            return -1;
+            // Look in the parent parameters
+            final int parameterSlot = this.parent.getParameter(symbol);
+            if (parameterSlot > -1) {
+                final int slot = this.closureCounter++;
+                this.closure.put(symbol, slot);
+                this.closingParameters.put(slot, parameterSlot);
+                return new ClosureSlotInfo(slot, false);
+            }
+
+            // Look in the parent closure
+            final ClosureSlotInfo closureSlot = this.parent.getClosure(symbol);
+            if (closureSlot.slot > -1) {
+                final int slot = this.closureCounter++;
+                this.closure.put(symbol, slot);
+                this.closingClosure.put(slot, closureSlot.slot);
+                return new ClosureSlotInfo(slot, closureSlot.isGlobal);
+            }
+
+            return new ClosureSlotInfo(-1, false);
         }
 
         // --- Children methods
@@ -674,7 +684,7 @@ public final class ScriptFrames {
         }
 
         @Override
-        public int getClosure(String symbol) {
+        public ClosureSlotInfo getClosure(String symbol) {
             return this.parent.getClosure(symbol);
         }
 

@@ -268,11 +268,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
         // Then look in the closure for the symbol
         else if (this.scriptFrames.isClosure(symbol)) {
-            final int slot = this.scriptFrames.getClosure(symbol);
+            final var slotInfo = this.scriptFrames.getClosure(symbol);
             if (this.scriptFrames.isClosureDeclared(symbol)) {
-                return new ReadClosure(location, slot);
+                return ReadClosureNodeGen.create(location, slotInfo.slot(), slotInfo.isGlobal());
             } else {
-                return new ReadClosureUnsafe(location, slot, symbol);
+                return new ReadClosureUnsafe(location, slotInfo.slot(), symbol);
             }
         } else if (this.scriptFrames.isPrelude(symbol)) {
             return new ReadPrelude(location, this.scriptFrames.getPrelude(symbol));
