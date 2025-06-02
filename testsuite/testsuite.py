@@ -34,7 +34,8 @@ class StandardTestFinder(YAMLTestFinder):
 
     def __init__(
             self,
-            env_constraints: dict[str, Callable[[Any], bool]] | None = None
+            env_constraints: dict[str, Callable[[Any], bool]] | None = None,
+            perf_mode: bool = False
         ):
         """
         Create a new standard test finder, with a given list of constraints to
@@ -42,6 +43,7 @@ class StandardTestFinder(YAMLTestFinder):
         """
         super().__init__()
         self.env_constraints = env_constraints
+        self.perf_mode = perf_mode
 
     def verify_then_return(self, test: TestFinderResult) -> TestFinderResult | None:
         """
@@ -62,42 +64,21 @@ class StandardTestFinder(YAMLTestFinder):
         # Probe testcases as usual
         result = super().probe(testsuite, dirpath, dirnames, filenames)
 
-        # Reject all tests which have 'tests/perf' in their directory name
-        if result is None or P.join("tests", "perf") in result.test_dir:
+        if result is None:
             return None
 
-        return self.verify_then_return(result)
-
-
-class PerfTestFinder(StandardTestFinder):
-    """
-    Testcase finder to use in perf mode.
-
-    This finder automatically discard tests that do not have performance
-    measuring instructions. This is preferable to creating these tests but
-    skipping them (SKIP status) as most tests do not support performance
-    measurements: less noise in the testsuite report.
-    """
-
-    def probe(self,
-              testsuite: TestsuiteCore,
-              dirpath: str,
-              dirnames: list[str],
-              filenames: list[str]) -> TestFinderResult:
-        # Probe testcases as usual
-        result = super().probe(testsuite, dirpath, dirnames, filenames)
-
-        # Reject testcases which do not contain performance measuring
-        # instructions.
-        if result is None or P.join("tests", "perf") not in result.test_dir:
+        if self.perf_mode:
+            # Only run tests which have 'tests/perf' in their directory name
+            if P.join("tests", "perf") not in result.test_dir:
+                return None
+            # Make sure that the driver supports performance measuring
+            if not result.driver_cls.perf_supported:
+                raise ProbingError(
+                    f"The '{result.driver_cls.__name__}' driver does not support"
+                     " performance measuring"
+                )
+        elif P.join("tests", "perf") in result.test_dir:
             return None
-
-        # Make sure that the driver supports performance measuring
-        if not result.driver_cls.perf_supported:
-            raise ProbingError(
-                f"The '{result.driver_cls.__name__}' driver does not support"
-                 " performance measuring"
-            )
 
         return self.verify_then_return(result)
 
@@ -174,11 +155,7 @@ class LKQLTestsuite(Testsuite):
         if self.env.options.only_with_auto_fix:
             env_constraints["auto_fix"] = lambda v: v == True
 
-        return [
-            PerfTestFinder(env_constraints)
-            if self.env.perf_mode else
-            StandardTestFinder(env_constraints)
-        ]
+        return [StandardTestFinder(env_constraints, self.env.perf_mode)]
 
     def set_up(self) -> None:
         super().set_up()
