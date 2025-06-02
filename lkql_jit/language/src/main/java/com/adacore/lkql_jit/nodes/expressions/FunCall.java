@@ -90,10 +90,8 @@ public abstract class FunCall extends Expr {
         method.setCallNode(this);
 
         // Execute the argument list with the "this" value
-        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
-        // compilation error
         String[] actualParam = method.parameterNames;
-        Object[] args = this.argList.executeArgList(frame.materialize(), actualParam, 1);
+        Object[] args = this.argList.executeArgList(frame, actualParam, 1);
         args[0] = method.thisValue;
 
         // Return the result of the method call
@@ -116,10 +114,8 @@ public abstract class FunCall extends Expr {
         function.setCallNode(this);
 
         // Execute the argument list
-        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
-        // compilation error
         String[] actualParam = function.parameterNames;
-        Object[] args = this.argList.executeArgList(frame.materialize(), actualParam);
+        Object[] args = this.argList.executeArgList(frame, actualParam);
 
         // Execute the built-in function value
         return this.executeLKQLFunction(frame, function, functionLibrary, args, false);
@@ -139,10 +135,8 @@ public abstract class FunCall extends Expr {
         @CachedLibrary("function") InteropLibrary functionLibrary
     ) {
         // Execute the argument list with the mandatory space for the function closure
-        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
-        // compilation error
         String[] actualParam = function.parameterNames;
-        Object[] args = this.argList.executeArgList(frame.materialize(), actualParam);
+        Object[] args = this.argList.executeArgList(frame, actualParam);
 
         // Return the result of the function execution
         return executeLKQLFunction(frame, function, functionLibrary, args, true);
