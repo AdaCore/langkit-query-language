@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
@@ -27,13 +26,13 @@ public class LKQLProperty extends BasicLKQLValue {
     // ----- Attributes -----
 
     /** The name of the Libadalang property. */
-    private final String name;
+    public final String name;
 
     /** Description of the property with its Java method and parameters. */
-    private final LangkitSupport.Reflection.Field description;
+    public final LangkitSupport.Reflection.Field description;
 
     /** The node associated to the property. */
-    private final LangkitSupport.NodeInterface node;
+    public final LangkitSupport.NodeInterface node;
 
     // ----- Constructors -----
 
@@ -49,42 +48,11 @@ public class LKQLProperty extends BasicLKQLValue {
         return new LKQLProperty(name, node);
     }
 
-    // ----- Getters -----
-
-    public LangkitSupport.NodeInterface getNode() {
-        return node;
-    }
-
-    public LangkitSupport.Reflection.Field getDescription() {
-        return description;
-    }
-
     // ----- Instance methods -----
 
     /** Get whether the property reference point to a node field. */
     public boolean isField() {
         return this.name.startsWith("f");
-    }
-
-    /**
-     * Execute the property with the given arguments.
-     *
-     * @param caller The locatable which called the execution.
-     * @param arguments The argument for the property call.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public Object executeAsProperty(Node caller, ArgList argList, Object... arguments) {
-        try {
-            return ReflectionUtils.callProperty(
-                this.node,
-                this.description,
-                caller,
-                argList,
-                arguments
-            );
-        } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(e.getType(), caller);
-        }
     }
 
     /**

@@ -9,6 +9,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
@@ -19,6 +20,9 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -29,6 +33,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.source.SourceSection;
+import java.util.Arrays;
 
 /**
  * This node represents a function call node in the LKQL language.
@@ -43,32 +48,25 @@ public abstract class FunCall extends Expr {
     /** Whether the function call is safe access. */
     protected final boolean isSafe;
 
-    // ----- Children -----
+    public final String[] argNames;
 
-    /** The function call arguments. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private ArgList argList;
+    @Children
+    public final Expr[] args;
 
     // ----- Constructors -----
 
     /**
-     * Create a new function call node.
+     * Create a new function call node. Arguments are stored in two separate
+     * arrays, one for the argument names, one for the argument's expressions.
      *
      * @param location The location of the node in the source.
      * @param isSafe Whether the function call is protected with a safe operator.
-     * @param argList The arguments of the function call.
      */
-    protected FunCall(SourceSection location, boolean isSafe, ArgList argList) {
+    protected FunCall(SourceSection location, boolean isSafe, Expr[] args, String[] argNames) {
         super(location);
         this.isSafe = isSafe;
-        this.argList = argList;
-    }
-
-    // ----- Getters -----
-
-    public ArgList getArgList() {
-        return argList;
+        this.args = args;
+        this.argNames = argNames;
     }
 
     public abstract Expr getCallee();
@@ -87,14 +85,24 @@ public abstract class FunCall extends Expr {
         @CachedLibrary("method") InteropLibrary methodLibrary
     ) {
         method.setCallNode(this);
-
+        var defaultVals = method.getParameterDefaultValues();
         // Execute the argument list with the "this" value
-        String[] actualParam = method.parameterNames;
-        Object[] args = this.argList.executeArgList(frame, actualParam, 1);
-        args[0] = method.thisValue;
+        Expr[] argExprs = orderArgList(
+            Arrays.copyOfRange(method.parameterNames, 1, method.parameterNames.length),
+            argNames,
+            args,
+            Arrays.copyOfRange(defaultVals, 1, defaultVals.length),
+            this
+        );
+
+        Object[] argVals = new Object[argExprs.length + 1];
+        argVals[0] = method.thisValue;
+        for (int i = 1; i < argVals.length; i++) {
+            argVals[i] = argExprs[i - 1] == null ? null : argExprs[i - 1].executeGeneric(frame);
+        }
 
         // Return the result of the method call
-        return this.executeLKQLFunction(frame, method, methodLibrary, args);
+        return this.executeLKQLFunction(frame, method, methodLibrary, argVals);
     }
 
     /**
@@ -112,12 +120,25 @@ public abstract class FunCall extends Expr {
     ) {
         function.setCallNode(this);
 
-        // Execute the argument list
-        String[] actualParam = function.parameterNames;
-        Object[] args = this.argList.executeArgList(frame, actualParam);
+        // Execute the argument list.
+        // TODO: This code block might eventually be factorized in a separate function
+        //       (see eng/libadalang/langkit-query-language#539)
+        String[] actualParams = function.parameterNames;
+        Expr[] argExprs = orderArgList(
+            actualParams,
+            argNames,
+            args,
+            function.getParameterDefaultValues(),
+            this
+        );
+
+        Object[] argVals = new Object[argExprs.length];
+        for (int i = 0; i < argVals.length; i++) {
+            argVals[i] = argExprs[i] == null ? null : argExprs[i].executeGeneric(frame);
+        }
 
         // Execute the built-in function value
-        return this.executeLKQLFunction(frame, function, functionLibrary, args);
+        return this.executeLKQLFunction(frame, function, functionLibrary, argVals);
     }
 
     /**
@@ -134,11 +155,22 @@ public abstract class FunCall extends Expr {
         @CachedLibrary("function") InteropLibrary functionLibrary
     ) {
         // Execute the argument list with the mandatory space for the function closure
-        String[] actualParam = function.parameterNames;
-        Object[] args = this.argList.executeArgList(frame, actualParam);
+        String[] actualParams = function.parameterNames;
+        Expr[] argExprs = orderArgList(
+            actualParams,
+            argNames,
+            args,
+            function.getParameterDefaultValues(),
+            this
+        );
+
+        Object[] argVals = new Object[argExprs.length];
+        for (int i = 0; i < argVals.length; i++) {
+            argVals[i] = argExprs[i] == null ? null : argExprs[i].executeGeneric(frame);
+        }
 
         // Return the result of the function execution
-        return executeLKQLFunction(frame, function, functionLibrary, args);
+        return executeLKQLFunction(frame, function, functionLibrary, argVals);
     }
 
     /**
@@ -151,10 +183,25 @@ public abstract class FunCall extends Expr {
     @Specialization
     protected Object onProperty(VirtualFrame frame, LKQLProperty property) {
         // Execute the arguments as a simple array
-        Object[] arguments = this.argList.executeArgList(frame);
+
+        // Execute the arguments as a simple array
+        Object[] arguments = new Object[this.args.length];
+        for (int i = 0; i < arguments.length; i++) {
+            arguments[i] = this.args[i].executeGeneric(frame);
+        }
 
         // Call the property and return its result
-        return property.executeAsProperty(this, this.argList, arguments);
+        try {
+            return ReflectionUtils.callProperty(
+                property.node,
+                property.description,
+                this,
+                args,
+                arguments
+            );
+        } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
+            throw LKQLRuntimeException.unsupportedType(e.getType(), this);
+        }
     }
 
     /**
@@ -166,16 +213,13 @@ public abstract class FunCall extends Expr {
      */
     @Specialization
     protected LKQLSelectorList onSelector(VirtualFrame frame, LKQLSelector selectorValue) {
-        // Get the argument list and get the node from it
-        Arg[] argList = this.argList.getArgs();
-
         // Verify the argument number
-        if (argList.length < 1) {
+        if (args.length < 1) {
             throw LKQLRuntimeException.selectorWithoutNode(this);
         }
 
         // Return the selector list value
-        return selectorValue.getList(argList[0].getArgExpr().executeGeneric(frame));
+        return selectorValue.getList(args[0].executeGeneric(frame));
     }
 
     /**
@@ -203,6 +247,72 @@ public abstract class FunCall extends Expr {
         );
     }
 
+    @CompilerDirectives.TruffleBoundary
+    public static Expr[] orderArgList(String[] paramNames, ArgList argList) {
+        return FunCall.orderArgList(
+            paramNames,
+            Arrays.stream(argList.getArgs()).map(Arg::getArgStringName).toArray(String[]::new),
+            Arrays.stream(argList.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
+            null,
+            argList
+        );
+    }
+
+    public static Expr[] orderArgList(
+        String[] paramNames,
+        String[] argNames,
+        Expr[] args,
+        Expr[] defaultValues,
+        LKQLNode caller
+    ) {
+        // Verify the arity
+        if (paramNames.length < args.length) {
+            throw LKQLRuntimeException.wrongArity(paramNames.length, args.length, caller);
+        }
+
+        // Prepare the result
+        Expr[] res = new Expr[paramNames.length];
+
+        // Fill the result
+        for (int i = 0; i < args.length; i++) {
+            // Prepare the turn
+            Expr arg = args[i];
+            int index = i;
+
+            String argName = null;
+            // If the current argument is a named arg
+            if (argNames[i] != null) {
+                argName = argNames[i];
+                index = ArrayUtils.indexOf(paramNames, argName);
+            }
+
+            // There is no corresponding parameter
+            if (index > -1) {
+                res[index] = arg;
+            } else {
+                throw LKQLRuntimeException.unknownArgument(argName, arg);
+            }
+        }
+
+        // Verify that all arguments are present
+        for (int i = 0; i < res.length; i++) {
+            if (res[i] == null) {
+                // If no defaultValues array is passed, we don't try to fill it,
+                // and we don't raise exceptions on missing arguments.
+                if (defaultValues != null) {
+                    if (defaultValues[i] != null) {
+                        res[i] = defaultValues[i];
+                    } else {
+                        throw LKQLRuntimeException.missingArgument(i + 1, caller);
+                    }
+                }
+            }
+        }
+
+        // Return the result array
+        return res;
+    }
+
     // ----- Instance methods -----
 
     /** Util function to call an LKQL function with its precomputed arguments. */
@@ -212,18 +322,6 @@ public abstract class FunCall extends Expr {
         InteropLibrary functionLibrary,
         Object[] args
     ) {
-        // Verify that all arguments are present
-        Expr[] defaultValues = function.getParameterDefaultValues();
-        for (int i = 0; i < args.length; i++) {
-            if (args[i] == null) {
-                if (defaultValues[i] != null) {
-                    args[i] = defaultValues[i].executeGeneric(frame);
-                } else {
-                    throw LKQLRuntimeException.missingArgument(i + 1, this);
-                }
-            }
-        }
-
         // Include the closure in arguments if required
         // We don't place the closure in the arguments because built-ins don't have any.
         // Just execute the function.

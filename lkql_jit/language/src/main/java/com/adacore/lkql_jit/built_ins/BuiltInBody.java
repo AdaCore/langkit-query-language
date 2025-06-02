@@ -41,7 +41,7 @@ public abstract class BuiltInBody extends Expr {
     // ----- Instance methods -----
 
     public LKQLNode argNode(int index) {
-        return this.callNode.getArgList().getArgs()[index];
+        return this.callNode.args[index];
     }
 
     // ----- Override methods -----

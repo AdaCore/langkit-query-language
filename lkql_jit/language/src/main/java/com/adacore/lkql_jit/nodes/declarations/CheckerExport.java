@@ -12,6 +12,8 @@ import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.utils.Constants;
@@ -72,9 +74,17 @@ public class CheckerExport extends Declaration {
 
     /** Export the given LKQL function */
     private void exportChecker(VirtualFrame frame, LKQLFunction functionValue) {
+        final Expr[] orderedArguments = FunCall.orderArgList(
+            Constants.CHECKER_PARAMETER_NAMES,
+            this.annotation.getArguments()
+        );
         // Execute the annotation arguments
-        final Object[] checkerArguments =
-            this.annotation.getArguments().executeArgList(frame, Constants.CHECKER_PARAMETER_NAMES);
+        Object[] checkerArguments = new Object[orderedArguments.length];
+        for (int i = 0; i < checkerArguments.length; i++) {
+            checkerArguments[i] = orderedArguments[i] != null
+                ? orderedArguments[i].executeGeneric(frame)
+                : null;
+        }
 
         // Set the default values of the checker arguments
         for (int i = 0; i < checkerArguments.length; i++) {

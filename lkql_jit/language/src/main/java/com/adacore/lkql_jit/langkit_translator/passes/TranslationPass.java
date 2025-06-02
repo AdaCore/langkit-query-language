@@ -485,10 +485,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             // Verify the same name arguments
             else if (curArg instanceof NamedArg namedArg) {
                 namedPhase = true;
-                if (seenNames.contains(namedArg.getArgName().getName())) {
+                if (seenNames.contains(namedArg.getArgStringName())) {
                     throw LKQLRuntimeException.multipleSameNameArgument(curArg);
                 }
-                seenNames.add(namedArg.getArgName().getName());
+                seenNames.add(namedArg.getArgStringName());
             }
 
             // Add the argument to the list
@@ -1552,7 +1552,13 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final ArgList arguments = (ArgList) funCall.fArguments().accept(this);
 
         // Return the function call
-        return FunCallNodeGen.create(loc(funCall), isSafe, arguments, callee);
+        return FunCallNodeGen.create(
+            loc(funCall),
+            isSafe,
+            Arrays.stream(arguments.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
+            Arrays.stream(arguments.getArgs()).map(Arg::getArgStringName).toArray(String[]::new),
+            callee
+        );
     }
 
     /**
@@ -1748,7 +1754,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return NodePatternPropertyNodeGen.create(
             loc(nodePatternProperty),
             propertyName,
-            argList,
+            Arrays.stream(argList.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
             expected
         );
     }

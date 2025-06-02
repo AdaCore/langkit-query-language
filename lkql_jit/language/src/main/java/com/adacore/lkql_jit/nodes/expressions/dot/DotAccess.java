@@ -88,8 +88,8 @@ public abstract class DotAccess extends BaseDotAccess {
         guards = {
             "!receiver.isNone()",
             "getBuiltIn(receiver) == null",
-            "receiver == property.getNode()",
-            "property.getDescription() != null",
+            "receiver == property.node",
+            "property.description != null",
         },
         limit = "1"
     )
@@ -128,7 +128,7 @@ public abstract class DotAccess extends BaseDotAccess {
 
         // Create the property reference
         LKQLProperty property = new LKQLProperty(this.member.getName(), receiver);
-        if (property.getDescription() == null) {
+        if (property.description == null) {
             throw LKQLRuntimeException.noSuchField(this.member);
         }
 

@@ -11,8 +11,7 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
-import com.adacore.lkql_jit.nodes.arguments.Arg;
-import com.adacore.lkql_jit.nodes.arguments.ArgList;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -38,7 +37,7 @@ public final class ReflectionUtils {
      * @param argument The argument node (for debug purpose).
      * @return The refined argument.
      */
-    public static Object refineArgument(Object source, Class<?> type, Arg argument) {
+    public static Object refineArgument(Object source, Class<?> type, Expr argument) {
         // Get the result from the type helper
         Object res = LKQLTypesHelper.fromLKQLValue(source);
 
@@ -97,20 +96,13 @@ public final class ReflectionUtils {
 
     /**
      * Call a property on a node and get the result.
-     *
-     * @param node The node to call on.
-     * @param fieldDescription The description of the field to execute.
-     * @param caller The caller position.
-     * @param argList The argument list.
-     * @param arguments The arguments for the call.
-     * @return The result of the property call.
      */
     @CompilerDirectives.TruffleBoundary
     public static Object callProperty(
         LangkitSupport.NodeInterface node,
         LangkitSupport.Reflection.Field fieldDescription,
         Node caller,
-        ArgList argList,
+        Expr[] args,
         Object... arguments
     ) throws LangkitException, UnsupportedTypeException {
         // Verify if there is more arguments than params
@@ -118,7 +110,7 @@ public final class ReflectionUtils {
             throw LKQLRuntimeException.wrongArity(
                 fieldDescription.getParams().size(),
                 arguments.length,
-                argList
+                caller
             );
         }
 
@@ -128,11 +120,7 @@ public final class ReflectionUtils {
             for (int i = 0; i < refinedArgs.length; i++) {
                 LangkitSupport.Reflection.Param currentParam = fieldDescription.getParams().get(i);
                 if (i < arguments.length) {
-                    refinedArgs[i] = refineArgument(
-                        arguments[i],
-                        currentParam.getType(),
-                        argList.getArgs()[i]
-                    );
+                    refinedArgs[i] = refineArgument(arguments[i], currentParam.getType(), args[i]);
                 } else {
                     if (currentParam.getDefaultValue().isPresent()) {
                         refinedArgs[i] = currentParam.getDefaultValue().get();
@@ -140,7 +128,7 @@ public final class ReflectionUtils {
                         throw LKQLRuntimeException.wrongArity(
                             fieldDescription.getParams().size(),
                             arguments.length,
-                            argList
+                            caller
                         );
                     }
                 }
@@ -165,7 +153,7 @@ public final class ReflectionUtils {
             // Throw a default exception
             throw LKQLRuntimeException.fromMessage(
                 "Invalid argument type, but cannot find which",
-                argList
+                caller
             );
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();

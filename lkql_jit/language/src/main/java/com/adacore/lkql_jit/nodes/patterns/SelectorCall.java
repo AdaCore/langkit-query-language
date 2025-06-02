@@ -156,7 +156,7 @@ public final class SelectorCall extends LKQLNode {
                 NamedArg arg = (NamedArg) rawArg;
 
                 // If the depth is given
-                switch (arg.getArgName().getName()) {
+                switch (arg.getArgStringName()) {
                     case Constants.DEPTH_SYMBOL:
                         try {
                             depth = (int) arg.getArgExpr().executeLong(frame);

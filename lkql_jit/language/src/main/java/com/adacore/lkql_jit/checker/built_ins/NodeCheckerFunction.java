@@ -71,7 +71,7 @@ public final class NodeCheckerFunction {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.NODE_INTERFACE,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.args[0]
                 );
             }
 

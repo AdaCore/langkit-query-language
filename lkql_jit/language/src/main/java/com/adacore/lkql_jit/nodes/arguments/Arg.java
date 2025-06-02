@@ -43,12 +43,12 @@ public abstract class Arg extends LKQLNode {
 
     // ----- Getters -----
 
-    public Identifier getArgName() {
-        return this.argName;
-    }
-
     public Expr getArgExpr() {
         return this.argExpr;
+    }
+
+    public String getArgStringName() {
+        return this.argName == null ? null : this.argName.getName();
     }
 
     // ----- Execution methods -----
