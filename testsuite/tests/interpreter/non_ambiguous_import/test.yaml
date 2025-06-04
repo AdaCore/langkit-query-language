@@ -1,0 +1,9 @@
+driver: 'gnatcheck'
+description: |
+  Do not raise an error when the imported file is in one of the lkql rules
+  search path.
+project: 'prj.gpr'
+rules:
+  - +Rmy_rule
+rules_dirs:
+  - rules
