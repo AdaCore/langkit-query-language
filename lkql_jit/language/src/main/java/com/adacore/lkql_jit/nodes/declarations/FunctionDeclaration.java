@@ -34,6 +34,10 @@ public final class FunctionDeclaration extends Declaration {
     @Child
     private FunExpr functionExpression;
 
+    public FunExpr getFunctionExpression() {
+        return functionExpression;
+    }
+
     // ----- Constructors -----
 
     /**

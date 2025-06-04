@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.runtime.values.DynamicAdaNode;
 import com.adacore.lkql_jit.runtime.values.LKQLProperty;
 import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.dsl.Cached;
@@ -94,6 +95,11 @@ public abstract class NodePatternField extends NodePatternDetail {
 
         // Execute the field detail
         return this.fieldCached(frame, node, property);
+    }
+
+    @Specialization
+    protected boolean fieldDynamic(VirtualFrame frame, DynamicAdaNode node) {
+        return this.expected.executeValue(frame, node.getField(fieldName));
     }
 
     // ----- Override methods -----

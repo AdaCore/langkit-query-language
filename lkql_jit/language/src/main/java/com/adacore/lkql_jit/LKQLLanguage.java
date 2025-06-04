@@ -9,6 +9,7 @@ import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.langkit_translator.passes.FramingPass;
+import com.adacore.lkql_jit.langkit_translator.passes.ResolutionPass;
 import com.adacore.lkql_jit.langkit_translator.passes.TranslationPass;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -329,7 +330,14 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Do the translation pass and return the result
         final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
 
-        return lkqlLangkitRoot.accept(translationPass);
+        final var ast = lkqlLangkitRoot.accept(translationPass);
+
+        if (!isPrelude) {
+            final var resolutionPass = new ResolutionPass();
+            resolutionPass.passEntry(ast);
+        }
+
+        return ast;
     }
 
     public LKQLNode translate(final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source) {

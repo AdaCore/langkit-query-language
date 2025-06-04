@@ -28,7 +28,12 @@ public final class FunExpr extends Expr {
     private final ClosureDescriptor closureDescriptor;
 
     /** The root node representing the function execution. */
-    private final FunctionRootNode functionRootNode;
+    @Child
+    private FunctionRootNode functionRootNode;
+
+    public FunctionRootNode getFunctionRootNode() {
+        return functionRootNode;
+    }
 
     /** The names of the parameters. */
     private final String[] parameterNames;
