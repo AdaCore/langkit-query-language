@@ -73,4 +73,14 @@ public final class TopLevelRootNode extends BaseRootNode {
         // Execute the program
         return this.program.executeGeneric(frame);
     }
+
+    @Override
+    public String toString() {
+        return "<" + program.getSourceSection().getSource().getName() + ">";
+    }
+
+    @Override
+    public String getName() {
+        return program.getSourceSection().getSource().getName();
+    }
 }

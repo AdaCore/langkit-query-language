@@ -1,4 +1,4 @@
 script.lkql:2:1: error: Invalid blockstring: first character should be whitespace
-2 | |"pouet
-  | ^^^^^^^
+  2 | |"pouet
+    | ^^^^^^^
 error: Errors during analysis

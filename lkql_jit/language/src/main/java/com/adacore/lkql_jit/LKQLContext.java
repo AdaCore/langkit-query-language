@@ -15,7 +15,6 @@ import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
-import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -49,9 +48,6 @@ public final class LKQLContext {
     private final GlobalScope global;
 
     public final CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
-
-    /** The call stack of the current language thread. */
-    public final CallStack callStack = new CallStack();
 
     /** The stack representing the current LKQL source chain. */
     public final Stack<Source> fromStack = new Stack<>();

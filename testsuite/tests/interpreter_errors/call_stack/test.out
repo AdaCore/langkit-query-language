@@ -1,6 +1,12 @@
 script.lkql:1:15: error: Null receiver in dot access
-1 | fun error() = null.not_a_field()
-  |               ^^^^^^^^^^^^^^^^
- in error (called at script.lkql:2:20)
- in call_error (called at script.lkql:3:25)
- in call_call_error (called at script.lkql:4:1)
+  1 | fun error() = null.not_a_field()
+    |               ^^^^^^^^^^^^^^^^
+script.lkql:2:20 in call_error
+  2 | fun call_error() = error()
+    |                    ^^^^^^^
+script.lkql:3:25 in call_call_error
+  3 | fun call_call_error() = call_error()
+    |                         ^^^^^^^^^^^^
+script.lkql:4:1 in script.lkql
+  4 | call_call_error()
+    | ^^^^^^^^^^^^^^^^^

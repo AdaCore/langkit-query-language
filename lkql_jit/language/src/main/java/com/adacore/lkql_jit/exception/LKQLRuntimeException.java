@@ -7,16 +7,19 @@ package com.adacore.lkql_jit.exception;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
-import com.adacore.lkql_jit.runtime.CallStack;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.TruffleStackTrace;
+import com.oracle.truffle.api.TruffleStackTraceElement;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
 import java.io.Serial;
+import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -33,14 +36,10 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     @Serial
     private static final long serialVersionUID = 8401390548003855662L;
 
-    /** The state of the call stack when the exception has been raised. */
-    public final CallStack callStack;
-
     // ----- Constructors -----
 
     private LKQLRuntimeException(String message, Node location) {
         super(message, location);
-        this.callStack = LKQLLanguage.getContext(null).callStack.clone();
     }
 
     // ----- Exception creation methods -----
@@ -516,6 +515,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     public String getMessage() {
         var loc = getSourceLoc();
         var diagEmitter = LKQLLanguage.getContext(null).getDiagnosticEmitter();
+        var callStack = diagEmitter.callStack(this).strip();
         return (
             diagEmitter.diagnostic(
                 CheckerUtils.MessageKind.ERROR,
@@ -524,7 +524,65 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
                 loc,
                 null
             ) +
-            (this.callStack.isEmpty() ? "" : "\n" + diagEmitter.callStack(this.callStack))
+            (callStack.equals("") ? "" : "\n" + callStack)
         );
+    }
+
+    public static Node getClosestNodeWithSourceInfo(Node node) {
+        while (node != null && node.getSourceSection() == null) {
+            node = node.getParent();
+        }
+        return node;
+    }
+
+    public String formatCallStack(boolean pretty, boolean skipFirstFrame) {
+        List<TruffleStackTraceElement> stackTrace = TruffleStackTrace.getStackTrace(this);
+
+        if (stackTrace == null) {
+            return "<null stacktrace>";
+        }
+
+        StringBuilder res = new StringBuilder();
+
+        if (skipFirstFrame) {
+            stackTrace = stackTrace.size() > 0
+                ? stackTrace.subList(1, stackTrace.size())
+                : stackTrace;
+        }
+
+        for (TruffleStackTraceElement frame : stackTrace) {
+            if (!res.isEmpty()) {
+                res.append('\n');
+            }
+            Node call = frame.getLocation();
+            var rootNode = frame.getTarget().getRootNode();
+            var closestNode = LKQLRuntimeException.getClosestNodeWithSourceInfo(call);
+            if (closestNode != null) {
+                var sourceLocation = new SourceSectionWrapper(closestNode.getSourceSection());
+                res.append(sourceLocation.display());
+                // Format the current call and add it to the result
+                res
+                    .append(" in ")
+                    .append(
+                        pretty && LKQLLanguage.SUPPORT_COLOR
+                            ? "%s%s%s%s".formatted(
+                                    StringUtils.ANSI_RED,
+                                    StringUtils.ANSI_BOLD,
+                                    rootNode.getName(),
+                                    StringUtils.ANSI_RESET
+                                )
+                            : rootNode.getName()
+                    )
+                    .append("\n");
+
+                if (pretty) {
+                    res.append(
+                        StringUtils.underlineSource(sourceLocation, StringUtils.ANSI_YELLOW, 2)
+                    );
+                }
+            }
+        }
+
+        return res.toString();
     }
 }

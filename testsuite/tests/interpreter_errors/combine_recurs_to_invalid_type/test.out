@@ -1,4 +1,6 @@
 script.lkql:2:7: error: Unsupported operation: Int & Int
-2 | print({a: 1}.combine({a: 2}))
-  |       ^^^^^^^^^^^^^^^^^^^^^^
- in combine (called at script.lkql:2:7)
+  2 | print({a: 1}.combine({a: 2}))
+    |       ^^^^^^^^^^^^^^^^^^^^^^
+script.lkql:2:7 in script.lkql
+  2 | print({a: 1}.combine({a: 2}))
+    |       ^^^^^^^^^^^^^^^^^^^^^^
