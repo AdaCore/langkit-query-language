@@ -1,0 +1,17 @@
+import stdlib
+
+fun check(node) =
+    |" Detect 'Valid attribute applied to a floating-point component of a
+    |" composite type subject to a Scalar_Storage_Order aspect/clause.
+    node is AttributeRef
+    when node.f_attribute.p_name_is("Valid")
+     and node.f_prefix.p_expression_type().p_is_float_type()
+     and node.f_prefix.p_referenced_decl() is decl@BasicDecl
+     when match decl
+      # Only records and arrays can have the Scalar_Storage_Order aspect
+      | cd@ComponentDecl => stdlib.has_non_default_sso(cd.p_semantic_parent())
+      | od@ObjectDecl => {
+          val td = od.p_type_expression().p_designated_type_decl();
+          td.p_is_array_type() and stdlib.has_non_default_sso(td)
+        }
+      | * => false

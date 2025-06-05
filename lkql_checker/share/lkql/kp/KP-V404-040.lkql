@@ -1,12 +1,8 @@
 # Flag 'Valid applied to floating-point components of composite types that
 # specify a non default Scalar_Storage_Order aspect.
 
-import stdlib
+import kp_v404_040_internal
 
 @check(message="possible occurrence of KP V404-040")
 fun kp_v404_040(node) =
-    node is AttributeRef
-    when node.f_attribute.p_name_is("Valid")
-     and node.f_prefix.p_expression_type().p_is_float_type()
-     and node.f_prefix.p_referenced_decl() is c@ComponentDecl
-     when stdlib.has_non_default_sso(c.p_semantic_parent())
+    kp_v404_040_internal.check(node)

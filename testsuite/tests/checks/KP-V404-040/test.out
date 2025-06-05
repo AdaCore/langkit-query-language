@@ -2,3 +2,7 @@ p.adb:25:26: rule violation: possible occurrence of KP V404-040
 25 |   Is_Valid  : Boolean := My_Record.Az'Valid;   --  FLAG
    |                          ^^^^^^^^^^^^^^^^^^
 
+p2.adb:18:26: rule violation: possible occurrence of KP V404-040
+18 |   Is_Valid  : Boolean := My_Array (1)'Valid;   --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^
+
