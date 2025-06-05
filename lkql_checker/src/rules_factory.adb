@@ -3,6 +3,7 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
+with Ada.Containers.Ordered_Sets;
 with Ada.Environment_Variables;
 
 with GNAT.OS_Lib;
@@ -35,9 +36,12 @@ package body Rules_Factory is
      (Ctx : L.Analysis_Context; Dirs : Path_Array := No_Paths)
       return Rule_Vector
    is
+      package Virtual_File_Sets is new
+        Ada.Containers.Ordered_Sets (Element_Type => Virtual_File);
+
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
       Rules      : Rule_Vector := Rule_Vectors.Empty_Vector;
-      Seen       : String_Sets.Set := String_Sets.Empty_Set;
+      Seen       : Virtual_File_Sets.Set := Virtual_File_Sets.Empty_Set;
       Impacts    : constant JSON_Value := Get_Impacts (Rules_Dirs);
 
    begin
@@ -53,7 +57,7 @@ package body Rules_Factory is
             begin
                for File of Dir.all loop
                   if File.File_Extension = +".lkql"
-                    and then not Seen.Contains (+File.Full_Name)
+                    and then not Seen.Contains (File)
                   then
                      declare
                         Rc : Rule_Command;
@@ -64,7 +68,7 @@ package body Rules_Factory is
                      begin
                         if Has_Rule then
                            Rules.Append (Rc);
-                           Seen.Include (+File.Full_Name);
+                           Seen.Include (File);
                         end if;
                      end;
                   end if;
