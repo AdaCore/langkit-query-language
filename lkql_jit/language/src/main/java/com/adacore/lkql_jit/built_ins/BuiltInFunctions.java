@@ -25,13 +25,18 @@ import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.LoopNode;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.nodes.RepeatingNode;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -313,6 +318,92 @@ public class BuiltInFunctions {
             @Cached ValueCombiner combiner
         ) {
             return combiner.execute(left, right, recursive, this.callNode);
+        }
+    }
+
+    @BuiltInFunction(name = "repeat", doc = "Call the given function N times")
+    abstract static class RepeatExpr extends BuiltInBody {
+
+        @CompilerDirectives.TruffleBoundary
+        public LoopNode getLoopNode(
+            long times,
+            LKQLFunction function,
+            InteropLibrary functionLibrary
+        ) {
+            return Truffle.getRuntime()
+                .createLoopNode(new InternalRepeatingNode(function, functionLibrary, times));
+        }
+
+        @Specialization(
+            limit = Constants.SPECIALIZED_LIB_LIMIT,
+            guards = { "function.parameterNames.length == 0", "function == cachedFunction" }
+        )
+        protected Object onValidArgs(
+            VirtualFrame frame,
+            long times,
+            LKQLFunction function,
+            @Cached("function") @SuppressWarnings("unused") LKQLFunction cachedFunction,
+            @CachedLibrary("function") InteropLibrary functionLibrary,
+            @Cached("getLoopNode(times, function, functionLibrary)") LoopNode loopNode
+        ) {
+            loopNode.execute(frame);
+            return null;
+        }
+
+        @Specialization(replaces = "onValidArgs", limit = Constants.SPECIALIZED_LIB_LIMIT)
+        protected Object fallBack(
+            VirtualFrame frame,
+            long times,
+            LKQLFunction function,
+            @CachedLibrary("function") InteropLibrary functionLibrary
+        ) {
+            return onValidArgs(
+                frame,
+                times,
+                function,
+                function,
+                functionLibrary,
+                getLoopNode(times, function, functionLibrary)
+            );
+        }
+
+        public static final class InternalRepeatingNode extends Node implements RepeatingNode {
+
+            @CompilerDirectives.CompilationFinal
+            private LKQLFunction function;
+
+            @CompilerDirectives.CompilationFinal
+            InteropLibrary functionLibrary;
+
+            private long times;
+
+            private int done = 0;
+
+            InternalRepeatingNode(
+                LKQLFunction function,
+                InteropLibrary functionLibrary,
+                long times
+            ) {
+                this.function = function;
+                this.functionLibrary = functionLibrary;
+                this.times = times;
+            }
+
+            public boolean executeRepeating(VirtualFrame frame) {
+                if (done < times) {
+                    try {
+                        functionLibrary.execute(function, (Object) function.closure.getContent());
+                    } catch (
+                        ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                    ) {
+                        throw LKQLRuntimeException.fromJavaException(e, this);
+                    }
+                    done++;
+                    return true;
+                }
+                done = 0;
+                return false;
+            }
         }
     }
 

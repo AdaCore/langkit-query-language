@@ -40,6 +40,10 @@ Builtin functions
 
     Given a list, return the result of the concatenation of all its elements
 
+.. function:: repeat(times, function)
+
+    Call the given function N times
+
 .. function:: map(iterable, function)
 
     Given a collection, a mapping function
