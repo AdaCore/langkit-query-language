@@ -1,0 +1,10 @@
+description: |
+  Ensure GNATCheck can handle several times the same rule directory and properly
+  builds a set of unique rules.
+driver: gnatcheck
+project: prj.gpr
+rules_dirs:
+  - rules
+  - ./rules/../rules
+rules:
+  - +Rmy_rule
