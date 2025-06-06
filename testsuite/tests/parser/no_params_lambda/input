@@ -1,0 +1,2 @@
+test(() => ())
+#    ^ Empty lambda returning unit

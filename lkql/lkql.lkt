@@ -219,10 +219,10 @@ grammar lkql_grammar {
         | string_literal
         | block_string_literal
         | bool_literal
-        | unit_literal
         | NullLiteral("null")
         | integer
         | anonymous_function
+        | unit_literal
         | pick("(" expr ")")
         | if_then_else
         | block_expr
