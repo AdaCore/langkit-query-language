@@ -1,0 +1,8 @@
+import kp_v404_040_internal
+
+@check(help="possible occurrence of KP 19824",
+       message="possible occurrence of KP 19824")
+fun kp_19824(node) =
+    |" Flag 'Valid attribute applied to a floating-point component of a
+    |" composite type subject to a Scalar_Storage_Order aspect/clause.
+    kp_v404_040_internal.check(node)

@@ -446,6 +446,7 @@ fun is_composite_type(decl) =
         val v = decl.p_full_view();
         v.p_is_array_type() or
         v.p_is_record_type() or
+        v.p_is_interface_type() or
         v.p_root_type() is (TaskTypeDecl | ProtectedTypeDecl)
     }
 
