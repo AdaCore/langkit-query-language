@@ -1,0 +1,7 @@
+@check(help="occurrence of KP 19915",
+       message="occurrence of KP 19915")
+fun kp_19915(node) =
+    |" Search for `'Class'Max_Size_In_Storage_Elements`.
+    node is AttributeRef(f_prefix: prefix@AttributeRef)
+    when node.f_attribute.p_name_is("Max_Size_In_Storage_Elements")
+    and prefix.f_attribute.p_name_is("Class")
