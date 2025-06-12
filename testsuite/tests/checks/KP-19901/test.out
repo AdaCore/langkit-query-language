@@ -1,0 +1,92 @@
+main.adb:13:12: rule violation: possible occurrence of KP 19901
+13 |       type P5 is new P2 with null record with Predicate => True;  -- FLAG
+   |            ^^
+
+main.adb:23:12: rule violation: possible occurrence of KP 19901
+23 |    subtype S2 is Test.P2 with Predicate => True;  -- FLAG
+   |            ^^
+
+main.adb:24:12: rule violation: possible occurrence of KP 19901
+24 |    subtype S3 is Test.P3 with Predicate => True;  -- FLAG
+   |            ^^
+
+main.adb:25:12: rule violation: possible occurrence of KP 19901
+25 |    subtype S4 is Test.P4 with Predicate => True;  -- FLAG
+   |            ^^
+
+main.adb:28:12: rule violation: possible occurrence of KP 19901
+28 |    subtype S7 is S6 with Predicate => True;       -- FLAG
+   |            ^^
+
+main.adb:32:9: rule violation: possible occurrence of KP 19901
+32 |    type T2 is new Test.P2 with null record with Predicate => True;  -- FLAG
+   |         ^^
+
+main.adb:33:9: rule violation: possible occurrence of KP 19901
+33 |    type T3 is new Test.P3 with null record with Predicate => True;  -- FLAG
+   |         ^^
+
+main.adb:34:9: rule violation: possible occurrence of KP 19901
+34 |    type T4 is new Test.P4 with null record with Predicate => True;  -- FLAG
+   |         ^^
+
+main.adb:37:9: rule violation: possible occurrence of KP 19901
+37 |    type T7 is new T6 with null record with Predicate => True;       -- FLAG
+   |         ^^
+
+main.adb:40:9: rule violation: possible occurrence of KP 19901
+40 |    type T8 is new S8 with null record with Predicate => True;  -- FLAG
+   |         ^^
+
+main.adb:42:9: rule violation: possible occurrence of KP 19901
+42 |    type T9 is new Test.P6 with null record with Predicate => True;  -- FLAG
+   |         ^^
+
+main.adb:43:9: rule violation: possible occurrence of KP 19901
+43 |    type T10 is new Test.P2 with null record;                        -- FLAG
+   |         ^^^
+
+main_dynamic.adb:12:12: rule violation: possible occurrence of KP 19901
+12 |       type P5 is new P2 with null record with Dynamic_Predicate => True;  -- FLAG
+   |            ^^
+
+main_dynamic.adb:20:12: rule violation: possible occurrence of KP 19901
+20 |    subtype S2 is Test.P2 with Dynamic_Predicate => True;  -- FLAG
+   |            ^^
+
+main_dynamic.adb:21:12: rule violation: possible occurrence of KP 19901
+21 |    subtype S3 is Test.P3 with Dynamic_Predicate => True;  -- FLAG
+   |            ^^
+
+main_dynamic.adb:22:12: rule violation: possible occurrence of KP 19901
+22 |    subtype S4 is Test.P4 with Dynamic_Predicate => True;  -- FLAG
+   |            ^^
+
+main_dynamic.adb:25:12: rule violation: possible occurrence of KP 19901
+25 |    subtype S7 is S6 with Dynamic_Predicate => True;       -- FLAG
+   |            ^^
+
+main_dynamic.adb:29:9: rule violation: possible occurrence of KP 19901
+29 |    type T2 is new Test.P2 with null record with Dynamic_Predicate => True;  -- FLAG
+   |         ^^
+
+main_dynamic.adb:30:9: rule violation: possible occurrence of KP 19901
+30 |    type T3 is new Test.P3 with null record with Dynamic_Predicate => True;  -- FLAG
+   |         ^^
+
+main_dynamic.adb:31:9: rule violation: possible occurrence of KP 19901
+31 |    type T4 is new Test.P4 with null record with Dynamic_Predicate => True;  -- FLAG
+   |         ^^
+
+main_dynamic.adb:34:9: rule violation: possible occurrence of KP 19901
+34 |    type T7 is new T6 with null record with Dynamic_Predicate => True;       -- FLAG
+   |         ^^
+
+main_dynamic.adb:37:9: rule violation: possible occurrence of KP 19901
+37 |    type T8 is new S8 with null record with Dynamic_Predicate => True;  -- FLAG
+   |         ^^
+
+main_static.adb:14:9: rule violation: possible occurrence of KP 19901
+14 |    type T1 is new Test.P1 with Dynamic_Predicate => True; -- FLAG
+   |         ^^
+

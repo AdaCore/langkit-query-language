@@ -1,0 +1,70 @@
+import stdlib
+
+fun defines_predicate(node) =
+    |" If node is a BaseTypeDecl return whether the current view of node
+    |" defines a Predicate.
+    node is BaseTypeDecl
+    when stdlib.any(
+        [
+            node.p_get_aspect_assoc(name)
+            for name in ["Predicate", "Static_Predicate", "Dynamic_Predicate"]
+        ]
+    ) or node.p_get_pragma("Predicate")
+
+fun get_predicate_aspect(node) =
+    |" If node is a BaseTypeDecl return the associated Predicate aspect
+    |" if one exists (whatever the aspect has been defined on node or
+    |" any of its parents).
+    {
+        val predicate = node.p_get_aspect("Predicate");
+        if predicate.exists
+        then
+            predicate
+        else {
+            val predicate = node.p_get_aspect("Static_Predicate");
+            if predicate.exists
+            then
+                predicate
+            else
+                node.p_get_aspect("Dynamic_Predicate")
+        }
+    }
+
+fun parent_subtype(node) =
+    |" If node is a BaseTypeDecl return its direct parent subtype.
+    match node
+    | st@SubtypeDecl  => st.f_subtype.f_name.p_referenced_decl()
+    | td@BaseTypeDecl => td.p_base_type()
+    | *               => null
+
+fun associated_decl(aspect) =
+    |" Return the syntactic node that defines the aspect.
+    match aspect.node
+    | aa@AspectAssoc => aa.p_parent_basic_decl()
+    | p@PragmaNode   => p.p_associated_entities()[1]?.p_parent_basic_decl()
+    | *              => null
+
+fun private_parent_with_predicate(node) =
+   |" Return whether one parent subtype of node is private and defines a Predicate.
+   match parent_subtype(node)
+   | p@BaseTypeDecl => {
+       val aspect = get_predicate_aspect(p);
+       aspect.exists
+       and stdlib.any(
+           [p.p_is_private() for p in associated_decl(aspect)?.p_all_parts()]
+       )
+       or private_parent_with_predicate(associated_decl(aspect))
+   }
+   | null           => false
+
+@check(help="possible occurrence of KP 19901",
+       message="possible occurrence of KP 19901")
+fun kp_19901(node) =
+    |" Check for subtype declarations that include a predicate aspect
+    |" specification. Check the type or subtype named in the subtype_mark of
+    |" the subtype declaration to see whether it is already subject to a
+    |" predicate and has a partial view (that is, has an "is private" or
+    |" "with private" declaration).
+    node is BaseTypeDecl
+    when defines_predicate(node)
+    and private_parent_with_predicate(node)
