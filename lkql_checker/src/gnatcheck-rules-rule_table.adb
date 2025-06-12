@@ -1786,6 +1786,13 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Turn_All_Rules_On is
    begin
+      if Arg.Emit_LKQL_Rule_File.Get then
+         Error
+           ("cannot turn on all rules when --emit-lkql-rule-file"
+            & " option is enabled");
+         raise Gnatcheck.Options.Parameter_Error;
+      end if;
+
       for Rule_Cursor in All_Rules.Iterate loop
          declare
             Rule          : constant Rule_Info := All_Rules (Rule_Cursor);

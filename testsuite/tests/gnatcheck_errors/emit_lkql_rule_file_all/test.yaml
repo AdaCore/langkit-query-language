@@ -1,0 +1,6 @@
+driver: gnatcheck
+description: Test the error message when using '--emit-lkql-rule-file' with `+ALL` in the `-rules` section
+rules:
+  - +ALL
+extra_args:
+  - --emit-lkql-rule-file
