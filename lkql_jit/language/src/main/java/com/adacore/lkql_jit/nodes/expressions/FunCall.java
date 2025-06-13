@@ -19,7 +19,6 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -95,7 +94,7 @@ public abstract class FunCall extends Expr {
         args[0] = method.thisValue;
 
         // Return the result of the method call
-        return this.executeLKQLFunction(frame, method, methodLibrary, args, false);
+        return this.executeLKQLFunction(frame, method, methodLibrary, args);
     }
 
     /**
@@ -118,7 +117,7 @@ public abstract class FunCall extends Expr {
         Object[] args = this.argList.executeArgList(frame, actualParam);
 
         // Execute the built-in function value
-        return this.executeLKQLFunction(frame, function, functionLibrary, args, false);
+        return this.executeLKQLFunction(frame, function, functionLibrary, args);
     }
 
     /**
@@ -139,7 +138,7 @@ public abstract class FunCall extends Expr {
         Object[] args = this.argList.executeArgList(frame, actualParam);
 
         // Return the result of the function execution
-        return executeLKQLFunction(frame, function, functionLibrary, args, true);
+        return executeLKQLFunction(frame, function, functionLibrary, args);
     }
 
     /**
@@ -211,8 +210,7 @@ public abstract class FunCall extends Expr {
         VirtualFrame frame,
         LKQLFunction function,
         InteropLibrary functionLibrary,
-        Object[] args,
-        boolean includeClosure
+        Object[] args
     ) {
         // Verify that all arguments are present
         Expr[] defaultValues = function.getParameterDefaultValues();
@@ -227,15 +225,11 @@ public abstract class FunCall extends Expr {
         }
 
         // Include the closure in arguments if required
-        if (includeClosure) {
-            args = ArrayUtils.concat(new Object[] { function.closure.getContent() }, args);
-        }
-
         // We don't place the closure in the arguments because built-ins don't have any.
         // Just execute the function.
         try {
             pushCallStack(function);
-            return functionLibrary.execute(function, args);
+            return functionLibrary.execute(function, function.computeArgs(args));
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
             // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
             // (#138)

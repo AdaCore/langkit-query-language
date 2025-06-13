@@ -9,6 +9,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
@@ -100,6 +101,17 @@ public class LKQLFunction extends BasicLKQLValue {
     /** Shortcut function to get the LKQL node representing the body of the function. */
     public Expr getBody() {
         return this.rootNode.getBody();
+    }
+
+    /**
+     * Compute the final args to call this function, prepending the potential
+     * closure argument if necessary.
+     */
+    public Object[] computeArgs(Object[] args) {
+        if (closure != Closure.EMPTY) {
+            return ArrayUtils.concat(new Object[] { closure.getContent() }, args);
+        }
+        return args;
     }
 
     // ----- Value methods -----
