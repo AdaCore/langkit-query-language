@@ -60,8 +60,7 @@ public final class TokenMethods {
 
     @BuiltInMethod(
         name = "is_equivalent",
-        doc = "Return whether two tokens are structurally equivalent",
-        isProperty = true
+        doc = "Return whether two tokens are structurally equivalent"
     )
     abstract static class IsEquivalentExpr extends BuiltInBody {
 
