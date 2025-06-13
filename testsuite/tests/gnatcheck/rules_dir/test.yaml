@@ -8,3 +8,7 @@ rules_dirs:
   - ./rules/../rules
 rules:
   - +Rmy_rule
+control:
+  - [SKIP,
+     "os == 'windows'",
+     "Pending resolution of eng/toolchain/gnatcoll#10"]
