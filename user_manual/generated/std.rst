@@ -645,7 +645,7 @@ Methods for `Token`
 
     Return a string representation of an object
 
-.. method:: Token.is_equivalent(this)
+.. method:: Token.is_equivalent(this, other)
 
     Return whether two tokens are structurally equivalent
 
