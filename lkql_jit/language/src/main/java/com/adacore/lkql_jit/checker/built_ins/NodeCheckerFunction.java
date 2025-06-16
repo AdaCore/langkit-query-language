@@ -41,6 +41,45 @@ import java.util.LinkedList;
 
 public final class NodeCheckerFunction {
 
+    public record InstantiatedNodeChecker(
+        NodeChecker checker,
+        LKQLFunction function,
+        Object[] arguments
+    ) {}
+
+    public static InstantiatedNodeChecker[] preprocessNodeCheckers(
+        VirtualFrame frame,
+        NodeChecker[] checkers,
+        LKQLContext context
+    ) {
+        var instantiatedFuncs = new InstantiatedNodeChecker[checkers.length];
+        for (int i = 0; i < checkers.length; i++) {
+            var checker = checkers[i];
+            var function = checker.getFunction();
+            var aliasName = checker.getAlias();
+            var lowerRuleName = StringUtils.toLowerCase(checker.getName());
+            var instance = new InstantiatedNodeChecker(
+                checker,
+                function,
+                new Object[function.parameterNames.length + 1]
+            );
+
+            for (int j = 1; j < function.getParameterDefaultValues().length; j++) {
+                String paramName = function.parameterNames[j];
+                Object userDefinedArg = context.getRuleArg(
+                    (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
+                    StringUtils.toLowerCase(paramName)
+                );
+                instance.arguments[j + 1] = userDefinedArg == null
+                    ? function.getParameterDefaultValues()[j].executeGeneric(frame)
+                    : userDefinedArg;
+            }
+
+            instantiatedFuncs[i] = instance;
+        }
+        return instantiatedFuncs;
+    }
+
     /**
      * This class is the expression of the "node_checker" built-in. This expression contains the
      * traversing logic to check the nodes.
@@ -59,9 +98,22 @@ public final class NodeCheckerFunction {
             final LKQLContext context = LKQLLanguage.getContext(this);
             final LangkitSupport.AnalysisUnit rootUnit = root.getUnit();
 
-            final NodeChecker[] allNodeCheckers = context.getAllNodeCheckers();
-            final NodeChecker[] nodeCheckers = context.getNodeCheckers();
-            final NodeChecker[] sparkNodeCheckers = context.getSparkNodeCheckers();
+            final InstantiatedNodeChecker[] allNodeCheckers = preprocessNodeCheckers(
+                frame,
+                context.getAllNodeCheckers(),
+                context
+            );
+            final InstantiatedNodeChecker[] nodeCheckers = preprocessNodeCheckers(
+                frame,
+                context.getNodeCheckers(),
+                context
+            );
+            final InstantiatedNodeChecker[] sparkNodeCheckers = preprocessNodeCheckers(
+                frame,
+                context.getSparkNodeCheckers(),
+                context
+            );
+
             final boolean mustFollowInstantiations = context.mustFollowInstantiations();
             final boolean hasSparkCheckers = sparkNodeCheckers.length > 0;
 
@@ -235,24 +287,19 @@ public final class NodeCheckerFunction {
 
         /**
          * Execute the given checker array to the given Ada node.
-         *
-         * @param frame The frame to execute in.
-         * @param currentStep The current step of the visiting.
-         * @param currentNode The node to execute the checkers on.
-         * @param checkers The checekrs to execute.
-         * @param context The LKQL context.
          */
         private void executeCheckers(
             VirtualFrame frame,
             VisitStep currentStep,
             LangkitSupport.NodeInterface currentNode,
-            NodeChecker[] checkers,
+            InstantiatedNodeChecker[] checkers,
             LKQLContext context
         ) {
             // For each checker apply it on the current node if needed
-            for (NodeChecker checker : checkers) {
+            for (var checker : checkers) {
                 if (
-                    !currentStep.inGenericInstantiation() || checker.isFollowGenericInstantiations()
+                    !currentStep.inGenericInstantiation() ||
+                    checker.checker.isFollowGenericInstantiations()
                 ) {
                     try {
                         this.applyNodeRule(frame, checker, currentNode, context);
@@ -266,7 +313,7 @@ public final class NodeCheckerFunction {
                                     e.getMsg(),
                                     new LangkitLocationWrapper(currentNode, context.linesCache),
                                     new SourceSectionWrapper(e.getLoc()),
-                                    checker.getName()
+                                    checker.checker.getName()
                                 );
                         }
                     } catch (LKQLRuntimeException e) {
@@ -277,7 +324,7 @@ public final class NodeCheckerFunction {
                                 e.getErrorMessage(),
                                 new LangkitLocationWrapper(currentNode, context.linesCache),
                                 e.getSourceLoc(),
-                                checker.getName()
+                                checker.checker.getName()
                             );
                     }
                 }
@@ -289,43 +336,25 @@ public final class NodeCheckerFunction {
          */
         private void applyNodeRule(
             VirtualFrame frame,
-            NodeChecker checker,
+            InstantiatedNodeChecker checker,
             LangkitSupport.NodeInterface node,
             LKQLContext context
         ) {
-            // Get the function for the checker
-            LKQLFunction functionValue = checker.getFunction();
-            String aliasName = checker.getAlias();
-            String lowerRuleName = StringUtils.toLowerCase(checker.getName());
-
-            // Prepare the arguments
-            Object[] arguments = new Object[functionValue.parameterNames.length + 1];
-            arguments[1] = node;
-            for (int i = 1; i < functionValue.getParameterDefaultValues().length; i++) {
-                String paramName = functionValue.parameterNames[i];
-                Object userDefinedArg = context.getRuleArg(
-                    (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
-                    StringUtils.toLowerCase(paramName)
-                );
-                arguments[i + 1] = userDefinedArg == null
-                    ? functionValue.getParameterDefaultValues()[i].executeGeneric(frame)
-                    : userDefinedArg;
-            }
-
             // Place the closure in the arguments
-            arguments[0] = functionValue.closure.getContent();
+            checker.arguments[0] = checker.function.closure.getContent();
+            checker.arguments[1] = node;
 
             // Call the checker
             final boolean ruleResult;
             try {
                 ruleResult = LKQLTypeSystemGen.expectTruthy(
-                    interopLibrary.execute(functionValue, arguments)
+                    interopLibrary.execute(checker.function, checker.arguments)
                 ).isTruthy();
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_BOOLEAN,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    functionValue.getBody()
+                    checker.function.getBody()
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
@@ -334,16 +363,16 @@ public final class NodeCheckerFunction {
 
             if (ruleResult) {
                 if (context.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
-                    reportViolation(context, checker, node);
+                    reportViolation(context, checker.checker, node);
                 } else if (
                     context.getEngineMode() == LKQLOptions.EngineMode.FIXER &&
-                    checker.autoFix != null
+                    checker.checker.autoFix != null
                 ) {
                     callAutoFix(
                         context,
                         context.getRewritingContext(),
                         interopLibrary,
-                        checker,
+                        checker.checker,
                         node
                     );
                 }
