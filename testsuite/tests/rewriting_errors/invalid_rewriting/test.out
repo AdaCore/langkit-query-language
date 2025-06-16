@@ -3,10 +3,10 @@ main.adb:3:4: rule violation: Custom rule violation
   |    ^^^^^^^^^
 
 error: Error(s) while applying a rewriting context: [Missing ';' at <3:9-3:12>]
-checker.lkql:4:22 in <anonymous>
-  4 | map(roots, (root) => node_checker(root))
-    |                      ^^^^^^^^^^^^^^^^^^
+checker.lkql:2:31 in <anonymous>
+  2 | map(analysis_units, (unit) => node_checker(unit.root))
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^
 
-checker.lkql:4:1 in checker.lkql
-  4 | map(roots, (root) => node_checker(root))
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+checker.lkql:2:1 in checker.lkql
+  2 | map(analysis_units, (unit) => node_checker(unit.root))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
