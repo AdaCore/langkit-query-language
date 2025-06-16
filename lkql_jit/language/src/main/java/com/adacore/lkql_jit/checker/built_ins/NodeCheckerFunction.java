@@ -57,24 +57,13 @@ public final class NodeCheckerFunction {
         public Object alwaysTrue(VirtualFrame frame, LangkitSupport.NodeInterface root) {
             // Get the arguments
             final LKQLContext context = LKQLLanguage.getContext(this);
-            final LangkitSupport.AnalysisUnit rootUnit;
+            final LangkitSupport.AnalysisUnit rootUnit = root.getUnit();
 
             final NodeChecker[] allNodeCheckers = context.getAllNodeCheckers();
             final NodeChecker[] nodeCheckers = context.getNodeCheckers();
             final NodeChecker[] sparkNodeCheckers = context.getSparkNodeCheckers();
             final boolean mustFollowInstantiations = context.mustFollowInstantiations();
             final boolean hasSparkCheckers = sparkNodeCheckers.length > 0;
-
-            try {
-                root = LKQLTypeSystemGen.expectNodeInterface(frame.getArguments()[0]);
-                rootUnit = root.getUnit();
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.NODE_INTERFACE,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this
-                );
-            }
 
             // Traverse the tree
             // Create the list of node to explore with the generic instantiation info
