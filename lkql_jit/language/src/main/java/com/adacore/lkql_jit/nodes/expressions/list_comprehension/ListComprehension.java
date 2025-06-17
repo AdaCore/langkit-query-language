@@ -15,8 +15,10 @@ import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLListComprehension;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Iterator;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
@@ -103,9 +105,12 @@ public final class ListComprehension extends Expr {
     }
 
     @Override
+    @ExplodeLoop
     public LKQLLazyList executeLazyList(VirtualFrame frame) {
         // Get the iterables for the list comprehension
         Iterable[] iterables = this.generators.executeCollections(frame);
+
+        CompilerAsserts.compilationConstant(iterables.length);
 
         // Get the result size and prepare the result
         int resultSize = 1;

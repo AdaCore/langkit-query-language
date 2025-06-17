@@ -14,6 +14,7 @@ import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
@@ -68,6 +69,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      * @return True if the detail is valid, false else.
      */
     @Specialization(guards = { "node == property.node", "property.description != null" })
+    @ExplodeLoop
     protected boolean propertyCached(
         VirtualFrame frame,
         @SuppressWarnings("unused") LangkitSupport.NodeInterface node,

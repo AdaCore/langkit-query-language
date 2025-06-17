@@ -173,6 +173,7 @@ public abstract class FunCall extends Expr {
      * Execute the function call on a property reference value.
      */
     @Specialization
+    @ExplodeLoop
     protected Object onProperty(VirtualFrame frame, LKQLProperty property) {
         // Execute the arguments as a simple array
 

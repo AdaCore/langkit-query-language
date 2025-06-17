@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
@@ -52,6 +53,7 @@ public final class ExtendedNodePattern extends NodePattern {
     // ----- Execution methods -----
 
     @Override
+    @ExplodeLoop
     public boolean executeValue(VirtualFrame frame, Object value) {
         // Test the base pattern
         if (this.basePattern.executeValue(frame, value)) {
@@ -59,8 +61,8 @@ public final class ExtendedNodePattern extends NodePattern {
                 var node = LKQLTypeSystemGen.asNodeInterface(value);
 
                 // Verify all details
-                for (NodePatternDetail detail : this.details) {
-                    if (!detail.executeDetail(frame, node)) return false;
+                for (int i = 0; i < details.length; i++) {
+                    if (!details[i].executeDetail(frame, node)) return false;
                 }
 
                 // Return the success
