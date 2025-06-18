@@ -25,7 +25,9 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -43,6 +45,11 @@ public final class UnitCheckerFunction {
 
         @Specialization
         public Object alwaysTrue(VirtualFrame frame, LangkitSupport.AnalysisUnit unit) {
+            return implem(frame.materialize(), unit);
+        }
+
+        @CompilerDirectives.TruffleBoundary
+        public Object implem(MaterializedFrame frame, LangkitSupport.AnalysisUnit unit) {
             // Get the arguments
             LKQLContext context = LKQLLanguage.getContext(this);
             UnitChecker[] checkers = context.getUnitCheckersFiltered();
@@ -92,7 +99,7 @@ public final class UnitCheckerFunction {
          * @param context The context for the execution.
          */
         private void applyUnitRule(
-            VirtualFrame frame,
+            MaterializedFrame frame,
             UnitChecker checker,
             LangkitSupport.AnalysisUnit unit,
             LKQLContext context

@@ -28,6 +28,7 @@ import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleStackTrace;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -94,6 +95,11 @@ public final class NodeCheckerFunction {
 
         @Specialization
         public Object alwaysTrue(VirtualFrame frame, LangkitSupport.NodeInterface root) {
+            return implem(frame.materialize(), root);
+        }
+
+        @CompilerDirectives.TruffleBoundary
+        public Object implem(MaterializedFrame frame, LangkitSupport.NodeInterface root) {
             // Get the arguments
             final LKQLContext context = LKQLLanguage.getContext(this);
             final LangkitSupport.AnalysisUnit rootUnit = root.getUnit();
