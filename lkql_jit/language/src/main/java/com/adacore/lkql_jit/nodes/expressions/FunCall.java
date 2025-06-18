@@ -175,7 +175,8 @@ public abstract class FunCall extends Expr {
     @Specialization
     @ExplodeLoop
     protected Object onProperty(VirtualFrame frame, LKQLProperty property) {
-        // Execute the arguments as a simple array
+
+        CompilerAsserts.compilationConstant(this.args.length);
 
         // Execute the arguments as a simple array
         Object[] arguments = new Object[this.args.length];
