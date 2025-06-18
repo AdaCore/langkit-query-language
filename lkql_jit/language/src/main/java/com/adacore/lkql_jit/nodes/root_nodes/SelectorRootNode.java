@@ -38,6 +38,8 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
     @CompilerDirectives.CompilationFinal
     private final boolean isMemoized;
 
+    private final String name;
+
     // ----- Children -----
 
     /** The body of the selector */
@@ -61,13 +63,15 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
         boolean isMemoized,
         int thisSlot,
         int depthSlot,
-        Expr body
+        Expr body,
+        String name
     ) {
         super(language, frameDescriptor);
         this.isMemoized = isMemoized;
         this.thisSlot = thisSlot;
         this.depthSlot = depthSlot;
         this.body = body;
+        this.name = name;
     }
 
     // ----- Execution methods -----
@@ -119,5 +123,14 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
 
         // Return the result
         return res;
+    }
+
+    @Override
+    public String toString() {
+        return (
+            (this.body.getLocation().fileName() + ":" + this.body.getLocation().startLine()) +
+            "::$" +
+            this.name
+        );
     }
 }

@@ -79,7 +79,8 @@ public final class SelectorDeclaration extends Declaration {
             annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
             thisSlot,
             depthSlot,
-            body
+            body,
+            name
         );
         this.createClosureNode = new CreateClosureNode(closureDescriptor);
     }

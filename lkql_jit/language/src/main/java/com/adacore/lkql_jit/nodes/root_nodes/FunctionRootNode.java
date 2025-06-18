@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -123,6 +124,14 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
 
     @Override
     public String toString() {
-        return "root::" + this.name;
+        // If the function's body is a built-in, then there is no LKQL source location to refer to
+        var pfx =
+            (this.body instanceof BuiltInBody
+                    ? "<builtin>"
+                    : this.body.getLocation().fileName() +
+                    ":" +
+                    this.body.getLocation().startLine());
+
+        return pfx + "::" + this.name;
     }
 }
