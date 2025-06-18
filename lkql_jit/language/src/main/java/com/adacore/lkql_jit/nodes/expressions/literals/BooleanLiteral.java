@@ -45,15 +45,6 @@ public final class BooleanLiteral extends Expr {
         return this.value;
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeBoolean(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public boolean executeBoolean(VirtualFrame frame) {
-        return this.value;
-    }
-
     // ----- Override methods -----
 
     /**

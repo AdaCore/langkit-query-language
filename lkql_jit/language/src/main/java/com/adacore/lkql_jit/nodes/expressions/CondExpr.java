@@ -5,46 +5,32 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Executed;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the conditional branching expression in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public final class CondExpr extends Expr {
+public abstract class CondExpr extends Expr {
 
     // ----- Children -----
 
     /** The condition of the branching. */
     @Child
+    @Executed
     @SuppressWarnings("FieldMayBeFinal")
-    private Expr condition;
+    protected Expr condition;
 
     /** The consequence of the branching. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private Expr consequence;
+    protected Expr consequence;
 
     /** The alternative of the branching. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private Expr alternative;
+    protected Expr alternative;
 
-    // ----- Constructors -----
-
-    /**
-     * Create a new if then else node.
-     *
-     * @param location The location of the node in the source.
-     * @param condition The condition expression.
-     * @param consequence The consequence expression.
-     * @param alternative The alternative expression.
-     */
     public CondExpr(SourceSection location, Expr condition, Expr consequence, Expr alternative) {
         super(location);
         this.condition = condition;
@@ -54,35 +40,25 @@ public final class CondExpr extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        // Evaluate the condition as a boolean
-        boolean conditionValue;
-        try {
-            conditionValue = this.condition.executeTruthy(frame).isTruthy();
-        } catch (UnexpectedResultException e) {
-            throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_BOOLEAN,
-                LKQLTypesHelper.fromJava(e.getResult()),
-                this.condition
-            );
-        }
-
-        // Execute the correct branching
-        if (conditionValue) {
-            return this.consequence.executeGeneric(frame);
+    @Specialization
+    protected Object doBoolean(VirtualFrame frame, boolean conditionResult) {
+        if (conditionResult) {
+            return consequence.executeGeneric(frame);
         } else if (this.alternative != null) {
-            return this.alternative.executeGeneric(frame);
+            return alternative.executeGeneric(frame);
         } else {
             return true;
         }
     }
 
-    // ----- Override methods -----
+    @Specialization(replaces = "doBoolean")
+    protected Object doObject(
+        VirtualFrame frame,
+        Object conditionResult,
+        @Cached LKQLToBoolean toBooleanNode
+    ) {
+        return doBoolean(frame, toBooleanNode.execute(conditionResult));
+    }
 
     /**
      * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)

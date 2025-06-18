@@ -394,7 +394,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Return the if then else node
-        return new CondExpr(loc(condExpr), condition, consequence, alternative);
+        return CondExprNodeGen.create(loc(condExpr), condition, consequence, alternative);
     }
 
     // --- Unwrap node
@@ -539,8 +539,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             case OP_MINUS -> BinMinusNodeGen.create(location, left, right);
             case OP_MUL -> BinMulNodeGen.create(location, left, right);
             case OP_DIV -> BinDivNodeGen.create(location, left, right);
-            case OP_AND -> new BinAnd(location, left, right);
-            case OP_OR -> new BinOr(location, left, right);
+            case OP_AND -> BinAndNodeGen.create(location, left, right);
+            case OP_OR -> BinOrNodeGen.create(location, left, right);
             case OP_EQ -> BinEqNodeGen.create(location, left, right);
             case OP_NEQ -> BinNeqNodeGen.create(location, left, right);
             case OP_CONCAT -> BinConcatNodeGen.create(location, left, right);

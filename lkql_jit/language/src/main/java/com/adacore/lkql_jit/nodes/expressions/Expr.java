@@ -64,22 +64,6 @@ public abstract class Expr extends LKQLNode {
     }
 
     /**
-     * Execute the expression as a boolean.
-     *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a boolean.
-     * @throws UnexpectedResultException If the node cannot be evaluated as a boolean.
-     */
-    @SuppressWarnings("unused")
-    public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectBoolean(executeGeneric(frame));
-    }
-
-    public Truthy executeTruthy(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectTruthy(executeGeneric(frame));
-    }
-
-    /**
      * Execute the expression as a long.
      *
      * @param frame The frame for execution.

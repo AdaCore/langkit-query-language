@@ -9,7 +9,6 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
-import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -20,7 +19,7 @@ import java.util.Map;
 
 /** This class represents the null value in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLNull implements LangkitSupport.NodeInterface, LKQLValue, Nullish, Truthy {
+public class LKQLNull implements LangkitSupport.NodeInterface, LKQLValue, Nullish {
 
     // ----- Attributes -----
 
@@ -191,10 +190,13 @@ public class LKQLNull implements LangkitSupport.NodeInterface, LKQLValue, Nullis
         return false;
     }
 
-    // ----- LKQL value methods -----
+    @Override
+    public String toString() {
+        return "null";
+    }
 
     @Override
-    public boolean isTruthy() {
-        return false;
+    public boolean equals(Object o) {
+        return o == this;
     }
 }

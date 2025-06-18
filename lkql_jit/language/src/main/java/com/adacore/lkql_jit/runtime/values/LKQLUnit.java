@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
-import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -15,7 +14,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the unit value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLUnit extends BasicLKQLValue implements Truthy, Nullish {
+public class LKQLUnit extends BasicLKQLValue implements Nullish {
 
     // ----- Attributes -----
 
@@ -72,13 +71,6 @@ public class LKQLUnit extends BasicLKQLValue implements Truthy, Nullish {
     /** Get the boolean like value from unit, which is always false. */
     @ExportMessage
     public boolean asBoolean() {
-        return false;
-    }
-
-    // ----- LKQL value methods -----
-
-    @Override
-    public boolean isTruthy() {
         return false;
     }
 }

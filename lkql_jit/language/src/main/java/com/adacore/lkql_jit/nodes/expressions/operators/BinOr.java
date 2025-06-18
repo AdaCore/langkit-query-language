@@ -6,53 +6,54 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Executed;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the "or" logical operation in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public final class BinOr extends BinShortCircuit {
+public abstract class BinOr extends Expr {
 
-    // ----- Constructors -----
+    // TODO: Use InlinedConditionProfile when switching to Graal 23
 
-    /**
-     * Create an "or" node.
-     *
-     * @param location The location of the node in the source.
-     * @param left The left expression.
-     * @param right The right expression.
-     */
-    public BinOr(SourceSection location, Expr left, Expr right) {
-        super(location, left, right);
+    /** The left operand expression. */
+    @Child
+    @Executed
+    protected Expr left;
+
+    /** The right operand expression. */
+    @Child
+    protected Expr right;
+
+    BinOr(SourceSection location, Expr left, Expr right) {
+        super(location);
+        this.left = left;
+        this.right = right;
     }
 
-    // ----- Execution methods -----
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#doRightEvaluation(boolean)
-     */
-    @Override
-    protected boolean doRightEvaluation(boolean leftValue) {
-        return !leftValue;
+    @Specialization
+    protected Object doBoolean(VirtualFrame frame, boolean leftValue) {
+        if (leftValue) {
+            return leftValue;
+        } else {
+            return right.executeGeneric(frame);
+        }
     }
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#execute(boolean,
-     *     boolean)
-     */
-    @Override
-    protected boolean execute(boolean leftValue, boolean rightValue) {
-        return leftValue || rightValue;
+    @Specialization(replaces = "doBoolean")
+    protected Object doGeneric(
+        VirtualFrame frame,
+        Object leftValue,
+        @Cached LKQLToBoolean toBoolean
+    ) {
+        if (toBoolean.execute(leftValue)) {
+            return leftValue;
+        } else {
+            return right.executeGeneric(frame);
+        }
     }
 
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

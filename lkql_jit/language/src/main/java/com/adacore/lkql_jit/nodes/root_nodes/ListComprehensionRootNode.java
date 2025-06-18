@@ -5,13 +5,12 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 /**
  * This root node represents a list comprehension execution (expression and predicate) in the LKQL
@@ -30,6 +29,9 @@ public final class ListComprehensionRootNode extends BaseRootNode {
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr result;
+
+    @Child
+    private LKQLToBoolean toBoolean;
 
     // ----- Constructors -----
 
@@ -50,6 +52,7 @@ public final class ListComprehensionRootNode extends BaseRootNode {
         super(language, frameDescriptor);
         this.predicate = predicate;
         this.result = result;
+        this.toBoolean = LKQLToBooleanNodeGen.create();
     }
 
     // ----- Execution methods -----
@@ -64,18 +67,10 @@ public final class ListComprehensionRootNode extends BaseRootNode {
         this.initFrame(frame);
 
         // Evaluate the predicate and return the result if true, else just return null
-        try {
-            if (this.predicate == null || this.predicate.executeTruthy(frame).isTruthy()) {
-                return this.result.executeGeneric(frame);
-            } else {
-                return null;
-            }
-        } catch (UnexpectedResultException e) {
-            throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_BOOLEAN,
-                LKQLTypesHelper.fromJava(e.getResult()),
-                this.predicate
-            );
+        if (this.predicate == null || toBoolean.execute(predicate.executeGeneric(frame))) {
+            return this.result.executeGeneric(frame);
+        } else {
+            return null;
         }
     }
 }

@@ -10,7 +10,6 @@ import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.bases.ArrayLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
@@ -26,7 +25,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This abstract class represents all list like values in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, Indexable, Truthy {
+public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, Indexable {
 
     // ----- Constructors -----
 
@@ -149,7 +148,12 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
     /** Get the boolean representation of the list. */
     @ExportMessage
     public boolean asBoolean() {
-        return this.isTruthy();
+        try {
+            this.get(0);
+            return true;
+        } catch (InvalidIndexException e) {
+            return false;
+        }
     }
 
     /** Tell the interop library that tuple has array elements. */
@@ -202,17 +206,5 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
             res[i] = this.get(i);
         }
         return res;
-    }
-
-    // ----- Truthy required values -----
-
-    @Override
-    public boolean isTruthy() {
-        try {
-            this.get(0);
-            return true;
-        } catch (InvalidIndexException e) {
-            return false;
-        }
     }
 }

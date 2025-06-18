@@ -9,17 +9,17 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.BuiltInFunction;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -34,13 +34,14 @@ import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 
 public final class NodeCheckerFunction {
+
+    private static final LKQLToBoolean toBoolean = LKQLToBooleanNodeGen.create();
 
     public record InstantiatedNodeChecker(
         NodeChecker checker,
@@ -353,14 +354,8 @@ public final class NodeCheckerFunction {
             // Call the checker
             final boolean ruleResult;
             try {
-                ruleResult = LKQLTypeSystemGen.expectTruthy(
+                ruleResult = toBoolean.execute(
                     interopLibrary.execute(checker.function, checker.arguments)
-                ).isTruthy();
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    checker.function.getBody()
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)

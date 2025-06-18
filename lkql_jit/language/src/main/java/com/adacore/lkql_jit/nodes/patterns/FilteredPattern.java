@@ -5,11 +5,10 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
@@ -31,6 +30,9 @@ public final class FilteredPattern extends BasePattern {
     @SuppressWarnings("FieldMayBeFinal")
     private Expr predicate;
 
+    @Child
+    private LKQLToBoolean toBoolean;
+
     // ----- Constructors -----
 
     /**
@@ -44,6 +46,7 @@ public final class FilteredPattern extends BasePattern {
         super(location);
         this.pattern = pattern;
         this.predicate = predicate;
+        this.toBoolean = LKQLToBooleanNodeGen.create();
     }
 
     // ----- Execution methods -----
@@ -53,15 +56,7 @@ public final class FilteredPattern extends BasePattern {
         // If the pattern match, execute the predicate
         if (this.pattern.executeValue(frame, value)) {
             // Try to execute the predicate in a boolean
-            try {
-                return this.predicate.executeTruthy(frame).isTruthy();
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.predicate
-                );
-            }
+            return toBoolean.execute(predicate.executeGeneric(frame));
         }
 
         // Return the failure
@@ -70,9 +65,6 @@ public final class FilteredPattern extends BasePattern {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
