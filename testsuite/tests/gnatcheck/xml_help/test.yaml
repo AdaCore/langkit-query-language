@@ -5,4 +5,4 @@ tests:
   - label: Without any instances
   - label: With some instances
     lkql_rule_file: r.lkql
-
+canonicalize_backslashes: false
