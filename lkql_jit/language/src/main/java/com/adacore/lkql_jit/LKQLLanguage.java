@@ -14,6 +14,7 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
 import com.adacore.lkql_jit.utils.Constants;
@@ -242,10 +243,19 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Translate the LKQL AST from Langkit to a Truffle AST
         result = (TopLevelList) translate(lkqlLangkitRoot, request.getSource());
 
-        // If the current parsing request is the root request, initialize the context source chain
-        // with the current source.
+        // If the current parsing request is the root request
         if (!request.getSource().isInternal()) {
+            // Initialize the context source chain with the current source.
             getContext(result).fromStack.add(request.getSource());
+
+            // And add rule imports to the TopLevelList if we're in a mode that requires it
+            var engineMode = getContext(null).getEngineMode();
+            if (
+                engineMode == LKQLOptions.EngineMode.CHECKER ||
+                engineMode == LKQLOptions.EngineMode.FIXER
+            ) {
+                result.addRuleImports();
+            }
         }
 
         // Print the Truffle AST if the JIT is in debug mode

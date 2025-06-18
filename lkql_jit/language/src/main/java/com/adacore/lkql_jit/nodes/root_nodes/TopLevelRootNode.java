@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.TopLevelList;
-import com.adacore.lkql_jit.options.LKQLOptions;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**
@@ -53,16 +52,6 @@ public final class TopLevelRootNode extends BaseRootNode {
      */
     @Override
     public Object execute(VirtualFrame frame) {
-        // If the checker mode is activated add all rule imports
-        final var engineMode = LKQLLanguage.getContext(this.program).getEngineMode();
-        if (
-            !fromImport &&
-            (engineMode == LKQLOptions.EngineMode.CHECKER ||
-                engineMode == LKQLOptions.EngineMode.FIXER)
-        ) {
-            this.program.addRuleImports();
-        }
-
         // Initialize the frame
         this.initFrame(frame);
 
