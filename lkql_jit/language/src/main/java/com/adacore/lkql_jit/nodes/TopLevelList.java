@@ -10,9 +10,11 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.declarations.Import;
 import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
 import com.adacore.lkql_jit.utils.Constants;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 import java.io.File;
 import java.util.ArrayList;
@@ -66,6 +68,7 @@ public final class TopLevelList extends LKQLNode {
         super(location);
         this.frameDescriptor = frameDescriptor;
         this.program = nodes;
+        this.ruleImports = new Import[0];
         this.isInteractive = isInteractive;
         this.doc = doc;
     }
@@ -83,19 +86,21 @@ public final class TopLevelList extends LKQLNode {
      *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
+    @ExplodeLoop
     public Object executeGeneric(VirtualFrame frame) {
+        CompilerAsserts.compilationConstant(this.ruleImports.length);
+        CompilerAsserts.compilationConstant(this.program.length);
+
         // If there is rule imports, run them
-        if (this.ruleImports != null) {
-            for (Import ruleImport : this.ruleImports) {
-                ruleImport.executeGeneric(frame);
-            }
+        for (int i = 0; i < ruleImports.length; i++) {
+            ruleImports[i].executeGeneric(frame);
         }
 
         Object val = null;
 
         // Execute the nodes of the program
-        for (LKQLNode lkqlNode : program) {
-            val = lkqlNode.executeGeneric(frame);
+        for (int i = 0; i < program.length; i++) {
+            val = program[i].executeGeneric(frame);
         }
 
         // Get the language context and initialize it
