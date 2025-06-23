@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
+import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
@@ -53,6 +54,10 @@ public final class ListComprehension extends Expr {
     @SuppressWarnings("FieldMayBeFinal")
     private Expr guard;
 
+    @Child
+    @SuppressWarnings("FieldMayBeFinal")
+    private CreateClosureNode createClosureNode;
+
     /** Root node of the list comprehension. */
     private final ListComprehensionRootNode rootNode;
 
@@ -87,22 +92,16 @@ public final class ListComprehension extends Expr {
         this.expr = expr;
         this.guard = guard;
         this.rootNode = createRootNode();
+        this.createClosureNode = new CreateClosureNode(closureDescriptor);
     }
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeLazyList(frame);
     }
 
-    /**
-     * @see Expr#executeList(VirtualFrame)
-     */
     @Override
     public LKQLLazyList executeLazyList(VirtualFrame frame) {
         // Get the iterables for the list comprehension
@@ -115,12 +114,9 @@ public final class ListComprehension extends Expr {
         }
 
         // Verify that the result size is strictly positive
-        if (resultSize < 1) {
-            return new LKQLListComprehension(
-                this.rootNode,
-                Closure.create(frame.materialize(), this.closureDescriptor),
-                new Object[0][]
-            );
+        assert resultSize >= 0;
+        if (resultSize == 0) {
+            return new LKQLListComprehension(this.rootNode, Closure.EMPTY, new Object[0][]);
         }
 
         // Prepare the array of arguments for each iteration in the list comprehension
@@ -141,11 +137,7 @@ public final class ListComprehension extends Expr {
         } while (this.increaseIndexes(iterators, valueBuffer));
 
         // Return the result of the list comprehension as a lazy list
-        return new LKQLListComprehension(
-            this.rootNode,
-            Closure.create(frame.materialize(), this.closureDescriptor),
-            argsList
-        );
+        return new LKQLListComprehension(this.rootNode, createClosureNode.execute(frame), argsList);
     }
 
     // ----- Class methods -----

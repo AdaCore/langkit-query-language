@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
-import com.adacore.lkql_jit.runtime.Closure;
+import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -38,7 +38,11 @@ public final class FunExpr extends Expr {
 
     /** The default values of the parameters. */
     private final Expr[] parameterValues;
+
     public final String name;
+
+    @Child
+    CreateClosureNode createClosureNode;
 
     // ----- Constructors -----
 
@@ -68,6 +72,7 @@ public final class FunExpr extends Expr {
         this.parameterNames = parameterNames;
         this.parameterValues = parameterDefaultValues;
         this.documentation = documentation;
+        this.createClosureNode = new CreateClosureNode(closureDescriptor);
     }
 
     // ----- Execution methods -----
@@ -81,7 +86,7 @@ public final class FunExpr extends Expr {
     public LKQLFunction executeFunction(VirtualFrame frame) {
         return new LKQLFunction(
             this.functionRootNode,
-            Closure.create(frame.materialize(), this.closureDescriptor),
+            createClosureNode.execute(frame),
             name,
             this.documentation,
             this.parameterNames,
