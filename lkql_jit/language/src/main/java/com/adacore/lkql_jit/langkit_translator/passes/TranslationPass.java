@@ -264,7 +264,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
         // In a second time look in the parameters of the frame
         else if (this.scriptFrames.isParameter(symbol)) {
-            return new ReadArgument(location, this.scriptFrames.getParameter(symbol));
+            return new ReadParameter(location, this.scriptFrames.getParameter(symbol));
         }
         // Then look in the closure for the symbol
         else if (this.scriptFrames.isClosure(symbol)) {

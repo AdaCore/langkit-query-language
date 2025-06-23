@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.built_ins;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.nodes.expressions.value_read.ReadArgument;
+import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.oracle.truffle.api.dsl.*;
 
 /** This node represents a base for all built-in functions body. */
@@ -66,11 +66,11 @@ public abstract class BuiltInBody extends Expr {
         LKQLNode[] argumentNodes = new LKQLNode[argumentCount];
 
         // Builtin functions are like normal functions, i.e., the arguments are
-        // passed in as an LKQLNode[] array. A ReadArgument extracts a parameter
+        // passed in as an LKQLNode[] array. A ReadParameter extracts a parameter
         // from this array.
 
         for (int i = 0; i < argumentCount; i++) {
-            argumentNodes[i] = new ReadArgument(null, i);
+            argumentNodes[i] = new ReadParameter(null, i);
         }
         // Instantiate the builtin node. This node performs the actual functionality.
         return factory.createNode((Object) argumentNodes);
