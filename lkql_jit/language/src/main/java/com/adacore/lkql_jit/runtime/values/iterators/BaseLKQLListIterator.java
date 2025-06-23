@@ -6,15 +6,15 @@
 package com.adacore.lkql_jit.runtime.values.iterators;
 
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
+import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
 
 /** This class represents an iterator for an LKQL lazy list. */
-public class LKQLLazyListIterator extends LKQLIterator {
+public class BaseLKQLListIterator extends LKQLIterator {
 
     // ----- Attributes -----
 
     /** The lazy list to iterate on. */
-    private final LKQLLazyList lazyList;
+    private final BaseLKQLList lkqlList;
 
     /** The cursor for the iteration. */
     private long cursor;
@@ -22,8 +22,8 @@ public class LKQLLazyListIterator extends LKQLIterator {
     // ----- Constructors -----
 
     /** Create a new lazy list iterator for the given lazy list. */
-    public LKQLLazyListIterator(LKQLLazyList lazyList) {
-        this.lazyList = lazyList;
+    public BaseLKQLListIterator(BaseLKQLList lkqlList) {
+        this.lkqlList = lkqlList;
         this.cursor = 0;
     }
 
@@ -32,7 +32,7 @@ public class LKQLLazyListIterator extends LKQLIterator {
     @Override
     public boolean hasNext() {
         try {
-            this.lazyList.get(cursor);
+            this.lkqlList.get(cursor);
             return true;
         } catch (InvalidIndexException e) {
             return false;
@@ -41,7 +41,7 @@ public class LKQLLazyListIterator extends LKQLIterator {
 
     @Override
     public Object next() {
-        return this.lazyList.get(this.cursor++);
+        return this.lkqlList.get(this.cursor++);
     }
 
     @Override
