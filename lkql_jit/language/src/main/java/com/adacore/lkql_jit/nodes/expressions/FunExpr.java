@@ -10,7 +10,6 @@ import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
-import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -39,6 +38,7 @@ public final class FunExpr extends Expr {
 
     /** The default values of the parameters. */
     private final Expr[] parameterValues;
+    public final String name;
 
     // ----- Constructors -----
 
@@ -46,13 +46,14 @@ public final class FunExpr extends Expr {
      * Create a new function expression node.
      */
     public FunExpr(
-        final SourceSection location,
-        final FrameDescriptor frameDescriptor,
-        final ClosureDescriptor closureDescriptor,
-        final String[] parameterNames,
-        final Expr[] parameterDefaultValues,
-        final String documentation,
-        final Expr body
+        SourceSection location,
+        FrameDescriptor frameDescriptor,
+        ClosureDescriptor closureDescriptor,
+        String[] parameterNames,
+        Expr[] parameterDefaultValues,
+        String documentation,
+        Expr body,
+        String name
     ) {
         super(location);
         this.closureDescriptor = closureDescriptor;
@@ -60,8 +61,10 @@ public final class FunExpr extends Expr {
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
             false,
-            body
+            body,
+            name
         );
+        this.name = name;
         this.parameterNames = parameterNames;
         this.parameterValues = parameterDefaultValues;
         this.documentation = documentation;
@@ -79,7 +82,7 @@ public final class FunExpr extends Expr {
         return new LKQLFunction(
             this.functionRootNode,
             Closure.create(frame.materialize(), this.closureDescriptor),
-            Constants.FUNCTION_DEFAULT_NAME,
+            name,
             this.documentation,
             this.parameterNames,
             this.parameterValues

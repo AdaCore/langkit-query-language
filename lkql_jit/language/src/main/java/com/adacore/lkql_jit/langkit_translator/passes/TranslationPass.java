@@ -1415,7 +1415,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.NamedFunction namedFunction) {
-        return this.functionExprHelper(namedFunction);
+        return this.functionExprHelper(
+                namedFunction,
+                ((Liblkqllang.FunDecl) namedFunction.parent()).fName().getText()
+            );
     }
 
     /**
@@ -1426,7 +1429,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.AnonymousFunction anonymousFunction) {
-        return this.functionExprHelper(anonymousFunction);
+        return this.functionExprHelper(anonymousFunction, "<anonymous>");
     }
 
     /**
@@ -1435,7 +1438,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      * @param baseFunction The base function node from Langkit.
      * @return The function expression node for Truffle.
      */
-    private FunExpr functionExprHelper(Liblkqllang.BaseFunction baseFunction) {
+    private FunExpr functionExprHelper(Liblkqllang.BaseFunction baseFunction, String name) {
         // Enter the function frame
         this.scriptFrames.enterFrame(baseFunction);
 
@@ -1456,7 +1459,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             names,
             defaultVals,
             docstring.isNone() ? "" : parseStringLiteral(docstring),
-            body
+            body,
+            name
         );
 
         // Exit the function frame
@@ -1489,13 +1493,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         FunExpr funExpr = (FunExpr) funDecl.fFunExpr().accept(this);
 
         // Create the new function declaration node
-        final var functionDecl = new FunctionDeclaration(
-            loc(funDecl),
-            annotation,
-            name,
-            slot,
-            funExpr
-        );
+        final var functionDecl = new FunctionDeclaration(loc(funDecl), annotation, slot, funExpr);
 
         // If the function is annotated as a checker, create a checker exportation node and
         // return it

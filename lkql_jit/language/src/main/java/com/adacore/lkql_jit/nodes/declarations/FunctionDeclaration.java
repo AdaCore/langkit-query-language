@@ -22,9 +22,6 @@ public final class FunctionDeclaration extends Declaration {
 
     // ----- Attributes -----
 
-    /** Name of the declared function. */
-    public final String name;
-
     /** Local slot to place the function value in. */
     public final int slot;
 
@@ -44,19 +41,16 @@ public final class FunctionDeclaration extends Declaration {
      *
      * @param location The location of the node in the source.
      * @param annotation The annotation on the function if there is one (can be null).
-     * @param name The name of the declared function.
      * @param slot The local slot to place the function in.
      * @param functionExpression The expression which returns the function value.
      */
     public FunctionDeclaration(
         final SourceSection location,
         final Annotation annotation,
-        final String name,
         final int slot,
         final FunExpr functionExpression
     ) {
         super(location, annotation);
-        this.name = name;
         this.slot = slot;
         this.functionExpression = functionExpression;
 
@@ -78,7 +72,7 @@ public final class FunctionDeclaration extends Declaration {
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the function expression to get the functional value
         final LKQLFunction functionValue = this.functionExpression.executeFunction(frame);
-        functionValue.setName(this.name);
+        functionValue.setName(this.functionExpression.name);
         functionValue.rootNode.setMemoized(this.isMemoized);
 
         // Write the slot in the frame

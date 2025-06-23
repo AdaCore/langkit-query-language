@@ -43,11 +43,6 @@ public class Constants {
     /** Environment variable which contains the paths to look LKQL rules in. */
     public static final String LKQL_RULES_PATH = "LKQL_RULES_PATH";
 
-    // ----- Function default values -----
-
-    /** Default name of a function. */
-    public static final String FUNCTION_DEFAULT_NAME = "lambda";
-
     // ----- Built-in symbols -----
 
     /** Symbol which contains the "this" value in selectors. */

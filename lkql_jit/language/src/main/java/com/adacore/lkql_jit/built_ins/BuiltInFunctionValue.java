@@ -32,7 +32,7 @@ public class BuiltInFunctionValue extends LKQLFunction {
         BuiltInBody body
     ) {
         super(
-            new FunctionRootNode(null, null, false, body),
+            new FunctionRootNode(null, null, false, body, name),
             Closure.EMPTY,
             name,
             documentation,

@@ -32,6 +32,8 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     @SuppressWarnings("FieldMayBeFinal")
     private Expr body;
 
+    private final String name;
+
     // ----- Constructors -----
 
     /**
@@ -46,11 +48,13 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
         TruffleLanguage<?> language,
         FrameDescriptor frameDescriptor,
         boolean isMemoized,
-        Expr body
+        Expr body,
+        String name
     ) {
         super(language, frameDescriptor);
         this.isMemoized = isMemoized;
         this.body = body;
+        this.name = name;
     }
 
     // ----- Getters -----
@@ -114,5 +118,15 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
         public int hashCode() {
             return Arrays.hashCode(this.args);
         }
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String toString() {
+        return "root::" + this.name;
     }
 }
