@@ -16,6 +16,9 @@ import org.openjdk.jmh.annotations.*;
     value = 1,
     jvmArgsAppend = {
         "-Dgraalvm.locatorDisabled=true",
+        // NOTE: If you need to debug truffle benchmarks you can add the following options
+        // "-Dgraal.Dump=Truffle:1",
+        // "-Dgraal.PrintGraph=Network",
         "--add-opens=org.graalvm.truffle/com.oracle.truffle.api.strings=ALL-UNNAMED",
     }
 )
