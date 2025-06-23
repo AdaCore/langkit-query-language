@@ -48,9 +48,6 @@ public final class FilteredPattern extends BasePattern {
 
     // ----- Execution methods -----
 
-    /**
-     * @see BasePattern#executeValue(VirtualFrame, Object)
-     */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
         // If the pattern match, execute the predicate

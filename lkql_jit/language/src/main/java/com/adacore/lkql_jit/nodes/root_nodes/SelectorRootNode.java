@@ -72,8 +72,6 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
      * Execute the selector on the given node, the first argument in the array. Return either : - A
      * Node if the result is only a node. - A Node[] if the result is an unpack of node. The return
      * value is wrapped in a selector call result record to have the mode information.
-     *
-     * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object execute(VirtualFrame frame) {

@@ -50,10 +50,6 @@ public final class TopLevelRootNode extends BaseRootNode {
 
     /**
      * Execute the LKQL program and return the namespace, result of this program execution.
-     *
-     * @param frame The frame to execute in.
-     * @return The namespace of the LKQL program.
-     * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object execute(VirtualFrame frame) {

@@ -96,9 +96,6 @@ public final class FunExpr extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

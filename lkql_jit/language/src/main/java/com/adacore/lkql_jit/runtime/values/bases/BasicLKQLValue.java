@@ -18,8 +18,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(InteropLibrary.class)
 public abstract class BasicLKQLValue implements LKQLValue {
 
-    // ----- Attributes -----
-
     protected final InteropLibrary thisUncachedLibrary = InteropLibrary.getUncached(this);
 
     // ----- Value methods -----

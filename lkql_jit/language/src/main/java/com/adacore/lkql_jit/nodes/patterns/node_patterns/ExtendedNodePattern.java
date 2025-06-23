@@ -51,9 +51,6 @@ public final class ExtendedNodePattern extends NodePattern {
 
     // ----- Execution methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeValue(VirtualFrame, Object)
-     */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
         // Test the base pattern

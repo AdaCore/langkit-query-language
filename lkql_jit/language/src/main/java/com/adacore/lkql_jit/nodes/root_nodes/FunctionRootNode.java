@@ -14,8 +14,6 @@ import java.util.Arrays;
 
 /**
  * This root node represents a function in the LKQL function.
- *
- * @author Hugo GUERRIER
  */
 public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Arguments, Object> {
 

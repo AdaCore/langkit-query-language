@@ -65,9 +65,6 @@ public final class FunctionDeclaration extends Declaration {
 
     // ----- Execution methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the function expression to get the functional value

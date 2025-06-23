@@ -297,11 +297,6 @@ public final class NodeCheckerFunction {
 
         /**
          * Apply the checker on the given node.
-         *
-         * @param frame The frame to execute the default arg value.
-         * @param checker The checker to apply.
-         * @param node The node to apply the checker on.
-         * @param context The LKQL context.
          */
         private void applyNodeRule(
             VirtualFrame frame,
