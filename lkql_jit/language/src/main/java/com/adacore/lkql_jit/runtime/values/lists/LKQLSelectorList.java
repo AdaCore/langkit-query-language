@@ -118,7 +118,6 @@ public class LKQLSelectorList extends LKQLLazyList {
     }
 
     /** Add a node in the result and hashed cache with all verifications. */
-    @CompilerDirectives.TruffleBoundary
     private void addResult(LKQLDepthValue value) {
         // If there is no defined depth
         if (this.exactDepth < 0) {
@@ -126,13 +125,13 @@ public class LKQLSelectorList extends LKQLLazyList {
                 (this.maxDepth < 0 || value.depth <= this.maxDepth) &&
                 (this.minDepth < 0 || value.depth >= this.minDepth)
             ) {
-                this.cache.add(value);
+                this.cache.append(value);
             }
         }
         // Else, only get the wanted nodes
         else {
             if (value.depth == this.exactDepth) {
-                this.cache.add(value);
+                this.cache.append(value);
             }
         }
     }

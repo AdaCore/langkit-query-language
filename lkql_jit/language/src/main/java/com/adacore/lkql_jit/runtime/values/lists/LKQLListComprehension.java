@@ -69,7 +69,7 @@ public final class LKQLListComprehension extends LKQLLazyList {
             System.arraycopy(currentArguments, 0, this.arguments, 1, currentArguments.length);
             Object value = this.dispatcher.executeDispatch(this.rootNode, this.arguments);
             if (value != null) {
-                this.cache.add(value);
+                this.cache.append(value);
             }
         }
     }
