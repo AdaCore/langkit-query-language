@@ -38,19 +38,6 @@
                             </arguments>
                         </configuration>
                     </execution>
-
-                    <!-- clean.py execution -->
-                    <execution>
-                        <id>clean_native</id>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>${config.python}</executable>
-                            <arguments>${basedir}/clean.py</arguments>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 

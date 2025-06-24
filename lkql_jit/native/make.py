@@ -49,9 +49,6 @@ sys.path.append("..")
 from utils import GraalManager, parse_args, missing_module
 
 if __name__ == "__main__":
-    # Create the dir hierarchy
-    os.makedirs(P.join(P.dirname(__file__), "bin"), exist_ok=True)
-
     # Create utils
     graal = GraalManager()
     args = parse_args()
@@ -95,7 +92,7 @@ if __name__ == "__main__":
             "-cp",
             os.pathsep.join([language_jar, cli_jar]),
             f"com.adacore.lkql_jit.cli.LKQLMain",
-            P.join("bin", "lkql"),
+            P.join("target", "lkql"),
         ]
 
         # Debug print and run
