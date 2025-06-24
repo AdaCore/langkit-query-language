@@ -66,7 +66,7 @@ public class RecExpr extends Expr {
         // By default, if not specified, the result is the same as the recurse
         // NOTE: we also need to propagate the unpack information if the recurse is unspecified
         Object resultExprVal = null;
-        Boolean resultHasUnpack = this.resultHasUnpack;
+        boolean resultHasUnpack = this.resultHasUnpack;
         if (this.resultExpr == null) {
             resultExprVal = recurseExprVal;
             resultHasUnpack = this.recurseHasUnpack;
