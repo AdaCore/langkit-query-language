@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
@@ -108,13 +108,13 @@ public abstract class Indexing extends Expr {
      * @return The child or null if there is none.
      */
     @Specialization
-    protected Object indexNode(Libadalang.AdaNode node, long index) {
+    protected Object indexNode(LangkitSupport.NodeInterface node, long index) {
         if (index > node.getChildrenCount()) {
             return LKQLNull.INSTANCE;
         } else if (index < 1) {
             throw LKQLRuntimeException.invalidIndex((int) index, this);
         }
-        Libadalang.AdaNode res = node.getChild((int) index - 1);
+        LangkitSupport.NodeInterface res = node.getChild((int) index - 1);
         return res.isNone() ? LKQLNull.INSTANCE : res;
     }
 

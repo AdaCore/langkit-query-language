@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.runtime.values.LKQLProperty;
@@ -61,7 +61,7 @@ public abstract class NodePatternField extends NodePatternDetail {
     @Specialization(guards = { "node == property.getNode()", "property.getDescription() != null" })
     protected boolean fieldCached(
         VirtualFrame frame,
-        @SuppressWarnings("unused") Libadalang.AdaNode node,
+        @SuppressWarnings("unused") LangkitSupport.NodeInterface node,
         @Cached("create(fieldName, node)") LKQLProperty property
     ) {
         // Get the value of the field
@@ -79,7 +79,7 @@ public abstract class NodePatternField extends NodePatternDetail {
      * @return True if the detail is valid, false else.
      */
     @Specialization(replaces = "fieldCached")
-    protected boolean fieldUncached(VirtualFrame frame, Libadalang.AdaNode node) {
+    protected boolean fieldUncached(VirtualFrame frame, LangkitSupport.NodeInterface node) {
         // Get the field property reference
         LKQLProperty property = new LKQLProperty(this.fieldName, node);
 

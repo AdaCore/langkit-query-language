@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
@@ -45,7 +45,7 @@ public abstract class SafeDotAccess extends BaseDotAccess {
         limit = "1"
     )
     protected Object onNodeCached(
-        @SuppressWarnings("unused") Libadalang.AdaNode receiver,
+        @SuppressWarnings("unused") LangkitSupport.NodeInterface receiver,
         @Cached("create(member.getName(), receiver)") LKQLProperty property,
         @Cached("property.isField()") boolean isField
     ) {
@@ -65,7 +65,7 @@ public abstract class SafeDotAccess extends BaseDotAccess {
      * @return The property reference or the field value.
      */
     @Specialization(replaces = "onNodeCached")
-    protected Object onNodeUncached(Libadalang.AdaNode receiver) {
+    protected Object onNodeUncached(LangkitSupport.NodeInterface receiver) {
         // Try the built_in
         Object builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
@@ -91,7 +91,7 @@ public abstract class SafeDotAccess extends BaseDotAccess {
     @Fallback
     protected void onGeneric(Object receiver) {
         throw LKQLRuntimeException.wrongType(
-            LKQLTypesHelper.ADA_NODE,
+            LKQLTypesHelper.NODE_INTERFACE,
             LKQLTypesHelper.fromJava(receiver),
             this
         );

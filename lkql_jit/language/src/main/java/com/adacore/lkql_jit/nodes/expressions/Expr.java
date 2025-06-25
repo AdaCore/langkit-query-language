@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -247,15 +248,16 @@ public abstract class Expr extends LKQLNode {
     }
 
     /**
-     * Execute the expression as an ada node.
+     * Execute the expression as a node.
      *
      * @param frame The frame for execution.
-     * @return The result of the node execution as an ada node.
-     * @throws UnexpectedResultException If the node cannot be evaluated as an ada node.
+     * @return The result of the node execution as an node.
+     * @throws UnexpectedResultException If the node cannot be evaluated as a node.
      */
     @SuppressWarnings("unused")
-    public Libadalang.AdaNode executeNode(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectAdaNode(executeGeneric(frame));
+    public LangkitSupport.NodeInterface executeNode(VirtualFrame frame)
+        throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectNodeInterface(executeGeneric(frame));
     }
 
     /**
@@ -275,9 +277,9 @@ public abstract class Expr extends LKQLNode {
      * @throws UnexpectedResultException If the node cannot be evaluated as a rewriting context.
      */
     @SuppressWarnings("unused")
-    public Libadalang.RewritingNode executeRewritingNode(VirtualFrame frame)
+    public LangkitSupport.RewritingNodeInterface executeRewritingNode(VirtualFrame frame)
         throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectRewritingNode(executeGeneric(frame));
+        return LKQLTypeSystemGen.expectRewritingNodeInterface(executeGeneric(frame));
     }
 
     /**
@@ -286,8 +288,8 @@ public abstract class Expr extends LKQLNode {
      * @throws UnexpectedResultException If the node cannot be evaluated as a member reference.
      */
     @SuppressWarnings("unused")
-    public Libadalang.MemberReference executeMemberReference(VirtualFrame frame)
+    public LangkitSupport.MemberReferenceInterface executeMemberReference(VirtualFrame frame)
         throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectMemberReference(executeGeneric(frame));
+        return LKQLTypeSystemGen.expectMemberReferenceInterface(executeGeneric(frame));
     }
 }

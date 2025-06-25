@@ -5,12 +5,13 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -205,7 +206,11 @@ public abstract class BinNeq extends BinOp {
      * @return The result of the non-equality verification.
      */
     @Specialization
-    protected boolean neqNodes(Libadalang.AdaNode left, Libadalang.AdaNode right) {
+    @CompilerDirectives.TruffleBoundary
+    protected boolean neqNodes(
+        LangkitSupport.NodeInterface left,
+        LangkitSupport.NodeInterface right
+    ) {
         return !left.equals(right);
     }
 
@@ -217,7 +222,10 @@ public abstract class BinNeq extends BinOp {
      * @return The result of the non-equality verification.
      */
     @Specialization
-    protected boolean neqTokens(Libadalang.Token left, Libadalang.Token right) {
+    protected boolean neqTokens(
+        LangkitSupport.TokenInterface left,
+        LangkitSupport.TokenInterface right
+    ) {
         return !left.equals(right);
     }
 
@@ -230,8 +238,8 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization
     protected boolean neqAnalysisUnits(
-        Libadalang.AnalysisUnit left,
-        Libadalang.AnalysisUnit right
+        LangkitSupport.AnalysisUnit left,
+        LangkitSupport.AnalysisUnit right
     ) {
         return !left.equals(right);
     }

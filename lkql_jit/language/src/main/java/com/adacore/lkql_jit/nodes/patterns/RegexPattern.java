@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLPattern;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -39,9 +39,9 @@ public abstract class RegexPattern extends ValuePattern {
     }
 
     @Specialization
-    public boolean onAdaNode(
+    public boolean onNode(
         @SuppressWarnings("unused") VirtualFrame frame,
-        Libadalang.AdaNode node
+        LangkitSupport.NodeInterface node
     ) {
         return (node != LKQLNull.INSTANCE && this.pattern.contains(node.getText()));
     }

@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.checker.built_ins;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
@@ -22,7 +23,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
+import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -41,7 +42,7 @@ public final class UnitCheckerFunction {
         private final InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
         @Specialization
-        public Object alwaysTrue(VirtualFrame frame, Libadalang.AnalysisUnit unit) {
+        public Object alwaysTrue(VirtualFrame frame, LangkitSupport.AnalysisUnit unit) {
             // Get the arguments
             LKQLContext context = LKQLLanguage.getContext(this);
             UnitChecker[] checkers = context.getUnitCheckersFiltered();
@@ -58,7 +59,7 @@ public final class UnitCheckerFunction {
                             .emitDiagnostic(
                                 CheckerUtils.MessageKind.ERROR,
                                 e.getMsg(),
-                                new LalLocationWrapper(unit.getRoot(), context.linesCache),
+                                new LangkitLocationWrapper(unit.getRoot(), context.linesCache),
                                 new SourceSectionWrapper(e.getLocation().getSourceSection()),
                                 checker.getName()
                             );
@@ -69,7 +70,7 @@ public final class UnitCheckerFunction {
                         .emitDiagnostic(
                             CheckerUtils.MessageKind.ERROR,
                             e.getErrorMessage(),
-                            new LalLocationWrapper(unit.getRoot(), context.linesCache),
+                            new LangkitLocationWrapper(unit.getRoot(), context.linesCache),
                             new SourceSectionWrapper(e.getLocation().getSourceSection()),
                             checker.getName()
                         );
@@ -91,7 +92,7 @@ public final class UnitCheckerFunction {
         private void applyUnitRule(
             VirtualFrame frame,
             UnitChecker checker,
-            Libadalang.AnalysisUnit unit,
+            LangkitSupport.AnalysisUnit unit,
             LKQLContext context
         ) {
             // Get the function for the checker
@@ -154,23 +155,28 @@ public final class UnitCheckerFunction {
 
                 // Get the violation location
                 Object loc = violation.getUncached("loc");
-                final Libadalang.AnalysisUnit locUnit;
-                final Libadalang.SourceLocationRange slocRange;
-                final Libadalang.AdaNode[] genericInstantiations;
+                final LangkitSupport.AnalysisUnit locUnit;
+                final LangkitSupport.SourceLocationRange slocRange;
+                final LangkitSupport.NodeInterface[] genericInstantiations;
 
-                if (LKQLTypeSystemGen.isToken(loc)) {
-                    final Libadalang.Token token = LKQLTypeSystemGen.asToken(loc);
-                    locUnit = token.unit;
-                    slocRange = token.sourceLocationRange;
-                    genericInstantiations = new Libadalang.AdaNode[0];
-                } else if (LKQLTypeSystemGen.isAdaNode(loc)) {
-                    final Libadalang.AdaNode node = LKQLTypeSystemGen.asAdaNode(loc);
+                if (LKQLTypeSystemGen.isTokenInterface(loc)) {
+                    final LangkitSupport.TokenInterface token = LKQLTypeSystemGen.asTokenInterface(
+                        loc
+                    );
+                    locUnit = token.getUnit();
+                    slocRange = token.getSourceLocationRange();
+                    genericInstantiations = new LangkitSupport.NodeInterface[0];
+                } else if (LKQLTypeSystemGen.isNodeInterface(loc)) {
+                    final LangkitSupport.NodeInterface node = LKQLTypeSystemGen.asNodeInterface(
+                        loc
+                    );
                     locUnit = node.getUnit();
                     slocRange = node.getSourceLocationRange();
-                    genericInstantiations = node.pGenericInstantiations();
+                    // TODO: Genericize LKQL issue #500. Cannot interface Ada specific calls.
+                    genericInstantiations = ((Libadalang.AdaNode) node).pGenericInstantiations();
                 } else {
                     throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ADA_NODE,
+                        LKQLTypesHelper.NODE_INTERFACE,
                         LKQLTypesHelper.fromJava(loc),
                         functionValue.getBody()
                     );
@@ -181,7 +187,7 @@ public final class UnitCheckerFunction {
                     .emitRuleViolation(
                         checker,
                         message,
-                        new LalLocationWrapper(slocRange, locUnit, context.linesCache),
+                        new LangkitLocationWrapper(slocRange, locUnit, context.linesCache),
                         genericInstantiations,
                         context
                     );

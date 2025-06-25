@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.utils.functions;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -60,6 +61,8 @@ public final class ReflectionUtils {
             }
         }
         // If the required type is a unit array
+        // TODO: Genericise LKQL issue #501. Can't make this code work using the LangkitSupport
+        //  interface (convert a LangkitSupport.AnalysisUnit array to an LKQL list.
         else if (type.equals(Libadalang.AnalysisUnit[].class)) {
             LKQLList resList;
             try {
@@ -71,7 +74,9 @@ public final class ReflectionUtils {
                     argument
                 );
             }
-            Libadalang.AnalysisUnit[] resArray = new Libadalang.AnalysisUnit[(int) resList.size()];
+            LangkitSupport.AnalysisUnit[] resArray =
+                // TODO: Genericise LKQL issue. See comment above.
+                new Libadalang.AnalysisUnit[(int) resList.size()];
             for (int i = 0; i < resList.size(); i++) {
                 try {
                     resArray[i] = LKQLTypeSystemGen.expectAnalysisUnit(resList.get(i));
@@ -102,38 +107,38 @@ public final class ReflectionUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static Object callProperty(
-        Libadalang.AdaNode node,
-        Libadalang.Reflection.Field fieldDescription,
+        LangkitSupport.NodeInterface node,
+        LangkitSupport.Reflection.Field fieldDescription,
         Node caller,
         ArgList argList,
         Object... arguments
     ) throws LangkitException, UnsupportedTypeException {
         // Verify if there is more arguments than params
-        if (arguments.length > fieldDescription.params.size()) {
+        if (arguments.length > fieldDescription.getParams().size()) {
             throw LKQLRuntimeException.wrongArity(
-                fieldDescription.params.size(),
+                fieldDescription.getParams().size(),
                 arguments.length,
                 argList
             );
         }
 
-        Object[] refinedArgs = new Object[fieldDescription.params.size()];
+        Object[] refinedArgs = new Object[fieldDescription.getParams().size()];
         try {
             // Create the argument list with the default values if needed
             for (int i = 0; i < refinedArgs.length; i++) {
-                Libadalang.Reflection.Param currentParam = fieldDescription.params.get(i);
+                LangkitSupport.Reflection.Param currentParam = fieldDescription.getParams().get(i);
                 if (i < arguments.length) {
                     refinedArgs[i] = refineArgument(
                         arguments[i],
-                        currentParam.type,
+                        currentParam.getType(),
                         argList.getArgs()[i]
                     );
                 } else {
-                    if (currentParam.defaultValue.isPresent()) {
-                        refinedArgs[i] = currentParam.defaultValue.get();
+                    if (currentParam.getDefaultValue().isPresent()) {
+                        refinedArgs[i] = currentParam.getDefaultValue().get();
                     } else {
                         throw LKQLRuntimeException.wrongArity(
-                            fieldDescription.params.size(),
+                            fieldDescription.getParams().size(),
                             arguments.length,
                             argList
                         );
@@ -143,15 +148,15 @@ public final class ReflectionUtils {
 
             // Call the method
             return LKQLTypesHelper.toLKQLValue(
-                fieldDescription.javaMethod.invoke(node, refinedArgs)
+                fieldDescription.getJavaMethod().invoke(node, refinedArgs)
             );
         } catch (IllegalArgumentException e) {
             // Explore the argument types
             for (int i = 0; i < refinedArgs.length; i++) {
-                if (!fieldDescription.params.get(i).type.isInstance(refinedArgs[i])) {
+                if (!fieldDescription.getParams().get(i).getType().isInstance(refinedArgs[i])) {
                     throw LKQLRuntimeException.conversionError(
                         LKQLTypesHelper.fromJava(refinedArgs[i]),
-                        LKQLTypesHelper.debugName(fieldDescription.params.get(i).type),
+                        LKQLTypesHelper.debugName(fieldDescription.getParams().get(i).getType()),
                         caller
                     );
                 }

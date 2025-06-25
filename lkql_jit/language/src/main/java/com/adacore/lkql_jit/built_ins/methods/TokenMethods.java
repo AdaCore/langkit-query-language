@@ -5,8 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.Token;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.annotations.*;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -26,8 +25,8 @@ public final class TokenMethods {
     abstract static class StartColExpr extends BuiltInBody {
 
         @Specialization
-        public long onToken(Token t) {
-            return t.sourceLocationRange.start.column;
+        public long onToken(LangkitSupport.TokenInterface t) {
+            return t.getSourceLocationRange().start.column;
         }
     }
 
@@ -35,8 +34,8 @@ public final class TokenMethods {
     abstract static class EndColExpr extends BuiltInBody {
 
         @Specialization
-        public long onToken(Token t) {
-            return t.sourceLocationRange.end.column;
+        public long onToken(LangkitSupport.TokenInterface t) {
+            return t.getSourceLocationRange().end.column;
         }
     }
 
@@ -44,8 +43,8 @@ public final class TokenMethods {
     abstract static class StartLineExpr extends BuiltInBody {
 
         @Specialization
-        public long onToken(Token t) {
-            return t.sourceLocationRange.start.line;
+        public long onToken(LangkitSupport.TokenInterface t) {
+            return t.getSourceLocationRange().start.line;
         }
     }
 
@@ -53,8 +52,8 @@ public final class TokenMethods {
     abstract static class EndLineExpr extends BuiltInBody {
 
         @Specialization
-        public long onToken(Token t) {
-            return t.sourceLocationRange.end.line;
+        public long onToken(LangkitSupport.TokenInterface t) {
+            return t.getSourceLocationRange().end.line;
         }
     }
 
@@ -65,7 +64,10 @@ public final class TokenMethods {
     abstract static class IsEquivalentExpr extends BuiltInBody {
 
         @Specialization
-        protected boolean onValid(Token self, Token other) {
+        protected boolean onValid(
+            LangkitSupport.TokenInterface self,
+            LangkitSupport.TokenInterface other
+        ) {
             return self.isEquivalent(other);
         }
     }
@@ -78,8 +80,8 @@ public final class TokenMethods {
     abstract static class IsTriviaExpr extends BuiltInBody {
 
         @Specialization
-        public boolean onToken(Token t) {
-            return t.triviaIndex != 0;
+        public boolean onToken(LangkitSupport.TokenInterface t) {
+            return t.isTrivia();
         }
     }
 
@@ -87,11 +89,14 @@ public final class TokenMethods {
     abstract static class NextExpr extends BuiltInBody {
 
         @Specialization
-        protected Token onValid(Token receiver, @DefaultVal("false") boolean ignoreTrivia) {
+        protected LangkitSupport.TokenInterface onValid(
+            LangkitSupport.TokenInterface receiver,
+            @DefaultVal("false") boolean ignoreTrivia
+        ) {
             // Skip trivia if required
-            Token res = receiver.next();
+            LangkitSupport.TokenInterface res = receiver.next();
             if (ignoreTrivia) {
-                while (!res.isNone() && res.triviaIndex != 0) {
+                while (!res.isNone() && res.isTrivia()) {
                     res = res.next();
                 }
             }
@@ -105,11 +110,14 @@ public final class TokenMethods {
     abstract static class PrevExpr extends BuiltInBody {
 
         @Specialization
-        protected Token onValid(Token receiver, @DefaultVal("false") boolean excludeTrivia) {
+        protected LangkitSupport.TokenInterface onValid(
+            LangkitSupport.TokenInterface receiver,
+            @DefaultVal("false") boolean excludeTrivia
+        ) {
             // Skip trivia if required
-            Token res = receiver.previous();
+            LangkitSupport.TokenInterface res = receiver.previous();
             if (excludeTrivia) {
-                while (!res.isNone() && res.triviaIndex != 0) {
+                while (!res.isNone() && res.isTrivia()) {
                     res = res.previous();
                 }
             }
@@ -123,8 +131,8 @@ public final class TokenMethods {
     abstract static class UnitExpr extends BuiltInBody {
 
         @Specialization
-        public Libadalang.AnalysisUnit onToken(Token t) {
-            return t.unit;
+        public LangkitSupport.AnalysisUnit onToken(LangkitSupport.TokenInterface t) {
+            return t.getUnit();
         }
     }
 
@@ -132,7 +140,7 @@ public final class TokenMethods {
     abstract static class TextExpr extends BuiltInBody {
 
         @Specialization
-        public String onToken(Token t) {
+        public String onToken(LangkitSupport.TokenInterface t) {
             return t.getText();
         }
     }
@@ -141,9 +149,9 @@ public final class TokenMethods {
     abstract static class KindExpr extends BuiltInBody {
 
         @Specialization
-        public String onToken(Token t) {
-            if (t.kind.toC() == -1) return "no_token";
-            String rawKind = ObjectUtils.toString(t.kind);
+        public String onToken(LangkitSupport.TokenInterface t) {
+            if (t.getKind().toC() == -1) return "no_token";
+            String rawKind = ObjectUtils.toString(t.getKind());
             return StringUtils.toLowerCase(StringUtils.split(rawKind, "_")[1]);
         }
     }

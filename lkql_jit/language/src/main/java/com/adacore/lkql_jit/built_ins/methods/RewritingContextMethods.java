@@ -5,11 +5,10 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.langkit_support.LangkitSupport.MemberReferenceInterface;
+import com.adacore.langkit_support.LangkitSupport.RewritingContextInterface;
+import com.adacore.langkit_support.LangkitSupport.RewritingNodeInterface;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.GrammarRule;
-import com.adacore.libadalang.Libadalang.MemberReference;
-import com.adacore.libadalang.Libadalang.RewritingContext;
-import com.adacore.libadalang.Libadalang.RewritingNode;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
@@ -18,7 +17,6 @@ import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverter;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverterNodeGen;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -31,7 +29,7 @@ public final class RewritingContextMethods {
         @Child
         RewritingNodeConverter argToRewritingNode = RewritingNodeConverterNodeGen.create();
 
-        public RewritingNode convert(VirtualFrame frame, Object node, boolean ensureTied) {
+        public RewritingNodeInterface convert(VirtualFrame frame, Object node, boolean ensureTied) {
             return argToRewritingNode.execute(node, ensureTied, this.callNode);
         }
     }
@@ -42,7 +40,7 @@ public final class RewritingContextMethods {
         @Specialization
         public Object executeGeneric(
             VirtualFrame frame,
-            RewritingContext ctx,
+            RewritingContextInterface ctx,
             Object oldNode,
             Object newNode
         ) {
@@ -52,7 +50,9 @@ public final class RewritingContextMethods {
 
             // Replace the given node and return the rewriting context
             try {
-                toReplace.replace(byNode);
+                if (byNode != null) {
+                    toReplace.replace(byNode);
+                }
             } catch (Libadalang.LangkitException e) {
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }
@@ -69,9 +69,9 @@ public final class RewritingContextMethods {
         @Specialization
         public Object executeGeneric(
             VirtualFrame frame,
-            RewritingContext ctx,
+            RewritingContextInterface ctx,
             Object node,
-            MemberReference memberRef,
+            MemberReferenceInterface memberRef,
             Object newValue
         ) {
             // Get the method arguments
@@ -94,7 +94,7 @@ public final class RewritingContextMethods {
         @Specialization
         public Object execute(
             VirtualFrame frame,
-            RewritingContext ctx,
+            RewritingContextInterface ctx,
             Object node,
             Object newNode
         ) {
@@ -116,7 +116,7 @@ public final class RewritingContextMethods {
         @Specialization
         public Object execute(
             VirtualFrame frame,
-            RewritingContext ctx,
+            RewritingContextInterface ctx,
             Object node,
             Object newNode
         ) {
@@ -135,7 +135,7 @@ public final class RewritingContextMethods {
         @Specialization
         public Object execute(
             VirtualFrame frame,
-            RewritingContext ctx,
+            RewritingContextInterface ctx,
             Object node,
             Object newNode
         ) {
@@ -154,7 +154,7 @@ public final class RewritingContextMethods {
         @Specialization
         public Object execute(
             VirtualFrame frame,
-            RewritingContext ctx,
+            RewritingContextInterface ctx,
             Object node,
             Object newNode
         ) {
@@ -174,7 +174,11 @@ public final class RewritingContextMethods {
     public abstract static class RemoveExpr extends BaseRewritingContextExpr {
 
         @Specialization
-        public Object executeGeneric(VirtualFrame frame, RewritingContext ctx, Object objToRemove) {
+        public Object executeGeneric(
+            VirtualFrame frame,
+            RewritingContextInterface ctx,
+            Object objToRemove
+        ) {
             // Call the removing method and return the context
             try {
                 convert(frame, objToRemove, false).removeFromParent();
@@ -204,28 +208,23 @@ public final class RewritingContextMethods {
     )
     public abstract static class CreateFromTemplateExpr extends BaseRewritingContextExpr {
 
-        @TruffleBoundary
-        private static GrammarRule ruleFromString(String ruleName) {
-            return GrammarRule.valueOf(ruleName.toUpperCase());
-        }
-
         @Specialization
-        public RewritingNode doGeneric(
+        public RewritingNodeInterface doGeneric(
             VirtualFrame frame,
-            RewritingContext ctx,
+            RewritingContextInterface ctx,
             String template,
             String grammarRule,
             LKQLList arguments
         ) {
             // Translate the provided LKQL list into a rewriting node list
-            final var args = new RewritingNode[(int) arguments.size()];
+            final var args = new RewritingNodeInterface[(int) arguments.size()];
             for (int i = 0; i < args.length; i++) {
                 args[i] = convert(frame, arguments.get(i), true);
             }
 
             // Then call the internal function to process the template
             try {
-                return ctx.createFromTemplate(template, ruleFromString(grammarRule), args);
+                return ctx.createFromTemplate(template, grammarRule, args);
             } catch (Exception e) {
                 throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }

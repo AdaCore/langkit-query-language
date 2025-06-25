@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
@@ -15,10 +15,12 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.utilities.TriState;
+import java.util.Collections;
+import java.util.Map;
 
 /** This class represents the null value in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, Truthy {
+public class LKQLNull implements LangkitSupport.NodeInterface, LKQLValue, Nullish, Truthy {
 
     // ----- Attributes -----
 
@@ -28,31 +30,109 @@ public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, 
     /** The identity hash of the only instance of the LKQL null. */
     private static final int IDENTITY_HASH = System.identityHashCode(INSTANCE);
 
-    // ----- Constructors -----
+    // ----- NodeInterface methods -----
 
-    /** Private constructor for the null value. */
-    private LKQLNull() {
-        super(
-            Libadalang.Entity.create(
-                Libadalang.PointerWrapper.nullPointer(),
-                Libadalang.EntityInfo.create(
-                    Libadalang.Metadata.create(
-                        false,
-                        Libadalang.PointerWrapper.nullPointer(),
-                        Libadalang.PointerWrapper.nullPointer()
-                    ),
-                    Libadalang.PointerWrapper.nullPointer(),
-                    false
-                )
-            )
-        );
+    @Override
+    public LangkitSupport.Reflection.Node getDescription() {
+        return null;
     }
 
-    // ----- Node methods -----
+    @Override
+    public String[] getFieldNames() {
+        return new String[0];
+    }
+
+    @Override
+    public Map<String, ? extends LangkitSupport.Reflection.Field> getFieldDescriptions() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public LangkitSupport.Reflection.Field getFieldDescription(final String name) {
+        return null;
+    }
+
+    @Override
+    public boolean isListNode() {
+        return false;
+    }
+
+    @Override
+    public boolean isTokenNode() {
+        return false;
+    }
+
+    @Override
+    public LangkitSupport.TokenInterface tokenStart() {
+        return null;
+    }
+
+    @Override
+    public LangkitSupport.TokenInterface tokenEnd() {
+        return null;
+    }
 
     @Override
     public boolean isNone() {
         return true;
+    }
+
+    @Override
+    public LangkitSupport.AnalysisUnit getUnit() {
+        return null;
+    }
+
+    @Override
+    public LangkitSupport.NodeInterface[] children() {
+        return new LKQLNull[0];
+    }
+
+    @Override
+    public int getChildrenCount() {
+        return 0;
+    }
+
+    @Override
+    public LangkitSupport.NodeInterface getChild(final int n) {
+        return new LKQLNull();
+    }
+
+    @Override
+    public String getText() {
+        return null;
+    }
+
+    @Override
+    public String getImage() {
+        return this.getText();
+    }
+
+    @Override
+    public LangkitSupport.SourceLocationRange getSourceLocationRange() {
+        return new LangkitSupport.SourceLocationRange(
+            new LangkitSupport.SourceLocation(-1, (short) 1),
+            new LangkitSupport.SourceLocation(-1, (short) 1)
+        );
+    }
+
+    @Override
+    public LangkitSupport.RewritingNodeInterface getRewritingNode() {
+        return null;
+    }
+
+    @Override
+    public String dumpTree() {
+        return this.getImage();
+    }
+
+    @Override
+    public void dumpTree(final StringBuilder builder) {
+        builder.append(this.dumpTree());
+    }
+
+    @Override
+    public LangkitSupport.NodeInterface parent() {
+        return new LKQLNull();
     }
 
     // ----- Value methods -----
@@ -116,17 +196,5 @@ public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, 
     @Override
     public boolean isTruthy() {
         return false;
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        return "null";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return o == this;
     }
 }

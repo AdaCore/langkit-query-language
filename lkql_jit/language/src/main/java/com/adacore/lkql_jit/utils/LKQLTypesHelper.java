@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.utils;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
@@ -74,8 +75,8 @@ public final class LKQLTypesHelper {
 
     public static final String LKQL_REC_VALUE = "RecValue";
 
-    /** The string representing the ada node type. */
-    public static final String ADA_NODE = "Node";
+    /** The string representing the node type. */
+    public static final String NODE_INTERFACE = "Node";
 
     /** The string representing the token type. */
     public static final String TOKEN = "Token";
@@ -112,7 +113,7 @@ public final class LKQLTypesHelper {
         LKQL_OBJECT,
         LKQL_NAMESPACE,
         LKQL_REC_VALUE,
-        ADA_NODE,
+        NODE_INTERFACE,
         TOKEN,
         ANALYSIS_UNIT,
         REWRITING_CONTEXT,
@@ -180,9 +181,9 @@ public final class LKQLTypesHelper {
             return LKQL_LIST;
         } else if (LKQLTypeSystemGen.isLKQLLazyList(obj)) {
             return LKQL_LAZY_LIST;
-        } else if (LKQLTypeSystemGen.isAdaNode(obj)) {
-            return ADA_NODE;
-        } else if (LKQLTypeSystemGen.isToken(obj)) {
+        } else if (LKQLTypeSystemGen.isNodeInterface(obj)) {
+            return NODE_INTERFACE;
+        } else if (LKQLTypeSystemGen.isTokenInterface(obj)) {
             return TOKEN;
         } else if (LKQLTypeSystemGen.isAnalysisUnit(obj)) {
             return ANALYSIS_UNIT;
@@ -194,7 +195,7 @@ public final class LKQLTypesHelper {
             return LKQL_NAMESPACE;
         } else if (LKQLTypeSystemGen.isRewritingContext(obj)) {
             return REWRITING_CONTEXT;
-        } else if (LKQLTypeSystemGen.isRewritingNode(obj)) {
+        } else if (LKQLTypeSystemGen.isRewritingNodeInterface(obj)) {
             return REWRITING_NODE;
         } else {
             return defaultValue;
@@ -210,22 +211,6 @@ public final class LKQLTypesHelper {
     public static String debugName(Class<?> type) {
         if (type == Boolean.class || type == boolean.class) {
             return "Bool";
-        } else {
-            return type.getSimpleName();
-        }
-    }
-
-    /**
-     * Get the category of value for the given Java type. This category represents a kind of value
-     * from Libadalang which cannot be imported in the LKQL context.
-     *
-     * @param type The type to get the category for.
-     * @return The type category.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static String category(Class<?> type) {
-        if (type == Libadalang.CompletionItemIterator.class) {
-            return "ITERATOR_CATEGORY";
         } else {
             return type.getSimpleName();
         }
@@ -256,7 +241,7 @@ public final class LKQLTypesHelper {
             return javaValue;
         }
         // If the value is a character
-        else if (javaValue instanceof Libadalang.Char character) {
+        else if (javaValue instanceof LangkitSupport.CharInterface character) {
             return character.toString();
         }
         // If the source is a symbol
@@ -267,16 +252,16 @@ public final class LKQLTypesHelper {
         else if (javaValue instanceof String) {
             return javaValue;
         }
-        // If the source is an AdaNode
-        else if (javaValue instanceof Libadalang.AdaNode adaNode) {
-            return adaNode.isNone() ? LKQLNull.INSTANCE : adaNode;
+        // If the source is an NodeInterface
+        else if (javaValue instanceof LangkitSupport.NodeInterface node) {
+            return node.isNone() ? LKQLNull.INSTANCE : node;
         }
         // If the source is a token
-        else if (javaValue instanceof Libadalang.Token token) {
+        else if (javaValue instanceof LangkitSupport.TokenInterface token) {
             return token;
         }
         // If the source is an analysis unit
-        else if (javaValue instanceof Libadalang.AnalysisUnit) {
+        else if (javaValue instanceof LangkitSupport.AnalysisUnit) {
             return javaValue;
         }
         // If the source is an array from libadalang

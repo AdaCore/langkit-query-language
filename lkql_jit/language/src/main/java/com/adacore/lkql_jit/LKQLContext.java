@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.checker.BaseChecker;
@@ -18,7 +19,7 @@ import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.LalLocationWrapper;
+import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLogger;
@@ -58,10 +59,10 @@ public final class LKQLContext {
     // ----- Ada project attributes -----
 
     /** The analysis context for the ada files. */
-    private Libadalang.AnalysisContext adaContext;
+    private LangkitSupport.AnalysisContextInterface analysisContext;
 
     /** The rewriting context, opened from the Ada analysis context. */
-    private Libadalang.RewritingContext rewritingContext;
+    private LangkitSupport.RewritingContextInterface rewritingContext;
 
     /** The project manager for the ada project. */
     private Libadalang.ProjectManager projectManager;
@@ -73,7 +74,7 @@ public final class LKQLContext {
                 boolean isFatal = !this.keepGoingOnMissingFile();
                 this.getDiagnosticEmitter()
                     .emitFileNotFound(
-                        new LalLocationWrapper(from.getRoot(), this.linesCache),
+                        new LangkitLocationWrapper(from.getRoot(), this.linesCache),
                         name,
                         isFatal
                     );
@@ -104,13 +105,13 @@ public final class LKQLContext {
      * The user-specified units to analyze. If not explicitly specified, those will be the units of
      * the root project.
      */
-    private Libadalang.AnalysisUnit[] specifiedUnits;
+    private LangkitSupport.AnalysisUnit[] specifiedUnits;
 
     /** All the units of the project, including those of its non-externally-built dependencies. */
-    private Libadalang.AnalysisUnit[] allUnits;
+    private LangkitSupport.AnalysisUnit[] allUnits;
 
     /** The root nodes of all the analysis units of the project. */
-    private Libadalang.AdaNode[] allUnitsRoots;
+    private LangkitSupport.NodeInterface[] allUnitsRoots;
 
     // ----- Checker attributes -----
 
@@ -124,7 +125,7 @@ public final class LKQLContext {
     private NodeChecker[] filteredGeneralNodeCheckers = null;
 
     /** Node checkers to run on non-SPARK nodes from the Ada sources. */
-    private NodeChecker[] filteredAdaNodeCheckers = null;
+    private NodeChecker[] filteredNodeCheckers = null;
 
     /** Node checkers to run only on SPARK nodes from the Ada sources. */
     private NodeChecker[] filteredSparkNodeCheckers = null;
@@ -175,7 +176,7 @@ public final class LKQLContext {
             this.rewritingContext.close();
         }
         this.eventHandler.close();
-        this.adaContext.close();
+        this.analysisContext.close();
         if (this.projectManager != null) this.projectManager.close();
     }
 
@@ -189,21 +190,21 @@ public final class LKQLContext {
         return this.global;
     }
 
-    public Libadalang.AnalysisUnit[] getSpecifiedUnits() {
+    public LangkitSupport.AnalysisUnit[] getSpecifiedUnits() {
         if (!this.parsed) {
             this.parseSources();
         }
         return this.specifiedUnits;
     }
 
-    public Libadalang.AnalysisUnit[] getAllUnits() {
+    public LangkitSupport.AnalysisUnit[] getAllUnits() {
         if (!this.parsed) {
             this.parseSources();
         }
         return this.allUnits;
     }
 
-    public Libadalang.AdaNode[] getAllUnitsRoots() {
+    public LangkitSupport.NodeInterface[] getAllUnitsRoots() {
         if (!this.parsed) {
             this.parseSources();
         }
@@ -214,12 +215,12 @@ public final class LKQLContext {
         return this.rewritingContext != null;
     }
 
-    public Libadalang.RewritingContext getRewritingContext() {
+    public LangkitSupport.RewritingContextInterface getRewritingContext() {
         if (this.rewritingContext == null) {
             if (!this.parsed) {
                 this.parseSources();
             }
-            this.rewritingContext = this.adaContext.startRewriting();
+            this.rewritingContext = this.analysisContext.startRewriting();
         }
         return this.rewritingContext;
     }
@@ -229,7 +230,7 @@ public final class LKQLContext {
      * operation is a success then discard the current rewriting context. Otherwise, close it. This
      * method assumes that the current rewriting context is not null.
      */
-    public Libadalang.RewritingApplyResult applyOrCloseRewritingContext() {
+    public LangkitSupport.RewritingApplyResult applyOrCloseRewritingContext() {
         final var res = this.rewritingContext.apply();
         if (!res.success) {
             this.rewritingContext.close();
@@ -441,20 +442,20 @@ public final class LKQLContext {
 
         // For each specified source file, store its corresponding analysis unit in the list of
         // specified units
-        this.specifiedUnits = new Libadalang.AnalysisUnit[usedSources.length];
+        this.specifiedUnits = new LangkitSupport.AnalysisUnit[usedSources.length];
         for (int i = 0; i < usedSources.length; i++) {
-            this.specifiedUnits[i] = this.adaContext.getUnitFromFile(usedSources[i]);
+            this.specifiedUnits[i] = this.analysisContext.getUnitFromFile(usedSources[i]);
         }
 
         // For each source file of the project, store its corresponding analysis unit in the list of
         // all
         // the units
         // of the project, as well as their root nodes.
-        this.allUnits = new Libadalang.AnalysisUnit[this.allSourceFiles.size()];
-        this.allUnitsRoots = new Libadalang.AdaNode[this.allSourceFiles.size()];
+        this.allUnits = new LangkitSupport.AnalysisUnit[this.allSourceFiles.size()];
+        this.allUnitsRoots = new LangkitSupport.NodeInterface[this.allSourceFiles.size()];
 
         for (int i = 0; i < this.allUnits.length; i++) {
-            this.allUnits[i] = this.adaContext.getUnitFromFile(this.allSourceFiles.get(i));
+            this.allUnits[i] = this.analysisContext.getUnitFromFile(this.allSourceFiles.get(i));
             this.allUnitsRoots[i] = this.allUnits[i].getRoot();
         }
 
@@ -531,7 +532,7 @@ public final class LKQLContext {
                     ).toList()
                 );
 
-            this.adaContext = this.projectManager.createContext(
+            this.analysisContext = this.projectManager.createContext(
                     this.getOptions().subprojectFile().orElse(null),
                     this.eventHandler,
                     true,
@@ -566,7 +567,11 @@ public final class LKQLContext {
             final Libadalang.UnitProvider provider = this.projectManager.getProvider();
 
             // Create the ada context and store it in the LKQL context
-            this.adaContext = Libadalang.AnalysisContext.create(
+            /*
+             * TODO: Genericize LKQL or Java issue #502. Requires to make create static but not possible
+             * via an interface nor an abstract class.
+             */
+            this.analysisContext = Libadalang.AnalysisContext.create(
                 charset,
                 null,
                 provider,
@@ -577,7 +582,7 @@ public final class LKQLContext {
 
             // In the absence of a project file, we consider for now that there are no configuration
             // pragmas.
-            this.adaContext.setConfigPragmasMapping(null, null);
+            this.analysisContext.setConfigPragmasMapping(null, null);
         }
     }
 
@@ -657,11 +662,11 @@ public final class LKQLContext {
      *
      * @return The node checkers array for Ada code only.
      */
-    public NodeChecker[] getAdaNodeCheckers() {
-        if (this.filteredAdaNodeCheckers == null) {
+    public NodeChecker[] getNodeCheckers() {
+        if (this.filteredNodeCheckers == null) {
             this.initCheckerCaches();
         }
-        return this.filteredAdaNodeCheckers;
+        return this.filteredNodeCheckers;
     }
 
     /**
@@ -694,7 +699,7 @@ public final class LKQLContext {
     private void initCheckerCaches() {
         // Prepare the working variables
         final List<NodeChecker> generalNodeCheckers = new ArrayList<>();
-        final List<NodeChecker> adaNodeCheckers = new ArrayList<>();
+        final List<NodeChecker> nodeCheckers = new ArrayList<>();
         final List<NodeChecker> sparkNodeCheckers = new ArrayList<>();
         final List<UnitChecker> unitCheckers = new ArrayList<>();
         final Map<String, BaseChecker> allCheckers = this.global.getCheckers();
@@ -702,10 +707,10 @@ public final class LKQLContext {
         // Lambda to dispatch checkers in the correct lists
         final BiConsumer<BaseChecker, List<NodeChecker>> dispatchChecker = (
             checker,
-            nodeCheckers
+            nodeCheckerList
         ) -> {
             if (checker instanceof NodeChecker nodeChecker) {
-                nodeCheckers.add(nodeChecker);
+                nodeCheckerList.add(nodeChecker);
                 if (nodeChecker.isFollowGenericInstantiations()) {
                     needsToFollowInstantiations = true;
                 }
@@ -753,7 +758,7 @@ public final class LKQLContext {
 
                 switch (instance.sourceMode()) {
                     case GENERAL -> dispatchChecker.accept(checker, generalNodeCheckers);
-                    case ADA -> dispatchChecker.accept(checker, adaNodeCheckers);
+                    case ADA -> dispatchChecker.accept(checker, nodeCheckers);
                     case SPARK -> dispatchChecker.accept(checker, sparkNodeCheckers);
                 }
             }
@@ -761,7 +766,7 @@ public final class LKQLContext {
 
         // Set the checker caches
         this.filteredGeneralNodeCheckers = generalNodeCheckers.toArray(new NodeChecker[0]);
-        this.filteredAdaNodeCheckers = adaNodeCheckers.toArray(new NodeChecker[0]);
+        this.filteredNodeCheckers = nodeCheckers.toArray(new NodeChecker[0]);
         this.filteredSparkNodeCheckers = sparkNodeCheckers.toArray(new NodeChecker[0]);
         this.filteredUnitCheckers = unitCheckers.toArray(new UnitChecker[0]);
     }

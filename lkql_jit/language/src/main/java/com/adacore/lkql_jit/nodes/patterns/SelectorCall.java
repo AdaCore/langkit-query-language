@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -100,7 +100,7 @@ public final class SelectorCall extends LKQLNode {
      */
     public boolean executeVerification(
         VirtualFrame frame,
-        Libadalang.AdaNode node,
+        LangkitSupport.NodeInterface node,
         BasePattern pattern
     ) {
         // Get the selector list
@@ -132,7 +132,10 @@ public final class SelectorCall extends LKQLNode {
      * @param node The root node of the selector list.
      * @return The selector list for the selector call.
      */
-    private LKQLSelectorList getSelectorList(VirtualFrame frame, Libadalang.AdaNode node) {
+    private LKQLSelectorList getSelectorList(
+        VirtualFrame frame,
+        LangkitSupport.NodeInterface node
+    ) {
         // Get the selector and verify its type
         Object selectorObject = this.selectorExpr.executeGeneric(frame);
         if (!LKQLTypeSystemGen.isLKQLSelector(selectorObject)) {

@@ -49,6 +49,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * This is the LKQL prelude. Those definitions are visible at the root of the LKQL context. This
      * is where we put all global definitions that must be accessible in every context
      */
+    /*
+     * TODO: Genericize LKQL issue #499. Cannot genericize the prelude because NODE_DESCRIPTION_MAP
+     * doesn't contain any node named NodeInterface but AdaNode here for Ada.
+     */
     private static final String PRELUDE_SOURCE =
         """
         selector children
@@ -107,8 +111,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // columns counting is based on characters:
         // https://www.graalvm.org/truffle/javadoc/com/oracle/truffle/api/source/Source.html#createSection(int,int,int,int)
         this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create(
-            null,
-            null,
+            (String) null,
+            (Liblkqllang.FileReader) null,
             null,
             null,
             true,

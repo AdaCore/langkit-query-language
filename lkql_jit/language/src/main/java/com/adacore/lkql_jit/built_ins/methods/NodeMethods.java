@@ -5,9 +5,10 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.langkit_support.LangkitSupport.AnalysisUnit;
+import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.AdaNode;
-import com.adacore.libadalang.Libadalang.AnalysisUnit;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
@@ -27,18 +28,18 @@ import java.util.ArrayList;
  *
  * @author Hugo GUERRIER
  */
-@BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.ADA_NODE })
+@BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.NODE_INTERFACE })
 public final class NodeMethods {
 
     @BuiltInMethod(name = "children", doc = "Return the node's children", isProperty = true)
     abstract static class ChildrenExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList onNode(AdaNode self) {
+        public LKQLList onNode(NodeInterface self) {
             int childrenCount = self.getChildrenCount();
-            AdaNode[] res = new AdaNode[childrenCount];
+            NodeInterface[] res = new NodeInterface[childrenCount];
             for (int i = 0; i < childrenCount; i++) {
-                AdaNode child = self.getChild(i);
+                NodeInterface child = self.getChild(i);
                 res[i] = (child.isNone() ? LKQLNull.INSTANCE : child);
             }
             return new LKQLList(res);
@@ -49,8 +50,8 @@ public final class NodeMethods {
     abstract static class ParentExpr extends BuiltInBody {
 
         @Specialization
-        public AdaNode onNode(AdaNode self) {
-            AdaNode parent = self.parent();
+        public NodeInterface onNode(NodeInterface self) {
+            NodeInterface parent = self.parent();
             return parent.isNone() ? LKQLNull.INSTANCE : parent;
         }
     }
@@ -63,7 +64,7 @@ public final class NodeMethods {
     abstract static class ChildrenCountExpr extends BuiltInBody {
 
         @Specialization
-        public long onNode(AdaNode self) {
+        public long onNode(NodeInterface self) {
             return (long) self.getChildrenCount();
         }
     }
@@ -76,7 +77,7 @@ public final class NodeMethods {
     abstract static class DumpExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLUnit onNode(AdaNode self) {
+        public LKQLUnit onNode(NodeInterface self) {
             LKQLLanguage.getContext(this).print(self.dumpTree());
             return LKQLUnit.INSTANCE;
         }
@@ -86,7 +87,7 @@ public final class NodeMethods {
     abstract static class TextExpr extends BuiltInBody {
 
         @Specialization
-        public String onNode(AdaNode self) {
+        public String onNode(NodeInterface self) {
             return self.getText();
         }
     }
@@ -95,7 +96,7 @@ public final class NodeMethods {
     abstract static class ImageExpr extends BuiltInBody {
 
         @Specialization
-        public String onNode(AdaNode self) {
+        public String onNode(NodeInterface self) {
             return self.getImage();
         }
     }
@@ -104,7 +105,7 @@ public final class NodeMethods {
     abstract static class UnitExpr extends BuiltInBody {
 
         @Specialization
-        public AnalysisUnit onNode(AdaNode self) {
+        public AnalysisUnit onNode(NodeInterface self) {
             return self.getUnit();
         }
     }
@@ -113,7 +114,7 @@ public final class NodeMethods {
     abstract static class KindExpr extends BuiltInBody {
 
         @Specialization
-        public String onNode(AdaNode self) {
+        public String onNode(NodeInterface self) {
             return ReflectionUtils.getClassSimpleName(self);
         }
     }
@@ -122,11 +123,11 @@ public final class NodeMethods {
     abstract static class TokensExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList onNode(AdaNode self) {
+        public LKQLList onNode(NodeInterface self) {
             // Prepare the result
-            ArrayList<Libadalang.Token> resList = new ArrayList<>();
-            Libadalang.Token startToken = self.tokenStart();
-            Libadalang.Token endToken = self.tokenEnd();
+            ArrayList<LangkitSupport.TokenInterface> resList = new ArrayList<>();
+            LangkitSupport.TokenInterface startToken = self.tokenStart();
+            LangkitSupport.TokenInterface endToken = self.tokenEnd();
             resList.add(startToken);
             while (!startToken.equals(endToken)) {
                 startToken = startToken.next();
@@ -134,7 +135,7 @@ public final class NodeMethods {
             }
 
             // Return the result
-            return new LKQLList(resList.toArray(new Libadalang.Token[0]));
+            return new LKQLList(resList.toArray(new LangkitSupport.TokenInterface[0]));
         }
     }
 
@@ -145,18 +146,18 @@ public final class NodeMethods {
     abstract static class SameTokensExpr extends BuiltInBody {
 
         @Specialization
-        protected boolean onAdaNode(AdaNode leftNode, AdaNode rightNode) {
+        protected boolean onNode(NodeInterface leftNode, NodeInterface rightNode) {
             // Get the tokens
-            Libadalang.Token leftToken = leftNode.tokenStart();
-            Libadalang.Token rightToken = rightNode.tokenStart();
+            LangkitSupport.TokenInterface leftToken = leftNode.tokenStart();
+            LangkitSupport.TokenInterface rightToken = rightNode.tokenStart();
 
-            Libadalang.Token leftEnd = leftNode.tokenEnd();
-            Libadalang.Token rightEnd = rightNode.tokenEnd();
+            LangkitSupport.TokenInterface leftEnd = leftNode.tokenEnd();
+            LangkitSupport.TokenInterface rightEnd = rightNode.tokenEnd();
 
             // Compare all the node's tokens
             while (!leftToken.isNone() && !rightToken.isNone()) {
-                if (leftToken.kind != rightToken.kind) return false;
-                if (leftToken.kind == Libadalang.TokenKind.ADA_IDENTIFIER) {
+                if (leftToken.getKind() != rightToken.getKind()) return false;
+                if (leftToken.getKind() == Libadalang.TokenKind.ADA_IDENTIFIER) {
                     if (
                         !ObjectUtils.equals(
                             StringUtils.toLowerCase(leftToken.getText()),
@@ -182,9 +183,9 @@ public final class NodeMethods {
         }
 
         /** Get the next token from the given one ignoring the trivias. */
-        private static Libadalang.Token next(Libadalang.Token t) {
-            Libadalang.Token res = t.next();
-            while (!res.isNone() && res.triviaIndex != 0) {
+        private static LangkitSupport.TokenInterface next(LangkitSupport.TokenInterface t) {
+            LangkitSupport.TokenInterface res = t.next();
+            while (!res.isNone() && res.isTrivia()) {
                 res = res.next();
             }
             return res;

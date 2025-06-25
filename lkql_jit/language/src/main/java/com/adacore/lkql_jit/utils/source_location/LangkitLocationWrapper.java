@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.utils.source_location;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import java.io.File;
@@ -16,15 +16,15 @@ import java.io.File;
  * <p>TODO: At some point we want to use the generic baseclass in the shared langkit Java library.
  * See eng/libadalang/langkit-query-language#269
  */
-public class LalLocationWrapper implements SourceLocation {
+public class LangkitLocationWrapper implements SourceLocation {
 
-    public final Libadalang.SourceLocationRange sourceLocationRange;
+    public final LangkitSupport.SourceLocationRange sourceLocationRange;
     public final CheckerUtils.SourceLinesCache sourceLinesCache;
-    private final Libadalang.AnalysisUnit unit;
+    private final LangkitSupport.AnalysisUnit unit;
 
-    public LalLocationWrapper(
-        Libadalang.SourceLocationRange sourceLocationRange,
-        Libadalang.AnalysisUnit unit,
+    public LangkitLocationWrapper(
+        LangkitSupport.SourceLocationRange sourceLocationRange,
+        LangkitSupport.AnalysisUnit unit,
         CheckerUtils.SourceLinesCache sourceLinesCache
     ) {
         this.sourceLocationRange = sourceLocationRange;
@@ -32,8 +32,8 @@ public class LalLocationWrapper implements SourceLocation {
         this.sourceLinesCache = sourceLinesCache;
     }
 
-    public LalLocationWrapper(
-        Libadalang.AdaNode node,
+    public LangkitLocationWrapper(
+        LangkitSupport.NodeInterface node,
         CheckerUtils.SourceLinesCache sourceLinesCache
     ) {
         this.sourceLocationRange = node.getSourceLocationRange();

@@ -5,12 +5,13 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
-import com.adacore.libadalang.Libadalang;
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -205,7 +206,11 @@ public abstract class BinEq extends BinOp {
      * @return The result of the equality verification.
      */
     @Specialization
-    protected boolean eqNodes(Libadalang.AdaNode left, Libadalang.AdaNode right) {
+    @CompilerDirectives.TruffleBoundary
+    protected boolean eqNodes(
+        LangkitSupport.NodeInterface left,
+        LangkitSupport.NodeInterface right
+    ) {
         return left.equals(right);
     }
 
@@ -217,7 +222,10 @@ public abstract class BinEq extends BinOp {
      * @return The result of the equality verification.
      */
     @Specialization
-    protected boolean eqTokens(Libadalang.Token left, Libadalang.Token right) {
+    protected boolean eqTokens(
+        LangkitSupport.TokenInterface left,
+        LangkitSupport.TokenInterface right
+    ) {
         return left.equals(right);
     }
 
@@ -275,7 +283,10 @@ public abstract class BinEq extends BinOp {
      * @return The result of the equality verification.
      */
     @Specialization
-    protected boolean eqAnalysisUnits(Libadalang.AnalysisUnit left, Libadalang.AnalysisUnit right) {
+    protected boolean eqAnalysisUnits(
+        LangkitSupport.AnalysisUnit left,
+        LangkitSupport.AnalysisUnit right
+    ) {
         return left.equals(right);
     }
 

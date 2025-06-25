@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
-import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.AnalysisUnit;
+import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.langkit_support.LangkitSupport.AnalysisUnit;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
@@ -25,7 +25,7 @@ public final class AnalysisUnitMethods {
 
         @Specialization
         public Object onUnit(AnalysisUnit self) {
-            Libadalang.AdaNode res = self.getRoot();
+            LangkitSupport.NodeInterface res = self.getRoot();
             return res.isNone() ? LKQLNull.INSTANCE : res;
         }
     }
@@ -44,14 +44,14 @@ public final class AnalysisUnitMethods {
 
         @Specialization
         public LKQLList onUnit(AnalysisUnit self) {
-            Libadalang.Token current = self.getFirstToken();
-            Libadalang.Token last = self.getLastToken();
-            ArrayList<Libadalang.Token> resList = new ArrayList<>();
+            LangkitSupport.TokenInterface current = self.getFirstToken();
+            LangkitSupport.TokenInterface last = self.getLastToken();
+            ArrayList<LangkitSupport.TokenInterface> resList = new ArrayList<>();
             while (!current.isEquivalent(last) && !current.isNone()) {
                 resList.add(current);
                 current = current.next();
             }
-            return new LKQLList(resList.toArray(new Libadalang.Token[0]));
+            return new LKQLList(resList.toArray(new LangkitSupport.TokenInterface[0]));
         }
     }
 
