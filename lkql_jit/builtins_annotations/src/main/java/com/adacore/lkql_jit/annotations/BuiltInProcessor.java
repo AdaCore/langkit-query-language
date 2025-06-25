@@ -14,7 +14,6 @@ import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
-import org.graalvm.collections.Pair;
 
 /**
  * This built-in processor will process every BuiltIn annotation, and create built-in objects, as
@@ -49,7 +48,7 @@ public class BuiltInProcessor extends AbstractProcessor {
      * Set of generated built-in packages. Each element is a pair <packageName, className>. Each
      * package contains a namespace class which contains two static methods.
      */
-    final HashSet<Pair<String, String>> builtInPackages = new HashSet<>();
+    final HashSet<Map.Entry<String, String>> builtInPackages = new HashSet<>();
 
     /** Whether built-ins have been processed already. Global guard. */
     boolean processed = false;
@@ -106,7 +105,7 @@ public class BuiltInProcessor extends AbstractProcessor {
             stream.println("import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;");
 
             for (var p : builtInPackages) {
-                stream.println("import " + p.getLeft() + "." + p.getRight() + ";");
+                stream.println("import " + p.getKey() + "." + p.getValue() + ";");
             }
             stream.println("public class AllBuiltIns {");
 
@@ -127,7 +126,7 @@ public class BuiltInProcessor extends AbstractProcessor {
             stream.println(
                 builtInPackages
                     .stream()
-                    .map(p -> "            Arrays.stream(" + p.getRight() + ".getFunctions())")
+                    .map(p -> "            Arrays.stream(" + p.getValue() + ".getFunctions())")
                     .collect(Collectors.joining(",\n")) +
                 ")"
             );
@@ -149,7 +148,7 @@ public class BuiltInProcessor extends AbstractProcessor {
                 " BuiltInMethodFactory>>();"
             );
             for (var p : builtInPackages) {
-                stream.println("        for (var pair : " + p.getRight() + ".getMethods()) {");
+                stream.println("        for (var pair : " + p.getValue() + ".getMethods()) {");
                 stream.println(
                     "       var keys = pair.getLeft().length == 0 ?" +
                     " LKQLTypesHelper.ALL_TYPES : pair.getLeft();"
@@ -448,7 +447,7 @@ public class BuiltInProcessor extends AbstractProcessor {
             stream.println("}");
         }
 
-        builtInPackages.add(Pair.create(packageName, className));
+        builtInPackages.add(Map.entry(packageName, className));
     }
 
     /** Return the `input` string with all special characters escaped. */
