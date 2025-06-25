@@ -28,44 +28,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Configure the uber-JAR -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>lkql_cli</finalName>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.graalvm.sdk:launcher-common</include>
-                                    <include>info.picocli:picocli</include>
-                                    <include>com.adacore:options</include>
-                                    <include>org.json:json</include>
-                                </includes>
-                            </artifactSet>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>META-INF/*.DES</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-
             <!-- Skip the Spotless check because everything is handled by the parent -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
@@ -76,10 +38,13 @@
                 </configuration>
             </plugin>
 
+            <!--
+                Enable annotation processing for PicoCLI.
+                "annotationProcessorPaths" requires maven-compiler-plugin version 3.5 or higher.
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <!-- annotationProcessorPaths requires maven-compiler-plugin version 3.5 or higher -->
                 <version>3.11.0</version>
                 <configuration>
                     <annotationProcessorPaths>
@@ -100,9 +65,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli</artifactId>
-            <version>4.7.5</version>
+            <groupId>com.adacore</groupId>
+            <artifactId>liblkqllang</artifactId>
+            <version>0.1</version>
         </dependency>
 
         <dependency>
@@ -112,20 +77,22 @@
         </dependency>
 
         <dependency>
-            <groupId>org.graalvm.sdk</groupId>
-            <artifactId>graal-sdk</artifactId>
-            <version>${graalvm.version}</version>
+            <groupId>com.adacore</groupId>
+            <artifactId>language</artifactId>
+            <version>0.1.0</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.7.5</version>
         </dependency>
 
         <dependency>
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>launcher-common</artifactId>
             <version>${graalvm.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.adacore</groupId>
-            <artifactId>liblkqllang</artifactId>
-            <version>0.1</version>
         </dependency>
     </dependencies>
 
