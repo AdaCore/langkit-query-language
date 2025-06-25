@@ -33,6 +33,7 @@ public abstract class RegexPattern extends ValuePattern {
      * @param location The location of the node in the source.
      * @param regex The regular expression string.
      */
+    @SuppressWarnings("this-escape")
     public RegexPattern(SourceSection location, String regex) {
         super(location);
         this.pattern = new LKQLPattern(this, regex, true);

@@ -109,6 +109,7 @@
                     <compilerArgs>
                         <arg>-Xlint:all,-processing</arg>
                         <arg>-Werror</arg>
+                        <arg>-implicit:class</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
@@ -159,16 +160,6 @@
                         <removeUnusedImports/>
                     </java>
                     <lineEndings>UNIX</lineEndings>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-implicit:class</arg>
-                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

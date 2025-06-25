@@ -24,8 +24,7 @@ public class ClosureBenchmark extends TruffleBenchmark {
 
         val clos = foo(12)(13)
         fun r() = clos(14)
-        repeat(1000000, r)
-            """;
+        repeat(1000000, r)""";
 
     private static final String jsClosure =
         """
@@ -47,8 +46,7 @@ public class ClosureBenchmark extends TruffleBenchmark {
 
         for (let i = 0; i < 1000000; i++) {
             r()
-        }
-            """;
+        }""";
 
     // ----- Benchmark methods -----
 

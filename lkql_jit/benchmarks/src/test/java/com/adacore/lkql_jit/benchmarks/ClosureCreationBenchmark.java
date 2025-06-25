@@ -27,8 +27,7 @@ public class ClosureCreationBenchmark extends TruffleBenchmark {
 
                 for (let i = 0; i < 10000; i++) {
                     foo(12)(13)(14)
-                }
-                        """
+                }"""
             );
     }
 
@@ -47,8 +46,7 @@ public class ClosureCreationBenchmark extends TruffleBenchmark {
                     bar
                 }
 
-                repeat(10000, () => foo(12)(13)(14))
-                        """
+                repeat(10000, () => foo(12)(13)(14))"""
             );
     }
 }

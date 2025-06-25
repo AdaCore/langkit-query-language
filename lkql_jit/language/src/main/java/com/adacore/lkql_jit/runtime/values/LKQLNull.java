@@ -199,4 +199,9 @@ public class LKQLNull implements LangkitSupport.NodeInterface, LKQLValue, Nullis
     public boolean equals(Object o) {
         return o == this;
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }
