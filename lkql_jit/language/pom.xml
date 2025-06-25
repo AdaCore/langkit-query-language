@@ -21,50 +21,6 @@
 
     <build>
         <plugins>
-            <!-- Configure the uber-JAR -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>lkql_jit</finalName>
-                            <artifactSet>
-                                <includes>
-                                    <include>com.adacore:liblkqllang</include>
-                                    <include>com.adacore:libadalang</include>
-                                    <include>com.adacore:langkit_support</include>
-                                    <include>com.adacore:options</include>
-                                    <include>org.json:json</include>
-                                </includes>
-                            </artifactSet>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>META-INF/*.DES</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>com.adacore:cli</artifact>
-                                    <excludes>
-                                        <exclude>com/adacore/lkql_jit/drivers/**</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Skip the Spotless check because everything is handled by the parent -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
@@ -75,13 +31,13 @@
                 </configuration>
             </plugin>
 
+            <!-- Enable annotation processor for LKQL built-ins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
                     <annotationProcessorPaths>
-                        <!-- Annotation processor for LKQL built-ins -->
                         <annotationProcessorPath>
                             <groupId>com.adacore</groupId>
                             <artifactId>builtins_annotations</artifactId>
@@ -108,16 +64,9 @@
 
         <dependency>
             <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-dsl-processor</artifactId>
+            <artifactId>truffle-runtime</artifactId>
             <version>${graalvm.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-tck</artifactId>
-            <version>${graalvm.version}</version>
-            <scope>provided</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -154,7 +103,6 @@
             <groupId>com.adacore</groupId>
             <artifactId>options</artifactId>
             <version>0.1.0</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
