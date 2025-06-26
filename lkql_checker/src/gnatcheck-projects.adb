@@ -536,11 +536,6 @@ package body Gnatcheck.Projects is
       use GPR2.Containers;
       use Ada.Strings.Unbounded;
    begin
-      --  In case of autoconf, restrict to the Ada language
-
-      My_Project.Tree.Restrict_Autoconf_To_Languages
-        (Language_Id_Set.To_Set (GPR2.Ada_Language));
-
       --  Apply the options
 
       if My_Project.Source_Prj /= null then
@@ -563,11 +558,21 @@ package body Gnatcheck.Projects is
 
       if Target /= Null_Unbounded_String then
          Project_Options.Add_Switch (GPR2.Options.Target, To_String (Target));
+      elsif not Gnatkp_Mode and then Should_Use_Codepeer_Target then
+         GPR2.KB.Set_Default_Target ("gnatsas");
       end if;
 
       if Arg.Follow_Symbolic_Links.Get then
          Project_Options.Add_Switch (GPR2.Options.Resolve_Links);
       end if;
+
+      --  In case of autoconf, restrict to the Ada language
+      --  We do this just before loading the project because calling this
+      --  procedure will set the `Tree.Is_Defined` to `True`. For now there is
+      --  no other ways to know if a project has been loaded or not.
+      --  (see https://gitlab.adacore-it.com/eng/gpr/gpr-issues/-/issues/627)
+      My_Project.Tree.Restrict_Autoconf_To_Languages
+        (Language_Id_Set.To_Set (GPR2.Ada_Language));
 
       if not My_Project.Tree.Load
                (Project_Options,
@@ -796,17 +801,6 @@ package body Gnatcheck.Projects is
          & "Switches.");
       GPR2.Project.Registry.Pack.Check_Attributes (+"Check");
    end Register_Tool_Attributes;
-
-   ------------------------
-   -- Set_Default_Target --
-   ------------------------
-
-   procedure Set_Default_Target is
-   begin
-      if not Gnatkp_Mode and then Should_Use_Codepeer_Target then
-         GPR2.KB.Set_Default_Target ("codepeer");
-      end if;
-   end Set_Default_Target;
 
    -------------------------
    -- Set_External_Values --
