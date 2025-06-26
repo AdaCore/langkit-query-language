@@ -35,6 +35,8 @@ public class LKQLSelector extends BasicLKQLValue {
     /** The documentation of the selector. */
     private final String documentation;
 
+    private final boolean checkCycles;
+
     // ----- Constructors -----
 
     /**
@@ -46,15 +48,17 @@ public class LKQLSelector extends BasicLKQLValue {
      * @param documentation The documentation of the selector.
      */
     public LKQLSelector(
-        final SelectorRootNode rootNode,
-        final Closure closure,
-        final String name,
-        final String documentation
+        SelectorRootNode rootNode,
+        Closure closure,
+        String name,
+        String documentation,
+        boolean checkCycles
     ) {
         this.rootNode = rootNode;
         this.closure = closure;
         this.name = name;
         this.documentation = documentation;
+        this.checkCycles = checkCycles;
     }
 
     // ----- Instance functions -----
@@ -72,7 +76,15 @@ public class LKQLSelector extends BasicLKQLValue {
      * @param depth The precise depth to get.
      */
     public LKQLSelectorList getList(Object value, int maxDepth, int minDepth, int depth) {
-        return new LKQLSelectorList(this.rootNode, this.closure, value, maxDepth, minDepth, depth);
+        return new LKQLSelectorList(
+            this.rootNode,
+            this.closure,
+            value,
+            maxDepth,
+            minDepth,
+            depth,
+            checkCycles
+        );
     }
 
     // ----- Value methods -----

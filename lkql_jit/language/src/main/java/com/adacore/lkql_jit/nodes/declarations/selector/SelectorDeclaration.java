@@ -87,10 +87,6 @@ public final class SelectorDeclaration extends Declaration {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         FrameUtils.writeLocal(
@@ -100,7 +96,9 @@ public final class SelectorDeclaration extends Declaration {
                 this.selectorRootNode,
                 createClosureNode.execute(frame),
                 this.name,
-                this.documentation
+                this.documentation,
+                // We only check cycles on memoized selectors for now
+                annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED)
             )
         );
         return LKQLUnit.INSTANCE;

@@ -18,6 +18,7 @@ import com.oracle.truffle.api.utilities.TriState;
  * This class represents an LKQL Value with the depth information.
  */
 @ExportLibrary(InteropLibrary.class)
+@CompilerDirectives.ValueType
 public final class LKQLDepthValue extends BasicLKQLValue {
 
     // ----- Attributes -----

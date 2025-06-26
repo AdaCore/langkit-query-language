@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
+import com.oracle.truffle.api.CompilerDirectives;
 import java.util.Arrays;
 
 public class LKQLRecValue extends BasicLKQLValue {
@@ -22,6 +23,7 @@ public class LKQLRecValue extends BasicLKQLValue {
     }
 
     @Override
+    @CompilerDirectives.TruffleBoundary
     public String toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
         return Arrays.toString(this.recurseVal) + "::" + Arrays.toString(this.resultVal);
     }
