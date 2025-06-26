@@ -2,6 +2,7 @@ import re
 
 from drivers.base_driver import BaseDriver, TaggedLines
 
+from e3.testsuite.driver.diff import OutputRefiner, Substitute
 
 class CheckerDriver(BaseDriver):
     """
@@ -111,3 +112,9 @@ class CheckerDriver(BaseDriver):
 
         # Return the result
         return res
+
+    @property
+    def output_refiners(self) -> list[OutputRefiner]:
+        result = super().output_refiners
+        result.append(Substitute(self.test_env['test_dir'], "<test-dir>"))
+        return result
