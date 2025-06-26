@@ -1,0 +1,3 @@
+@check(message="Rule2")
+fun my_rule(node) =
+    node is NullStmt

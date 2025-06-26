@@ -118,6 +118,11 @@ public abstract class BaseChecker {
     /** Create a deep copy of the current checker and return it. */
     public abstract BaseChecker copy();
 
+    /** Get the checker path name. */
+    public String getPath() {
+        return function.rootNode.getBody().getSourceSection().getSource().getPath();
+    }
+
     // ----- Inner classes -----
 
     /** This enum represents the valid remediation levels */
