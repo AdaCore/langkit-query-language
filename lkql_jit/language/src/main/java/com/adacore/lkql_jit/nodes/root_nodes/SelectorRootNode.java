@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -23,14 +24,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValue> {
 
     // ----- Attributes -----
-
-    /** The slot of the "this" variable. */
-    @CompilerDirectives.CompilationFinal
-    private final int thisSlot;
-
-    /** The slot of the "depth" variable. */
-    @CompilerDirectives.CompilationFinal
-    private final int depthSlot;
 
     /** Whether the selector is memoized. */
     @CompilerDirectives.CompilationFinal
@@ -52,22 +45,16 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
      * @param language The language instance to link the root node with.
      * @param frameDescriptor The frame descriptor for the root node.
      * @param isMemoized Whether the selector is memoized.
-     * @param thisSlot The slot to put the "this" variable.
-     * @param depthSlot The slot to put the "depth" variable.
      */
     public SelectorRootNode(
         TruffleLanguage<?> language,
         FrameDescriptor frameDescriptor,
         boolean isMemoized,
-        int thisSlot,
-        int depthSlot,
         Expr body,
         String name
     ) {
         super(language, frameDescriptor);
         this.isMemoized = isMemoized;
-        this.thisSlot = thisSlot;
-        this.depthSlot = depthSlot;
         this.body = body;
         this.name = name;
     }
@@ -81,6 +68,8 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
      */
     @Override
     public Object execute(VirtualFrame frame) {
+        CompilerAsserts.compilationConstant(isMemoized);
+
         // Initialize the frame
         this.initFrame(frame);
 
@@ -89,14 +78,14 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
         long depth = (long) frame.getArguments()[2];
 
         // Try memoization
-        if (this.isMemoized && this.isMemoized(value)) {
+        if (isMemoized && isMemoized(value)) {
             return this.getMemoized(value);
         }
 
         // Prepare the result
         LKQLRecValue res;
 
-        var val = this.body.executeGeneric(frame);
+        var val = body.executeGeneric(frame);
         if (LKQLTypeSystemGen.isLKQLRecValue(val)) {
             res = LKQLTypeSystemGen.asLKQLRecValue(val);
             res.depth = (int) depth + 1;
@@ -106,13 +95,13 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_REC_VALUE,
                 LKQLTypesHelper.fromJava(val),
-                this.body
+                body
             );
         }
 
         // Do the memoization cache addition
-        if (this.isMemoized) {
-            this.putMemoized(value, res);
+        if (isMemoized) {
+            putMemoized(value, res);
         }
 
         // Return the result

@@ -63,8 +63,6 @@ public final class SelectorDeclaration extends Declaration {
         String name,
         String documentation,
         int slot,
-        int thisSlot,
-        int depthSlot,
         Expr body
     ) {
         super(location, annotation);
@@ -77,8 +75,6 @@ public final class SelectorDeclaration extends Declaration {
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
             annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
-            thisSlot,
-            depthSlot,
             body,
             name
         );

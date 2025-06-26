@@ -1614,7 +1614,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Get the "this" and "depth" bindings
         final int thisSlot = this.scriptFrames.getParameter(Constants.THIS_SYMBOL);
-        final int depthSlot = this.scriptFrames.getParameter(Constants.DEPTH_SYMBOL);
 
         var arms = toStream(selectorDecl.fArms())
             .map(a -> {
@@ -1655,8 +1654,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             name,
             documentation,
             slot,
-            thisSlot,
-            depthSlot,
             match
         );
     }
