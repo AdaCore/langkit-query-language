@@ -21,7 +21,8 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.declarations.*;
-import com.adacore.lkql_jit.nodes.declarations.selector.RecExpr;
+import com.adacore.lkql_jit.nodes.declarations.selector.RecExprs;
+import com.adacore.lkql_jit.nodes.declarations.selector.RecExprsFactory;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorDeclaration;
 import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
@@ -1134,22 +1135,21 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     @Override
     public LKQLNode visit(Liblkqllang.RecExpr recExpr) {
-        final boolean recurseHasUnpack = recExpr.fRecurseUnpack() instanceof
-        Liblkqllang.UnpackPresent;
-        final Expr recurseExpr = (Expr) recExpr.fRecurseExpr().accept(this);
-
-        final boolean resultHasUnpack = recExpr.fResultUnpack() instanceof
-        Liblkqllang.UnpackPresent;
-        final Expr resultExpr = recExpr.fResultExpr().isNone()
-            ? null
-            : (Expr) recExpr.fResultExpr().accept(this);
-        return new RecExpr(
-            loc(recExpr),
-            recurseHasUnpack,
-            recurseExpr,
-            resultHasUnpack,
-            resultExpr
-        );
+        if (recExpr.fResultExpr().isNone()) {
+            return RecExprsFactory.UnaryRecExprNodeGen.create(
+                loc(recExpr),
+                recExpr.fRecurseUnpack() instanceof Liblkqllang.UnpackPresent,
+                (Expr) recExpr.fRecurseExpr().accept(this)
+            );
+        } else {
+            return new RecExprs.BinaryRecExpr(
+                loc(recExpr),
+                recExpr.fRecurseUnpack() instanceof Liblkqllang.UnpackPresent,
+                (Expr) recExpr.fRecurseExpr().accept(this),
+                recExpr.fResultUnpack() instanceof Liblkqllang.UnpackPresent,
+                (Expr) recExpr.fResultExpr().accept(this)
+            );
+        }
     }
 
     // --- Lists
