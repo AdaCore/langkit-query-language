@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
+import java.util.Arrays;
 
 public class LKQLRecValue extends BasicLKQLValue {
 
@@ -18,5 +19,10 @@ public class LKQLRecValue extends BasicLKQLValue {
         this.recurseVal = recurseVal;
         this.resultVal = resultVal;
         this.depth = -1;
+    }
+
+    @Override
+    public String toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+        return Arrays.toString(this.recurseVal) + "::" + Arrays.toString(this.resultVal);
     }
 }
