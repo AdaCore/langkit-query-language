@@ -70,6 +70,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.graalvm.regex</groupId>
+            <artifactId>regex</artifactId>
+            <version>${graalvm.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.adacore</groupId>
             <artifactId>options</artifactId>
             <version>0.1.0</version>
