@@ -144,7 +144,7 @@ public class StrMethods {
             }
 
             // Return the substring
-            return source.substring((int) start, (int) end);
+            return StringUtils.substring(source, start, end);
         }
     }
 
