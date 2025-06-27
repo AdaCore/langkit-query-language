@@ -1,15 +1,16 @@
 #! /usr/bin/env python
 """
-Python wrapper to call the Java version of LKQL JIT.
+Python wrapper to call the JVM version of LKQL JIT.
 """
 
+import argparse
 import os
 import os.path as P
 import subprocess
-import argparse
 
-if __name__ == "__main__":
-
+if __name__ == '__main__':
+    # Create an argument parser to catch debug flags and leave remaining
+    # options.
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
         "--truffle-debug", action="store_true",
@@ -23,21 +24,32 @@ if __name__ == "__main__":
     )
     args, remaining = parser.parse_known_args()
 
-    # Get the utils paths
+    # Get the required paths
     graal_home = os.environ["GRAAL_HOME"]
     lkql_jit_home = os.environ.get(
-        "LKQL_JIT_HOME", P.join(graal_home, "languages", "lkql")
+        "LKQL_JIT_HOME", P.join(os.path.dirname(__file__))
     )
+
+    # Ensure the 'lkql_jit_home' is a directory
+    if not os.path.isdir(lkql_jit_home):
+        print(f"LKQL_JIT_HOME is not a directory: {lkql_jit_home}")
+        exit(1)
+
+    # Get the library path and ensure it is a directory
+    lib_dir = os.path.join(lkql_jit_home, "lib")
+    if not os.path.isdir(lib_dir):
+        print("Cannot find  the 'lib' directory in the LKQL_JIT_HOME")
+        exit(1)
 
     # Get the Java executable
     java = P.join(graal_home, "bin", "java.exe" if os.name == "nt" else "java")
 
-    # Create the class path
+    # Create the class path by listing all JARs in 'lkql_jit_home'
     class_path = os.pathsep.join(
         [
-            P.join(graal_home, "lib", "truffle", "truffle-api.jar"),
-            P.join(lkql_jit_home, "lkql_jit.jar"),
-            P.join(lkql_jit_home, "lkql_cli.jar"),
+            os.path.join(lib_dir, p)
+            for p in os.listdir(lib_dir)
+            if p.endswith(".jar")
         ]
     )
 
@@ -46,21 +58,25 @@ if __name__ == "__main__":
         "PATH" if os.name == "nt" else "LD_LIBRARY_PATH", ""
     )
 
-    # Run the full command
+    # Run the full Java command
     subprocess.run(
-        [java, "-cp", class_path, f"-Djava.library.path={java_library_path}"]
+        [
+            java,
+            "-cp",
+            class_path,
+            f"-Djava.library.path={java_library_path}",
+            "--enable-native-access=ALL-UNNAMED",
+            "--sun-misc-unsafe-memory-access=allow",
+        ]
         + (
             ["-Dgraal.Dump=Truffle:1", "-Dgraal.PrintGraph=Network"]
             if args.truffle_debug
             else []
         )
-        + [
-            f'-Dtruffle.class.path.append={P.join(lkql_jit_home, "lkql_jit.jar")}',
-            "--add-opens=org.graalvm.truffle/com.oracle.truffle.api.strings=ALL-UNNAMED",
-            "com.adacore.lkql_jit.cli.LKQLMain",
-        ]
+        + ["com.adacore.lkql_jit.cli.LKQLMain"]
         + remaining
-        + ([
+        + (
+            [
                 "--experimental-options",
                 "--engine.Compilation=true",
                 "--engine.TraceCompilation=false",
@@ -80,7 +96,11 @@ if __name__ == "__main__":
                 '--engine.TraceDeoptimizeFrame'
             ]
             if args.truffle_debug
-            else [])
-        + (['--engine.CompileImmediately=true']
-           if args.compile_immediately else [])
+            else []
+        )
+        + (
+            ['--engine.CompileImmediately=true']
+            if args.compile_immediately
+            else []
+        )
     )
