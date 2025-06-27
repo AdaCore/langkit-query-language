@@ -1,5 +1,51 @@
+include:
+  - component: $CI_SERVER_FQDN/eng/gitlab-templates/check-issue@~latest
+    inputs:
+      stage: checkstyle
+  - component: $CI_SERVER_FQDN/eng/gitlab-templates/pre-commit@~latest
+    inputs:
+      stage: checkstyle
+
 stages:
+  - checkstyle
   - test
+
+pre-commit:
+  services:
+    - image:pe-base
+    - cpu:8
+    - mem:32
+    - disk:50
+  before_script:
+    # Create a sandbox and install needed dependencies
+    - generic_anod_ci
+    - . /tmp/ci_env.sh
+    # Define working variables
+    - npm_cache=$PWD/npm_cache
+    - npm_cache_install=$npm_cache/spotless-prettier-node-modules-fbb3f0657a1374078dbfdc0a3df68734
+    - maven_local_repo=$(anod info maven-repo-pull -Qclient=lkql --show working_dir)/install
+    - npmrc_file=$PWD/.npmrc
+
+    # Echo vars to log information about the run
+    - echo $npm_cache
+    - echo $npm_cache_install
+    - echo $maven_local_repo
+
+    # Install all pre-commit dependencies
+    - anod install gnatformat
+    - anod build   java            -Q version=17,vendor=graalvm
+    - anod build   maven           -Q version=3.6.3
+    - anod build   nodejs          -Q version=16.19.1
+    - anod build   maven-repo-pull -Q client=lkql
+    - eval $(anod printenv gnatformat)
+    - eval $(anod printenv java       -Q version=17,vendor=graalvm)
+    - eval $(anod printenv maven      -Q version=3.6.3)
+    - eval $(anod printenv nodejs     -Q version=16.19.1)
+    - mkdir -p $npm_cache_install
+    - e3-cathod thirdparty prettier_java-npm_cache-20250203.tar.gz --install $npm_cache_install --delete
+    - ls $npm_cache_install
+    - echo "offline=true" > $npmrc_file
+    - export MAVEN_ARGS="-Dmaven.repo.local=$maven_local_repo -Dconfig.npmInstallCache=$npm_cache -Dconfig.npmrc=$npmrc_file"
 
 # Common part for all testing CIs
 .common-test-part: &common-test-part

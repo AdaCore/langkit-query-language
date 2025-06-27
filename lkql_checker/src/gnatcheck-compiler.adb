@@ -1559,8 +1559,9 @@ package body Gnatcheck.Compiler is
       if Gnatcheck_Prj.Tree.Is_Defined
         and then Gnatcheck_Prj.Tree.Has_Explicit_Target
       then
-         return Ada.Strings.Unbounded."=" (Target, "codepeer") or else
-           Ada.Strings.Unbounded."=" (Target, "gnatsas");
+         return
+           Ada.Strings.Unbounded."=" (Target, "codepeer")
+           or else Ada.Strings.Unbounded."=" (Target, "gnatsas");
       end if;
 
       --  If we could find a regular gnatls, it means there is a native
