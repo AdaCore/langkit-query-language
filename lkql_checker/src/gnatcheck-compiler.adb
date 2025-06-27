@@ -1552,41 +1552,14 @@ package body Gnatcheck.Compiler is
    --------------------------------
 
    function Should_Use_Codepeer_Target return Boolean is
+      Regular_Gnatls : String_Access := Locate_Exec_On_Path ("gnatls");
    begin
-      --  If an explicit toolchain has been provided to the tool (through the
-      --  CLI, the project file of the config file), we need to never fallback
-      --  to the codepeer target.
-      if Gnatcheck_Prj.Tree.Is_Defined
-        and then Gnatcheck_Prj.Tree.Has_Explicit_Target
-      then
-         return
-           Ada.Strings.Unbounded."=" (Target, "codepeer")
-           or else Ada.Strings.Unbounded."=" (Target, "gnatsas");
-      end if;
-
       --  If we could find a regular gnatls, it means there is a native
       --  toolchain, that takes precedence over a potential codepeer toolchain.
-      declare
-         Regular_Gnatls : String_Access := Locate_Exec_On_Path ("gnatls");
-      begin
-         if Regular_Gnatls /= null then
-            Free (Regular_Gnatls);
-            return False;
-         else
-            declare
-               Regular_Gprbuild : String_Access :=
-                 Locate_Exec_On_Path ("gprbuild");
-            begin
-               --  If we could find a regular "gprbuild", it means there is a
-               --  cross toolchain available, thus we don't want to fallback on
-               --  the codepeer target
-               if Regular_Gprbuild /= null then
-                  Free (Regular_Gprbuild);
-                  return False;
-               end if;
-            end;
-         end if;
-      end;
+      if Regular_Gnatls /= null then
+         Free (Regular_Gnatls);
+         return False;
+      end if;
 
       --  If we couldn't, look for a codepeer toolchain.
       declare
@@ -1715,7 +1688,7 @@ package body Gnatcheck.Compiler is
             Args (Num_Args) := new String'("--target=" & To_String (Target));
          elsif Should_Use_Codepeer_Target then
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--target=gnatsas");
+            Args (Num_Args) := new String'("--target=codepeer");
          end if;
       else
          --  Target and runtime will be taken from config project anyway
@@ -1860,12 +1833,9 @@ package body Gnatcheck.Compiler is
       Args (8) := new String'("--restricted-to-languages=ada");
       Num_Args := 8;
 
-      Num_Args := @ + 1;
       if Should_Use_Codepeer_Target then
-         Args (Num_Args) := new String'("--target=gnatsas");
-      else
-         Args (Num_Args) :=
-           new String'("--target=" & Ada.Strings.Unbounded.To_String (Target));
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--target=codepeer");
       end if;
 
       if Arg.Jobs.Get > 1 then
