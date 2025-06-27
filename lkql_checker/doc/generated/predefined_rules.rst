@@ -5971,12 +5971,15 @@ the definition of exemption sections are:
 .. index:: Lowercase_Keywords
 
 Flag Ada keywords that are not purely lowercase, such as ``BEGIN`` or
-``beGin``.
+``beGin``. The rule is language version sensitive.
 
-Please note that this check is **not** language version sensitive. Every
-keyword from Ada 83 to Ada 2012 will be flagged. This means that this
-check might give false positives on usage of identifiers that are
-keywords in newer versions of Ada.
+The rule has an optional parameter for the ``+R`` option and for LKQL rule
+options files:
+
+*Language_Version: string*
+   The version of the language on which to run the checker (supported
+   versions are Ada_83, Ada_95, Ada_2005, Ada_2012, and, Ada_2022 which
+   is also the default).
 
 .. rubric:: Example
 
