@@ -255,6 +255,9 @@ class BaseDriver(DiffTestDriver):
         """
         env = dict(os.environ)
 
+        # Ensure color codes are not output during the test execution
+        env.pop('TERM', None)
+
         # If code coverage is enabled, put trace files in the dedicated
         # directory.
         if self.env.options.coverage:
@@ -513,7 +516,11 @@ class BaseDriver(DiffTestDriver):
     def _define_lkql_executables(self) -> None:
         # If the mode is JIT
         if self.env.options.mode == "jit":
-            python_wrapper = P.join(self.env.support_dir, "lkql_jit.py")
+            python_wrapper = self.locate_on_path("lkql.py")
+            if python_wrapper is None:
+                raise TestAbortWithError(
+                    "Cannot locate the LKQL python wrapper 'lkql.py'"
+                )
             self.command_base = [sys.executable, python_wrapper]
 
         # If the mode is native JIT
@@ -524,3 +531,17 @@ class BaseDriver(DiffTestDriver):
         self.lkql_checker_exe = [*self.command_base, "check"]
         self.lkql_fix_exe = [*self.command_base, "fix"]
         self.gnatcheck_worker_exe = [*self.command_base, "gnatcheck_worker"]
+
+    @classmethod
+    def locate_on_path(cls, exec_name: str) -> str | None:
+        """
+        Locate an executable with the provided name accessible through the
+        `PATH` environment variable and return its absolute path. If none has
+        been found, return `None`.
+        """
+        dirs = os.environ.get('PATH', "").split(os.pathsep)
+        for dir in dirs:
+            possible_file = os.path.join(dir, exec_name)
+            if os.path.isfile(possible_file):
+                return os.path.abspath(possible_file)
+        return None

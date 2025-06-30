@@ -26,7 +26,7 @@ class JavaDriver(BaseDriver):
         # Get the needed environment variable
         graal_home = os.environ["GRAAL_HOME"]
         lkql_jit_home = os.environ.get(
-            "LKQL_JIT_HOME", os.path.join(graal_home, "languages", "lkql")
+            "LKQL_JIT_HOME", os.path.join(self.lkql_jit_dir, "standalone", "target")
         )
 
         # Get the GraalVM Java executable
@@ -37,10 +37,12 @@ class JavaDriver(BaseDriver):
         )
 
         # Create the class path
+        lib_dir = os.path.join(lkql_jit_home, "lib")
         class_path = os.pathsep.join(
             [
-                os.path.join(graal_home, "lib", "truffle", "truffle-api.jar"),
-                os.path.join(lkql_jit_home, "lkql_jit.jar"),
+                os.path.join(lib_dir, p)
+                for p in os.listdir(lib_dir)
+                if p.endswith(".jar")
             ]
         )
 
@@ -57,8 +59,9 @@ class JavaDriver(BaseDriver):
                 java,
                 "-cp",
                 class_path,
+                "--enable-native-access=ALL-UNNAMED",
+                "--sun-misc-unsafe-memory-access=allow",
                 f"-Djava.library.path={java_library_path}",
-                f"-Dtruffle.class.path.append={os.path.join(lkql_jit_home, 'lkql_jit.jar')}",
                 main_java_file,
             ]
         )
