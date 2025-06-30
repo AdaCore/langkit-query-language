@@ -14,15 +14,8 @@
 target
 
 # Ignore from the language module
-language/target
 language/.apt_generated
 language/.apt_generated_tests
 
-# Ignore from the standalone module
-standalone/target
-standalone/reports
-
 # Test and log files
-my_working_dir
-language/src/test/java/TestRun.java
 *.log
