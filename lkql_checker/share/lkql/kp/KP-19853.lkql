@@ -1,0 +1,47 @@
+import stdlib
+
+fun is_invalid_aspect_expr(aspect_expr, assoc_subp) =
+    |" Return whether the provided expression which is associated to an aspect
+    |" of ``assoc_subp`` violates the rules given in the documentation of
+    |" ``kp_19853``.
+{
+    val assoc_subp_spec = assoc_subp.p_subp_spec_or_null();
+    val subp_params = assoc_subp_spec.p_params();
+    from aspect_expr select first call@Name(p_is_call(): true)
+        when call.p_referenced_decl().p_subp_spec_or_null() is call_spec@BaseSubpSpec
+            when call_spec.p_primitive_subp_tagged_type() == assoc_subp_spec.p_primitive_subp_tagged_type()
+        and (if call.p_is_dot_call() then call is not SingleTokNode)
+        and stdlib.all([
+            match actual
+            | a@AttributeRef => not a.f_attribute.p_name_is("result")
+            | n@Name => not n.p_referenced_decl() in subp_params
+            | * => true
+            for actual in [stdlib.strip_conversions(p.actual) for p in call.p_call_params()]
+        ])
+}
+
+fun is_invalid_pre_post(aspect, assoc_subp) =
+    |" From a given aspect object that is either a ``Pre'Class`` or a
+    |" ``Post'Class`` of ``assoc_subp``, return whether it violates the rules
+    |" given in the documentation of ``kp_19853``.
+    aspect.exists
+    and match aspect.node
+        | pn@PragmaNode => is_invalid_aspect_expr(pn, assoc_subp)
+        | * => is_invalid_aspect_expr(aspect.value, assoc_subp)
+
+@check(help="possible occurrence of KP 19853",
+       message="possible occurrence of KP 19853")
+fun kp_19853(node) =
+    |" Flag derived type declarations whose parent type has a primitive S with
+    |" a Pre'Class or Post'Class aspects which makes calls to a primitive
+    |" function of S's controlling type that does not reference an S formal
+    |" parameter (or S'Result in the case of a Post'Class).
+    node is TypeDecl(f_type_def: DerivedTypeDef)
+    when stdlib.any([
+        stdlib.any([
+            is_invalid_pre_post(p.p_get_aspect("pre'class"), p)
+            or is_invalid_pre_post(p.p_get_aspect("post'class"), p)
+            for p in parent.p_get_primitives()
+        ])
+        for parent in stdlib.full_parent_types(node)
+    ])
