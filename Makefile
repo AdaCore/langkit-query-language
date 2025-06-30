@@ -75,11 +75,11 @@ clean_lkql_checker:
 
 build_lkql_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean install $(MAVEN_ARGS)
+	$(MAVEN) -f lkql_jit/ clean package $(MAVEN_ARGS)
 
 build_lkql_native_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean install -P native,$(BUILD_MODE) $(MAVEN_ARGS)
+	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
 
 .PHONY: lkql_checker
 
