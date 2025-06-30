@@ -366,6 +366,7 @@ public final class LKQLContext {
             if (additionalRulesDirs != null) {
                 rulesDirsList.addAll(Arrays.asList(StringUtils.splitPaths(additionalRulesDirs)));
             }
+            rulesDirsList.sort(null);
             this.ruleDirectories = rulesDirsList.toArray(new String[0]);
         }
         return this.ruleDirectories;

@@ -141,6 +141,7 @@ public final class TopLevelList extends LKQLNode {
                 if (ruleDirectoryFiles != null) {
                     ruleImports.addAll(
                         Arrays.stream(ruleDirectoryFiles)
+                            .sorted()
                             .filter(File::canRead)
                             .map(f ->
                                 new Import(

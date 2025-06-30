@@ -86,7 +86,19 @@ public final class GlobalScope {
      */
     @CompilerDirectives.TruffleBoundary
     public void addChecker(String name, BaseChecker checker) {
-        this.checkers.put(name, checker);
+        BaseChecker previousValue = this.checkers.put(name, checker);
+
+        if (previousValue != null) {
+            System.err.println(
+                "Warning: a checker named \"" +
+                name +
+                "\" from: " +
+                previousValue.getPath() +
+                ", has been replaced by the one from: " +
+                checker.getPath() +
+                ". Note: checkers should have unique names."
+            );
+        }
     }
 
     /**

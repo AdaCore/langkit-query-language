@@ -1,0 +1,6 @@
+Warning: a checker named "my_rule" from: <test-dir>/rule1.lkql, has been replaced by the one from: <test-dir>/rule2.lkql. Note: checkers should have unique names.
+Warning: a checker named "my_rule" from: <test-dir>/rule2.lkql, has been replaced by the one from: <test-dir>/rule3.lkql. Note: checkers should have unique names.
+test.adb:1:11: rule violation: Rule3
+1 | procedure P is  --  FLAG
+  |           ^
+
