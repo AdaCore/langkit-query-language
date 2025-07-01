@@ -60,7 +60,9 @@ public final class UnitCheckerFunction {
                                 CheckerUtils.MessageKind.ERROR,
                                 e.getMsg(),
                                 new LangkitLocationWrapper(unit.getRoot(), context.linesCache),
-                                new SourceSectionWrapper(e.getLocation().getSourceSection()),
+                                e.getLocation() == null
+                                    ? null
+                                    : new SourceSectionWrapper(e.getLocation().getSourceSection()),
                                 checker.getName()
                             );
                     }
