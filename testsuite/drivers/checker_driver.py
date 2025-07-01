@@ -116,5 +116,7 @@ class CheckerDriver(BaseDriver):
     @property
     def output_refiners(self) -> list[OutputRefiner]:
         result = super().output_refiners
-        result.append(Substitute(self.test_env['test_dir'], "<test-dir>"))
+        # Insert this refiner first in the list so that canonicalize_backslashes
+        # is run after the following substitution.
+        result.insert(0, Substitute(self.test_env["test_dir"], "<test-dir>"))
         return result
