@@ -73,4 +73,14 @@ public final class ListComprehensionRootNode extends BaseRootNode {
             return null;
         }
     }
+
+    @Override
+    public String toString() {
+        return (
+            "<listcomp>:" +
+            this.result.getLocation().fileName() +
+            ":" +
+            this.result.getLocation().startLine()
+        );
+    }
 }
