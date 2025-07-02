@@ -950,7 +950,7 @@ package body Gnatcheck.Rules.Rule_Table is
       --  Finally, check that the designated rule is not a compiler rule
       if Is_Compiler_Rule (Rule) then
          Error
-           ("Cannot enable a compiler based rule through the '--rule' CLI "
+           ("cannot enable a compiler based rule through the '--rule' CLI "
             & "option");
          Bad_Rule_Detected := True;
          return;

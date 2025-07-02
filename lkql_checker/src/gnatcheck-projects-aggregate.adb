@@ -202,7 +202,7 @@ package body Gnatcheck.Projects.Aggregate is
    begin
       if Full_Tool_Name = null then
          Error
-           ("Cannot locate "
+           ("cannot locate "
             & Executable
             & " on PATH, possible installation problem");
          raise Fatal_Error;
@@ -344,7 +344,7 @@ package body Gnatcheck.Projects.Aggregate is
       Iterator_El := Element (Iterator_C);
    exception
       when others =>
-         Error ("Cannot start iterator on aggregated projects");
+         Error ("cannot start iterator on aggregated projects");
          raise Fatal_Error;
    end Start_Prj_Iterator;
 

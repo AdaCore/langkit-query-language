@@ -1590,7 +1590,7 @@ package body Gnatcheck.Projects is
       --  Check the correctness of setting custom name for text report file
 
       if Custom_Text_Report_File and then not Text_Report_ON then
-         Error ("Custom text output file cannot be set if text output is off");
+         Error ("custom text output file cannot be set if text output is off");
          raise Parameter_Error;
       end if;
 
