@@ -7,7 +7,7 @@ main.adb:11:45: rule violation: callback may propagate exceptions
 Invalid type
 ============
 
-gnatcheck: error: invalid parameter for rule "exception_propagation_from_callbacks": 'callbacks' should be a list of string tuples (invalid_type.lkql)
+invalid_type.lkql:1:1: error: invalid parameter for rule "exception_propagation_from_callbacks": 'callbacks' should be a list of string tuples
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

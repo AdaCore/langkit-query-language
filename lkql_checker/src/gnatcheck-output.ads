@@ -41,8 +41,10 @@ package Gnatcheck.Output is
    procedure Report_Missing_File (From_File, Missing_File : String);
    --  Reports that a required file could not be found
 
-   procedure Error (Message : String);
-   --  Sends ``Message`` into stderr, prefixed by "tool_name: error: ".
+   procedure Error (Message : String; Location : String := "");
+   --  Sends ``Message`` into stderr, prefixed by "tool_name: error: " if
+   --  ``Location`` is an empty string, otherwise the message is prefixed
+   --  by "<location>: error: ".
 
    procedure Warning (Message : String);
    --  Sends ``Message`` into stderr, prefixed by "tool_name: warning: ".
@@ -73,6 +75,7 @@ package Gnatcheck.Output is
      (Message     : String;
       Tag         : Message_Tags := None;
       Tool_Name   : Boolean := False;
+      Location    : String := "";
       New_Line    : Boolean := False;
       Log_Message : Boolean := False);
    --  Common procedure to emit a message to the user in ``Standard_Error``,
@@ -81,6 +84,8 @@ package Gnatcheck.Output is
    --  ``Tag``: Tag to add to the message when emitting it
    --  ``Tool_Name``: Whether to include the tool name at the start of the
    --                 message (ex: "gnatcheck: ...")
+   --  ``Location`` : Location string to append to the message just before the
+   --                 tag.
    --  ``New_Line``: Whether to add a end-of-line character at the end of the
    --                message
    --  ``Log_Message``: Whether to log this message in the current ``Log_File``

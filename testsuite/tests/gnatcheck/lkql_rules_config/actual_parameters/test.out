@@ -9,7 +9,7 @@ main.adb:17:08: rule violation: actual parameter mismatch
 Invalid type
 ============
 
-gnatcheck: error: invalid parameter for rule "actual_parameters": 'forbidden' should be a list of string tuples (invalid_type.lkql)
+invalid_type.lkql:1:1: error: invalid parameter for rule "actual_parameters": 'forbidden' should be a list of string tuples
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

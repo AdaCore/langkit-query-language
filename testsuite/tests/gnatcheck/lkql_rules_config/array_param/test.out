@@ -7,7 +7,7 @@ main.adb:9:15: rule violation: direct (in)equality
 Invalid type
 ============
 
-gnatcheck: error: invalid parameter for rule "direct_equalities": 'actuals' value should be a list (invalid_type.lkql)
+invalid_type.lkql:1:1: error: invalid parameter for rule "direct_equalities": 'actuals' value should be a list
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

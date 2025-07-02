@@ -175,6 +175,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Check_For_Looping (RF_Name : String; Success : in out Boolean) is
       Full_Name : constant String := Normalize_Pathname (RF_Name);
+      Cycle_Msg : Unbounded_String := Null_Unbounded_String;
    begin
       for J in 1 .. Rule_File_Stack.Last loop
          if Full_Name = Rule_File_Stack.Table (J).Full_Name.all then
@@ -184,21 +185,19 @@ package body Gnatcheck.Rules.Rule_Table is
       end loop;
 
       if not Success then
-         Error ("cycling in rule files:");
 
          for J in 1 .. Rule_File_Stack.Last loop
-            Print (Rule_File_Stack.Table (J).Arg_Name.all & " needs ", False);
-
+            Append
+              (Cycle_Msg, Rule_File_Stack.Table (J).Arg_Name.all & " needs ");
             if J < Rule_File_Stack.Last then
-               Print (Rule_File_Stack.Table (J + 1).Arg_Name.all);
+               Append (Cycle_Msg, Rule_File_Stack.Table (J + 1).Arg_Name.all);
             end if;
          end loop;
 
-         Print (RF_Name);
-         Print ("");
-
+         Error
+           ("cycling in rule files (" & To_String (Cycle_Msg) & ")",
+            Location => RF_Name & ":1:1");
          raise Fatal_Error;
-
       else
          --  Add new file to the rule file stack
          Rule_File_Stack.Append
@@ -397,10 +396,8 @@ package body Gnatcheck.Rules.Rule_Table is
    begin
       if not Present (Rule) then
          Error
-           ("unknown rule: "
-            & Rule_Name
-            & ", ignored"
-            & Instantiation_Location);
+           ("unknown rule: " & Rule_Name & ", ignored",
+            Location => Instantiation_Location);
          Bad_Rule_Detected := True;
          return False;
       end if;
@@ -423,8 +420,8 @@ package body Gnatcheck.Rules.Rule_Table is
             & """ previously instantiated at "
             & (if Instance.Defined_At /= ""
                then To_String (Instance.Defined_At)
-               else "command line")
-            & Instantiation_Location);
+               else "command line"),
+            Location => Instantiation_Location);
          Bad_Rule_Detected := True;
          return False;
       end if;
@@ -596,6 +593,10 @@ package body Gnatcheck.Rules.Rule_Table is
 
       procedure Scan_Line_Buf (Success : in out Boolean) is
          Idx : Positive := 1;
+
+         function Current_Location return String
+         is (Rule_File_Base & ":" & Image (Current_Line) & ":" & Image (Idx));
+         --  Get the current location in the rule file.
       begin
          while Idx <= Line_Len loop
 
@@ -658,7 +659,8 @@ package body Gnatcheck.Rules.Rule_Table is
                                  & Image (Rule_Start_Line)
                                  & ":"
                                  & Image (Current_Line)
-                                 & " ignored");
+                                 & " ignored",
+                                 Location => Current_Location);
                               Rule_Option_Problem_Detected := True;
 
                               Success := True;
@@ -672,7 +674,8 @@ package body Gnatcheck.Rules.Rule_Table is
                               else
                                  Error
                                    ("can not locate rule file "
-                                    & Rule_Buf (1 .. Rule_Len));
+                                    & Rule_Buf (1 .. Rule_Len),
+                                    Location => Current_Location);
                                  Missing_Rule_File_Detected := True;
                               end if;
                            end if;
@@ -685,7 +688,8 @@ package body Gnatcheck.Rules.Rule_Table is
                               & Image (Rule_Start_Line)
                               & ":"
                               & Image (Current_Line - 1)
-                              & " do not have format of rule option");
+                              & " do not have format of rule option",
+                              Location => Current_Location);
                            Rule_Option_Problem_Detected := True;
                      end case;
                   end if;
@@ -704,11 +708,11 @@ package body Gnatcheck.Rules.Rule_Table is
                      Rule_Buf (Rule_Len) := Line_Buf (Idx);
                      Idx := Idx + 1;
                   else
-                     Error ("can not read rule options from " & RF_Name);
                      Error
                        ("too long rule option, the content of the file ignored"
                         & " starting from line "
-                        & Image (Current_Line));
+                        & Image (Current_Line),
+                        Location => Current_Location);
                      Rule_Option_Problem_Detected := True;
                      Success := False;
                      return;
@@ -848,7 +852,9 @@ package body Gnatcheck.Rules.Rule_Table is
                      & Image (Rule_Start_Line)
                      & ":"
                      & Image (Current_Line)
-                     & " ignored");
+                     & " ignored",
+                     Location =>
+                       Rule_File_Base & ":" & Image (Current_Line) & ":1");
 
                   Rule_Option_Problem_Detected := True;
                   Success := True;
@@ -862,8 +868,9 @@ package body Gnatcheck.Rules.Rule_Table is
                      Process_Legacy_Rule_File (Include_RF_Name.all);
                   else
                      Error
-                       ("can not locate rule file "
-                        & Rule_Buf (1 .. Rule_Len));
+                       ("can not locate rule file " & Rule_Buf (1 .. Rule_Len),
+                        Location =>
+                          Rule_File_Base & ":" & Image (Current_Line) & ":1");
                      Missing_Rule_File_Detected := True;
                   end if;
 
@@ -881,7 +888,9 @@ package body Gnatcheck.Rules.Rule_Table is
                       (if New_State = Indefinite
                        then Current_Line
                        else Current_Line - 1)
-                  & " do not have format of rule option");
+                  & " do not have format of rule option",
+                  Location =>
+                    Rule_File_Base & ":" & Image (Current_Line) & ":1");
                Rule_Option_Problem_Detected := True;
          end case;
 
@@ -1048,9 +1057,6 @@ package body Gnatcheck.Rules.Rule_Table is
       Instance_Name : Unbounded_String;
       Instance      : Rule_Instance_Access;
 
-      Diag_Defined_At : constant String :=
-        (if Defined_At = "" then "" else " (" & Defined_At & ")");
-
       -------------------
       -- Set_Parameter --
       -------------------
@@ -1104,16 +1110,13 @@ package body Gnatcheck.Rules.Rule_Table is
       begin
          if Word_Start = 0 and then Enable then
             Error
-              (R_Name
-               & " rule option must have a parameter"
-               & Diag_Defined_At);
+              (R_Name & " rule option must have a parameter",
+               Location => Defined_At);
             return False;
          elsif Word_Start /= 0 and then not Enable then
             Error
-              ("("
-               & Instance_Name
-               & ") no parameter allowed for -R"
-               & Diag_Defined_At);
+              ("(" & Instance_Name & ") no parameter allowed for -R",
+               Location => Defined_At);
             return False;
          end if;
 
@@ -1144,7 +1147,8 @@ package body Gnatcheck.Rules.Rule_Table is
 
             if Word_End = 0 then
                Error
-                 ("bad structure of rule option " & Option & Diag_Defined_At);
+                 ("bad structure of rule option " & Option,
+                  Location => Defined_At);
                Rule_Option_Problem_Detected := True;
                return;
             end if;
@@ -1169,7 +1173,7 @@ package body Gnatcheck.Rules.Rule_Table is
          declare
             R_Name : constant String := Option (Word_Start .. Word_End);
          begin
-            if Check_Rule_Exists (R_Name, Diag_Defined_At) then
+            if Check_Rule_Exists (R_Name, Defined_At) then
                Rule := Get_Rule (Option (Word_Start .. Word_End));
             else
                return;
@@ -1190,7 +1194,7 @@ package body Gnatcheck.Rules.Rule_Table is
          --  instance, check that this instance exists.
          if Enable
            and then not Check_Instance_Is_Unique
-                          (To_String (Instance_Name), Diag_Defined_At)
+                          (To_String (Instance_Name), Defined_At)
          then
             if not Instance_Help_Emitted then
                Info
@@ -1205,8 +1209,8 @@ package body Gnatcheck.Rules.Rule_Table is
               (""""
                & To_String (Instance_Name)
                & """ is not enabled, "
-               & "therefore, cannot be disabled"
-               & Diag_Defined_At);
+               & "therefore, cannot be disabled",
+               Location => Defined_At);
             Bad_Rule_Detected := True;
             return;
          end if;
@@ -1274,7 +1278,8 @@ package body Gnatcheck.Rules.Rule_Table is
          end if;
       else
          Error
-           ("unknown rule option: " & Option & ", ignored" & Diag_Defined_At);
+           ("unknown rule option: " & Option & ", ignored",
+            Location => Defined_At);
          Rule_Option_Problem_Detected := True;
       end if;
    end Process_Legacy_Rule_Option;
@@ -1328,7 +1333,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
       procedure Error_In_Rule_File (Msg : String) is
       begin
-         Error (Msg & " (" & Output_Rule_File & ")");
+         Error (Msg, Location => Output_Rule_File & ":1:1");
          Bad_Rule_Detected := True;
       end Error_In_Rule_File;
 

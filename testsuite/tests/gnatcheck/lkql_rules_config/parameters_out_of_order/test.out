@@ -6,7 +6,7 @@ main.adb:3:18: rule violation: parameter out of order
 Invalid argument value
 ======================
 
-gnatcheck: error: invalid parameter value for rule "parameters_out_of_order": 'order' should contains only 'in', 'defaulted_in', 'in_out', 'access' or 'out' strings (invalid_arg.lkql)
+invalid_arg.lkql:1:1: error: invalid parameter value for rule "parameters_out_of_order": 'order' should contains only 'in', 'defaulted_in', 'in_out', 'access' or 'out' strings
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

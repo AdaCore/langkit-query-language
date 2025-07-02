@@ -35,7 +35,7 @@ try "gnatcheck --help" for more information.
 Not existing rule
 =================
 
-gnatcheck: error: unknown rule: this_is_not_a_rule (not_existing_rule.lkql)
+not_existing_rule.lkql:1:1: error: unknown rule: this_is_not_a_rule
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -59,7 +59,7 @@ try "gnatcheck --help" for more information.
 Missing mandatory parameter
 ===========================
 
-gnatcheck: error: missing 'header' parameter for rule "headers" (missing_param.lkql)
+missing_param.lkql:1:1: error: missing 'header' parameter for rule "headers"
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -67,7 +67,7 @@ try "gnatcheck --help" for more information.
 Missing mandatory parameter on instance
 =======================================
 
-gnatcheck: error: missing 'header' parameter for rule "headers" (instance "custom_instance") (missing_param_instance.lkql)
+missing_param_instance.lkql:1:1: error: missing 'header' parameter for rule "headers" (instance "custom_instance")
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -75,7 +75,7 @@ try "gnatcheck --help" for more information.
 Extra parameter
 ===============
 
-gnatcheck: error: extra argument for rule "goto_statements": 'extra' (extra_param.lkql)
+extra_param.lkql:1:1: error: extra argument for rule "goto_statements": 'extra'
 >>>program returned status code 5
 
 Multiple instance with the same name
@@ -89,5 +89,5 @@ try "gnatcheck --help" for more information.
 Compiler base rule in restricted rule set
 =========================================
 
-gnatcheck: error: cannot run compiler base rule "warnings" only on ADA code (compiler_rule_in_restricted_source.lkql)
+compiler_rule_in_restricted_source.lkql:1:1: error: cannot run compiler base rule "warnings" only on ADA code
 >>>program returned status code 5

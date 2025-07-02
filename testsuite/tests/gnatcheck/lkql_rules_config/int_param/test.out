@@ -6,7 +6,7 @@ main.ads:5:14: rule violation: too many formal OUT parameters (3)
 Missing parameter
 =================
 
-gnatcheck: error: missing 'n' parameter for rule "maximum_out_parameters" (missing_param.lkql)
+missing_param.lkql:1:1: error: missing 'n' parameter for rule "maximum_out_parameters"
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -14,7 +14,7 @@ try "gnatcheck --help" for more information.
 Invalid type
 ============
 
-gnatcheck: error: invalid parameter for rule "maximum_out_parameters": 'n' value should be an integer (invalid_type.lkql)
+invalid_type.lkql:1:1: error: invalid parameter for rule "maximum_out_parameters": 'n' value should be an integer
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
