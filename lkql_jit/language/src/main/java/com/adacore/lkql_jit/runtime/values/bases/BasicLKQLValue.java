@@ -18,7 +18,9 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(InteropLibrary.class)
 public abstract class BasicLKQLValue implements LKQLValue {
 
-    protected final InteropLibrary thisUncachedLibrary = InteropLibrary.getUncached(this);
+    public InteropLibrary getUncachedLibrary() {
+        return InteropLibrary.getUncached(this);
+    }
 
     // ----- Value methods -----
 
@@ -47,7 +49,7 @@ public abstract class BasicLKQLValue implements LKQLValue {
 
     @Override
     public String toString() {
-        return (String) thisUncachedLibrary.toDisplayString(this);
+        return (String) getUncachedLibrary().toDisplayString(this);
     }
 
     @Override
@@ -55,13 +57,13 @@ public abstract class BasicLKQLValue implements LKQLValue {
         if (this == o) return true;
         if (!(o instanceof BasicLKQLValue other)) return false;
         InteropLibrary otherUncached = InteropLibrary.getUncached(other);
-        return thisUncachedLibrary.isIdentical(this, other, otherUncached);
+        return getUncachedLibrary().isIdentical(this, other, otherUncached);
     }
 
     @Override
     public int hashCode() {
         try {
-            return thisUncachedLibrary.identityHashCode(this);
+            return getUncachedLibrary().identityHashCode(this);
         } catch (UnsupportedMessageException e) {
             throw LKQLRuntimeException.shouldNotHappen(
                 "All LKQL values must export an 'identityHashCode' message"
