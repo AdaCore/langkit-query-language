@@ -1,12 +1,12 @@
 Without "warnings as errors"
 ============================
 
-gnatcheck: warning: restriction No_Recursion ignored (cannot be checked statically), use rule Recursive_Subprograms instead
+rules.lkql:1:1: warning: restriction No_Recursion ignored (cannot be checked statically), use rule Recursive_Subprograms instead
 main.adb:3:04: rule violation: goto statement
 
 With "warnings as errors"
 =========================
 
-gnatcheck: error: restriction No_Recursion ignored (cannot be checked statically), use rule Recursive_Subprograms instead
+rules.lkql:1:1: error: restriction No_Recursion ignored (cannot be checked statically), use rule Recursive_Subprograms instead
 main.adb:3:04: rule violation: goto statement
 >>>program returned status code 2

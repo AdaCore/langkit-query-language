@@ -1298,7 +1298,8 @@ package body Gnatcheck.Rules.Rule_Table is
       Output_Rule_File   : constant String :=
         (if Arg.Full_Source_Locations.Get
          then LKQL_Rule_File_Name
-         else Base_Name (LKQL_Rule_File_Name));
+         else Base_Name (LKQL_Rule_File_Name))
+        & ":1:1";
       Rule_Name          : constant String := Instance_Object.Get ("ruleName");
       Instance_Name      : constant String :=
         (if Instance_Object.Has_Field ("instanceName")
@@ -1333,7 +1334,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
       procedure Error_In_Rule_File (Msg : String) is
       begin
-         Error (Msg, Location => Output_Rule_File & ":1:1");
+         Error (Msg, Location => Output_Rule_File);
          Bad_Rule_Detected := True;
       end Error_In_Rule_File;
 

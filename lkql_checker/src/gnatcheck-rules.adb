@@ -2990,6 +2990,20 @@ package body Gnatcheck.Rules is
       end if;
    end Error;
 
+   -------------
+   -- Warning --
+   -------------
+
+   procedure Warning (Self : Rule_Instance'Class; Message : String) is
+   begin
+      if Self.Defined_At /= Null_Unbounded_String then
+         Gnatcheck.Output.Warning
+           (Message, Location => To_String (Self.Defined_At));
+      else
+         Gnatcheck.Output.Warning (Message);
+      end if;
+   end Warning;
+
    --  == Overriding operations on rule instances
 
    ------------------------------------

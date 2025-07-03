@@ -573,16 +573,17 @@ package body Gnatcheck.Output is
    -- Warning --
    -------------
 
-   procedure Warning (Message : String) is
+   procedure Warning (Message : String; Location : String := "") is
    begin
       if Arg.Warnings_As_Errors.Get then
-         Error (Message);
+         Error (Message, Location);
          Error_From_Warning := True;
       else
          Emit_Message
            (Message,
             Tag         => Warning,
-            Tool_Name   => True,
+            Tool_Name   => Location = "",
+            Location    => Location,
             New_Line    => True,
             Log_Message => True);
       end if;

@@ -46,7 +46,7 @@ package Gnatcheck.Output is
    --  ``Location`` is an empty string, otherwise the message is prefixed
    --  by "<location>: error: ".
 
-   procedure Warning (Message : String);
+   procedure Warning (Message : String; Location : String := "");
    --  Sends ``Message`` into stderr, prefixed by "tool_name: warning: ".
 
    procedure Info (Message : String);

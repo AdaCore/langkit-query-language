@@ -1252,7 +1252,7 @@ package body Gnatcheck.Compiler is
           | Static_Dispatch_Tables
           | No_Exception_Propagation
       then
-         Warning
+         Instance.Warning
            ("restriction "
             & To_Mixed (R_Id'Img)
             & " ignored - only fully effective during code generation");
@@ -1272,7 +1272,7 @@ package body Gnatcheck.Compiler is
           | No_Entry_Queue
           | No_Reentrancy
       then
-         Warning
+         Instance.Warning
            ("restriction "
             & To_Mixed (R_Id'Img)
             & " ignored - cannot be checked statically");
@@ -1280,14 +1280,14 @@ package body Gnatcheck.Compiler is
          Restriction_Setting (R_Id).Active := False;
 
       elsif R_Id = No_Recursion then
-         Warning
+         Instance.Warning
            ("restriction No_Recursion ignored (cannot be checked statically), "
             & "use rule Recursive_Subprograms instead");
 
          Restriction_Setting (R_Id).Active := False;
 
       elsif R_Id = Max_Asynchronous_Select_Nesting and then R_Val /= 0 then
-         Warning
+         Instance.Warning
            ("restriction Max_Asynchronous_Select_Nesting ignored - "
             & "cannot be checked statically if parameter is not 0");
          Restriction_Setting (R_Id).Active := False;
