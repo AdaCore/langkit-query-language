@@ -80,7 +80,7 @@ public final class ObjectLiteral extends Expr {
     @ExplodeLoop
     public LKQLObject executeObject(final VirtualFrame frame) {
         // Create the result object
-        LKQLObject res = new LKQLObject(this.shape);
+        LKQLObject res = new LKQLObject(this.shape, this.location);
         for (int i = 0; i < this.keys.length; i++) {
             this.objectLibrary.put(res, this.keys[i], this.values[i].executeGeneric(frame));
         }

@@ -18,6 +18,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents an object value in the LKQL language. */
@@ -27,12 +28,17 @@ public final class LKQLObject extends ObjectLKQLValue implements LKQLValue {
     // ----- Attributes -----*
 
     private static final Shape.Builder shapeBuilder = Shape.newBuilder();
+    /** The source location where this object was created. This attribute was
+     * introduced to provide location information for object instances defined
+     * in LKQL rules files. */
+    private final SourceSection creationLocation;
 
     // ----- Constructors -----
 
     /** Create a new LKQL object with its dynamic shape. */
-    public LKQLObject(final Shape shape) {
+    public LKQLObject(final Shape shape, SourceSection creationLocation) {
         super(shape);
+        this.creationLocation = creationLocation;
     }
 
     // ----- Class methods -----
@@ -42,7 +48,8 @@ public final class LKQLObject extends ObjectLKQLValue implements LKQLValue {
      * library so this is not designed for performance critical usages.
      */
     public static LKQLObject createUncached(final Object[] keys, final Object[] values) {
-        final LKQLObject res = new LKQLObject(emptyShape());
+        // NOTE: this LKQL object doesn't have a source location for now
+        final LKQLObject res = new LKQLObject(emptyShape(), null);
         for (int i = 0; i < keys.length; i++) {
             uncachedObjectLibrary.put(res, keys[i], values[i]);
         }
@@ -56,6 +63,16 @@ public final class LKQLObject extends ObjectLKQLValue implements LKQLValue {
     }
 
     // ----- Value methods -----
+
+    @ExportMessage
+    public boolean hasSourceLocation() {
+        return creationLocation != null;
+    }
+
+    @ExportMessage
+    public SourceSection getSourceLocation() {
+        return creationLocation;
+    }
 
     /** Exported message to compare two LKQL objects. */
     @ExportMessage

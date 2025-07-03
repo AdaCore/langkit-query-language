@@ -37,7 +37,7 @@ public abstract class ValueCombiner extends Node {
         @Cached ValueCombiner recursiveCombiner
     ) {
         // Create the result object
-        LKQLObject res = new LKQLObject(LKQLObject.emptyShape());
+        LKQLObject res = new LKQLObject(LKQLObject.emptyShape(), caller.getSourceSection());
 
         // Insert all keys of the left object in the result, resolving conflicts by combining
         // values.
