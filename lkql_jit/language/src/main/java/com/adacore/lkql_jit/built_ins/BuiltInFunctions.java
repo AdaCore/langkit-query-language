@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.*;
@@ -537,8 +538,13 @@ public class BuiltInFunctions {
     abstract static class UnitsExpr extends BuiltInBody {
 
         @Specialization
+        @CompilerDirectives.TruffleBoundary
         protected LKQLList alwaysTrue() {
-            return new LKQLList(LKQLLanguage.getContext(this).getAllUnits());
+            return new LKQLList(
+                LKQLLanguage.getContext(this)
+                    .getAllUnits()
+                    .toArray(LangkitSupport.AnalysisUnit[]::new)
+            );
         }
     }
 
@@ -546,8 +552,12 @@ public class BuiltInFunctions {
     abstract static class SpecifiedUnitsExpr extends BuiltInBody {
 
         @Specialization
+        @CompilerDirectives.TruffleBoundary
         protected LKQLList alwaysTrue() {
-            return new LKQLList(LKQLLanguage.getContext(this).getSpecifiedUnits());
+            var units = LKQLLanguage.getContext(this)
+                .getSpecifiedUnits()
+                .toArray(LangkitSupport.AnalysisUnit[]::new);
+            return new LKQLList(units);
         }
     }
 }
