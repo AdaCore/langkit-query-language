@@ -185,7 +185,6 @@ package body Gnatcheck.Projects is
 
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type) is
       use GPR2;
-      use GPR2.Project.Registry.Attribute;
 
       Proj     : constant GPR2.Project.View.Object :=
         My_Project.Tree.Namespace_Root_Projects.First_Element;
@@ -205,7 +204,8 @@ package body Gnatcheck.Projects is
       --  information about attribute indexes.
 
       function Load_Single_Attribute
-        (Attr_Id : GPR2.Q_Attribute_Id) return String;
+        (Attr_Id : GPR2.Q_Attribute_Id) return String
+      is (Proj.Attribute (Attr_Id).Value.Text);
       --  Load the attribute designated by ``Attr_Id`` in the project ``Proj``
       --  as a single value, returning is as a ``String``.
 
@@ -219,41 +219,13 @@ package body Gnatcheck.Projects is
             else Proj.Attribute (Attr_Id));
          Res  : GNAT.OS_Lib.Argument_List_Access;
       begin
-         if Attr.Kind /= List then
-            Error
-              (String (Proj.Path_Name.Simple_Name)
-               & ": "
-               & Image (Attr_Id)
-               & " value must be a list");
-            raise Parameter_Error;
-         end if;
-
          Res :=
            new String_List (Attr.Values.First_Index .. Attr.Values.Last_Index);
          for J in Attr.Values.First_Index .. Attr.Values.Last_Index loop
             Res (J) := new String'(Attr.Values.Element (J).Text);
          end loop;
-
          return Res;
       end Load_List_Attribute;
-
-      function Load_Single_Attribute
-        (Attr_Id : GPR2.Q_Attribute_Id) return String
-      is
-         Attr : constant GPR2.Project.Attribute.Object :=
-           Proj.Attribute (Attr_Id);
-      begin
-         if Attr.Kind /= Single then
-            Error
-              (String (Proj.Path_Name.Simple_Name)
-               & ": "
-               & Image (Attr_Id)
-               & " value must be a single value");
-            raise Parameter_Error;
-         end if;
-
-         return Attr.Value.Text;
-      end Load_Single_Attribute;
 
    begin
       --  Process the rule list
