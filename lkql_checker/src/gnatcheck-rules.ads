@@ -273,6 +273,9 @@ package Gnatcheck.Rules is
    function Annotate_Diag (Instance : Rule_Instance'Class) return String;
    --  Return a string to annotate a diagnostic about the rule instance
 
+   procedure Error (Self : Rule_Instance'Class; Message : String);
+   --  Emit an error message about the ``Self`` rule instance
+
    procedure Free is new
      Ada.Unchecked_Deallocation (Rule_Instance'Class, Rule_Instance_Access);
    --  Free the memory allocated for a rule instance

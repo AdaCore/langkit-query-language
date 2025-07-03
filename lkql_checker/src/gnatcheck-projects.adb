@@ -144,6 +144,20 @@ package body Gnatcheck.Projects is
       return GPR2.Reporter.Regular;
    end Verbosity;
 
+   -----------
+   -- Error --
+   -----------
+
+   procedure Error (My_Project : Arg_Project_Type; Message : String) is
+   begin
+      if My_Project.Is_Specified then
+         Gnatcheck.Output.Error
+           (Message, Location => Source_Prj (My_Project) & ":1:1");
+      else
+         Gnatcheck.Output.Error (Message);
+      end if;
+   end Error;
+
    -----------------------
    -- Local subprograms --
    -----------------------
@@ -392,7 +406,8 @@ package body Gnatcheck.Projects is
 
    exception
       when E : GPR2.Options.Usage_Error =>
-         Error (Ada.Exceptions.Exception_Message (E));
+         My_Project.Error
+           ("libgpr2 usage error: " & Ada.Exceptions.Exception_Message (E));
    end Get_Sources_From_Project;
 
    ----------------------------
@@ -478,7 +493,7 @@ package body Gnatcheck.Projects is
                 Config       => Conf_Obj)
       then
          if not My_Project.Tree.Has_Runtime_Project then
-            Error ("no runtime information found");
+            My_Project.Error ("no runtime information found");
          end if;
 
          Error ("""" & Get_Aggregated_Project & """ processing failed");
@@ -492,7 +507,8 @@ package body Gnatcheck.Projects is
 
    exception
       when E : GPR2.Options.Usage_Error =>
-         Error ("usage error: " & Ada.Exceptions.Exception_Message (E));
+         My_Project.Error
+           ("libgpr2 usage error: " & Ada.Exceptions.Exception_Message (E));
          raise Parameter_Error;
    end Load_Aggregated_Project;
 
@@ -551,11 +567,7 @@ package body Gnatcheck.Projects is
       end if;
 
       if not My_Project.Tree.Languages.Contains (GPR2.Ada_Language) then
-         Error
-           (""""
-            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
-            & """ has no Ada sources, processing failed");
-
+         My_Project.Error ("project has no Ada sources, processing failed");
          raise Parameter_Error;
 
       elsif not My_Project.Tree.Has_Runtime_Project then
@@ -563,11 +575,7 @@ package body Gnatcheck.Projects is
          for Msg of My_Project.Tree.Configuration.Log_Messages loop
             Print (Msg.Format);
          end loop;
-         Error
-           (""""
-            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
-            & """ processing failed");
-
+         My_Project.Error ("processing failed");
          raise Parameter_Error;
       end if;
 
@@ -604,7 +612,8 @@ package body Gnatcheck.Projects is
 
    exception
       when E : GPR2.Options.Usage_Error =>
-         Error ("usage error: " & Ada.Exceptions.Exception_Message (E));
+         My_Project.Error
+           ("libgpr2 usage error: " & Ada.Exceptions.Exception_Message (E));
          raise Parameter_Error;
    end Load_Tool_Project;
 

@@ -28,7 +28,8 @@ package body Gnatcheck.Rules is
    -- Local helpers --
    -------------------
 
-   function Expand_Env_Variables (Name : String) return String;
+   function Expand_Env_Variables
+     (Name : String; Instance : Rule_Instance'Class) return String;
    --  Assuming that Name is a name of a dictionary file (used as rule
    --  parameter) and that it may contain environment variables, tries
    --  to locate environment variables and to replace them with their values.
@@ -401,7 +402,9 @@ package body Gnatcheck.Rules is
    -- Expand_Env_Variables --
    --------------------------
 
-   function Expand_Env_Variables (Name : String) return String is
+   function Expand_Env_Variables
+     (Name : String; Instance : Rule_Instance'Class) return String
+   is
       Text_Start : Natural := Name'First;
       EV_Start   : Natural := Index (Name, "$");
       EV_End     : Positive;
@@ -423,7 +426,7 @@ package body Gnatcheck.Rules is
          Val : GNAT.OS_Lib.String_Access := Getenv (EV_Name);
       begin
          if Val = null or else Val.all = "" then
-            Error ("environment variable " & EV_Name & " undefined");
+            Instance.Error ("environment variable " & EV_Name & " undefined");
             Free (Val);
             return EV_Name;
          else
@@ -1224,7 +1227,8 @@ package body Gnatcheck.Rules is
    procedure Emit_Wrong_Parameter
      (Instance : Rule_Instance_Access; Param : String) is
    begin
-      Error ("(" & Instance_Name (Instance) & ") wrong parameter: " & Param);
+      Instance.Error
+        ("(" & Instance_Name (Instance) & ") wrong parameter: " & Param);
       Bad_Rule_Detected := True;
    end Emit_Wrong_Parameter;
 
@@ -1234,7 +1238,7 @@ package body Gnatcheck.Rules is
 
    procedure Emit_Required_Parameter (Instance : Rule_Instance_Access) is
    begin
-      Error
+      Instance.Error
         ("(" & Instance_Name (Instance) & ") parameter is required for +R");
       Bad_Rule_Detected := True;
    end Emit_Required_Parameter;
@@ -1245,7 +1249,8 @@ package body Gnatcheck.Rules is
 
    procedure Emit_No_Parameter_Allowed (Instance : Rule_Instance_Access) is
    begin
-      Error ("(" & Instance_Name (Instance) & ") no parameter allowed for -R");
+      Instance.Error
+        ("(" & Instance_Name (Instance) & ") no parameter allowed for -R");
       Bad_Rule_Detected := True;
    end Emit_No_Parameter_Allowed;
 
@@ -1256,7 +1261,7 @@ package body Gnatcheck.Rules is
    procedure Emit_Redefining (Instance : Rule_Instance_Access; Param : String)
    is
    begin
-      Error
+      Instance.Error
         ("redefining at "
          & Defined_Str (To_String (Instance.Defined_At))
          & " parameter"
@@ -1273,8 +1278,8 @@ package body Gnatcheck.Rules is
    procedure Emit_File_Load_Error
      (Instance : Rule_Instance_Access; File_Name : String) is
    begin
-      Error
-        ("(" & Instance_Name (Instance) & "): cannot load file " & File_Name);
+      Instance.Error
+        ("(" & Instance_Name (Instance) & ") cannot load file " & File_Name);
       Bad_Rule_Detected := True;
    end Emit_File_Load_Error;
 
@@ -1287,7 +1292,7 @@ package body Gnatcheck.Rules is
    begin
       --  If there is a provided param display an error
       if Param /= "" then
-         Error
+         Instance.Error
            ("no parameter can be set for rule "
             & Gnatcheck.Rules.Instance_Name (Instance)
             & ", "
@@ -1475,7 +1480,7 @@ package body Gnatcheck.Rules is
          if Rule_Name (Instance) = "name_clashes" then
             if Load_Dictionary
                  (Instance,
-                  Expand_Env_Variables (Param),
+                  Expand_Env_Variables (Param, Instance.all),
                   Tagged_Instance.Param)
             then
                Ada.Strings.Unbounded.Set_Unbounded_String
@@ -1921,7 +1926,8 @@ package body Gnatcheck.Rules is
             if Load_Dictionary
                  (Instance,
                   Expand_Env_Variables
-                    (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last)),
+                    (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last),
+                     Instance.all),
                   Tagged_Instance.Exclude)
             then
                Set_Unbounded_Wide_Wide_String
@@ -2216,7 +2222,7 @@ package body Gnatcheck.Rules is
          --  error in the parameter syntax.
          First_Equal := Index (Param, "=");
          if First_Equal = 0 then
-            Error
+            Instance.Error
               ("("
                & Gnatcheck.Rules.Instance_Name (Instance)
                & ") missing = in parameter argument: "
@@ -2253,7 +2259,7 @@ package body Gnatcheck.Rules is
                          (To_Text (Param (First_Equal + 1 .. Param'Last)))));
             else
                --  Else, display an error and disable the instance
-               Error
+               Instance.Error
                  ("("
                   & Gnatcheck.Rules.Instance_Name (Instance)
                   & ") unknown parameter: "
@@ -2386,7 +2392,7 @@ package body Gnatcheck.Rules is
 
       procedure Error is
       begin
-         Gnatcheck.Output.Error
+         Instance.Error
            ("("
             & Instance_Name (Instance)
             & ") wrong parameter: "
@@ -2429,7 +2435,7 @@ package body Gnatcheck.Rules is
         and then Last /= 0
         and then Slice_Count (Create (To_String (Instance.Param), ",")) /= 5
       then
-         Error
+         Instance.Error
            ("("
             & Instance_Name (Instance)
             & ") requires 5 parameters, got: "
@@ -2970,6 +2976,20 @@ package body Gnatcheck.Rules is
       end if;
    end Annotate_Diag;
 
+   -----------
+   -- Error --
+   -----------
+
+   procedure Error (Self : Rule_Instance'Class; Message : String) is
+   begin
+      if Self.Defined_At /= Null_Unbounded_String then
+         Gnatcheck.Output.Error
+           (Message, Location => To_String (Self.Defined_At));
+      else
+         Gnatcheck.Output.Error (Message);
+      end if;
+   end Error;
+
    --  == Overriding operations on rule instances
 
    ------------------------------------
@@ -3044,7 +3064,8 @@ package body Gnatcheck.Rules is
             Param_Value  : constant String :=
               Expect_Literal (Params_Object, "dictionary_file");
             File_Content : constant Unbounded_String :=
-              Load_Dictionary_File (Expand_Env_Variables (Param_Value));
+              Load_Dictionary_File
+                (Expand_Env_Variables (Param_Value, Instance));
          begin
             Params_Object.Unset_Field ("dictionary_file");
             if File_Content /= Null_Unbounded_String then
@@ -3282,7 +3303,8 @@ package body Gnatcheck.Rules is
             Exclude_File : constant String :=
               Expect_Literal (Params_Object, "exclude");
             File_Content : constant Unbounded_String :=
-              Load_Dictionary_File (Expand_Env_Variables (Exclude_File));
+              Load_Dictionary_File
+                (Expand_Env_Variables (Exclude_File, Instance));
          begin
             Params_Object.Unset_Field ("exclude");
             if File_Content /= Null_Unbounded_String then
