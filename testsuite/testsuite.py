@@ -12,12 +12,20 @@ from typing import TextIO, Callable, Any
 from e3.fs import mkdir, rm
 from e3.testsuite import Testsuite, logger, TestsuiteCore
 from e3.testsuite.testcase_finder import (
-    ProbingError, TestFinder, YAMLTestFinder, TestFinderResult
+    ProbingError,
+    TestFinder,
+    YAMLTestFinder,
+    TestFinderResult,
 )
 
 from drivers import (
-    checker_driver, gnatcheck_driver, interpreter_driver, parser_driver, java_driver,
-    benchmarks_driver, refactor_driver
+    checker_driver,
+    gnatcheck_driver,
+    interpreter_driver,
+    parser_driver,
+    java_driver,
+    benchmarks_driver,
+    refactor_driver,
 )
 
 
@@ -33,10 +41,10 @@ class StandardTestFinder(YAMLTestFinder):
     """
 
     def __init__(
-            self,
-            env_constraints: dict[str, Callable[[Any], bool]] | None = None,
-            perf_mode: bool = False
-        ):
+        self,
+        env_constraints: dict[str, Callable[[Any], bool]] | None = None,
+        perf_mode: bool = False,
+    ):
         """
         Create a new standard test finder, with a given list of constraints to
         check on the test environment.
@@ -56,11 +64,13 @@ class StandardTestFinder(YAMLTestFinder):
                     return None
         return test
 
-    def probe(self,
-              testsuite: TestsuiteCore,
-              dirpath: str,
-              dirnames: list[str],
-              filenames: list[str]) -> TestFinderResult | None:
+    def probe(
+        self,
+        testsuite: TestsuiteCore,
+        dirpath: str,
+        dirnames: list[str],
+        filenames: list[str],
+    ) -> TestFinderResult | None:
         # Probe testcases as usual
         result = super().probe(testsuite, dirpath, dirnames, filenames)
 
@@ -75,7 +85,7 @@ class StandardTestFinder(YAMLTestFinder):
             if not result.driver_cls.perf_supported:
                 raise ProbingError(
                     f"The '{result.driver_cls.__name__}' driver does not support"
-                     " performance measuring"
+                    " performance measuring"
                 )
         elif P.join("tests", "perf") in result.test_dir:
             return None
@@ -85,67 +95,76 @@ class StandardTestFinder(YAMLTestFinder):
 
 class LKQLTestsuite(Testsuite):
     tests_subdir = "tests"
-    test_driver_map = {'parser': parser_driver.ParserDriver,
-                       'interpreter': interpreter_driver.InterpreterDriver,
-                       'java': java_driver.JavaDriver,
-                       'checker': checker_driver.CheckerDriver,
-                       'gnatcheck': gnatcheck_driver.GnatcheckDriver,
-                       'benchmarks': benchmarks_driver.BenchmarksDriver,
-                       'refactor': refactor_driver.RefactorDriver,}
+    test_driver_map = {
+        "parser": parser_driver.ParserDriver,
+        "interpreter": interpreter_driver.InterpreterDriver,
+        "java": java_driver.JavaDriver,
+        "checker": checker_driver.CheckerDriver,
+        "gnatcheck": gnatcheck_driver.GnatcheckDriver,
+        "benchmarks": benchmarks_driver.BenchmarksDriver,
+        "refactor": refactor_driver.RefactorDriver,
+    }
 
     def add_options(self, parser: ArgumentParser) -> None:
         parser.add_argument(
-            '--mode', default='jit', choices=['jit', 'native_jit'],
-            help='The LKQL implementations to test.'
-                 ' Possible values are "jit" and "native_jit".'
+            "--mode",
+            default="jit",
+            choices=["jit", "native_jit"],
+            help="The LKQL implementations to test."
+            ' Possible values are "jit" and "native_jit".',
         )
         parser.add_argument(
-            "--codepeer", action="store_true",
-            help="Run the testsuite with the codepeer target and runtime"
+            "--codepeer",
+            action="store_true",
+            help="Run the testsuite with the codepeer target and runtime",
         )
         parser.add_argument(
-            '--no-auto-path', action='store_true',
-            help='Do not add test programs to the PATH. Useful to test'
-                 ' packages.'
+            "--no-auto-path",
+            action="store_true",
+            help="Do not add test programs to the PATH. Useful to test" " packages.",
         )
         parser.add_argument(
-            '--no-flag-checking', action='store_true',
-            help='Disable the checking phase for the FLAG/NOFLAG annotations.'
+            "--no-flag-checking",
+            action="store_true",
+            help="Disable the checking phase for the FLAG/NOFLAG annotations.",
         )
         parser.add_argument(
-            '--rewrite', '-r', action='store_true',
-            help='Rewrite test baselines according to current output.'
+            "--rewrite",
+            "-r",
+            action="store_true",
+            help="Rewrite test baselines according to current output.",
         )
         parser.add_argument(
-            '--add-missing-flags', action='store_true',
-            help='Add the missing "FLAG" annotations in the tests Ada sources.'
+            "--add-missing-flags",
+            action="store_true",
+            help='Add the missing "FLAG" annotations in the tests Ada sources.',
         )
         parser.add_argument(
-            '--coverage',
-            help='Compute code coverage. Argument is the output directory for'
-                 ' the coverage report.'
-        )
-
-        parser.add_argument(
-            '--perf-mode',
-            help='Run the testsuite in performance mode: only run tests with'
-                 ' instructions to measure performance. The argument is the'
-                 ' directory in which to put profile data files.',
-            dest='perf_output_dir'
-        )
-        parser.add_argument(
-            '--perf-no-profile',
-            action='store_true',
-            help='When running the testsuite in performance mode, only run'
-                 ' the default perf measurements (no profile). This is useful'
-                 ' to get feedback quickly during development.'
+            "--coverage",
+            help="Compute code coverage. Argument is the output directory for"
+            " the coverage report.",
         )
 
         parser.add_argument(
-            '--only-with-auto-fix',
-            action='store_true',
-            help='Run only tests that uses the LKQL rewriting API through'
-                 ' checkers auto-fixing function.'
+            "--perf-mode",
+            help="Run the testsuite in performance mode: only run tests with"
+            " instructions to measure performance. The argument is the"
+            " directory in which to put profile data files.",
+            dest="perf_output_dir",
+        )
+        parser.add_argument(
+            "--perf-no-profile",
+            action="store_true",
+            help="When running the testsuite in performance mode, only run"
+            " the default perf measurements (no profile). This is useful"
+            " to get feedback quickly during development.",
+        )
+
+        parser.add_argument(
+            "--only-with-auto-fix",
+            action="store_true",
+            help="Run only tests that uses the LKQL rewriting API through"
+            " checkers auto-fixing function.",
         )
 
     @property
@@ -153,7 +172,7 @@ class LKQLTestsuite(Testsuite):
         # Create the test environment constraint list
         env_constraints = dict()
         if self.env.options.only_with_auto_fix:
-            env_constraints["auto_fix"] = lambda v: v == True
+            env_constraints["auto_fix"] = lambda v: v is True
 
         return [StandardTestFinder(env_constraints, self.env.perf_mode)]
 
@@ -164,7 +183,7 @@ class LKQLTestsuite(Testsuite):
         # Perf mode is incompatible with some other modes
         if self.env.options.perf_output_dir:
             if self.env.options.coverage:
-                logger.error(f"--perf-mode incompatible with --coverage")
+                logger.error("--perf-mode incompatible with --coverage")
                 raise RuntimeError
 
         # Give access ot the testsuite root dir to drivers
@@ -174,69 +193,69 @@ class LKQLTestsuite(Testsuite):
         self.env.support_dir = P.join(self.root_dir, "python_support")
 
         # Directory that contains GPR files, shared by testcases
-        os.environ['GPR_PROJECT_PATH'] = P.pathsep.join([
-            P.join(self.root_dir, 'ada_projects'),
-            P.abspath(
-                P.join(
-                    self.root_dir,
-                    '..',
-                    'lkql_checker',
-                    'share',
-                    'examples'
-                )
-            ),
-            os.environ.get('GPR_PROJECT_PATH', ''),
-        ])
+        os.environ["GPR_PROJECT_PATH"] = P.pathsep.join(
+            [
+                P.join(self.root_dir, "ada_projects"),
+                P.abspath(
+                    P.join(self.root_dir, "..", "lkql_checker", "share", "examples")
+                ),
+                os.environ.get("GPR_PROJECT_PATH", ""),
+            ]
+        )
 
         # If the performance mode is enabled, verify that the user has checked
         # out the common-testsuite-sources in the "ada_projects" directory.
         # Additionally add the internal sources to the GPR project path.
         if self.env.options.perf_output_dir:
             common_sources = P.join(
-                self.root_dir,
-                "ada_projects",
-                "common-testsuite-sources"
+                self.root_dir, "ada_projects", "common-testsuite-sources"
             )
             if not P.isdir(common_sources):
-                raise RuntimeError("You need to check out"
-                                   " 'common-testsuite-sources' to enable"
-                                   " performance testing")
+                raise RuntimeError(
+                    "You need to check out"
+                    " 'common-testsuite-sources' to enable"
+                    " performance testing"
+                )
             else:
                 lalinttest_sources = glob.glob(P.join(common_sources, "*"))
-                for source_dir in [
-                    s for s in lalinttest_sources if P.isdir(s)
-                ]:
-                    os.environ['GPR_PROJECT_PATH'] = P.pathsep.join([
-                        source_dir,
-                        os.environ.get("GPR_PROJECT_PATH", ""),
-                    ])
+                for source_dir in [s for s in lalinttest_sources if P.isdir(s)]:
+                    os.environ["GPR_PROJECT_PATH"] = P.pathsep.join(
+                        [
+                            source_dir,
+                            os.environ.get("GPR_PROJECT_PATH", ""),
+                        ]
+                    )
 
         # Unless specifically told not to, add test programs to the environment
         repo_root = P.dirname(self.root_dir)
         self.env.root_dir = repo_root
         if not self.env.options.no_auto_path:
+
             def in_repo(*args):
                 return P.join(repo_root, *args)
 
-            os.environ['PATH'] = P.pathsep.join([
-                in_repo('lkql', 'build', 'obj-mains'),
-                in_repo('lkql_checker', 'bin'),
-                os.environ['PATH'],
-            ])
+            os.environ["PATH"] = P.pathsep.join(
+                [
+                    in_repo("lkql", "build", "obj-mains"),
+                    in_repo("lkql_checker", "bin"),
+                    os.environ["PATH"],
+                ]
+            )
 
-            os.environ['LKQL_PATH'] = P.pathsep.join([
-                in_repo('lkql_checker/share/lkql'),
-                os.environ.get('LKQL_PATH', '')
-            ])
+            os.environ["LKQL_PATH"] = P.pathsep.join(
+                [in_repo("lkql_checker/share/lkql"), os.environ.get("LKQL_PATH", "")]
+            )
 
-            os.environ['LKQL_RULES_PATH'] = P.pathsep.join([
-                in_repo('lkql_checker/share/lkql'),
-                in_repo('lkql_checker/share/lkql/kp'),
-            ])
+            os.environ["LKQL_RULES_PATH"] = P.pathsep.join(
+                [
+                    in_repo("lkql_checker/share/lkql"),
+                    in_repo("lkql_checker/share/lkql/kp"),
+                ]
+            )
 
         # Ensure the testsuite starts with an empty directory to store source
         # trace files.
-        self.env.traces_dir = P.join(self.working_dir, 'traces')
+        self.env.traces_dir = P.join(self.working_dir, "traces")
         if self.env.options.coverage:
             rm(self.env.traces_dir)
             mkdir(self.env.traces_dir)
@@ -265,26 +284,27 @@ class LKQLTestsuite(Testsuite):
                 ):
                     f.write(f"{filename}\n")
 
-            subprocess.check_call([
-                'gnatcov',
-                'coverage',
-                '-Plkql_checker.gpr',
-                '--externally-built-projects',
-                '--no-subprojects',
-                '--projects=lkql_checker',
-                '--projects=liblkqllang',
-                '--level=stmt',
-                '--annotate=dhtml',
-                f'--output-dir={self.env.options.coverage}',
-                f'@{traces_list}',
-            ])
+            subprocess.check_call(
+                [
+                    "gnatcov",
+                    "coverage",
+                    "-Plkql_checker.gpr",
+                    "--externally-built-projects",
+                    "--no-subprojects",
+                    "--projects=lkql_checker",
+                    "--projects=liblkqllang",
+                    "--level=stmt",
+                    "--annotate=dhtml",
+                    f"--output-dir={self.env.options.coverage}",
+                    f"@{traces_list}",
+                ]
+            )
 
         # If the performance mode is enabled, print a small report
         if self.env.perf_mode:
             self.perf_report()
 
         super().tear_down()
-
 
     def perf_report(self, output_file: TextIO = sys.stdout) -> None:
         """
@@ -305,9 +325,11 @@ class LKQLTestsuite(Testsuite):
             return "{:.2f}{}".format(bytes_count, unit)
 
         # Define the function to compute the given statistics
-        def compute_stats(numbers_str: str,
-                          get_value: Callable[[str], any],
-                          format_value: Callable[[any], str]) -> str:
+        def compute_stats(
+            numbers_str: str,
+            get_value: Callable[[str], any],
+            format_value: Callable[[any], str],
+        ) -> str:
             numbers = [get_value(n) for n in numbers_str.split()]
             return (
                 f"{format_value(min(numbers))} .. {format_value(max(numbers))}"
@@ -317,21 +339,24 @@ class LKQLTestsuite(Testsuite):
 
         # Define the function to display the statistics of the ``time`` output
         def print_time_stats(entry):
-            print(f"--- {test_name} (run {entry.info['run_count']} time(s))", file=output_file)
+            print(
+                f"--- {test_name} (run {entry.info['run_count']} time(s))",
+                file=output_file,
+            )
             print(
                 f"    time:"
                 f" {compute_stats(entry.info['time'], float, format_time)}",
-                file=output_file
+                file=output_file,
             )
             print(
                 f"    memory:"
                 f" {compute_stats(entry.info['memory'], int, format_memory)}",
-                file=output_file
+                file=output_file,
             )
 
         # Define the function to display the statistics of the benchmarks
         def print_benchmark_stats(entry):
-            for benchmark, runs in entry.info['benchmark_results'].items():
+            for benchmark, runs in entry.info["benchmark_results"].items():
                 print(f"    {benchmark}")
                 for run, score in runs.items():
                     print(f"      {run} : {score['score']} {score['unit']}")
@@ -339,10 +364,11 @@ class LKQLTestsuite(Testsuite):
         # For each test result, display the statistics
         for test_name, entry in sorted(self.report_index.entries.items()):
             print(f"--- {test_name}", file=output_file)
-            if entry.info.get('time') and entry.info.get('memory'):
+            if entry.info.get("time") and entry.info.get("memory"):
                 print_time_stats(entry)
             else:
                 print_benchmark_stats(entry)
+
 
 if __name__ == "__main__":
     sys.exit(LKQLTestsuite().testsuite_main())
