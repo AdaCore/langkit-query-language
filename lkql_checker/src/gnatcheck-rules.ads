@@ -167,11 +167,7 @@ package Gnatcheck.Rules is
 
       Process_Rule_Parameter :
         access procedure
-          (Rule          : Rule_Id;
-           Instance_Name : String;
-           Param         : String;
-           Enable        : Boolean;
-           Defined_At    : String);
+          (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
       --  Access to the function required to process a given parameter. This
       --  function updates the global instances map according to the
       --  provided `Param` and `Enable` values. This function also check for

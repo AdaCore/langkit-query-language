@@ -37,6 +37,13 @@ package body Gnatcheck.Rules.Rule_Table is
    -- Local subprograms --
    -----------------------
 
+   function Get_Or_Create_Instance
+     (Id : Rule_Id; Instance_Name, Defined_At : String)
+      return Rule_Instance_Access;
+   --  Helper function to create an instance with the given name and return a
+   --  pointer to it. This function adds the created instance to the global
+   --  instance map.
+
    Fatal_Error : exception;
 
    type Rule_File_Record is record
@@ -127,6 +134,40 @@ package body Gnatcheck.Rules.Rule_Table is
    --  configuration file.
    --  This function populates the `All_Rules` table according to the given
    --  rule object.
+
+   ----------------------------
+   -- Get_Or_Create_Instance --
+   ----------------------------
+
+   function Get_Or_Create_Instance
+     (Id : Rule_Id; Instance_Name, Defined_At : String)
+      return Rule_Instance_Access
+   is
+      Rule                     : constant Rule_Info := All_Rules (Id);
+      Normalized_Rule_Name     : constant String :=
+        To_Lower (To_String (Rule.Name));
+      Normalized_Instance_Name : constant String := To_Lower (Instance_Name);
+      Instance                 : Rule_Instance_Access := null;
+   begin
+      --  If the instance name is already registered
+      if All_Rule_Instances.Contains (Normalized_Instance_Name) then
+         return All_Rule_Instances (Normalized_Instance_Name);
+      end if;
+
+      --  Else, create a new instance and return it
+      if Normalized_Instance_Name = Normalized_Rule_Name then
+         Instance := Rule.Create_Instance (Is_Alias => False);
+      else
+         Instance := Rule.Create_Instance (Is_Alias => True);
+         Instance.Alias_Name := To_Unbounded_String (Instance_Name);
+      end if;
+      Instance.Rule := Id;
+      Instance.Source_Mode := General;
+      Instance.Defined_At :=
+        Ada.Strings.Unbounded.To_Unbounded_String (Defined_At);
+      Turn_Instance_On (Instance);
+      return Instance;
+   end Get_Or_Create_Instance;
 
    -----------------------
    -- Check_For_Looping --
@@ -1213,21 +1254,20 @@ package body Gnatcheck.Rules.Rule_Table is
          --  If the rule is not compiler-based, we process it normally
 
          else
+            Instance :=
+              Get_Or_Create_Instance
+                (Id            => Rule,
+                 Instance_Name => To_String (Instance_Name),
+                 Defined_At    => Defined_At);
             if Word_Start = 0 then
                All_Rules (Rule).Process_Rule_Parameter
-                 (Rule          => Rule,
-                  Instance_Name => To_String (Instance_Name),
-                  Param         => "",
-                  Enable        => Enable,
-                  Defined_At    => Defined_At);
+                 (Instance => Instance, Param => "", Enable => Enable);
             else
                while Word_Start /= 0 loop
                   All_Rules (Rule).Process_Rule_Parameter
-                    (Rule          => Rule,
-                     Instance_Name => To_String (Instance_Name),
-                     Param         => Option (Word_Start .. Word_End),
-                     Enable        => Enable,
-                     Defined_At    => Defined_At);
+                    (Instance => Instance,
+                     Param    => Option (Word_Start .. Word_End),
+                     Enable   => Enable);
                   Set_Parameter;
                end loop;
             end if;

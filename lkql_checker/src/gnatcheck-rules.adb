@@ -259,12 +259,6 @@ package body Gnatcheck.Rules is
    --  procedure. Each rule info record has an associated actual parameter
    --  processing function (see `Gnatcheck.Rules.Rule_Info`).
 
-   function Get_Or_Create_Instance
-     (Id : Rule_Id; Instance_Name : String) return Rule_Instance_Access;
-   --  Helper function to create an instance with the given name and return a
-   --  pointer to it. This function adds the created instance to the global
-   --  instance map.
-
    function Load_Dictionary
      (Instance  : Rule_Instance_Access;
       File_Name : String;
@@ -287,8 +281,7 @@ package body Gnatcheck.Rules is
    --  Procedure to call to emit an error message about not parameter being
    --  allowed with "-R". This procedure set `Bad_Rule_Detected` to True.
 
-   procedure Emit_Redefining
-     (Instance : Rule_Instance_Access; Param : String; Defined_At : String);
+   procedure Emit_Redefining (Instance : Rule_Instance_Access; Param : String);
    --  Procedure to call to emit an error message about a parameter being
    --  redefined. This proceduren set `Bad_Rule_Detected` to True.
 
@@ -302,114 +295,66 @@ package body Gnatcheck.Rules is
    --  Helper function to return Defined_At if not null, or "command line"
 
    procedure No_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process an actual parameter for a rule with no formal
    --  parameter. This function expect `Param` to be empty.
 
    procedure Int_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process an integer parametrized rule actual parameter. If
    --  the provided value is not an integer, disable the instance and display
    --  a warning.
 
    procedure Bool_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process a boolean parametrized rule actual parameter. The
    --  provided `Param` should be the name of the formal parameter of the rule
    --  or an empty string. In the first case the instance actual parameter is
    --  set to True, in the second, to False.
 
    procedure String_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process a string parametrized rule actual parameter. The
    --  given `Param` must be a non-empty string.
 
    procedure Array_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process an array parametrized rule actual parameter. The
    --  given `Param` is a possibly empty string.
 
    procedure Int_Or_Bools_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process a integer and booleans parametrized rule actual
    --  parameter value. The provided `Param` can be an integer value or the
    --  name of a boolean formal parameter of the rule.
 
    procedure Id_Suffix_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process an actual parameter for the "identifier_suffix"
    --  rule.
 
    procedure Id_Prefix_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process an actual parameter for the "identifier_prefix"
    --  rule.
 
    procedure Id_Casing_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process an actual parameter for the "identifier_casing"
    --  rule.
 
    procedure Forbidden_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process an actual parameter for the "identifier_casing",
    --  "forbidden_pragmas" and "forbidden_aspects" rules.
 
    procedure Silent_Exc_Handler_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process an actual parameter for the
    --  "silent_exception_handlers" rule.
 
    procedure Custom_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
    --  Function to process an actual parameter for a custom rule.
 
    -----------------------------------------
@@ -1249,37 +1194,6 @@ package body Gnatcheck.Rules is
 
    --  == Parameter process procedures
 
-   ----------------------------
-   -- Get_Or_Create_Instance --
-   ----------------------------
-
-   function Get_Or_Create_Instance
-     (Id : Rule_Id; Instance_Name : String) return Rule_Instance_Access
-   is
-      Rule                     : constant Rule_Info := All_Rules (Id);
-      Normalized_Rule_Name     : constant String :=
-        To_Lower (To_String (Rule.Name));
-      Normalized_Instance_Name : constant String := To_Lower (Instance_Name);
-      Instance                 : Rule_Instance_Access := null;
-   begin
-      --  If the instance name is already registered
-      if All_Rule_Instances.Contains (Normalized_Instance_Name) then
-         return All_Rule_Instances (Normalized_Instance_Name);
-      end if;
-
-      --  Else, create a new instance and return it
-      if Normalized_Instance_Name = Normalized_Rule_Name then
-         Instance := Rule.Create_Instance (Is_Alias => False);
-      else
-         Instance := Rule.Create_Instance (Is_Alias => True);
-         Instance.Alias_Name := To_Unbounded_String (Instance_Name);
-      end if;
-      Instance.Rule := Id;
-      Instance.Source_Mode := General;
-      Turn_Instance_On (Instance);
-      return Instance;
-   end Get_Or_Create_Instance;
-
    ---------------------
    -- Load_Dictionary --
    ---------------------
@@ -1339,18 +1253,16 @@ package body Gnatcheck.Rules is
    -- Emit_Redefining --
    ---------------------
 
-   procedure Emit_Redefining
-     (Instance : Rule_Instance_Access; Param : String; Defined_At : String) is
+   procedure Emit_Redefining (Instance : Rule_Instance_Access; Param : String)
+   is
    begin
       Error
         ("redefining at "
-         & Defined_Str (Defined_At)
+         & Defined_Str (To_String (Instance.Defined_At))
          & " parameter"
          & (if Param = "" then "" else " " & Param)
          & " for rule "
-         & Instance_Name (Instance)
-         & " defined at "
-         & Defined_Str (To_String (Instance.Defined_At)));
+         & Instance_Name (Instance));
       Rule_Option_Problem_Detected := True;
    end Emit_Redefining;
 
@@ -1371,14 +1283,7 @@ package body Gnatcheck.Rules is
    ----------------------
 
    procedure No_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
-   is
-      Instance : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean) is
    begin
       --  If there is a provided param display an error
       if Param /= "" then
@@ -1393,9 +1298,7 @@ package body Gnatcheck.Rules is
       --  Just enable the instance following the command line
 
       else
-         if Enable then
-            Instance.Defined_At := To_Unbounded_String (Defined_At);
-         else
+         if not Enable then
             Turn_Instance_Off (Instance);
          end if;
       end if;
@@ -1406,14 +1309,8 @@ package body Gnatcheck.Rules is
    -----------------------
 
    procedure Int_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : One_Integer_Parameter_Instance renames
         One_Integer_Parameter_Instance (Instance.all);
    begin
@@ -1431,16 +1328,14 @@ package body Gnatcheck.Rules is
             if Arg.Check_Redefinition.Get
               and then Tagged_Instance.Param /= Integer'First
             then
-               Emit_Redefining (Instance, "", Defined_At);
+               Emit_Redefining (Instance, "");
             end if;
 
             --  Try to parse an integer from the parameter string, and if it is
             --  a valid value place it in the instance. Else emit a an error.
             begin
                Tagged_Instance.Param := Integer'Value (Param);
-               if Tagged_Instance.Param >= -1 then
-                  Instance.Defined_At := To_Unbounded_String (Defined_At);
-               else
+               if Tagged_Instance.Param < -1 then
                   Emit_Wrong_Parameter (Instance, Param);
                   Turn_Instance_Off (Instance);
                end if;
@@ -1464,26 +1359,18 @@ package body Gnatcheck.Rules is
    ------------------------
 
    procedure Bool_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : One_Boolean_Parameter_Instance renames
         One_Boolean_Parameter_Instance (Instance.all);
    begin
       --  If the param is empty, just enable or disable the instance
       if Param = "" then
-         if Enable then
-            Instance.Defined_At := To_Unbounded_String (Defined_At);
-         else
+         if not Enable then
             Turn_Instance_Off (Instance);
          end if;
 
-      elsif Param_Name (All_Rules (Rule), 2) /= To_Lower (Param) then
+      elsif Param_Name (All_Rules (Instance.Rule), 2) /= To_Lower (Param) then
          --  Else, if the parameter has a different value from the LKQL
          --  parameter name, emit an error.
          Emit_Wrong_Parameter (Instance, Param);
@@ -1494,12 +1381,10 @@ package body Gnatcheck.Rules is
          --  not empty and is valid. Just set the instance parameter value.
          if Arg.Check_Redefinition.Get and then Tagged_Instance.Param /= Unset
          then
-            Emit_Redefining (Instance, Param, Defined_At);
+            Emit_Redefining (Instance, Param);
          end if;
 
          Tagged_Instance.Param := On;
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
-
       else
          --  Else the command line is disabling the rule so no parameter
          --  allowed.
@@ -1513,14 +1398,8 @@ package body Gnatcheck.Rules is
    --------------------------
 
    procedure String_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : One_String_Parameter_Instance renames
         One_String_Parameter_Instance (Instance.all);
    begin
@@ -1541,7 +1420,7 @@ package body Gnatcheck.Rules is
                           (Tagged_Instance.Param,
                            Null_Unbounded_Wide_Wide_String)
          then
-            Emit_Redefining (Instance, Param, Defined_At);
+            Emit_Redefining (Instance, Param);
          end if;
 
          --  Headers rule takes a file name as parameter, containing the
@@ -1555,10 +1434,6 @@ package body Gnatcheck.Rules is
             --  parameters
             Append (Tagged_Instance.Param, To_Wide_Wide_String (Param));
          end if;
-
-         --  Set the instance definition location
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
-
       else
          --  Else, emit a message about no parameter allowed for instance
          --  disabling.
@@ -1572,14 +1447,8 @@ package body Gnatcheck.Rules is
    -------------------------
 
    procedure Array_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : One_Array_Parameter_Instance renames
         One_Array_Parameter_Instance (Instance.all);
    begin
@@ -1598,7 +1467,7 @@ package body Gnatcheck.Rules is
                           (Tagged_Instance.Param,
                            Null_Unbounded_Wide_Wide_String)
          then
-            Emit_Redefining (Instance, Param, Defined_At);
+            Emit_Redefining (Instance, Param);
          end if;
 
          --  Special case: "name_clashes" takes a file as argument, this file
@@ -1611,7 +1480,6 @@ package body Gnatcheck.Rules is
             then
                Ada.Strings.Unbounded.Set_Unbounded_String
                  (Tagged_Instance.File, Param);
-               Instance.Defined_At := To_Unbounded_String (Defined_At);
             else
                Turn_Instance_Off (Instance);
             end if;
@@ -1639,7 +1507,6 @@ package body Gnatcheck.Rules is
             end if;
 
             Append (Tagged_Instance.Param, To_Wide_Wide_String (Param));
-            Instance.Defined_At := To_Unbounded_String (Defined_At);
          end if;
 
       else
@@ -1656,14 +1523,8 @@ package body Gnatcheck.Rules is
    --------------------------------
 
    procedure Int_Or_Bools_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : One_Integer_Or_Booleans_Parameter_Instance renames
         One_Integer_Or_Booleans_Parameter_Instance (Instance.all);
       Int_Param_Value : Integer;
@@ -1677,8 +1538,6 @@ package body Gnatcheck.Rules is
             if Rule_Name (Instance) = "no_others_in_exception_handlers" then
                Emit_Required_Parameter (Instance);
                Turn_Instance_Off (Instance);
-            else
-               Instance.Defined_At := To_Unbounded_String (Defined_At);
             end if;
          else
             Turn_Instance_Off (Instance);
@@ -1695,12 +1554,11 @@ package body Gnatcheck.Rules is
                if Arg.Check_Redefinition.Get
                  and then Tagged_Instance.Integer_Param /= Integer'First
                then
-                  Emit_Redefining (Instance, "N", Defined_At);
+                  Emit_Redefining (Instance, "N");
                end if;
 
                if Int_Param_Value >= 0 then
                   Tagged_Instance.Integer_Param := Int_Param_Value;
-                  Instance.Defined_At := To_Unbounded_String (Defined_At);
                else
                   Emit_Wrong_Parameter (Instance, Param);
                   Turn_Instance_Off (Instance);
@@ -1714,16 +1572,19 @@ package body Gnatcheck.Rules is
 
             --  Then find the relevant boolean if no integer has been parsed
             if not Param_Found then
-               for J in 2 .. All_Rules (Rule).Parameters.Last_Child_Index loop
-                  if Param_Name (All_Rules (Rule), J) = To_Lower (Param) then
+               for J in
+                 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index
+               loop
+                  if Param_Name (All_Rules (Instance.Rule), J)
+                    = To_Lower (Param)
+                  then
                      if Arg.Check_Redefinition.Get
                        and then Tagged_Instance.Boolean_Params (J) = On
                      then
-                        Emit_Redefining (Instance, Param, Defined_At);
+                        Emit_Redefining (Instance, Param);
                      end if;
 
                      Tagged_Instance.Boolean_Params (J) := On;
-                     Instance.Defined_At := To_Unbounded_String (Defined_At);
                      Param_Found := True;
                   end if;
                end loop;
@@ -1749,14 +1610,8 @@ package body Gnatcheck.Rules is
    -----------------------------
 
    procedure Id_Suffix_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : Identifier_Suffixes_Instance renames
         Identifier_Suffixes_Instance (Instance.all);
       Paren_Index     : Natural;
@@ -1788,9 +1643,6 @@ package body Gnatcheck.Rules is
       elsif Enable then
          --  Else, if the command line is enabling the instance then verify
          --  and process the parameter.
-
-         --  Set the instance definition location
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
 
          if Lower_Param = "default" then
             Set_Field (Tagged_Instance.Type_Suffix, "_T");
@@ -1878,14 +1730,8 @@ package body Gnatcheck.Rules is
    -----------------------------
 
    procedure Id_Prefix_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : Identifier_Prefixes_Instance renames
         Identifier_Prefixes_Instance (Instance.all);
       Col_Index       : Natural;
@@ -1917,9 +1763,6 @@ package body Gnatcheck.Rules is
       elsif Enable then
          --  Else, if the command line enable the instance then check and
          --  process the parameter value.
-
-         --  Set the instance definition location
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
 
          if Lower_Param = "exclusive" then
             Tagged_Instance.Exclusive := On;
@@ -2009,14 +1852,8 @@ package body Gnatcheck.Rules is
    -----------------------------
 
    procedure Id_Casing_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : Identifier_Casing_Instance renames
         Identifier_Casing_Instance (Instance.all);
       Norm_Param      : constant String := To_Lower (Remove_Spaces (Param));
@@ -2032,7 +1869,7 @@ package body Gnatcheck.Rules is
       is
       begin
          if Arg.Check_Redefinition.Get and then Length (S) /= 0 then
-            Emit_Redefining (Instance, Label, Defined_At);
+            Emit_Redefining (Instance, Label);
          end if;
 
          Set_Unbounded_Wide_Wide_String (S, To_Wide_Wide_String (Val));
@@ -2049,9 +1886,6 @@ package body Gnatcheck.Rules is
       elsif Enable then
          --  Else, if the command line enable the instance, check the
          --  parameter and update the instance.
-
-         --  Set the instance definition location
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
 
          if Has_Prefix (Norm_Param, "type=") then
             Check_And_Set
@@ -2190,14 +2024,8 @@ package body Gnatcheck.Rules is
    --  List of GNAT implementation defined pragmas
 
    procedure Forbidden_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : Forbidden_Instance renames
         Forbidden_Instance (Instance.all);
       Lower_Param     : constant String := To_Lower (Param);
@@ -2279,7 +2107,6 @@ package body Gnatcheck.Rules is
          else
             Process_Param (Lower_Param, Tagged_Instance.Forbidden);
          end if;
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
 
       else
          --  Else, the command line is disabling the instance with a
@@ -2294,14 +2121,8 @@ package body Gnatcheck.Rules is
    --------------------------------------
 
    procedure Silent_Exc_Handler_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : Silent_Exception_Handlers_Instance renames
         Silent_Exception_Handlers_Instance (Instance.all);
 
@@ -2339,7 +2160,6 @@ package body Gnatcheck.Rules is
          else
             Add_To (Tagged_Instance.Subprograms, To_Lower (Param));
          end if;
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
 
       else
          --  Else, the command line is disabling the instance with a
@@ -2354,16 +2174,10 @@ package body Gnatcheck.Rules is
    --------------------------
 
    procedure Custom_Param_Process
-     (Rule          : Rule_Id;
-      Instance_Name : String;
-      Param         : String;
-      Enable        : Boolean;
-      Defined_At    : String)
+     (Instance : Rule_Instance_Access; Param : String; Enable : Boolean)
    is
-      Instance        : constant Rule_Instance_Access :=
-        Get_Or_Create_Instance (Rule, Instance_Name);
       Tagged_Instance : Custom_Instance renames Custom_Instance (Instance.all);
-      R_Name          : constant String := Rule_Name (Rule);
+      R_Name          : constant String := Rule_Name (Instance.Rule);
       First_Equal     : Natural;
       Found           : Boolean := False;
    begin
@@ -2384,9 +2198,8 @@ package body Gnatcheck.Rules is
                if Arg.Check_Redefinition.Get
                  and then not Tagged_Instance.Arguments.Is_Empty
                then
-                  Emit_Redefining (Instance, Param, Defined_At);
+                  Emit_Redefining (Instance, Param);
                else
-                  Instance.Defined_At := To_Unbounded_String (Defined_At);
                   Tagged_Instance.Arguments.Append
                     (Rule_Argument'
                        (To_Unbounded_Text ("exempt_operator_packages"),
@@ -2398,8 +2211,6 @@ package body Gnatcheck.Rules is
             end if;
             return;
          end if;
-
-         Instance.Defined_At := To_Unbounded_String (Defined_At);
 
          --  Get the first "=" index, if this index is 0 then there is an
          --  error in the parameter syntax.
@@ -2421,8 +2232,10 @@ package body Gnatcheck.Rules is
             Param_Name : constant String :=
               To_Lower (Param (Param'First .. First_Equal - 1));
          begin
-            for J in 1 .. All_Rules (Rule).Parameters.Last_Child_Index loop
-               if Gnatcheck.Rules.Param_Name (All_Rules (Rule), J) = Param_Name
+            for J in 1 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index
+            loop
+               if Gnatcheck.Rules.Param_Name (All_Rules (Instance.Rule), J)
+                 = Param_Name
                then
                   Found := True;
                   exit;
