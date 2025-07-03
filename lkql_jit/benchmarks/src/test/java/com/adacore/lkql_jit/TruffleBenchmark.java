@@ -12,7 +12,13 @@ import org.openjdk.jmh.annotations.*;
 /** This class is the base for all Truffle benchmarks. */
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 5, time = 1)
-@Fork(value = 1, jvmArgsAppend = "-Dgraalvm.locatorDisabled=true")
+@Fork(
+    value = 1,
+    jvmArgsAppend = {
+        "-Dgraalvm.locatorDisabled=true",
+        "--add-opens=org.graalvm.truffle/com.oracle.truffle.api.strings=ALL-UNNAMED",
+    }
+)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Benchmark)
@@ -27,8 +33,17 @@ public class TruffleBenchmark {
 
     @Setup
     public void setup() {
-        this.context = Context.create();
+        final var contextBuilder = Context.newBuilder("lkql", "js", "sl");
+        configure(contextBuilder);
+        context = contextBuilder.build();
+        pre();
     }
+
+    /** Provide a hook to pass custom options to the contextBuilder in benchmarks */
+    public void configure(Context.Builder contextBuilder) {}
+
+    /** Provide a hook to run arbitrary setup code before running the benchmark */
+    public void pre() {}
 
     @TearDown
     public void tearDown() {
