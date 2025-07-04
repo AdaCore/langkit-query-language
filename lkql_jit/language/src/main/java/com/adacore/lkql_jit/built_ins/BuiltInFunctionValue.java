@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.built_ins;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
@@ -40,17 +39,6 @@ public class BuiltInFunctionValue extends LKQLFunction {
             new Expr[names.length]
         );
         stringDefaultVals = defaultValues;
-    }
-
-    // ----- Instance methods -----
-
-    /**
-     * Set the calling node to the function body to allow its access in the built-in expression.
-     *
-     * @param callNode The node which called the built-in.
-     */
-    public void setCallNode(FunCall callNode) {
-        ((BuiltInBody) this.getBody()).setCallNode(callNode);
     }
 
     @Override

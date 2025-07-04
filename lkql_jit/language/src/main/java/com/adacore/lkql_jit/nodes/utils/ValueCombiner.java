@@ -15,13 +15,20 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
+import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class ValueCombiner extends Node {
 
     // ----- Execution methods -----
 
     /** Combine two values. */
-    public abstract Object execute(Object left, Object right, boolean recursive, LKQLNode caller);
+    public abstract Object execute(
+        Object left,
+        Object right,
+        boolean recursive,
+        SourceSection newObjectLocation,
+        LKQLNode caller
+    );
 
     // ----- Specializations -----
 
@@ -30,6 +37,7 @@ public abstract class ValueCombiner extends Node {
         LKQLObject left,
         LKQLObject right,
         boolean recursive,
+        SourceSection newObjectLocation,
         LKQLNode caller,
         @CachedLibrary("left") DynamicObjectLibrary leftLib,
         @CachedLibrary("right") DynamicObjectLibrary rightLib,
@@ -37,7 +45,7 @@ public abstract class ValueCombiner extends Node {
         @Cached ValueCombiner recursiveCombiner
     ) {
         // Create the result object
-        LKQLObject res = new LKQLObject(LKQLObject.emptyShape(), caller.getSourceSection());
+        LKQLObject res = new LKQLObject(LKQLObject.emptyShape(), newObjectLocation);
 
         // Insert all keys of the left object in the result, resolving conflicts by combining
         // values.
@@ -52,6 +60,7 @@ public abstract class ValueCombiner extends Node {
                         leftLib.getOrDefault(left, key, null),
                         rightLib.getOrDefault(right, key, null),
                         recursive,
+                        newObjectLocation,
                         caller
                     )
                 );
@@ -76,6 +85,7 @@ public abstract class ValueCombiner extends Node {
         Object left,
         Object right,
         boolean recursive,
+        SourceSection newObjectLocation,
         LKQLNode caller,
         @Cached ConcatenationNode concatNode
     ) {

@@ -135,7 +135,7 @@ public final class UnitCheckerFunction {
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
-                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+                throw LKQLRuntimeException.fromJavaException(e, this);
             }
 
             // Display all the violation message

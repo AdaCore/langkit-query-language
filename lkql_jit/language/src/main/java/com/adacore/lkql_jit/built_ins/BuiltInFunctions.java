@@ -69,7 +69,7 @@ public class BuiltInFunctions {
 
         @Specialization
         protected LKQLPattern onValidArgs(String regex, @DefaultVal("true") boolean caseSensitive) {
-            return new LKQLPattern(getCallNode(), regex, caseSensitive);
+            return new LKQLPattern(this, regex, caseSensitive);
         }
     }
 
@@ -166,9 +166,7 @@ public class BuiltInFunctions {
                 } catch (
                     ArityException | UnsupportedTypeException | UnsupportedMessageException e
                 ) {
-                    // TODO: Implement runtime checks in the LKQLFunction class and base computing
-                    // on them (#138)
-                    throw LKQLRuntimeException.fromJavaException(e, argNode(1));
+                    throw LKQLRuntimeException.fromJavaException(e, this);
                 }
             }
             return initValue;
@@ -283,9 +281,9 @@ public class BuiltInFunctions {
 
         @Specialization(guards = "list.size() > 1")
         protected Object onMultipleElems(LKQLList list, @Cached ConcatenationNode concat) {
-            Object res = concat.execute(list.get(0), list.get(1), this.callNode);
+            Object res = concat.execute(list.get(0), list.get(1), this);
             for (int i = 2; i < list.size(); i++) {
-                res = concat.execute(res, list.get(i), this.callNode);
+                res = concat.execute(res, list.get(i), this);
             }
             return res;
         }
@@ -317,7 +315,7 @@ public class BuiltInFunctions {
             @DefaultVal("true") boolean recursive,
             @Cached ValueCombiner combiner
         ) {
-            return combiner.execute(left, right, recursive, this.callNode);
+            return combiner.execute(left, right, recursive, this.getCallLocation(), this);
         }
     }
 
@@ -435,7 +433,7 @@ public class BuiltInFunctions {
                 ) {
                     // TODO: Implement runtime checks in the LKQLFunction class and base computing
                     // on them (#138)
-                    throw LKQLRuntimeException.fromJavaException(e, argNode(1));
+                    throw LKQLRuntimeException.fromJavaException(e, this);
                 }
                 i++;
             }
@@ -528,7 +526,7 @@ public class BuiltInFunctions {
 
         @Specialization
         protected Object onLKQLValue(LKQLValue value) {
-            LKQLLanguage.getContext(callNode).println(
+            LKQLLanguage.getContext(this).println(
                 StringUtils.concat(value.lkqlProfile(), "\n", value.lkqlDocumentation())
             );
             return LKQLUnit.INSTANCE;
@@ -540,7 +538,7 @@ public class BuiltInFunctions {
 
         @Specialization
         protected LKQLList alwaysTrue() {
-            return new LKQLList(LKQLLanguage.getContext(callNode).getAllUnits());
+            return new LKQLList(LKQLLanguage.getContext(this).getAllUnits());
         }
     }
 
@@ -549,7 +547,7 @@ public class BuiltInFunctions {
 
         @Specialization
         protected LKQLList alwaysTrue() {
-            return new LKQLList(LKQLLanguage.getContext(callNode).getSpecifiedUnits());
+            return new LKQLList(LKQLLanguage.getContext(this).getSpecifiedUnits());
         }
     }
 }

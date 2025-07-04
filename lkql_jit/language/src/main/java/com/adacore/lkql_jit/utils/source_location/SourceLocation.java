@@ -37,11 +37,11 @@ public interface SourceLocation {
     public File getDir();
 
     /** Return the location as a <line>:<column> string */
-    public default String display() {
+    default String display() {
         return display(false);
     }
 
-    public default String display(boolean gnuFormat) {
+    default String display(boolean gnuFormat) {
         return (
             fileName() +
             ":" +

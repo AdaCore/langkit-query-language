@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -73,7 +72,15 @@ public abstract class FunCall extends Expr {
 
     public abstract Expr getCallee();
 
-    // ----- Execution methods -----
+    public Expr[] orderThisArgList(LKQLFunction function) {
+        return orderArgList(
+            function.parameterNames,
+            argNames,
+            args,
+            function.getParameterDefaultValues(),
+            this
+        );
+    }
 
     /**
      * Execute the function call node when the callee is a built-in method value.
@@ -86,7 +93,6 @@ public abstract class FunCall extends Expr {
         BuiltInMethodValue method,
         @CachedLibrary("method") InteropLibrary methodLibrary
     ) {
-        method.setCallNode(this);
         var defaultVals = method.getParameterDefaultValues();
         // Execute the argument list with the "this" value
         Expr[] argExprs = orderArgList(
@@ -107,52 +113,9 @@ public abstract class FunCall extends Expr {
         return this.executeLKQLFunction(frame, method, methodLibrary, argVals);
     }
 
-    /**
-     * Execute the function call on a built-in function.
-     *
-     * @param frame The frame to execute the built-in in.
-     * @param function The built-in function.
-     * @return The result of the built-in call.
-     */
-    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
-    protected Object onBuiltinFunction(
-        VirtualFrame frame,
-        BuiltInFunctionValue function,
-        @CachedLibrary("function") InteropLibrary functionLibrary
-    ) {
-        function.setCallNode(this);
-
-        // Execute the argument list.
-        // TODO: This code block might eventually be factorized in a separate function
-        //       (see eng/libadalang/langkit-query-language#539)
-        String[] actualParams = function.parameterNames;
-        Expr[] argExprs = orderArgList(
-            actualParams,
-            argNames,
-            args,
-            function.getParameterDefaultValues(),
-            this
-        );
-
-        Object[] argVals = new Object[argExprs.length];
-        for (int i = 0; i < argVals.length; i++) {
-            argVals[i] = argExprs[i] == null ? null : argExprs[i].executeGeneric(frame);
-        }
-
-        // Execute the built-in function value
-        return this.executeLKQLFunction(frame, function, functionLibrary, argVals);
-    }
-
-    /**
-     * Execute the function call on a function value.
-     *
-     * @param frame The frame to execution the function in.
-     * @param function The function value to execute.
-     * @return The result of the function call.
-     */
     @Specialization(
         limit = Constants.SPECIALIZED_LIB_LIMIT,
-        guards = { "function.rootNode == cachedFunction.rootNode", "function.hasClosure()" }
+        guards = { "function.rootNode == cachedFunction.rootNode" }
     )
     @ExplodeLoop
     protected Object onCachedFunction(
@@ -160,17 +123,27 @@ public abstract class FunCall extends Expr {
         LKQLFunction function,
         @CachedLibrary("function") InteropLibrary functionLibrary,
         @Cached("function") @SuppressWarnings("unused") LKQLFunction cachedFunction,
+        @Cached("function.hasClosure()") boolean hasClosure,
         @Cached("orderThisArgList(function)") Expr[] argExprs
     ) {
         // Assert that the number of arguments is constant from the POV of the
         // compiler, which will allow to unroll the loop and inline the call
         // below.
         CompilerAsserts.compilationConstant(argExprs.length);
+        CompilerAsserts.compilationConstant(hasClosure);
 
-        Object[] argVals = new Object[argExprs.length + 1];
-        argVals[0] = function.closure.getContent();
-        for (int i = 1; i < argVals.length; i++) {
-            argVals[i] = argExprs[i - 1].executeGeneric(frame);
+        Object[] argVals;
+        if (hasClosure) {
+            argVals = new Object[argExprs.length + 1];
+            argVals[0] = function.closure.getContent();
+            for (int i = 1; i < argVals.length; i++) {
+                argVals[i] = argExprs[i - 1].executeGeneric(frame);
+            }
+        } else {
+            argVals = new Object[argExprs.length];
+            for (int i = 0; i < argVals.length; i++) {
+                argVals[i] = argExprs[i].executeGeneric(frame);
+            }
         }
 
         try {
@@ -191,17 +164,8 @@ public abstract class FunCall extends Expr {
             function,
             functionLibrary,
             function,
+            function.hasClosure(),
             orderThisArgList(function)
-        );
-    }
-
-    public Expr[] orderThisArgList(LKQLFunction function) {
-        return orderArgList(
-            function.parameterNames,
-            argNames,
-            args,
-            function.getParameterDefaultValues(),
-            this
         );
     }
 

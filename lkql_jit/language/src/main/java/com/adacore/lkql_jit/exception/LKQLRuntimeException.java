@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.exception;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -491,6 +492,11 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
 
     public SourceLocation getSourceLoc() {
         var loc = getLocation();
+        // Return null rather than a SourceSectionWrapper with a null SourceSection,
+        // in case of built-in bodies.
+        if (loc instanceof BuiltInBody) {
+            return null;
+        }
         return loc != null ? new SourceSectionWrapper(getLocation().getSourceSection()) : null;
     }
 

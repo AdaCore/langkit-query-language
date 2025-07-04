@@ -26,6 +26,7 @@ import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.TruffleStackTrace;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
@@ -71,7 +72,7 @@ public final class NodeCheckerFunction {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.NODE_INTERFACE,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.args[0]
+                    this
                 );
             }
 
@@ -111,13 +112,20 @@ public final class NodeCheckerFunction {
                         visitList.addFirst(new VisitStep(stubBody, true, inSparkCode));
                     }
                 } catch (Libadalang.LangkitException e) {
+                    // Get the stack frame below this one to get a location for the error
+                    var stackTrace = TruffleStackTrace.getStackTrace(e);
+                    var stackFrame = stackTrace.get(1);
+                    var callerLocation = LKQLRuntimeException.getClosestNodeWithSourceInfo(
+                        stackFrame.getLocation()
+                    );
+
                     context
                         .getDiagnosticEmitter()
                         .emitDiagnostic(
                             CheckerUtils.MessageKind.ERROR,
                             e.getMessage(),
                             new LangkitLocationWrapper(currentNode, context.linesCache),
-                            new SourceSectionWrapper(this.callNode.getSourceSection())
+                            new SourceSectionWrapper(callerLocation.getSourceSection())
                         );
                     if (context.isCheckerDebug()) {
                         context.getLogger().severe(e.getMessage());
@@ -337,7 +345,7 @@ public final class NodeCheckerFunction {
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
-                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+                throw LKQLRuntimeException.fromJavaException(e, this);
             }
 
             if (ruleResult) {
@@ -419,7 +427,7 @@ public final class NodeCheckerFunction {
                 file.createNewFile();
                 writer.write(content);
             } catch (IOException e) {
-                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+                throw LKQLRuntimeException.fromJavaException(e, this);
             }
         }
 
