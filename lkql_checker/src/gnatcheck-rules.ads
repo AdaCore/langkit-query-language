@@ -167,11 +167,7 @@ package Gnatcheck.Rules is
 
       Process_Rule_Parameter :
         access procedure
-          (Rule          : Rule_Id;
-           Instance_Name : String;
-           Param         : String;
-           Enable        : Boolean;
-           Defined_At    : String);
+          (Instance : Rule_Instance_Access; Param : String; Enable : Boolean);
       --  Access to the function required to process a given parameter. This
       --  function updates the global instances map according to the
       --  provided `Param` and `Enable` values. This function also check for
@@ -276,6 +272,12 @@ package Gnatcheck.Rules is
 
    function Annotate_Diag (Instance : Rule_Instance'Class) return String;
    --  Return a string to annotate a diagnostic about the rule instance
+
+   procedure Error (Self : Rule_Instance'Class; Message : String);
+   --  Emit an error message about the ``Self`` rule instance
+
+   procedure Warning (Self : Rule_Instance'Class; Message : String);
+   --  Emit a warning message about the ``Self`` rule instance
 
    procedure Free is new
      Ada.Unchecked_Deallocation (Rule_Instance'Class, Rule_Instance_Access);

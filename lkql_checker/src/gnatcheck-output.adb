@@ -103,11 +103,13 @@ package body Gnatcheck.Output is
      (Message     : String;
       Tag         : Message_Tags := None;
       Tool_Name   : Boolean := False;
+      Location    : String := "";
       New_Line    : Boolean := False;
       Log_Message : Boolean := False)
    is
       Final_Message : constant String :=
         (if Tool_Name then Executable & ": " else "")
+        & (if Location /= "" then Location & ": " else "")
         & (case Tag is
              when Info => "info: ",
              when Warning => "warning: ",
@@ -134,12 +136,13 @@ package body Gnatcheck.Output is
    -- Error --
    -----------
 
-   procedure Error (Message : String) is
+   procedure Error (Message : String; Location : String := "") is
    begin
       Emit_Message
         (Message,
          Tag         => Error,
-         Tool_Name   => True,
+         Tool_Name   => Location = "",
+         Location    => Location,
          New_Line    => True,
          Log_Message => True);
    end Error;
@@ -570,16 +573,17 @@ package body Gnatcheck.Output is
    -- Warning --
    -------------
 
-   procedure Warning (Message : String) is
+   procedure Warning (Message : String; Location : String := "") is
    begin
       if Arg.Warnings_As_Errors.Get then
-         Error (Message);
+         Error (Message, Location);
          Error_From_Warning := True;
       else
          Emit_Message
            (Message,
             Tag         => Warning,
-            Tool_Name   => True,
+            Tool_Name   => Location = "",
+            Location    => Location,
             New_Line    => True,
             Log_Message => True);
       end if;

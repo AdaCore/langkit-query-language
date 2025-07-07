@@ -1066,7 +1066,7 @@ package body Gnatcheck.Compiler is
          if R_Id = Not_A_Restriction_Id
            and then Special_R_Id = Not_A_Special_Restriction_Id
          then
-            Error
+            Instance.Error
               ("wrong restriction identifier : " & Rest_Name & ", ignored");
             Bad_Rule_Detected := True;
             return;
@@ -1078,7 +1078,7 @@ package body Gnatcheck.Compiler is
            (Lower_Rest_Name, I_Name, Cursor, Success);
          if not Success and then Restriction_To_Instance (Cursor) /= I_Name
          then
-            Error
+            Instance.Error
               ("cannot enable the same restriction in different rule "
                & "instances: "
                & Rest_Name);
@@ -1097,7 +1097,7 @@ package body Gnatcheck.Compiler is
                exit;
 
             else
-               Error
+               Instance.Error
                  ("wrong structure of restriction rule parameter "
                   & Param
                   & ", ignored");
@@ -1111,7 +1111,7 @@ package body Gnatcheck.Compiler is
       if R_Id in All_Boolean_Restrictions then
 
          if Arg_Present then
-            Error
+            Instance.Error
               ("RESTRICTIONS rule parameter: "
                & Param
                & " can not contain expression, ignored");
@@ -1123,7 +1123,7 @@ package body Gnatcheck.Compiler is
       elsif R_Id /= Not_A_Restriction_Id then
 
          if not Arg_Present then
-            Error
+            Instance.Error
               ("RESTRICTIONS rule parameter: "
                & Param
                & " should contain an expression, ignored");
@@ -1150,7 +1150,7 @@ package body Gnatcheck.Compiler is
                         end if;
                      end loop;
 
-                     Error
+                     Instance.Error
                        ("expression for RESTRICTIONS rule parameter: "
                         & Param (First_Idx .. Last_Idx)
                         & " is specified more than once");
@@ -1160,7 +1160,7 @@ package body Gnatcheck.Compiler is
                   Restriction_Setting (R_Id).Param.Append (R_Val'Img);
                exception
                   when Constraint_Error =>
-                     Error
+                     Instance.Error
                        ("wrong restriction parameter expression in "
                         & Param
                         & ", ignored");
@@ -1186,7 +1186,7 @@ package body Gnatcheck.Compiler is
          case Special_R_Id is
             when No_Dependence =>
                if not Arg_Present then
-                  Error
+                  Instance.Error
                     ("Restrictions rule parameter: "
                      & Param
                      & " should contain a unit name, ignored");
@@ -1201,7 +1201,7 @@ package body Gnatcheck.Compiler is
 
             when No_Use_Of_Entity =>
                if not Arg_Present then
-                  Error
+                  Instance.Error
                     ("Restrictions rule parameter: "
                      & Param
                      & " should contain an entity name, ignored");
@@ -1216,7 +1216,7 @@ package body Gnatcheck.Compiler is
 
             when No_Specification_Of_Aspect =>
                if not Arg_Present then
-                  Error
+                  Instance.Error
                     ("Restrictions rule parameter: "
                      & Param
                      & " should contain an aspect name, ignored");
@@ -1252,7 +1252,7 @@ package body Gnatcheck.Compiler is
           | Static_Dispatch_Tables
           | No_Exception_Propagation
       then
-         Warning
+         Instance.Warning
            ("restriction "
             & To_Mixed (R_Id'Img)
             & " ignored - only fully effective during code generation");
@@ -1272,7 +1272,7 @@ package body Gnatcheck.Compiler is
           | No_Entry_Queue
           | No_Reentrancy
       then
-         Warning
+         Instance.Warning
            ("restriction "
             & To_Mixed (R_Id'Img)
             & " ignored - cannot be checked statically");
@@ -1280,14 +1280,14 @@ package body Gnatcheck.Compiler is
          Restriction_Setting (R_Id).Active := False;
 
       elsif R_Id = No_Recursion then
-         Warning
+         Instance.Warning
            ("restriction No_Recursion ignored (cannot be checked statically), "
             & "use rule Recursive_Subprograms instead");
 
          Restriction_Setting (R_Id).Active := False;
 
       elsif R_Id = Max_Asynchronous_Select_Nesting and then R_Val /= 0 then
-         Warning
+         Instance.Warning
            ("restriction Max_Asynchronous_Select_Nesting ignored - "
             & "cannot be checked statically if parameter is not 0");
          Restriction_Setting (R_Id).Active := False;
@@ -1357,7 +1357,7 @@ package body Gnatcheck.Compiler is
 
             Style_To_Instance.Insert ([C], Name, Cursor, Success);
             if not Success and then Style_To_Instance (Cursor) /= Name then
-               Error
+               Instance.Error
                  ("cannot enable the same style check in different rule "
                   & "instances: "
                   & C);
@@ -1433,7 +1433,7 @@ package body Gnatcheck.Compiler is
          if Param (J) in 'e' | 's'
            and then (J = Param'First or else Param (J - 1) not in '.' | '_')
          then
-            Error
+            Instance.Error
               ("Warnings rule cannot have "
                & Param (J)
                & " parameter, parameter string "
@@ -1458,7 +1458,7 @@ package body Gnatcheck.Compiler is
 
          Warning_To_Instance.Insert (Param (I .. J), Name, Cursor, Success);
          if not Success and then Warning_To_Instance (Cursor) /= Name then
-            Error
+            Instance.Error
               ("cannot enable the same warning in different rule instances: "
                & Param (I .. J));
             Bad_Rule_Detected := True;

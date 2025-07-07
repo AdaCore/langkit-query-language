@@ -6,7 +6,7 @@ no_header.adb:1:01: rule violation: compilation unit does not start with header
 Missing parameter
 =================
 
-gnatcheck: error: missing 'header' parameter for rule "headers" (missing_param.lkql)
+missing_param.lkql:1:1: error: missing 'header' parameter for rule "headers"
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

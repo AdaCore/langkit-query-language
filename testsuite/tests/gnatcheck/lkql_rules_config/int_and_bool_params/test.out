@@ -16,7 +16,7 @@ main.adb:17:10: rule violation: membership test
 Invalid type
 ============
 
-gnatcheck: error: invalid parameter for rule "membership_tests": 'float_types_only' value should be a boolean (invalid_type.lkql)
+invalid_type.lkql:1:1: error: invalid parameter for rule "membership_tests": 'float_types_only' value should be a boolean
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

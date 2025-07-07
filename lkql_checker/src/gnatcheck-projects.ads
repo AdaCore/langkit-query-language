@@ -173,6 +173,9 @@ package Gnatcheck.Projects is
      (My_Project : Arg_Project_Type) return GPR2.Project.View.Object;
    --  Returns access to project view object
 
+   procedure Error (My_Project : Arg_Project_Type; Message : String);
+   --  Emit an error message about this ``My_Project`` project
+
    procedure Store_Project_Source
      (My_Project : in out Arg_Project_Type; Project_File_Name : String);
    --  If Project_File_Name ends with ".gpr", it is taken to be the name of

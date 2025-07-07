@@ -144,6 +144,20 @@ package body Gnatcheck.Projects is
       return GPR2.Reporter.Regular;
    end Verbosity;
 
+   -----------
+   -- Error --
+   -----------
+
+   procedure Error (My_Project : Arg_Project_Type; Message : String) is
+   begin
+      if My_Project.Is_Specified then
+         Gnatcheck.Output.Error
+           (Message, Location => Source_Prj (My_Project) & ":1:1");
+      else
+         Gnatcheck.Output.Error (Message);
+      end if;
+   end Error;
+
    -----------------------
    -- Local subprograms --
    -----------------------
@@ -185,7 +199,6 @@ package body Gnatcheck.Projects is
 
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type) is
       use GPR2;
-      use GPR2.Project.Registry.Attribute;
 
       Proj     : constant GPR2.Project.View.Object :=
         My_Project.Tree.Namespace_Root_Projects.First_Element;
@@ -205,7 +218,8 @@ package body Gnatcheck.Projects is
       --  information about attribute indexes.
 
       function Load_Single_Attribute
-        (Attr_Id : GPR2.Q_Attribute_Id) return String;
+        (Attr_Id : GPR2.Q_Attribute_Id) return String
+      is (Proj.Attribute (Attr_Id).Value.Text);
       --  Load the attribute designated by ``Attr_Id`` in the project ``Proj``
       --  as a single value, returning is as a ``String``.
 
@@ -219,41 +233,13 @@ package body Gnatcheck.Projects is
             else Proj.Attribute (Attr_Id));
          Res  : GNAT.OS_Lib.Argument_List_Access;
       begin
-         if Attr.Kind /= List then
-            Error
-              (String (Proj.Path_Name.Simple_Name)
-               & ": "
-               & Image (Attr_Id)
-               & " value must be a list");
-            raise Parameter_Error;
-         end if;
-
          Res :=
            new String_List (Attr.Values.First_Index .. Attr.Values.Last_Index);
          for J in Attr.Values.First_Index .. Attr.Values.Last_Index loop
             Res (J) := new String'(Attr.Values.Element (J).Text);
          end loop;
-
          return Res;
       end Load_List_Attribute;
-
-      function Load_Single_Attribute
-        (Attr_Id : GPR2.Q_Attribute_Id) return String
-      is
-         Attr : constant GPR2.Project.Attribute.Object :=
-           Proj.Attribute (Attr_Id);
-      begin
-         if Attr.Kind /= Single then
-            Error
-              (String (Proj.Path_Name.Simple_Name)
-               & ": "
-               & Image (Attr_Id)
-               & " value must be a single value");
-            raise Parameter_Error;
-         end if;
-
-         return Attr.Value.Text;
-      end Load_Single_Attribute;
 
    begin
       --  Process the rule list
@@ -420,7 +406,8 @@ package body Gnatcheck.Projects is
 
    exception
       when E : GPR2.Options.Usage_Error =>
-         Error (Ada.Exceptions.Exception_Message (E));
+         My_Project.Error
+           ("libgpr2 usage error: " & Ada.Exceptions.Exception_Message (E));
    end Get_Sources_From_Project;
 
    ----------------------------
@@ -506,7 +493,7 @@ package body Gnatcheck.Projects is
                 Config       => Conf_Obj)
       then
          if not My_Project.Tree.Has_Runtime_Project then
-            Error ("no runtime information found");
+            My_Project.Error ("no runtime information found");
          end if;
 
          Error ("""" & Get_Aggregated_Project & """ processing failed");
@@ -520,7 +507,8 @@ package body Gnatcheck.Projects is
 
    exception
       when E : GPR2.Options.Usage_Error =>
-         Error ("usage error: " & Ada.Exceptions.Exception_Message (E));
+         My_Project.Error
+           ("libgpr2 usage error: " & Ada.Exceptions.Exception_Message (E));
          raise Parameter_Error;
    end Load_Aggregated_Project;
 
@@ -579,11 +567,7 @@ package body Gnatcheck.Projects is
       end if;
 
       if not My_Project.Tree.Languages.Contains (GPR2.Ada_Language) then
-         Error
-           (""""
-            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
-            & """ has no Ada sources, processing failed");
-
+         My_Project.Error ("project has no Ada sources, processing failed");
          raise Parameter_Error;
 
       elsif not My_Project.Tree.Has_Runtime_Project then
@@ -591,11 +575,7 @@ package body Gnatcheck.Projects is
          for Msg of My_Project.Tree.Configuration.Log_Messages loop
             Print (Msg.Format);
          end loop;
-         Error
-           (""""
-            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
-            & """ processing failed");
-
+         My_Project.Error ("processing failed");
          raise Parameter_Error;
       end if;
 
@@ -632,7 +612,8 @@ package body Gnatcheck.Projects is
 
    exception
       when E : GPR2.Options.Usage_Error =>
-         Error ("usage error: " & Ada.Exceptions.Exception_Message (E));
+         My_Project.Error
+           ("libgpr2 usage error: " & Ada.Exceptions.Exception_Message (E));
          raise Parameter_Error;
    end Load_Tool_Project;
 
@@ -1590,7 +1571,7 @@ package body Gnatcheck.Projects is
       --  Check the correctness of setting custom name for text report file
 
       if Custom_Text_Report_File and then not Text_Report_ON then
-         Error ("Custom text output file cannot be set if text output is off");
+         Error ("custom text output file cannot be set if text output is off");
          raise Parameter_Error;
       end if;
 
