@@ -600,6 +600,8 @@ package body Gnatcheck.Compiler is
                   end if;
                end;
             end if;
+         elsif Line_Len >= 16 and then Line (1 .. 13) = "WORKER_INFO: " then
+            Info (Line (14 .. Line_Len));
          elsif Line_Len >= 16 and then Line (1 .. 16) = "WORKER_WARNING: " then
             Warning (Line (17 .. Line_Len));
          elsif Line_Len >= 14 and then Line (1 .. 14) = "WORKER_ERROR: " then
@@ -616,8 +618,6 @@ package body Gnatcheck.Compiler is
             --  the line if that's the case.
             if Line_Len = Line'Length then
                Skip_Line (File);
-            else
-               null;
             end if;
          else
             Analyze_Line (Line (1 .. Line_Len));
@@ -1861,6 +1861,11 @@ package body Gnatcheck.Compiler is
       Args (Num_Args) := new String'("--parse-lkql-config");
       Num_Args := @ + 1;
       Args (Num_Args) := new String'(LKQL_RF_Name);
+
+      if Verbose_Mode then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--verbose");
+      end if;
 
       --  Output the called command if in debug mode
       if Arg.Debug_Mode.Get then

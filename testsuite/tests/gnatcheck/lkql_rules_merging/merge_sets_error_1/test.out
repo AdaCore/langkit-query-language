@@ -1,0 +1,8 @@
+gnatcheck: info: register new instance: name1a from rules1.lkql:2:14
+gnatcheck: info: register new instance: name1b from rules1.lkql:3:14
+gnatcheck: error: multiple instances with the same name but different configuration: name1a at rules2.lkql:4:14, previous declaration at rules1.lkql:2:14 (instances should have unique names) (rules2.lkql)
+gnatcheck <version> (<date>)
+Copyright <date>, AdaCore.
+gnatcheck: error: no rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

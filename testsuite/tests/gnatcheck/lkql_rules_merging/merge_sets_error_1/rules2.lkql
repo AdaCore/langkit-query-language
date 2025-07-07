@@ -1,0 +1,7 @@
+import rules1
+
+val rules = rules1.rules.combine(@{
+    rule1 : [{n: 3, instance_name: "name1a"},
+             {n: 4, instance_name: "name1b"}],
+    rule2
+})

@@ -81,7 +81,7 @@ extra_param.lkql:1:1: error: extra argument for rule "goto_statements": 'extra'
 Multiple instance with the same name
 ====================================
 
-gnatcheck: error: Multiple instances with the same name: an_instance (instance_names.lkql)
+gnatcheck: error: multiple instances with the same name but different configuration: an_instance at instance_names.lkql:3:23, previous declaration at instance_names.lkql:2:23 (instances should have unique names) (instance_names.lkql)
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

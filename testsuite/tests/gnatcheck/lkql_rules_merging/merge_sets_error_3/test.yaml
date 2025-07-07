@@ -1,0 +1,11 @@
+driver: gnatcheck
+description: |
+  Check that merging two LKQL files that both defines a Style_Checks check using
+  the short format fail.
+lkql_rule_file: rules2.lkql
+rules_dirs:
+  - set
+show_rule: true
+format: brief
+extra_args:
+  - -v

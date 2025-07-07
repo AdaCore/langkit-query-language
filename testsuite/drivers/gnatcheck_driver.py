@@ -5,6 +5,13 @@ import xml.etree.ElementTree as ET
 
 from drivers.base_driver import BaseDriver, TaggedLines
 
+from e3.testsuite.driver.diff import (
+    DiffTestDriver,
+    PatternSubstitute,
+    Substitute,
+    OutputRefiner,
+)
+
 
 class GnatcheckDriver(BaseDriver):
     """
@@ -538,3 +545,16 @@ class GnatcheckDriver(BaseDriver):
     def parse_flagged_lines(self, output: str, format: str) -> dict[str, TaggedLines]:
         assert format in self.output_formats
         return self.parsers()[format](output)
+
+    @property
+    def output_refiners(self) -> list[OutputRefiner]:
+        result = super().output_refiners
+        # Remove version information printed by gnatcheck in verbose mode
+        result.append(
+            PatternSubstitute(
+                "gnatcheck [0-9]+.[0-9]w \\([a-z0-9 ]+\\)",
+                "gnatcheck <version> (<date>)",
+            )
+        )
+        result.append(PatternSubstitute("Copyright [0-9-]+", "Copyright <date>"))
+        return result

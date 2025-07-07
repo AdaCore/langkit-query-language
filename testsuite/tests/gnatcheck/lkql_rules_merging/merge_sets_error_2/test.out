@@ -1,0 +1,7 @@
+gnatcheck: info: register new instance: style_checks from rules3.lkql:1:13
+gnatcheck: error: cannot add instance style_checks twice using the shortcut argument format from instances set included in rules set at: rules3.lkql:1:13. Previous instance has been declared in the same set (rules3.lkql)
+gnatcheck <version> (<date>)
+Copyright <date>, AdaCore.
+gnatcheck: error: no rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

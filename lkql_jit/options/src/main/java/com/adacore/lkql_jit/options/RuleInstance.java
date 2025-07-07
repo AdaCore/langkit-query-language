@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.options;
 
 import java.util.Map;
 import java.util.Optional;
+import org.graalvm.polyglot.SourceSection;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,7 +35,8 @@ public record RuleInstance(
     String ruleName,
     Optional<String> instanceName,
     SourceMode sourceMode,
-    Map<String, String> arguments
+    Map<String, String> arguments,
+    SourceSection instanceLocation
 ) {
     // ----- Constructor -----
 
@@ -57,7 +59,8 @@ public record RuleInstance(
             jsonObject.getString("ruleName"),
             Optional.ofNullable(jsonObject.optString("instanceName", null)),
             SourceMode.valueOf(jsonObject.getString("sourceMode")),
-            JSONUtils.parseStringMap(jsonObject.getJSONObject("arguments"))
+            JSONUtils.parseStringMap(jsonObject.getJSONObject("arguments")),
+            null
         );
     }
 
@@ -77,6 +80,34 @@ public record RuleInstance(
             .put("instanceName", this.instanceName.orElse(null))
             .put("sourceMode", this.sourceMode.toString())
             .put("arguments", new JSONObject(this.arguments));
+        // Do not output source location information for now
+    }
+
+    /** Return whether this instance is equivalent to the other one, i.e.: it
+     * runs the same checker with the same parameters (only the instance name
+     * can differ). */
+    public boolean isEquivalent(RuleInstance o) {
+        return (
+            this.ruleName.equals(o.ruleName) &&
+            this.sourceMode.equals(o.sourceMode) &&
+            this.arguments.equals(o.arguments)
+        );
+    }
+
+    /** Return a String holding the location of the instance in the GNAT
+     * Diagnosis format when possible. */
+    public String locationToGNATDiagnosisFormatString() {
+        if (instanceLocation != null) {
+            return (
+                instanceLocation.getSource().getName() +
+                ":" +
+                instanceLocation.getStartLine() +
+                ":" +
+                instanceLocation.getStartColumn()
+            );
+        } else {
+            return "undefined:0:0";
+        }
     }
 
     // ----- Override methods ------

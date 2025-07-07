@@ -1,0 +1,36 @@
+gnatcheck: info: register new instance: name1a from rules1.lkql:2:13
+gnatcheck: info: register new instance: name1b from rules1.lkql:3:13
+gnatcheck: info: register new instance: name1c from rules1.lkql:4:13
+gnatcheck: info: register new instance: name1d from rules1.lkql:5:13
+gnatcheck: info: register new instance: name2a from rules2.lkql:4:13
+gnatcheck: info: register new instance: name2b from rules2.lkql:5:13
+gnatcheck: info: register new instance: rule2 from rules1.lkql:6:5
+gnatcheck: info: register new instance: rule2b from rules2.lkql:6:13
+gnatcheck: warning: duplicated rule: rule2b ignored from rules2.lkql:6:40, previous declaration at rules2.lkql:6:13
+gnatcheck: info: register new instance: sc1 from rules1.lkql:7:20
+gnatcheck: info: register new instance: sc2 from rules1.lkql:8:20
+gnatcheck: warning: duplicate rules with different names, rule2 from rules1.lkql:6:5 runs the same check than rule rule2b from rules2.lkql:6:13
+gnatcheck <version> (<date>)
+Copyright <date>, AdaCore.
+test.adb:1:01: rule violation: rule2 [rule2]
+test.adb:1:01: rule violation: rule2 [rule2b|rule2]
+test.adb:1:11: rule violation: rule1 [name1d|rule1]
+test.adb:1:11: rule violation: rule2 [rule2]
+test.adb:1:11: rule violation: rule2 [rule2b|rule2]
+test.adb:1:18: rule violation: rule2 [rule2]
+test.adb:1:18: rule violation: rule2 [rule2b|rule2]
+test.adb:2:06: rule violation: rule2 [rule2]
+test.adb:2:06: rule violation: rule2 [rule2b|rule2]
+test.adb:3:04: rule violation: rule2 [rule2]
+test.adb:3:04: rule violation: rule2 [rule2b|rule2]
+test.adb:3:09: rule violation: rule2 [rule2]
+test.adb:3:09: rule violation: rule2 [rule2b|rule2]
+test.adb:4:05: rule violation: rule2 [rule2]
+test.adb:4:05: rule violation: rule2 [rule2b|rule2]
+==== Errors in 'FLAG/NOFLAG' annotations ====
+
+In file "test.adb":
+  - at line 1: no 'FLAG' annotation (line flagged 7 time(s))
+  - at line 2: no 'FLAG' annotation (line flagged 2 time(s))
+  - at line 3: no 'FLAG' annotation (line flagged 4 time(s))
+  - at line 4: no 'FLAG' annotation (line flagged 2 time(s))
