@@ -1,0 +1,28 @@
+main.adb:17:19: rule violation: possible occurrence of KP 19142
+17 |         procedure Test_Implicit (I : Implicit; Mut : out Mutable) is  -- FLAG
+   |                   ^^^^^^^^^^^^^
+
+main.adb:29:30: rule violation: possible occurrence of KP 19142
+29 |         overriding procedure Test_Explicit (I : Explicit; Mut : out Mutable) is  -- FLAG
+   |                              ^^^^^^^^^^^^^
+
+main.adb:44:19: rule violation: possible occurrence of KP 19142
+44 |         procedure Test_Subtype (I : Sub; Mut : out Sub_Mutable) is  -- FLAG
+   |                   ^^^^^^^^^^^^
+
+main.adb:51:19: rule violation: possible occurrence of KP 19142
+51 |         procedure Test_Derived (I : Derived; Mut : out Derived_Mutable) is  -- FLAG
+   |                   ^^^^^^^^^^^^
+
+main.adb:58:19: rule violation: possible occurrence of KP 19142
+58 |         procedure Test_Private (I : Priv; Mut: out Private_Mutable) is  -- FLAG
+   |                   ^^^^^^^^^^^^
+
+main.adb:65:19: rule violation: possible occurrence of KP 19142
+65 |         procedure Test_Read_And_Write (I : Read_And_Write; Mut : in out Mutable) is  -- FLAG
+   |                   ^^^^^^^^^^^^^^^^^^^
+
+main.adb:72:19: rule violation: possible occurrence of KP 19142
+72 |         procedure Test_Exc_Hand (I : Exc_Hand; Mut : out Mutable) is  -- FLAG
+   |                   ^^^^^^^^^^^^^
+

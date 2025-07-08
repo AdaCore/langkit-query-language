@@ -12,7 +12,7 @@ fun is_assigned(id, body) =
             & concat([eh.f_stmts.children
                     for eh in body.f_exceptions.children
                     if eh is ExceptionHandler].to_list);
-        stdlib.any([s is AssignStmt when s.f_dest.p_referenced_defining_name == id
+        stdlib.any([s is AssignStmt when s.f_dest.p_referenced_defining_name() == id
                     for s in stmts])
     }
 
