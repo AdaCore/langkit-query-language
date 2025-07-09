@@ -11,7 +11,7 @@ with Ada.Directories;       use Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with GNAT.OS_Lib;
+with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with Gnatcheck.Projects;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
@@ -176,7 +176,7 @@ package Gnatcheck.Options is
    --  Any other problem with rule files and/or rule options is detected (bad
    --  format of a rule file, rule redefinition etc.)
 
-   Compiler_Arg_List : GNAT.OS_Lib.Argument_List_Access;
+   Compiler_Arg_List : Argument_List_Access;
    --  This variable should contain a full list of compilation options to be
    --  passed to gcc.
 
@@ -227,6 +227,10 @@ package Gnatcheck.Options is
    ---------------------
 
    Gnatcheck_Prj : aliased Gnatcheck.Projects.Arg_Project_Type;
+
+   ---------------------------
+   -- Opt_Parse integration --
+   ---------------------------
 
    type Gnatcheck_Error_Handler is new Error_Handler with null record;
 
@@ -536,5 +540,19 @@ package Gnatcheck.Options is
       is (Ignore_Project_Switches_Opt.Get or Gnatkp_Mode);
 
    end Arg;
+
+   -----------------------
+   -- Option processing --
+   -----------------------
+
+   procedure Scan_Arguments
+     (First_Pass : Boolean := False; Args : Argument_List_Access := null);
+   --  Process GNATcheck CLI arguments. If provided ``Args`` is not null, this
+   --  procedure assumes that arguments are coming from a project file
+   --  ``Switches`` or ``Default_Switches`` attribute. Otherwise, arguments are
+   --  fetched from the application's command-line.
+   --  The ``First_Pass`` parameter indicates whether this is the first time
+   --  arguments are processed. This is used to avoid processing same arguments
+   --  multiple times.
 
 end Gnatcheck.Options;

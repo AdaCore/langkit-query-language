@@ -89,6 +89,9 @@
 --  and 3 above. For step 2, see the procedure Process_Project_File
 --  that combines all the steps of loading and analyzing the project file.
 
+with Ada.Containers.Vectors;
+with Ada.Strings.Unbounded;
+
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GPR2.Containers;
@@ -157,6 +160,22 @@ package Gnatcheck.Projects is
    --  If this flag is ON, gpr attributes registered by gnatcheck are printed
    --  and gnatcheck exit returning 0.
 
+   ------------------
+   -- Rule options --
+   ------------------
+
+   type Option_Kind is (File, Legacy_Option, Single_Rule_Name);
+
+   type Option_Record is record
+      Kind  : Option_Kind;
+      Value : Ada.Strings.Unbounded.Unbounded_String;
+   end record;
+
+   package Vector_Options is new
+     Ada.Containers.Vectors (Positive, Option_Record);
+
+   Rule_Options : Vector_Options.Vector;
+
    ---------------------------------------------------------
    -- Type to represent a project passed as a tool option --
    ---------------------------------------------------------
@@ -194,6 +213,9 @@ package Gnatcheck.Projects is
    --    - the configuration project file exists.???
    --  Raises Gnatcheck.Common.Parameter_Error if any of these check fails,
    --  stores the name of the configuration project file otherwise.
+
+   procedure Store_Compiler_Option (Switch : String);
+   --  Stores a compiler option as is.
 
    function Is_Specified (My_Project : Arg_Project_Type) return Boolean;
    --  Checks if the argument represents a project that corresponds to some
@@ -265,31 +287,6 @@ package Gnatcheck.Projects is
 
    function Is_Rule_Options_Empty return Boolean;
    --  Get whether the rule options are empty.
-
-   procedure Scan_Arguments
-     (My_Project : in out Arg_Project_Type;
-      First_Pass : Boolean := False;
-      Args       : GNAT.OS_Lib.Argument_List_Access := null);
-   --  This procedure should be redefined for each tool project type. It
-   --  should be called immediately after the call to Initialize_Option_Scan
-   --  that should create the Parser for it. The procedure defines the loop
-   --  through the parameters - either command-line parameters or tool
-   --  parameters defined in a tool-specific package of the tool argument
-   --  project file.
-   --  If the actual for Parser is different from Command_Line_Parser, the
-   --  procedure assumes the options from the project file. If In_Switches is
-   --  ON, it assumes that the options are the values of the Switches
-   --  attribute, otherwise - of the Default_Switches attribute.
-   --  This procedure is supposed to be used for processing command-line
-   --  parameters twice - first, it detects and stores only project-specific
-   --  attributes, argument sources and '--help' and "--version' options, when
-   --  called for this, it should have First_Pass parameter ON. Then, after
-   --  processing the project file (if it is provided as a tool parameter and
-   --  detected during the first pass through the command-line parameters),
-   --  all the other command-line parameters should be processed and stored
-   --  (this allows the parameters specified in the command line to override
-   --  the parameters given in the project file), and when called for this,
-   --  the procedure should have First_Pass set OFF.
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type);
    --  Prints header in the summary report file created if the argument project

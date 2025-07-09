@@ -396,7 +396,7 @@ procedure Gnatcheck_Main is
 begin
    Initialize_Environment;
 
-   Gnatcheck_Prj.Scan_Arguments (First_Pass => True);
+   Scan_Arguments (First_Pass => True);
 
    if Print_Version then
       Print_Tool_Version (2004);
@@ -495,7 +495,7 @@ begin
 
    --  Then analyze the command-line parameters
 
-   Gnatcheck_Prj.Scan_Arguments;
+   Scan_Arguments;
 
    --  Process the include file
    if Arg.Include_File.Get /= Null_Unbounded_String then
