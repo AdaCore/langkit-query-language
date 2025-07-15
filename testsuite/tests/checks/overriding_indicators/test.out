@@ -1,48 +1,48 @@
-test.ads:8:14: rule violation: Missing overriding mark
+test.ads:8:14: rule violation: missing overriding indicator
 8 |    procedure Prim1 (Self : T2; Other : Integer); -- FLAG
   |              ^^^^^
 
-test.ads:9:13: rule violation: Missing overriding mark
+test.ads:9:13: rule violation: missing overriding indicator
 9 |    function Prim2 (Self : T2; Other : Integer) return String; -- FLAG
   |             ^^^^^
 
-test.ads:11:13: rule violation: Missing overriding mark
+test.ads:11:13: rule violation: missing overriding indicator
 11 |    function Prim4 (Self : T2) return Integer is (12) --  FLAG;
    |             ^^^^^
 
-test.ads:30:14: rule violation: Missing overriding mark
+test.ads:30:14: rule violation: missing overriding indicator
 30 |    procedure Prim1 (Self : T6; Other : Integer);  -- FLAG
    |              ^^^^^
 
-test.ads:31:13: rule violation: Missing overriding mark
+test.ads:31:13: rule violation: missing overriding indicator
 31 |    function Prim2 (Self : T6; Other : Integer) return String; -- FLAG
    |             ^^^^^
 
-test.ads:32:14: rule violation: Missing overriding mark
+test.ads:32:14: rule violation: missing overriding indicator
 32 |    procedure Prim3 (Self : T6; Other : Integer);  -- FLAG
    |              ^^^^^
 
-test.adb:9:14: rule violation: Missing overriding mark
+test.adb:9:14: rule violation: missing overriding indicator
 9 |    procedure Prim1 (Self : T2; Other : Integer) is null;  -- FLAG
   |              ^^^^^
 
-test.adb:10:13: rule violation: Missing overriding mark
+test.adb:10:13: rule violation: missing overriding indicator
 10 |    function Prim2 (Self : T2; Other : Integer) return String   --  FLAG
    |             ^^^^^
 
-test.adb:39:14: rule violation: Missing overriding mark
+test.adb:39:14: rule violation: missing overriding indicator
 39 |    procedure Prim1 (Self : T6; Other : Integer) is null;  -- FLAG
    |              ^^^^^
 
-test.adb:40:13: rule violation: Missing overriding mark
+test.adb:40:13: rule violation: missing overriding indicator
 40 |    function Prim2 (Self : T6; Other : Integer) return String  --  FLAG
    |             ^^^^^
 
-test.adb:48:14: rule violation: Missing overriding mark
+test.adb:48:14: rule violation: missing overriding indicator
 48 |    procedure Prim3 (Self : T6; Other : Integer) is separate;  --  FLAG
    |              ^^^^^
 
-test-prim3.adb:2:11: rule violation: Missing overriding mark
+test-prim3.adb:2:11: rule violation: missing overriding indicator
 2 | procedure Prim3 (Self : T6; Other : Integer) is  --  FLAG
   |           ^^^^^
 
