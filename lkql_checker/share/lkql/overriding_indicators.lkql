@@ -50,7 +50,18 @@ fun is_overriding_subprogram(node) =
             p_primitive_subp_first_type(): t@TypeDecl(
                 p_base_type(): bt@TypeDecl(
                     p_get_primitives(): primitives@(not null)
-                    when stdlib.any([p for p in primitives if match_signature(node, p, t, bt)])
+                    when stdlib.any(
+                       [p for p in primitives
+                          # The primitive should match it's ancestor counterpart
+                          if match_signature(node, p, t, bt)
+                          # And, it should be inherited to be overrode (i.e.,
+                          # we can't override late primitives).
+                          and stdlib.any(
+                             [i for i in t.p_get_primitives(only_inherited=true)
+                             if match_signature(i, p, bt, bt)]
+                          )
+                       ]
+                    )
                 )
             )
         )
