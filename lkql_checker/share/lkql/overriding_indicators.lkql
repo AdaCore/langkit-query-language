@@ -86,7 +86,7 @@ fun overriding_indicators(node) =
     |"    end Foo;
     # Select primitives subprograms
     (
-        node is (BasicSubpDecl | BaseSubpBody) (f_overriding: OverridingUnspecified)
+        node is (ClassicSubpDecl | EntryDecl | BaseSubpBody) (f_overriding: OverridingUnspecified)
         when is_overriding_subprogram(node)
     )
 
