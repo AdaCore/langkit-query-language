@@ -58,5 +58,8 @@ asis/
 user_manual/build/
 lkql_checker/doc/build/
 
+# Generated files
+lkql_checker/share/lkql/kp/kp.json
+
 *.stdout
 *.stderr
