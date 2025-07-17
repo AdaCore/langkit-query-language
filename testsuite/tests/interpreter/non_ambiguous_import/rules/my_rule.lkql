@@ -1,0 +1,5 @@
+import mylib
+
+@check(help="help", message="message")
+fun my_rule(node) =
+    node is DefiningName

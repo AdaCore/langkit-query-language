@@ -169,7 +169,11 @@ public final class Import extends LKQLNode {
             if (dir != null && dir.isDirectory()) {
                 File moduleTry = new File(dir, moduleFileName);
                 if (moduleTry.isFile() && moduleTry.canRead()) {
-                    matchingFiles.add(moduleTry);
+                    try {
+                        matchingFiles.add(moduleTry.getCanonicalFile());
+                    } catch (IOException e) {
+                        throw LKQLRuntimeException.fromJavaException(e, this);
+                    }
                 }
             }
         }
