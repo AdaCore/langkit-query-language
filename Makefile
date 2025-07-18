@@ -14,11 +14,13 @@ NPM_INSTALL_CACHE=true
 NPMRC=
 BUILD_DIR=/undefined
 LKQL_DIR=$(BUILD_DIR)/lkql
-IMPACTDB_DIR=/undefined
+# Default impact-db directory as set in an ancr devenv
+IMPACTDB_DIR=$(PWD)/../impact-db
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
 GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
 BUILD_FOR_JIT=false
 LKM=$(PYTHON) -m langkit.scripts.lkm
+KP_JSON=lkql_checker/share/lkql/kp/kp.json
 
 ifeq ($(BUILD_FOR_JIT),true)
   MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
@@ -41,13 +43,13 @@ doc:
 	cd lkql_checker/doc && make generate html-all
 
 impacts:
-	PYTHONPATH=$(IMPACTDB_DIR) ./utils/impact-db_impacts_gen.py $(IMPACTDB_DIR)
+	[ -f $(KP_JSON) ] || PYTHONPATH=$(IMPACTDB_DIR) ./utils/impact-db_impacts_gen.py $(IMPACTDB_DIR)
 
 format:
 	gnatformat -P lkql_checker/gnatcheck.gpr --no-subprojects
 	$(MAVEN) -f lkql_jit spotless:apply $(MAVEN_ARGS)
 
-gnatcheck: lkql
+gnatcheck: lkql impacts
 	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 build/bin/liblkqllang_parse: lkql/lkql.lkt
@@ -61,13 +63,17 @@ build/bin/liblkqllang_parse: lkql/lkql.lkt
 test:
 	testsuite/testsuite.py -Edtmp
 
-clean: clean_lkql clean_lkql_jit
+clean: clean_lkql clean_lkql_jit clean_lkql_checker
 
 clean_lkql:
 	rm lkql/build -rf
 
 clean_lkql_jit:
 	cd lkql_jit && $(MAVEN) clean
+
+clean_lkql_checker:
+	cd lkql_checker && gprclean
+	[ -f $(KP_JSON) ] && rm $(KP_JSON)
 
 build_lkql_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
