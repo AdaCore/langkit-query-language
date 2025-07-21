@@ -43,7 +43,7 @@ doc:
 	cd lkql_checker/doc && make generate html-all
 
 impacts:
-	[ -f $(KP_JSON) ] || PYTHONPATH=$(IMPACTDB_DIR) ./utils/impact-db_impacts_gen.py $(IMPACTDB_DIR)
+	[ -f $(KP_JSON) ] || PYTHONPATH=$(IMPACTDB_DIR) $(PYTHON) ./utils/impact-db_impacts_gen.py $(IMPACTDB_DIR)
 
 format:
 	gnatformat -P lkql_checker/gnatcheck.gpr --no-subprojects
