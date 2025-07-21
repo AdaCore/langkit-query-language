@@ -15,7 +15,7 @@ NPMRC=
 BUILD_DIR=/undefined
 LKQL_DIR=$(BUILD_DIR)/lkql
 # Default impact-db directory as set in an ancr devenv
-IMPACTDB_DIR=$(ANCR_ROOT_DIR)/src/impact-db
+IMPACTDB_DIR=$(ANCR_ROOT_DIR_POSIX)/src/impact-db
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
 GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
 BUILD_FOR_JIT=false
