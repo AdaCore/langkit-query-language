@@ -83,7 +83,7 @@ public class LKQLProperty extends BasicLKQLValue {
                 arguments
             );
         } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(e.getType().getSimpleName(), caller);
+            throw LKQLRuntimeException.unsupportedType(e.getType(), caller);
         }
     }
 
@@ -97,7 +97,7 @@ public class LKQLProperty extends BasicLKQLValue {
         try {
             return ReflectionUtils.callProperty(this.node, this.description, caller, null);
         } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(e.getType().getSimpleName(), caller);
+            throw LKQLRuntimeException.unsupportedType(e.getType(), caller);
         }
     }
 

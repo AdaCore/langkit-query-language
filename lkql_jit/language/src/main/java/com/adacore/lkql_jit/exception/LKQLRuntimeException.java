@@ -278,15 +278,11 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
 
     /**
      * Create an exception for an unsupported type.
-     *
-     * @param type The type name that is not supported.
-     * @param location The location of the error.
-     * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException unsupportedType(String type, Node location) {
+    public static LKQLRuntimeException unsupportedType(Class<?> type, Node location) {
         return LKQLRuntimeException.fromMessage(
-            "Unsupported value type from the introspection API: " + type,
+            "Unsupported value type from the introspection API: " + type.getSimpleName(),
             location
         );
     }
