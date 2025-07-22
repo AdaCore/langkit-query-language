@@ -35,10 +35,6 @@ public class LKQLFunction extends BasicLKQLValue {
     /** The closure for the function execution. */
     public final Closure closure;
 
-    /** The name of the function. */
-    @CompilerDirectives.CompilationFinal
-    public String name;
-
     /** The documentation of the function. */
     public final String documentation;
 
@@ -72,23 +68,9 @@ public class LKQLFunction extends BasicLKQLValue {
     ) {
         this.rootNode = rootNode;
         this.closure = closure;
-        this.name = name;
         this.documentation = documentation;
         this.parameterNames = parameterNames;
         this.parameterDefaultValues = parameterDefaultValues;
-    }
-
-    // ----- Getters ------
-
-    public String getName() {
-        return name;
-    }
-
-    // ----- Setters -----
-
-    public void setName(String name) {
-        CompilerDirectives.transferToInterpreterAndInvalidate();
-        this.name = name;
     }
 
     // ----- Instance methods -----
@@ -148,7 +130,7 @@ public class LKQLFunction extends BasicLKQLValue {
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
     public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
-        return "function<" + this.name + ">";
+        return "function<" + this.rootNode.getName() + ">";
     }
 
     /** Tell the interop library that the value is executable. */
@@ -190,8 +172,8 @@ public class LKQLFunction extends BasicLKQLValue {
 
     /** Return the function name to the interop library. */
     @ExportMessage
-    public Object getExecutableName() {
-        return this.name;
+    public String getExecutableName() {
+        return this.rootNode.getName();
     }
 
     // ----- LKQL values methods -----
@@ -215,7 +197,12 @@ public class LKQLFunction extends BasicLKQLValue {
                 expandedParams.add(parameterNames[i]);
             }
         }
-        return (name + "(" + String.join(", ", expandedParams.toArray(new String[0])) + ")");
+        return (
+            rootNode.getName() +
+            "(" +
+            String.join(", ", expandedParams.toArray(new String[0])) +
+            ")"
+        );
     }
 
     public Expr[] getParameterDefaultValues() {

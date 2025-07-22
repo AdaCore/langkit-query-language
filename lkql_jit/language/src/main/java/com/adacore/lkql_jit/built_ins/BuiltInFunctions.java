@@ -193,7 +193,7 @@ public class BuiltInFunctions {
 
                 for (var func : AllBuiltIns.allFunctions()) {
                     writer.write(".. function:: ");
-                    writer.write(func.getName());
+                    writer.write(func.getExecutableName());
                     writer.write("(" + String.join(", ", func.parameterNames) + ")");
                     writer.write("\n\n");
                     writer.withIndent(() -> {
@@ -492,7 +492,7 @@ public class BuiltInFunctions {
                     .stream()
                     .filter(LKQLTypeSystemGen::isLKQLFunction)
                     .map(LKQLTypeSystemGen::asLKQLFunction)
-                    .sorted(Comparator.comparing(LKQLFunction::getName));
+                    .sorted(Comparator.comparing(LKQLFunction::getExecutableName));
 
                 for (var func : functions.toList()) {
                     documentCallable(writer, func);

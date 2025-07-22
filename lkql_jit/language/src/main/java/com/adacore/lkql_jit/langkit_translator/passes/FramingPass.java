@@ -132,7 +132,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
         // Add the built-in functions
         for (BuiltInFunctionValue function : AllBuiltIns.allFunctions()) {
-            this.scriptFramesBuilder.addBuiltIn(function.getName());
+            this.scriptFramesBuilder.addBuiltIn(function.getExecutableName());
         }
 
         this.traverseChildren(topLevelList);

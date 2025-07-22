@@ -69,7 +69,7 @@ public final class FunctionDeclaration extends Declaration {
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the function expression to get the functional value
         final LKQLFunction functionValue = this.functionExpression.executeFunction(frame);
-        functionValue.setName(this.functionExpression.name);
+
         functionValue.rootNode.setMemoized(this.isMemoized);
 
         // Write the slot in the frame
