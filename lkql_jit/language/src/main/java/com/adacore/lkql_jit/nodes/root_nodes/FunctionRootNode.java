@@ -77,10 +77,8 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
         // Initialize the frame
         this.initFrame(frame);
 
-        // If the function is memoized, try to get the result in the cache, else execute the body
-        // and
-        // set the result
-        // in the cache.
+        // If the function is memoized, try to get the result in the cache, else
+        // execute the body and set the result in the cache.
         if (this.isMemoized) {
             Arguments args = new Arguments(frame.getArguments());
             if (this.isMemoized(args)) {

@@ -143,10 +143,10 @@ public final class NodeCheckerFunction {
                 for (int i = currentNode.getChildrenCount() - 1; i >= 0; i--) {
                     final LangkitSupport.NodeInterface child = currentNode.getChild(i);
                     if (!child.isNone()) {
-                        // No need to check if the child is a base subprogram body in SPARK mode if
-                        // there is no
-                        // required
-                        // SPARK checkers. This avoids useless calls to 'pIsSubjectToProof'.
+                        // No need to check if the child is a base subprogram
+                        // body in SPARK mode if there is no required SPARK
+                        // checkers. This avoids useless calls to
+                        // 'pIsSubjectToProof'.
                         if (hasSparkCheckers && child instanceof Libadalang.BaseSubpBody subpBody) {
                             visitList.addFirst(
                                 new VisitStep(

@@ -163,12 +163,10 @@ public final class ReflectionUtils {
                     caller.getSourceSection()
                 );
             } else if (targetException instanceof Error error) {
-                // Forward fatal errors without wrapping them in LKQLRuntimeExceptions: those
-                // shouldn't
-                // be caught as they imply that resuming execution is not appropriate. This could
-                // for
-                // example
-                // be an ExitException.
+                // Forward fatal errors without wrapping them in
+                // LKQLRuntimeExceptions: those shouldn't be caught as they
+                // imply that resuming execution is not appropriate. This could
+                // for example be an ExitException.
                 throw error;
             }
             throw LKQLRuntimeException.fromJavaException(e.getTargetException(), caller);
