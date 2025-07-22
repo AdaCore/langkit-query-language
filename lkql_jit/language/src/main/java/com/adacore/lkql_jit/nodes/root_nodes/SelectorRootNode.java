@@ -12,6 +12,7 @@ import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
 import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -26,12 +27,15 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
     // ----- Attributes -----
 
     /** The slot of the "this" variable. */
+    @CompilerDirectives.CompilationFinal
     private final int thisSlot;
 
     /** The slot of the "depth" variable. */
+    @CompilerDirectives.CompilationFinal
     private final int depthSlot;
 
     /** Whether the selector is memoized. */
+    @CompilerDirectives.CompilationFinal
     private final boolean isMemoized;
 
     // ----- Children -----
