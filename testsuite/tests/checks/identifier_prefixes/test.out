@@ -38,39 +38,43 @@ prefix.ads:30:4: rule violation: Const3 does not start with constant prefix Cons
 30 |    Const3   : Type_Enum_1 renames Const_C1;  --  FLAG
    |    ^^^^^^
 
-prefix.ads:34:4: rule violation: Exc_2 does not start with exception prefix X_
-34 |    Exc_2   : exception;                      --  FLAG
+prefix.ads:35:7: rule violation: Const_Gen_Param is not a constant but starts with Const_
+35 |       Const_Gen_Param : Integer;             --  FLAG
+   |       ^^^^^^^^^^^^^^^
+
+prefix.ads:41:4: rule violation: Exc_2 does not start with exception prefix X_
+41 |    Exc_2   : exception;                      --  FLAG
    |    ^^^^^
 
-prefix.ads:38:9: rule violation: Root2 does not start with derived prefix Root_
-38 |    type Root2 is new Root;                   --  FLAG
+prefix.ads:45:9: rule violation: Root2 does not start with derived prefix Root_
+45 |    type Root2 is new Root;                   --  FLAG
    |         ^^^^^
 
-prefix.ads:39:9: rule violation: Root_1 does not start with subtype prefix Type_
-39 |    type Root_1 is new Integer;               --  FLAG
+prefix.ads:46:9: rule violation: Root_1 does not start with subtype prefix Type_
+46 |    type Root_1 is new Integer;               --  FLAG
    |         ^^^^^^
 
-prefix.ads:45:9: rule violation: Root4 does not start with derived prefix Root_
-45 |    type Root4 is new Type_Sub2;              --  FLAG
+prefix.ads:52:9: rule violation: Root4 does not start with derived prefix Root_
+52 |    type Root4 is new Type_Sub2;              --  FLAG
    |         ^^^^^
 
-prefix.ads:52:14: rule violation: My_Task does not start with concurrent prefix Type_Conc_
-52 |    task type My_Task is                      --  FLAG
+prefix.ads:59:14: rule violation: My_Task does not start with concurrent prefix Type_Conc_
+59 |    task type My_Task is                      --  FLAG
    |              ^^^^^^^
 
-prefix.ads:60:19: rule violation: My_Protected does not start with concurrent prefix Type_Conc_
-60 |    protected type My_Protected is            --  FLAG
+prefix.ads:67:19: rule violation: My_Protected does not start with concurrent prefix Type_Conc_
+67 |    protected type My_Protected is            --  FLAG
    |                   ^^^^^^^^^^^^
 
-prefix.ads:64:9: rule violation: Type_Conc_Rec is not a concurrent but starts with Type_Conc_
-64 |    type Type_Conc_Rec is null record;        --  FLAG
+prefix.ads:71:9: rule violation: Type_Conc_Rec is not a concurrent but starts with Type_Conc_
+71 |    type Type_Conc_Rec is null record;        --  FLAG
    |         ^^^^^^^^^^^^^
 
-prefix.ads:65:9: rule violation: Type_Conc_Der is not a concurrent but starts with Type_Conc_
-65 |    type Type_Conc_Der is new Integer;        --  FLAG
+prefix.ads:72:9: rule violation: Type_Conc_Der is not a concurrent but starts with Type_Conc_
+72 |    type Type_Conc_Der is new Integer;        --  FLAG
    |         ^^^^^^^^^^^^^
 
-prefix.ads:67:4: rule violation: Const_Or_Node is not a constant but starts with Const_
-67 |    Const_Or_Node : Integer := 1;             --  FLAG
+prefix.ads:74:4: rule violation: Const_Or_Node is not a constant but starts with Const_
+74 |    Const_Or_Node : Integer := 1;             --  FLAG
    |    ^^^^^^^^^^^^^
 

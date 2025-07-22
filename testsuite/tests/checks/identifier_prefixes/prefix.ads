@@ -29,6 +29,13 @@ package Prefix is
    --  constant via renames
    Const3   : Type_Enum_1 renames Const_C1;  --  FLAG
 
+   --  formal decls
+   generic
+      Gen_Param       : Integer;             --  NOFLAG
+      Const_Gen_Param : Integer;             --  FLAG
+   package Gen_Pkg is
+   end;
+
    --  exception
    X_Exc_1 : exception;
    Exc_2   : exception;                      --  FLAG

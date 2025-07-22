@@ -5724,7 +5724,13 @@ rule options files:
 *Constant: string*
    Specifies the prefix for defining names from constants and named number
    declarations, including the object renaming declaration if the
-   renamed object is a constant
+   renamed object is a constant.
+
+   .. attention::
+      For legacy reasons, formal object declarations are not
+      considered constant, even if they are declared with the ``in`` mode. Consequently,
+      this rule will flag each generic formal object declarations that have the prefix
+      specified by this parameter value.
 
 *Enum: string*
    Specifies the prefix for defining enumeration literals and for the
