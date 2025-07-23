@@ -11,6 +11,11 @@ Functions
 
     Return whether at least one element in the given iterable is truthy
 
+.. function:: children_no_nested(node)
+
+    Return all children nodes starting from a base subprogram body, but not
+    entering in nested bodies.
+
 .. function:: closest_enclosing_generic(n)
 
     If ``n`` is part of a generic package or subprogram, whether it is
@@ -291,11 +296,6 @@ Functions
 
 Selectors
 ^^^^^^^^^
-.. function:: children_no_nested()
-
-    Return all children nodes starting from a base subprogram body, but not
-    entering in nested bodies.
-
 .. function:: complete_super_types()
 
     Yields the chain of super types of the given type in their most complete

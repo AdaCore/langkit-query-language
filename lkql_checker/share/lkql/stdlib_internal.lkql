@@ -1,0 +1,9 @@
+selector children_no_nested_implem
+    |" Internal implementation selector for `children_no_nested`
+    # Don't recurse on bodies except if it's the root node (depth == 0)
+    | (BodyNode, false) => rec(())
+    | (n@AdaNode, *) => rec(*[(c, false) for c in n.children], *n.children)
+
+    # TODO: This branch shouldn't ever be taken, but we miss a raise expression
+    # to verify it
+    | *     => rec(())

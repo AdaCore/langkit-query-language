@@ -8,10 +8,8 @@ package com.adacore.lkql_jit.nodes.root_nodes;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
 import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -22,7 +20,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQLRecValue> {
+public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValue> {
 
     // ----- Attributes -----
 
@@ -87,16 +85,12 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
         this.initFrame(frame);
 
         // Get the depthVal and set it into the frame
-        LKQLDepthValue value = (LKQLDepthValue) frame.getArguments()[1];
+        Object value = frame.getArguments()[1];
+        long depth = (long) frame.getArguments()[2];
 
         // Try memoization
         if (this.isMemoized && this.isMemoized(value)) {
             return this.getMemoized(value);
-        }
-
-        if (this.thisSlot > -1 && this.depthSlot > -1) {
-            FrameUtils.writeLocal(frame, this.thisSlot, value.value);
-            FrameUtils.writeLocal(frame, this.depthSlot, ((Integer) value.depth).longValue());
         }
 
         // Prepare the result
@@ -105,7 +99,7 @@ public final class SelectorRootNode extends MemoizedRootNode<LKQLDepthValue, LKQ
         var val = this.body.executeGeneric(frame);
         if (LKQLTypeSystemGen.isLKQLRecValue(val)) {
             res = LKQLTypeSystemGen.asLKQLRecValue(val);
-            res.depth = value.depth + 1;
+            res.depth = (int) depth + 1;
         } else if (LKQLTypeSystemGen.isNullish(val)) {
             res = new LKQLRecValue(new Object[0], new Object[0]);
         } else {

@@ -1613,10 +1613,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         this.scriptFrames.enterFrame(selectorDecl);
 
         // Get the "this" and "depth" bindings
-        this.scriptFrames.declareBinding(Constants.THIS_SYMBOL);
-        this.scriptFrames.declareBinding(Constants.DEPTH_SYMBOL);
-        final int thisSlot = this.scriptFrames.getBinding(Constants.THIS_SYMBOL);
-        final int depthSlot = this.scriptFrames.getBinding(Constants.DEPTH_SYMBOL);
+        final int thisSlot = this.scriptFrames.getParameter(Constants.THIS_SYMBOL);
+        final int depthSlot = this.scriptFrames.getParameter(Constants.DEPTH_SYMBOL);
 
         var arms = toStream(selectorDecl.fArms())
             .map(a -> {
@@ -1635,7 +1633,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             })
             .toArray(MatchArm[]::new);
 
-        var match = new Match(loc(selectorDecl), new ReadLocal(loc(selectorDecl), thisSlot), arms);
+        var match = new Match(
+            loc(selectorDecl),
+            new ReadParameter(loc(selectorDecl), thisSlot),
+            arms
+        );
 
         // Create the frame descriptor for the arms
         var frameDescriptor = this.scriptFrames.getFrameDescriptor();
