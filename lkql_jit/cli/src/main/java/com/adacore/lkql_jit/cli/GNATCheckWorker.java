@@ -209,7 +209,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                         .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
                 );
-                System.out.println(jsonInstances);
+                System.out.println("WORKER_JSON_INSTANCES: " + jsonInstances);
             } catch (LKQLRuleFileError e) {
                 System.out.println(e.getMessage());
             }

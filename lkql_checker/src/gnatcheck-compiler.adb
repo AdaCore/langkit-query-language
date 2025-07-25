@@ -606,6 +606,19 @@ package body Gnatcheck.Compiler is
             Error (Line (15 .. Line_Len));
             Detected_Internal_Error := @ + 1;
             Errors := True;
+         elsif Line_Len >= 23
+           and then Line (1 .. 23) = "WORKER_JSON_INSTANCES: "
+         then
+            --  Ignore the JSON instances data. This is analyzed in
+            --  Process_LKQL_Rule_File.
+
+            --  The current line can be longer than Line_Len, skip the rest of
+            --  the line if that's the case.
+            if Line_Len = Line'Length then
+               Skip_Line (File);
+            else
+               null;
+            end if;
          else
             Analyze_Line (Line (1 .. Line_Len));
          end if;
