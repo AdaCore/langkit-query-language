@@ -557,6 +557,10 @@ package body Gnatcheck.Projects is
          Project_Options.Add_Switch (GPR2.Options.Resolve_Links);
       end if;
 
+      if Should_Use_Codepeer_Target then
+         GPR2.KB.Set_Default_Target ("codepeer");
+      end if;
+
       if not My_Project.Tree.Load
                (Project_Options,
                 Reporter         => Gpr2_Reporter,
@@ -777,17 +781,6 @@ package body Gnatcheck.Projects is
          & "Switches.");
       GPR2.Project.Registry.Pack.Check_Attributes (+"Check");
    end Register_Tool_Attributes;
-
-   ------------------------
-   -- Set_Default_Target --
-   ------------------------
-
-   procedure Set_Default_Target is
-   begin
-      if not Gnatkp_Mode and then Should_Use_Codepeer_Target then
-         GPR2.KB.Set_Default_Target ("codepeer");
-      end if;
-   end Set_Default_Target;
 
    -------------------------
    -- Set_External_Values --

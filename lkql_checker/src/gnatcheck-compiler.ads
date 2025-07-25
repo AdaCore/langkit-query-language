@@ -19,9 +19,9 @@ package Gnatcheck.Compiler is
    ---------------------
 
    function Should_Use_Codepeer_Target return Boolean;
-   --  Returns whether the current gnatcheck process should use the codepeer
-   --  tools. This function tests if the `codepeer-gnatls` executable can be
-   --  accessed when no other regular toolchain can be found.
+   --  Returns whether the current gnatcheck process should set the "codepeer"
+   --  target as the default one. This function returns ``True`` if the
+   --  "codepeer" target is the only available one.
 
    function GPRbuild_Exec return String;
    --  Return the executable name to use in order to spawn a GPRBuild process

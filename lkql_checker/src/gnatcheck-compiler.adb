@@ -4,6 +4,8 @@
 --
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
+with Ada.Characters.Latin_1;
+with Ada.Containers;
 with Ada.Directories;         use Ada.Directories;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
@@ -79,6 +81,88 @@ package body Gnatcheck.Compiler is
    --  ``Pattern`` inside the ``Source`` string.
    --  This function treats the provided path as case-insensitive on Windows
    --  systems.
+
+   ---------------------------------
+   -- Target information fetching --
+   ---------------------------------
+
+   function Get_Available_Targets return String_Sets.Set;
+   --  Call the ``gprconfig`` tool to list all currently available targets. If
+   --  you want the list of available targets when GNATcheck has been started,
+   --  use the ``Available_Targets`` global to avoid useless calls.
+
+   function Get_Available_Targets return String_Sets.Set is
+      Res                 : String_Sets.Set;
+      GPRConfig_Exec      : String_Access := Locate_Exec_On_Path ("gprconfig");
+      Args                : Argument_List (1 .. 2);
+      Return_Code         : Integer := -1;
+      Output_File         : File_Descriptor;
+      Output_File_Name    : String_Access;
+      Output_File_Content : String_Access;
+      Split_Content       : String_Vector;
+   begin
+      --  If no regular "gprconfig" has been found, look for the gnatsas one
+      if GPRConfig_Exec = null then
+         GPRConfig_Exec := Locate_Exec_On_Path ("gnatsas-gprconfig");
+
+         --  If the gnatsas "gprconfig" is not available, look for the codepeer
+         --  one (for retro-compatibility purposes).
+         if GPRConfig_Exec = null then
+            GPRConfig_Exec := Locate_Exec_On_Path ("codepeer-gprconfig");
+
+            --  If the result is still null, raise a fatal error. We cannot
+            --  continue the analysis execution.
+            if GPRConfig_Exec = null then
+               Error ("cannot locate gprconfig executable");
+               raise Fatal_Error;
+            end if;
+         end if;
+      end if;
+
+      --  Create the temporary file to get the "gprbuild" output
+      Create_Temp_Output_File (Output_File, Output_File_Name);
+
+      --  Prepare the argument list
+      Args (1) := new String'("--show-targets");
+      Args (2) := new String'("--config=Ada");
+
+      --  Spawn "gprconfig" to fetch the list of available targets
+      Spawn
+        (Program_Name           => GPRConfig_Exec.all,
+         Args                   => Args,
+         Output_File_Descriptor => Output_File,
+         Return_Code            => Return_Code,
+         Err_To_Out             => False);
+
+      --  Parse the output to fill the result
+      Output_File_Content := Read_File (Output_File_Name.all);
+      Split_Content :=
+        Split
+          (Output_File_Content.all,
+           Ada.Characters.Latin_1.LF,
+           Trim_Elems => True);
+      for I in Split_Content.First_Index + 1 .. Split_Content.Last_Index loop
+         if Split_Content (I) /= "" then
+            Res.Include (Split_Content (I));
+         end if;
+      end loop;
+
+      --  Release allocated resources and delete the temporary file
+      Close (Output_File);
+      Delete_File (Output_File_Name.all);
+      Free (GPRConfig_Exec);
+      Free (Output_File_Name);
+      Free (Output_File_Content);
+      for I in Args'Range loop
+         Free (Args (I));
+      end loop;
+
+      --  Finally return the set of available targets
+      return Res;
+   end Get_Available_Targets;
+
+   Available_Targets : constant String_Sets.Set := Get_Available_Targets;
+   --  Cache containing all available targets when GNATcheck has been started.
 
    ---------------------------------------------------------
    -- Data structures and routines for restriction checks --
@@ -1552,26 +1636,12 @@ package body Gnatcheck.Compiler is
    --------------------------------
 
    function Should_Use_Codepeer_Target return Boolean is
-      Regular_Gnatls : String_Access := Locate_Exec_On_Path ("gnatls");
+      use Ada.Containers;
    begin
-      --  If we could find a regular gnatls, it means there is a native
-      --  toolchain, that takes precedence over a potential codepeer toolchain.
-      if Regular_Gnatls /= null then
-         Free (Regular_Gnatls);
-         return False;
-      end if;
-
-      --  If we couldn't, look for a codepeer toolchain.
-      declare
-         Gnatls : String_Access := Locate_Exec_On_Path ("codepeer-gnatls");
-      begin
-         if Gnatls /= null then
-            Free (Gnatls);
-            return True;
-         end if;
-      end;
-
-      return False;
+      return
+        Available_Targets.Length = 1
+        and then (Available_Targets.Contains ("gnatsas")
+                  or else Available_Targets.Contains ("codepeer"));
    end Should_Use_Codepeer_Target;
 
    -------------------
@@ -1579,8 +1649,9 @@ package body Gnatcheck.Compiler is
    -------------------
 
    function GPRbuild_Exec return String is
+      use Ada.Strings.Unbounded;
    begin
-      if Should_Use_Codepeer_Target then
+      if Target = "gnatsas" or else Target = "codepeer" then
          return "codepeer-gprbuild";
       else
          return "gprbuild";
@@ -1686,9 +1757,6 @@ package body Gnatcheck.Compiler is
          if Target /= Null_Unbounded_String then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--target=" & To_String (Target));
-         elsif Should_Use_Codepeer_Target then
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--target=codepeer");
          end if;
       else
          --  Target and runtime will be taken from config project anyway
@@ -1711,8 +1779,7 @@ package body Gnatcheck.Compiler is
 
       for Dir of Arg.Rules_Dirs.Get loop
          Num_Args := @ + 1;
-         Args (Num_Args) :=
-           new String'("--rules-dir=" & Ada.Strings.Unbounded.To_String (Dir));
+         Args (Num_Args) := new String'("--rules-dir=" & To_String (Dir));
       end loop;
 
       Num_Args := @ + 1;
@@ -1816,6 +1883,7 @@ package body Gnatcheck.Compiler is
       Args        : Argument_List (1 .. 128 + Integer (Last_Source));
       Num_Args    : Integer := 0;
 
+      use Ada.Strings.Unbounded;
    begin
       if GPRbuild = null then
          Error ("cannot locate gprbuild executable");
@@ -1833,9 +1901,9 @@ package body Gnatcheck.Compiler is
       Args (8) := new String'("--restricted-to-languages=ada");
       Num_Args := 8;
 
-      if Should_Use_Codepeer_Target then
+      if Target /= Null_Unbounded_String then
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--target=codepeer");
+         Args (Num_Args) := new String'("--target=" & To_String (Target));
       end if;
 
       if Arg.Jobs.Get > 1 then
