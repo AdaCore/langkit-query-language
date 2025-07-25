@@ -1640,8 +1640,8 @@ package body Gnatcheck.Compiler is
    begin
       return
         Available_Targets.Length = 1
-        and then (Available_Targets.Contains ("codepeer")
-                  or else Available_Targets.Contains ("gnatsas"));
+        and then (Available_Targets.Contains ("gnatsas")
+                  or else Available_Targets.Contains ("codepeer"));
    end Should_Use_Codepeer_Target;
 
    -------------------
@@ -1649,8 +1649,9 @@ package body Gnatcheck.Compiler is
    -------------------
 
    function GPRbuild_Exec return String is
+      use Ada.Strings.Unbounded;
    begin
-      if Should_Use_Codepeer_Target then
+      if Target = "gnatsas" or else Target = "codepeer" then
          return "codepeer-gprbuild";
       else
          return "gprbuild";
@@ -1756,9 +1757,6 @@ package body Gnatcheck.Compiler is
          if Target /= Null_Unbounded_String then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--target=" & To_String (Target));
-         elsif Should_Use_Codepeer_Target then
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--target=codepeer");
          end if;
       else
          --  Target and runtime will be taken from config project anyway
@@ -1781,8 +1779,7 @@ package body Gnatcheck.Compiler is
 
       for Dir of Arg.Rules_Dirs.Get loop
          Num_Args := @ + 1;
-         Args (Num_Args) :=
-           new String'("--rules-dir=" & Ada.Strings.Unbounded.To_String (Dir));
+         Args (Num_Args) := new String'("--rules-dir=" & To_String (Dir));
       end loop;
 
       Num_Args := @ + 1;
@@ -1886,6 +1883,7 @@ package body Gnatcheck.Compiler is
       Args        : Argument_List (1 .. 128 + Integer (Last_Source));
       Num_Args    : Integer := 0;
 
+      use Ada.Strings.Unbounded;
    begin
       if GPRbuild = null then
          Error ("cannot locate gprbuild executable");
@@ -1903,9 +1901,9 @@ package body Gnatcheck.Compiler is
       Args (8) := new String'("--restricted-to-languages=ada");
       Num_Args := 8;
 
-      if Should_Use_Codepeer_Target then
+      if Target /= Null_Unbounded_String then
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--target=codepeer");
+         Args (Num_Args) := new String'("--target=" & To_String (Target));
       end if;
 
       if Arg.Jobs.Get > 1 then

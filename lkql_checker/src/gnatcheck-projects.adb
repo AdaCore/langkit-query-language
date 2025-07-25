@@ -557,6 +557,10 @@ package body Gnatcheck.Projects is
          Project_Options.Add_Switch (GPR2.Options.Resolve_Links);
       end if;
 
+      if Should_Use_Codepeer_Target then
+         GPR2.KB.Set_Default_Target ("codepeer");
+      end if;
+
       if not My_Project.Tree.Load
                (Project_Options,
                 Reporter         => Gpr2_Reporter,
