@@ -46,3 +46,11 @@ test-prim3.adb:2:11: rule violation: missing overriding indicator
 2 | procedure Prim3 (Self : T6; Other : Integer) is -- FLAG
   |           ^^^^^
 
+late.ads:18:13: rule violation: missing overriding indicator
+18 |    function Prim (Arg: T_Descendant) return Float; -- FLAG
+   |             ^^^^
+
+late.adb:7:13: rule violation: missing overriding indicator
+7 |    function Prim (Arg: T_Descendant) return Float is  -- FLAG
+  |             ^^^^
+
