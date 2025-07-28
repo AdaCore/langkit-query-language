@@ -110,11 +110,10 @@ package body Gnatcheck.Compiler is
          if GPRConfig_Exec = null then
             GPRConfig_Exec := Locate_Exec_On_Path ("codepeer-gprconfig");
 
-            --  If the result is still null, raise a fatal error. We cannot
-            --  continue the analysis execution.
+            --  If the result is still null, return the empty list, meaning
+            --  that no target is available.
             if GPRConfig_Exec = null then
-               Error ("cannot locate gprconfig executable");
-               raise Fatal_Error;
+               return Res;
             end if;
          end if;
       end if;
