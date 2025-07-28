@@ -113,11 +113,8 @@ class GnatcheckDriver(BaseDriver):
     perf_supported = True
     flag_checking_supported = True
 
-    modes = {
-        "gnatcheck": "gnatcheck",
-        "gnatkp": "gnatkp"
-    }
-    output_formats = set(['brief', 'full', 'short', 'xml'])
+    modes = {"gnatcheck": "gnatcheck", "gnatkp": "gnatkp"}
+    output_formats = set(["brief", "full", "short", "xml"])
 
     flag_line_pattern = re.compile(
         rf"^({BaseDriver.ada_file_pattern}):(\d+):\d+: (rule violation|warning|error): .*$"
@@ -130,8 +127,8 @@ class GnatcheckDriver(BaseDriver):
         """
         # Remove useless parts of the full output
         try:
-            output = output[output.index("2. Exempted Coding Standard Violations"):]
-            output = output[:output.index("5. Language violations")]
+            output = output[output.index("2. Exempted Coding Standard Violations") :]
+            output = output[: output.index("5. Language violations")]
 
             # Then use the "short" parser since we remove the useless part of the
             # "full" format.
@@ -193,10 +190,10 @@ class GnatcheckDriver(BaseDriver):
     @classmethod
     def parsers(cls):
         return {
-            'full': cls._parse_full,
-            'short': cls._parse_short_and_brief,
-            'brief': cls._parse_short_and_brief,
-            'xml': cls._parse_xml
+            "full": cls._parse_full,
+            "short": cls._parse_short_and_brief,
+            "brief": cls._parse_short_and_brief,
+            "xml": cls._parse_xml,
         }
 
     @property
@@ -213,31 +210,28 @@ class GnatcheckDriver(BaseDriver):
         # is a copy of the original LKQL repository (which is actually what
         # happens in production: the checkout used for testing is separate
         # from that used for building).
-        gnatcheck_env["LKQL_RULES_PATH"] = getattr(
-            self.env, "gnatcheck_rules_path", ""
-        )
+        gnatcheck_env["LKQL_RULES_PATH"] = getattr(self.env, "gnatcheck_rules_path", "")
         gnatcheck_env["LKQL_PATH"] = ""
 
         # Get the test provided custom GNATcheck worker
-        custom_worker = self.test_env.get('worker', None)
+        custom_worker = self.test_env.get("worker", None)
 
         gnatcheck_env["GNATCHECK_WORKER"] = custom_worker or " ".join(
             self.gnatcheck_worker_exe
         )
 
         # Get the provided project path and set from the testsuite root
-        project_path = self.test_env.get('project_path', None)
+        project_path = self.test_env.get("project_path", None)
         if project_path:
-            gnatcheck_env["GPR_PROJECT_PATH"] = os.pathsep.join([
-                P.join(self.env.testsuite_root_dir, project_dir)
-                for project_dir in project_path
-            ])
+            gnatcheck_env["GPR_PROJECT_PATH"] = os.pathsep.join(
+                [
+                    P.join(self.env.testsuite_root_dir, project_dir)
+                    for project_dir in project_path
+                ]
+            )
 
         def cat(
-            filename: str,
-            sort: bool = False,
-            trim_start: int = 0,
-            trim_end: int = 0
+            filename: str, sort: bool = False, trim_start: int = 0, trim_end: int = 0
         ):
             """
             Add the content of ``filename`` to the test output if it is readable.
@@ -248,16 +242,18 @@ class GnatcheckDriver(BaseDriver):
             :param trim_end: Count of lines to trim from the file end.
             """
             try:
-                with open(self.working_dir(filename), 'r') as f:
+                with open(self.working_dir(filename), "r") as f:
                     lines = f.readlines()
-                    lines = lines[trim_start:len(lines) - trim_end]
+                    lines = lines[trim_start : len(lines) - trim_end]
                     if sort:
                         lines.sort()
-                    self.output += f"testsuite_driver: Content of {filename}\n{''.join(lines)}"
+                    self.output += (
+                        f"testsuite_driver: Content of {filename}\n{''.join(lines)}"
+                    )
             except FileNotFoundError:
                 self.output += f"testsuite_driver: Cannot find the file {filename}\n"
 
-        globs, locs = {'cat': cat}, {}
+        globs, locs = {"cat": cat}, {}
         global_python = self.test_env.get("global_python", None)
         if global_python:
             exec(global_python, globs, locs)
@@ -267,7 +263,9 @@ class GnatcheckDriver(BaseDriver):
 
         def add_to_files_flagged_lines(to_add: dict[str, TaggedLines]):
             for file, tagged_lines in to_add.items():
-                files_flagged_lines[file] = files_flagged_lines.get(file, TaggedLines()).combine(tagged_lines)
+                files_flagged_lines[file] = files_flagged_lines.get(
+                    file, TaggedLines()
+                ).combine(tagged_lines)
 
         def capture_exec_python(code: str) -> None:
             """
@@ -276,6 +274,7 @@ class GnatcheckDriver(BaseDriver):
             """
             from io import StringIO
             from contextlib import redirect_stdout
+
             f = StringIO()
             cwd = os.getcwd()
             os.chdir(self.test_env["working_dir"])
@@ -285,22 +284,20 @@ class GnatcheckDriver(BaseDriver):
             os.chdir(cwd)
 
         def run_one_test(test_data: dict[str, any]) -> None:
-            output_format = test_data.get('format', 'full')
+            output_format = test_data.get("format", "full")
             assert output_format in GnatcheckDriver.output_formats
-            brief = output_format == 'brief'
-            exe = GnatcheckDriver.modes[test_data.get('mode', 'gnatcheck')]
-            args = [exe, '-q', '-m0']
+            brief = output_format == "brief"
+            exe = GnatcheckDriver.modes[test_data.get("mode", "gnatcheck")]
+            args = [exe, "-q", "-m0"]
             output_file_name = self.working_dir(
                 test_data.get(
-                    "output_file",
-                    f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
+                    "output_file", f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
                 )
             )
             test_env = dict(gnatcheck_env)
 
-
-            pre_python = test_data.get('pre_python', None)
-            post_python = test_data.get('post_python', None)
+            pre_python = test_data.get("pre_python", None)
+            post_python = test_data.get("post_python", None)
 
             # If python code to be executed pre running gnatcheck was passed
             # for this test, run it and capture its output
@@ -308,116 +305,116 @@ class GnatcheckDriver(BaseDriver):
                 capture_exec_python(pre_python)
 
             # If required, add provided directories to the LKQL_PATH variable
-            for d in test_data.get('lkql_path', []):
-                test_env['LKQL_PATH'] = os.pathsep.join([
-                    self.working_dir(d),
-                    test_env.get('LKQL_PATH', ""),
-                ])
+            for d in test_data.get("lkql_path", []):
+                test_env["LKQL_PATH"] = os.pathsep.join(
+                    [
+                        self.working_dir(d),
+                        test_env.get("LKQL_PATH", ""),
+                    ]
+                )
 
             # Set the target if one has been provided
-            if test_data.get('target'):
+            if test_data.get("target"):
                 args.append(f"--target={test_data['target']}")
 
             # If the executable is gnatkp, we must provide an explicit runtime
             # and target
-            if exe == "gnatkp" and test_data.get('gnatkp_autoconfig', True):
-                if not self.is_codepeer and not test_data.get('target'):
+            if exe == "gnatkp" and test_data.get("gnatkp_autoconfig", True):
+                if not self.is_codepeer and not test_data.get("target"):
                     args.append(f"--target={self.env.host.triplet}")
                 args.append("--RTS=default")
 
             # Set the codepeer target if needed and no other one has been
             # provided.
             if (
-                self.is_codepeer and
-                test_data.get('auto_codepeer_target', True)
-                and not test_data.get('target')
+                self.is_codepeer
+                and test_data.get("auto_codepeer_target", True)
+                and not test_data.get("target")
             ):
                 args.append("--target=codepeer")
 
             # Set the "--show-rule" flag according to the test
-            if test_data.get('show_rule', False):
-                args.append('--show-rule')
+            if test_data.get("show_rule", False):
+                args.append("--show-rule")
 
             # Set the "--show-instantiation-chain" flag according to the data
-            if test_data.get('show_instantiation_chain', False):
-                args.append('--show-instantiation-chain')
+            if test_data.get("show_instantiation_chain", False):
+                args.append("--show-instantiation-chain")
 
             # Set the number of wanted jobs
-            if test_data.get('jobs', None):
+            if test_data.get("jobs", None):
                 args.append(f'-j{test_data["jobs"]}')
 
             # Use the test's project, if any
-            if test_data.get('project', None):
-                args += ['-P', test_data['project']]
+            if test_data.get("project", None):
+                args += ["-P", test_data["project"]]
 
-            if test_data.get('gpr_config_file', None):
+            if test_data.get("gpr_config_file", None):
                 args += [f'--config={test_data["gpr_config_file"]}']
 
             # Forward the subdirs option
-            if test_data.get('subdirs', None):
-                args += ['--subdirs', test_data['subdirs']]
+            if test_data.get("subdirs", None):
+                args += ["--subdirs", test_data["subdirs"]]
 
             # Set the output file path according to the requested format
-            if output_format in ['short', 'full']:
-                args.append(f'-o={output_file_name}')
-            elif output_format == 'xml':
-                args.append(f'-ox={output_file_name}')
+            if output_format in ["short", "full"]:
+                args.append(f"-o={output_file_name}")
+            elif output_format == "xml":
+                args.append(f"-ox={output_file_name}")
 
             # Add the ignore file if any
-            ignore_file = test_data.get('ignore_file', None)
+            ignore_file = test_data.get("ignore_file", None)
             if ignore_file:
                 abs_ignore_file = self.working_dir(ignore_file)
-                ignore_file = (abs_ignore_file
-                               if P.isfile(abs_ignore_file) else
-                               ignore_file)
-                args += [f'--ignore={ignore_file}']
+                ignore_file = (
+                    abs_ignore_file if P.isfile(abs_ignore_file) else ignore_file
+                )
+                args += [f"--ignore={ignore_file}"]
 
             # Add the specified sources to GNATcheck arguments
-            if test_data.get('input_sources', None):
-                args += test_data['input_sources']
+            if test_data.get("input_sources", None):
+                args += test_data["input_sources"]
 
             # Precise the wanted format to the GNATcheck command line
-            if output_format == 'brief':
-                args.append('--brief')
-            elif output_format == 'xml':
-                args.append('-xml')
-            elif output_format == 'short':
-                args.append('-s')
+            if output_format == "brief":
+                args.append("--brief")
+            elif output_format == "xml":
+                args.append("-xml")
+            elif output_format == "short":
+                args.append("-s")
 
             # Add the scenario variables
-            for k, v in test_data.get('scenario_variables', {}).items():
-                args.append(f'-X{k}={v}')
+            for k, v in test_data.get("scenario_variables", {}).items():
+                args.append(f"-X{k}={v}")
 
             # Add the rule directories
-            for rule_dir in test_data.get('rules_dirs', []):
-                args.append(f'--rules-dir={rule_dir}')
+            for rule_dir in test_data.get("rules_dirs", []):
+                args.append(f"--rules-dir={rule_dir}")
 
             # Add the LKQL rule file
-            if test_data.get('lkql_rule_file', None):
+            if test_data.get("lkql_rule_file", None):
                 args.append(f"--rule-file={test_data['lkql_rule_file']}")
 
             # Finally add all extra arguments given in the test
-            for extra_arg in test_data.get('extra_args', []):
+            for extra_arg in test_data.get("extra_args", []):
                 args.append(extra_arg)
 
             # Start the GNATcheck rule section
             args.append("-rules")
 
             # Add the rule configuration arguments
-            rule_file = test_data.get('rule_file', None)
+            rule_file = test_data.get("rule_file", None)
             if rule_file:
                 abs_rule_file = self.working_dir(rule_file)
-                rule_file = (abs_rule_file
-                             if P.isfile(abs_rule_file) else
-                             rule_file)
-                args += ['-from', rule_file]
+                rule_file = abs_rule_file if P.isfile(abs_rule_file) else rule_file
+                args += ["-from", rule_file]
 
             # Add all rules options, add it to the command-line
-            for r in test_data.get('rules', []):
+            for r in test_data.get("rules", []):
                 args.append(r)
 
             # Finally, add the extra rule options
-            for arg in test_data.get('extra_rule_options', []):
+            for arg in test_data.get("extra_rule_options", []):
                 args.append(arg)
 
             # Run the interpreter
@@ -428,7 +425,7 @@ class GnatcheckDriver(BaseDriver):
             if self.perf_mode:
                 self.perf_run(args)
             else:
-                label = test_data.get('label', None)
+                label = test_data.get("label", None)
                 if label:
                     self.output += label + "\n" + ("=" * len(label)) + "\n\n"
 
@@ -438,12 +435,14 @@ class GnatcheckDriver(BaseDriver):
                 if test_data.get("in_tty"):
                     exec_output, status_code = self.run_in_tty(args, env=test_env)
                 else:
-                    p = self.shell(args, env=test_env, catch_error=False, analyze_output=False)
+                    p = self.shell(
+                        args, env=test_env, catch_error=False, analyze_output=False
+                    )
                     exec_output = p.out
                     status_code = p.status
 
                 # If required, canonicalize gnatcheck worker name in the output
-                if test_data.get('canonicalize_worker', True):
+                if test_data.get("canonicalize_worker", True):
                     worker = " ".join(
                         [
                             P.basename(self.gnatcheck_worker_exe[0]),
@@ -455,10 +454,10 @@ class GnatcheckDriver(BaseDriver):
                 # Then read GNATcheck report file if there is one
                 report_file_content = ""
                 parse_output_for_flags = True
-                if output_format in ['full', 'short', 'xml']:
+                if output_format in ["full", "short", "xml"]:
                     try:
                         with open(output_file_name) as f:
-                            if output_format in ['short', 'xml']:
+                            if output_format in ["short", "xml"]:
                                 report_file_content = f.read()
                             else:
                                 # Strip the 10 first lines of the report, which contain
@@ -466,7 +465,9 @@ class GnatcheckDriver(BaseDriver):
                                 # include in the test baseline.
                                 report_file_content = "".join(f.readlines()[9:])
                     except FileNotFoundError as _:
-                        self.output += "testsuite_driver: No output file generated by gnatcheck\n"
+                        self.output += (
+                            "testsuite_driver: No output file generated by gnatcheck\n"
+                        )
                         parse_output_for_flags = False
 
                 # Get the lines flagged by the test running and add it to all flagged lines
@@ -475,10 +476,10 @@ class GnatcheckDriver(BaseDriver):
                         self.parse_flagged_lines(
                             (
                                 exec_output + report_file_content
-                                if output_format != "xml" else
-                                report_file_content
+                                if output_format != "xml"
+                                else report_file_content
                             ),
-                            output_format
+                            output_format,
                         )
                     )
 
@@ -489,19 +490,25 @@ class GnatcheckDriver(BaseDriver):
                 if test_data.get("rule_list_file", None):
                     try:
                         with open(
-                            self.working_dir(test_data["rule_list_file"]), 'r'
+                            self.working_dir(test_data["rule_list_file"]), "r"
                         ) as f:
                             self.output += "".join(sorted(f.readlines()))
                     except FileNotFoundError as _:
-                        self.output += ("testsuite_driver: Cannot found the rule "
-                                        f"list file '{test_data['rule_list_file']}'")
+                        self.output += (
+                            "testsuite_driver: Cannot found the rule "
+                            f"list file '{test_data['rule_list_file']}'"
+                        )
 
-                if (not brief and status_code not in [0, 1]) or (brief and status_code != 0):
-                    self.output += ">>>program returned status code {}\n".format(status_code)
+                if (not brief and status_code not in [0, 1]) or (
+                    brief and status_code != 0
+                ):
+                    self.output += ">>>program returned status code {}\n".format(
+                        status_code
+                    )
 
                 # List the content of directories if needed
-                if test_data.get('list_dirs'):
-                    for dir_name in test_data['list_dirs']:
+                if test_data.get("list_dirs"):
+                    for dir_name in test_data["list_dirs"]:
                         self.output += (
                             f"Content of {dir_name} : "
                             f"{sorted(os.listdir(self.working_dir(dir_name)))}\n"
