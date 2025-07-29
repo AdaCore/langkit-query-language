@@ -1,3 +1,0 @@
-project With_Target is
-   for Target use "x86_64-linux";
-end With_Target;
