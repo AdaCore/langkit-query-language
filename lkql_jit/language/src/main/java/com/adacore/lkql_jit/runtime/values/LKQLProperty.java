@@ -37,6 +37,7 @@ public class LKQLProperty extends BasicLKQLValue {
     // ----- Constructors -----
 
     /** Create a new LKQL property from its name and associated node. */
+    @CompilerDirectives.TruffleBoundary
     public LKQLProperty(final String name, final LangkitSupport.NodeInterface node) {
         this.name = name;
         this.description = node.getFieldDescription(name);

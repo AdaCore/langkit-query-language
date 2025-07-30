@@ -41,6 +41,7 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
      *
      * @throws InvalidIndexException If the provided index is not in the list bounds.
      */
+    @CompilerDirectives.TruffleBoundary
     public abstract Object get(long i) throws InvalidIndexException;
 
     /** Get the iterator for the list. */
@@ -147,6 +148,7 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
 
     /** Get the boolean representation of the list. */
     @ExportMessage
+    @CompilerDirectives.TruffleBoundary
     public boolean asBoolean() {
         try {
             this.get(0);

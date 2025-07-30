@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
@@ -49,6 +50,11 @@ public abstract class LKQLToBoolean extends Node {
 
     @Specialization
     protected boolean onNode(LangkitSupport.NodeInterface node) {
+        return checkNode(node);
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    protected boolean checkNode(LangkitSupport.NodeInterface node) {
         return !node.isNone();
     }
 

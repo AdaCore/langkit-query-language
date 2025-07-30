@@ -156,6 +156,7 @@ public final class LKQLTypesHelper {
      * @param defaultValue The default value to return.
      * @return The string representing the type in the LKQL language.
      */
+    @CompilerDirectives.TruffleBoundary
     public static String fromJava(Object obj, String defaultValue) {
         if (LKQLTypeSystemGen.isUnit(obj)) {
             return LKQL_UNIT;
