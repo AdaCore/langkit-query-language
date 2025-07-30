@@ -86,6 +86,7 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
         LKQLRecValue res;
 
         var val = body.executeGeneric(frame);
+
         if (LKQLTypeSystemGen.isLKQLRecValue(val)) {
             res = LKQLTypeSystemGen.asLKQLRecValue(val);
             res.depth = (int) depth + 1;

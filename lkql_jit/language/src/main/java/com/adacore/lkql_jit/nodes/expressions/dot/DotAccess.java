@@ -79,10 +79,6 @@ public abstract class DotAccess extends BaseDotAccess {
 
     /**
      * Execute the dot access on a node with the cached strategy.
-     *
-     * @param property The cached property reference.
-     * @param isField The cached value if the property is a field.
-     * @return The property reference or the field value.
      */
     @Specialization(
         guards = {
@@ -110,8 +106,6 @@ public abstract class DotAccess extends BaseDotAccess {
 
     /**
      * Execute the dot access on a node with the un-cached strategy.
-     *
-     * @return The property call or the file value.
      */
     @Specialization(replaces = "onNodeCached")
     protected Object onNodeUncached(LangkitSupport.NodeInterface receiver) {

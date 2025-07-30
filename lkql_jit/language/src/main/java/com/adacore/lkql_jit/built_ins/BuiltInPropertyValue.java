@@ -5,6 +5,8 @@
 
 package com.adacore.lkql_jit.built_ins;
 
+import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
+
 /**
  * This class represents the LKQL value of an instantiated attribute. An attribute is a special
  * method with not other arguments than "this" and is called implicitly by the dotted-name notation.
@@ -13,11 +15,16 @@ public class BuiltInPropertyValue extends BuiltInMethodValue {
 
     /** Create a new built-in attribute value. */
     public BuiltInPropertyValue(
-        String name,
         String documentation,
-        BuiltInBody body,
+        FunctionRootNode functionRootNode,
         Object thisValue
     ) {
-        super(name, documentation, new String[] { "this" }, new String[] { null }, body, thisValue);
+        super(
+            documentation,
+            new String[] { "this" },
+            new String[] { null },
+            functionRootNode,
+            thisValue
+        );
     }
 }

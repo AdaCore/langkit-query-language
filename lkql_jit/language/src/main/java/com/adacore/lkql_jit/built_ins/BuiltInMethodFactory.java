@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins;
 
+import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 
 /**
@@ -20,6 +21,8 @@ public final class BuiltInMethodFactory {
     public final String documentation;
 
     public final String[] paramNames;
+
+    private final FunctionRootNode functionRootNode;
 
     public String[] defaultValues;
 
@@ -48,6 +51,7 @@ public final class BuiltInMethodFactory {
         this.defaultValues = defaultValues;
         this.methodBody = methodBody;
         this.isProperty = isProperty;
+        this.functionRootNode = new FunctionRootNode(null, null, false, methodBody, name);
     }
 
     // ----- Instance methods -----
@@ -55,13 +59,12 @@ public final class BuiltInMethodFactory {
     /** Instantiate the method with the given "thisValue" and return the LKQL value. */
     public BuiltInMethodValue instantiate(Object thisValue) {
         return this.isProperty
-            ? new BuiltInPropertyValue(this.name, this.documentation, this.methodBody, thisValue)
+            ? new BuiltInPropertyValue(documentation, functionRootNode, thisValue)
             : new BuiltInMethodValue(
-                this.name,
-                this.documentation,
-                this.paramNames,
-                this.defaultValues,
-                this.methodBody,
+                documentation,
+                paramNames,
+                defaultValues,
+                functionRootNode,
                 thisValue
             );
     }

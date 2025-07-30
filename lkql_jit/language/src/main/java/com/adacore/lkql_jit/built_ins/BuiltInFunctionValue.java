@@ -41,6 +41,23 @@ public class BuiltInFunctionValue extends LKQLFunction {
         stringDefaultVals = defaultValues;
     }
 
+    public BuiltInFunctionValue(
+        String documentation,
+        String[] names,
+        String[] defaultValues,
+        FunctionRootNode functionRootNode
+    ) {
+        super(
+            functionRootNode,
+            Closure.EMPTY,
+            functionRootNode.getName(),
+            documentation,
+            names,
+            new Expr[names.length]
+        );
+        stringDefaultVals = defaultValues;
+    }
+
     @Override
     public Expr[] getParameterDefaultValues() {
         if (stringDefaultVals != null && !defaultValsEvald) {
