@@ -313,6 +313,16 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         );
     }
 
+    private static void emitMessageForTheDriver(
+        final String tag,
+        final String location,
+        final String message
+    ) {
+        System.err.println(
+            tag + ": {\"location\": \"" + location + "\", \"message\": \"" + message + "\"}"
+        );
+    }
+
     /**
      * Read the given LKQL file and parse it as a rule configuration file to return the list of
      * instances defined in it.
@@ -457,15 +467,15 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 for (var instance : rule.getValue().subList(i + 1, rule.getValue().size())) {
                     RuleInstance current = rule.getValue().get(i);
                     if (current.isEquivalent(instance)) {
-                        System.err.println(
-                            "WORKER_WARNING: duplicate rules with different names, " +
-                            instance.instanceId() +
-                            " from " +
-                            instance.locationToGNATDiagnosisFormatString() +
-                            " runs the same check than rule " +
+                        emitMessageForTheDriver(
+                            "WORKER_WARNING",
+                            current.locationToGNATDiagnosisFormatString(),
+                            "instance " +
                             current.instanceId() +
-                            " from " +
-                            current.locationToGNATDiagnosisFormatString()
+                            " runs the same check than instance " +
+                            instance.instanceId() +
+                            " declared at " +
+                            instance.locationToGNATDiagnosisFormatString()
                         );
                     }
                 }
@@ -514,34 +524,32 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             // If the instance is already present, compare parameters, if they
             // are identical, skip the current instance and emit a warning.
             if (oldInstance.arguments().equals(newInstance.arguments())) {
-                System.err.println(
-                    "WORKER_WARNING: duplicated rule: " +
+                emitMessageForTheDriver(
+                    "WORKER_WARNING",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "ignore duplicate instance " +
                     instanceId +
-                    " ignored from " +
-                    newInstance.locationToGNATDiagnosisFormatString() +
                     ", previous declaration at " +
                     oldInstance.locationToGNATDiagnosisFormatString()
                 );
             } else {
                 // On the contrary, emit an error.
-                errorInLKQLRuleFile(
-                    lkqlRuleFile,
-                    "multiple instances with the same name but different configuration: " +
+                emitMessageForTheDriver(
+                    "WORKER_ERROR",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "instance " +
                     instanceId +
-                    " at " +
-                    newInstance.locationToGNATDiagnosisFormatString() +
-                    ", previous declaration at " +
+                    " has a different configuration than the one previously declared at " +
                     oldInstance.locationToGNATDiagnosisFormatString() +
                     " (instances should have unique names)"
                 );
             }
         } else {
             if (verbose) {
-                System.err.println(
-                    "WORKER_INFO: register new instance: " +
-                    instanceId +
-                    " from " +
-                    newInstance.locationToGNATDiagnosisFormatString()
+                emitMessageForTheDriver(
+                    "WORKER_INFO",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "register new instance " + instanceId
                 );
             }
             toPopulate.put(instanceId, newInstance);
@@ -575,21 +583,19 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         if (!toPopulate.containsKey(ruleName)) {
             toPopulate.put(ruleName, newInstance);
             if (verbose) {
-                System.err.println(
-                    "WORKER_INFO: register new instance: " +
-                    ruleName +
-                    " from " +
-                    newInstance.locationToGNATDiagnosisFormatString()
+                emitMessageForTheDriver(
+                    "WORKER_INFO",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "register new instance " + ruleName
                 );
             }
         } else {
-            errorInLKQLRuleFile(
-                lkqlRuleFile,
+            emitMessageForTheDriver(
+                "WORKER_ERROR",
+                newInstance.locationToGNATDiagnosisFormatString(),
                 "cannot add instance " +
                 ruleName +
-                " twice using the shortcut argument format from instances set included in rules set at: " +
-                newInstance.locationToGNATDiagnosisFormatString() +
-                ". Previous instance has been declared in" +
+                " twice using the shortcut argument format. Previous instance has been declared in" +
                 ((newInstance
                                 .instanceLocation()
                                 .equals(toPopulate.get(ruleName).instanceLocation()))

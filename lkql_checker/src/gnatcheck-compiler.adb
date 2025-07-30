@@ -25,7 +25,8 @@ with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
-with GNATCOLL.VFS; use GNATCOLL.VFS;
+with GNATCOLL.JSON; use GNATCOLL.JSON;
+with GNATCOLL.VFS;  use GNATCOLL.VFS;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
@@ -339,6 +340,10 @@ package body Gnatcheck.Compiler is
       --  Analyze one line containing a builder output. Insert the relevant
       --  messages into gnatcheck diagnoses table.
 
+      procedure Process_Worker_Message
+        (Message : String; Printer : access procedure (S, L : String));
+      --  Helper to process messages received from the Worker
+
       ------------------
       -- Analyze_Line --
       ------------------
@@ -529,6 +534,24 @@ package body Gnatcheck.Compiler is
                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
+      ----------------------------
+      -- Process_Worker_Message --
+      ----------------------------
+
+      procedure Process_Worker_Message
+        (Message : String; Printer : access procedure (S, L : String))
+      is
+         Decoded_Message : constant Read_Result := Read (Message);
+      begin
+         if Decoded_Message.Success then
+            Printer
+              (Decoded_Message.Value.Get ("message"),
+               Decoded_Message.Value.Get ("location"));
+         else
+            Printer (Message, "");
+         end if;
+      end Process_Worker_Message;
+
       --  Start of processing for Analyze_Output
 
    begin
@@ -601,11 +624,11 @@ package body Gnatcheck.Compiler is
                end;
             end if;
          elsif Line_Len >= 16 and then Line (1 .. 13) = "WORKER_INFO: " then
-            Info (Line (14 .. Line_Len));
+            Process_Worker_Message (Line (14 .. Line_Len), Info'Access);
          elsif Line_Len >= 16 and then Line (1 .. 16) = "WORKER_WARNING: " then
-            Warning (Line (17 .. Line_Len));
+            Process_Worker_Message (Line (17 .. Line_Len), Warning'Access);
          elsif Line_Len >= 14 and then Line (1 .. 14) = "WORKER_ERROR: " then
-            Error (Line (15 .. Line_Len));
+            Process_Worker_Message (Line (15 .. Line_Len), Error'Access);
             Detected_Internal_Error := @ + 1;
             Errors := True;
          elsif Line_Len >= 23
