@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 
-# This script should be run at the top level of the langkit-query-language with
-# PYTHONPATH set to the impact-db repository path. The impact-db repository path
-# should also be passed as first argument:
-#
-# $ PYTHONPATH=/path/to/impact-db ./impact-db_impacts_gen.py /path/to/impact-db
+# This script should be run at the top level of the langkit-query-language.
 
 import glob
+import inspect
 import json
-import sys
+import os
 from collections import OrderedDict
 from pathlib import Path
 from impactdb import db
 
-impactdb_dir = sys.argv[1]
 res = {}
 
 
@@ -27,7 +23,8 @@ def format_name(name: str) -> str:
 
 
 def list_impacts(issues: [str]) -> None:
-    entries = [e for e in db.load(impactdb_dir + "/entries") if e.type == "kp"]
+    entries = os.path.join(os.path.dirname(inspect.getfile(db)), "..", "entries")
+    entries = [e for e in db.load(entries) if e.type == "kp"]
     for e in entries:
         if e.name in issues:
             res.update({format_name(e.name): format_impacts(e.impacts)})
