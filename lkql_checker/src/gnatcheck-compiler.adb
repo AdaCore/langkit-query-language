@@ -4,7 +4,6 @@
 --
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
-with Ada.Characters.Latin_1;
 with Ada.Containers;
 with Ada.Directories;         use Ada.Directories;
 with Ada.Strings;             use Ada.Strings;
@@ -92,14 +91,14 @@ package body Gnatcheck.Compiler is
    --  use the ``Available_Targets`` global to avoid useless calls.
 
    function Get_Available_Targets return String_Sets.Set is
-      Res                 : String_Sets.Set;
-      GPRConfig_Exec      : String_Access := Locate_Exec_On_Path ("gprconfig");
-      Args                : Argument_List (1 .. 2);
-      Return_Code         : Integer := -1;
-      Output_File         : File_Descriptor;
-      Output_File_Name    : String_Access;
-      Output_File_Content : String_Access;
-      Split_Content       : String_Vector;
+      Res                    : String_Sets.Set;
+      GPRConfig_Exec         : String_Access :=
+        Locate_Exec_On_Path ("gprconfig");
+      Args                   : Argument_List (1 .. 2);
+      Return_Code            : Integer := -1;
+      Output_File_Descriptor : File_Descriptor;
+      Output_File_Name       : String_Access;
+      Output_File            : File_Type;
    begin
       --  If no regular "gprconfig" has been found, look for the gnatsas one
       if GPRConfig_Exec = null then
@@ -119,7 +118,7 @@ package body Gnatcheck.Compiler is
       end if;
 
       --  Create the temporary file to get the "gprbuild" output
-      Create_Temp_Output_File (Output_File, Output_File_Name);
+      Create_Temp_Output_File (Output_File_Descriptor, Output_File_Name);
 
       --  Prepare the argument list
       Args (1) := new String'("--show-targets");
@@ -129,29 +128,29 @@ package body Gnatcheck.Compiler is
       Spawn
         (Program_Name           => GPRConfig_Exec.all,
          Args                   => Args,
-         Output_File_Descriptor => Output_File,
+         Output_File_Descriptor => Output_File_Descriptor,
          Return_Code            => Return_Code,
          Err_To_Out             => False);
 
-      --  Parse the output to fill the result
-      Output_File_Content := Read_File (Output_File_Name.all);
-      Split_Content :=
-        Split
-          (Output_File_Content.all,
-           Ada.Characters.Latin_1.LF,
-           Trim_Elems => True);
-      for I in Split_Content.First_Index + 1 .. Split_Content.Last_Index loop
-         if Split_Content (I) /= "" then
-            Res.Include (Split_Content (I));
-         end if;
-      end loop;
+      --  Parse the output to fill the result if the return code is successful
+      if Return_Code = 0 then
+         Open (Output_File, In_File, Output_File_Name.all);
+
+         --  Skip the first header line of the result since it doesn't contain
+         --  relevant information.
+         Set_Line (Output_File, 2);
+
+         while not End_Of_File (Output_File) loop
+            Res.Include (Get_Line (Output_File));
+         end loop;
+         Close (Output_File);
+      end if;
 
       --  Release allocated resources and delete the temporary file
-      Close (Output_File);
+      Close (Output_File_Descriptor);
       Delete_File (Output_File_Name.all);
       Free (GPRConfig_Exec);
       Free (Output_File_Name);
-      Free (Output_File_Content);
       for I in Args'Range loop
          Free (Args (I));
       end loop;
