@@ -11,30 +11,34 @@
 
 import stdlib
 
-fun unconstrained_array_type(type, except_string) =
-    if type is SubtypeDecl
-    then type.f_subtype.f_constraint is not Constraint and
-         unconstrained_array_type(type.p_canonical_type(), except_string)
-    else if type is TypeDecl(f_type_def: DerivedTypeDef)
-    then type.f_type_def.f_subtype_indication.f_constraint is not Constraint and
-         unconstrained_array_type(type.p_base_type(), except_string)
-    else type is TypeDecl(p_is_array_type(): true,
-                          f_type_def: ArrayTypeDef(f_indices:
-                                                     UnconstrainedArrayIndices))
-         when not (except_string and
-                   type.p_root_type().p_fully_qualified_name()
-                   == "Standard.String")
-
 @check(message="function returns unconstrained array",
        follow_generic_instantiations=true, category="Feature")
 fun unconstrained_array_returns(node, except_string = false) =
-    node is (AbstractSubpDecl | SubpDecl | GenericSubpInternal |
-             BaseSubpBody(p_previous_part(): null) |
-             SubpBodyStub(p_previous_part(): null))
+    {
+        fun is_unconstrained_array(type_decl) =
+            |" Get whether the provided TypeDecl is declaring an unconstrained array type.
+            |" If `type_decl` designate the "standard.string" type and `except_string` is
+            |" `true`, the result of this function is `false`.
+            type_decl is TypeDecl(
+                p_is_array_type(): true,
+                f_type_def: ArrayTypeDef(f_indices: UnconstrainedArrayIndices)
+            ) when (
+                if except_string
+                then type_decl.p_fully_qualified_name().to_lower_case != "standard.string"
+            );
 
-    when (not stdlib.in_generic_template(node))
-
-     and node.f_subp_spec is SubpSpec(f_subp_returns:
-         TypeExpr(p_designated_type_decl():
-                  t@BaseTypeDecl
-                  when unconstrained_array_type(t, except_string)))
+        node is (
+            AbstractSubpDecl |
+            SubpDecl |
+            GenericSubpInternal |
+            BaseSubpBody(p_previous_part(): null) |
+            SubpBodyStub(p_previous_part(): null)
+        )
+        and (not stdlib.in_generic_template(node))
+        and node.f_subp_spec is SubpSpec(
+            f_subp_returns: TypeExpr(
+                p_is_definite_subtype(): false,
+                p_designated_type_decl(): t@BaseTypeDecl when is_unconstrained_array(t.p_root_type())
+            )
+        )
+    }
