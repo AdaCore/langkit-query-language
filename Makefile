@@ -61,7 +61,7 @@ build/bin/liblkqllang_parse: lkql/lkql.lkt
 test:
 	testsuite/testsuite.py -Edtmp
 
-clean: clean_lkql clean_lkql_jit clean_lkql_checker
+clean: clean_lkql_jit clean_lkql_checker clean_lkql
 
 clean_lkql:
 	rm lkql/build -rf
