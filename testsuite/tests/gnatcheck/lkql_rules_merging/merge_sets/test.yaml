@@ -1,0 +1,11 @@
+driver: gnatcheck
+description: |
+  Check information and warning messages are correctly generated when merging
+  two LKQL files.
+lkql_rule_file: rules2.lkql
+rules_dirs:
+  - set
+show_rule: true
+format: brief
+extra_args:
+  - -v

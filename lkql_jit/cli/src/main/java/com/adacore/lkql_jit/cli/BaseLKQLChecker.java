@@ -173,7 +173,8 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
                     ruleName,
                     Optional.empty(),
                     RuleInstance.SourceMode.GENERAL,
-                    instanceArgs.get(instanceId)
+                    instanceArgs.get(instanceId),
+                    null
                 )
             );
         }

@@ -72,7 +72,7 @@ public abstract class ObjectPattern extends ValuePattern {
                 // If the splat has a binding, we need to compute the new object without the keys
                 // that have already been matched
                 if (splat.hasBinding()) {
-                    LKQLObject splatObject = new LKQLObject(shape);
+                    LKQLObject splatObject = new LKQLObject(shape, location);
                     DynamicObjectLibrary splatObjectLib = DynamicObjectLibrary.getUncached();
 
                     for (var objKey : objKeys) {

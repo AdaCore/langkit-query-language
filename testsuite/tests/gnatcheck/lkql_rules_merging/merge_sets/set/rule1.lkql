@@ -1,0 +1,4 @@
+@check()
+fun rule1(node, n : int = 1) =
+    node is dn@DefiningName
+    when dn.text.length == n

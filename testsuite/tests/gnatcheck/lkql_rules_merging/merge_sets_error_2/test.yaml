@@ -1,0 +1,10 @@
+driver: gnatcheck
+description: |
+  Check that defining multiple Style_Checks checks using the short format fail.
+lkql_rule_file: rules3.lkql
+rules_dirs:
+  - set
+show_rule: true
+format: brief
+extra_args:
+  - -v

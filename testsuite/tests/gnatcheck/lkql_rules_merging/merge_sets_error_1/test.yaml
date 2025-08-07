@@ -1,0 +1,10 @@
+driver: gnatcheck
+description: |
+  Check that merging two LKQL files that defines the same check fail.
+lkql_rule_file: rules2.lkql
+rules_dirs:
+  - set
+show_rule: true
+format: brief
+extra_args:
+  - -v

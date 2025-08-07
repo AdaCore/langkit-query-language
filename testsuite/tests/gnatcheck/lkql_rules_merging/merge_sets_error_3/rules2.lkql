@@ -1,0 +1,5 @@
+import rules1
+
+val rules = rules1.rules.combine(@{
+    Style_Checks: ["xz"]
+})

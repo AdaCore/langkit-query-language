@@ -922,6 +922,7 @@ package body Gnatcheck.Rules.Rule_Table is
       Parser_Pid            : Process_Id;
       Waited_Pid            : Process_Id;
       Success               : Boolean;
+      Analyze_Error         : Boolean;
       Config_JSON           : Read_Result;
 
       procedure Rule_Object_Mapper
@@ -952,12 +953,35 @@ package body Gnatcheck.Rules.Rule_Table is
          Error ("can not call the LKQL rule file parser");
          Rule_Option_Problem_Detected := True;
       else
-         Config_JSON := Read (Read_File (JSON_Config_File_Name).all);
+         declare
+            Worker_Output_File : File_Type;
+         begin
+            Open (Worker_Output_File, In_File, JSON_Config_File_Name);
+
+            while not End_Of_File (Worker_Output_File) loop
+               declare
+                  Line : constant String := Get_Line (Worker_Output_File);
+               begin
+                  if Line (1 .. 23) = "WORKER_JSON_INSTANCES: " then
+                     Config_JSON := Read (Line (24 .. Line'Last));
+                     exit;
+                  end if;
+               end;
+            end loop;
+
+            Close (Worker_Output_File);
+         end;
+
+         --  Process diagnostics from worker's output
+         Analyze_Output (JSON_Config_File_Name, Analyze_Error);
 
          --  If the JSON parsing failed, it means that LKQL rule file
-         --  processing failed and diagnostics are in the output file.
-         if not Config_JSON.Success then
-            Analyze_Output (JSON_Config_File_Name, Success);
+         --  processing failed and diagnostics are in the output file and
+         --  they have been already processed.
+         if Analyze_Error
+           or else not Config_JSON.Success
+           or else Config_JSON.Value = JSON_Null
+         then
             Rule_Option_Problem_Detected := True;
 
          --  Else, populate the global rule table with the rule config

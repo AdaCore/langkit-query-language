@@ -1,0 +1,9 @@
+val rules = @{
+    rule1: [{n: 1, instance_name: "name1a"},
+            {n: 2, instance_name: "name1b"},
+            {n: 3, instance_name: "name1c"},
+            {n: 4, instance_name: "name1d"}],
+    rule2,
+    Style_Checks: [{instance_name: "sc1", Arg: "xz"},
+                   {instance_name: "sc2", Arg: "a"}]
+}

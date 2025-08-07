@@ -49,7 +49,7 @@ package Gnatcheck.Output is
    procedure Warning (Message : String; Location : String := "");
    --  Sends ``Message`` into stderr, prefixed by "tool_name: warning: ".
 
-   procedure Info (Message : String);
+   procedure Info (Message : String; Location : String := "");
    --  Sends ``Message`` into stderr, prefixed by "tool_name: info: ".
 
    procedure Info_In_Tty (Message : String);

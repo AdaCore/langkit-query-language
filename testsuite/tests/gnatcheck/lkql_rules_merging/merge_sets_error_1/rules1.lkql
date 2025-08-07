@@ -1,0 +1,5 @@
+val rules = @{
+    rule1 : [{n: 1, instance_name: "name1a"},
+             {n: 2, instance_name: "name1b"}],
+    rule2
+}

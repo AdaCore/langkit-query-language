@@ -1,0 +1,36 @@
+rules1.lkql:2:13: info: register new instance name1a
+rules1.lkql:3:13: info: register new instance name1b
+rules1.lkql:4:13: info: register new instance name1c
+rules1.lkql:5:13: info: register new instance name1d
+rules2.lkql:4:13: info: register new instance name2a
+rules2.lkql:5:13: info: register new instance name2b
+rules1.lkql:6:5: info: register new instance rule2
+rules2.lkql:6:13: info: register new instance rule2b
+rules2.lkql:6:40: warning: ignore duplicate instance rule2b, previous declaration at rules2.lkql:6:13
+rules1.lkql:7:20: info: register new instance sc1
+rules1.lkql:8:20: info: register new instance sc2
+rules2.lkql:6:13: warning: instance rule2b runs the same check than instance rule2 declared at rules1.lkql:6:5
+gnatcheck <version> (<date>)
+Copyright <date>, AdaCore.
+test.adb:1:01: rule violation: rule2 [rule2]
+test.adb:1:01: rule violation: rule2 [rule2b|rule2]
+test.adb:1:11: rule violation: rule1 [name1d|rule1]
+test.adb:1:11: rule violation: rule2 [rule2]
+test.adb:1:11: rule violation: rule2 [rule2b|rule2]
+test.adb:1:18: rule violation: rule2 [rule2]
+test.adb:1:18: rule violation: rule2 [rule2b|rule2]
+test.adb:2:06: rule violation: rule2 [rule2]
+test.adb:2:06: rule violation: rule2 [rule2b|rule2]
+test.adb:3:04: rule violation: rule2 [rule2]
+test.adb:3:04: rule violation: rule2 [rule2b|rule2]
+test.adb:3:09: rule violation: rule2 [rule2]
+test.adb:3:09: rule violation: rule2 [rule2b|rule2]
+test.adb:4:05: rule violation: rule2 [rule2]
+test.adb:4:05: rule violation: rule2 [rule2b|rule2]
+==== Errors in 'FLAG/NOFLAG' annotations ====
+
+In file "test.adb":
+  - at line 1: no 'FLAG' annotation (line flagged 7 time(s))
+  - at line 2: no 'FLAG' annotation (line flagged 2 time(s))
+  - at line 3: no 'FLAG' annotation (line flagged 4 time(s))
+  - at line 4: no 'FLAG' annotation (line flagged 2 time(s))

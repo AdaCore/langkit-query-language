@@ -201,7 +201,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // If a LKQL rule config file has been provided, parse it and display the result
         if (this.args.lkqlConfigFile != null) {
             try {
-                final var instances = parseLKQLRuleFile(this.args.lkqlConfigFile);
+                final var instances = parseLKQLRuleFile(
+                    this.args.lkqlConfigFile,
+                    this.args.verbose
+                );
                 final var jsonInstances = new JSONObject(
                     instances
                         .entrySet()
@@ -209,7 +212,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                         .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
                 );
-                System.out.println(jsonInstances);
+                System.out.println("WORKER_JSON_INSTANCES: " + jsonInstances);
             } catch (LKQLRuleFileError e) {
                 System.out.println(e.getMessage());
             }
@@ -245,7 +248,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         for (var rulesFrom : this.args.rulesFroms) {
             if (!rulesFrom.isEmpty()) {
                 try {
-                    instances.putAll(parseLKQLRuleFile(rulesFrom));
+                    instances.putAll(parseLKQLRuleFile(rulesFrom, this.args.verbose));
                 } catch (LKQLRuleFileError e) {
                     System.out.println(e.getMessage());
                     return 0;
@@ -310,6 +313,16 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         );
     }
 
+    private static void emitMessageForTheDriver(
+        final String tag,
+        final String location,
+        final String message
+    ) {
+        System.err.println(
+            tag + ": {\"location\": \"" + location + "\", \"message\": \"" + message + "\"}"
+        );
+    }
+
     /**
      * Read the given LKQL file and parse it as a rule configuration file to return the list of
      * instances defined in it.
@@ -317,8 +330,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * @throws LKQLRuleFileError If there is any error in the provided LKQL rule file, preventing
      *     the analysis to go further.
      */
-    private static Map<String, RuleInstance> parseLKQLRuleFile(final String lkqlRuleFileName)
-        throws LKQLRuleFileError {
+    private static Map<String, RuleInstance> parseLKQLRuleFile(
+        final String lkqlRuleFileName,
+        final boolean verbose
+    ) throws LKQLRuleFileError {
         final File lkqlFile = new File(lkqlRuleFileName);
         final String lkqlFileBasename = lkqlFile.getName();
         final Map<String, RuleInstance> res = new HashMap<>();
@@ -346,7 +361,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                     lkqlFileBasename,
                     topLevel.getMember("rules"),
                     RuleInstance.SourceMode.GENERAL,
-                    res
+                    res,
+                    verbose
                 );
 
                 // Then get the optional Ada and SPARK instances
@@ -355,7 +371,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                         lkqlFileBasename,
                         topLevel.getMember("ada_rules"),
                         RuleInstance.SourceMode.ADA,
-                        res
+                        res,
+                        verbose
                     );
                 }
                 if (topLevel.hasMember("spark_rules")) {
@@ -363,7 +380,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                         lkqlFileBasename,
                         topLevel.getMember("spark_rules"),
                         RuleInstance.SourceMode.SPARK,
-                        res
+                        res,
+                        verbose
                     );
                 }
             } else {
@@ -390,7 +408,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         final String lkqlRuleFile,
         final Value instancesObject,
         final RuleInstance.SourceMode sourceMode,
-        final Map<String, RuleInstance> toPopulate
+        final Map<String, RuleInstance> toPopulate,
+        final boolean verbose
     ) throws LKQLRuleFileError {
         // Iterate on all instance object keys
         for (String ruleName : instancesObject.getMemberKeys()) {
@@ -399,19 +418,67 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
             // Check that the value associated to the rule name is an array like value
             if (args.hasArrayElements()) {
-                // Else iterate over each argument object and create one instance for each
+                // Then iterate over each argument object and create one instance for each
                 for (long i = 0; i < args.getArraySize(); i++) {
                     var arg = args.getArrayElement(i);
                     if (arg.hasMembers()) {
-                        processArgsObject(lkqlRuleFile, arg, sourceMode, lowerRuleName, toPopulate);
+                        processArgsObject(
+                            lkqlRuleFile,
+                            arg,
+                            sourceMode,
+                            lowerRuleName,
+                            toPopulate,
+                            verbose
+                        );
                     } else if (acceptSoleArgs(ruleName) && arg.isString()) {
-                        processSoleArg(arg, sourceMode, ruleName, toPopulate);
+                        processSoleArg(
+                            lkqlRuleFile,
+                            instancesObject,
+                            arg,
+                            sourceMode,
+                            ruleName,
+                            toPopulate,
+                            verbose
+                        );
                     } else {
                         errorInLKQLRuleFile(lkqlRuleFile, "Arguments should be in an object value");
                     }
                 }
             } else {
                 errorInLKQLRuleFile(lkqlRuleFile, "The value associated to a rule must be a list");
+            }
+        }
+
+        // Post-process instances map and look for instances that are identical
+        // but have different aliases.
+
+        // Build a new map to group all instances of the same rule into a list
+        Map<String, List<RuleInstance>> rules = new HashMap();
+        for (var instance : toPopulate.entrySet()) {
+            var ruleName = instance.getValue().ruleName();
+            var instancesList = rules.getOrDefault(ruleName, new ArrayList<>());
+            instancesList.add(instance.getValue());
+            rules.put(ruleName, instancesList);
+        }
+
+        // Look for duplicates to warn the user about duplicate checks
+        for (var rule : rules.entrySet()) {
+            for (int i = 0; i < rule.getValue().size(); i++) {
+                for (var instance : rule.getValue().subList(i + 1, rule.getValue().size())) {
+                    RuleInstance current = rule.getValue().get(i);
+                    if (current.isEquivalent(instance)) {
+                        emitMessageForTheDriver(
+                            "WORKER_WARNING",
+                            current.locationToGNATDiagnosisFormatString(),
+                            "instance " +
+                            current.instanceId() +
+                            " runs the same check than instance " +
+                            instance.instanceId() +
+                            " declared at " +
+                            instance.locationToGNATDiagnosisFormatString()
+                        );
+                    }
+                }
             }
         }
     }
@@ -422,7 +489,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         final Value argsObject,
         final RuleInstance.SourceMode sourceMode,
         final String ruleName,
-        final Map<String, RuleInstance> toPopulate
+        final Map<String, RuleInstance> toPopulate,
+        final boolean verbose
     ) throws LKQLRuleFileError {
         // Compute the instance arguments and optional instance name
         String instanceId = ruleName;
@@ -442,31 +510,99 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             }
         }
 
-        // Add an instance in the instance map if it is not present
+        RuleInstance newInstance = new RuleInstance(
+            ruleName,
+            instanceName,
+            sourceMode,
+            arguments,
+            argsObject.getSourceLocation()
+        );
+
+        // Add an instance in the instance map
         if (toPopulate.containsKey(instanceId)) {
-            errorInLKQLRuleFile(
-                lkqlRuleFile,
-                "Multiple instances with the same name: " + instanceId
-            );
+            RuleInstance oldInstance = toPopulate.get(instanceId);
+            // If the instance is already present, compare parameters, if they
+            // are identical, skip the current instance and emit a warning.
+            if (oldInstance.arguments().equals(newInstance.arguments())) {
+                emitMessageForTheDriver(
+                    "WORKER_WARNING",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "ignore duplicate instance " +
+                    instanceId +
+                    ", previous declaration at " +
+                    oldInstance.locationToGNATDiagnosisFormatString()
+                );
+            } else {
+                // On the contrary, emit an error.
+                emitMessageForTheDriver(
+                    "WORKER_ERROR",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "instance " +
+                    instanceId +
+                    " has a different configuration than the one previously declared at " +
+                    oldInstance.locationToGNATDiagnosisFormatString() +
+                    " (instances should have unique names)"
+                );
+            }
         } else {
-            toPopulate.put(
-                instanceId,
-                new RuleInstance(ruleName, instanceName, sourceMode, arguments)
-            );
+            if (verbose) {
+                emitMessageForTheDriver(
+                    "WORKER_INFO",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "register new instance " + instanceId
+                );
+            }
+            toPopulate.put(instanceId, newInstance);
         }
     }
 
     /** Internal function to process a sole string argument for a compiler-based rule. */
     private static void processSoleArg(
+        final String lkqlRuleFile,
+        final Value instancesObject,
         final Value arg,
         final RuleInstance.SourceMode sourceMode,
         final String ruleName,
-        final Map<String, RuleInstance> toPopulate
-    ) {
+        final Map<String, RuleInstance> toPopulate,
+        final boolean verbose
+    ) throws LKQLRuleFileError {
         // Create the new rule instance and add it to the "global" map
         Map<String, String> args = new HashMap<>();
         args.put("arg", "\"" + arg + "\"");
-        toPopulate.put(ruleName, new RuleInstance(ruleName, Optional.empty(), sourceMode, args));
+        RuleInstance newInstance = new RuleInstance(
+            ruleName,
+            Optional.empty(),
+            sourceMode,
+            args,
+            // Since arg is a string literal, it doesn't have SourceSection
+            // information yet, use the parent instancesObject's location
+            // instead.
+            instancesObject.getSourceLocation()
+        );
+
+        if (!toPopulate.containsKey(ruleName)) {
+            toPopulate.put(ruleName, newInstance);
+            if (verbose) {
+                emitMessageForTheDriver(
+                    "WORKER_INFO",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "register new instance " + ruleName
+                );
+            }
+        } else {
+            emitMessageForTheDriver(
+                "WORKER_ERROR",
+                newInstance.locationToGNATDiagnosisFormatString(),
+                "cannot add instance " +
+                ruleName +
+                " twice using the shortcut argument format. Previous instance has been declared in" +
+                ((newInstance
+                                .instanceLocation()
+                                .equals(toPopulate.get(ruleName).instanceLocation()))
+                        ? " the same set"
+                        : ": " + toPopulate.get(ruleName).locationToGNATDiagnosisFormatString())
+            );
+        }
     }
 
     /** Util function which returns whether a rule accepts sole argument. */

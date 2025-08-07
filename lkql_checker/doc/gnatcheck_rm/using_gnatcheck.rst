@@ -462,9 +462,9 @@ described in the following paragraph).
 
 By default, GNATcheck will look for a ``rules.lkql`` file besides the specified
 project file if any. If one is found and no other rule configuration has been
-provided (either through the LKQL --rule-file option, or by the now deprecated
-legacy -rules options), GNATcheck will load the rule configuration file as if
-it was provided by the --rule-file option.
+provided (either through the LKQL ``--rule-file`` option, or by the now
+deprecated legacy ``-rules`` options), GNATcheck will load the rule
+configuration file as if it was provided by the ``--rule-file`` option.
 
 .. note::
 
@@ -485,7 +485,7 @@ string, or the list of strings type, as shown in the simple example below:
     Forbidden_Attributes: {Forbidden: ["GNAT"], Allowed: ["First", "Last"]}
   }
 
-Using the "@" object notation is strongly advised to make your configuration
+Using the ``@`` object notation is strongly advised to make your configuration
 file way more understandable:
 
 Please read the :ref:`Predefined_Rules` documentation to view examples on how
@@ -524,7 +524,7 @@ to provide parameters to rules through LKQL rule files.
     }
 
   Moreover, each instance must be identifiable through a unique name, thus the
-  following configuration is invalid and will lead to a GNATCheck error:
+  following configuration is invalid and will lead to a GNATcheck error:
 
   ::
 
@@ -534,6 +534,10 @@ to provide parameters to rules through LKQL rule files.
         {Forbidden: ["Length"], instance_name: "Instance"},
       ]
     }
+
+  However, if two instances have the same name **and** the same parameters,
+  GNATcheck will just ignore the duplicate instance and emit a warning instead
+  of an error so that the analysis can nevertheless be executed.
 
 Additionally to the ``rules`` top-level symbol, an LKQL rule file may export
 ``ada_rules`` and ``spark_rules`` symbols to enable associated rules,
@@ -624,8 +628,10 @@ defined in ``specific_rules.lkql``.
   are going to be searched in.
 
 You can enable the same rule in multiple files, but the constraint about the
-instance name uniqueness remains valid, meaning that such configuration is
-invalid:
+instance name uniqueness remains valid: when two instances have the same name,
+GNATcheck will emit an error if the instances have different parameters but
+ignore duplicate instances that are configured identically. That means such a
+configuration is invalid:
 
 .. code-block:: lkql
 
@@ -648,6 +654,21 @@ invalid:
     }
   })
   # error: This rule configuration defines two instances with the same name: "Forbid_Attr"
+
+Note that GNATcheck will also detect instances that run the same check (i.e.,
+instances that have different names but are configured with the same
+parameters). In such cases, GNATcheck will emit a warning so that duplicate
+checks can be easily detected when combining rules object.
+
+Same restrictions apply when combining LKQL rules files with rules specified
+with the command line interface (using the ``--rule``
+:ref:`switch<General_gnatcheck_Switches>`), or through the ``Check``
+:ref:`GPR package<Check_GPR_Package>`.
+
+.. attention::
+
+   Combining :ref:`LKQL rule file<LKQL_options_file>` with the deprecated
+   :ref:`GNATcheck Rule Options<gnatcheck_Rule_Options>` is undefined behavior.
 
 
 .. _gnatcheck_Rule_Options:

@@ -1,0 +1,3 @@
+val rules = @{
+    Style_Checks: ["xy", "xa"]
+}

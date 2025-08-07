@@ -228,12 +228,13 @@ package body Gnatcheck.Output is
    -- Info --
    ----------
 
-   procedure Info (Message : String) is
+   procedure Info (Message : String; Location : String := "") is
    begin
       Emit_Message
         (Message,
          Tag         => Info,
-         Tool_Name   => True,
+         Tool_Name   => Location = "",
+         Location    => Location,
          New_Line    => True,
          Log_Message => True);
    end Info;
