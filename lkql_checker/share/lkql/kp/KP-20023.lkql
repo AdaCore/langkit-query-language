@@ -1,0 +1,23 @@
+import stdlib
+
+fun is_class_subtype(type_expr) =
+    |" Returns whether the provided type express designate a class-wide
+    |" subtype.
+    type_expr is SubtypeIndication when
+    match type_expr.f_name
+    | a@AttributeRef => a.f_attribute.p_name_is("class")
+    | i@Identifier => i.p_referenced_decl() is BaseSubtypeDecl(p_get_type(): ClasswideTypeDecl)
+
+@check(help="occurrence of KP 20023",
+       message="occurrence of KP 20023")
+fun kp_20023(node) =
+    |" Flag object assignments to class-wide type objects where the right hand
+    |" side is a conditional expression containing function calls that dispatch
+    |" on result.
+    node is AssignStmt when
+    is_class_subtype(node.f_dest.p_referenced_decl()?.p_type_expression?())
+    and stdlib.strip_conversions(node.f_expr) is CondExpr
+    and stdlib.any([
+        call.p_is_dispatching_call()
+        for call in from node.f_expr select Name
+    ])
