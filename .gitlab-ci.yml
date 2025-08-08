@@ -49,11 +49,6 @@ pre-commit:
 
 # Common part for all testing CIs
 .common-test-part: &common-test-part
-  services:
-    - image:e3
-    - cpu:8
-    - mem:32
-    - disk:100
   stage: test
   interruptible: true
   script:
@@ -70,11 +65,32 @@ pre-commit:
 # CIs that are run automatically on each merge request event
 test:
   <<: *common-test-part
+  services:
+    - image:e3
+    - cpu:8
+    - mem:32
+    - disk:100
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   parallel:
     matrix:
       - PLAN_ENTRY: [lkql_jit, lkql_native_jit]
+
+# We also run the integration testsuite to make sure the MR is not breaking the
+# GNATstudio integration.
+integration-testsuite:
+  <<: *common-test-part
+  services:
+    - image:systemgtk
+    - cpu:8
+    - mem:32
+    - disk:80
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      allow_failure: true
+  parallel:
+    matrix:
+      - PLAN_ENTRY: [integration_testsuite]
 
 # CIs that are triggered manually
 optional:

@@ -20,3 +20,7 @@ def lkql_native_jit():
 def gnatcheck_internal_testsuite():
     install()
     anod_test("gnatcheck", qualifier="implementation=native_jit,internal")
+
+def integration_testsuite():
+    install()
+    anod_test("integration-testsuite", test_name="gnatcheck/")
