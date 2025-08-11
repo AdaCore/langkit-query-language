@@ -252,7 +252,7 @@ package body Gnatcheck.Projects.Aggregate is
       Start_Prj_Iterator;
 
       while not Prj_Iterator_Done loop
-         if Verbose_Mode then
+         if Arg.Verbose.Get then
             Info ("Processing aggregated project " & String (Next_Prj_Name));
          end if;
 

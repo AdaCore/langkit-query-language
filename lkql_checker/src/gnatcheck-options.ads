@@ -80,10 +80,6 @@ package Gnatcheck.Options is
    --  '--help'
    --  Print usage info and exit
 
-   Verbose_Mode : Boolean := False;
-   --  The verbose mode.
-   --  '-v'
-
    Generate_XML_Help : Boolean := False;
    --  If this file is ON, the tool generates the XML description of the tool
    --  parameters to be used for creating the GUI in GPS.
@@ -412,6 +408,14 @@ package Gnatcheck.Options is
            Short  => "-q",
            Name   => "Quiet mode",
            Help   => "quiet mode, do not emit messages on stderr");
+
+      package Verbose is new
+        Parse_Flag
+          (Parser => Parser,
+           Short  => "-v",
+           Long   => "--verbose",
+           Name   => "Verbose mode",
+           Help   => "enable the verbose mode");
 
       package Brief is new
         Parse_Flag

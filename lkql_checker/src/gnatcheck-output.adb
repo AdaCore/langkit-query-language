@@ -651,7 +651,7 @@ package body Gnatcheck.Output is
            (" -jn                      - n is the maximal number of processes");
          Put_Line
            (" -q                       - quiet mode (do not report detections in Stderr)");
-         Put_Line (" -v                       - verbose mode");
+         Put_Line (" -v, --verbose            - enable the verbose mode");
          Put_Line
            (" -W, --warnings-as-errors - treat warning messages as errors");
          Put_Line
@@ -728,7 +728,7 @@ package body Gnatcheck.Output is
       Put_Line
         (" -q                       - quiet mode (do not report detections in Stderr)");
       Put_Line (" -t                       - report execution time in Stderr");
-      Put_Line (" -v                       - verbose mode");
+      Put_Line (" -v, --verbose            - enable the verbose mode");
       Put_Line
         (" -W, --warnings-as-errors - treat warning messages as errors");
       Put_Line

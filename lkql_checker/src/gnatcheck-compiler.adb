@@ -1885,7 +1885,7 @@ package body Gnatcheck.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'(LKQL_RF_Name);
 
-      if Verbose_Mode then
+      if Arg.Verbose.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--verbose");
       end if;

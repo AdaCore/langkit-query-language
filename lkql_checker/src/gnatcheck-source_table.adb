@@ -880,7 +880,7 @@ package body Gnatcheck.Source_Table is
          end;
       end if;
 
-      if Verbose_Mode then
+      if Arg.Verbose.Get then
          Info ("[" & N (2 .. N'Last) & "] " & Short_Source_Name (SF));
 
       elsif not (Arg.Quiet_Mode or else Arg.Progress_Indicator_Mode.Get) then

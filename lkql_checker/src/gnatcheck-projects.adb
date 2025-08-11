@@ -1133,7 +1133,7 @@ package body Gnatcheck.Projects is
    procedure Check_Parameters is
       use Ada.Strings.Unbounded;
    begin
-      if Verbose_Mode and then not Arg.Aggregated_Project then
+      if Arg.Verbose.Get and then not Arg.Aggregated_Project then
          --  When procressing aggregated projects one by one, we want
          --  Verbose_Mode to print this only in the outer invocation.
          Print_Version_Info (2004);

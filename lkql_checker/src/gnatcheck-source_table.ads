@@ -185,11 +185,11 @@ package Gnatcheck.Source_Table is
 
    procedure Output_Source (SF : SF_Id);
    --  Depending on the options set generates the trace of the units/sources
-   --  processing. If Verbose_Mode is ON, outputs into Stderr the number of the
-   --  units left and the name of the source being processed. Otherwise, if
-   --  Quiet_Mode is OFF, outputs only the number of units left. If
-   --  Progress_Indicator_Mode is ON, generates the output to be used for GPS
-   --  progress indicator. (Unconditionally) decreases the counter of the
+   --  processing. If the verbose mode is enabled, outputs into Stderr the
+   --  number of the units left and the name of the source being processed.
+   --  Otherwise, if Quiet_Mode is OFF, outputs only the number of units left.
+   --  If Progress_Indicator_Mode is ON, generates the output to be used for
+   --  GPS progress indicator. (Unconditionally) decreases the counter of the
    --  sources which have to be processed (Sources_Left)
 
    function Create_Ada_Context return Analysis_Context;

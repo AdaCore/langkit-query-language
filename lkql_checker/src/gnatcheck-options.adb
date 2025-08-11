@@ -224,7 +224,7 @@ package body Gnatcheck.Options is
       loop
          Initial_Char :=
            Getopt
-             ("v h hx "
+             ("h hx "
               & "m? files= "
               &   --  project-specific options
                                                "-kp-version= "
@@ -333,11 +333,6 @@ package body Gnatcheck.Options is
                      XML_Report_ON := True;
                      Custom_XML_Report_File := True;
                   end if;
-               end if;
-
-            when 'v'       =>
-               if Full_Switch (Parser => Parser) = "v" then
-                  Verbose_Mode := True;
                end if;
 
             when 'x'       =>
