@@ -90,7 +90,21 @@ package body Gnatcheck.Projects is
 
    overriding
    function Verbosity
-     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level;
+     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level
+   is (case Arg.Project_Verbosity.Get is
+         when 0      => GPR2.Reporter.No_Warnings,
+         when 1      => GPR2.Reporter.Regular,
+         when 2      => GPR2.Reporter.Verbose,
+         when others => raise Constraint_Error with "should not happen");
+
+   overriding
+   function User_Verbosity
+     (Self : Gnatcheck_Reporter) return GPR2.Reporter.User_Verbosity_Level
+   is (case Arg.Project_Verbosity.Get is
+         when 0      => GPR2.Reporter.Important_Only,
+         when 1      => GPR2.Reporter.Regular,
+         when 2      => GPR2.Reporter.Verbose,
+         when others => raise Constraint_Error with "should not happen");
 
    Gpr2_Reporter : Gnatcheck_Reporter;
    --  Make libgpr2 report messages using the proper ``Gnatcheck.Output`` API.
@@ -107,36 +121,16 @@ package body Gnatcheck.Projects is
    procedure Internal_Report
      (Self : in out Gnatcheck_Reporter; Message : GPR2.Message.Object) is
    begin
-      case Message.Level is
-         when GPR2.Message.Error   =>
-            Print (Message.Format);
+      --  Check if the message is reporting about a missing file
+      if not Missing_File_Detected
+        and then Report_Missing_File (Message.Message)
+      then
+         Missing_File_Detected := True;
+      end if;
 
-         when GPR2.Message.Warning =>
-            if Verbose_Mode then
-               Print (Message.Format);
-            end if;
-
-            if not Missing_File_Detected
-              and then Report_Missing_File (Message.Message)
-            then
-               Missing_File_Detected := True;
-            end if;
-
-         when others               =>
-            null;
-      end case;
+      --  Then just print the formatted message
+      Print (Message.Format);
    end Internal_Report;
-
-   ---------------
-   -- Verbosity --
-   ---------------
-
-   overriding
-   function Verbosity
-     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level is
-   begin
-      return GPR2.Reporter.Regular;
-   end Verbosity;
 
    -----------
    -- Error --
@@ -565,12 +559,9 @@ package body Gnatcheck.Projects is
          My_Project.Error ("project has no Ada sources, processing failed");
          raise Parameter_Error;
 
+      --  Check that an Ada runtime has been found
       elsif not My_Project.Tree.Has_Runtime_Project then
-         --  Issue with the configuration of Ada
-         for Msg of My_Project.Tree.Configuration.Log_Messages loop
-            Print (Msg.Format);
-         end loop;
-         My_Project.Error ("processing failed");
+         My_Project.Error ("cannot load the Ada runtime, processing failed");
          raise Parameter_Error;
       end if;
 

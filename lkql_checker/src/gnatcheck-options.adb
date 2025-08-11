@@ -33,6 +33,26 @@ package body Gnatcheck.Options is
       end if;
    end Jobs_Convert;
 
+   -------------------------------
+   -- Project_Verbosity_Convert --
+   -------------------------------
+
+   function Project_Verbosity_Convert (Arg : String) return Natural is
+      Value : Natural;
+   begin
+      begin
+         Value := Natural'Value (Arg);
+         if Value > 2 then
+            raise Opt_Parse_Error with "invalid value: " & Arg;
+         else
+            return Value;
+         end if;
+      exception
+         when Constraint_Error =>
+            raise Opt_Parse_Error with "cannot parse provided value: " & Arg;
+      end;
+   end Project_Verbosity_Convert;
+
    --------------------
    -- Scan_Arguments --
    --------------------
@@ -164,6 +184,7 @@ package body Gnatcheck.Options is
             Disallow (Arg.Scenario_Vars.This, "-Xname=val" & In_Project_Msg);
             Disallow
               (Arg.No_Subprojects.This, "--no-subprojects" & In_Project_Msg);
+            Disallow (Arg.Project_Verbosity.This, "-vP" & In_Project_Msg);
             Disallow (Arg.Follow_Symbolic_Links.This, "-eL" & In_Project_Msg);
             Disallow (Arg.Lkql_Path.This, "--lkql-path" & In_Project_Msg);
             Disallow (Arg.Rules.This, "-r" & In_Project_Msg);
@@ -191,6 +212,7 @@ package body Gnatcheck.Options is
          Allow (Arg.Aggregate_Subproject.This);
          Allow (Arg.Project_File.This);
          Allow (Arg.No_Subprojects.This);
+         Allow (Arg.Project_Verbosity.This);
          Allow (Arg.Follow_Symbolic_Links.This);
          Allow (Arg.Lkql_Path.This);
          Allow (Arg.Rules.This);
@@ -204,7 +226,6 @@ package body Gnatcheck.Options is
            Getopt
              ("v h hx "
               & "m? files= "
-              & "vP! "
               &   --  project-specific options
                                                "-kp-version= "
               & "o= "
@@ -317,22 +338,6 @@ package body Gnatcheck.Options is
             when 'v'       =>
                if Full_Switch (Parser => Parser) = "v" then
                   Verbose_Mode := True;
-               elsif Full_Switch (Parser => Parser) = "vP" then
-                  if First_Pass then
-                     begin
-                        Verbosity_Level := Verbosity_Levels'Value (Parameter);
-                     exception
-                        when Constraint_Error =>
-                           Error
-                             ("wrong switch parameter "
-                              & Parameter
-                              & " for -vP");
-                           raise Parameter_Error;
-                     end;
-                  elsif Args_From_Project then
-                     Error ("-vP option is not allowed in a project file");
-                     raise Parameter_Error;
-                  end if;
                end if;
 
             when 'x'       =>

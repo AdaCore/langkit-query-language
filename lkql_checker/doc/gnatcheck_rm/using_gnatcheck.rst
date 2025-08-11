@@ -85,6 +85,11 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: --ignore-project-switches
 
+``-vP level``
+  Set the verbosity level when parsing a project file. The level is expressed
+  as a natural number between ``0`` and ``2``; ``0`` being the less verbose and
+  ``2`` being very verbose (default is ``0``).
+
 ``--ignore-project-switches``
   Ignore gnatcheck switches specified in the package ``Check`` of the main
   project file.
@@ -396,6 +401,7 @@ GNATcheck:
     * ``-U``
     * ``-Xname=value``
     * ``--no-subprojects``
+    * ``-vP``
     * ``-eL``
     * ``-r, --rule [rule_name]`` (use ``Rules`` attribute instead)
     * ``--rule-file=filename`` (use ``Rule_File`` attribute instead)

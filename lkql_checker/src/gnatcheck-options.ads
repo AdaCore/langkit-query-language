@@ -238,6 +238,7 @@ package Gnatcheck.Options is
    procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String);
 
    function Jobs_Convert (Arg : String) return Natural;
+   function Project_Verbosity_Convert (Arg : String) return Natural;
 
    package Arg is
       Parser : Argument_Parser :=
@@ -318,6 +319,19 @@ package Gnatcheck.Options is
            Arg_Type   => Unbounded_String,
            Accumulate => True,
            Help       => "scenario variables to pass to the project file");
+
+      package Project_Verbosity is new
+        Parse_Option
+          (Parser           => Parser,
+           Long             => "-vP",
+           Name             => "Project verbosity",
+           Legacy_Long_Form => True,
+           Arg_Type         => Natural,
+           Default_Val      => 0,
+           Convert          => Project_Verbosity_Convert,
+           Help             =>
+             "verbosity level when parsing a project file (from 0 to 2, "
+             & "default is 0)");
 
       package Config_File is new
         Parse_Option

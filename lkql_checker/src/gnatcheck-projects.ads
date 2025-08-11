@@ -104,14 +104,6 @@ package Gnatcheck.Projects is
    -- Project-specific options --
    ------------------------------
 
-   ------------------------------------------------------
-   -- -vPn  : verbosity level on project file analysis --
-   ------------------------------------------------------
-
-   subtype Verbosity_Levels is Natural range 0 .. 2;
-
-   Verbosity_Level : Verbosity_Levels := 0;
-
    --------------------------------------------------------------------------
    -- -U [main_unit]  : get the source or main_unit closure of the project --
    --------------------------------------------------------------------------

@@ -637,6 +637,8 @@ package body Gnatcheck.Output is
            (" --subdirs=dir    - specify subdirectory to place the result files into");
          Put_Line
            (" -eL              - follow all symbolic links when processing project files");
+         Put_Line
+           ("-vP               - verbosity level when parsing a project file (from 0 to 2, default is 0)");
          Put_Line (" -o filename      - specify the name of the report file");
          Put_Line ("");
          Put_Line
@@ -704,6 +706,8 @@ package body Gnatcheck.Output is
         (" --no_objects_dir - place results into current dir instead of project dir");
       Put_Line
         (" -eL              - follow all symbolic links when processing project files");
+      Put_Line
+        ("-vP               - verbosity level when parsing a project file (from 0 to 2, default is 0)");
       Put_Line ("");
       Put_Line
         (" --ignore-project-switches - ignore switches specified in the project file");

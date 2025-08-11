@@ -1,0 +1,9 @@
+format: brief
+driver: gnatcheck
+tests:
+  - label: With "-vP 3"
+    extra_args:
+      - -vP=3
+  - label: With "-vP test"
+    extra_args:
+      - -vP=test

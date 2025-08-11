@@ -1,0 +1,13 @@
+With "-vP 3"
+============
+
+gnatcheck: error: for option Project verbosity - invalid value: 3
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+With "-vP test"
+===============
+
+gnatcheck: error: for option Project verbosity - cannot parse provided value: test
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
