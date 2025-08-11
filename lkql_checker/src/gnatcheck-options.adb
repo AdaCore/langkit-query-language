@@ -200,7 +200,7 @@ package body Gnatcheck.Options is
          Initial_Char :=
            Getopt
              ("v h hx "
-              & "m? files= a "
+              & "m? files= "
               & "vP! "
               &   --  project-specific options
                                                "-kp-version= "
@@ -239,11 +239,6 @@ package body Gnatcheck.Options is
                end loop;
 
                exit when not Success;
-
-            when 'a'       =>
-               --  Ignore -a for compatibility
-
-               null;
 
             when 'f'       =>
                if Full_Switch (Parser => Parser) = "files" then
