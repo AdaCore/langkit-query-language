@@ -22,7 +22,9 @@ import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -32,6 +34,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
@@ -148,37 +151,63 @@ public abstract class FunCall extends Expr {
      * @param function The function value to execute.
      * @return The result of the function call.
      */
-    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
-    protected Object onFunction(
-        final VirtualFrame frame,
-        final LKQLFunction function,
+    @Specialization(
+        limit = Constants.SPECIALIZED_LIB_LIMIT,
+        guards = { "function.rootNode == cachedFunction.rootNode", "function.hasClosure()" }
+    )
+    @ExplodeLoop
+    protected Object onCachedFunction(
+        VirtualFrame frame,
+        LKQLFunction function,
+        @CachedLibrary("function") InteropLibrary functionLibrary,
+        @Cached("function") @SuppressWarnings("unused") LKQLFunction cachedFunction,
+        @Cached("orderThisArgList(function)") Expr[] argExprs
+    ) {
+        // Assert that the number of arguments is constant from the POV of the
+        // compiler, which will allow to unroll the loop and inline the call
+        // below.
+        CompilerAsserts.compilationConstant(argExprs.length);
+
+        Object[] argVals = new Object[argExprs.length + 1];
+        argVals[0] = function.closure.getContent();
+        for (int i = 1; i < argVals.length; i++) {
+            argVals[i] = argExprs[i - 1].executeGeneric(frame);
+        }
+
+        try {
+            return functionLibrary.execute(function, argVals);
+        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
+            throw LKQLRuntimeException.fromJavaException(e, this.getCallee());
+        }
+    }
+
+    @Specialization(replaces = "onCachedFunction", limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected Object onUncachedFunction(
+        VirtualFrame frame,
+        LKQLFunction function,
         @CachedLibrary("function") InteropLibrary functionLibrary
     ) {
-        // Execute the argument list with the mandatory space for the function closure
-        String[] actualParams = function.parameterNames;
-        Expr[] argExprs = orderArgList(
-            actualParams,
+        return onCachedFunction(
+            frame,
+            function,
+            functionLibrary,
+            function,
+            orderThisArgList(function)
+        );
+    }
+
+    public Expr[] orderThisArgList(LKQLFunction function) {
+        return orderArgList(
+            function.parameterNames,
             argNames,
             args,
             function.getParameterDefaultValues(),
             this
         );
-
-        Object[] argVals = new Object[argExprs.length];
-        for (int i = 0; i < argVals.length; i++) {
-            argVals[i] = argExprs[i] == null ? null : argExprs[i].executeGeneric(frame);
-        }
-
-        // Return the result of the function execution
-        return executeLKQLFunction(frame, function, functionLibrary, argVals);
     }
 
     /**
      * Execute the function call on a property reference value.
-     *
-     * @param frame The frame to execute the property reference in.
-     * @param property The property reference value to execute.
-     * @return The result of the property call.
      */
     @Specialization
     protected Object onProperty(VirtualFrame frame, LKQLProperty property) {

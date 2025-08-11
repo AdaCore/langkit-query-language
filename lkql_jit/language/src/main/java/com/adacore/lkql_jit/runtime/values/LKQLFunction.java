@@ -221,4 +221,8 @@ public class LKQLFunction extends BasicLKQLValue {
     public Expr[] getParameterDefaultValues() {
         return parameterDefaultValues;
     }
+
+    public boolean hasClosure() {
+        return closure != Closure.EMPTY;
+    }
 }
