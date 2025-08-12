@@ -27,14 +27,11 @@ with GPR2.Project.View;
 
 with Langkit_Support.File_Readers; use Langkit_Support.File_Readers;
 
-with Libadalang.Analysis;         use Libadalang.Analysis;
 with Libadalang.Preprocessing;    use Libadalang.Preprocessing;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
 with Libadalang.Common;
 with Libadalang.Config_Pragmas;
-
-with Liblkqllang.Analysis;
 
 package body Gnatcheck.Source_Table is
 
@@ -1398,7 +1395,8 @@ package body Gnatcheck.Source_Table is
    -- Process_Sources --
    ---------------------
 
-   procedure Process_Sources (Ctx : Checker_App.Lkql_Context) is
+   procedure Process_Sources is
+      Ctx     : constant Analysis_Context := Create_Ada_Context;
       Next_SF : SF_Id;
 
       use Libadalang.Iterators;
@@ -1415,7 +1413,7 @@ package body Gnatcheck.Source_Table is
 
          declare
             Unit : constant Analysis_Unit :=
-              Ctx.Analysis_Ctx.Get_From_File (Source_Name (Next_SF));
+              Ctx.Get_From_File (Source_Name (Next_SF));
          begin
             --  Process exemption pragmas for Unit
 
@@ -1466,55 +1464,38 @@ package body Gnatcheck.Source_Table is
       end loop;
    end Process_Sources;
 
-   --------------------
-   -- Create_Context --
-   --------------------
+   ------------------------
+   -- Create_Ada_Context --
+   ------------------------
 
-   Partition : GPR2_Provider_And_Projects_Array_Access;
-
-   function Create_Context return Checker_App.Lkql_Context is
-      Charset        : constant String := To_String (Arg.Charset.Get);
-      Ctx            : Checker_App.Lkql_Context;
-      File_Reader    : File_Reader_Reference;
-      Default_Config : File_Config;
-      File_Configs   : File_Config_Maps.Map;
+   function Create_Ada_Context return Analysis_Context is
+      Res              : Analysis_Context;
+      Charset          : constant String := To_String (Arg.Charset.Get);
+      File_Reader      : File_Reader_Reference;
+      Default_Config   : File_Config;
+      File_Configs     : File_Config_Maps.Map;
+      Project_Provider : constant GPR2_Provider_And_Projects_Array_Access :=
+        Create_Project_Unit_Providers (Gnatcheck_Prj.Tree);
    begin
-      --  Use a project unit provider, even with the implicit project
-      if not In_Aggregate_Project then
-         if Partition = null then
-            Partition := Create_Project_Unit_Providers (Gnatcheck_Prj.Tree);
-         end if;
+      --  Setup the file reader with preprocessing support
+      Extract_Preprocessor_Data_From_Project
+        (Gnatcheck_Prj.Tree, Gnatcheck_Prj.View, Default_Config, File_Configs);
+      File_Reader := Create_Preprocessor (Default_Config, File_Configs);
 
-         --  We can ignore multiple partitions: this will only occur with
-         --  aggregate projects, which are handled specially in lalcheck.adb
+      --  Create the Libadalang analysis context with extracted configuration
+      Res :=
+        Create_Context
+          (Charset       => Charset,
+           Unit_Provider => Project_Provider (Project_Provider'First).Provider,
+           Event_Handler => EHR_Object,
+           File_Reader   => File_Reader);
 
-         --  Setup the file reader with preprocessing support
-         Extract_Preprocessor_Data_From_Project
-           (Gnatcheck_Prj.Tree,
-            Gnatcheck_Prj.View,
-            Default_Config,
-            File_Configs);
+      --  Setup the configuration pragma mapping by reading the
+      --  configuration file given by the project.
+      Libadalang.Config_Pragmas.Import_From_Project (Res, Gnatcheck_Prj.Tree);
 
-         File_Reader := Create_Preprocessor (Default_Config, File_Configs);
-
-         Ctx.Analysis_Ctx :=
-           Create_Context
-             (Charset       => Charset,
-              Unit_Provider => Partition (Partition'First).Provider,
-              Event_Handler => EHR_Object,
-              File_Reader   => File_Reader);
-
-         --  Setup the configuration pragma mapping by reading the
-         --  configuration file given by the project.
-         Libadalang.Config_Pragmas.Import_From_Project
-           (Ctx.Analysis_Ctx, Gnatcheck_Prj.Tree);
-      end if;
-
-      Ctx.LKQL_Analysis_Context :=
-        Liblkqllang.Analysis.Create_Context (Charset => "utf-8");
-
-      return Ctx;
-
-   end Create_Context;
+      --  Finally return the result
+      return Res;
+   end Create_Ada_Context;
 
 end Gnatcheck.Source_Table;

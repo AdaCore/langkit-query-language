@@ -10,8 +10,6 @@ with Ada.Environment_Variables;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Checker_App;
-
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
@@ -32,7 +30,6 @@ procedure Gnatcheck_Main is
    Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
    use type Ada.Calendar.Time;
 
-   Ctx          : Checker_App.Lkql_Context;
    GPRbuild_Pid : Process_Id := Invalid_Pid;
 
    E_Success   : constant := 0; --  No tool failure, no rule violation detected
@@ -331,7 +328,7 @@ procedure Gnatcheck_Main is
       begin
          --  Process sources to take pragma Annotate into account
 
-         Process_Sources (Ctx);
+         Process_Sources;
 
          for Job in 1 .. Num_Jobs loop
             Create (File, Out_File, File_Name ("files", Job));
@@ -466,10 +463,6 @@ begin
 
    Gnatcheck.Projects.Process_Project_File (Gnatcheck_Prj);
 
-   --  Create the LKQL context
-
-   Ctx := Gnatcheck.Source_Table.Create_Context;
-
    --  Analyze relevant project properties if needed
 
    if Gnatcheck_Prj.Is_Specified
@@ -538,7 +531,7 @@ begin
 
    --  Load rule files after having parsed --rules-dir
 
-   Process_Rules (Ctx);
+   Process_Rules;
 
    --  And process all rule options after rule files have been loaded
 

@@ -9,12 +9,12 @@
 
 with Ada.Containers.Indefinite_Ordered_Sets;
 
-with Checker_App;
-
 with Gnatcheck.Options;  use Gnatcheck.Options;
 with Gnatcheck.Projects; use Gnatcheck.Projects;
 
 with GNATCOLL.Projects; use GNATCOLL.Projects;
+
+with Libadalang.Analysis; use Libadalang.Analysis;
 
 package Gnatcheck.Source_Table is
 
@@ -192,12 +192,12 @@ package Gnatcheck.Source_Table is
    --  progress indicator. (Unconditionally) decreases the counter of the
    --  sources which have to be processed (Sources_Left)
 
-   function Create_Context return Checker_App.Lkql_Context;
-   --  Create the LKQL context
+   function Create_Ada_Context return Analysis_Context;
+   --  Create the ``Analysis_Context`` that is going to be used to extract
+   --  required information from the analyzed Ada sources.
 
-   procedure Process_Sources (Ctx : Checker_App.Lkql_Context);
-   --  Procedure all sources. Only process pragma Annotate if Annotate_Only
-   --  is true.
+   procedure Process_Sources;
+   --  Process Ada sources to extract exemption information from them.
 
    ----------------------------------------
    -- Source file access/update routines --

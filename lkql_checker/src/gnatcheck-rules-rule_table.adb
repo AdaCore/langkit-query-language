@@ -26,6 +26,8 @@ with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Liblkqllang.Analysis;
+
 with Rule_Commands; use Rule_Commands;
 with Rules_Factory; use Rules_Factory;
 
@@ -1882,18 +1884,19 @@ package body Gnatcheck.Rules.Rule_Table is
    -- Process_Rules --
    -------------------
 
-   procedure Process_Rules (Ctx : in out Lkql_Context) is
-      Rule : Rule_Info;
+   procedure Process_Rules is
+      package L renames Liblkqllang.Analysis;
+
+      Lkql_Context  : constant L.Analysis_Context :=
+        L.Create_Context (Charset => "utf-8");
+      All_Rules_Vec : Rule_Vector;
+      Rule          : Rule_Info;
    begin
-      if not Ctx.All_Rules.Is_Empty then
-         return;
-      end if;
-
-      Ctx.All_Rules :=
+      All_Rules_Vec :=
         Rules_Factory.All_Rules
-          (Ctx.LKQL_Analysis_Context, Path_Array (Arg.Rules_Dirs.Get));
+          (Lkql_Context, Path_Array (Arg.Rules_Dirs.Get));
 
-      for R of Ctx.All_Rules loop
+      for R of All_Rules_Vec loop
          declare
             Name : constant String := To_String (To_Wide_Wide_String (R.Name));
             Id   : constant Rule_Id := Find_Rule_Id (Name);
@@ -1930,7 +1933,10 @@ package body Gnatcheck.Rules.Rule_Table is
               To_Unbounded_String
                 (To_String (To_Wide_Wide_String (R.Subcategory)));
 
-            Rule.Parameters := R.Parameters;
+            for Param of R.Parameters loop
+               Rule.Parameters.Append (Param.F_Param_Identifier.Text);
+            end loop;
+
             Rule.Remediation_Level := R.Remediation_Level;
             Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
             Rule.Impact := R.Impact;

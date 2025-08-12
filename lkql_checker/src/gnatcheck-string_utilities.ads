@@ -60,6 +60,10 @@ package Gnatcheck.String_Utilities is
      Ada.Containers.Indefinite_Vectors (Positive, String);
    subtype String_Vector is String_Vectors.Vector;
 
+   package Text_Vectors is new
+     Ada.Containers.Indefinite_Vectors (Positive, Wide_Wide_String);
+   subtype Text_Vector is Text_Vectors.Vector;
+
    function Split
      (S : String; Sep : Character; Trim_Elems : Boolean := False)
       return String_Vector;
