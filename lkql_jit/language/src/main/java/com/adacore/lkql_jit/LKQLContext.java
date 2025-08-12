@@ -13,6 +13,7 @@ import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
 import com.adacore.lkql_jit.runtime.GlobalScope;
@@ -133,6 +134,11 @@ public final class LKQLContext {
     @CompilerDirectives.CompilationFinal
     private CheckerUtils.DiagnosticEmitter emitter;
 
+    // ----- Nanopass typing context -----
+
+    /** Typing context used by pattern-matching during a rewriting pass */
+    private Hierarchy typingContext = null;
+
     // ----- Constructors -----
 
     /**
@@ -218,6 +224,10 @@ public final class LKQLContext {
         return res;
     }
 
+    public Hierarchy getTypingContext() {
+        return typingContext;
+    }
+
     // ----- Setters -----
 
     public void patchContext(TruffleLanguage.Env newEnv) {
@@ -225,6 +235,10 @@ public final class LKQLContext {
         this.env = newEnv;
         this.invalidateOptionCaches();
         this.initSources();
+    }
+
+    public void setTypingContext(Hierarchy typingContext) {
+        this.typingContext = typingContext;
     }
 
     // ----- Options getting methods -----

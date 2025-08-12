@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.pass;
 
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadArgument;
@@ -57,7 +58,10 @@ public abstract class PassExpr extends Expr {
     // this can be removed if pattern matching exhaustivity is pre-checked
     @Specialization
     public Object onDynamicAdaNode(VirtualFrame frame, DynamicAdaNode input) {
+        final var typingContext = LKQLLanguage.getContext(this).getTypingContext();
+        typingContext.addAll(add.classes.stream().map(cd -> cd.name).toList());
         final var updatedTree = getUpdatedTree(input, frame);
+        typingContext.removeAll(del.classes);
         return updatedTree;
     }
 

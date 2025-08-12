@@ -5,7 +5,9 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.lkql_jit.runtime.values.DynamicAdaNode;
+import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.runtime.values.AdaNodeProxy;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -41,9 +43,17 @@ public final class DynamicNodeKindPattern extends NodePattern {
      */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
-        if (value instanceof DynamicAdaNode node) {
-            return node.kind.equals(kindName);
-        } else return false;
+        if (LKQLTypeSystemGen.isDynamicAdaNode(value)) {
+            return LKQLLanguage.getContext(this)
+                .getTypingContext()
+                .isInstance(LKQLTypeSystemGen.asDynamicAdaNode(value).kind, kindName);
+        } else if (LKQLTypeSystemGen.isNodeInterface(value)) {
+            final var dynNode = AdaNodeProxy.convertAST(LKQLTypeSystemGen.asNodeInterface(value));
+            return LKQLLanguage.getContext(this)
+                .getTypingContext()
+                .isInstance(dynNode.kind, kindName);
+        }
+        return false;
     }
 
     // ----- Override methods -----

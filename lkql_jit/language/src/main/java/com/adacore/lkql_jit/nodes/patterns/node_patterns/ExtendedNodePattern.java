@@ -67,6 +67,16 @@ public final class ExtendedNodePattern extends NodePattern {
 
                 // Return the success
                 return true;
+            } else if (LKQLTypeSystemGen.isDynamicAdaNode(value)) {
+                var node = LKQLTypeSystemGen.asDynamicAdaNode(value);
+
+                // Verify all details
+                for (NodePatternDetail detail : this.details) {
+                    if (!detail.executeDetail(frame, node)) return false;
+                }
+
+                // Return the success
+                return true;
             } else {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.NODE_INTERFACE,

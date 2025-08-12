@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.nodes.pass;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.AdaNodeProxy;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
@@ -56,6 +57,8 @@ public class RunPass extends LKQLNode {
             }
             units[i] = AdaNodeProxy.convertAST(roots[i]);
         }
+
+        LKQLLanguage.getContext(this).setTypingContext(Hierarchy.initial());
 
         do {
             final var pass = callChain.pop();
