@@ -69,7 +69,7 @@ public class Constants {
     public static final String ANNOTATION_UNIT_CHECK = "unit_check";
 
     /** The name of the arguments for the virtual function wrapping passes */
-    public static final String[] PASS_FAKE_ARGS = new String[] { "context", "input" };
+    public static final String[] PASS_FAKE_ARGS = new String[] { "input" };
     // ----- Checker annotation helpers -----
 
     /** The names of the parameters for a checker annotation */
