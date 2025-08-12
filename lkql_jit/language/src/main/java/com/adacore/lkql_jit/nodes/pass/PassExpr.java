@@ -9,28 +9,19 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadArgument;
 import com.adacore.lkql_jit.runtime.values.DynamicAdaNode;
-import com.adacore.lkql_jit.runtime.values.LKQLFunction;
-import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.source.SourceSection;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * This class is a runtime instance of a rewriting pass.
- * At the runtime passes are represented as functions AST -> AST
- * which allows to call them recursively and pass an AST as argument.
+ * At the runtime passes are represented as functions AST -> AST.
  * A pass expr is the body of the synthesized function and contains
  * all the logic needed to execute a pass.
  */
-@NodeChild(value = "readContext", type = ReadArgument.class)
 @NodeChild(value = "readInput", type = ReadArgument.class)
 public abstract class PassExpr extends Expr {
 
@@ -62,40 +53,26 @@ public abstract class PassExpr extends Expr {
         this.rewrite = rewrite;
     }
 
+    // TODO insert dynamic checks to verify AST integrity wrt. add / del blocks
+    // this can be removed if pattern matching exhaustivity is pre-checked
     @Specialization
     public Object onDynamicAdaNode(VirtualFrame frame, DynamicAdaNode input) {
-        if (previousSlot.isEmpty()) {
-            // First pass in the chain
-            // Execution differs from the others
-            System.out.println("first rewriting pass in chain");
-            return input;
-        }
-
-        // NB: in this branch previous slot is always present
-
-        // start by calling previous pass in the chain
-        final var previousPass = (LKQLFunction) FrameUtils.readLocal(frame, previousSlot.get());
-        try {
-            InteropLibrary.getUncached().execute(previousPass, input);
-        } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-            e.printStackTrace();
-        }
-
-        // 1) iterate over nodes and test match arms
-        var updatedTree = getUpdatedTree(input, frame);
-        // 2) TODO iterate over nodes and verify add / delete ? (optional)
-
+        final var updatedTree = getUpdatedTree(input, frame);
         return updatedTree;
     }
 
     @Fallback
-    public Object onOther(VirtualFrame frame, Object _obj1, Object _obj2) {
+    public Object onOther(VirtualFrame frame, Object _obj1) {
         throw LKQLRuntimeException.shouldNotExecute(this);
     }
 
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(indentLevel, new String[] {}, new Object[] {});
+        return this.nodeRepresentation(
+                indentLevel,
+                new String[] { "previousSlot" },
+                new Object[] { previousSlot }
+            );
     }
 
     // getters
@@ -119,23 +96,20 @@ public abstract class PassExpr extends Expr {
     // core logic
 
     // bottom up rewriting of the tree
-    DynamicAdaNode getUpdatedTree(DynamicAdaNode tree, VirtualFrame frame) {
-        // new node instanciated by shallow copy
-        DynamicAdaNode updatedNode = new DynamicAdaNode(tree.kind, new HashMap<>(), tree.fields);
-
+    private DynamicAdaNode getUpdatedTree(DynamicAdaNode tree, VirtualFrame frame) {
         // recurse on children first (bottom up)
-        for (var child : tree.children.entrySet()) {
-            var updatedChild = getUpdatedTree(child.getValue(), frame);
-            updatedNode.children.put(child.getKey(), updatedChild);
+        for (var child : List.copyOf(tree.children.entrySet())) {
+            tree.children.put(child.getKey(), getUpdatedTree(child.getValue(), frame));
         }
 
         // then try to rewrite the current node
-        for (var arm : rewrite.arms) {
+        for (var arm : rewrite.getArms()) {
             var rewriteResult = arm.executeArm(frame, tree);
-            if (rewriteResult != null) return (DynamicAdaNode) rewriteResult;
+            if (rewriteResult != null) {
+                return (DynamicAdaNode) rewriteResult;
+            }
         }
 
-        // if node doesnt need to be rewriten just return it
-        return updatedNode;
+        return tree;
     }
 }

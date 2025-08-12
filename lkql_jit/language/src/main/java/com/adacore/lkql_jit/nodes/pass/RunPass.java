@@ -16,6 +16,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.source.SourceSection;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * Special annotation to specify the entry point for the nanopass framework.
@@ -33,24 +35,55 @@ public class RunPass extends LKQLNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // get pass
-        final var pass = (LKQLFunction) FrameUtils.readLocal(frame, slot);
-
-        // setup results
-        final var roots = LKQLLanguage.getContext(this).getAllUnitsRoots();
-        final var res = new Object[roots.length];
-
-        for (int i = 0; i < roots.length; i++) {
-            final var root = roots[i];
-            final AdaNodeProxy input = null; // TODO translate root of AST
-            try {
-                res[i] = InteropLibrary.getUncached().execute(pass, input);
-            } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-                e.printStackTrace();
-            }
+        // Build pass call-chain
+        final Deque<LKQLFunction> callChain = new ArrayDeque<>();
+        callChain.push((LKQLFunction) FrameUtils.readLocal(frame, slot));
+        while (((PassExpr) callChain.peek().rootNode.getBody()).getPreviousSlot().isPresent()) {
+            callChain.push(
+                (LKQLFunction) FrameUtils.readLocal(
+                    frame,
+                    ((PassExpr) callChain.peek().rootNode.getBody()).getPreviousSlot().get()
+                )
+            );
         }
 
-        return res;
+        // Setup all units roots
+        final var roots = LKQLLanguage.getContext(this).getAllUnitsRoots();
+        final var units = new Object[roots.length];
+        for (int i = 0; i < roots.length; i++) {
+            if (LKQLLanguage.getContext(this).isVerbose()) {
+                System.out.println(i + ")\n" + roots[i].dumpTree());
+            }
+            units[i] = AdaNodeProxy.convertAST(roots[i]);
+        }
+
+        do {
+            final var pass = callChain.pop();
+
+            if (LKQLLanguage.getContext(this).isVerbose()) {
+                System.out.println("running pass:" + pass);
+            }
+
+            for (int i = 0; i < units.length; i++) {
+                try {
+                    units[i] = InteropLibrary.getUncached().execute(pass, frame, units[i]);
+                } catch (
+                    UnsupportedTypeException | ArityException | UnsupportedMessageException e
+                ) {
+                    e.printStackTrace();
+                }
+
+                if (LKQLLanguage.getContext(this).isVerbose()) {
+                    System.out.println(i + ")\n" + units[i]);
+                }
+            }
+        } while (!callChain.isEmpty());
+
+        return units;
+    }
+
+    public int getSlot() {
+        return slot;
     }
 
     @Override

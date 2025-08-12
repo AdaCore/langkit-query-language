@@ -1942,7 +1942,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                     break;
                 default:
             }
-            assert false : "unreachable";
         }
         if (addCollector.size() != 1) throw translationError(
             passDecl,
@@ -1961,6 +1960,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final String name = passDecl.fPassName().getText();
         scriptFrames.declareBinding(name);
         final int slot = scriptFrames.getBinding(name);
+        final Liblkqllang.Identifier previousName = passDecl.fPreviousPassName();
+        final Optional<Integer> previousSlot = previousName.isNone()
+            ? Optional.empty()
+            : Optional.of(scriptFrames.getBinding(previousName.getText()));
 
         // Enter pass lexical environement
         inPass = true;
@@ -1983,10 +1986,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Digest children of passDecl
-        final Liblkqllang.Identifier previousName = passDecl.fPreviousPassName();
-        final Optional<Integer> previousSlot = previousName.isNone()
-            ? Optional.empty()
-            : Optional.of(scriptFrames.getBinding(previousName.getText()));
         final var addBlock = (AddBlock) addCollector.get(0).accept(this);
         final var delBlock = (DelBlock) delCollector.get(0).accept(this);
         final var rewriteBlock = (RewriteBlock) rewriteCollector.get(0).accept(this);
@@ -1997,8 +1996,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             addBlock,
             delBlock,
             rewriteBlock,
-            readArguments[0],
-            readArguments[1]
+            readArguments[0]
         );
 
         final var docstring = passDecl.pDoc();

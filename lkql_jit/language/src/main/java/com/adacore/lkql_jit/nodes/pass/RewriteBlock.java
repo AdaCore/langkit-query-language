@@ -19,11 +19,16 @@ import java.util.List;
  */
 public class RewriteBlock extends LKQLNode {
 
-    final List<MatchArm> arms;
+    @Children
+    private MatchArm[] arms;
 
     public RewriteBlock(SourceSection location, List<MatchArm> clauses) {
         super(location);
-        arms = clauses;
+        arms = clauses.toArray(new MatchArm[0]);
+    }
+
+    public MatchArm[] getArms() {
+        return arms;
     }
 
     @Override
