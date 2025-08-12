@@ -399,7 +399,7 @@ begin
       Print_Tool_Version (2004);
       OS_Exit (E_Success);
 
-   elsif Print_Usage then
+   elsif Arg.Help.Get then
       Print_Gnatcheck_Usage;
       OS_Exit (E_Success);
    end if;

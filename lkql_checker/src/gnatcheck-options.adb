@@ -191,6 +191,8 @@ package body Gnatcheck.Options is
             Disallow (Arg.Rule_File.This, "--rule-file" & In_Project_Msg);
             Disallow (Arg.Target.This, "--target" & In_Project_Msg);
             Disallow (Arg.RTS.This, "--RTS" & In_Project_Msg);
+            Disallow (Arg.Help.This, "-h, --help" & In_Project_Msg);
+            Disallow (Arg.List_Rules.This, "--list-rules" & In_Project_Msg);
          end;
       end if;
 
@@ -219,19 +221,21 @@ package body Gnatcheck.Options is
          Allow (Arg.Rule_File.This);
          Allow (Arg.Target.This);
          Allow (Arg.RTS.This);
+         Allow (Arg.Help.This);
+         Allow (Arg.List_Rules.This);
       end if;
 
       loop
          Initial_Char :=
            Getopt
-             ("h hx "
+             ("hx "
               & "m? files= "
               &   --  project-specific options
                                                "-kp-version= "
               & "o= "
               & "ox= "
               & "log "
-              & "-version -help "
+              & "-version "
               & "nt xml",
               Parser => Parser);
 
@@ -278,9 +282,7 @@ package body Gnatcheck.Options is
 
             when 'h'       =>
                if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "h" then
-                     Generate_Rules_Help := True;
-                  elsif Full_Switch (Parser => Parser) = "hx" then
+                  if Full_Switch (Parser => Parser) = "hx" then
                      Generate_XML_Help := True;
                   end if;
                end if;
@@ -349,17 +351,7 @@ package body Gnatcheck.Options is
                      KP_Version := new String'(Parameter (Parser => Parser));
                   end if;
                else
-                  if Full_Switch (Parser => Parser) = "-help" then
-                     if Args_From_Project then
-                        Error
-                          ("project file should not contain '--help' option");
-                        raise Parameter_Error;
-                     end if;
-
-                     Print_Usage := True;
-                     return;
-
-                  elsif Full_Switch (Parser => Parser) = "-version" then
+                  if Full_Switch (Parser => Parser) = "-version" then
                      if Args_From_Project then
                         Error
                           ("project file should not contain '--version' "

@@ -1141,7 +1141,7 @@ package body Gnatcheck.Projects is
 
       --  We generate the rule help unconditionally
 
-      if Generate_Rules_Help and then not Arg.Aggregated_Project then
+      if Arg.List_Rules.Get and then not Arg.Aggregated_Project then
          Rules_Help;
       end if;
 
@@ -1169,7 +1169,7 @@ package body Gnatcheck.Projects is
       --  No need to perform similar checks for custom XML file because it can
       --  be set only with turning ON XML output
 
-      if Generate_Rules_Help or else Generate_XML_Help then
+      if Arg.List_Rules.Get or else Generate_XML_Help then
          Nothing_To_Do := True;
          return;
       end if;

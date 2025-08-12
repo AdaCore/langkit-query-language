@@ -76,10 +76,6 @@ package Gnatcheck.Options is
    --  '--version'
    --  Print version info and exit
 
-   Print_Usage : Boolean := False;
-   --  '--help'
-   --  Print usage info and exit
-
    Generate_XML_Help : Boolean := False;
    --  If this file is ON, the tool generates the XML description of the tool
    --  parameters to be used for creating the GUI in GPS.
@@ -145,11 +141,6 @@ package Gnatcheck.Options is
    --  The name of the source file containing the main subprogram. The name
    --  may or may not contain the suffix. This subprogram is called by the
    --  environment task.
-
-   Generate_Rules_Help : Boolean := False;
-   --  '-h'
-   --  Generate the rules help information (note, that we can do it only after
-   --  registering the rules)
 
    Active_Rule_Present : Boolean := False;
    --  Flag indicating if the tool has an activated rule to check. It does not
@@ -245,6 +236,21 @@ package Gnatcheck.Options is
            Custom_Error_Handler =>
              Create (Gnatcheck_Error_Handler'(null record)),
            Print_Help_On_Error  => False);
+
+      package Help is new
+        Parse_Flag
+          (Parser => Parser,
+           Name   => "Help",
+           Long   => "--help",
+           Short  => "-h",
+           Help   => "show the help message and exit");
+
+      package List_Rules is new
+        Parse_Flag
+          (Parser => Parser,
+           Name   => "List rules",
+           Long   => "--list-rules",
+           Help   => "show the list of predefined rules and exit");
 
       package Check_Semantic is new
         Parse_Flag

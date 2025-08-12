@@ -22,7 +22,7 @@ The following switches control the general ``gnatcheck`` behavior
   .. index:: --help
 
 
-``--help``
+``-h, --help``
   Display usage, then exit disregarding all other options.
 
   .. index:: -P file
@@ -105,10 +105,10 @@ The following switches control the general ``gnatcheck`` behavior
 ``--RTS=rts-path``
   Specifies the default location of the runtime library.
 
-  .. index:: -h
+  .. index:: --list-rules
 
-``-h``
-  List all the rules checked by the given ``gnatcheck`` version.
+``--list-rules``
+  List all available GNATcheck rules and exit.
 
   .. index:: -j
 
@@ -396,7 +396,8 @@ GNATcheck:
     ``Switches`` attribute:
 
     * ``--version``
-    * ``--help``
+    * ``-h, --help``
+    * ``--list-rules``
     * ``-P``
     * ``-U``
     * ``-Xname=value``
@@ -698,8 +699,8 @@ can provide as many rule options as you want after the ``-rules`` switch.
   Create and enable an instance of the specified rule with the specified
   parameter(s), if any.
   `rule_id` must be the identifier of one of the currently implemented
-  rules (use ``-h`` for the list of implemented rules). Rule identifiers
-  are not case-sensitive.
+  rules (use ``--list-rules`` for the list of implemented rules). Rule
+  identifiers are not case-sensitive.
 
   Each `param` item must be a non-empty string representing a valid parameter
   for the specified rule. If the part of the rule option that follows the
@@ -1157,11 +1158,11 @@ source locations will be generated on standard error, as well as in a file
 called :file:`gnatkp.out`.
 
 You can display the list of detectors without running them by specifying
-additionally the ``-h`` switch, e.g.:
+additionally the ``--list-rules`` switch, e.g.:
 
 .. code-block:: none
 
-  gnatkp --kp-version=21.2 -h --target=<my_target> --RTS=<my_runtime>
+  gnatkp --kp-version=21.2 --list-rules --target=<my_target> --RTS=<my_runtime>
 
 You can also combine the ``--kp-version`` switch with the ``--target`` switch
 to filter out detectors not relevant for your target, e.g:
@@ -1184,10 +1185,10 @@ using the switch ``-r``:
   gnatkp -Pproject --target=<my_target> --RTS=<my_runtime> -r kp_xxxx_xxx [-r kp_xxxx_xxx]
 
 where ``kp_xxxx_xxx`` is the name of a relevant known-problem to detect. You
-can get the list of available detectors via the command ``gnatkp -h``. When
-combined with the ``--kp-version`` and possibly ``--target`` switches,
-``gnatkp -h`` will only list the detectors relevant to the version
-(and target) specified.
+can get the list of available detectors via the command
+``gnatkp --list-rules``. When combined with the ``--kp-version`` and possibly
+``--target`` switches, ``gnatkp --list-rules`` will only list the detectors
+relevant to the version (and target) specified.
 
 .. attention::
 

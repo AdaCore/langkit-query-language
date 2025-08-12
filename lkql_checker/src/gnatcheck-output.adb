@@ -621,8 +621,8 @@ package body Gnatcheck.Output is
          Put_Line
            ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
          Put_Line ("options:");
-         Put_Line (" --version - Display version and exit");
-         Put_Line (" --help    - Display usage and exit");
+         Put_Line (" --version  - Display version and exit");
+         Put_Line (" -h, --help - Display usage and exit");
          Put_Line ("");
          Put_Line
            (" -Pproject        - Use project file project. Only one such switch can be used");
@@ -646,7 +646,7 @@ package body Gnatcheck.Output is
          Put_Line (" --RTS=<runtime>     - use runtime <runtime>");
          Put_Line ("");
          Put_Line
-           (" -h                       - print out the list of the available kp detectors");
+           (" --list-rules             - print out the list of the available kp detectors");
          Put_Line
            (" -jn                      - n is the maximal number of processes");
          Put_Line
@@ -676,7 +676,7 @@ package body Gnatcheck.Output is
          Put_Line
            ("   where <kp_id>   - ID of one of the currently implemented");
          Put_Line
-           ("                     detectors, use '-h' for the full list");
+           ("                     detectors, use '--list-rules' for the full list");
          Put_Line ("");
          Put_Line
            ("KP detectors must be specified either implicitly via --kp-version ");
@@ -688,8 +688,8 @@ package body Gnatcheck.Output is
       Put_Line
         ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");
       Put_Line ("options:");
-      Put_Line (" --version - Display version and exit");
-      Put_Line (" --help    - Display usage and exit");
+      Put_Line (" --version  - Display version and exit");
+      Put_Line (" -h, --help - Display usage and exit");
       Put_Line ("");
       Put_Line
         (" -Pproject        - Use project file project. Only one such switch can be used");
@@ -718,7 +718,7 @@ package body Gnatcheck.Output is
         (" --config=<cgpr>           - use configuration project <cgpr>");
       Put_Line ("");
       Put_Line
-        (" -h                       - print out the list of the currently implemented rules");
+        (" --list-rules             - print out the list of the currently implemented rules");
       Put_Line
         (" -mn                      - n is the maximal number of diagnoses in Stderr");
       Put_Line
@@ -792,7 +792,8 @@ package body Gnatcheck.Output is
       Put_Line
         ("                         depending on the specified parameter");
       Put_Line ("where <rule_id> - ID of one of the currently implemented");
-      Put_Line ("                  rules, use '-h' for the full list");
+      Put_Line
+        ("                  rules, use '--list-rules' for the full list");
       Put_Line
         ("      param     - string representing parameter(s) of a given rule, more than ");
       Put_Line ("                  one parameter can be set separated by ','");
