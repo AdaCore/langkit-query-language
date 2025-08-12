@@ -6,12 +6,10 @@
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
-import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
-import com.adacore.lkql_jit.runtime.values.LKQLNull;
-import com.adacore.lkql_jit.runtime.values.LKQLObject;
-import com.adacore.lkql_jit.runtime.values.LKQLProperty;
+import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.dsl.Cached;
@@ -128,6 +126,18 @@ public abstract class DotAccess extends BaseDotAccess {
 
         // Return the result
         return this.onNodeCached(receiver, property, property.isField());
+    }
+
+    @Specialization
+    protected Object onDynamicAdaNode(final DynamicAdaNode receiver) {
+        var res = receiver.getField(this.member.getName());
+        if (res == null && receiver instanceof AdaNodeProxy proxy) {
+            res = this.onNodeUncached(proxy.base);
+            if (LKQLTypeSystemGen.isNodeInterface(res)) {
+                return AdaNodeProxy.convertAST(LKQLTypeSystemGen.asNodeInterface(res));
+            }
+        }
+        return res;
     }
 
     /** Fallback when the receiver is none of the case identified by the specializations. */

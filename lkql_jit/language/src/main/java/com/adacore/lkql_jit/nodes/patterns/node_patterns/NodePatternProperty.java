@@ -9,6 +9,7 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.runtime.values.AdaNodeProxy;
 import com.adacore.lkql_jit.runtime.values.LKQLProperty;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
@@ -123,6 +124,11 @@ public abstract class NodePatternProperty extends NodePatternDetail {
 
         // Return the result
         return this.propertyCached(frame, node, property);
+    }
+
+    @Specialization
+    protected boolean propertyAdaNodeProxy(VirtualFrame frame, AdaNodeProxy node) {
+        return this.propertyUncached(frame, node.base);
     }
 
     // ----- Override methods -----
