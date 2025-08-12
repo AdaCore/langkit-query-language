@@ -1134,7 +1134,7 @@ package body Gnatcheck.Projects is
       use Ada.Strings.Unbounded;
    begin
       if Arg.Verbose.Get and then not Arg.Aggregated_Project then
-         --  When procressing aggregated projects one by one, we want
+         --  When processing aggregated projects one by one, we want
          --  Verbose_Mode to print this only in the outer invocation.
          Print_Version_Info (2004);
       end if;
