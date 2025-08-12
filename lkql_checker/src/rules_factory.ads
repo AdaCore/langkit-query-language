@@ -6,8 +6,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
-
 with Liblkqllang.Analysis;
 
 with Rule_Commands; use Rule_Commands;
@@ -19,8 +17,6 @@ package Rules_Factory is
    package Rule_Vectors is new Ada.Containers.Vectors (Positive, Rule_Command);
    subtype Rule_Vector is Rule_Vectors.Vector;
    --  Vector of Rule_Command values
-
-   subtype Rule_Set is String_Sets.Set;
 
    type Path_Array is array (Positive range <>) of Unbounded_String;
    No_Paths : Path_Array (1 .. 0) := [others => <>];

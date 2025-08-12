@@ -26,21 +26,17 @@ with GPR2.Project.Tree;
 with GPR2.Project.View;
 
 with Langkit_Support.File_Readers; use Langkit_Support.File_Readers;
-with Langkit_Support.Generic_API.Introspection;
 
 with Libadalang.Analysis;         use Libadalang.Analysis;
 with Libadalang.Preprocessing;    use Libadalang.Preprocessing;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
-with Libadalang.Generic_API;      use Libadalang.Generic_API;
 with Libadalang.Common;
 with Libadalang.Config_Pragmas;
 
 with Liblkqllang.Analysis;
 
 package body Gnatcheck.Source_Table is
-
-   package LKI renames Langkit_Support.Generic_API.Introspection;
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
 
@@ -1513,24 +1509,6 @@ package body Gnatcheck.Source_Table is
          Libadalang.Config_Pragmas.Import_From_Project
            (Ctx.Analysis_Ctx, Gnatcheck_Prj.Tree);
       end if;
-
-      --  Initialize the cached rules array, with an array that goes from
-      --  the index of the first root node type, to the index of the last
-      --  derived type. This array will have too many slots since is has
-      --  slots for abstract types, but we don't really care.
-      declare
-         use Checker_App;
-
-         Root_Node_Type : LKI.Type_Ref renames
-           LKI.Root_Node_Type (Ada_Lang_Id);
-         subtype Rules_By_Kind_Array_Subt is
-           Rules_By_Kind_Array
-             (LKI.To_Index (Root_Node_Type)
-              .. LKI.Last_Derived_Type (Root_Node_Type));
-
-      begin
-         Ctx.Cached_Rules := new Rules_By_Kind_Array_Subt;
-      end;
 
       Ctx.LKQL_Analysis_Context :=
         Liblkqllang.Analysis.Create_Context (Charset => "utf-8");
