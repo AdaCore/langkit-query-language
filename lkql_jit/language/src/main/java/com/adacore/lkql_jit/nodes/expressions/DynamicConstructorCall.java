@@ -9,10 +9,8 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.runtime.values.DynamicAdaNode;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
-import java.util.HashMap;
 
 /**
  * This node represents a constructor call in the LKQL language.
@@ -62,18 +60,7 @@ public final class DynamicConstructorCall extends Expr {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        final var res = new DynamicAdaNode(nodeKind, new HashMap<>(), new HashMap<>());
-        final var argResults = this.args.executeArgList(frame);
-        for (int i = 0; i < argResults.length; i++) {
-            final var name = ((NamedArg) this.args.getArgs()[i]).getArgName().getName();
-            if (argResults[i] instanceof DynamicAdaNode child) {
-                res.children.put(name, child);
-            } else {
-                res.fields.put(name, (LKQLValue) argResults[i]);
-            }
-        }
-
-        return res;
+        return new DynamicAdaNode(nodeKind, this.args.executeArgList(frame), this.getArgNames());
     }
 
     // ----- Override methods -----

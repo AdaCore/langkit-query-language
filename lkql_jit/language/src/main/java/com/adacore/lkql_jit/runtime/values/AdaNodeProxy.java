@@ -5,11 +5,8 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.libadalang.Libadalang.AdaNode;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 
 /**
@@ -24,45 +21,33 @@ public class AdaNodeProxy extends DynamicAdaNode {
     /** The native libadalang node this class proxies to */
     public final NodeInterface base;
 
-    public static AdaNodeProxy convertAST(AdaNode root) {
+    public static AdaNodeProxy convertAST(NodeInterface root) {
         return new AdaNodeProxy(root);
     }
 
-    private AdaNodeProxy(AdaNode base) {
-        super(base.getClass().getName(), new HashMap<>(), new HashMap<>());
-        this.base = base; // keep a reference
-        final String[] declaredFields = Libadalang.NODE_DESCRIPTION_MAP.get(kind).fields;
-        for (String declaredField : declaredFields) {
-            if (declaredField.startsWith("f")) {
-                final AdaNode child = (AdaNode) callMethod(declaredField, new Object[0]);
-                children.put(declaredField, new AdaNodeProxy(child));
+    private AdaNodeProxy(NodeInterface root) {
+        super(
+            ((Libadalang.AdaNode) root).getClassName(),
+            new HashMap<>(),
+            new HashMap<>(),
+            root.isListNode()
+        );
+        this.base = root; // keep a reference
+
+        if (root.isNone()) {
+            // early exit to avoid looking at fields
+            return;
+        }
+
+        if (root.isListNode()) {
+            for (int i = 0; i < root.getChildrenCount(); i++) {
+                children.put("item_" + i, new AdaNodeProxy(root.getChild(i)));
+            }
+        } else {
+            final var fieldNames = root.getFieldNames();
+            for (int i = 0; i < fieldNames.length; i++) {
+                children.put(fieldNames[i], new AdaNodeProxy(root.getChild(i)));
             }
         }
-    }
-
-    public Object callMethod(String name, Object[] args) {
-        Class<?>[] argtypes = new Class[args.length];
-        for (int i = 0; i < args.length; i++) {
-            argtypes[i] = args[i].getClass();
-        }
-
-        Method method = null;
-        try {
-            method = base.getClass().getMethod(name, argtypes);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw LKQLRuntimeException.fromJavaException(e, null);
-        }
-
-        if (method == null) {
-            return null;
-        }
-
-        Object result = null;
-        try {
-            result = method.invoke(base, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw LKQLRuntimeException.fromJavaException(e, null);
-        }
-        return result;
     }
 }

@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import java.util.HashMap;
 
 /**
@@ -18,18 +17,29 @@ public class DynamicAdaNode extends BasicLKQLValue {
 
     public final String kind;
     public final HashMap<String, DynamicAdaNode> children;
-    public final HashMap<String, LKQLValue> fields;
+    public final HashMap<String, Object> fields;
+    public final boolean isList;
 
+    /**
+     * This constructor is the one used during lowering
+     * and should be the default one
+     */
     public DynamicAdaNode(
         String kind,
         HashMap<String, DynamicAdaNode> children,
-        HashMap<String, LKQLValue> fields
+        HashMap<String, Object> fields,
+        boolean isList
     ) {
         this.kind = kind;
         this.children = children;
         this.fields = fields;
+        this.isList = isList;
     }
 
+    /**
+     * This constructor is used only in the context of a nanopass
+     * by a constructor call
+     */
     public DynamicAdaNode(String kind, Object[] args, String[] argnames) {
         this.kind = kind;
         this.children = new HashMap<>();
@@ -40,13 +50,48 @@ public class DynamicAdaNode extends BasicLKQLValue {
             if (arg instanceof DynamicAdaNode child) {
                 children.put(key, child);
             } else {
-                fields.put(key, (LKQLValue) arg);
+                fields.put(key, arg);
             }
         }
+        this.isList = false;
     }
 
     public Object getField(String name) {
         var res = fields.get(name);
         return res != null ? res : children.get(name);
+    }
+
+    public String toString() {
+        final var sb = new StringBuilder();
+        dump(sb, "");
+        return sb.toString();
+    }
+
+    public void dump(StringBuilder sb, String prefix) {
+        sb.append(prefix);
+        sb.append(kind);
+        sb.append('\n');
+
+        children
+            .entrySet()
+            .stream()
+            .forEach(e -> {
+                sb.append(prefix);
+                sb.append("|");
+                sb.append(e.getKey());
+                sb.append(':');
+                sb.append('\n');
+                e.getValue().dump(sb, prefix + "|  ");
+            });
+
+        fields
+            .entrySet()
+            .stream()
+            .forEach(e -> {
+                sb.append(prefix);
+                sb.append("|");
+                sb.append(e);
+                sb.append('\n');
+            });
     }
 }
