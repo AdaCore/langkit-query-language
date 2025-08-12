@@ -1725,7 +1725,14 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.NodeKindPattern nodeKindPattern) {
-        return new NodeKindPattern(loc(nodeKindPattern), nodeKindPattern.fKindName().getText());
+        if (inPass) {
+            return new DynamicNodeKindPattern(
+                loc(nodeKindPattern),
+                nodeKindPattern.fKindName().getText()
+            );
+        } else {
+            return new NodeKindPattern(loc(nodeKindPattern), nodeKindPattern.fKindName().getText());
+        }
     }
 
     /**
