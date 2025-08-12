@@ -48,6 +48,7 @@ import java.math.BigInteger;
         Libadalang.RewritingContext.class,
         LangkitSupport.RewritingNodeInterface.class,
         LangkitSupport.MemberReferenceInterface.class,
+        DynamicAdaNode.class,
         LKQLNamespace.class,
         LKQLObject.class,
         Nullish.class,
