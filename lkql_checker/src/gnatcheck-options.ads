@@ -76,11 +76,6 @@ package Gnatcheck.Options is
    --  '--version'
    --  Print version info and exit
 
-   Generate_XML_Help : Boolean := False;
-   --  If this file is ON, the tool generates the XML description of the tool
-   --  parameters to be used for creating the GUI in GPS.
-   --  '-hx'.
-
    Legacy : Boolean := False;
    --  If True, run in legacy mode, with no support for additional rule files.
 
@@ -251,6 +246,15 @@ package Gnatcheck.Options is
            Name   => "List rules",
            Long   => "--list-rules",
            Help   => "show the list of predefined rules and exit");
+
+      package List_Rules_XML is new
+        Parse_Flag
+          (Parser           => Parser,
+           Name             => "List rules XML",
+           Long             => "-hx",
+           Help             =>
+             "show the list of predefined rules formatted in XML and exit",
+           Legacy_Long_Form => True);
 
       package Check_Semantic is new
         Parse_Flag

@@ -228,8 +228,7 @@ package body Gnatcheck.Options is
       loop
          Initial_Char :=
            Getopt
-             ("hx "
-              & "m? files= "
+             ("m? files= "
               &   --  project-specific options
                                                "-kp-version= "
               & "o= "
@@ -277,13 +276,6 @@ package body Gnatcheck.Options is
 
                   elsif Args_From_Project then
                      Read_Args_From_File (Parameter (Parser => Parser));
-                  end if;
-               end if;
-
-            when 'h'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "hx" then
-                     Generate_XML_Help := True;
                   end if;
                end if;
 
