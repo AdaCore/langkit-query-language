@@ -50,6 +50,14 @@ public final class DynamicConstructorCall extends Expr {
         return this.args.getArgs().length;
     }
 
+    public String[] getArgNames() {
+        final var argNames = new String[args.getArgs().length];
+        for (int i = 0; i < argNames.length; i++) {
+            argNames[i] = ((NamedArg) this.args.getArgs()[i]).getArgName().getName();
+        }
+        return argNames;
+    }
+
     // ----- Execution methods -----
 
     @Override

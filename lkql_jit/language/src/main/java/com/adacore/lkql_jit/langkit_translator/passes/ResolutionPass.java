@@ -9,9 +9,11 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.declarations.FunctionDeclaration;
 import com.adacore.lkql_jit.nodes.expressions.DynamicConstructorCall;
 import com.adacore.lkql_jit.nodes.pass.PassExpr;
+import com.adacore.lkql_jit.nodes.pass.RunPass;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeVisitor;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,12 +24,14 @@ import java.util.stream.Stream;
  */
 public final class ResolutionPass {
 
+    private Map<Integer, PassExpr> slotMap;
+
     /**
      * This is the main entry point of the pass and the only
      * public method that should be called
      */
     public void passEntry(Node treeRoot) {
-        Map<Integer, PassExpr> slotMap = collectOfType(FunctionDeclaration.class, treeRoot)
+        slotMap = collectOfType(FunctionDeclaration.class, treeRoot)
             .stream()
             .flatMap(fn -> {
                 if (
@@ -41,13 +45,12 @@ public final class ResolutionPass {
             })
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        final var roots = slotMap
-            .values()
+        final var called = collectOfType(RunPass.class, treeRoot)
             .stream()
-            .filter(e -> e.getPreviousSlot().isEmpty())
+            .map(e -> slotMap.get(e.getSlot()))
             .toList();
 
-        for (PassExpr root : roots) checkRewritingPass(root, PassContext.initial());
+        for (PassExpr pass : called) checkRewritingPass(pass, PassContext.initial());
     }
 
     /**
@@ -57,17 +60,37 @@ public final class ResolutionPass {
      * @param ctx
      */
     private void checkRewritingPass(PassExpr passExpr, PassContext ctx) {
+        // First check dependency
+        if (passExpr.getPreviousSlot().isPresent()) {
+            checkRewritingPass(slotMap.get(passExpr.getPreviousSlot().get()), ctx);
+        }
+
+        // Then update typing context
         ctx.update(passExpr.getAdd());
+
+        // A complete type-checking phase would check here
+        // - patterns of the form `| ClassName(fieldName: value) => ...`
+        // - all expressions with `.` field / property access
+
+        ctx.update(passExpr.getDel());
 
         for (var constructor : collectOfType(DynamicConstructorCall.class, passExpr.getRewrite())) {
             final var clazz = ctx.env.get(constructor.nodeKind);
-            if (clazz == null) throw LKQLRuntimeException.fromMessage("class does not exist");
+            if (clazz == null) throw LKQLRuntimeException.fromMessage(
+                "class does not exist, expected one of " + ctx.env.keySet(),
+                constructor
+            );
             if (
-                clazz.fields().size() != constructor.arity()
-            ) throw LKQLRuntimeException.fromMessage("wrong arity");
+                clazz.fields().size() != constructor.arity() ||
+                !clazz.fields().containsAll(List.of(constructor.getArgNames()))
+            ) throw LKQLRuntimeException.fromMessage(
+                "wrong arguments, expected " +
+                clazz.fields() +
+                " instead of " +
+                List.of(constructor.getArgNames()),
+                constructor
+            );
         }
-
-        ctx.update(passExpr.getDel());
     }
 
     private <T extends Node> ArrayList<T> collectOfType(Class<T> clazz, Node tree) {
