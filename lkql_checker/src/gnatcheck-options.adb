@@ -233,7 +233,6 @@ package body Gnatcheck.Options is
                                                "-kp-version= "
               & "o= "
               & "ox= "
-              & "log "
               & "-version "
               & "nt xml",
               Parser => Parser);
@@ -265,13 +264,6 @@ package body Gnatcheck.Options is
                end loop;
 
                exit when not Success;
-
-            when 'l'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "log" then
-                     Log_Mode := True;
-                  end if;
-               end if;
 
             when 'm'       =>
                if not First_Pass then

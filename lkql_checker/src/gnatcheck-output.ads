@@ -85,11 +85,11 @@ package Gnatcheck.Output is
    --  ``Tool_Name``: Whether to include the tool name at the start of the
    --                 message (ex: "gnatcheck: ...")
    --  ``Location`` : Location string to append to the message just before the
-   --                 tag.
+   --                 tag
    --  ``New_Line``: Whether to add a end-of-line character at the end of the
    --                message
    --  ``Log_Message``: Whether to log this message in the current ``Log_File``
-   --                   if ``Log_Mode`` is ``True``
+   --                   if the ``-log`` argument has been provided
 
    ----------------------
    -- Tool report file --
@@ -154,12 +154,7 @@ package Gnatcheck.Output is
 
    --  The log file is the file to copy all the information sent into Stderr.
 
-   procedure Set_Log_File_Name (Fname : String);
-   --  Sets the name of the tool log file. If this procedure has not been
-   --  called before creating the log file, the default name of the form
-   --  'tool_name.log' is used.
-
-   procedure Set_Log_File;
+   procedure Open_Log_File;
    --  Creates and/or opens the tool log file. If the file with the same name
    --  as the name of the log file already exists, it is silently and
    --  unconditionally overridden.
@@ -167,11 +162,7 @@ package Gnatcheck.Output is
    --  creates the temporary directory and gets into it.
    --
    --  At the moment there is no possibility to specify the name for the log
-   --  file, the name used for it is always tool_name.log
-   --
-   --  As soon as the procedure is called, all the messages that are sent by
-   --  the routines defined in this package into Stderr, are copied into the
-   --  log file.
+   --  file, the name used for it is always tool_name.log.
 
    procedure Close_Log_File;
    --  Closes the report file (and stops copying the messages into it)

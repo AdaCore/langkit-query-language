@@ -43,11 +43,8 @@ package body Gnatcheck.Output is
 
    procedure Close_Log_File is
    begin
-      if Log_Mode then
-         Close (Log_File);
-         Log_Mode := False;
-         Free (Log_File_Name);
-      end if;
+      Close (Log_File);
+      Free (Log_File_Name);
    end Close_Log_File;
 
    -----------------------
@@ -124,7 +121,7 @@ package body Gnatcheck.Output is
       end if;
 
       --  If required, log the message
-      if Log_Message and then Log_Mode and then Is_Open (Log_File) then
+      if Log_Message and then Arg.Log.Get and then Is_Open (Log_File) then
          Put (Log_File, Final_Message);
          if New_Line then
             Ada.Text_IO.New_Line (Log_File);
@@ -403,34 +400,19 @@ package body Gnatcheck.Output is
    -- Set_Log_File --
    ------------------
 
-   procedure Set_Log_File is
+   procedure Open_Log_File is
    begin
-      if Log_Mode then
-         if Log_File_Name = null then
-            Log_File_Name :=
-              new String'(Global_Report_Dir.all & Executable & ".log");
-         end if;
-
-         if Is_Regular_File (Log_File_Name.all) then
-            Open (Log_File, Out_File, Log_File_Name.all);
-         else
-            Create (Log_File, Out_File, Log_File_Name.all);
-         end if;
+      if Log_File_Name = null then
+         Log_File_Name :=
+           new String'(Global_Report_Dir.all & Executable & ".log");
       end if;
-   end Set_Log_File;
 
-   -----------------------
-   -- Set_Log_File_Name --
-   -----------------------
-
-   procedure Set_Log_File_Name (Fname : String) is
-   begin
-      Free (Log_File_Name);
-
-      if Fname /= "" then
-         Log_File_Name := new String'(Fname);
+      if Is_Regular_File (Log_File_Name.all) then
+         Open (Log_File, Out_File, Log_File_Name.all);
+      else
+         Create (Log_File, Out_File, Log_File_Name.all);
       end if;
-   end Set_Log_File_Name;
+   end Open_Log_File;
 
    ---------------------
    -- Set_Report_File --
@@ -734,7 +716,7 @@ package body Gnatcheck.Output is
       Put_Line
         (" -l                       - full pathname for file locations");
       Put_Line
-        (" -log                     - duplicate all the messages sent to Stderr in gnatcheck.log");
+        (" -log                     - duplicate all messages sent to stderr in gnatcheck.log");
       Put_Line (" -s                       - short form of the report file");
       Put_Line (" -xml                     - generate report in XML format");
       Put_Line

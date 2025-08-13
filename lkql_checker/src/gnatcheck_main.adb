@@ -530,7 +530,6 @@ begin
 
    if Gnatkp_Mode then
       Max_Diagnoses := 0;
-      Log_Mode := False;
 
       if Target = Null_Unbounded_String
         or else RTS_Path = Null_Unbounded_String
@@ -540,7 +539,11 @@ begin
       end if;
    end if;
 
-   Set_Log_File;
+   --  Open the log file if required
+   if Arg.Log.Get then
+      Open_Log_File;
+   end if;
+
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
 
    if Analyze_Compiler_Output then
@@ -610,7 +613,11 @@ begin
    end if;
 
    Gnatcheck.Rules.Rule_Table.Clean_Up;
-   Close_Log_File;
+
+   --  Close the log file if required
+   if Arg.Log.Get then
+      Close_Log_File;
+   end if;
 
    OS_Exit
      (if Tool_Failures /= 0
