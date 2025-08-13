@@ -69,12 +69,16 @@ public class Hierarchy {
     private boolean[] inheritanceMatrix;
     private HashMap<String, Integer> classNamesToIndex;
 
+    /** Setter for all the fields of the class. */
     private void become(int size, boolean[] matrix, HashMap<String, Integer> index) {
         this.classCount = size;
         this.inheritanceMatrix = matrix;
         this.classNamesToIndex = index;
     }
 
+    /**
+     * Computes a hierarchy of currently available classes in the Lkt bindings.
+     */
     @TruffleBoundary
     public static Hierarchy initial() {
         // Collect all inital classes
@@ -125,11 +129,17 @@ public class Hierarchy {
             classNamesToIndex.get(classY)];
     }
 
+    /**
+     * Add a new class to the hierarchy, with no superclass nor subclass.
+     */
     @TruffleBoundary
     public void add(String classX) {
         addAll(Collections.singleton(classX));
     }
 
+    /**
+     * Add new classes to the hierarchy, with no superclasses nor subclasses.
+     */
     @TruffleBoundary
     public void addAll(Collection<String> classes) {
         final int size = this.size() + classes.size();
@@ -176,11 +186,17 @@ public class Hierarchy {
         }
     }
 
+    /**
+     * Remove a class and all its subclasses from the hierarchy.
+     */
     @TruffleBoundary
     public void remove(String classX) {
         removeAll(Collections.singleton(classX));
     }
 
+    /**
+     * Remove all classes and all their subclasses from the hierarchy.
+     */
     @TruffleBoundary
     public void removeAll(Collection<String> classes) {
         // Compute all the subtypes of X to mask wich row/column to keep
@@ -236,6 +252,7 @@ public class Hierarchy {
     }
 
     // Primarily used in testing
+    /** Equality implementation */
     @TruffleBoundary
     public boolean equals(Object otherObject) {
         if (otherObject == null) return false;

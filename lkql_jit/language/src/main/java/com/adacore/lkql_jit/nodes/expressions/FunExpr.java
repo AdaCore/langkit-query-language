@@ -27,7 +27,13 @@ public final class FunExpr extends Expr {
     /** Closure descriptor of the function. */
     private final ClosureDescriptor closureDescriptor;
 
-    /** The root node representing the function execution. */
+    /**
+     * The root node representing the function execution.
+     *
+     * This field doesn't need to be a child for execution purposes,
+     * but this is temporarilly needed until the {@link ResolutionPass}
+     * is removed and the nanopass framework rellies on static typing only.
+     */
     @Child
     private FunctionRootNode functionRootNode;
 

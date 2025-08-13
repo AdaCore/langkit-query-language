@@ -34,7 +34,10 @@ public class DelBlock extends LKQLNode {
 
     @Override
     public String toString(int indentLevel) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'toString'");
+        return nodeRepresentation(
+            indentLevel,
+            new String[] { "classes", "fields" },
+            new Object[] { classes, fields }
+        );
     }
 }

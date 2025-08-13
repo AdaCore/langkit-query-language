@@ -28,17 +28,23 @@ import java.util.*;
 @NodeChild(value = "readInput", type = ReadArgument.class)
 public abstract class PassExpr extends Expr {
 
+    // This field doesn't need to be a child with regard to execution,
+    // and so its contents could be merged into this class.
     @Child
     private AddBlock add;
 
+    // This field doesn't need to be a child with regard to execution,
+    // and so its contents could be merged into this class.
     @Child
     private DelBlock del;
 
+    // This field doesn't need to be a child with regard to execution,
+    // and so its contents could be merged into this class.
     @Child
     private RewriteBlock rewrite;
 
     /**
-     * the previous pass slot, None if this is the first pass in the chain
+     * The previous pass slot, (or `None` if this is the first pass in the chain).
      */
     private final Optional<Integer> previousSlot;
 
@@ -56,8 +62,6 @@ public abstract class PassExpr extends Expr {
         this.rewrite = rewrite;
     }
 
-    // TODO insert dynamic checks to verify AST integrity wrt. add / del blocks
-    // this can be removed if pattern matching exhaustivity is pre-checked
     @Specialization
     public Object onDynamicAdaNode(VirtualFrame frame, DynamicAdaNode input) {
         final var typingContext = LKQLLanguage.getContext(this).getTypingContext();
@@ -70,7 +74,7 @@ public abstract class PassExpr extends Expr {
     }
 
     @Fallback
-    public Object onOther(VirtualFrame frame, Object _obj1) {
+    public Object onOther(VirtualFrame frame, @SuppressWarnings("unused") Object obj) {
         throw LKQLRuntimeException.shouldNotExecute(this);
     }
 
@@ -103,7 +107,6 @@ public abstract class PassExpr extends Expr {
 
     // core logic
 
-    // bottom up rewriting of the tree
     @TruffleBoundary
     private DynamicAdaNode getUpdatedTree(DynamicAdaNode tree, MaterializedFrame frame) {
         // recurse on children first (bottom up)

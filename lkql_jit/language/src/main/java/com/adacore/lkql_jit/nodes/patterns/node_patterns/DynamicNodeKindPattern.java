@@ -13,8 +13,9 @@ import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the pattern that filters by node kind in the LKQL language.
- *
- * @author Hugo GUERRIER
+ * It is used only in the context of a nanopass, contrary to
+ * {@link NodeKindPattern}. The type of node is decided in the lowering
+ * pass, thanks to a flag set when entering a pass node.
  */
 public final class DynamicNodeKindPattern extends NodePattern {
 

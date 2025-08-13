@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class PassContext {
 
-    /** maps a class name to its available members */
+    /** This is a map from class names to all its available members. */
     public final HashMap<String, ClassDescriptor> env;
 
     private PassContext() {

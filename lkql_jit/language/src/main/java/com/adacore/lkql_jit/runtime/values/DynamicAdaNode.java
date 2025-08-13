@@ -10,8 +10,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.util.HashMap;
 
 /**
- * DynamicAdaNode
- * dynamically typed runtime representation of an AST node
+ * A dynamically typed runtime representation of an AST node
  * used in all nanopasses but the first one (see {@link AdaNodeProxy})
  */
 public class DynamicAdaNode extends BasicLKQLValue {

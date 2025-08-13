@@ -12,8 +12,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
- * PrefixField
- * this is a POJO, it needs to be an LKQLNode
+ * This is a POJO, it needs to be an LKQLNode
  * to simplify lowering and the resolution pass
  * (see {@link ResolutionPass})
  */
@@ -35,7 +34,10 @@ public class PrefixField extends LKQLNode {
 
     @Override
     public String toString(int indentLevel) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'toString'");
+        return nodeRepresentation(
+            indentLevel,
+            new String[] { "prefix", "field" },
+            new Object[] { prefix, field }
+        );
     }
 }

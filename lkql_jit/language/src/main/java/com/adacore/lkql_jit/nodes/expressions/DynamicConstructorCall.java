@@ -18,7 +18,6 @@ import com.oracle.truffle.api.source.SourceSection;
  * {@link ConstructorCall}. The type of node is decided in the lowering
  * pass, thanks to a flag set when entering a pass node.
  */
-
 public final class DynamicConstructorCall extends Expr {
 
     // ----- Children -----
@@ -39,8 +38,10 @@ public final class DynamicConstructorCall extends Expr {
         this.nodeKind = nodeKind;
         this.args = argList;
         for (var arg : argList.getArgs()) {
-            if (arg instanceof NamedArg) continue;
-            throw LKQLRuntimeException.fromMessage("constructors in passes only accept named args");
+            if (!(arg instanceof NamedArg)) throw LKQLRuntimeException.fromMessage(
+                "constructors in passes only accept named args",
+                arg
+            );
         }
     }
 

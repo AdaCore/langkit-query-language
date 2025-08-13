@@ -1229,7 +1229,7 @@ class ClassField : LkqlNode {
 }
 
 |" Special annotation to specify the entry point for the nanopass framework.
-|" The pass designated by the associate identifier and all its transitive
+|" The pass designated by the associated identifier and all its transitive
 |" dependencies are going to be executed.
 class RunPass: LkqlNode {
     @parse_field
