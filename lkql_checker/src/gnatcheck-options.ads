@@ -344,7 +344,7 @@ package Gnatcheck.Options is
            Default_Val => Null_Unbounded_String,
            Help        =>
              "name of the configuration project file. If passed, "
-             & "this file must exist and neither --target nor --RTS"
+             & "this file must exist and neither --target nor --RTS "
              & "must be passed.");
 
       package Target is new
@@ -363,7 +363,7 @@ package Gnatcheck.Options is
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
            Help        =>
-             "name of the runtime (RTS) to use when loading the " & "project");
+             "name of the runtime (RTS) to use when loading the project");
 
       package Full_Source_Locations is new
         Parse_Flag
