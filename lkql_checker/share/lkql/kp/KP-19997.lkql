@@ -1,0 +1,26 @@
+# Flag calls to Unchecked_Conversion where arguments have different
+# Scalar_Storage_Order.
+
+import stdlib
+
+fun sso(decl) =
+    |" Return the ``Scalar_Storage_Order`` associated to ``decl`` in the form
+    |" of a fully qualified name.
+    {
+        val aspect = decl.p_get_aspect("Scalar_Storage_Order");
+
+        (match aspect.value
+           | i@Identifier => i
+           | * => stdlib.default_bit_order()
+        ).p_referenced_decl().p_canonical_fully_qualified_name()
+    }
+
+@check(help="possible occurrence of KP 19997",
+       message="possible occurrence of KP 19997 if compiled with optimization")
+fun kp_19997(node) =
+    node is gsi@GenericSubpInstantiation
+    when gsi.f_kind is SubpKindFunction
+    and gsi.p_designated_generic_decl().p_get_uninstantiated_node()
+        .p_canonical_fully_qualified_name() == "ada.unchecked_conversion"
+    and (sso(gsi.f_params[1].f_r_expr.p_referenced_decl()) !=
+         sso(gsi.f_params[2].f_r_expr.p_referenced_decl()))
