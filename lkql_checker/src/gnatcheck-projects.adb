@@ -337,7 +337,7 @@ package body Gnatcheck.Projects is
 
    begin
       if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
-        or else File_List_Specified
+        or else Arg.Source_Files_Specified
       then
          return;
       end if;

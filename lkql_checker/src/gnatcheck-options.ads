@@ -97,9 +97,6 @@ package Gnatcheck.Options is
    --  True if the tool is called for an aggregate project that aggregates more
    --  than one (non-aggregate) project/
 
-   Files_Switch_Used : Boolean := False;
-   --  True if the files= switch was used
-
    ----------------------------------------
    -- Flags computed from other settings --
    ----------------------------------------
@@ -503,6 +500,18 @@ package Gnatcheck.Options is
            Help        =>
              "specify subdirectory to place the result files into");
 
+      package Source_Files is new
+        Parse_Option
+          (Parser           => Parser,
+           Long             => "-files",
+           Name             => "Source files",
+           Arg_Type         => Unbounded_String,
+           Default_Val      => Null_Unbounded_String,
+           Legacy_Long_Form => True,
+           Help             =>
+             "the name of the text file containing a list of Ada source "
+             & "files to analyze");
+
       package Ignore_Files is new
         Parse_Option
           (Parser      => Parser,
@@ -566,6 +575,9 @@ package Gnatcheck.Options is
 
       function Ignore_Project_Switches return Boolean
       is (Ignore_Project_Switches_Opt.Get or Gnatkp_Mode);
+
+      function Source_Files_Specified return Boolean
+      is (Source_Files.Get /= Null_Unbounded_String);
 
    end Arg;
 

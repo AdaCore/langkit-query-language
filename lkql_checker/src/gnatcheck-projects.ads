@@ -108,11 +108,6 @@ package Gnatcheck.Projects is
    -- -U [main_unit]  : get the source or main_unit closure of the project --
    --------------------------------------------------------------------------
 
-   File_List_Specified : Boolean := False;
-   --  Indicates if '-files=...' option is specified. We need to know this when
-   --  getting the list of files from the project - '-U' should be  ignored if
-   --  '-files=...' is specified.
-
    Main_Unit : GPR2.Containers.Filename_Set;
    --  If the tool is called with "... Pproj -U main_unit1 main_unit2 ...",
    --  main units are stored here.

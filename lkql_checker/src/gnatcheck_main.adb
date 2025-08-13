@@ -474,6 +474,11 @@ begin
 
    Scan_Arguments;
 
+   --  Process the source list file if there is one
+   if Arg.Source_Files.Get /= Null_Unbounded_String then
+      Read_Args_From_File (To_String (Arg.Source_Files.Get));
+   end if;
+
    --  Process the include file
    if Arg.Include_File.Get /= Null_Unbounded_String then
       Gnatcheck.Diagnoses.Process_User_Filename

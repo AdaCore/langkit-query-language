@@ -228,7 +228,7 @@ package body Gnatcheck.Options is
       loop
          Initial_Char :=
            Getopt
-             ("m? files= "
+             ("m? "
               &   --  project-specific options
                                                "-kp-version= "
               & "o= "
@@ -265,19 +265,6 @@ package body Gnatcheck.Options is
                end loop;
 
                exit when not Success;
-
-            when 'f'       =>
-               if Full_Switch (Parser => Parser) = "files" then
-                  File_List_Specified := True;
-
-                  if First_Pass then
-                     Files_Switch_Used := True;
-                     Read_Args_From_File (Parameter (Parser => Parser));
-
-                  elsif Args_From_Project then
-                     Read_Args_From_File (Parameter (Parser => Parser));
-                  end if;
-               end if;
 
             when 'l'       =>
                if not First_Pass then

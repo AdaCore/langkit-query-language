@@ -37,8 +37,6 @@ package body Gnatcheck.Source_Table is
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
 
-   Arg_File_Name : String_Access;
-
    use Temporary_File_Storages;
 
    Temporary_File_Storage : Temporary_File_Storages.Set;
@@ -352,19 +350,6 @@ package body Gnatcheck.Source_Table is
          end;
       end if;
    end Adjust_From_Source_Table;
-
-   --------------------------
-   -- Arg_Source_File_Name --
-   --------------------------
-
-   function Arg_Source_File_Name return String is
-   begin
-      if Arg_File_Name = null then
-         return "";
-      else
-         return Arg_File_Name.all;
-      end if;
-   end Arg_Source_File_Name;
 
    -------------
    -- CU_Name --
@@ -907,11 +892,7 @@ package body Gnatcheck.Source_Table is
    -------------------------
 
    procedure Read_Args_From_File (Par_File_Name : String) is
-      Arg_File         : File_Type;
-      File_Name_Buffer : String (1 .. 16 * 1024);
-      File_Name_Len    : Natural := 0;
-      Next_Ch          : Character;
-      End_Of_Line      : Boolean;
+      Arg_File : File_Type;
 
       function Get_File_Name return String;
       --  Reads from Par_File_Name the name of the next file (the file to read
@@ -919,6 +900,10 @@ package body Gnatcheck.Source_Table is
       --  are no more file names in Par_File_Name.
 
       function Get_File_Name return String is
+         File_Name_Len    : Natural := 0;
+         File_Name_Buffer : String (1 .. 16 * 1024);
+         Next_Ch          : Character;
+         End_Of_Line      : Boolean;
       begin
          File_Name_Len := 0;
 
@@ -1000,14 +985,6 @@ package body Gnatcheck.Source_Table is
       --  Start of processing for Read_Args_From_File
 
    begin
-      if Argument_File_Specified then
-         Error ("cannot specify more than one -file");
-         return;
-      end if;
-
-      Argument_File_Specified := True;
-      Arg_File_Name := new String'(Par_File_Name);
-
       if not Is_Regular_File (Par_File_Name) then
          Error (Par_File_Name & " does not exist");
          return;
@@ -1153,7 +1130,7 @@ package body Gnatcheck.Source_Table is
 
       --  Only warn if no sources are specified explicitly
 
-      elsif not (File_List_Specified
+      elsif not (Arg.Source_Files_Specified
                  or else (Argument_File_Specified
                           and then not Arg.Transitive_Closure.Get))
       then
