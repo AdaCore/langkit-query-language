@@ -6,11 +6,14 @@
 package com.adacore.lkql_jit.nodes.pass;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.AdaNodeProxy;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -36,6 +39,8 @@ public class RunPass extends LKQLNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
+        final var ctx = LKQLLanguage.getContext(this);
+
         // Build pass call-chain
         final Deque<LKQLFunction> callChain = new ArrayDeque<>();
         callChain.push((LKQLFunction) FrameUtils.readLocal(frame, slot));
@@ -43,28 +48,29 @@ public class RunPass extends LKQLNode {
             callChain.push(
                 (LKQLFunction) FrameUtils.readLocal(
                     frame,
-                    ((PassExpr) callChain.peek().rootNode.getBody()).getPreviousSlot().get()
+                    // orElse is necessary to garantee no exception for native image
+                    ((PassExpr) callChain.peek().rootNode.getBody()).getPreviousSlot().orElse(0)
                 )
             );
         }
 
         // Setup all units roots
-        final var roots = LKQLLanguage.getContext(this).getAllUnitsRoots();
+        final var roots = ctx.getAllUnitsRoots();
         final var units = new Object[roots.length];
         for (int i = 0; i < roots.length; i++) {
-            if (LKQLLanguage.getContext(this).isVerbose()) {
-                System.out.println(i + ")\n" + roots[i].dumpTree());
+            if (ctx.isVerbose()) {
+                debugAST(i, roots[i].dumpTree());
             }
             units[i] = AdaNodeProxy.convertAST(roots[i]);
         }
 
-        LKQLLanguage.getContext(this).setTypingContext(Hierarchy.initial());
+        ctx.setTypingContext(Hierarchy.initial());
 
         do {
-            final var pass = callChain.pop();
+            final var pass = callChain.poll();
 
-            if (LKQLLanguage.getContext(this).isVerbose()) {
-                System.out.println("running pass:" + pass);
+            if (ctx.isVerbose()) {
+                ctx.println(ObjectUtils.toString(pass));
             }
 
             for (int i = 0; i < units.length; i++) {
@@ -73,11 +79,11 @@ public class RunPass extends LKQLNode {
                 } catch (
                     UnsupportedTypeException | ArityException | UnsupportedMessageException e
                 ) {
-                    e.printStackTrace();
+                    LKQLRuntimeException.fromJavaException(e, this);
                 }
 
-                if (LKQLLanguage.getContext(this).isVerbose()) {
-                    System.out.println(i + ")\n" + units[i]);
+                if (ctx.isVerbose()) {
+                    debugAST(i, units[i]);
                 }
             }
         } while (!callChain.isEmpty());
@@ -87,6 +93,11 @@ public class RunPass extends LKQLNode {
 
     public int getSlot() {
         return slot;
+    }
+
+    @TruffleBoundary
+    private void debugAST(int num, Object ast) {
+        System.out.println(num + ")\n" + ast);
     }
 
     @Override

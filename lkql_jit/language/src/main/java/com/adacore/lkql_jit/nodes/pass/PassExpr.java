@@ -10,9 +10,11 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadArgument;
 import com.adacore.lkql_jit.runtime.values.DynamicAdaNode;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.*;
@@ -59,8 +61,10 @@ public abstract class PassExpr extends Expr {
     @Specialization
     public Object onDynamicAdaNode(VirtualFrame frame, DynamicAdaNode input) {
         final var typingContext = LKQLLanguage.getContext(this).getTypingContext();
-        typingContext.addAll(add.classes.stream().map(cd -> cd.name).toList());
-        final var updatedTree = getUpdatedTree(input, frame);
+        for (var c : add.classes) {
+            typingContext.add(c.name);
+        }
+        final var updatedTree = getUpdatedTree(input, frame.materialize());
         typingContext.removeAll(del.classes);
         return updatedTree;
     }
@@ -100,7 +104,8 @@ public abstract class PassExpr extends Expr {
     // core logic
 
     // bottom up rewriting of the tree
-    private DynamicAdaNode getUpdatedTree(DynamicAdaNode tree, VirtualFrame frame) {
+    @TruffleBoundary
+    private DynamicAdaNode getUpdatedTree(DynamicAdaNode tree, MaterializedFrame frame) {
         // recurse on children first (bottom up)
         for (var child : List.copyOf(tree.children.entrySet())) {
             tree.children.put(child.getKey(), getUpdatedTree(child.getValue(), frame));

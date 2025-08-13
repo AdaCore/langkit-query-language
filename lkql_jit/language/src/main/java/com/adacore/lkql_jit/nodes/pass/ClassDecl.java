@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.pass;
 
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -28,8 +29,7 @@ public class ClassDecl extends LKQLNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'executeGeneric'");
+        throw LKQLRuntimeException.shouldNotExecute(this);
     }
 
     @Override

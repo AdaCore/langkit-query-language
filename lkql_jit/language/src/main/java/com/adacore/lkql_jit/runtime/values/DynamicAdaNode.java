@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.util.HashMap;
 
 /**
@@ -24,6 +25,7 @@ public class DynamicAdaNode extends BasicLKQLValue {
      * This constructor is the one used during lowering
      * and should be the default one
      */
+    @TruffleBoundary
     public DynamicAdaNode(
         String kind,
         HashMap<String, DynamicAdaNode> children,
@@ -40,6 +42,7 @@ public class DynamicAdaNode extends BasicLKQLValue {
      * This constructor is used only in the context of a nanopass
      * by a constructor call
      */
+    @TruffleBoundary
     public DynamicAdaNode(String kind, Object[] args, String[] argnames) {
         this.kind = kind;
         this.children = new HashMap<>();
@@ -56,6 +59,7 @@ public class DynamicAdaNode extends BasicLKQLValue {
         this.isList = false;
     }
 
+    @TruffleBoundary
     public Object getField(String name) {
         var res = fields.get(name);
         return res != null ? res : children.get(name);

@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.libadalang.Libadalang;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.util.HashMap;
 
 /**
@@ -21,10 +22,12 @@ public class AdaNodeProxy extends DynamicAdaNode {
     /** The native libadalang node this class proxies to */
     public final NodeInterface base;
 
+    @TruffleBoundary
     public static AdaNodeProxy convertAST(NodeInterface root) {
         return new AdaNodeProxy(root);
     }
 
+    @TruffleBoundary
     private AdaNodeProxy(NodeInterface root) {
         super(
             ((Libadalang.AdaNode) root).getClassName(),

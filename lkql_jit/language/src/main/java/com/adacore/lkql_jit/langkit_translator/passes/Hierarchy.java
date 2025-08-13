@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.libadalang.Libadalang.AdaNode;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.util.*;
 
 /**
@@ -74,6 +75,7 @@ public class Hierarchy {
         this.classNamesToIndex = index;
     }
 
+    @TruffleBoundary
     public static Hierarchy initial() {
         // Collect all inital classes
         final Class<? extends AdaNode>[] initialClasses = Libadalang.NODE_DESCRIPTION_MAP.values()
@@ -123,10 +125,12 @@ public class Hierarchy {
             classNamesToIndex.get(classY)];
     }
 
+    @TruffleBoundary
     public void add(String classX) {
         addAll(Collections.singleton(classX));
     }
 
+    @TruffleBoundary
     public void addAll(Collection<String> classes) {
         final int size = this.size() + classes.size();
         final boolean[] matrix = new boolean[size * size];
@@ -172,10 +176,12 @@ public class Hierarchy {
         }
     }
 
+    @TruffleBoundary
     public void remove(String classX) {
         removeAll(Collections.singleton(classX));
     }
 
+    @TruffleBoundary
     public void removeAll(Collection<String> classes) {
         // Compute all the subtypes of X to mask wich row/column to keep
         final boolean[] deleteMask = new boolean[size()];
@@ -230,6 +236,7 @@ public class Hierarchy {
     }
 
     // Primarily used in testing
+    @TruffleBoundary
     public boolean equals(Object otherObject) {
         if (otherObject == null) return false;
         if (otherObject instanceof Hierarchy other) {
