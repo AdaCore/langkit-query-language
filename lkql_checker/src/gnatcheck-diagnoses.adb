@@ -155,9 +155,9 @@ package body Gnatcheck.Diagnoses is
 
    procedure Print_Out_Diagnoses;
    --  Duplicates diagnoses about non-exempted rule violations, exemption
-   --  warnings and compiler error messages into Stderr. Up to Max_Diagnoses
-   --  diagnoses are reported. If Max_Diagnoses equal to 0, all the diagnoses
-   --  of these kinds are reported.
+   --  warnings and compiler error messages into stderr. Up to value specified
+   --  with the ``-m`` CLI option diagnoses are reported. If this value equal
+   --  to 0, all the diagnoses of these kinds are reported.
 
    procedure Print_Runtime (XML : Boolean := False);
    --  Prints the runtime version used for gnatcheck call. It is either the
@@ -1690,42 +1690,50 @@ package body Gnatcheck.Diagnoses is
    -------------------------
 
    procedure Print_Out_Diagnoses is
+      Max_Diagnoses      : constant Natural :=
+        (if Gnatkp_Mode then 0 else Arg.Max_Diagnoses.Get);
       Diagnoses_Reported : Natural := 0;
       Limit_Exceeded     : Boolean := False;
 
-      procedure Counted_Print_Diagnosis
+      procedure Print_Diagnosis (Position : Error_Messages_Storage.Cursor);
+      --  Print the diagnosis at the given position
+
+      procedure Count_And_Print_Diagnosis
         (Position : Error_Messages_Storage.Cursor);
-      --  Print diagnosis until reaching Max_Diagnoses
+      --  Check whether the number of printed diagnoses is exceeding the limit,
+      --  then print either a warning message or the diagnosis itself.
 
-      -----------------------------
-      -- Counted_Print_Diagnosis --
-      -----------------------------
+      procedure Print_Diagnosis (Position : Error_Messages_Storage.Cursor) is
+      begin
+         if Error_Messages_Storage.Element (Position).Justification
+           = Null_Unbounded_String
+         then
+            Diagnoses_Reported := @ + 1;
+            Print
+              (Strip_Tag (Image (Error_Messages_Storage.Element (Position))));
+         end if;
+      end Print_Diagnosis;
 
-      procedure Counted_Print_Diagnosis
+      procedure Count_And_Print_Diagnosis
         (Position : Error_Messages_Storage.Cursor) is
       begin
          if not Limit_Exceeded then
-            if Max_Diagnoses > 0 and then Diagnoses_Reported >= Max_Diagnoses
-            then
+            if Diagnoses_Reported >= Max_Diagnoses then
                Limit_Exceeded := True;
                Info
                  ("maximum diagnoses reached, see the report file for full "
                   & "details");
             else
-               if Error_Messages_Storage.Element (Position).Justification
-                 = Null_Unbounded_String
-               then
-                  Diagnoses_Reported := @ + 1;
-                  Print
-                    (Strip_Tag
-                       (Image (Error_Messages_Storage.Element (Position))));
-               end if;
+               Print_Diagnosis (Position);
             end if;
          end if;
-      end Counted_Print_Diagnosis;
+      end Count_And_Print_Diagnosis;
 
    begin
-      All_Error_Messages.Iterate (Counted_Print_Diagnosis'Access);
+      All_Error_Messages.Iterate
+        ((if Max_Diagnoses > 0
+          then Count_And_Print_Diagnosis'Access
+          else Print_Diagnosis'Access));
    end Print_Out_Diagnoses;
 
    -------------------------

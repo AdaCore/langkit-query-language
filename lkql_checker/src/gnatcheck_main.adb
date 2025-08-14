@@ -529,8 +529,6 @@ begin
    --  Force some switches and perform some checks for gnatkp
 
    if Gnatkp_Mode then
-      Max_Diagnoses := 0;
-
       if Target = Null_Unbounded_String
         or else RTS_Path = Null_Unbounded_String
       then

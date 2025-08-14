@@ -9,6 +9,11 @@ with GNATCOLL.Strings; use GNATCOLL.Strings;
 with System.Multiprocessors;
 
 package body Gnatcheck.Options is
+
+   ------------------------------
+   -- Opt_Parse error handling --
+   ------------------------------
+
    procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String) is
    begin
       Warning (Msg);
@@ -19,12 +24,30 @@ package body Gnatcheck.Options is
       Error (Msg);
    end Error;
 
+   -------------------
+   -- Local helpers --
+   -------------------
+
+   function Parse_Arg_As_Natural (Arg : String) return Natural;
+   --  Parse the provided string as a ``Natural`` value, raising an
+   --  ``Opt_Parse_Error`` in case of parsing error.
+
+   function Parse_Arg_As_Natural (Arg : String) return Natural is
+   begin
+      begin
+         return Natural'Value (Arg);
+      exception
+         when Constraint_Error =>
+            raise Opt_Parse_Error with "cannot parse provided value: " & Arg;
+      end;
+   end Parse_Arg_As_Natural;
+
    ------------------
    -- Jobs_Convert --
    ------------------
 
    function Jobs_Convert (Arg : String) return Natural is
-      Value : constant Natural := Natural'Value (Arg);
+      Value : constant Natural := Parse_Arg_As_Natural (Arg);
    begin
       if Value = 0 then
          return Natural (System.Multiprocessors.Number_Of_CPUs);
@@ -38,20 +61,30 @@ package body Gnatcheck.Options is
    -------------------------------
 
    function Project_Verbosity_Convert (Arg : String) return Natural is
-      Value : Natural;
+      Value : constant Natural := Parse_Arg_As_Natural (Arg);
+   begin
+      if Value > 2 then
+         raise Opt_Parse_Error with "invalid value: " & Arg;
+      else
+         return Value;
+      end if;
+   end Project_Verbosity_Convert;
+
+   ---------------------------
+   -- Max_Diagnoses_Convert --
+   ---------------------------
+
+   function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count is
    begin
       begin
-         Value := Natural'Value (Arg);
-         if Value > 2 then
-            raise Opt_Parse_Error with "invalid value: " & Arg;
-         else
-            return Value;
-         end if;
+         return Max_Diagnoses_Count'Value (Arg);
       exception
          when Constraint_Error =>
-            raise Opt_Parse_Error with "cannot parse provided value: " & Arg;
+            raise Opt_Parse_Error
+              with
+                "invalid maximum diagnoses value: " & Arg & " (max is 1000)";
       end;
-   end Project_Verbosity_Convert;
+   end Max_Diagnoses_Convert;
 
    --------------------
    -- Scan_Arguments --
@@ -228,9 +261,7 @@ package body Gnatcheck.Options is
       loop
          Initial_Char :=
            Getopt
-             ("m? "
-              &   --  project-specific options
-                                               "-kp-version= "
+             ("-kp-version= "
               & "o= "
               & "ox= "
               & "-version "
@@ -264,28 +295,6 @@ package body Gnatcheck.Options is
                end loop;
 
                exit when not Success;
-
-            when 'm'       =>
-               if not First_Pass then
-                  begin
-                     Max_Diagnoses :=
-                       Natural'Value (Parameter (Parser => Parser));
-
-                     if Max_Diagnoses > 1000 then
-                        Error
-                          ("Parameter (Parser => Parser) of '-m' option "
-                           & "too big, max allowed is 1000");
-                        raise Parameter_Error;
-                     end if;
-
-                  exception
-                     when Constraint_Error =>
-                        Error
-                          ("Wrong Parameter of '-m' option: "
-                           & Parameter (Parser => Parser));
-                        raise Parameter_Error;
-                  end;
-               end if;
 
             when 'n'       =>
                if not First_Pass then

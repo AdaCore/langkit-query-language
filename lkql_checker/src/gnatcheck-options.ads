@@ -170,12 +170,6 @@ package Gnatcheck.Options is
    -- Controlling the gnatcheck report --
    --------------------------------------
 
-   Max_Diagnoses : Natural := 0;
-   --  '-m'
-   --  Maximum number of diagnoses to print out into Stdout. Zero means that
-   --  there is no limitation on the number of diagnoses to be printed out into
-   --  Stderr.
-
    User_Info_File           : GNAT.OS_Lib.String_Access;
    User_Info_File_Full_Path : GNAT.OS_Lib.String_Access;
    --  --include-file=<filename>
@@ -207,12 +201,14 @@ package Gnatcheck.Options is
    ---------------------------
 
    type Gnatcheck_Error_Handler is new Error_Handler with null record;
+   subtype Max_Diagnoses_Count is Natural range 0 .. 1000;
 
    procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String);
    procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String);
 
    function Jobs_Convert (Arg : String) return Natural;
    function Project_Verbosity_Convert (Arg : String) return Natural;
+   function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count;
 
    package Arg is
       Parser : Argument_Parser :=
@@ -427,6 +423,18 @@ package Gnatcheck.Options is
            Legacy_Long_Form => True,
            Help             =>
              "duplicate all messages sent to stderr in gnatcheck.log");
+
+      package Max_Diagnoses is new
+        Parse_Option
+          (Parser      => Parser,
+           Short       => "-m",
+           Name        => "Max diagnoses",
+           Arg_Type    => Max_Diagnoses_Count,
+           Default_Val => 0,
+           Convert     => Max_Diagnoses_Convert,
+           Help        =>
+             "set the maximal number of diagnoses in stderr (0 for all "
+             & "diagnoses, default is 0)");
 
       package Brief is new
         Parse_Flag
