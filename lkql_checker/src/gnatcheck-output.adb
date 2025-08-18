@@ -225,10 +225,6 @@ package body Gnatcheck.Output is
    end Info;
 
    -----------------
-   -- Info_No_EOL --
-   -----------------
-
-   -----------------
    -- Info_In_Tty --
    -----------------
 
