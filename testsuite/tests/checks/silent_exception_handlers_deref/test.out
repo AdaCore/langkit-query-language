@@ -1,0 +1,12 @@
+main.adb:12:10: rule violation: silent exception handler
+12 |          when Program_Error => A (1); --  FLAG
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:20:10: rule violation: silent exception handler
+20 |          when Program_Error => A.all (1); --  FLAG
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:42:13: rule violation: silent exception handler
+42 |             when Program_Error    => X.all.P; --  FLAG
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

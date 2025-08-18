@@ -1,6 +1,18 @@
 import stdlib
 import control_flow
 
+
+fun qualified_name(name) = {
+    |" Return the fully qualified name of ``name``. This function handles
+    |" access-to-subprogram calls.
+    val name = match name
+    | ce@CallExpr => ce.f_name
+    | ed@ExplicitDeref => ed.f_prefix
+    | * => name;
+
+    name.p_referenced_defining_name().p_canonical_fully_qualified_name()
+}
+
 @check(message="silent exception handler",
        category="Style", subcategory="Programming Practice",
        auto_fix=(n, ctx) => ctx.add_last(n.f_stmts, new RaiseStmt(null, null)))
@@ -72,9 +84,9 @@ fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) =
     {
         fun is_raise_or_log(stmt) =
             stmt is (RaiseStmt
-            | n@BaseId(p_is_call(): true)
+            | n@Name(p_is_call(): true)
                 when n.p_referenced_decl() is decl@BasicDecl
-                    when match decl.p_canonical_fully_qualified_name()
+                    when match qualified_name(n)
                     | "^ada.exceptions.(raise_exception|reraise_occurrence)$" => true
                     | n => [s for s in subprograms if n == s] or
                             [r for r in subprogram_regexps
