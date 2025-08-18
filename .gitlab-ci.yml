@@ -95,6 +95,11 @@ integration-testsuite:
 # CIs that are triggered manually
 optional:
   <<: *common-test-part
+  services:
+    - image:e3
+    - cpu:16
+    - mem:32
+    - disk:100
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
