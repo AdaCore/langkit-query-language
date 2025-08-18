@@ -395,6 +395,7 @@ GNATcheck:
     * ``-P``
     * ``-U``
     * ``-Xname=value``
+    * ``--no-subprojects``
     * ``-eL``
     * ``-r, --rule [rule_name]`` (use ``Rules`` attribute instead)
     * ``--rule-file=filename`` (use ``Rule_File`` attribute instead)

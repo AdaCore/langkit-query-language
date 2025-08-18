@@ -162,6 +162,8 @@ package body Gnatcheck.Options is
             Disallow (Arg.Project_File.This, "-P" & In_Project_Msg);
             Disallow (Arg.Transitive_Closure.This, "-U" & In_Project_Msg);
             Disallow (Arg.Scenario_Vars.This, "-Xname=val" & In_Project_Msg);
+            Disallow
+              (Arg.No_Subprojects.This, "--no-subprojects" & In_Project_Msg);
             Disallow (Arg.Follow_Symbolic_Links.This, "-eL" & In_Project_Msg);
             Disallow (Arg.Lkql_Path.This, "--lkql-path" & In_Project_Msg);
             Disallow (Arg.Rules.This, "-r" & In_Project_Msg);
@@ -188,6 +190,7 @@ package body Gnatcheck.Options is
          Allow (Arg.Scenario_Vars.This);
          Allow (Arg.Aggregate_Subproject.This);
          Allow (Arg.Project_File.This);
+         Allow (Arg.No_Subprojects.This);
          Allow (Arg.Follow_Symbolic_Links.This);
          Allow (Arg.Lkql_Path.This);
          Allow (Arg.Rules.This);
