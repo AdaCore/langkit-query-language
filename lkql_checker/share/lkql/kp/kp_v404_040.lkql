@@ -1,3 +1,6 @@
+# Flag 'Valid applied to floating-point components of composite types that
+# specify a non default Scalar_Storage_Order aspect.
+
 import stdlib
 
 fun check(node) =
@@ -15,3 +18,8 @@ fun check(node) =
           td.p_is_array_type() and stdlib.has_non_default_sso(td)
         }
       | * => false
+
+
+@check(message="possible occurrence of KP V404-040")
+fun kp_v404_040(node) =
+    check(node)
