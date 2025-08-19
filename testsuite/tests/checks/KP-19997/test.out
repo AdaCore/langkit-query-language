@@ -1,0 +1,4 @@
+test.adb:18:13: rule violation: possible occurrence of KP 19997 if compiled with optimization
+18 |    function To_Bytes_BE is new Ada.Unchecked_Conversion (Unsigned_32, Bytes_BE);  --  FLAG
+   |             ^^^^^^^^^^^
+
