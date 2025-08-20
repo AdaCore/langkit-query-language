@@ -384,7 +384,7 @@ fun ultimate_designated_generic_subp(subp_inst) =
     |" Given a node representing an instantiation of a generic subprogram,
     |" return that non-instantiated subprogram after resolving all renamings.
 {
-    val inst = subp_inst.p_designated_subp();
+    val inst = subp_inst.p_designated_generic_decl();
     val aliased = ultimate_subprogram_alias(inst);
     aliased.p_get_uninstantiated_node()
 }
