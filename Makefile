@@ -14,8 +14,6 @@ NPM_INSTALL_CACHE=true
 NPMRC=
 BUILD_DIR=/undefined
 LKQL_DIR=$(BUILD_DIR)/lkql
-# Default impact-db directory as set in an ancr devenv
-IMPACTDB_DIR=$(ANCR_ROOT_DIR_POSIX)/src/impact-db
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
 GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
 BUILD_FOR_JIT=false
@@ -43,7 +41,7 @@ doc:
 	cd lkql_checker/doc && make generate html-all
 
 impacts:
-	[ -f "$(KP_JSON)" ] || PYTHONPATH="$(IMPACTDB_DIR)" "$(PYTHON)" "./utils/impact-db_impacts_gen.py" "$(IMPACTDB_DIR)"
+	[ -f "$(KP_JSON)" ] || "$(PYTHON)" "./utils/impact-db_impacts_gen.py"
 
 format:
 	gnatformat -P lkql_checker/gnatcheck.gpr --no-subprojects
