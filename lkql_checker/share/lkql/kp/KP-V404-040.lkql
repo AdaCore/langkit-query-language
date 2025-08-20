@@ -1,8 +1,0 @@
-# Flag 'Valid applied to floating-point components of composite types that
-# specify a non default Scalar_Storage_Order aspect.
-
-import kp_v404_040_internal
-
-@check(message="possible occurrence of KP V404-040")
-fun kp_v404_040(node) =
-    kp_v404_040_internal.check(node)
