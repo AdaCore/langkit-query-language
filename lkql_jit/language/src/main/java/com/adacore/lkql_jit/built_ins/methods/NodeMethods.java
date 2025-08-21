@@ -20,6 +20,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import java.util.ArrayList;
 
@@ -35,6 +36,7 @@ public final class NodeMethods {
     abstract static class ChildrenExpr extends BuiltInBody {
 
         @Specialization
+        @CompilerDirectives.TruffleBoundary
         public LKQLList onNode(NodeInterface self) {
             int childrenCount = self.getChildrenCount();
             NodeInterface[] res = new NodeInterface[childrenCount];

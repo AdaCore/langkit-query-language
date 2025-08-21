@@ -13,6 +13,7 @@ import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import java.util.ArrayList;
 
@@ -24,6 +25,7 @@ public final class AnalysisUnitMethods {
     abstract static class RootExpr extends BuiltInBody {
 
         @Specialization
+        @CompilerDirectives.TruffleBoundary
         public Object onUnit(AnalysisUnit self) {
             LangkitSupport.NodeInterface res = self.getRoot();
             return res.isNone() ? LKQLNull.INSTANCE : res;

@@ -16,9 +16,8 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.util.ArrayDeque;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 
 /** This class represents the list returned by a selector call in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
@@ -38,8 +37,8 @@ public class LKQLSelectorList extends LKQLLazyList {
     /** The cache of already explored nodes. */
     private final HashSet<LKQLDepthValue> alreadyVisited;
 
-    /** The list of the node to recurs on. */
-    private final List<LKQLDepthValue> recursList;
+    /** The list of values to visit. */
+    private final ArrayDeque<LKQLDepthValue> toVisitList;
 
     /** The maximal depth for the return. */
     private final int maxDepth;
@@ -49,47 +48,53 @@ public class LKQLSelectorList extends LKQLLazyList {
 
     /** The precise depth to get from the selector. */
     private final int exactDepth;
+    private final boolean checkCycles;
 
     // ----- Constructors -----
 
     /**
      * Create a new selector list.
-     *
-     * @param rootNode The selector root node.
-     * @param closure The closure for the root node execution.
-     * @param maxDepth The maximum depth of the returned nodes.
-     * @param minDepth The minimum depth of the returned nodes.
-     * @param depth The precise required depth of the returned nodes.
      */
     @CompilerDirectives.TruffleBoundary
     public LKQLSelectorList(
-        final SelectorRootNode rootNode,
-        final Closure closure,
-        final Object value,
-        final int maxDepth,
-        final int minDepth,
-        final int depth
+        SelectorRootNode rootNode,
+        Closure closure,
+        Object value,
+        int maxDepth,
+        int minDepth,
+        int depth,
+        boolean checkCycles
     ) {
         this.rootNode = rootNode;
         this.closure = closure;
         this.dispatcher = SelectorDispatcherNodeGen.create();
-        this.alreadyVisited = new HashSet<>();
-        this.recursList = new LinkedList<>();
+        this.toVisitList = new ArrayDeque<>();
         this.maxDepth = maxDepth;
         this.minDepth = minDepth;
         this.exactDepth = depth;
-        this.recursList.add(new LKQLDepthValue(0, value));
+        this.toVisitList.add(new LKQLDepthValue(0, value));
+        this.checkCycles = checkCycles;
+        if (checkCycles) {
+            this.alreadyVisited = new HashSet<>();
+        } else {
+            this.alreadyVisited = null;
+        }
     }
 
     // ----- Lazy list required methods -----
 
     @Override
     public void computeItemAt(long n) {
-        while (!(this.recursList.size() == 0) && (this.cache.size() - 1 < n || n == -1)) {
+        while (!(this.toVisitList.size() == 0) && (this.cache.size() - 1 < n || n == -1)) {
             // Get the first recurse item and execute the selector on it
-            LKQLDepthValue nextNode = this.recursList.remove(0);
+            LKQLDepthValue nextNode = this.toVisitList.poll();
             LKQLRecValue result =
-                this.dispatcher.executeDispatch(this.rootNode, this.closure.getContent(), nextNode);
+                this.dispatcher.executeDispatch(
+                        this.rootNode,
+                        this.closure.getContent(),
+                        nextNode.value,
+                        nextNode.depth
+                    );
 
             addToRecurs(result.recurseVal, result.depth);
             addToResult(result.resultVal, result.depth);
@@ -100,8 +105,7 @@ public class LKQLSelectorList extends LKQLLazyList {
     @CompilerDirectives.TruffleBoundary
     private void addToResult(Object[] toAdd, int depth) {
         for (var val : toAdd) {
-            var depthVal = new LKQLDepthValue(depth, val);
-            this.addResult(depthVal);
+            this.addResult(val, depth);
         }
     }
 
@@ -110,29 +114,30 @@ public class LKQLSelectorList extends LKQLLazyList {
     private void addToRecurs(Object[] toAdd, int depth) {
         for (var val : toAdd) {
             var depthVal = new LKQLDepthValue(depth, val);
-            if (!this.alreadyVisited.contains(depthVal)) {
-                this.recursList.add(depthVal);
+            if (!checkCycles) {
+                this.toVisitList.add(depthVal);
+            } else if (!this.alreadyVisited.contains(depthVal)) {
+                this.toVisitList.add(depthVal);
                 this.alreadyVisited.add(depthVal);
             }
         }
     }
 
     /** Add a node in the result and hashed cache with all verifications. */
-    @CompilerDirectives.TruffleBoundary
-    private void addResult(LKQLDepthValue value) {
+    private void addResult(Object value, int depth) {
         // If there is no defined depth
         if (this.exactDepth < 0) {
             if (
-                (this.maxDepth < 0 || value.depth <= this.maxDepth) &&
-                (this.minDepth < 0 || value.depth >= this.minDepth)
+                (this.maxDepth < 0 || depth <= this.maxDepth) &&
+                (this.minDepth < 0 || depth >= this.minDepth)
             ) {
-                this.cache.add(value);
+                this.cache.append(value);
             }
         }
         // Else, only get the wanted nodes
         else {
-            if (value.depth == this.exactDepth) {
-                this.cache.add(value);
+            if (depth == this.exactDepth) {
+                this.cache.append(value);
             }
         }
     }
@@ -141,8 +146,7 @@ public class LKQLSelectorList extends LKQLLazyList {
     public Object get(long i) throws InvalidIndexException {
         this.computeItemAt(i);
         try {
-            var cache = this.cache.get((int) i);
-            return ((LKQLDepthValue) cache).value;
+            return this.cache.get((int) i);
         } catch (IndexOutOfBoundsException e) {
             throw new InvalidIndexException();
         }

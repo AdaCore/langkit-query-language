@@ -39,8 +39,8 @@ public abstract class SafeDotAccess extends BaseDotAccess {
         guards = {
             "!receiver.isNone()",
             "getBuiltIn(receiver) == null",
-            "receiver == property.getNode()",
-            "property.getDescription() != null",
+            "receiver == property.node",
+            "property.description != null",
         },
         limit = "1"
     )
@@ -79,7 +79,7 @@ public abstract class SafeDotAccess extends BaseDotAccess {
 
         // Create the property reference
         LKQLProperty propertyRef = new LKQLProperty(this.member.getName(), receiver);
-        if (propertyRef.getDescription() == null) {
+        if (propertyRef.description == null) {
             throw LKQLRuntimeException.noSuchField(this.getReceiver());
         }
 

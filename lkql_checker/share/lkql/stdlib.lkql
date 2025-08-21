@@ -4,6 +4,8 @@
 |" These functions may be moved in the future in Libadalang or LKQL's builtin
 |" library.
 
+import stdlib_internal
+
 selector super_types
     |" Yields the chain of super types of the given type, as viewed from that
     |" type. Hence, for a type T which public view derives from a type A but
@@ -33,15 +35,10 @@ selector semantic_parent
     | null     => ()
     | *        => rec(this.p_semantic_parent())
 
-selector children_no_nested
+fun children_no_nested(node) =
     |" Return all children nodes starting from a base subprogram body, but not
     |" entering in nested bodies.
-
-    | BodyNode =>
-        # Don't recurse on bodies except if it's the root node (depth == 0)
-        rec(*if depth == 0 then this.children else [])
-    | null     => ()
-    | *        => rec(*this.children)
+    stdlib_internal.children_no_nested_implem((node, true))
 
 fun all(iterable) =
     |" Return whether all elements in the given iterable are truthy

@@ -7,7 +7,10 @@ package com.adacore.lkql_jit.runtime.values.iterators;
 
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 
-/** This class represents an iterator on a list in the LKQL language. */
+/** This class represents an iterator on a list in the LKQL language.
+ * WARNING: This class should not be removed in favor of BaseLKQLListIterator,
+ *          because then Truffle is not able to inline some code anymore
+ * */
 public final class LKQLListIterator extends LKQLIterator {
 
     // ----- Instance attributes -----

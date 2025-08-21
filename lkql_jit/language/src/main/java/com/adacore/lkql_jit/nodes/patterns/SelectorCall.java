@@ -156,7 +156,7 @@ public final class SelectorCall extends LKQLNode {
                 NamedArg arg = (NamedArg) rawArg;
 
                 // If the depth is given
-                switch (arg.getArgName().getName()) {
+                switch (arg.getArgStringName()) {
                     case Constants.DEPTH_SYMBOL:
                         try {
                             depth = (int) arg.getArgExpr().executeLong(frame);
@@ -215,13 +215,11 @@ public final class SelectorCall extends LKQLNode {
         BasePattern pattern
     ) {
         // Iterate on nodes
-        Iterator iterator = selectorListValue.iterator();
-        while (iterator.hasNext()) {
-            Object value = iterator.next();
-            if (!pattern.executeValue(frame, value)) return false;
+        for (int i = 0; i < selectorListValue.size(); i++) {
+            if (!pattern.executeValue(frame, selectorListValue.get(i))) return false;
         }
 
-        // Return validation of all nodes
+        // Return true if all nodes verify the pattern
         return true;
     }
 
@@ -238,10 +236,12 @@ public final class SelectorCall extends LKQLNode {
         LKQLSelectorList selectorListValue,
         BasePattern pattern
     ) {
-        // Iterate on nodes
-        Iterator iterator = selectorListValue.iterator();
+        // Iterate on nodes.
+        // Here we use an iterator to compute the iterator list content in a
+        // lazy way.
+        var iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            Object val = iterator.next();
+            var val = iterator.next();
             if (pattern.executeValue(frame, val)) return true;
         }
 

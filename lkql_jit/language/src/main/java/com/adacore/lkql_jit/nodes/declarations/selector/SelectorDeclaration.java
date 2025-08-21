@@ -8,13 +8,15 @@ package com.adacore.lkql_jit.nodes.declarations.selector;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.declarations.Annotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
-import com.adacore.lkql_jit.runtime.Closure;
+import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
 import com.adacore.lkql_jit.runtime.values.LKQLSelector;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -35,29 +37,23 @@ public final class SelectorDeclaration extends Declaration {
     private final String documentation;
 
     /** The slot to put the selector in. */
+    @CompilerDirectives.CompilationFinal
     private final int slot;
 
     /** The closure descriptor of the selector. */
+    @CompilerDirectives.CompilationFinal
     private final ClosureDescriptor closureDescriptor;
 
     /** The root node of the selector. */
     private final SelectorRootNode selectorRootNode;
 
+    @Child
+    CreateClosureNode createClosureNode;
+
     // ----- Constructors -----
 
     /**
      * Create a new selector declaration node.
-     *
-     * @param location The location of the node in the source.
-     * @param annotation The annotation of the selector declaration.
-     * @param frameDescriptor The frame descriptor for the selector.
-     * @param closureDescriptor The closure descriptor for the selector root node.
-     * @param name The name of the selector.
-     * @param documentation The documentation of the selector.
-     * @param slot The slot to put the selector in.
-     * @param thisSlot The slot for the "this" symbol.
-     * @param depthSlot The slot for the "depth" symbol.
-     * @param arms The arms of the selector.
      */
     public SelectorDeclaration(
         SourceSection location,
@@ -67,9 +63,7 @@ public final class SelectorDeclaration extends Declaration {
         String name,
         String documentation,
         int slot,
-        int thisSlot,
-        int depthSlot,
-        SelectorArm[] arms
+        Expr body
     ) {
         super(location, annotation);
         this.closureDescriptor = closureDescriptor;
@@ -81,18 +75,14 @@ public final class SelectorDeclaration extends Declaration {
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
             annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
-            thisSlot,
-            depthSlot,
-            arms
+            body,
+            name
         );
+        this.createClosureNode = new CreateClosureNode(closureDescriptor);
     }
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         FrameUtils.writeLocal(
@@ -100,9 +90,11 @@ public final class SelectorDeclaration extends Declaration {
             this.slot,
             new LKQLSelector(
                 this.selectorRootNode,
-                Closure.create(frame.materialize(), this.closureDescriptor),
+                createClosureNode.execute(frame),
                 this.name,
-                this.documentation
+                this.documentation,
+                // We only check cycles on memoized selectors for now
+                annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED)
             )
         );
         return LKQLUnit.INSTANCE;

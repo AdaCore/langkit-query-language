@@ -7,17 +7,17 @@ package com.adacore.lkql_jit.built_ins;
 
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.nodes.expressions.value_read.ReadArgument;
+import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.frame.FrameInstance;
+import com.oracle.truffle.api.frame.FrameInstanceVisitor;
+import com.oracle.truffle.api.source.SourceSection;
 
 /** This node represents a base for all built-in functions body. */
 @NodeChild(value = "argumentNodes", type = LKQLNode[].class)
 @GenerateNodeFactory
 public abstract class BuiltInBody extends Expr {
-
-    /** The node that called the expression. */
-    protected FunCall callNode;
 
     // ----- Constructors -----
 
@@ -26,29 +26,26 @@ public abstract class BuiltInBody extends Expr {
         super(null);
     }
 
-    // ----- Getters -----
-
-    public FunCall getCallNode() {
-        return callNode;
-    }
-
-    // ----- Setters -----
-
-    public void setCallNode(FunCall callNode) {
-        this.callNode = callNode;
-    }
-
     // ----- Instance methods -----
 
-    public LKQLNode argNode(int index) {
-        return this.callNode.getArgList().getArgs()[index];
+    protected SourceSection getCallLocation() {
+        return Truffle.getRuntime()
+            .iterateFrames(
+                new FrameInstanceVisitor<SourceSection>() {
+                    @Override
+                    public SourceSection visitFrame(FrameInstance frameInstance) {
+                        var callnode = frameInstance.getCallNode();
+                        if (callnode != null) {
+                            return callnode.getEncapsulatingSourceSection();
+                        }
+                        return null;
+                    }
+                }
+            );
     }
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return "BUILT_IN NODE";
@@ -66,11 +63,11 @@ public abstract class BuiltInBody extends Expr {
         LKQLNode[] argumentNodes = new LKQLNode[argumentCount];
 
         // Builtin functions are like normal functions, i.e., the arguments are
-        // passed in as an LKQLNode[] array. A ReadArgument extracts a parameter
+        // passed in as an LKQLNode[] array. A ReadParameter extracts a parameter
         // from this array.
 
         for (int i = 0; i < argumentCount; i++) {
-            argumentNodes[i] = new ReadArgument(null, i);
+            argumentNodes[i] = new ReadParameter(null, i);
         }
         // Instantiate the builtin node. This node performs the actual functionality.
         return factory.createNode((Object) argumentNodes);

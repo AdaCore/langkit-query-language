@@ -50,7 +50,6 @@ import java.math.BigInteger;
         LangkitSupport.MemberReferenceInterface.class,
         LKQLNamespace.class,
         LKQLObject.class,
-        Truthy.class,
         Nullish.class,
         LKQLRecValue.class,
         LKQLValue.class,
@@ -93,28 +92,6 @@ public abstract class LKQLTypeSystem {
     @TypeCheck(Nullish.class)
     public static boolean isNullish(final Object value) {
         return value == LKQLUnit.INSTANCE || value == LKQLNull.INSTANCE;
-    }
-
-    // ----- Truthy values -----
-
-    @TypeCheck(Truthy.class)
-    public static boolean isTruthy(Object value) {
-        return (
-            value instanceof Truthy ||
-            value instanceof Boolean ||
-            value instanceof LangkitSupport.NodeInterface
-        );
-    }
-
-    @TypeCast(Truthy.class)
-    public static Truthy asTruthy(Object value) {
-        if (value instanceof Truthy t) {
-            return t;
-        } else if (value instanceof Boolean b) {
-            return Truthy.wrapBoolean(b);
-        } else {
-            return Truthy.wrapBoolean(value instanceof LangkitSupport.NodeInterface);
-        }
     }
 
     // ----- Integer value methods -----

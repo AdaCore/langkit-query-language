@@ -58,7 +58,7 @@ public abstract class NodePatternField extends NodePatternDetail {
      * @param property The cached property reference.
      * @return True if the detail is valid, false else.
      */
-    @Specialization(guards = { "node == property.getNode()", "property.getDescription() != null" })
+    @Specialization(guards = { "node == property.node", "property.description != null" })
     protected boolean fieldCached(
         VirtualFrame frame,
         @SuppressWarnings("unused") LangkitSupport.NodeInterface node,
@@ -84,7 +84,7 @@ public abstract class NodePatternField extends NodePatternDetail {
         LKQLProperty property = new LKQLProperty(this.fieldName, node);
 
         // Verify if the field method is null
-        if (property.getDescription() == null) {
+        if (property.description == null) {
             throw LKQLRuntimeException.noSuchField(this);
         }
 

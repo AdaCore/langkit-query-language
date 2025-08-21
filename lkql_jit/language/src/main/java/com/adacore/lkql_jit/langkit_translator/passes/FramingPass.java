@@ -132,7 +132,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
         // Add the built-in functions
         for (BuiltInFunctionValue function : AllBuiltIns.allFunctions()) {
-            this.scriptFramesBuilder.addBuiltIn(function.getName());
+            this.scriptFramesBuilder.addBuiltIn(function.getExecutableName());
         }
 
         this.traverseChildren(topLevelList);
@@ -214,8 +214,8 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
         // Open a new frame, add implicit symbols and visit arms
         this.scriptFramesBuilder.openFrame(selectorDecl);
-        this.scriptFramesBuilder.addBinding(Constants.THIS_SYMBOL);
-        this.scriptFramesBuilder.addBinding(Constants.DEPTH_SYMBOL);
+        this.scriptFramesBuilder.addParameter(Constants.THIS_SYMBOL);
+        this.scriptFramesBuilder.addParameter(Constants.DEPTH_SYMBOL);
         selectorDecl.fArms().accept(this);
         this.scriptFramesBuilder.closeFrame();
         return null;

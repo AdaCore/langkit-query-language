@@ -31,9 +31,9 @@ public class ListMethods {
 
             // Check bounds validity
             if (low < 0) {
-                throw LKQLRuntimeException.invalidIndex((int) low + 1, argNode(0));
+                throw LKQLRuntimeException.invalidIndex((int) low + 1, this);
             } else if (high > list.getContent().length) {
-                throw LKQLRuntimeException.invalidIndex((int) high, argNode(1));
+                throw LKQLRuntimeException.invalidIndex((int) high, this);
             }
 
             // Return the sublist

@@ -6,8 +6,9 @@
 package com.adacore.lkql_jit.runtime.values.lists;
 
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
+import com.adacore.lkql_jit.runtime.ListStorage;
+import com.adacore.lkql_jit.runtime.values.iterators.BaseLKQLListIterator;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
-import com.adacore.lkql_jit.runtime.values.iterators.LKQLLazyListIterator;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -15,8 +16,6 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.util.ArrayList;
-import java.util.List;
 
 /** This class represents the base of all LKQL lazy lists. */
 @ExportLibrary(InteropLibrary.class)
@@ -25,12 +24,12 @@ public abstract class LKQLLazyList extends BaseLKQLList {
     // ----- Attributes -----
 
     /** The cache of the lazy list. */
-    protected final List<Object> cache;
+    protected final ListStorage<Object> cache;
 
     // ----- Constructors -----
 
     protected LKQLLazyList() {
-        this.cache = new ArrayList<>();
+        this.cache = new ListStorage<>(16);
     }
 
     // ----- Lazy list required methods -----
@@ -61,7 +60,7 @@ public abstract class LKQLLazyList extends BaseLKQLList {
 
     @Override
     public LKQLIterator iterator() {
-        return new LKQLLazyListIterator(this);
+        return new BaseLKQLListIterator(this);
     }
 
     // ----- Value methods -----

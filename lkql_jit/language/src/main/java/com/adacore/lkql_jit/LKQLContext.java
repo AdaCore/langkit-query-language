@@ -15,7 +15,6 @@ import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
-import com.adacore.lkql_jit.runtime.CallStack;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -27,6 +26,7 @@ import com.oracle.truffle.api.source.Source;
 import java.io.File;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -49,9 +49,6 @@ public final class LKQLContext {
     private final GlobalScope global;
 
     public final CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
-
-    /** The call stack of the current language thread. */
-    public final CallStack callStack = new CallStack();
 
     /** The stack representing the current LKQL source chain. */
     public final Stack<Source> fromStack = new Stack<>();
@@ -97,21 +94,6 @@ public final class LKQLContext {
      * dependencies.
      */
     private List<String> allSourceFiles;
-
-    /** Whether the source files were parsed. */
-    private boolean parsed;
-
-    /**
-     * The user-specified units to analyze. If not explicitly specified, those will be the units of
-     * the root project.
-     */
-    private LangkitSupport.AnalysisUnit[] specifiedUnits;
-
-    /** All the units of the project, including those of its non-externally-built dependencies. */
-    private LangkitSupport.AnalysisUnit[] allUnits;
-
-    /** The root nodes of all the analysis units of the project. */
-    private LangkitSupport.NodeInterface[] allUnitsRoots;
 
     // ----- Checker attributes -----
 
@@ -164,7 +146,6 @@ public final class LKQLContext {
         this.global = global;
         this.specifiedSourceFiles = new ArrayList<>();
         this.allSourceFiles = new ArrayList<>();
-        this.parsed = false;
         this.language = language;
     }
 
@@ -190,36 +171,34 @@ public final class LKQLContext {
         return this.global;
     }
 
-    public LangkitSupport.AnalysisUnit[] getSpecifiedUnits() {
-        if (!this.parsed) {
-            this.parseSources();
-        }
-        return this.specifiedUnits;
+    public Stream<LangkitSupport.AnalysisUnit> getSpecifiedUnits() {
+        String[] ignores = this.getIgnores();
+        return this.specifiedSourceFiles.stream()
+            .filter(source -> Arrays.stream(ignores).noneMatch(source::contains))
+            .map(f -> analysisContext.getUnitFromFile(f));
     }
 
-    public LangkitSupport.AnalysisUnit[] getAllUnits() {
-        if (!this.parsed) {
-            this.parseSources();
-        }
-        return this.allUnits;
+    public Stream<LangkitSupport.AnalysisUnit> getAllUnits() {
+        String[] ignores = this.getIgnores();
+        return this.allSourceFiles.stream()
+            .map(f -> {
+                return analysisContext.getUnitFromFile(f);
+            });
     }
 
-    public LangkitSupport.NodeInterface[] getAllUnitsRoots() {
-        if (!this.parsed) {
-            this.parseSources();
-        }
-        return this.allUnitsRoots;
+    @CompilerDirectives.TruffleBoundary
+    public LangkitSupport.NodeInterface[] allUnitsRoots() {
+        return getAllUnits().map(u -> u.getRoot()).toArray(LangkitSupport.NodeInterface[]::new);
     }
 
     public boolean hasRewritingContext() {
         return this.rewritingContext != null;
     }
 
+    @CompilerDirectives.TruffleBoundary
     public LangkitSupport.RewritingContextInterface getRewritingContext() {
         if (this.rewritingContext == null) {
-            if (!this.parsed) {
-                this.parseSources();
-            }
+            var ignore = getAllUnits().toArray(LangkitSupport.AnalysisUnit[]::new);
             this.rewritingContext = this.analysisContext.startRewriting();
         }
         return this.rewritingContext;
@@ -424,52 +403,11 @@ public final class LKQLContext {
         return this.emitter;
     }
 
-    // ----- Project analysis methods -----
-
-    /** Parse the ada source files and store analysis units and root nodes. */
-    @CompilerDirectives.TruffleBoundary
-    public void parseSources() {
-        // Filter the Ada source file list
-        String[] ignores = this.getIgnores();
-        String[] usedSources =
-            this.specifiedSourceFiles.stream()
-                .filter(source -> {
-                    for (String ignore : ignores) {
-                        if (source.contains(ignore)) return false;
-                    }
-                    return true;
-                })
-                .toArray(String[]::new);
-
-        // For each specified source file, store its corresponding analysis unit in the list of
-        // specified units
-        this.specifiedUnits = new LangkitSupport.AnalysisUnit[usedSources.length];
-        for (int i = 0; i < usedSources.length; i++) {
-            this.specifiedUnits[i] = this.analysisContext.getUnitFromFile(usedSources[i]);
-        }
-
-        // For each source file of the project, store its corresponding analysis unit in the list of
-        // all
-        // the units
-        // of the project, as well as their root nodes.
-        this.allUnits = new LangkitSupport.AnalysisUnit[this.allSourceFiles.size()];
-        this.allUnitsRoots = new LangkitSupport.NodeInterface[this.allSourceFiles.size()];
-
-        for (int i = 0; i < this.allUnits.length; i++) {
-            this.allUnits[i] = this.analysisContext.getUnitFromFile(this.allSourceFiles.get(i));
-            this.allUnitsRoots[i] = this.allUnits[i].getRoot();
-        }
-
-        // All source files are now parsed
-        this.parsed = true;
-    }
-
     /** Initialize the ada sources. */
     public void initSources() {
         // Reset the context fields
         this.specifiedSourceFiles.clear();
         this.allSourceFiles.clear();
-        this.parsed = false;
 
         // Add all the user-specified files to process after verifying they exist
         for (String file : this.getFiles()) {

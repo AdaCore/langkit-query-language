@@ -1,4 +1,4 @@
 script.lkql:2:3: error: Invalid number literal for pattern
-2 | | 124891249249124182481248 => true
-  |   ^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | | 124891249249124182481248 => true
+    |   ^^^^^^^^^^^^^^^^^^^^^^^^
 error: Errors during analysis

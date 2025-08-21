@@ -5,45 +5,65 @@
 
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
+import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This class represents a closure value reading in the LKQL language.
- *
- * @author Hugo GUERRIER
  */
-public final class ReadClosure extends BaseRead {
-
-    // ----- Constructors -----
+public abstract class ReadClosure extends BaseRead {
 
     /**
-     * Create a new closure reading node.
-     *
-     * @param location The location of the node in the source.
-     * @param slot The slot index to read in the closure.
+     * Whether the accessed entity is known to be package global or not. If it
+     * is, we can optimize access to it, because package level entities cannot
+     * change, so we can read them only once.
      */
-    public ReadClosure(final SourceSection location, final int slot) {
+    public final boolean isPackageGlobal;
+
+    protected ReadClosure(final SourceSection location, final int slot, boolean isPackageGlobal) {
         super(location, slot);
+        this.isPackageGlobal = isPackageGlobal;
     }
 
-    // ----- Execution methods -----
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+    /*
+     * Optimization strategy:
+     *
+     * 1. If the entity is package global, read only once, and then always return this result
+     * 2. Otherwise, we cache the closure object and optimize the read. We
+     *    re-read the slot only if the closure object changes.
      */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
+
+    @Specialization(guards = "isPackageGlobal == true")
+    public Object onGlobal(VirtualFrame frame, @Cached("getValue(frame)") Object result) {
+        return result;
+    }
+
+    protected Cell[] getClosure(VirtualFrame frame) {
+        return (Cell[]) frame.getArguments()[0];
+    }
+
+    @Specialization(guards = "cachedClosure == getClosure(frame)")
+    public Object onCachedClosure(
+        VirtualFrame frame,
+        @SuppressWarnings("unused") @Cached("getClosure(frame)") Cell[] cachedClosure,
+        @Cached("getValue(frame)") Object result
+    ) {
+        return result;
+    }
+
+    @Specialization(replaces = "onCachedClosure")
+    public Object OnUncachedClosure(VirtualFrame frame) {
+        return onCachedClosure(frame, getClosure(frame), getValue(frame));
+    }
+
+    public Object getValue(VirtualFrame frame) {
         return FrameUtils.readClosure(frame, this.slot);
     }
 
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

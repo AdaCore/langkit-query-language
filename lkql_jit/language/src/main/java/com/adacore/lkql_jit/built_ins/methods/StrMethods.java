@@ -137,10 +137,10 @@ public class StrMethods {
 
             // Verify start and end bounds
             if (start < 0) {
-                throw LKQLRuntimeException.invalidIndex((int) start + 1, argNode(0));
+                throw LKQLRuntimeException.invalidIndex((int) start + 1, this);
             }
             if (end > source.length()) {
-                throw LKQLRuntimeException.invalidIndex((int) end, argNode(1));
+                throw LKQLRuntimeException.invalidIndex((int) end, this);
             }
 
             // Return the substring

@@ -1,8 +1,8 @@
 script.lkql:1:18: error: Expected 3 arguments but got 2
-1 |  val impossible = new BinOp(
-  | __________________^
-  ||
-  || ~~~ 2 other lines ~~~
-  ||
-4 || )
-  ||_^
+  1 |  val impossible = new BinOp(
+    | __________________^
+    ||
+    || ~~~ 2 other lines ~~~
+    ||
+  4 || )
+    ||_^

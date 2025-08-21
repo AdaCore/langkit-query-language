@@ -32,9 +32,7 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
     public static final String checkerSource =
         """
         val analysis_units = specified_units()
-        val roots = [unit.root for unit in analysis_units]
-
-        map(roots, (root) => node_checker(root))
+        map(analysis_units, (unit) => node_checker(unit.root))
         map(analysis_units, (unit) => unit_checker(unit))
         """;
 

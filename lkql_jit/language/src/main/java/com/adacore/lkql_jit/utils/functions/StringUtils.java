@@ -27,6 +27,7 @@ public final class StringUtils {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final Object ANSI_RED = "\u001B[31m";
     public static final String ANSI_BOLD = "\u001B[1m";
 
     // ----- Class methods -----
@@ -187,9 +188,18 @@ public final class StringUtils {
         return lines.toArray(new String[0]);
     }
 
-    /** Get the underlined source representation. */
     @CompilerDirectives.TruffleBoundary
     public static String underlineSource(SourceLocation loc, String underLineColor) {
+        return underlineSource(loc, underLineColor, 0);
+    }
+
+    /** Get the underlined source representation. */
+    @CompilerDirectives.TruffleBoundary
+    public static String underlineSource(
+        SourceLocation loc,
+        String underLineColor,
+        int indentation
+    ) {
         // Prepare the result
         StringBuilder res = new StringBuilder();
         int colSize = String.valueOf(loc.endLine()).length();
@@ -198,6 +208,7 @@ public final class StringUtils {
 
         // Create the function to start a line
         Consumer<Integer> lineStarting = lineNum -> {
+            res.append(" ".repeat(indentation));
             res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
             if (lineNum < 1) {
                 res.append(" ".repeat(colSize));

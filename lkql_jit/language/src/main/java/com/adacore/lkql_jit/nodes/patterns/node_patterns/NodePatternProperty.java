@@ -7,12 +7,14 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.arguments.ArgList;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.runtime.values.LKQLProperty;
+import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
@@ -30,9 +32,9 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     // ----- Children -----
 
     /** The list of the argument for the property call. */
-    @Child
+    @Children
     @SuppressWarnings("FieldMayBeFinal")
-    protected ArgList argList;
+    protected Expr[] args;
 
     /** The expected value for the property call. */
     @Child
@@ -43,21 +45,16 @@ public abstract class NodePatternProperty extends NodePatternDetail {
 
     /**
      * Create a new pattern detail on a property.
-     *
-     * @param location The token location in the source.
-     * @param propertyName The name of the property to call.
-     * @param argList The arguments for the property call.
-     * @param expected The expected value of the property call.
      */
     public NodePatternProperty(
         SourceSection location,
         String propertyName,
-        ArgList argList,
+        Expr[] args,
         BasePattern expected
     ) {
         super(location);
         this.propertyName = propertyName;
-        this.argList = argList;
+        this.args = args;
         this.expected = expected;
     }
 
@@ -71,20 +68,33 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      * @param property The cached property reference.
      * @return True if the detail is valid, false else.
      */
-    @Specialization(guards = { "node == property.getNode()", "property.getDescription() != null" })
+    @Specialization(guards = { "node == property.node", "property.description != null" })
+    @ExplodeLoop
     protected boolean propertyCached(
         VirtualFrame frame,
         @SuppressWarnings("unused") LangkitSupport.NodeInterface node,
         @Cached("create(propertyName, node)") LKQLProperty property
     ) {
         // Evaluate the arguments
-        Object[] arguments = new Object[this.argList.getArgs().length];
+        Object[] arguments = new Object[args.length];
         for (int i = 0; i < arguments.length; i++) {
-            arguments[i] = this.argList.getArgs()[i].getArgExpr().executeGeneric(frame);
+            arguments[i] = args[i].executeGeneric(frame);
         }
 
         // Get the property result
-        Object value = property.executeAsProperty(this, this.argList, arguments);
+        Object result;
+        try {
+            result = ReflectionUtils.callProperty(
+                property.node,
+                property.description,
+                this,
+                args,
+                arguments
+            );
+        } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
+            throw LKQLRuntimeException.unsupportedType(e.getType(), this);
+        }
+        Object value = result;
 
         // Verify the pattern
         return this.expected.executeValue(frame, value);
@@ -103,7 +113,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
         LKQLProperty property = new LKQLProperty(this.propertyName, node);
 
         // Test if the property is null
-        if (property.getDescription() == null) {
+        if (property.description == null) {
             throw LKQLRuntimeException.noSuchField(this);
         }
 

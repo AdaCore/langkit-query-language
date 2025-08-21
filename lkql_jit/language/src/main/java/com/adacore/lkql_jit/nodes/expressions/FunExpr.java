@@ -6,12 +6,10 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.ParameterDeclaration;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
-import com.adacore.lkql_jit.runtime.Closure;
+import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
-import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -41,24 +39,25 @@ public final class FunExpr extends Expr {
     /** The default values of the parameters. */
     private final Expr[] parameterValues;
 
+    public final String name;
+
+    @Child
+    CreateClosureNode createClosureNode;
+
     // ----- Constructors -----
 
     /**
      * Create a new function expression node.
-     *
-     * @param location The location of the node in the source.
-     * @param frameDescriptor The frame descriptor for the function root node.
-     * @param closureDescriptor The closure descriptor for the function.
-     * @param parameters The parameters of the function.
-     * @param body The body of the function.
      */
     public FunExpr(
-        final SourceSection location,
-        final FrameDescriptor frameDescriptor,
-        final ClosureDescriptor closureDescriptor,
-        final ParameterDeclaration[] parameters,
-        final String documentation,
-        final Expr body
+        SourceSection location,
+        FrameDescriptor frameDescriptor,
+        ClosureDescriptor closureDescriptor,
+        String[] parameterNames,
+        Expr[] parameterDefaultValues,
+        String documentation,
+        Expr body,
+        String name
     ) {
         super(location);
         this.closureDescriptor = closureDescriptor;
@@ -66,21 +65,14 @@ public final class FunExpr extends Expr {
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
             false,
-            body
+            body,
+            name
         );
-        this.parameterNames = new String[parameters.length];
-        this.parameterValues = new Expr[parameters.length];
+        this.name = name;
+        this.parameterNames = parameterNames;
+        this.parameterValues = parameterDefaultValues;
         this.documentation = documentation;
-
-        this.initParams(parameters);
-    }
-
-    /** Initialize the parameter fields */
-    private void initParams(ParameterDeclaration[] parameters) {
-        for (int i = 0; i < parameters.length; i++) {
-            this.parameterNames[i] = parameters[i].getName();
-            this.parameterValues[i] = parameters[i].getDefaultValue();
-        }
+        this.createClosureNode = new CreateClosureNode(closureDescriptor);
     }
 
     // ----- Execution methods -----
@@ -94,8 +86,8 @@ public final class FunExpr extends Expr {
     public LKQLFunction executeFunction(VirtualFrame frame) {
         return new LKQLFunction(
             this.functionRootNode,
-            Closure.create(frame.materialize(), this.closureDescriptor),
-            Constants.FUNCTION_DEFAULT_NAME,
+            createClosureNode.execute(frame),
+            name,
             this.documentation,
             this.parameterNames,
             this.parameterValues
@@ -104,9 +96,6 @@ public final class FunExpr extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

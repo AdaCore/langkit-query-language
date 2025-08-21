@@ -6,17 +6,14 @@
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
 import com.adacore.lkql_jit.built_ins.BuiltInPropertyValue;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.Constants;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
@@ -40,16 +37,23 @@ public abstract class DotAccessWrapper extends Expr {
      * When the child dot-access is returning an attribute, execute this attribute implicitly and
      * return the result of this execution.
      */
-    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
-    protected Object onAttribute(
+    @Specialization(
+        limit = Constants.SPECIALIZED_LIB_LIMIT,
+        guards = "attribute.getCallTarget() == directCallNode.getCallTarget()"
+    )
+    protected Object doCached(
         BuiltInPropertyValue attribute,
-        @CachedLibrary("attribute") InteropLibrary attributeLibrary
+        @Cached("create(attribute.getCallTarget())") DirectCallNode directCallNode
     ) {
-        try {
-            return attributeLibrary.execute(attribute, attribute.thisValue);
-        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
-            throw LKQLRuntimeException.fromJavaException(e, this);
-        }
+        return directCallNode.call(attribute.thisValue);
+    }
+
+    @Specialization(replaces = "doCached")
+    protected Object doUncached(
+        BuiltInPropertyValue attribute,
+        @Cached IndirectCallNode indirectCallNode
+    ) {
+        return indirectCallNode.call(attribute.getCallTarget(), attribute.thisValue);
     }
 
     /** For other cases, just return the dot access result value. */

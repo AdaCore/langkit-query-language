@@ -14,7 +14,7 @@
 
     <build>
         <plugins>
-            <!-- Configure the Pyhton scripts execution -->
+            <!-- Configure the Python scripts execution -->
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>

@@ -2,7 +2,7 @@
 3
 [2, 3]
 [1, 2, 3, 4, 5]
-script.lkql:6:17: error: Invalid index: 0
-6 | print(l.sublist(0, 5))
-  |                 ^
- in sublist (called at script.lkql:6:7)
+error: Invalid index: 0
+script.lkql:6:7 in script.lkql
+  6 | print(l.sublist(0, 5))
+    |       ^^^^^^^^^^^^^^^

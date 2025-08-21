@@ -8,7 +8,9 @@ package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
@@ -60,9 +62,12 @@ public final class ComprehensionAssocList extends LKQLNode {
      * @param frame The frame to execute the in.
      * @return The collection array.
      */
+    @ExplodeLoop
     public Iterable[] executeCollections(VirtualFrame frame) {
         // Prepare the result
         Iterable[] res = new Iterable[this.compAssocs.length];
+
+        CompilerAsserts.compilationConstant(res.length);
 
         for (int i = 0; i < res.length; i++) {
             res[i] = this.compAssocs[i].executeCollection(frame);

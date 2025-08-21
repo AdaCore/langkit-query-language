@@ -5,6 +5,8 @@
 
 package com.adacore.lkql_jit.langkit_translator.passes;
 
+import static com.adacore.lkql_jit.options.IterationUtils.toStream;
+
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
@@ -19,8 +21,8 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.declarations.*;
-import com.adacore.lkql_jit.nodes.declarations.selector.RecExpr;
-import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selector.RecExprs;
+import com.adacore.lkql_jit.nodes.declarations.selector.RecExprsFactory;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorDeclaration;
 import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
@@ -39,11 +41,9 @@ import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.value_read.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
-import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
@@ -265,15 +265,15 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
         // In a second time look in the parameters of the frame
         else if (this.scriptFrames.isParameter(symbol)) {
-            return new ReadArgument(location, this.scriptFrames.getParameter(symbol));
+            return new ReadParameter(location, this.scriptFrames.getParameter(symbol));
         }
         // Then look in the closure for the symbol
         else if (this.scriptFrames.isClosure(symbol)) {
-            final int slot = this.scriptFrames.getClosure(symbol);
+            final var slotInfo = this.scriptFrames.getClosure(symbol);
             if (this.scriptFrames.isClosureDeclared(symbol)) {
-                return new ReadClosure(location, slot);
+                return ReadClosureNodeGen.create(location, slotInfo.slot(), slotInfo.isGlobal());
             } else {
-                return new ReadClosureUnsafe(location, slot, symbol);
+                return new ReadClosureUnsafe(location, slotInfo.slot(), symbol);
             }
         } else if (this.scriptFrames.isPrelude(symbol)) {
             return new ReadPrelude(location, this.scriptFrames.getPrelude(symbol));
@@ -395,7 +395,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Return the if then else node
-        return new CondExpr(loc(condExpr), condition, consequence, alternative);
+        return CondExprNodeGen.create(loc(condExpr), condition, consequence, alternative);
     }
 
     // --- Unwrap node
@@ -486,10 +486,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             // Verify the same name arguments
             else if (curArg instanceof NamedArg namedArg) {
                 namedPhase = true;
-                if (seenNames.contains(namedArg.getArgName().getName())) {
+                if (seenNames.contains(namedArg.getArgStringName())) {
                     throw LKQLRuntimeException.multipleSameNameArgument(curArg);
                 }
-                seenNames.add(namedArg.getArgName().getName());
+                seenNames.add(namedArg.getArgStringName());
             }
 
             // Add the argument to the list
@@ -510,13 +510,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.ParameterDecl parameterDecl) {
-        // Translate the parameter declaration fields
-        final String name = parameterDecl.fParamIdentifier().getText();
-        final Liblkqllang.Expr defaultExpr = parameterDecl.fDefaultExpr();
-        final Expr defaultValue = defaultExpr.isNone() ? null : (Expr) defaultExpr.accept(this);
-
-        // Return the new parameter declaration
-        return new ParameterDeclaration(loc(parameterDecl), name, defaultValue);
+        return null;
     }
 
     @Override
@@ -546,8 +540,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             case OP_MINUS -> BinMinusNodeGen.create(location, left, right);
             case OP_MUL -> BinMulNodeGen.create(location, left, right);
             case OP_DIV -> BinDivNodeGen.create(location, left, right);
-            case OP_AND -> new BinAnd(location, left, right);
-            case OP_OR -> new BinOr(location, left, right);
+            case OP_AND -> BinAndNodeGen.create(location, left, right);
+            case OP_OR -> BinOrNodeGen.create(location, left, right);
             case OP_EQ -> BinEqNodeGen.create(location, left, right);
             case OP_NEQ -> BinNeqNodeGen.create(location, left, right);
             case OP_CONCAT -> BinConcatNodeGen.create(location, left, right);
@@ -1141,22 +1135,21 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     @Override
     public LKQLNode visit(Liblkqllang.RecExpr recExpr) {
-        final boolean recurseHasUnpack = recExpr.fRecurseUnpack() instanceof
-        Liblkqllang.UnpackPresent;
-        final Expr recurseExpr = (Expr) recExpr.fRecurseExpr().accept(this);
-
-        final boolean resultHasUnpack = recExpr.fResultUnpack() instanceof
-        Liblkqllang.UnpackPresent;
-        final Expr resultExpr = recExpr.fResultExpr().isNone()
-            ? null
-            : (Expr) recExpr.fResultExpr().accept(this);
-        return new RecExpr(
-            loc(recExpr),
-            recurseHasUnpack,
-            recurseExpr,
-            resultHasUnpack,
-            resultExpr
-        );
+        if (recExpr.fResultExpr().isNone()) {
+            return RecExprsFactory.UnaryRecExprNodeGen.create(
+                loc(recExpr),
+                recExpr.fRecurseUnpack() instanceof Liblkqllang.UnpackPresent,
+                (Expr) recExpr.fRecurseExpr().accept(this)
+            );
+        } else {
+            return new RecExprs.BinaryRecExpr(
+                loc(recExpr),
+                recExpr.fRecurseUnpack() instanceof Liblkqllang.UnpackPresent,
+                (Expr) recExpr.fRecurseExpr().accept(this),
+                recExpr.fResultUnpack() instanceof Liblkqllang.UnpackPresent,
+                (Expr) recExpr.fResultExpr().accept(this)
+            );
+        }
     }
 
     // --- Lists
@@ -1422,7 +1415,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.NamedFunction namedFunction) {
-        return this.functionExprHelper(namedFunction);
+        return this.functionExprHelper(
+                namedFunction,
+                ((Liblkqllang.FunDecl) namedFunction.parent()).fName().getText()
+            );
     }
 
     /**
@@ -1433,7 +1429,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.AnonymousFunction anonymousFunction) {
-        return this.functionExprHelper(anonymousFunction);
+        return this.functionExprHelper(anonymousFunction, "<anonymous>");
     }
 
     /**
@@ -1442,27 +1438,29 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      * @param baseFunction The base function node from Langkit.
      * @return The function expression node for Truffle.
      */
-    private FunExpr functionExprHelper(Liblkqllang.BaseFunction baseFunction) {
+    private FunExpr functionExprHelper(Liblkqllang.BaseFunction baseFunction, String name) {
         // Enter the function frame
         this.scriptFrames.enterFrame(baseFunction);
 
-        // Translate the function fields
-        final List<ParameterDeclaration> parameters = new ArrayList<>();
-        for (Liblkqllang.LkqlNode param : baseFunction.fParameters().children()) {
-            parameters.add((ParameterDeclaration) param.accept(this));
-        }
-        final Expr body = (Expr) baseFunction.fBodyExpr().accept(this);
-
-        final var docstring = baseFunction.pDoc();
+        var names = toStream(baseFunction.fParameters())
+            .map(p -> p.fParamIdentifier().getText())
+            .toArray(String[]::new);
+        var defaultVals = toStream(baseFunction.fParameters())
+            .map(p -> p.fDefaultExpr().isNone() ? null : (Expr) p.fDefaultExpr().accept(this))
+            .toArray(Expr[]::new);
+        var body = (Expr) baseFunction.fBodyExpr().accept(this);
+        var docstring = baseFunction.pDoc();
 
         // Return the new function expression node
-        final FunExpr res = new FunExpr(
+        var res = new FunExpr(
             loc(baseFunction),
             this.scriptFrames.getFrameDescriptor(),
             this.scriptFrames.getClosureDescriptor(),
-            parameters.toArray(new ParameterDeclaration[0]),
+            names,
+            defaultVals,
             docstring.isNone() ? "" : parseStringLiteral(docstring),
-            body
+            body,
+            name
         );
 
         // Exit the function frame
@@ -1495,13 +1493,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         FunExpr funExpr = (FunExpr) funDecl.fFunExpr().accept(this);
 
         // Create the new function declaration node
-        final var functionDecl = new FunctionDeclaration(
-            loc(funDecl),
-            annotation,
-            name,
-            slot,
-            funExpr
-        );
+        final var functionDecl = new FunctionDeclaration(loc(funDecl), annotation, slot, funExpr);
 
         // If the function is annotated as a checker, create a checker exportation node and
         // return it
@@ -1539,6 +1531,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return null;
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.SelectorArm selectorArm) {
+        return null;
+    }
+
     // --- Function calling
 
     /**
@@ -1555,7 +1552,13 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final ArgList arguments = (ArgList) funCall.fArguments().accept(this);
 
         // Return the function call
-        return FunCallNodeGen.create(loc(funCall), isSafe, arguments, callee);
+        return FunCallNodeGen.create(
+            loc(funCall),
+            isSafe,
+            Arrays.stream(arguments.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
+            Arrays.stream(arguments.getArgs()).map(Arg::getArgStringName).toArray(String[]::new),
+            callee
+        );
     }
 
     /**
@@ -1575,29 +1578,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     }
 
     // --- Selector declaration
-
-    /**
-     * Visit a selector arm node.
-     *
-     * @param selectorArm The selector arm node from Langkit.
-     * @return The selector arm node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.SelectorArm selectorArm) {
-        // Enter the arm frame
-        this.scriptFrames.enterFrame(selectorArm);
-
-        // Translate the selector arm fields
-        // TODO: Question on why many expressions by arm
-        final BasePattern pattern = (BasePattern) selectorArm.fPattern().accept(this);
-        final Expr expr = (Expr) selectorArm.fExpr().accept(this);
-
-        // Exit the arm frame
-        this.scriptFrames.exitFrame();
-
-        // Return the selector arm node
-        return new SelectorArm(loc(selectorArm), pattern, expr);
-    }
 
     @Override
     public LKQLNode visit(Liblkqllang.SelectorArmList selectorArmList) {
@@ -1633,20 +1613,34 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         this.scriptFrames.enterFrame(selectorDecl);
 
         // Get the "this" and "depth" bindings
-        this.scriptFrames.declareBinding(Constants.THIS_SYMBOL);
-        this.scriptFrames.declareBinding(Constants.DEPTH_SYMBOL);
-        final int thisSlot = this.scriptFrames.getBinding(Constants.THIS_SYMBOL);
-        final int depthSlot = this.scriptFrames.getBinding(Constants.DEPTH_SYMBOL);
+        final int thisSlot = this.scriptFrames.getParameter(Constants.THIS_SYMBOL);
 
-        // Get the selector arms
-        final List<SelectorArm> arms = new ArrayList<>();
-        for (Liblkqllang.LkqlNode node : selectorDecl.fArms().children()) {
-            arms.add((SelectorArm) node.accept(this));
-        }
+        var arms = toStream(selectorDecl.fArms())
+            .map(a -> {
+                // Enter the arm's frame
+                this.scriptFrames.enterFrame(a);
+
+                // Translate the arm's fields
+                final BasePattern pattern = (BasePattern) a.fPattern().accept(this);
+                final Expr expr = (Expr) a.fExpr().accept(this);
+
+                // Exit the arm's frame
+                this.scriptFrames.exitFrame();
+
+                // Return the new match arm
+                return new MatchArm(loc(a), pattern, expr);
+            })
+            .toArray(MatchArm[]::new);
+
+        var match = new Match(
+            loc(selectorDecl),
+            new ReadParameter(loc(selectorDecl), thisSlot),
+            arms
+        );
 
         // Create the frame descriptor for the arms
-        FrameDescriptor frameDescriptor = this.scriptFrames.getFrameDescriptor();
-        ClosureDescriptor closureDescriptor = this.scriptFrames.getClosureDescriptor();
+        var frameDescriptor = this.scriptFrames.getFrameDescriptor();
+        var closureDescriptor = this.scriptFrames.getClosureDescriptor();
 
         // Exit the selector frame
         this.scriptFrames.exitFrame();
@@ -1660,9 +1654,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             name,
             documentation,
             slot,
-            thisSlot,
-            depthSlot,
-            arms.toArray(new SelectorArm[0])
+            match
         );
     }
 
@@ -1761,7 +1753,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return NodePatternPropertyNodeGen.create(
             loc(nodePatternProperty),
             propertyName,
-            argList,
+            Arrays.stream(argList.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
             expected
         );
     }

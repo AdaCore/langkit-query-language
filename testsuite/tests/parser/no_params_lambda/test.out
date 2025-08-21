@@ -1,0 +1,16 @@
+TopLevelList
+|  FunCall
+|  |f_name:
+|  |  Identifier: test
+|  |f_has_safe:
+|  |  SafeAbsent
+|  |f_arguments:
+|  |  ArgList
+|  |  |  ExprArg
+|  |  |  |f_value_expr:
+|  |  |  |  AnonymousFunction
+|  |  |  |  |f_parameters:
+|  |  |  |  |  ParameterDeclList: <empty list>
+|  |  |  |  |f_doc_node: <null>
+|  |  |  |  |f_body_expr:
+|  |  |  |  |  UnitLiteral

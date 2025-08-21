@@ -9,36 +9,78 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.BuiltInFunction;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.TruffleStackTrace;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 
 public final class NodeCheckerFunction {
+
+    private static final LKQLToBoolean toBoolean = LKQLToBooleanNodeGen.create();
+
+    public record InstantiatedNodeChecker(
+        NodeChecker checker,
+        LKQLFunction function,
+        Object[] arguments
+    ) {}
+
+    public static InstantiatedNodeChecker[] preprocessNodeCheckers(
+        VirtualFrame frame,
+        NodeChecker[] checkers,
+        LKQLContext context
+    ) {
+        var instantiatedFuncs = new InstantiatedNodeChecker[checkers.length];
+        for (int i = 0; i < checkers.length; i++) {
+            var checker = checkers[i];
+            var function = checker.getFunction();
+            var aliasName = checker.getAlias();
+            var lowerRuleName = StringUtils.toLowerCase(checker.getName());
+            var instance = new InstantiatedNodeChecker(
+                checker,
+                function,
+                new Object[function.parameterNames.length + 1]
+            );
+
+            for (int j = 1; j < function.getParameterDefaultValues().length; j++) {
+                String paramName = function.parameterNames[j];
+                Object userDefinedArg = context.getRuleArg(
+                    (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
+                    StringUtils.toLowerCase(paramName)
+                );
+                instance.arguments[j + 1] = userDefinedArg == null
+                    ? function.getParameterDefaultValues()[j].executeGeneric(frame)
+                    : userDefinedArg;
+            }
+
+            instantiatedFuncs[i] = instance;
+        }
+        return instantiatedFuncs;
+    }
 
     /**
      * This class is the expression of the "node_checker" built-in. This expression contains the
@@ -54,26 +96,33 @@ public final class NodeCheckerFunction {
 
         @Specialization
         public Object alwaysTrue(VirtualFrame frame, LangkitSupport.NodeInterface root) {
+            return implem(frame.materialize(), root);
+        }
+
+        @CompilerDirectives.TruffleBoundary
+        public Object implem(MaterializedFrame frame, LangkitSupport.NodeInterface root) {
             // Get the arguments
             final LKQLContext context = LKQLLanguage.getContext(this);
-            final LangkitSupport.AnalysisUnit rootUnit;
+            final LangkitSupport.AnalysisUnit rootUnit = root.getUnit();
 
-            final NodeChecker[] allNodeCheckers = context.getAllNodeCheckers();
-            final NodeChecker[] nodeCheckers = context.getNodeCheckers();
-            final NodeChecker[] sparkNodeCheckers = context.getSparkNodeCheckers();
+            final InstantiatedNodeChecker[] allNodeCheckers = preprocessNodeCheckers(
+                frame,
+                context.getAllNodeCheckers(),
+                context
+            );
+            final InstantiatedNodeChecker[] nodeCheckers = preprocessNodeCheckers(
+                frame,
+                context.getNodeCheckers(),
+                context
+            );
+            final InstantiatedNodeChecker[] sparkNodeCheckers = preprocessNodeCheckers(
+                frame,
+                context.getSparkNodeCheckers(),
+                context
+            );
+
             final boolean mustFollowInstantiations = context.mustFollowInstantiations();
             final boolean hasSparkCheckers = sparkNodeCheckers.length > 0;
-
-            try {
-                root = LKQLTypeSystemGen.expectNodeInterface(frame.getArguments()[0]);
-                rootUnit = root.getUnit();
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.NODE_INTERFACE,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
-                );
-            }
 
             // Traverse the tree
             // Create the list of node to explore with the generic instantiation info
@@ -111,13 +160,20 @@ public final class NodeCheckerFunction {
                         visitList.addFirst(new VisitStep(stubBody, true, inSparkCode));
                     }
                 } catch (Libadalang.LangkitException e) {
+                    // Get the stack frame below this one to get a location for the error
+                    var stackTrace = TruffleStackTrace.getStackTrace(e);
+                    var stackFrame = stackTrace.get(1);
+                    var callerLocation = LKQLRuntimeException.getClosestNodeWithSourceInfo(
+                        stackFrame.getLocation()
+                    );
+
                     context
                         .getDiagnosticEmitter()
                         .emitDiagnostic(
                             CheckerUtils.MessageKind.ERROR,
                             e.getMessage(),
                             new LangkitLocationWrapper(currentNode, context.linesCache),
-                            new SourceSectionWrapper(this.callNode.getSourceSection())
+                            new SourceSectionWrapper(callerLocation.getSourceSection())
                         );
                     if (context.isCheckerDebug()) {
                         context.getLogger().severe(e.getMessage());
@@ -146,10 +202,10 @@ public final class NodeCheckerFunction {
                 for (int i = currentNode.getChildrenCount() - 1; i >= 0; i--) {
                     final LangkitSupport.NodeInterface child = currentNode.getChild(i);
                     if (!child.isNone()) {
-                        // No need to check if the child is a base subprogram body in SPARK mode if
-                        // there is no
-                        // required
-                        // SPARK checkers. This avoids useless calls to 'pIsSubjectToProof'.
+                        // No need to check if the child is a base subprogram
+                        // body in SPARK mode if there is no required SPARK
+                        // checkers. This avoids useless calls to
+                        // 'pIsSubjectToProof'.
                         if (hasSparkCheckers && child instanceof Libadalang.BaseSubpBody subpBody) {
                             visitList.addFirst(
                                 new VisitStep(
@@ -238,24 +294,19 @@ public final class NodeCheckerFunction {
 
         /**
          * Execute the given checker array to the given Ada node.
-         *
-         * @param frame The frame to execute in.
-         * @param currentStep The current step of the visiting.
-         * @param currentNode The node to execute the checkers on.
-         * @param checkers The checekrs to execute.
-         * @param context The LKQL context.
          */
         private void executeCheckers(
             VirtualFrame frame,
             VisitStep currentStep,
             LangkitSupport.NodeInterface currentNode,
-            NodeChecker[] checkers,
+            InstantiatedNodeChecker[] checkers,
             LKQLContext context
         ) {
             // For each checker apply it on the current node if needed
-            for (NodeChecker checker : checkers) {
+            for (var checker : checkers) {
                 if (
-                    !currentStep.inGenericInstantiation() || checker.isFollowGenericInstantiations()
+                    !currentStep.inGenericInstantiation() ||
+                    checker.checker.isFollowGenericInstantiations()
                 ) {
                     try {
                         this.applyNodeRule(frame, checker, currentNode, context);
@@ -269,7 +320,7 @@ public final class NodeCheckerFunction {
                                     e.getMsg(),
                                     new LangkitLocationWrapper(currentNode, context.linesCache),
                                     new SourceSectionWrapper(e.getLoc()),
-                                    checker.getName()
+                                    checker.checker.getName()
                                 );
                         }
                     } catch (LKQLRuntimeException e) {
@@ -280,7 +331,7 @@ public final class NodeCheckerFunction {
                                 e.getErrorMessage(),
                                 new LangkitLocationWrapper(currentNode, context.linesCache),
                                 e.getSourceLoc(),
-                                checker.getName()
+                                checker.checker.getName()
                             );
                     }
                 }
@@ -289,69 +340,40 @@ public final class NodeCheckerFunction {
 
         /**
          * Apply the checker on the given node.
-         *
-         * @param frame The frame to execute the default arg value.
-         * @param checker The checker to apply.
-         * @param node The node to apply the checker on.
-         * @param context The LKQL context.
          */
         private void applyNodeRule(
             VirtualFrame frame,
-            NodeChecker checker,
+            InstantiatedNodeChecker checker,
             LangkitSupport.NodeInterface node,
             LKQLContext context
         ) {
-            // Get the function for the checker
-            LKQLFunction functionValue = checker.getFunction();
-            String aliasName = checker.getAlias();
-            String lowerRuleName = StringUtils.toLowerCase(checker.getName());
-
-            // Prepare the arguments
-            Object[] arguments = new Object[functionValue.parameterNames.length + 1];
-            arguments[1] = node;
-            for (int i = 1; i < functionValue.getParameterDefaultValues().length; i++) {
-                String paramName = functionValue.parameterNames[i];
-                Object userDefinedArg = context.getRuleArg(
-                    (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
-                    StringUtils.toLowerCase(paramName)
-                );
-                arguments[i + 1] = userDefinedArg == null
-                    ? functionValue.getParameterDefaultValues()[i].executeGeneric(frame)
-                    : userDefinedArg;
-            }
-
             // Place the closure in the arguments
-            arguments[0] = functionValue.closure.getContent();
+            checker.arguments[0] = checker.function.closure.getContent();
+            checker.arguments[1] = node;
 
             // Call the checker
             final boolean ruleResult;
             try {
-                ruleResult = LKQLTypeSystemGen.expectTruthy(
-                    interopLibrary.execute(functionValue, arguments)
-                ).isTruthy();
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    functionValue.getBody()
+                ruleResult = toBoolean.execute(
+                    interopLibrary.execute(checker.function, checker.arguments)
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
-                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+                throw LKQLRuntimeException.fromJavaException(e, this);
             }
 
             if (ruleResult) {
                 if (context.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
-                    reportViolation(context, checker, node);
+                    reportViolation(context, checker.checker, node);
                 } else if (
                     context.getEngineMode() == LKQLOptions.EngineMode.FIXER &&
-                    checker.autoFix != null
+                    checker.checker.autoFix != null
                 ) {
                     callAutoFix(
                         context,
                         context.getRewritingContext(),
                         interopLibrary,
-                        checker,
+                        checker.checker,
                         node
                     );
                 }
@@ -419,7 +441,7 @@ public final class NodeCheckerFunction {
                 file.createNewFile();
                 writer.write(content);
             } catch (IOException e) {
-                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+                throw LKQLRuntimeException.fromJavaException(e, this);
             }
         }
 

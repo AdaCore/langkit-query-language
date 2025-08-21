@@ -3,5 +3,10 @@ main.adb:3:4: rule violation: Custom rule violation
   |    ^^^^^^^^^
 
 error: Rule "custom" is not defining any auto-fixing function
- in node_checker (called at checker.lkql:4:22)
- in map (called at checker.lkql:4:1)
+checker.lkql:2:31 in <anonymous>
+  2 | map(analysis_units, (unit) => node_checker(unit.root))
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^
+
+checker.lkql:2:1 in checker.lkql
+  2 | map(analysis_units, (unit) => node_checker(unit.root))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

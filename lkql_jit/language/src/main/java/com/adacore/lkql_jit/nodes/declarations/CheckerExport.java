@@ -12,6 +12,8 @@ import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.utils.Constants;
@@ -72,9 +74,17 @@ public class CheckerExport extends Declaration {
 
     /** Export the given LKQL function */
     private void exportChecker(VirtualFrame frame, LKQLFunction functionValue) {
+        final Expr[] orderedArguments = FunCall.orderArgList(
+            Constants.CHECKER_PARAMETER_NAMES,
+            this.annotation.getArguments()
+        );
         // Execute the annotation arguments
-        final Object[] checkerArguments =
-            this.annotation.getArguments().executeArgList(frame, Constants.CHECKER_PARAMETER_NAMES);
+        Object[] checkerArguments = new Object[orderedArguments.length];
+        for (int i = 0; i < checkerArguments.length; i++) {
+            checkerArguments[i] = orderedArguments[i] != null
+                ? orderedArguments[i].executeGeneric(frame)
+                : null;
+        }
 
         // Set the default values of the checker arguments
         for (int i = 0; i < checkerArguments.length; i++) {
@@ -83,8 +93,8 @@ public class CheckerExport extends Declaration {
         }
 
         // Verify the message and help
-        if (checkerArguments[0] == null) checkerArguments[0] = functionValue.name;
-        if (checkerArguments[1] == null) checkerArguments[1] = functionValue.name;
+        if (checkerArguments[0] == null) checkerArguments[0] = functionValue.getExecutableName();
+        if (checkerArguments[1] == null) checkerArguments[1] = functionValue.getExecutableName();
 
         // Verify the remediation mode
         final BaseChecker.Remediation remediation =
@@ -123,7 +133,7 @@ public class CheckerExport extends Declaration {
         // Create the object value representing the checker
         final BaseChecker checker = this.mode == CheckerMode.NODE
             ? new NodeChecker(
-                functionValue.name,
+                functionValue.getExecutableName(),
                 functionValue,
                 autoFix,
                 (String) checkerArguments[0],
@@ -137,7 +147,7 @@ public class CheckerExport extends Declaration {
                 (String) checkerArguments[8]
             )
             : new UnitChecker(
-                functionValue.name,
+                functionValue.getExecutableName(),
                 functionValue,
                 (String) checkerArguments[0],
                 (String) checkerArguments[1],
@@ -153,7 +163,7 @@ public class CheckerExport extends Declaration {
         // Put the object in the context
         LKQLLanguage.getContext(this)
             .getGlobal()
-            .addChecker(StringUtils.toLowerCase(functionValue.getName()), checker);
+            .addChecker(StringUtils.toLowerCase(functionValue.getExecutableName()), checker);
     }
 
     // ----- Override methods -----

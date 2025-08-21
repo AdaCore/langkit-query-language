@@ -102,11 +102,11 @@ public final class ConstructorCall extends Expr {
             // at the right index.
             else {
                 final var namedArg = (NamedArg) arg;
-                final var name = namedArg.getArgName().getName();
+                final var name = namedArg.getArgStringName();
 
                 // Check that the argument name is a valid field and get its index
                 if (!fieldIndexes.containsKey(name)) {
-                    throw LKQLRuntimeException.unknownArgument(name, namedArg.getArgName());
+                    throw LKQLRuntimeException.unknownArgument(name, namedArg);
                 }
                 final int index = fieldIndexes.get(name).get(0);
 

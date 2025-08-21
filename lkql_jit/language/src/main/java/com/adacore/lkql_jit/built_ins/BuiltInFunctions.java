@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.*;
@@ -25,13 +26,18 @@ import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.LoopNode;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.nodes.RepeatingNode;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -64,7 +70,7 @@ public class BuiltInFunctions {
 
         @Specialization
         protected LKQLPattern onValidArgs(String regex, @DefaultVal("true") boolean caseSensitive) {
-            return new LKQLPattern(getCallNode(), regex, caseSensitive);
+            return new LKQLPattern(this, regex, caseSensitive);
         }
     }
 
@@ -161,9 +167,7 @@ public class BuiltInFunctions {
                 } catch (
                     ArityException | UnsupportedTypeException | UnsupportedMessageException e
                 ) {
-                    // TODO: Implement runtime checks in the LKQLFunction class and base computing
-                    // on them (#138)
-                    throw LKQLRuntimeException.fromJavaException(e, argNode(1));
+                    throw LKQLRuntimeException.fromJavaException(e, this);
                 }
             }
             return initValue;
@@ -190,7 +194,7 @@ public class BuiltInFunctions {
 
                 for (var func : AllBuiltIns.allFunctions()) {
                     writer.write(".. function:: ");
-                    writer.write(func.getName());
+                    writer.write(func.getExecutableName());
                     writer.write("(" + String.join(", ", func.parameterNames) + ")");
                     writer.write("\n\n");
                     writer.withIndent(() -> {
@@ -278,9 +282,9 @@ public class BuiltInFunctions {
 
         @Specialization(guards = "list.size() > 1")
         protected Object onMultipleElems(LKQLList list, @Cached ConcatenationNode concat) {
-            Object res = concat.execute(list.get(0), list.get(1), this.callNode);
+            Object res = concat.execute(list.get(0), list.get(1), this);
             for (int i = 2; i < list.size(); i++) {
-                res = concat.execute(res, list.get(i), this.callNode);
+                res = concat.execute(res, list.get(i), this);
             }
             return res;
         }
@@ -312,7 +316,93 @@ public class BuiltInFunctions {
             @DefaultVal("true") boolean recursive,
             @Cached ValueCombiner combiner
         ) {
-            return combiner.execute(left, right, recursive, this.callNode);
+            return combiner.execute(left, right, recursive, this.getCallLocation(), this);
+        }
+    }
+
+    @BuiltInFunction(name = "repeat", doc = "Call the given function N times")
+    abstract static class RepeatExpr extends BuiltInBody {
+
+        @CompilerDirectives.TruffleBoundary
+        public LoopNode getLoopNode(
+            long times,
+            LKQLFunction function,
+            InteropLibrary functionLibrary
+        ) {
+            return Truffle.getRuntime()
+                .createLoopNode(new InternalRepeatingNode(function, functionLibrary, times));
+        }
+
+        @Specialization(
+            limit = Constants.SPECIALIZED_LIB_LIMIT,
+            guards = { "function.parameterNames.length == 0", "function == cachedFunction" }
+        )
+        protected Object onValidArgs(
+            VirtualFrame frame,
+            long times,
+            LKQLFunction function,
+            @Cached("function") @SuppressWarnings("unused") LKQLFunction cachedFunction,
+            @CachedLibrary("function") InteropLibrary functionLibrary,
+            @Cached("getLoopNode(times, function, functionLibrary)") LoopNode loopNode
+        ) {
+            loopNode.execute(frame);
+            return null;
+        }
+
+        @Specialization(replaces = "onValidArgs", limit = Constants.SPECIALIZED_LIB_LIMIT)
+        protected Object fallBack(
+            VirtualFrame frame,
+            long times,
+            LKQLFunction function,
+            @CachedLibrary("function") InteropLibrary functionLibrary
+        ) {
+            return onValidArgs(
+                frame,
+                times,
+                function,
+                function,
+                functionLibrary,
+                getLoopNode(times, function, functionLibrary)
+            );
+        }
+
+        public static final class InternalRepeatingNode extends Node implements RepeatingNode {
+
+            @CompilerDirectives.CompilationFinal
+            private LKQLFunction function;
+
+            @CompilerDirectives.CompilationFinal
+            InteropLibrary functionLibrary;
+
+            private long times;
+
+            private int done = 0;
+
+            InternalRepeatingNode(
+                LKQLFunction function,
+                InteropLibrary functionLibrary,
+                long times
+            ) {
+                this.function = function;
+                this.functionLibrary = functionLibrary;
+                this.times = times;
+            }
+
+            public boolean executeRepeating(VirtualFrame frame) {
+                if (done < times) {
+                    try {
+                        functionLibrary.execute(function, (Object) function.closure.getContent());
+                    } catch (
+                        ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                    ) {
+                        throw LKQLRuntimeException.fromJavaException(e, this);
+                    }
+                    done++;
+                    return true;
+                }
+                done = 0;
+                return false;
+            }
         }
     }
 
@@ -344,7 +434,7 @@ public class BuiltInFunctions {
                 ) {
                     // TODO: Implement runtime checks in the LKQLFunction class and base computing
                     // on them (#138)
-                    throw LKQLRuntimeException.fromJavaException(e, argNode(1));
+                    throw LKQLRuntimeException.fromJavaException(e, this);
                 }
                 i++;
             }
@@ -403,7 +493,7 @@ public class BuiltInFunctions {
                     .stream()
                     .filter(LKQLTypeSystemGen::isLKQLFunction)
                     .map(LKQLTypeSystemGen::asLKQLFunction)
-                    .sorted(Comparator.comparing(LKQLFunction::getName));
+                    .sorted(Comparator.comparing(LKQLFunction::getExecutableName));
 
                 for (var func : functions.toList()) {
                     documentCallable(writer, func);
@@ -437,7 +527,7 @@ public class BuiltInFunctions {
 
         @Specialization
         protected Object onLKQLValue(LKQLValue value) {
-            LKQLLanguage.getContext(callNode).println(
+            LKQLLanguage.getContext(this).println(
                 StringUtils.concat(value.lkqlProfile(), "\n", value.lkqlDocumentation())
             );
             return LKQLUnit.INSTANCE;
@@ -448,8 +538,13 @@ public class BuiltInFunctions {
     abstract static class UnitsExpr extends BuiltInBody {
 
         @Specialization
+        @CompilerDirectives.TruffleBoundary
         protected LKQLList alwaysTrue() {
-            return new LKQLList(LKQLLanguage.getContext(callNode).getAllUnits());
+            return new LKQLList(
+                LKQLLanguage.getContext(this)
+                    .getAllUnits()
+                    .toArray(LangkitSupport.AnalysisUnit[]::new)
+            );
         }
     }
 
@@ -457,8 +552,12 @@ public class BuiltInFunctions {
     abstract static class SpecifiedUnitsExpr extends BuiltInBody {
 
         @Specialization
+        @CompilerDirectives.TruffleBoundary
         protected LKQLList alwaysTrue() {
-            return new LKQLList(LKQLLanguage.getContext(callNode).getSpecifiedUnits());
+            var units = LKQLLanguage.getContext(this)
+                .getSpecifiedUnits()
+                .toArray(LangkitSupport.AnalysisUnit[]::new);
+            return new LKQLList(units);
         }
     }
 }
