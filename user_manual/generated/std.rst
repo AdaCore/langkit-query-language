@@ -4,34 +4,6 @@ Standard library
 Builtin functions
 ^^^^^^^^^^^^^^^^^
 
-.. function:: unique(indexable)
-
-    Given a collection, create a list with all duplicates removed
-
-.. function:: pattern(regex, case_sensitive)
-
-    Given a regex pattern string, create a pattern object
-
-.. function:: print(to_print, new_line)
-
-    Built-in print function. Prints the argument
-
-.. function:: img(string)
-
-    Return a string representation of an object
-
-.. function:: doc(value)
-
-    Given any object, return the documentation associated with it
-
-.. function:: reduce(iterable, function, init_value)
-
-    Given a collection, a reduction function, and an initial value reduce the result
-
-.. function:: document_builtins()
-
-    Return a string in the RsT format containing documentation for all built-ins
-
 .. function:: base_name(file_name)
 
     Given a string that represents a file name, returns the basename
@@ -40,17 +12,13 @@ Builtin functions
 
     Given a list, return the result of the concatenation of all its elements
 
-.. function:: repeat(times, function)
+.. function:: doc(value)
 
-    Call the given function N times
+    Given any object, return the documentation associated with it
 
-.. function:: map(iterable, function)
+.. function:: document_builtins()
 
-    Given a collection, a mapping function
-
-.. function:: profile(val)
-
-    Given any object, if it is a callable, return its profile as text
+    Return a string in the RsT format containing documentation for all built-ins
 
 .. function:: document_namespace(namespace, name)
 
@@ -60,21 +28,53 @@ Builtin functions
 
     Print formatted help for the given object
 
-.. function:: units()
+.. function:: img(string)
 
-    Return a list of all units
+    Return a string representation of an object
 
-.. function:: specified_units()
+.. function:: map(iterable, function)
 
-    Return a list of units specified by the user
+    Given a collection, a mapping function
 
 .. function:: node_checker(root)
 
     Given a root, execute all node checkers while traversing the tree
 
+.. function:: pattern(regex, case_sensitive)
+
+    Given a regex pattern string, create a pattern object
+
+.. function:: print(to_print, new_line)
+
+    Built-in print function. Prints the argument
+
+.. function:: profile(val)
+
+    Given any object, if it is a callable, return its profile as text
+
+.. function:: reduce(iterable, function, init_value)
+
+    Given a collection, a reduction function, and an initial value reduce the result
+
+.. function:: repeat(times, function)
+
+    Call the given function N times
+
+.. function:: specified_units()
+
+    Return a list of units specified by the user
+
+.. function:: unique(indexable)
+
+    Given a collection, create a list with all duplicates removed
+
 .. function:: unit_checker(unit)
 
     Given a unit, apply all the unit checkers on it
+
+.. function:: units()
+
+    Return a list of all units
 
 Builtin methods
 ^^^^^^^^^^^^^^^
