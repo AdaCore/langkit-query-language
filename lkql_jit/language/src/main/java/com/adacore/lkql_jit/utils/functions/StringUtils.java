@@ -276,4 +276,9 @@ public final class StringUtils {
         res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
         return res.toString();
     }
+
+    @CompilerDirectives.TruffleBoundary
+    public static String substring(String source, long start, long end) {
+        return source.substring((int) start, (int) end);
+    }
 }

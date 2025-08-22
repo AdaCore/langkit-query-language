@@ -63,7 +63,7 @@ public final class LKQLPattern extends BasicLKQLValue {
         this.caseSensitive = caseSensitive;
 
         // Prepare the regex string
-        String regexSource = "Flavor=PythonStr/" + regexString + (caseSensitive ? "/" : "/i");
+        String regexSource = "Flavor=Python/" + regexString + (caseSensitive ? "/" : "/i");
 
         // Call the TRegex language
         try {

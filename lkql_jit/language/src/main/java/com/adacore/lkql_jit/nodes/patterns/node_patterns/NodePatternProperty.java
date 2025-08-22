@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.runtime.values.LKQLProperty;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -68,7 +69,10 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      * @param property The cached property reference.
      * @return True if the detail is valid, false else.
      */
-    @Specialization(guards = { "node == property.node", "property.description != null" })
+    @Specialization(
+        guards = { "node == property.node", "property.description != null" },
+        limit = Constants.SPECIALIZED_LIB_LIMIT
+    )
     @ExplodeLoop
     protected boolean propertyCached(
         VirtualFrame frame,

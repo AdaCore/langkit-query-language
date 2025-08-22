@@ -41,7 +41,9 @@ import com.oracle.truffle.api.nodes.RepeatingNode;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Module where most of the LKQL built-in functions are declared. General purpose built-in functions
@@ -192,7 +194,11 @@ public class BuiltInFunctions {
                 writer.write("^^^^^^^^^^^^^^^^^\n");
                 writer.write("\n");
 
-                for (var func : AllBuiltIns.allFunctions()) {
+                List<BuiltInFunctionValue> sortedBuiltinFunctions = AllBuiltIns.allFunctions()
+                    .stream()
+                    .sorted((l, r) -> l.getExecutableName().compareTo(r.getExecutableName()))
+                    .collect(Collectors.toList());
+                for (var func : sortedBuiltinFunctions) {
                     writer.write(".. function:: ");
                     writer.write(func.getExecutableName());
                     writer.write("(" + String.join(", ", func.parameterNames) + ")");
@@ -269,7 +275,7 @@ public class BuiltInFunctions {
     abstract static class BaseNameExpr extends BuiltInBody {
 
         @Specialization
-        protected String executeOnString(String fileName) {
+        protected String doString(String fileName) {
             return FileUtils.baseName(fileName);
         }
     }

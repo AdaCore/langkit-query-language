@@ -61,7 +61,7 @@ build/bin/liblkqllang_parse: lkql/lkql.lkt
 test:
 	testsuite/testsuite.py -Edtmp
 
-clean: clean_lkql clean_lkql_jit clean_lkql_checker
+clean: clean_lkql_jit clean_lkql_checker clean_lkql
 
 clean_lkql:
 	rm lkql/build -rf
@@ -75,11 +75,11 @@ clean_lkql_checker:
 
 build_lkql_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean install $(MAVEN_ARGS)
+	$(MAVEN) -f lkql_jit/ clean package $(MAVEN_ARGS)
 
 build_lkql_native_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean install -P native,$(BUILD_MODE) $(MAVEN_ARGS)
+	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
 
 .PHONY: lkql_checker
 

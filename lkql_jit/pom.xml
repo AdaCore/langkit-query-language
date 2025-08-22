@@ -12,19 +12,16 @@
         <module>language</module>
         <module>options</module>
         <module>cli</module>
-        <module>native</module>
-        <module>component</module>
+        <module>standalone</module>
         <module>benchmarks</module>
         <module>builtins_annotations</module>
     </modules>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Used GraalVM version -->
-        <graalvm.version>22.3.1</graalvm.version>
+        <graalvm.version>24.2.1</graalvm.version>
 
         <!-- LangkitSupport version -->
         <config.langkit_supportVersion>0.1</config.langkit_supportVersion>
@@ -95,6 +92,7 @@
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
             <version>2.40.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -106,12 +104,12 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>17</source>
-                    <target>17</target>
+                    <release>24</release>
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
                         <arg>-Xlint:all,-processing</arg>
                         <arg>-Werror</arg>
+                        <arg>-implicit:class</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
@@ -162,16 +160,6 @@
                         <removeUnusedImports/>
                     </java>
                     <lineEndings>UNIX</lineEndings>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-implicit:class</arg>
-                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

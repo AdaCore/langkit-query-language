@@ -9,6 +9,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -144,7 +145,10 @@ public class LKQLFunction extends BasicLKQLValue {
     public static class Execute {
 
         /** Execute the function with the cached strategy. */
-        @Specialization(guards = "function.getCallTarget() == directCallNode.getCallTarget()")
+        @Specialization(
+            guards = "function.getCallTarget() == directCallNode.getCallTarget()",
+            limit = Constants.SPECIALIZED_LIB_LIMIT
+        )
         protected static Object doCached(
             @SuppressWarnings("unused") final LKQLFunction function,
             final Object[] arguments,

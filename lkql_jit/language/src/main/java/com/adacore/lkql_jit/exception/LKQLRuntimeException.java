@@ -30,6 +30,7 @@ import java.util.stream.StreamSupport;
  *
  * @author Hugo GUERRIER
  */
+@SuppressWarnings(value = "serial")
 public final class LKQLRuntimeException extends AbstractTruffleException {
 
     // ----- Attributes -----

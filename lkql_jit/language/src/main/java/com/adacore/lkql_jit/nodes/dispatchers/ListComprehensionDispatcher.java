@@ -6,7 +6,9 @@
 package com.adacore.lkql_jit.nodes.dispatchers;
 
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
+import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
@@ -17,6 +19,7 @@ import com.oracle.truffle.api.nodes.Node;
  *
  * @author Hugo GUERRIER
  */
+@GenerateInline(false)
 public abstract class ListComprehensionDispatcher extends Node {
 
     // ----- Execution methods -----
@@ -38,8 +41,11 @@ public abstract class ListComprehensionDispatcher extends Node {
      * @param directCallNode The direct call node.
      * @return The result of the execution.
      */
-    @Specialization(guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()")
-    protected static Object executeCached(
+    @Specialization(
+        guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()",
+        limit = Constants.SPECIALIZED_LIB_LIMIT
+    )
+    protected static Object doCached(
         @SuppressWarnings("unused") ListComprehensionRootNode rootNode,
         Object[] arguments,
         @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode
@@ -55,8 +61,8 @@ public abstract class ListComprehensionDispatcher extends Node {
      * @param indirectCallNode The indirect call node.
      * @return The result of the execution.
      */
-    @Specialization(replaces = "executeCached")
-    protected static Object executeUncached(
+    @Specialization(replaces = "doCached")
+    protected static Object doUncached(
         ListComprehensionRootNode rootNode,
         Object[] arguments,
         @Cached IndirectCallNode indirectCallNode

@@ -13,20 +13,6 @@
     <artifactId>builtins_annotations</artifactId>
     <version>0.1.0</version>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-api</artifactId>
-            <version>${graalvm.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-dsl-processor</artifactId>
-            <version>${graalvm.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
             <!-- Skip the Spotless check because everything is handled by the parent -->
@@ -41,10 +27,9 @@
 
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
                 <configuration>
                     <compilerArgs>
-                        <arg>--add-exports</arg>
-                        <arg>org.graalvm.truffle/com.oracle.truffle.api.dsl=ALL-UNNAMED</arg>
                         <compilerArgument>-proc:none</compilerArgument>
                     </compilerArgs>
                 </configuration>

@@ -38,7 +38,7 @@ public final class RewritingContextMethods {
     public abstract static class ReplaceExpr extends BaseRewritingContextExpr {
 
         @Specialization
-        public Object executeGeneric(
+        public Object doGeneric(
             VirtualFrame frame,
             RewritingContextInterface ctx,
             Object oldNode,
@@ -67,7 +67,7 @@ public final class RewritingContextMethods {
     public abstract static class SetChildExpr extends BaseRewritingContextExpr {
 
         @Specialization
-        public Object executeGeneric(
+        public Object doGeneric(
             VirtualFrame frame,
             RewritingContextInterface ctx,
             Object node,
@@ -92,7 +92,7 @@ public final class RewritingContextMethods {
     public abstract static class InsertBefore extends BaseRewritingContextExpr {
 
         @Specialization
-        public Object execute(
+        public Object doGeneric(
             VirtualFrame frame,
             RewritingContextInterface ctx,
             Object node,
@@ -114,7 +114,7 @@ public final class RewritingContextMethods {
     public abstract static class InsertAfter extends BaseRewritingContextExpr {
 
         @Specialization
-        public Object execute(
+        public Object doGeneric(
             VirtualFrame frame,
             RewritingContextInterface ctx,
             Object node,
@@ -133,7 +133,7 @@ public final class RewritingContextMethods {
     public abstract static class AddFirst extends BaseRewritingContextExpr {
 
         @Specialization
-        public Object execute(
+        public Object doGeneric(
             VirtualFrame frame,
             RewritingContextInterface ctx,
             Object node,
@@ -152,7 +152,7 @@ public final class RewritingContextMethods {
     public abstract static class AddLast extends BaseRewritingContextExpr {
 
         @Specialization
-        public Object execute(
+        public Object doGeneric(
             VirtualFrame frame,
             RewritingContextInterface ctx,
             Object node,
@@ -174,7 +174,7 @@ public final class RewritingContextMethods {
     public abstract static class RemoveExpr extends BaseRewritingContextExpr {
 
         @Specialization
-        public Object executeGeneric(
+        public Object doGeneric(
             VirtualFrame frame,
             RewritingContextInterface ctx,
             Object objToRemove

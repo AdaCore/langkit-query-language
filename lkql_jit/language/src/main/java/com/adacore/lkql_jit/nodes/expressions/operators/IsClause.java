@@ -49,7 +49,7 @@ public abstract class IsClause extends Expr {
      * @return A boolean, representing whether the given value has been validated by the pattern.
      */
     @Specialization
-    protected boolean executeValue(VirtualFrame frame, Object object) {
+    protected boolean doGeneric(VirtualFrame frame, Object object) {
         return this.pattern.executeValue(frame, object);
     }
 

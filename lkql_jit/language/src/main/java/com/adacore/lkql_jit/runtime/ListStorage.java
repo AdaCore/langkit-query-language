@@ -46,6 +46,7 @@ public class ListStorage<T> {
         return current_size;
     }
 
+    @SuppressWarnings("unchecked")
     public T get(int idx) throws InvalidIndexException {
         if (idx < current_size) {
             return (T) storage[idx];

@@ -31,7 +31,7 @@ public class StrMethods {
     public abstract static class ToLowerCaseExpr extends BuiltInBody {
 
         @Specialization
-        public Object execute(String arg) {
+        public Object onGeneric(String arg) {
             return StringUtils.toLowerCase(arg);
         }
     }
@@ -44,7 +44,7 @@ public class StrMethods {
     public abstract static class IsLowerCaseExpr extends BuiltInBody {
 
         @Specialization
-        public Object executeGeneric(String arg) {
+        public Object onGeneric(String arg) {
             return StringUtils.toLowerCase(arg).equals(arg);
         }
     }
@@ -57,7 +57,7 @@ public class StrMethods {
     public abstract static class ToUpperCaseExpr extends BuiltInBody {
 
         @Specialization
-        public Object executeGeneric(String arg) {
+        public Object onGeneric(String arg) {
             return StringUtils.toUpperCase(arg);
         }
     }
@@ -70,7 +70,7 @@ public class StrMethods {
     public abstract static class IsUpperCaseExpr extends BuiltInBody {
 
         @Specialization
-        public Object executeGeneric(String arg) {
+        public Object onGeneric(String arg) {
             return StringUtils.toUpperCase(arg).equals(arg);
         }
     }
@@ -85,7 +85,7 @@ public class StrMethods {
     public abstract static class IsMixedCaseExpr extends BuiltInBody {
 
         @Specialization
-        public Object executeGeneric(String arg) {
+        public Object onGeneric(String arg) {
             // Prepare the result
             boolean previousUnderscore = false;
             int i = 0;
@@ -117,7 +117,7 @@ public class StrMethods {
     public abstract static class LengthExpr extends BuiltInBody {
 
         @Specialization
-        public Object executeGeneric(String arg) {
+        public Object onGeneric(String arg) {
             // Return the length
             return (long) arg.length();
         }
@@ -131,7 +131,7 @@ public class StrMethods {
     abstract static class SubstringExpr extends BuiltInBody {
 
         @Specialization
-        protected String onValid(String source, long start, long end) {
+        protected String onGeneric(String source, long start, long end) {
             // Offset the start index by 1 since LKQL is 1-indexed
             start = start - 1;
 
@@ -144,7 +144,7 @@ public class StrMethods {
             }
 
             // Return the substring
-            return source.substring((int) start, (int) end);
+            return StringUtils.substring(source, start, end);
         }
     }
 
@@ -156,7 +156,7 @@ public class StrMethods {
     abstract static class SplitExpr extends BuiltInBody {
 
         @Specialization
-        protected LKQLList onValid(String source, String sep) {
+        protected LKQLList onGeneric(String source, String sep) {
             return new LKQLList(StringUtils.split(source, sep));
         }
     }
@@ -201,7 +201,7 @@ public class StrMethods {
     abstract static class StartsWithExpr extends BuiltInBody {
 
         @Specialization
-        protected boolean onValid(String source, String prefix) {
+        protected boolean onGeneric(String source, String prefix) {
             return source.startsWith(prefix);
         }
     }
@@ -210,7 +210,7 @@ public class StrMethods {
     abstract static class EndsWithExpr extends BuiltInBody {
 
         @Specialization
-        protected boolean onValid(String source, String suffix) {
+        protected boolean onGeneric(String source, String suffix) {
             return source.endsWith(suffix);
         }
     }

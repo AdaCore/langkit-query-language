@@ -14,6 +14,7 @@ import java.io.Serial;
  *
  * @author Hugo GUERRIER
  */
+@SuppressWarnings(value = "serial")
 public final class LangkitException extends AbstractTruffleException {
 
     // ----- Attributes -----

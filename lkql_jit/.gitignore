@@ -13,33 +13,9 @@
 # Ignore the target of the LKQL JIT project
 target
 
-# Ignore from the component module
-component/lkql_jit_component
-component/target
-component/lkql_jit_component.jar
-
 # Ignore from the language module
-language/target
 language/.apt_generated
 language/.apt_generated_tests
 
-# Ignore from the launcher module
-launcher/target
-
-# Ignore from the checker module
-checker/target
-
-# Ignore from the gnatcheck_worker module
-gnatcheck_worker/target
-
-# Ignore from the native module
-native/target
-native/bin
-native/lib
-native/reports
-native/sources
-
 # Test and log files
-my_working_dir
-language/src/test/java/TestRun.java
 *.log

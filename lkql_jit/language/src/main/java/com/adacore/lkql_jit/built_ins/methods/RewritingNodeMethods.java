@@ -24,7 +24,7 @@ public final class RewritingNodeMethods {
     public abstract static class CloneExpr extends BuiltInBody {
 
         @Specialization
-        public Object execute(LangkitSupport.RewritingNodeInterface node) {
+        public Object doGeneric(LangkitSupport.RewritingNodeInterface node) {
             return node.clone();
         }
     }
