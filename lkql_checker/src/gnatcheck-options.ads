@@ -75,9 +75,6 @@ package Gnatcheck.Options is
    Legacy : Boolean := False;
    --  If True, run in legacy mode, with no support for additional rule files.
 
-   KP_Version : GNAT.OS_Lib.String_Access;
-   --  If set, the relevant GNAT version to check when running gnatkp.
-
    Exempted_Units : GNAT.OS_Lib.String_Access := null;
    --  '--ignore=<filename>
    --  File containing a list of units to be exempted. (Depending on a tool,
@@ -278,6 +275,15 @@ package Gnatcheck.Options is
            Help        =>
              "specify the charset of the source files (default is "
              & "latin-1)");
+
+      package KP_Version is new
+        Parse_Option
+          (Parser      => Parser,
+           Long        => "--kp-version",
+           Name        => "KP version",
+           Arg_Type    => Unbounded_String,
+           Default_Val => Null_Unbounded_String,
+           Help        => "enable all KP detectors matching GNAT <version>");
 
       package Lkql_Path is new
         Parse_Option_List

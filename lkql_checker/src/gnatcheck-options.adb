@@ -261,7 +261,7 @@ package body Gnatcheck.Options is
       end if;
 
       loop
-         Initial_Char := Getopt ("-kp-version= ", Parser => Parser);
+         Initial_Char := Getopt (" ", Parser => Parser);
 
          case Initial_Char is
             when ASCII.NUL =>
@@ -290,14 +290,6 @@ package body Gnatcheck.Options is
                end loop;
 
                exit when not Success;
-
-            when '-'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "-kp-version" then
-                     Free (KP_Version);
-                     KP_Version := new String'(Parameter (Parser => Parser));
-                  end if;
-               end if;
 
             when others    =>
                Error

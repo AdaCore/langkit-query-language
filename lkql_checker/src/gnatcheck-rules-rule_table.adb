@@ -1559,10 +1559,12 @@ package body Gnatcheck.Rules.Rule_Table is
       if Gnatkp_Mode then
          Print ("gnatkp currently implements the following detectors:");
 
-         if KP_Version /= null then
+         if Arg.KP_Version.Get /= Null_Unbounded_String then
             for Rule in All_Rules.Iterate loop
                if All_Rules (Rule).Impact = null
-                 or else (Match (KP_Version.all, All_Rules (Rule).Impact.all)
+                 or else (Match
+                            (To_String (Arg.KP_Version.Get),
+                             All_Rules (Rule).Impact.all)
                           and then (All_Rules (Rule).Target = null
                                     or else To_String (Target) = ""
                                     or else Match

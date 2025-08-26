@@ -1206,7 +1206,7 @@ package body Gnatcheck.Projects is
       --  If GNATcheck is in KP mode and there is a command line specified KP
       --  version, we have to iterate over all implemented rules to enable
       --  those which match the version.
-      if Gnatkp_Mode and then KP_Version /= null then
+      if Gnatkp_Mode and then Arg.KP_Version.Get /= Null_Unbounded_String then
          for Rule_Cursor in All_Rules.Iterate loop
             declare
                Id       : constant Rule_Id := Rule_Map.Key (Rule_Cursor);
@@ -1214,7 +1214,8 @@ package body Gnatcheck.Projects is
                Instance : Rule_Instance_Access;
             begin
                if Rule.Impact /= null
-                 and then Match (KP_Version.all, Rule.Impact.all)
+                 and then Match
+                            (To_String (Arg.KP_Version.Get), Rule.Impact.all)
                then
                   if Rule.Target /= null
                     and then Target /= Null_Unbounded_String
@@ -1245,7 +1246,8 @@ package body Gnatcheck.Projects is
       Active_Rule_Present := not All_Rule_Instances.Is_Empty;
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
-         if Gnatkp_Mode and then KP_Version /= null then
+         if Gnatkp_Mode and then Arg.KP_Version.Get /= Null_Unbounded_String
+         then
             Error ("no rule for the given kp-version");
             No_Detectors_For_KP_Version := True;
             return;
