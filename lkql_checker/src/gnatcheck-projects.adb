@@ -650,13 +650,13 @@ package body Gnatcheck.Projects is
       pragma Unreferenced (Aggregate_Prj);
    begin
 
-      if Text_Report_ON then
+      if Arg.Text_Report_Enabled then
          Report ("");
          Report ("Processing aggregated project " & Aggregated_Prj_Name);
          Report ("Expected report file: " & Expected_Text_Out_File);
       end if;
 
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report ("<aggregated-project>", Indent_Level => 2);
 
          XML_Report
@@ -940,7 +940,7 @@ package body Gnatcheck.Projects is
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type) is
    begin
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report ("<?xml version=""1.0""?>");
          XML_Report_No_EOL ("<gnatcheck-report");
 
@@ -953,13 +953,13 @@ package body Gnatcheck.Projects is
 
       Gnatcheck.Diagnoses.Print_Report_Header;
 
-      if Text_Report_ON then
+      if Arg.Text_Report_Enabled then
          Report ("");
          Report ("Argument project is an aggregate project");
          Report ("Aggregated projects are processed separately");
       end if;
 
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report ("<aggregated-project-reports>", Indent_Level => 1);
       end if;
    end Aggregate_Project_Report_Header;
@@ -970,7 +970,7 @@ package body Gnatcheck.Projects is
 
    procedure Close_Aggregate_Project_Report (My_Project : Arg_Project_Type) is
    begin
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report ("</aggregated-project-reports>", Indent_Level => 1);
          XML_Report ("</gnatcheck-report>");
       end if;
@@ -985,7 +985,7 @@ package body Gnatcheck.Projects is
    is
       pragma Unreferenced (Aggregate_Prj);
    begin
-      if Text_Report_ON then
+      if Arg.Text_Report_Enabled then
          Report
            ("Exit code is"
             & Exit_Code'Img
@@ -999,7 +999,7 @@ package body Gnatcheck.Projects is
             & ")");
       end if;
 
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report
            ("<exit-code>" & Image (Exit_Code) & "</exit-code>",
             Indent_Level => 3);
@@ -1155,13 +1155,6 @@ package body Gnatcheck.Projects is
 
          Set_Global_Result_Dirs (Gnatcheck_Prj);
          goto Processing_Aggregate_Project;
-      end if;
-
-      --  Check the correctness of setting custom name for text report file
-
-      if Custom_Text_Report_File and then not Text_Report_ON then
-         Error ("custom text output file cannot be set if text output is off");
-         raise Parameter_Error;
       end if;
 
       --  No need to perform similar checks for custom XML file because it can

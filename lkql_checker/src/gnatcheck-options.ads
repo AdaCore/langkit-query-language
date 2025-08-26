@@ -451,6 +451,45 @@ package Gnatcheck.Options is
            Name   => "Short report",
            Help   => "print the short version of the report file");
 
+      package No_Text_Report is new
+        Parse_Flag
+          (Parser           => Parser,
+           Long             => "-nt",
+           Name             => "No text report",
+           Legacy_Long_Form => True,
+           Help             =>
+             "do not generate text report (enforces '-xml')");
+
+      package XML_Report is new
+        Parse_Flag
+          (Parser           => Parser,
+           Long             => "-xml",
+           Name             => "XML report",
+           Legacy_Long_Form => True,
+           Help             => "generate report in XML format");
+
+      package Text_Output is new
+        Parse_Option
+          (Parser                    => Parser,
+           Short                     => "-o",
+           Name                      => "Text output",
+           Arg_Type                  => Unbounded_String,
+           Default_Val               => Null_Unbounded_String,
+           Allow_Collated_Short_Form => False,
+           Help                      =>
+             "specify the name of the text report file");
+
+      package XML_Output is new
+        Parse_Option
+          (Parser           => Parser,
+           Long             => "-ox",
+           Name             => "XML output",
+           Arg_Type         => Unbounded_String,
+           Default_Val      => Null_Unbounded_String,
+           Legacy_Long_Form => True,
+           Help             =>
+             "specify the name of the XML report file (enforces '-xml')");
+
       package Time is new
         Parse_Flag
           (Parser => Parser,
@@ -576,6 +615,10 @@ package Gnatcheck.Options is
            Short  => "-W",
            Help   => "Treat warning messages as errors");
 
+      ----------------------
+      -- Option shortcuts --
+      ----------------------
+
       function Quiet_Mode return Boolean
       is (Quiet.Get or else Brief.Get);
 
@@ -585,12 +628,47 @@ package Gnatcheck.Options is
       function Brief_Mode return Boolean
       is (Brief.Get);
 
+      function Text_Report_Enabled return Boolean
+      is (not No_Text_Report.Get);
+
+      function Text_Report_File_Path return String;
+
+      function XML_Report_Enabled return Boolean
+      is (No_Text_Report.Get
+          or else XML_Report.Get
+          or else XML_Output.Get /= Null_Unbounded_String);
+
+      function XML_Report_File_Path return String;
+
       function Ignore_Project_Switches return Boolean
       is (Ignore_Project_Switches_Opt.Get or Gnatkp_Mode);
 
       function Source_Files_Specified return Boolean
       is (Source_Files.Get /= Null_Unbounded_String);
 
+   private
+      function Resolve_Report_File
+        (File_Name : Unbounded_String; Default_Name : String) return String
+      is (declare
+            Report_File_Name : constant String :=
+              (if File_Name = Null_Unbounded_String
+               then Default_Name
+               else To_String (File_Name));
+          begin
+            Normalize_Pathname
+              (if Is_Absolute_Path (Report_File_Name)
+               then Report_File_Name
+               else Global_Report_Dir.all & Report_File_Name));
+      --  Resolve the provided ``File_Name`` relatively to the
+      --  ``Global_Report_Dir`` if it is not already an absolute path. If the
+      --  provided file name is a ``Null_Unbounded_String``, then fallback on
+      --  the specified ``Default_Name``.
+
+      function Text_Report_File_Path return String
+      is (Resolve_Report_File (Text_Output.Get, Executable & ".out"));
+
+      function XML_Report_File_Path return String
+      is (Resolve_Report_File (XML_Output.Get, Executable & ".xml"));
    end Arg;
 
    -----------------------

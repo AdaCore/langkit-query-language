@@ -9,15 +9,6 @@ with Ada.Exceptions; use Ada.Exceptions;
 
 package Gnatcheck.Output is
 
-   Text_Report_ON : Boolean := True;
-   XML_Report_ON  : Boolean := False;
-   --  Indicate if the tool should generate a global report file in text or XML
-   --  format;
-
-   Custom_Text_Report_File : Boolean := False;
-   Custom_XML_Report_File  : Boolean := False;
-   --  Undicate if custom name is specified for text or XML output file
-
    Error_From_Warning : Boolean;
    --  Whether a warning message has been emitted while "warnings as errors"
    --  mode is enabled. This ensure the return code of GNATcheck is not 0.
@@ -95,35 +86,21 @@ package Gnatcheck.Output is
    -- Tool report file --
    ----------------------
 
-   procedure Set_Report_File_Name (Fname : String);
-   procedure Set_XML_Report_File_Name (Fname : String);
-   --  Sets the name of the tool (XML) report file. If this procedure has not
-   --  been called before creating the output file, the default name of the
-   --  form 'tool_name.out' ('tool_name.xml') is used.
-
-   function Get_Report_File_Name return String;
-   function Get_XML_Report_File_Name return String;
-   --  Returns the full normalized name of the tool (XML) report file in
-   --  absolute form. Return empty string if the tool report file name is
-   --  not set.
-
    function Get_Number return String;
    --  Gets numeric index from the report file name.
 
    procedure Set_Report_Files;
-   --  Creates and/or opens the tool report files, according to the values of
-   --  Text_Report_ON and XML_Report_ON. If the file with the same name as the
-   --  name of the report file already exists, it is silently and
-   --  unconditionally overridden. In Mimic_gcc mode, the file should have
-   --  already been created by the outer invocation, and we don't overwrite it,
-   --  we APPEND to it. We also lock the file in this mode in case there are
-   --  parallel inner invocations.
+   --  Creates and/or opens the tool report files, according to the current
+   --  configuration. If the file with the same name as the name of the report
+   --  file already exists, it is silently and unconditionally overridden. In
+   --  Mimic_gcc mode, the file should have already been created by the outer
+   --  invocation, and we don't overwrite it, we APPEND to it. We also lock the
+   --  file in this mode in case there are parallel inner invocations.
    --  Note, that this procedure is supposed to be called *before* the tool
    --  creates the temporary directory and gets into it.
 
    procedure Close_Report_Files;
-   --  Closes the report files (according to the values of Text_Report_ON and
-   --  XML_Report_ON). In Mimic_gcc mode, also unlock them.
+   --  Closes the report files. In Mimic_gcc mode, also unlock them.
 
    --  The following routines should be called only after the call to
    --  Set_Report_File. They should not be called after the call to

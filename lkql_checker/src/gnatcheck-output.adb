@@ -20,18 +20,40 @@ with Interfaces.C_Streams; use Interfaces.C_Streams;
 
 package body Gnatcheck.Output is
 
-   Report_File_Name     : String_Access;
-   XML_Report_File_Name : String_Access;
-   Log_File_Name        : String_Access;
+   -------------------
+   -- Local helpers --
+   -------------------
+
+   procedure Open_Or_Create
+     (File_Path : String; Mode : File_Mode; File : in out File_Type);
+   --  Open the specified ``File_Path`` if it already exists, otherwise create
+   --  it.
+   --  This function handles possible exceptions with the manipulated file.
+
+   procedure Open_Or_Create
+     (File_Path : String; Mode : File_Mode; File : in out File_Type) is
+   begin
+      if Is_Regular_File (File_Path) then
+         Open (File, Mode, File_Path);
+      else
+         Create (File, Mode, File_Path);
+      end if;
+   exception
+      when others =>
+         Error ("can not open the file: " & File_Path);
+         raise Fatal_Error;
+   end Open_Or_Create;
+
+   ------------------
+   -- Output files --
+   ------------------
+
+   Log_File_Name : String_Access;
    --  Variables that set the properties of the tool report and log files
 
    XML_Report_File : File_Type;
    Report_File     : File_Type;
    Log_File        : File_Type;
-
-   procedure Set_Report_File;
-   procedure Set_XML_Report_File;
-   --  Creates and/or opens the tool text/XML report file
 
    procedure Close_Report_File;
    procedure Close_XML_Report_File;
@@ -81,13 +103,13 @@ package body Gnatcheck.Output is
 
    procedure Close_Report_Files is
    begin
-      pragma Assert (Text_Report_ON or else XML_Report_ON);
+      pragma Assert (Arg.Text_Report_Enabled or else Arg.XML_Report_Enabled);
 
-      if Text_Report_ON then
+      if Arg.Text_Report_Enabled then
          Close_Report_File;
       end if;
 
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          Close_XML_Report_File;
       end if;
    end Close_Report_Files;
@@ -159,9 +181,9 @@ package body Gnatcheck.Output is
 
    function Get_Number return String is
       Report_File_Name : constant String :=
-        (if Text_Report_ON
-         then Get_Report_File_Name
-         else Get_XML_Report_File_Name);
+        (if Arg.Text_Report_Enabled
+         then Arg.Text_Report_File_Path
+         else Arg.XML_Report_File_Path);
 
       Idx_1, Idx_2 : Natural;
    begin
@@ -186,40 +208,6 @@ package body Gnatcheck.Output is
 
       return Report_File_Name (Idx_1 .. Idx_2);
    end Get_Number;
-
-   --------------------------
-   -- Get_Report_File_Name --
-   --------------------------
-
-   function Get_Report_File_Name return String is
-   begin
-      if Report_File_Name = null then
-         return "";
-      end if;
-
-      pragma
-        Assert
-          (Report_File_Name.all = Normalize_Pathname (Report_File_Name.all));
-
-      return Report_File_Name.all;
-   end Get_Report_File_Name;
-
-   --------------------------
-   -- Get_XML_Report_File_Name --
-   --------------------------
-
-   function Get_XML_Report_File_Name return String is
-   begin
-      if XML_Report_File_Name = null then
-         return "";
-      end if;
-
-      pragma
-        Assert
-          (XML_Report_File_Name.all
-             = Normalize_Pathname (XML_Report_File_Name.all));
-      return XML_Report_File_Name.all;
-   end Get_XML_Report_File_Name;
 
    ----------
    -- Info --
@@ -407,106 +395,8 @@ package body Gnatcheck.Output is
            new String'(Global_Report_Dir.all & Executable & ".log");
       end if;
 
-      if Is_Regular_File (Log_File_Name.all) then
-         Open (Log_File, Out_File, Log_File_Name.all);
-      else
-         Create (Log_File, Out_File, Log_File_Name.all);
-      end if;
+      Open_Or_Create (Log_File_Name.all, Out_File, Log_File);
    end Open_Log_File;
-
-   ---------------------
-   -- Set_Report_File --
-   ---------------------
-
-   procedure Set_Report_File is
-      Mode    : constant File_Mode := Out_File;
-      Ignored : Boolean;
-   begin
-      if not Arg.Aggregated_Project then
-         if Report_File_Name /= null
-           and then Is_Absolute_Path (Report_File_Name.all)
-         then
-            Report_File_Name :=
-              new String'(Normalize_Pathname (Report_File_Name.all));
-         else
-            Report_File_Name :=
-              new String'
-                (Normalize_Pathname
-                   (Global_Report_Dir.all
-                    & (if Report_File_Name = null
-                       then Executable & ".out"
-                       else Report_File_Name.all)));
-         end if;
-
-      --  And in case of Aggregated_Project we already have in
-      --  Report_File_Name the needed name with full path in absolute
-      --  form
-
-      end if;
-
-      if Is_Regular_File (Report_File_Name.all) then
-         Open (Report_File, Mode, Report_File_Name.all);
-      else
-         Create (Report_File, Out_File, Report_File_Name.all);
-      end if;
-
-   exception
-      when Status_Error =>
-         Error ("can not open the report file, the file may be in use");
-         raise Fatal_Error;
-      when Fatal_Error =>
-         null;
-      when others =>
-         Error ("can not open the report file: " & Report_File_Name.all);
-         raise Fatal_Error;
-   end Set_Report_File;
-
-   -------------------------
-   -- Set_XML_Report_File --
-   -------------------------
-
-   procedure Set_XML_Report_File is
-      Mode    : constant File_Mode := Out_File;
-      Ignored : Boolean;
-   begin
-      if not Arg.Aggregated_Project then
-         if XML_Report_File_Name /= null
-           and then Is_Absolute_Path (XML_Report_File_Name.all)
-         then
-            XML_Report_File_Name :=
-              new String'(Normalize_Pathname (XML_Report_File_Name.all));
-         else
-            XML_Report_File_Name :=
-              new String'
-                (Normalize_Pathname
-                   (Global_Report_Dir.all
-                    & (if XML_Report_File_Name = null
-                       then Executable & ".xml"
-                       else XML_Report_File_Name.all)));
-         end if;
-
-      --  And in case of Aggregated_Project we already have in
-      --  Report_File_Name the needed name with full path in absolute
-      --  form
-
-      end if;
-
-      if Is_Regular_File (XML_Report_File_Name.all) then
-         Open (XML_Report_File, Mode, XML_Report_File_Name.all);
-      else
-         Create (XML_Report_File, Out_File, XML_Report_File_Name.all);
-      end if;
-
-   exception
-      when Status_Error =>
-         Error ("can not open the report file, the file may be in use");
-         raise Fatal_Error;
-      when Fatal_Error =>
-         null;
-      when others =>
-         Error ("can not open the report file: " & XML_Report_File_Name.all);
-         raise Fatal_Error;
-   end Set_XML_Report_File;
 
    ----------------------
    -- Set_Report_Files --
@@ -514,43 +404,16 @@ package body Gnatcheck.Output is
 
    procedure Set_Report_Files is
    begin
-      pragma Assert (Text_Report_ON or else XML_Report_ON);
+      pragma Assert (Arg.Text_Report_Enabled or else Arg.XML_Report_Enabled);
 
-      if Text_Report_ON then
-         Set_Report_File;
+      if Arg.Text_Report_Enabled then
+         Open_Or_Create (Arg.Text_Report_File_Path, Out_File, Report_File);
       end if;
 
-      if XML_Report_ON then
-         Set_XML_Report_File;
+      if Arg.XML_Report_Enabled then
+         Open_Or_Create (Arg.XML_Report_File_Path, Out_File, XML_Report_File);
       end if;
-
    end Set_Report_Files;
-
-   --------------------------
-   -- Set_Report_File_Name --
-   --------------------------
-
-   procedure Set_Report_File_Name (Fname : String) is
-   begin
-      Free (Report_File_Name);
-
-      if Fname /= "" then
-         Report_File_Name := new String'(Fname);
-      end if;
-   end Set_Report_File_Name;
-
-   --------------------------
-   -- Set_XML_Report_File_Name --
-   --------------------------
-
-   procedure Set_XML_Report_File_Name (Fname : String) is
-   begin
-      Free (XML_Report_File_Name);
-
-      if Fname /= "" then
-         XML_Report_File_Name := new String'(Fname);
-      end if;
-   end Set_XML_Report_File_Name;
 
    -------------
    -- Warning --

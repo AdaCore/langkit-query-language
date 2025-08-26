@@ -261,11 +261,7 @@ package body Gnatcheck.Options is
       loop
          Initial_Char :=
            Getopt
-             ("-kp-version= "
-              & "o= "
-              & "ox= "
-              & "-version "
-              & "nt xml",
+             ("-kp-version= " & "-version ",
               Parser => Parser);
 
          case Initial_Char is
@@ -295,34 +291,6 @@ package body Gnatcheck.Options is
                end loop;
 
                exit when not Success;
-
-            when 'n'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "nt" then
-                     Text_Report_ON := False;
-                     XML_Report_ON := True;
-                  end if;
-               end if;
-
-            when 'o'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "o" then
-                     Set_Report_File_Name (Parameter (Parser => Parser));
-                     Custom_Text_Report_File := True;
-
-                  elsif Full_Switch (Parser => Parser) = "ox" then
-                     Set_XML_Report_File_Name (Parameter (Parser => Parser));
-                     XML_Report_ON := True;
-                     Custom_XML_Report_File := True;
-                  end if;
-               end if;
-
-            when 'x'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "xml" then
-                     XML_Report_ON := True;
-                  end if;
-               end if;
 
             when '-'       =>
                if not First_Pass then
