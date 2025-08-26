@@ -224,6 +224,7 @@ package body Gnatcheck.Options is
             Disallow (Arg.Rule_File.This, "--rule-file" & In_Project_Msg);
             Disallow (Arg.Target.This, "--target" & In_Project_Msg);
             Disallow (Arg.RTS.This, "--RTS" & In_Project_Msg);
+            Disallow (Arg.Version.This, "--version" & In_Project_Msg);
             Disallow (Arg.Help.This, "-h, --help" & In_Project_Msg);
             Disallow (Arg.List_Rules.This, "--list-rules" & In_Project_Msg);
          end;
@@ -254,15 +255,13 @@ package body Gnatcheck.Options is
          Allow (Arg.Rule_File.This);
          Allow (Arg.Target.This);
          Allow (Arg.RTS.This);
+         Allow (Arg.Version.This);
          Allow (Arg.Help.This);
          Allow (Arg.List_Rules.This);
       end if;
 
       loop
-         Initial_Char :=
-           Getopt
-             ("-kp-version= " & "-version ",
-              Parser => Parser);
+         Initial_Char := Getopt ("-kp-version= ", Parser => Parser);
 
          case Initial_Char is
             when ASCII.NUL =>
@@ -297,18 +296,6 @@ package body Gnatcheck.Options is
                   if Full_Switch (Parser => Parser) = "-kp-version" then
                      Free (KP_Version);
                      KP_Version := new String'(Parameter (Parser => Parser));
-                  end if;
-               else
-                  if Full_Switch (Parser => Parser) = "-version" then
-                     if Args_From_Project then
-                        Error
-                          ("project file should not contain '--version' "
-                           & "option");
-                        raise Parameter_Error;
-                     end if;
-
-                     Print_Version := True;
-
                   end if;
                end if;
 

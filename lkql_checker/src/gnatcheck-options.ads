@@ -72,10 +72,6 @@ package Gnatcheck.Options is
    --  Set either when the executable is called gnatkp or with the debug switch
    --  '-dkp'
 
-   Print_Version : Boolean := False;
-   --  '--version'
-   --  Print version info and exit
-
    Legacy : Boolean := False;
    --  If True, run in legacy mode, with no support for additional rule files.
 
@@ -219,6 +215,13 @@ package Gnatcheck.Options is
            Custom_Error_Handler =>
              Create (Gnatcheck_Error_Handler'(null record)),
            Print_Help_On_Error  => False);
+
+      package Version is new
+        Parse_Flag
+          (Parser => Parser,
+           Name   => "Version",
+           Long   => "--version",
+           Help   => "show the tool version and exit");
 
       package Help is new
         Parse_Flag
