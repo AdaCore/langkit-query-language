@@ -350,8 +350,8 @@ procedure Gnatcheck_Main is
 
             Close (File);
 
-            --  Spawn gnatcheck with --subprocess switch and
-            --  -rules -from=rules0.txt -files=files?.txt
+            --  Spawn a GNATcheck worker with -rules -from=rules0.txt
+            --  -files=files?.txt
 
             Pids (Job) :=
               Spawn_Gnatcheck_Worker

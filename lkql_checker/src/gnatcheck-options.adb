@@ -207,7 +207,6 @@ package body Gnatcheck.Options is
               & "o= "
               & "ox= "
               & "log "
-              & "-subprocess "
               & "-version -help "
               & "nt xml",
               Parser => Parser);
