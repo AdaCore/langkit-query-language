@@ -201,9 +201,6 @@ package Gnatcheck.Projects is
    --  Raises Gnatcheck.Common.Parameter_Error if any of these check fails,
    --  stores the name of the configuration project file otherwise.
 
-   procedure Store_Compiler_Option (Switch : String);
-   --  Stores a compiler option as is.
-
    function Is_Specified (My_Project : Arg_Project_Type) return Boolean;
    --  Checks if the argument represents a project that corresponds to some
    --  project file specified as a tool parameter.

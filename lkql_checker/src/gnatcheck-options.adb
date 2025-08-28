@@ -4,8 +4,6 @@ with Gnatcheck.Output;       use Gnatcheck.Output;
 with Gnatcheck.Projects;     use Gnatcheck.Projects;
 with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
 
-with GNATCOLL.Strings; use GNATCOLL.Strings;
-
 with System.Multiprocessors;
 
 package body Gnatcheck.Options is
@@ -87,6 +85,15 @@ package body Gnatcheck.Options is
    end Max_Diagnoses_Convert;
 
    --------------------
+   -- Is_New_Section --
+   --------------------
+
+   function Is_New_Section (Arg : XString) return Boolean is
+   begin
+      return Arg = "-rules" or else Arg = "-cargs";
+   end Is_New_Section;
+
+   --------------------
    -- Scan_Arguments --
    --------------------
 
@@ -128,14 +135,6 @@ package body Gnatcheck.Options is
 
       procedure Process_Sections is
       begin
-         --  Processing the 'cargs' section
-
-         Goto_Section ("cargs", Parser => Parser);
-
-         while Getopt ("*", Parser => Parser) /= ASCII.NUL loop
-            Store_Compiler_Option (Full_Switch (Parser => Parser));
-         end loop;
-
          --  Processing the 'rules' section
          Goto_Section ("rules", Parser => Parser);
 

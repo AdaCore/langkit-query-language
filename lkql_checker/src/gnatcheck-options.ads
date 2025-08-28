@@ -17,6 +17,7 @@ with Gnatcheck.Projects;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
+with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
 with GPR2.Options;
 
@@ -202,6 +203,8 @@ package Gnatcheck.Options is
    function Jobs_Convert (Arg : String) return Natural;
    function Project_Verbosity_Convert (Arg : String) return Natural;
    function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count;
+
+   function Is_New_Section (Arg : XString) return Boolean;
 
    package Arg is
       Parser : Argument_Parser :=
@@ -624,6 +627,19 @@ package Gnatcheck.Options is
            Long   => "--warnings-as-errors",
            Short  => "-W",
            Help   => "Treat warning messages as errors");
+
+      package Cargs_Section is new
+        Parse_Option_List
+          (Parser              => Parser,
+           Long                => "-cargs",
+           Name                => "Compiler options",
+           Accumulate          => True,
+           Arg_Number          => Multiple_Args,
+           Allow_Empty         => True,
+           Arg_Type            => Unbounded_String,
+           List_Stop_Predicate => Is_New_Section,
+           Help                => "options forwarded to the compiler",
+           Legacy_Long_Form    => True);
 
       ----------------------
       -- Option shortcuts --
