@@ -1,0 +1,11 @@
+driver: gnatcheck
+format: brief
+input_sources:
+  - main.adb
+tests:
+  - label: Invalid type for rules object
+    lkql_rule_file: config1.lkql
+  - label: Invalid type for ada_rules object
+    lkql_rule_file: config2.lkql
+  - label: Invalid type for spark_rules object
+    lkql_rule_file: config3.lkql
