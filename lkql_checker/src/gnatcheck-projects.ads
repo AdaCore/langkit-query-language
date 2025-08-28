@@ -259,8 +259,8 @@ package Gnatcheck.Projects is
    --  the processing list.
 
    procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False);
-   --  Use ``Add_Legacy_Rule_Option`` to forge a new rule option enabling the
-   --  given rule without any parameter.
+   --  Create a new rule option to enable the rule designated by the provided
+   --  name without any additional configuration.
 
    procedure Set_LKQL_Rule_File (File : String; Project_Relative : Boolean);
    --  Set the given ``File`` as the LKQL rule file to process during the
