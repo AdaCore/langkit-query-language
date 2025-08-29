@@ -130,52 +130,6 @@ package body Gnatcheck.Options is
          return Ret;
       end To_XString_Array;
 
-      procedure Process_Sections;
-      --  Processes the 'rules' section.
-
-      procedure Process_Sections is
-      begin
-         --  Processing the 'rules' section
-         Goto_Section ("rules", Parser => Parser);
-
-         loop
-            case Getopt ("* from=", Parser => Parser) is
-               --  We do not want to depend on the set of the currently
-               --  implemented rules
-
-               when ASCII.NUL =>
-                  exit;
-
-               when 'f'       =>
-                  Rule_Options.Append
-                    (Option_Record'
-                       (File,
-                        To_Unbounded_String (Parameter (Parser => Parser))));
-                  if not More_Than_One_Legacy_Rule_File_Set then
-                     Legacy_Rule_File_Name :=
-                       new String'(Parameter (Parser => Parser));
-                     More_Than_One_Legacy_Rule_File_Set := True;
-                  else
-                     Free (Legacy_Rule_File_Name);
-                  end if;
-
-               when others    =>
-                  Add_Legacy_Rule_Option (Full_Switch (Parser => Parser));
-                  Individual_Rules_Set := True;
-            end case;
-            if not Rules_Depreciation_Emitted then
-               Info_In_Tty
-                 ("The '-rules' section is now deprecated. You should only use"
-                  & " the '--rule' and '--rule-file' command-line options.");
-               Info_In_Tty
-                 ("You can use the '--emit-lkql-rule-file' flag to "
-                  & "automatically translate your rule configuration to the "
-                  & "new LKQL format.");
-               Rules_Depreciation_Emitted := True;
-            end if;
-         end loop;
-      end Process_Sections;
-
       Executable : GNAT.OS_Lib.String_Access :=
         Locate_Exec_On_Path (Command_Name);
       Prefix     : constant String :=
@@ -297,10 +251,6 @@ package body Gnatcheck.Options is
          end case;
       end loop;
 
-      if Current_Section (Parser => Parser) = "" and then not First_Pass then
-         Process_Sections;
-      end if;
-
    exception
       when Invalid_Switch =>
          Error ("invalid switch: " & Full_Switch (Parser => Parser));
@@ -312,5 +262,38 @@ package body Gnatcheck.Options is
             & Full_Switch (Parser => Parser));
          raise Parameter_Error;
    end Scan_Arguments;
+
+   ---------------------------------
+   -- Process_Legacy_Rule_Options --
+   ---------------------------------
+
+   procedure Process_Legacy_Rule_Options
+     (Args : Arg.Legacy_Rules_Section.Result_Array)
+   is
+      Remaining_Options : XString_Vector;
+   begin
+      if Legacy_Rule_Options.Parser.Parse
+           (XString_Array (Args), Remaining_Options)
+      then
+         --  Add coding standard file(s)
+         if Legacy_Rule_Options.From_Files.Get'Length = 1 then
+            Legacy_Rule_File_Name :=
+              Legacy_Rule_Options.From_Files.Get
+                (Legacy_Rule_Options.From_Files.Get'First);
+         end if;
+
+         for From_File of Legacy_Rule_Options.From_Files.Get loop
+            Rule_Options.Append (Option_Record'(File, From_File));
+         end loop;
+
+         --  Store legacy rule options
+         for Rule_Option of Remaining_Options loop
+            Add_Legacy_Rule_Option (To_String (Rule_Option));
+            Individual_Rules_Set := True;
+         end loop;
+      else
+         raise Fatal_Error with "cannot parse legacy rule options";
+      end if;
+   end Process_Legacy_Rule_Options;
 
 end Gnatcheck.Options;
