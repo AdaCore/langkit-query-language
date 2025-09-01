@@ -2,6 +2,10 @@ bit.adb:2:9: rule violation: integer type may be replaced by an enumeration
 2 |    type Enum is mod 2 ** 8;       --  FLAG
   |         ^^^^
 
+generics.adb:7:12: rule violation: integer type may be replaced by an enumeration
+7 |       type U is range 1 .. 3;  -- FLAG
+  |            ^
+
 op.adb:2:9: rule violation: integer type may be replaced by an enumeration
 2 |    type Enum is range 1 .. 3;    --  FLAG
   |         ^^^^

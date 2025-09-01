@@ -70,7 +70,7 @@ fun integer_types_as_enum(node) =
     |"       X := 2;
     |"       Y := Y + 1;
     |"    end Proc;
-    node is TypeDecl(p_is_int_type(): true)
+    node is ConcreteTypeDecl(p_is_int_type(): true)
     when not [t for t in types() if t == node]
      and not [t for t in instantiations() if t == node]
      and not [t for t in arithmetic_ops() if t == node]
