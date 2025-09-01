@@ -359,6 +359,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             if (topLevel.hasMember("rules")) {
                 processInstancesObject(
                     lkqlFileBasename,
+                    "rules",
                     topLevel.getMember("rules"),
                     RuleInstance.SourceMode.GENERAL,
                     res,
@@ -369,6 +370,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 if (topLevel.hasMember("ada_rules")) {
                     processInstancesObject(
                         lkqlFileBasename,
+                        "ada_rules",
                         topLevel.getMember("ada_rules"),
                         RuleInstance.SourceMode.ADA,
                         res,
@@ -378,6 +380,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 if (topLevel.hasMember("spark_rules")) {
                     processInstancesObject(
                         lkqlFileBasename,
+                        "spark_rules",
                         topLevel.getMember("spark_rules"),
                         RuleInstance.SourceMode.SPARK,
                         res,
@@ -406,11 +409,22 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      */
     private static void processInstancesObject(
         final String lkqlRuleFile,
+        final String instancesObjectSymbol,
         final Value instancesObject,
         final RuleInstance.SourceMode sourceMode,
         final Map<String, RuleInstance> toPopulate,
         final boolean verbose
     ) throws LKQLRuleFileError {
+        if (!instancesObject.hasMembers()) {
+            errorInLKQLRuleFile(
+                lkqlRuleFile,
+                "The value associated to the '" +
+                instancesObjectSymbol +
+                "' symbol must be an LKQL object, got " +
+                instancesObject
+            );
+        }
+
         // Iterate on all instance object keys
         for (String ruleName : instancesObject.getMemberKeys()) {
             final String lowerRuleName = ruleName.toLowerCase();
