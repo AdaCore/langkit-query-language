@@ -41,11 +41,12 @@ specified at any other place.
 """
 
 import os
-import os.path as P
+import os.path
 import subprocess
 import sys
 
 sys.path.append("..")
+# noinspection PyUnresolvedReferences
 from utils import GraalManager, parse_args, is_windows
 
 
@@ -57,15 +58,15 @@ def look_for_files_in_env(files: list[str], env_var_name: str) -> dict[str, str]
     cannot be retrieved this function returns `None` and displays error message
     about file not being found.
     """
-    res = {f: None for f in files}
-    for dir in os.environ.get(env_var_name, "").split(os.pathsep):
+    res: dict[str, str | None] = {f: None for f in files}
+    for directory in os.environ.get(env_var_name, "").split(os.pathsep):
         for file in files:
-            if os.path.isfile(os.path.join(dir, file)):
-                res[file] = dir
+            if os.path.isfile(os.path.join(directory, file)):
+                res[file] = directory
                 break
     one_not_found = False
-    for file, dir in res.items():
-        if dir is None:
+    for file, directory in res.items():
+        if directory is None:
             one_not_found = True
             print(f'Cannot find "{file}" in {env_var_name}')
     return None if one_not_found else res
@@ -108,10 +109,13 @@ if __name__ == "__main__":
                 "--gc=G1",
                 # Then we add additional options for the C compiler
                 *[
-                    f"--native-compiler-options=-I{dir}"
-                    for dir in headers_paths.values()
+                    f"--native-compiler-options=-I{header_dir}"
+                    for header_dir in headers_paths.values()
                 ],
-                *[f"--native-compiler-options=-L{dir}" for dir in libs_paths.values()],
+                *[
+                    f"--native-compiler-options=-L{lib_dir}"
+                    for lib_dir in libs_paths.values()
+                ],
                 *[f"--native-compiler-options={rp}" for rp in rpaths],
             ]
         )
@@ -152,7 +156,7 @@ if __name__ == "__main__":
         # Finally specify the main class name and the output file
         final_cmd = cmd + [
             "com.adacore.lkql_jit.cli.LKQLMain",
-            P.join("target", "lkql"),
+            os.path.join("target", "lkql"),
         ]
 
         # Debug print and run
