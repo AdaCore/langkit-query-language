@@ -48,6 +48,7 @@ import sys
 sys.path.append("..")
 from utils import GraalManager, parse_args, is_windows
 
+
 def look_for_files_in_env(files: list[str], env_var_name: str) -> dict[str, str] | None:
     """
     Look for required `files` in directories listed in the value of the
@@ -66,8 +67,9 @@ def look_for_files_in_env(files: list[str], env_var_name: str) -> dict[str, str]
     for file, dir in res.items():
         if dir is None:
             one_not_found = True
-            print(f"Cannot find \"{file}\" in {env_var_name}")
+            print(f'Cannot find "{file}" in {env_var_name}')
     return None if one_not_found else res
+
 
 if __name__ == "__main__":
     # Create utils
@@ -93,29 +95,34 @@ if __name__ == "__main__":
 
         # We also need to provide rpath-links to the compiler to allow it to
         # find libraries during linking phase.
-        ld_library_path = os.environ.get('LD_LIBRARY_PATH')
+        ld_library_path = os.environ.get("LD_LIBRARY_PATH")
         rpaths = (
             [f"-Wl,-rpath-link={p}" for p in ld_library_path.split(os.pathsep)]
-            if ld_library_path else
-            []
+            if ld_library_path
+            else []
         )
 
-        os_specific_options.extend([
-            # The G1 garbage collector is only supported on Linux for now
-            "--gc=G1",
-
-            # Then we add additional options for the C compiler
-            *[f"--native-compiler-options=-I{dir}" for dir in headers_paths.values()],
-            *[f"--native-compiler-options=-L{dir}" for dir in libs_paths.values()],
-            *[f"--native-compiler-options={rp}" for rp in rpaths],
-        ])
+        os_specific_options.extend(
+            [
+                # The G1 garbage collector is only supported on Linux for now
+                "--gc=G1",
+                # Then we add additional options for the C compiler
+                *[
+                    f"--native-compiler-options=-I{dir}"
+                    for dir in headers_paths.values()
+                ],
+                *[f"--native-compiler-options=-L{dir}" for dir in libs_paths.values()],
+                *[f"--native-compiler-options={rp}" for rp in rpaths],
+            ]
+        )
 
     # Run the Native-Image compiler if required by the build process
     if "lkql_cli" in args.native_components:
         # Create the base Native-Image command
         cmd = [
             graal.native_image,
-            "-cp", args.classpath,
+            "-cp",
+            args.classpath,
             "--no-fallback",
             "--initialize-at-build-time",
             *os_specific_options,
