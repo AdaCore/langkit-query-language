@@ -106,8 +106,6 @@ if __name__ == "__main__":
 
         os_specific_options.extend(
             [
-                # The G1 garbage collector is only supported on Linux for now
-                "--gc=G1",
                 # Then we add additional options for the C compiler
                 *[
                     f"--native-compiler-options=-I{header_dir}"
