@@ -1,7 +1,7 @@
 """----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2023, AdaCore                          --
+--                   Copyright (C) 2023-2025, AdaCore                       --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -44,6 +44,8 @@ import os
 import os.path
 import subprocess
 import sys
+
+from pathlib import Path
 
 sys.path.append("..")
 # noinspection PyUnresolvedReferences
@@ -122,6 +124,15 @@ if __name__ == "__main__":
 
     # Run the Native-Image compiler if required by the build process
     if "lkql_cli" in args.native_components:
+        # Get the buildspace tmp dir to set the polyglot cache path. When
+        # built in docker images (where only the buildspace is writable), the
+        # build crashes because it tries to create $HOME/.cache. This behavior
+        # may be overridden by the polyglot.engine.userResourceCache value.
+        # There is nothing in args (build_mode, classpath native_components) to
+        # give a clue about buildspace location, guess it from this file's path.
+        buildspace: Path = Path(__file__).parents[3]
+        tmp_path: Path = Path(buildspace, "tmp")
+
         # Create the base Native-Image command
         cmd = [
             graal.native_image,
@@ -129,6 +140,7 @@ if __name__ == "__main__":
             args.classpath,
             "--no-fallback",
             "--initialize-at-build-time",
+            f"-Dpolyglot.engine.userResourceCache={tmp_path.as_posix()}",
             *os_specific_options,
         ]
 
