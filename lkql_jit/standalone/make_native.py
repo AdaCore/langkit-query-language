@@ -1,7 +1,7 @@
 """----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2023, AdaCore                          --
+--                   Copyright (C) 2023-2025, AdaCore                       --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -41,12 +41,15 @@ specified at any other place.
 """
 
 import os
-import os.path as P
 import subprocess
 import sys
 
+from pathlib import Path
+
 sys.path.append("..")
+# noinspection PyUnresolvedReferences
 from utils import GraalManager, parse_args, is_windows
+
 
 def look_for_files_in_env(files: list[str], env_var_name: str) -> dict[str, str] | None:
     """
@@ -56,18 +59,19 @@ def look_for_files_in_env(files: list[str], env_var_name: str) -> dict[str, str]
     cannot be retrieved this function returns `None` and displays error message
     about file not being found.
     """
-    res = {f: None for f in files}
-    for dir in os.environ.get(env_var_name, "").split(os.pathsep):
+    res: dict[str, str | None] = {f: None for f in files}
+    for directory in os.environ.get(env_var_name, "").split(os.pathsep):
         for file in files:
-            if os.path.isfile(os.path.join(dir, file)):
-                res[file] = dir
+            if Path(directory, file).is_file():
+                res[file] = directory
                 break
     one_not_found = False
-    for file, dir in res.items():
-        if dir is None:
+    for file, directory in res.items():
+        if directory is None:
             one_not_found = True
-            print(f"Cannot find \"{file}\" in {env_var_name}")
+            print(f'Cannot find "{file}" in {env_var_name}')
     return None if one_not_found else res
+
 
 if __name__ == "__main__":
     # Create utils
@@ -93,31 +97,49 @@ if __name__ == "__main__":
 
         # We also need to provide rpath-links to the compiler to allow it to
         # find libraries during linking phase.
-        ld_library_path = os.environ.get('LD_LIBRARY_PATH')
+        ld_library_path = os.environ.get("LD_LIBRARY_PATH")
         rpaths = (
             [f"-Wl,-rpath-link={p}" for p in ld_library_path.split(os.pathsep)]
-            if ld_library_path else
-            []
+            if ld_library_path
+            else []
         )
 
-        os_specific_options.extend([
-            # The G1 garbage collector is only supported on Linux for now
-            "--gc=G1",
-
-            # Then we add additional options for the C compiler
-            *[f"--native-compiler-options=-I{dir}" for dir in headers_paths.values()],
-            *[f"--native-compiler-options=-L{dir}" for dir in libs_paths.values()],
-            *[f"--native-compiler-options={rp}" for rp in rpaths],
-        ])
+        os_specific_options.extend(
+            [
+                # The G1 garbage collector is only supported on Linux for now
+                "--gc=G1",
+                # Then we add additional options for the C compiler
+                *[
+                    f"--native-compiler-options=-I{header_dir}"
+                    for header_dir in headers_paths.values()
+                ],
+                *[
+                    f"--native-compiler-options=-L{lib_dir}"
+                    for lib_dir in libs_paths.values()
+                ],
+                *[f"--native-compiler-options={rp}" for rp in rpaths],
+            ]
+        )
 
     # Run the Native-Image compiler if required by the build process
     if "lkql_cli" in args.native_components:
+        # Get the buildspace tmp dir to set the polyglot cache path. When
+        # built in docker images (where only the buildspace is writable), the
+        # build crashes because it tries to create $HOME/.cache. This behavior
+        # may be overridden by the polyglot.engine.userResourceCache value.
+        # There is nothing in args (build_mode, classpath native_components) to
+        # give a clue about buildspace location, guess it from this file's path.
+        buildspace: Path = Path(__file__).parents[3]
+        tmp_path: Path = Path(buildspace, "tmp")
+
         # Create the base Native-Image command
         cmd = [
             graal.native_image,
-            "-cp", args.classpath,
+            "-cp",
+            args.classpath,
             "--no-fallback",
             "--initialize-at-build-time",
+            f"-Dpolyglot.engine.userResourceCache={tmp_path.as_posix()}",
             *os_specific_options,
         ]
 
@@ -145,7 +167,7 @@ if __name__ == "__main__":
         # Finally specify the main class name and the output file
         final_cmd = cmd + [
             "com.adacore.lkql_jit.cli.LKQLMain",
-            P.join("target", "lkql"),
+            str(Path("target", "lkql")),
         ]
 
         # Debug print and run
