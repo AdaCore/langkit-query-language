@@ -41,7 +41,6 @@ specified at any other place.
 """
 
 import os
-import os.path
 import subprocess
 import sys
 
@@ -63,7 +62,7 @@ def look_for_files_in_env(files: list[str], env_var_name: str) -> dict[str, str]
     res: dict[str, str | None] = {f: None for f in files}
     for directory in os.environ.get(env_var_name, "").split(os.pathsep):
         for file in files:
-            if os.path.isfile(os.path.join(directory, file)):
+            if Path(directory, file).is_file():
                 res[file] = directory
                 break
     one_not_found = False
@@ -168,7 +167,7 @@ if __name__ == "__main__":
         # Finally specify the main class name and the output file
         final_cmd = cmd + [
             "com.adacore.lkql_jit.cli.LKQLMain",
-            os.path.join("target", "lkql"),
+            str(Path("target", "lkql")),
         ]
 
         # Debug print and run
