@@ -53,6 +53,8 @@ fun one_construct_per_line(node) =
         | ExtendedReturnStmtObjectDecl
         | NamedStmtDecl
         | AcceptStmtBody
+        # Ignore generic package instantiations when they are in a generic formal
+        | GenericPackageInstantiation(parent: GenericFormal)
     ) and (
         node.token_end().end_line == stdlib.next_non_blank_token_line(node.token_end())
         or node.token_start().start_line == stdlib.previous_non_blank_token_line(node.token_start())
