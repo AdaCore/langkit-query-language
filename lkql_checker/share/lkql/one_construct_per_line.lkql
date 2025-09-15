@@ -32,20 +32,28 @@ fun one_construct_per_line(node) =
     |"       I := J; J := Tmp;      --  FLAG
     |"    end Swap;
     # Flag any statement, declaration or representation clause
-    node is (Stmt | BasicDecl | AttributeDefClause |
-             EnumRepClause | RecordRepClause | AtClause)
-    # except for enum literal, param spec, discriminant spec
-    when (not node is (EnumLiteralDecl | ParamSpec | DiscriminantSpec |
-                       # or loop param or entry index.
-                       ForLoopVarDecl | EntryIndexSpec |
-                       # Also ignore anonymous or nested constructs
-                       # generating false positives.
-                       SingleTaskTypeDecl | AnonymousTypeDecl |
-                       LabelDecl | GenericSubpInternal |
-                       ConcreteFormalSubpDecl |
-                       ExtendedReturnStmtObjectDecl |
-                       NamedStmtDecl | AcceptStmtBody))
-     and (node.token_end().end_line ==
-          stdlib.next_non_blank_token_line(node.token_end())
-          or node.token_start().start_line ==
-             stdlib.previous_non_blank_token_line(node.token_start()))
+    node is (
+       Stmt
+       | BasicDecl
+       | AttributeDefClause
+       | EnumRepClause
+       | RecordRepClause
+       | AtClause
+    ) when node is not (
+        # Except for enum literal, param spec, discriminant spec
+        EnumLiteralDecl | ParamSpec | DiscriminantSpec
+        # Or loop param or entry index.
+        | ForLoopVarDecl | EntryIndexSpec
+        # Also ignore anonymous or nested constructs generating false positives.
+        | SingleTaskTypeDecl
+        | AnonymousTypeDecl
+        | LabelDecl
+        | GenericSubpInternal
+        | ConcreteFormalSubpDecl
+        | ExtendedReturnStmtObjectDecl
+        | NamedStmtDecl
+        | AcceptStmtBody
+    ) and (
+        node.token_end().end_line == stdlib.next_non_blank_token_line(node.token_end())
+        or node.token_start().start_line == stdlib.previous_non_blank_token_line(node.token_start())
+    )
