@@ -10,9 +10,9 @@ line.ads:4:16: rule violation: more than one construct on the same line
 4 |    F2 : Float; C :                                --  FLAG (2)
   |                ^
 
-line.ads:9:14: rule violation: more than one construct on the same line
-9 |    procedure Proc (I : in out Integer); end Line; --  FLAG
-  |              ^^^^
+line.ads:20:14: rule violation: more than one construct on the same line
+20 |    procedure Proc (I : in out Integer); end Line; --  FLAG
+   |              ^^^^
 
 line.adb:20:50: rule violation: more than one construct on the same line
 20 |       accept Start (I : Integer; B : Boolean) do null;      --  FLAG
