@@ -1,16 +1,16 @@
-main.adb:31:4: rule violation: occurrence of KP 20023
+main.adb:31:4: rule violation: possible occurrence of KP 20023
 31 |    X := (if Cond then Make_Dispatch else Make);          -- FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-main.adb:32:4: rule violation: occurrence of KP 20023
+main.adb:32:4: rule violation: possible occurrence of KP 20023
 32 |    X := (if Cond then Make else Make_Dispatch);          -- FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-main.adb:33:4: rule violation: occurrence of KP 20023
+main.adb:33:4: rule violation: possible occurrence of KP 20023
 33 |    X := ((((if Cond then Make_Dispatch else Make))));    -- FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-main.adb:34:4: rule violation: occurrence of KP 20023
+main.adb:34:4: rule violation: possible occurrence of KP 20023
 34 |     X :=                                                  -- FLAG
    | ____^
    ||
@@ -19,11 +19,11 @@ main.adb:34:4: rule violation: occurrence of KP 20023
 37 ||         when False => Make);
    ||____________________________^
 
-main.adb:38:4: rule violation: occurrence of KP 20023
+main.adb:38:4: rule violation: possible occurrence of KP 20023
 38 |    Y := (if Cond then Make_Dispatch else Make);          -- FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-main.adb:39:4: rule violation: occurrence of KP 20023
+main.adb:39:4: rule violation: possible occurrence of KP 20023
 39 |    Z := (if Cond then Make_Dispatch else Make);          -- FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
