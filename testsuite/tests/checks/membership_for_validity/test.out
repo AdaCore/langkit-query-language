@@ -10,6 +10,10 @@ valid.adb:14:10: rule violation: membership test instead of 'Valid
 14 |    elsif Y in Integer then                       --  FLAG
    |          ^^^^^^^^^^^^
 
+valid.adb:18:10: rule violation: membership test instead of 'Valid
+18 |    elsif Y in Integer'Range then                 --  FLAG
+   |          ^^^^^^^^^^^^^^^^^^
+
 Patched "valid.adb":
 ====================
 
@@ -29,6 +33,8 @@ begin
    elsif Y 'Valid then                       --  FLAG
       null;
    elsif X in Integer then                       --  NOFLAG
+      null;
+   elsif Y 'Valid then                 --  FLAG
       null;
    end if;
 end Valid;
