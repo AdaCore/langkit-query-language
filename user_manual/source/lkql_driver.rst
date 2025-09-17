@@ -158,6 +158,7 @@ list of Ada sources to use during analysis. Here is an example usage:
 
 
 ``lkql fix``
+^^^^^^^^^^^^
 
 .. danger::
 
@@ -173,13 +174,14 @@ additional ones:
 
 ``--auto-fix-mode=<mode>``
   The mode to use when applying auto-fixes. Available modes are:
+
   * ``DISPLAY``: Only display fixed sources in standard output, doesn't modify
-  any source file
+    any source file
   * ``NEW_FILE``: For each source file, if it has some fixes, create a new file
-  named ``<filename>.patched`` alongside the original one containing the
-  patched source
-  * ``PATH_FILE``: Replace each source file that has fixes in them by their
-  patched version
+    named ``<filename>.patched`` alongside the original one containing the
+    patched source
+  * ``PATCH_FILE``: Replace each source file that has fixes in them by their
+    patched version
 
 For now, there is no list of rules with an auto-fix function, but you can check
 if a rule can be used with this sub-command by reading its source code and
