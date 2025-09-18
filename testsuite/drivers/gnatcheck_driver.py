@@ -59,6 +59,9 @@ class GnatcheckDriver(BaseDriver):
         - ``auto_codepeer_target`` (bool): Whether to automatically add the
           codepeer target when the test is run in CodePeer mode. Default is
           True.
+        - ``gnatcheck_working_dir`` (str): Path to set as working directory
+          when spawning GNATcheck. This path should be relative to the test
+          working directory.
         - ``in_tty`` (bool): Whether to run GNATcheck in a pseudo TTY using the
           ``pty`` Python module.
         - ``lkql_path`` (list[str]): A list of directories forwarded to the
@@ -563,13 +566,26 @@ class GnatcheckDriver(BaseDriver):
                     self.output += label + "\n" + ("=" * len(label)) + "\n\n"
 
                 # Execute GNATcheck and get its output
+                gnatcheck_cwd = (
+                    self.working_dir(test_data["gnatcheck_working_dir"])
+                    if test_data.get("gnatcheck_working_dir") else
+                    None
+                )
                 exec_output = ""
                 status_code = 0
                 if test_data.get("in_tty"):
-                    exec_output, status_code = self.run_in_tty(args, env=test_env)
+                    exec_output, status_code = self.run_in_tty(
+                        args,
+                        env=test_env,
+                        cwd=gnatcheck_cwd,
+                    )
                 else:
                     p = self.shell(
-                        args, env=test_env, catch_error=False, analyze_output=False
+                        args,
+                        env=test_env,
+                        catch_error=False,
+                        analyze_output=False,
+                        cwd=gnatcheck_cwd,
                     )
                     exec_output = p.out
                     status_code = p.status
