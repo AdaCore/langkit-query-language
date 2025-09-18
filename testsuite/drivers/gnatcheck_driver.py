@@ -104,8 +104,6 @@ class GnatcheckDriver(BaseDriver):
           name by a constant string in then test output. Default is True.
         - ``pre_python``/``post_python`` (str): Python code to be executed
           before/after the test.
-        - ``list_dirs`` (list[str]): A list of directories to display the content
-          of after the GNATcheck run.
         - ``perf``: Enable and configure the performance testing. Perf arguments:
             - ``default``: Time measuring repetition number as an integer.
             - ``profile-time``: Enable the time profiling or not as a boolean.
@@ -626,14 +624,6 @@ class GnatcheckDriver(BaseDriver):
                     self.output += ">>>program returned status code {}\n".format(
                         status_code
                     )
-
-                # List the content of directories if needed
-                if test_data.get("list_dirs"):
-                    for dir_name in test_data["list_dirs"]:
-                        self.output += (
-                            f"Content of {dir_name} : "
-                            f"{sorted(os.listdir(self.working_dir(dir_name)))}\n"
-                        )
 
             # If python code to be executed post running gnatcheck was passed
             # for this test, run it and capture its output
