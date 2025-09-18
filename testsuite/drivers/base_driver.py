@@ -146,7 +146,7 @@ class FileFlags:
         # For each line where an annotation is missing, add it before any other comment
         for line, count in missing_flag_annotations.items():
             # Split the source line to get the code and the comment parts
-            line_split = source_lines[line - 1].split("--")
+            line_split = source_lines[line - 1].split("--", maxsplit=1)
             code, comment = line_split[0], line_split[1].strip() if len(line_split) == 2 else ""
 
             # Remove the already existing FLAG annotation if there is one
