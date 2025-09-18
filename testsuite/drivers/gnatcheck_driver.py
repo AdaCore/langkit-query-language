@@ -72,6 +72,8 @@ class GnatcheckDriver(BaseDriver):
           option.
         - ``input_sources`` (list[str]): Ada files to analyze (if explicit,
           optional if `project` is passed).
+        - ``include_file`` (str): If passed, include all sources listed in the
+          provided file.
         - ``ignore_file`` (str): If passed, ignore all sources listed in the
           provided file.
         - ``output_file`` (str): The file to pass to GNATcheck with the `-o` or
@@ -469,6 +471,15 @@ class GnatcheckDriver(BaseDriver):
                 args.append(f"-o={output_file_name}")
             elif output_format == "xml":
                 args.append(f"-ox={output_file_name}")
+
+            # Add the include file if any
+            include_file = test_data.get("include_file", None)
+            if include_file:
+                abs_include_file = self.working_dir(include_file)
+                include_file = (
+                    abs_include_file if P.isfile(abs_include_file) else include_file
+                )
+                args += [f"-files={include_file}"]
 
             # Add the ignore file if any
             ignore_file = test_data.get("ignore_file", None)
