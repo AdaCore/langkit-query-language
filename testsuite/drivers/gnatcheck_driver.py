@@ -1,6 +1,7 @@
 import os
 import os.path as P
 import re
+import shutil
 import xml.etree.ElementTree as ET
 
 from drivers.base_driver import BaseDriver, TaggedLines
@@ -252,6 +253,40 @@ class GnatcheckDriver(BaseDriver):
                 ]
             )
 
+        # Create the environment for post and pre Python snippets
+        def ls(dirname: str):
+            """
+            Add the sorted content of the provided directory to the test output
+            if the directory exists and is readable, otherwise add an error
+            message.
+
+            :param dirname: Name of the directory to display the content of
+                relatively to the test working directory.
+            """
+            dirpath = self.working_dir(dirname)
+            self.output += (
+                "\n".join(sorted(os.listdir(dirpath)))
+                if os.path.isdir(dirpath) else
+                f"Cannot find the directory {dirname}"
+            ) + "\n"
+
+        def tree(root_dirname: str):
+            """
+            Add the directory tree of the provided root directory to the test
+            output.
+
+            :param root_dirname: Name of the directory to start the exploration
+                from relatively to the test working directory.
+            """
+            root_dirpath = self.working_dir(root_dirname)
+            if os.path.isdir(root_dirpath):
+                for path, _, files in os.walk(root_dirpath):
+                    self.output += f"{path}:\n"
+                    for f in sorted(files):
+                        self.output += f"    {f}\n"
+            else:
+                self.output += f"Cannot find the directory {root_dirname}\n"
+
         def cat(
             filename: str, sort: bool = False, trim_start: int = 0, trim_end: int = 0
         ):
@@ -269,13 +304,68 @@ class GnatcheckDriver(BaseDriver):
                     lines = lines[trim_start : len(lines) - trim_end]
                     if sort:
                         lines.sort()
-                    self.output += (
-                        f"testsuite_driver: Content of {filename}\n{''.join(lines)}"
-                    )
+                    self.output += ''.join(lines)
             except FileNotFoundError:
-                self.output += f"testsuite_driver: Cannot find the file {filename}\n"
+                self.output += f"Cannot find the file {filename}\n"
 
-        globs, locs = {"cat": cat}, {}
+        def mkdir(dirname: str):
+            """
+            Create a new empty directory name as specified in the test working
+            directory.
+            """
+            dirpath = self.working_dir(dirname)
+            if os.path.isdir(dirpath) or os.path.isfile(dirpath):
+                self.output += f"Cannot create {dirname}, already exists\n"
+            else:
+                os.makedirs(dirpath)
+
+        def ln(source: str, dest: str):
+            """
+            Create a symbolic link from the source file to the specified
+            destination. File names must be relative to the test working
+            directory.
+            """
+            source_path = self.working_dir(source)
+            dest_path = self.working_dir(dest)
+            try:
+                os.symlink(source_path, dest_path)
+            except Exception as e:
+                self.output += str(e) + "\n"
+
+        def rm(relative_path: str):
+            """
+            Remove the element designated by the provided path relatively to
+            the test working directory.
+            If the path points to a file, just remove this file.
+            If the path points to a directory, the directory and all its
+            content are removed.
+            """
+            to_remove = self.working_dir(relative_path)
+            if os.path.isfile(to_remove):
+                os.remove(to_remove)
+            elif os.path.isdir(to_remove):
+                shutil.rmtree(to_remove)
+
+        def cmd(f):
+            """
+            Wrap a Python function inside a logging function to add the name
+            of the underlying function and its unnamed arguments to the test
+            output before running it.
+            """
+            def res(*args, **kwargs):
+                args_image = f" {' '.join(args)}" if args else ""
+                self.output += f"Running \"{f.__name__}{args_image}\"...\n"
+                f(*args, **kwargs)
+            return res
+
+        globs, locs = {
+            "ls": cmd(ls),
+            "tree": cmd(tree),
+            "cat": cmd(cat),
+            "mkdir": cmd(mkdir),
+            "ln": cmd(ln),
+            "rm": cmd(rm),
+        }, {}
         global_python = self.test_env.get("global_python", None)
         if global_python:
             exec(global_python, globs, locs)
