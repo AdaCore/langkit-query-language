@@ -70,6 +70,10 @@ class GnatcheckDriver(BaseDriver):
           resolution.
         - ``subdirs`` (str): The directory to forward to GNATcheck `--subdirs`
           option.
+        - ``process_closure`` (bool): Whether to provide the ``-U`` flag when
+          spawning GNATcheck in order to only process the project closure.
+          If ``input_sources`` are provided, those are considered as roots
+          for closure resolution.
         - ``input_sources`` (list[str]): Ada files to analyze (if explicit,
           optional if `project` is passed).
         - ``include_file`` (str): If passed, include all sources listed in the
@@ -491,6 +495,10 @@ class GnatcheckDriver(BaseDriver):
                     abs_ignore_file if P.isfile(abs_ignore_file) else ignore_file
                 )
                 args += [f"--ignore={ignore_file}"]
+
+            # Add the "-U" flag if required
+            if test_data.get("process_closure"):
+                args.append("-U")
 
             # Add the specified sources to GNATcheck arguments
             if test_data.get("input_sources", None):
