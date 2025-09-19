@@ -133,11 +133,13 @@ if __name__ == "__main__":
         # Create the base Native-Image command
         cmd = [
             graal.native_image,
+            "-H:+UnlockExperimentalVMOptions",
             "-cp",
             args.classpath,
             "--no-fallback",
             "--initialize-at-build-time",
             f"-Dpolyglot.engine.userResourceCache={tmp_path.as_posix()}",
+            "-H:-StrictQueryCodeCompilation",
             *os_specific_options,
         ]
 
@@ -147,7 +149,6 @@ if __name__ == "__main__":
                 [
                     "-g",
                     "-Ob",
-                    "-H:+UnlockExperimentalVMOptions",
                     "-H:-DeleteLocalSymbols",
                     "-H:+SourceLevelDebug",
                     "-H:+PreserveFramePointer",
