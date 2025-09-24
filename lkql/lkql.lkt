@@ -63,9 +63,6 @@ lexer lkql_lexer {
     @symbol() New <- "new"
     @symbol() Class <- "class"
     @symbol() Pass <- "pass"
-    @symbol() Del <- "del"
-    @symbol() Add <- "add"
-    @symbol() Rewrite <- "rewrite"
     @symbol() RunPass <- "run_pass"
     Integer <- p"[0-9]+"
     @symbol() Identifier <- p"[a-z][A-Za-z0-9_]*"
@@ -292,9 +289,9 @@ grammar lkql_grammar {
         ))
     "}" )
     prefix_field <- DotAccess(upper_id "." id)
-    pass_del_block <- DelBlock("del" "{" list*(or(prefix_field | Identifier(@UpperIdentifier))) "}")
-    pass_add_block <- AddBlock("add" "{" list*(or(prefix_field_decl | class_decl)) "}")
-    pass_rewrite_block <- RewriteBlock("rewrite" "{" list*(match_arm) "}")
+    pass_del_block <- DelBlock(@Identifier("del") "{" list*(or(prefix_field | Identifier(@UpperIdentifier))) "}")
+    pass_add_block <- AddBlock(@Identifier("add") "{" list*(or(prefix_field_decl | class_decl)) "}")
+    pass_rewrite_block <- RewriteBlock(@Identifier("rewrite") "{" list*(match_arm) "}")
     prefix_field_decl <- PrefixField(upper_id "." id ":" upper_id)
     class_field <- ClassField(id ":" upper_id)
     class_decl <- ClassDecl(
