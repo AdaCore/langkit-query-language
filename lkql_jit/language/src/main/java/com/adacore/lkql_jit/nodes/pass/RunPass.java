@@ -55,7 +55,7 @@ public class RunPass extends LKQLNode {
         }
 
         // Setup all units roots
-        final var roots = ctx.getAllUnitsRoots();
+        final var roots = ctx.allUnitsRoots();
         final var units = new Object[roots.length];
         for (int i = 0; i < roots.length; i++) {
             if (ctx.isVerbose()) {

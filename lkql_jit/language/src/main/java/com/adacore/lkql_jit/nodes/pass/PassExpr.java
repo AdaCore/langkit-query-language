@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.nodes.pass;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.value_read.ReadArgument;
+import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.adacore.lkql_jit.runtime.values.DynamicAdaNode;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -25,7 +25,7 @@ import java.util.*;
  * A pass expr is the body of the synthesized function and contains
  * all the logic needed to execute a pass.
  */
-@NodeChild(value = "readInput", type = ReadArgument.class)
+@NodeChild(value = "readInput", type = ReadParameter.class)
 public abstract class PassExpr extends Expr {
 
     // This field doesn't need to be a child with regard to execution,

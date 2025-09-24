@@ -79,6 +79,7 @@ public class Hierarchy {
     /**
      * Computes a hierarchy of currently available classes in the Lkt bindings.
      */
+    @SuppressWarnings("unchecked")
     @TruffleBoundary
     public static Hierarchy initial() {
         // Collect all inital classes
@@ -249,31 +250,5 @@ public class Hierarchy {
         }
 
         become(size, matrix, index);
-    }
-
-    // Primarily used in testing
-    /** Equality implementation */
-    @TruffleBoundary
-    public boolean equals(Object otherObject) {
-        if (otherObject == null) return false;
-        if (otherObject instanceof Hierarchy other) {
-            if (size != other.size) return false;
-            if (!index.keySet().equals(other.index.keySet())) return false;
-
-            for (var x : index.keySet()) {
-                final var classX = index.get(x);
-                final var otherX = other.index.get(x);
-                for (var y : index.keySet()) {
-                    final var classY = index.get(y);
-                    final var otherY = other.index.get(y);
-                    if (
-                        matrix[classX * size + classY] != other.matrix[otherX * size + otherY]
-                    ) return false;
-                }
-            }
-
-            return true;
-        }
-        return false;
     }
 }

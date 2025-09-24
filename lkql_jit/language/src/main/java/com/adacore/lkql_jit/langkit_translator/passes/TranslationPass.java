@@ -1977,16 +1977,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         scriptFrames.enterFrame(passDecl);
 
         final int nbFakeArgs = Constants.PASS_FAKE_ARGS.length;
-        final var parameterDeclarations = new ParameterDeclaration[nbFakeArgs];
-        final var readArguments = new ReadArgument[nbFakeArgs];
+        final var readParameters = new ReadParameter[nbFakeArgs];
         for (int i = 0; i < nbFakeArgs; i++) {
             final String argName = Constants.PASS_FAKE_ARGS[i];
-            parameterDeclarations[i] = new ParameterDeclaration(
-                source.createUnavailableSection(),
-                argName,
-                null
-            );
-            readArguments[i] = new ReadArgument(
+            readParameters[i] = new ReadParameter(
                 source.createUnavailableSection(),
                 scriptFrames.getParameter(argName)
             );
@@ -2003,7 +1997,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             addBlock,
             delBlock,
             rewriteBlock,
-            readArguments[0]
+            readParameters[0]
         );
 
         final var docstring = passDecl.pDoc();
@@ -2012,16 +2006,18 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             location,
             scriptFrames.getFrameDescriptor(),
             scriptFrames.getClosureDescriptor(),
-            parameterDeclarations,
+            Constants.PASS_FAKE_ARGS,
+            new Expr[Constants.PASS_FAKE_ARGS.length],
             docstring.isNone() ? "" : parseStringLiteral(docstring),
-            passExpr
+            passExpr,
+            "<anonymous>"
         );
 
         // Cleanup
         inPass = false;
         this.scriptFrames.exitFrame();
 
-        final var functionDecl = new FunctionDeclaration(location, null, name, slot, funExpr);
+        final var functionDecl = new FunctionDeclaration(location, null, slot, funExpr);
 
         return functionDecl;
     }

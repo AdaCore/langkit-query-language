@@ -52,7 +52,7 @@ public final class DynamicConstructorCall extends Expr {
     public String[] getArgNames() {
         final var argNames = new String[args.getArgs().length];
         for (int i = 0; i < argNames.length; i++) {
-            argNames[i] = ((NamedArg) this.args.getArgs()[i]).getArgName().getName();
+            argNames[i] = this.args.getArgs()[i].getArgStringName();
         }
         return argNames;
     }
@@ -61,7 +61,11 @@ public final class DynamicConstructorCall extends Expr {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return new DynamicAdaNode(nodeKind, this.args.executeArgList(frame), this.getArgNames());
+        final Object[] argVals = new Object[arity()];
+        for (int i = 0; i < arity(); i++) {
+            argVals[i] = args.getArgs()[i].executeGeneric(frame);
+        }
+        return new DynamicAdaNode(nodeKind, argVals, this.getArgNames());
     }
 
     // ----- Override methods -----
