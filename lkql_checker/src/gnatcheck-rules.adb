@@ -1023,17 +1023,17 @@ package body Gnatcheck.Rules is
          First_Idx := First_Idx + 5;
 
          case Diag (First_Idx) is
-            when 'c' =>
+            when 'c'    =>
                return "constant";
 
-            when 'e' =>
+            when 'e'    =>
                if Diag (First_Idx + 1) = 'n' then
                   return "enum";
                else
                   return "exception";
                end if;
 
-            when 's' =>
+            when 's'    =>
                return "type";
 
             when others =>
@@ -2460,7 +2460,7 @@ package body Gnatcheck.Rules is
                C := Element (Instance.Param, J);
 
                case C is
-                  when '"' =>
+                  when '"'    =>
                      if Num_Elements = 3 then
                         if Element (Instance.Param, J - 1) = ':' then
                            Append (Param, '|');
@@ -2476,12 +2476,12 @@ package body Gnatcheck.Rules is
                         Append (Param, "\""");
                      end if;
 
-                  when ':' =>
+                  when ':'    =>
                      Append (Param, """, """);
                      Num_Elements := @ + 1;
                      Lower := True;
 
-                  when ',' =>
+                  when ','    =>
                      Append (Param, """), (""");
                      Num_Elements := 1;
                      Lower := True;
@@ -2571,27 +2571,27 @@ package body Gnatcheck.Rules is
       Res.Rule_Param_From_Diag := No_Param_From_Diag'Access;
 
       case Param_Kind is
-         when No_Param =>
+         when No_Param                =>
             Res.XML_Rule_Help := No_Param_XML_Help'Access;
             Res.Create_Instance := Create_No_Param_Instance'Access;
             Res.Process_Rule_Parameter := No_Param_Process'Access;
 
-         when One_Integer =>
+         when One_Integer             =>
             Res.XML_Rule_Help := Int_Param_XML_Help'Access;
             Res.Create_Instance := Create_Int_Instance'Access;
             Res.Process_Rule_Parameter := Int_Param_Process'Access;
 
-         when One_Boolean =>
+         when One_Boolean             =>
             Res.XML_Rule_Help := Bool_Param_XML_Help'Access;
             Res.Create_Instance := Create_Bool_Instance'Access;
             Res.Process_Rule_Parameter := Bool_Param_Process'Access;
 
-         when One_String =>
+         when One_String              =>
             Res.XML_Rule_Help := String_Param_XML_Help'Access;
             Res.Create_Instance := Create_String_Instance'Access;
             Res.Process_Rule_Parameter := String_Param_Process'Access;
 
-         when One_Array =>
+         when One_Array               =>
             Res.XML_Rule_Help := String_Param_XML_Help'Access;
             Res.Create_Instance := Create_Array_Instance'Access;
             Res.Process_Rule_Parameter := Array_Param_Process'Access;
@@ -2601,7 +2601,7 @@ package body Gnatcheck.Rules is
             Res.Create_Instance := Create_Int_Or_Bools_Instance'Access;
             Res.Process_Rule_Parameter := Int_Or_Bools_Param_Process'Access;
 
-         when Custom =>
+         when Custom                  =>
             if Rule_Name = "identifier_suffixes" then
                Res.XML_Rule_Help := Id_Suffix_Param_XML_Help'Access;
                Res.Allowed_As_Exemption_Parameter :=
@@ -2703,8 +2703,8 @@ package body Gnatcheck.Rules is
    is
       Mode_String : constant String :=
         (case Mode is
-           when General => "rules",
-           when Ada_Only => "ada_rules",
+           when General    => "rules",
+           when Ada_Only   => "ada_rules",
            when Spark_Only => "spark_rules");
 
       Instance_Names : String_Vector;

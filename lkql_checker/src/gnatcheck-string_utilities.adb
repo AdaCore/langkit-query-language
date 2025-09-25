@@ -38,10 +38,10 @@ package body Gnatcheck.String_Utilities is
 
    begin
       case Result (1) is
-         when ' ' =>
+         when ' '    =>
             return Slide (Result (2 .. Result'Last));
 
-         when '-' =>
+         when '-'    =>
             return Result;
 
          when others =>
@@ -54,10 +54,10 @@ package body Gnatcheck.String_Utilities is
 
    begin
       case Result (1) is
-         when ' ' =>
+         when ' '    =>
             return Slide (Result (2 .. Result'Last));
 
-         when '-' =>
+         when '-'    =>
             return Result;
 
          when others =>

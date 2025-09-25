@@ -85,7 +85,7 @@ package body Gnatcheck.JSON_Utilities is
            Field_Value ((Field_Value'First + 1) .. (Field_Value'Last - 1))
          loop
             case C is
-               when ',' =>
+               when ','    =>
                   if Tuple_Level = 0 then
                      Res.Append (Remove_Quotes (To_String (Acc)));
                      Set_Unbounded_String (Acc, "");
@@ -94,7 +94,7 @@ package body Gnatcheck.JSON_Utilities is
                      Append (Acc, C);
                   end if;
 
-               when ' ' =>
+               when ' '    =>
                   if In_Item then
                      Append (Acc, C);
                   end if;

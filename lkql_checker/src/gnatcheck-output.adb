@@ -111,10 +111,10 @@ package body Gnatcheck.Output is
         (if Tool_Name then Executable & ": " else "")
         & (if Location /= "" then Location & ": " else "")
         & (case Tag is
-             when Info => "info: ",
+             when Info    => "info: ",
              when Warning => "warning: ",
-             when Error => "error: ",
-             when None => "")
+             when Error   => "error: ",
+             when None    => "")
         & Message;
    begin
       --  Display the message in the standard error
