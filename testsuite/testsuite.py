@@ -26,6 +26,7 @@ from drivers import (
     java_driver,
     benchmarks_driver,
     refactor_driver,
+    nanopass_driver,
 )
 
 
@@ -103,6 +104,7 @@ class LKQLTestsuite(Testsuite):
         "gnatcheck": gnatcheck_driver.GnatcheckDriver,
         "benchmarks": benchmarks_driver.BenchmarksDriver,
         "refactor": refactor_driver.RefactorDriver,
+        "nanopass": nanopass_driver.NanopassDriver,
     }
 
     def add_options(self, parser: ArgumentParser) -> None:

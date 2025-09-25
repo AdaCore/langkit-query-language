@@ -2010,7 +2010,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             new Expr[Constants.PASS_FAKE_ARGS.length],
             docstring.isNone() ? "" : parseStringLiteral(docstring),
             passExpr,
-            "<anonymous>"
+            "<pass:" + name + ">"
         );
 
         // Cleanup

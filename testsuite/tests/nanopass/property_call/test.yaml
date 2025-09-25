@@ -1,0 +1,3 @@
+driver: 'nanopass'
+input_sources:
+  - 'main.adb'

@@ -58,9 +58,7 @@ public class RunPass extends LKQLNode {
         final var roots = ctx.allUnitsRoots();
         final var units = new Object[roots.length];
         for (int i = 0; i < roots.length; i++) {
-            if (ctx.isVerbose()) {
-                debugAST(i, roots[i].dumpTree());
-            }
+            debugAST(i, roots[i].dumpTree());
             units[i] = AdaNodeProxy.convertAST(roots[i]);
         }
 
@@ -69,9 +67,7 @@ public class RunPass extends LKQLNode {
         do {
             final var pass = callChain.poll();
 
-            if (ctx.isVerbose()) {
-                ctx.println(ObjectUtils.toString(pass));
-            }
+            ctx.println(ObjectUtils.toString(pass));
 
             for (int i = 0; i < units.length; i++) {
                 try {
@@ -82,9 +78,7 @@ public class RunPass extends LKQLNode {
                     LKQLRuntimeException.fromJavaException(e, this);
                 }
 
-                if (ctx.isVerbose()) {
-                    debugAST(i, units[i]);
-                }
+                debugAST(i, units[i]);
             }
         } while (!callChain.isEmpty());
 
@@ -97,7 +91,7 @@ public class RunPass extends LKQLNode {
 
     @TruffleBoundary
     private void debugAST(int num, Object ast) {
-        System.out.println(num + ")\n" + ast);
+        System.out.println(ast);
     }
 
     @Override

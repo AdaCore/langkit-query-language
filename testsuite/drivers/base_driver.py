@@ -531,6 +531,7 @@ class BaseDriver(DiffTestDriver):
         self.lkql_checker_exe = [*self.command_base, "check"]
         self.lkql_fix_exe = [*self.command_base, "fix"]
         self.gnatcheck_worker_exe = [*self.command_base, "gnatcheck_worker"]
+        self.lkql_pass_exe = [*self.command_base, "run-passes"]
 
     @classmethod
     def locate_on_path(cls, exec_name: str) -> str | None:

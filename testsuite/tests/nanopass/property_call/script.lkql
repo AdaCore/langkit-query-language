@@ -1,0 +1,63 @@
+pass test {
+
+	del {
+		# This is wrong in this case because the rewriting
+		# is not exhaustive but it would be present in a
+		# complete implementation
+		CallExpr
+	}
+
+	add {
+
+		class FunctionCall {
+			subpname: Name
+			params: AssocList
+		}
+
+		class ProcedureCall {
+			subpname: Name
+			params: AssocList
+		}
+
+		class Index {
+			name: Name
+			params: AssocList
+		}
+
+	}
+
+	rewrite {
+
+		# Function
+		| self@CallExpr(
+			p_kind(): "call",
+			f_name: Name(
+				p_referenced_decl(): BasicDecl(
+					p_subp_spec_or_null(): SubpSpec(
+						f_subp_kind: "function"
+					)
+				)
+			)
+		) => new FunctionCall(subpname=self.f_name, params=self.f_suffix)
+
+		# Procedure
+		| self@CallExpr(
+			p_kind(): "call",
+			f_name: Name(
+				p_referenced_decl(): BasicDecl(
+					p_subp_spec_or_null(): SubpSpec(
+						f_subp_kind: "procedure"
+					)
+				)
+			)
+		) => new ProcedureCall(subpname=self.f_name, params=self.f_suffix)
+
+		# Array Index
+		| self@CallExpr(p_kind(): "array_index") =>
+			new Index(name=self.f_name, params=self.f_suffix)
+
+	}
+
+}
+
+run_pass test

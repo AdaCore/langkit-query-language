@@ -1,0 +1,9 @@
+pass test {
+	del {}
+	add {}
+	rewrite {
+		| CallStmt => new NullStmt()
+	}
+}
+
+run_pass test

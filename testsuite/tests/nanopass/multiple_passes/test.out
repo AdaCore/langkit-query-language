@@ -1,0 +1,589 @@
+CompilationUnit main.adb:1:1-8:10>
+|f_prelude:
+|  AdaNodeList main.adb:1:1-1:35>
+|  |item_0:
+|  |  WithClause main.adb:1:1-1:18>
+|  |  |f_has_limited:
+|  |  |  LimitedAbsent main.adb:1:1-1:1>
+|  |  |f_has_private:
+|  |  |  PrivateAbsent main.adb:1:1-1:1>
+|  |  |f_packages:
+|  |  |  NameList main.adb:1:6-1:17>
+|  |  |  |item_0:
+|  |  |  |  DottedName main.adb:1:6-1:17>
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Id "Ada" main.adb:1:6-1:9>: Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Id "Text_IO" main.adb:1:10-1:17>: Text_IO
+|  |item_1:
+|  |  UsePackageClause main.adb:1:19-1:35>
+|  |  |f_packages:
+|  |  |  NameList main.adb:1:23-1:34>
+|  |  |  |item_0:
+|  |  |  |  DottedName main.adb:1:23-1:34>
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Id "Ada" main.adb:1:23-1:26>: Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Id "Text_IO" main.adb:1:27-1:34>: Text_IO
+|f_body:
+|  LibraryItem main.adb:3:1-8:10>
+|  |f_has_private:
+|  |  PrivateAbsent main.adb:1:35-1:35>
+|  |f_item:
+|  |  SubpBody ["Main"] main.adb:3:1-8:10>
+|  |  |f_overriding:
+|  |  |  OverridingUnspecified main.adb:1:35-1:35>
+|  |  |f_subp_spec:
+|  |  |  SubpSpec main.adb:3:1-3:15>
+|  |  |  |f_subp_kind:
+|  |  |  |  SubpKindProcedure main.adb:3:1-3:10>
+|  |  |  |f_subp_name:
+|  |  |  |  DefiningName "Main" main.adb:3:11-3:15>
+|  |  |  |  |f_name:
+|  |  |  |  |  Id "Main" main.adb:3:11-3:15>: Main
+|  |  |  |f_subp_params:
+|  |  |  |  one
+|  |  |  |f_subp_returns:
+|  |  |  |  one
+|  |  |f_aspects:
+|  |  |  one
+|  |  |f_decls:
+|  |  |  DeclarativePart main.adb:3:18-6:1>
+|  |  |  |f_decls:
+|  |  |  |  AdaNodeList main.adb:4:4-5:66>
+|  |  |  |  |item_0:
+|  |  |  |  |  ObjectDecl ["Message"] main.adb:4:4-4:48>
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList main.adb:4:4-4:11>
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName "Message" main.adb:4:4-4:11>
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Id "Message" main.adb:4:4-4:11>: Message
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent main.adb:4:21-4:21>
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantAbsent main.adb:4:21-4:21>
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault main.adb:4:21-4:21>
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication main.adb:4:22-4:28>
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent main.adb:4:21-4:21>
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Id "String" main.adb:4:22-4:28>: String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  one
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  Str ""Hello World !"" main.adb:4:32-4:47>: "Hello World !"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  one
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  one
+|  |  |  |  |item_1:
+|  |  |  |  |  ObjectDecl ["ConstantMessage"] main.adb:5:4-5:66>
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList main.adb:5:4-5:19>
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName "ConstantMessage" main.adb:5:4-5:19>
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Id "ConstantMessage" main.adb:5:4-5:19>: ConstantMessage
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent main.adb:5:21-5:21>
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantPresent main.adb:5:22-5:30>
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault main.adb:5:30-5:30>
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication main.adb:5:31-5:37>
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent main.adb:5:30-5:30>
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Id "String" main.adb:5:31-5:37>: String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  one
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  Str ""Hello Constant world !"" main.adb:5:41-5:65>: "Hello Constant world !"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  one
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  one
+|  |  |f_stmts:
+|  |  |  HandledStmts main.adb:6:6-8:1>
+|  |  |  |f_stmts:
+|  |  |  |  StmtList main.adb:7:4-7:23>
+|  |  |  |  |item_0:
+|  |  |  |  |  CallStmt main.adb:7:4-7:23>
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  CallExpr main.adb:7:4-7:22>
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Id "Put_Line" main.adb:7:4-7:12>: Put_Line
+|  |  |  |  |  |  |f_suffix:
+|  |  |  |  |  |  |  AssocList main.adb:7:14-7:21>
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc main.adb:7:14-7:21>
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  Id "Message" main.adb:7:14-7:21>: Message
+|  |  |  |f_exceptions:
+|  |  |  |  AdaNodeList main.adb:7:23-7:23>
+|  |  |f_end_name:
+|  |  |  EndName main.adb:8:5-8:9>
+|  |  |  |f_name:
+|  |  |  |  Id "Main" main.adb:8:5-8:9>: Main
+|f_pragmas:
+|  PragmaNodeList main.adb:8:10-8:10>
+
+function<<pass:test1>>
+CompilationUnit
+|f_pragmas:
+|  PragmaNodeList
+|f_prelude:
+|  AdaNodeList
+|  |item_1:
+|  |  UsePackageClause
+|  |  |f_packages:
+|  |  |  NameList
+|  |  |  |item_0:
+|  |  |  |  DottedName
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Text_IO
+|  |item_0:
+|  |  WithClause
+|  |  |f_has_limited:
+|  |  |  LimitedAbsent
+|  |  |f_has_private:
+|  |  |  PrivateAbsent
+|  |  |f_packages:
+|  |  |  NameList
+|  |  |  |item_0:
+|  |  |  |  DottedName
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Text_IO
+|f_body:
+|  LibraryItem
+|  |f_item:
+|  |  SubpBody
+|  |  |f_stmts:
+|  |  |  HandledStmts
+|  |  |  |f_stmts:
+|  |  |  |  StmtList
+|  |  |  |  |item_0:
+|  |  |  |  |  CallStmt
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  CallExpr
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=Put_Line
+|  |  |  |  |  |  |f_suffix:
+|  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |value=Message
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |f_exceptions:
+|  |  |  |  AdaNodeList
+|  |  |f_aspects:
+|  |  |  AdaNode
+|  |  |f_overriding:
+|  |  |  OverridingUnspecified
+|  |  |f_end_name:
+|  |  |  EndName
+|  |  |  |f_name:
+|  |  |  |  Identifier
+|  |  |  |  |value=Main
+|  |  |f_subp_spec:
+|  |  |  SubpSpec
+|  |  |  |f_subp_params:
+|  |  |  |  AdaNode
+|  |  |  |f_subp_name:
+|  |  |  |  DefiningName
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Main
+|  |  |  |f_subp_returns:
+|  |  |  |  AdaNode
+|  |  |  |f_subp_kind:
+|  |  |  |  SubpKindProcedure
+|  |  |f_decls:
+|  |  |  DeclarativePart
+|  |  |  |f_decls:
+|  |  |  |  AdaNodeList
+|  |  |  |  |item_1:
+|  |  |  |  |  ObjectDecl
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=ConstantMessage
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantPresent
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  StringLiteral
+|  |  |  |  |  |  |value="Hello Constant world !"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  AdaNode
+|  |  |  |  |item_0:
+|  |  |  |  |  ObjectDecl
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=Message
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantAbsent
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  StringLiteral
+|  |  |  |  |  |  |value="Hello World !"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  AdaNode
+|  |f_has_private:
+|  |  PrivateAbsent
+
+function<<pass:test2>>
+CompilationUnit
+|f_pragmas:
+|  PragmaNodeList
+|f_prelude:
+|  AdaNodeList
+|  |item_1:
+|  |  UsePackageClause
+|  |  |f_packages:
+|  |  |  NameList
+|  |  |  |item_0:
+|  |  |  |  DottedName
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Text_IO
+|  |item_0:
+|  |  WithClause
+|  |  |f_has_limited:
+|  |  |  LimitedAbsent
+|  |  |f_has_private:
+|  |  |  PrivateAbsent
+|  |  |f_packages:
+|  |  |  NameList
+|  |  |  |item_0:
+|  |  |  |  DottedName
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Text_IO
+|f_body:
+|  LibraryItem
+|  |f_item:
+|  |  SubpBody
+|  |  |f_stmts:
+|  |  |  HandledStmts
+|  |  |  |f_stmts:
+|  |  |  |  StmtList
+|  |  |  |  |item_0:
+|  |  |  |  |  CallStmt
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  CallExpr
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=Put_Line
+|  |  |  |  |  |  |f_suffix:
+|  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |value=Message
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |f_exceptions:
+|  |  |  |  AdaNodeList
+|  |  |f_aspects:
+|  |  |  AdaNode
+|  |  |f_overriding:
+|  |  |  OverridingUnspecified
+|  |  |f_end_name:
+|  |  |  EndName
+|  |  |  |f_name:
+|  |  |  |  Identifier
+|  |  |  |  |value=Main
+|  |  |f_subp_spec:
+|  |  |  SubpSpec
+|  |  |  |f_subp_params:
+|  |  |  |  AdaNode
+|  |  |  |f_subp_name:
+|  |  |  |  DefiningName
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Main
+|  |  |  |f_subp_returns:
+|  |  |  |  AdaNode
+|  |  |  |f_subp_kind:
+|  |  |  |  SubpKindProcedure
+|  |  |f_decls:
+|  |  |  DeclarativePart
+|  |  |  |f_decls:
+|  |  |  |  AdaNodeList
+|  |  |  |  |item_1:
+|  |  |  |  |  ObjectDecl
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=ConstantMessage
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantPresent
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  StringLiteral
+|  |  |  |  |  |  |value="Hello Constant world !"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  AdaNode
+|  |  |  |  |item_0:
+|  |  |  |  |  ObjectDecl
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=Message
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantAbsent
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  StringLiteral
+|  |  |  |  |  |  |value="Hello World !"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  AdaNode
+|  |f_has_private:
+|  |  PrivateAbsent
+
+function<<pass:test3>>
+CompilationUnit
+|f_pragmas:
+|  PragmaNodeList
+|f_prelude:
+|  AdaNodeList
+|  |item_1:
+|  |  UsePackageClause
+|  |  |f_packages:
+|  |  |  NameList
+|  |  |  |item_0:
+|  |  |  |  DottedName
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Text_IO
+|  |item_0:
+|  |  WithClause
+|  |  |f_has_limited:
+|  |  |  LimitedAbsent
+|  |  |f_has_private:
+|  |  |  PrivateAbsent
+|  |  |f_packages:
+|  |  |  NameList
+|  |  |  |item_0:
+|  |  |  |  DottedName
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Text_IO
+|f_body:
+|  LibraryItem
+|  |f_item:
+|  |  SubpBody
+|  |  |f_stmts:
+|  |  |  HandledStmts
+|  |  |  |f_stmts:
+|  |  |  |  StmtList
+|  |  |  |  |item_0:
+|  |  |  |  |  CallStmt
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  CallExpr
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=Put_Line
+|  |  |  |  |  |  |f_suffix:
+|  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |value=Message
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |f_exceptions:
+|  |  |  |  AdaNodeList
+|  |  |f_aspects:
+|  |  |  AdaNode
+|  |  |f_overriding:
+|  |  |  OverridingUnspecified
+|  |  |f_end_name:
+|  |  |  EndName
+|  |  |  |f_name:
+|  |  |  |  Identifier
+|  |  |  |  |value=Main
+|  |  |f_subp_spec:
+|  |  |  SubpSpec
+|  |  |  |f_subp_params:
+|  |  |  |  AdaNode
+|  |  |  |f_subp_name:
+|  |  |  |  DefiningName
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Main
+|  |  |  |f_subp_returns:
+|  |  |  |  AdaNode
+|  |  |  |f_subp_kind:
+|  |  |  |  SubpKindProcedure
+|  |  |f_decls:
+|  |  |  DeclarativePart
+|  |  |  |f_decls:
+|  |  |  |  AdaNodeList
+|  |  |  |  |item_1:
+|  |  |  |  |  ObjectDecl
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=ConstantMessage
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantPresent
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  StringLiteral
+|  |  |  |  |  |  |value="Hello Constant world !"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  AdaNode
+|  |  |  |  |item_0:
+|  |  |  |  |  ObjectDecl
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=Message
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantAbsent
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  StringLiteral
+|  |  |  |  |  |  |value="Hello World !"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  AdaNode
+|  |f_has_private:
+|  |  PrivateAbsent
+

@@ -46,6 +46,8 @@ public class AdaNodeProxy extends DynamicAdaNode {
             for (int i = 0; i < root.getChildrenCount(); i++) {
                 children.put("item_" + i, new AdaNodeProxy(root.getChild(i)));
             }
+        } else if (root.isTokenNode()) {
+            fields.put("value", root.getText());
         } else {
             final var fieldNames = root.getFieldNames();
             for (int i = 0; i < fieldNames.length; i++) {
