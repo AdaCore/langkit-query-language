@@ -114,7 +114,7 @@ package body Gnatcheck.Projects is
      (Self : in out Gnatcheck_Reporter; Message : GPR2.Message.Object) is
    begin
       case Message.Level is
-         when GPR2.Message.Error =>
+         when GPR2.Message.Error   =>
             Print (Message.Format);
 
          when GPR2.Message.Warning =>
@@ -128,7 +128,7 @@ package body Gnatcheck.Projects is
                Missing_File_Detected := True;
             end if;
 
-         when others =>
+         when others               =>
             null;
       end case;
    end Internal_Report;
@@ -1009,10 +1009,10 @@ package body Gnatcheck.Projects is
             & Exit_Code'Img
             & " ("
             & (case Exit_Code is
-                 when 0 => "no rule violation detected",
-                 when 1 => "rule violation(s) detected",
-                 when 2 => "tool failure, results cannot be trusted",
-                 when 3 => "no rule check performed",
+                 when 0      => "no rule violation detected",
+                 when 1      => "rule violation(s) detected",
+                 when 2      => "tool failure, results cannot be trusted",
+                 when 3      => "no rule check performed",
                  when others => "unknown")
             & ")");
       end if;
@@ -1053,10 +1053,10 @@ package body Gnatcheck.Projects is
       --  Then process the legacy rule options
       for O of Rule_Options loop
          case O.Kind is
-            when File =>
+            when File             =>
                Process_Legacy_Rule_File (To_String (O.Value));
 
-            when Legacy_Option =>
+            when Legacy_Option    =>
                Process_Legacy_Rule_Option
                  (To_String (O.Value), Defined_At => "");
 
@@ -1204,7 +1204,7 @@ package body Gnatcheck.Projects is
                when ASCII.NUL =>
                   exit;
 
-               when 'f' =>
+               when 'f'       =>
                   Rule_Options.Append
                     (Option_Record'
                        (File,
@@ -1217,7 +1217,7 @@ package body Gnatcheck.Projects is
                      Free (Legacy_Rule_File_Name);
                   end if;
 
-               when others =>
+               when others    =>
                   Add_Legacy_Rule_Option (Full_Switch (Parser => Parser));
                   Individual_Rules_Set := True;
             end case;
@@ -1351,12 +1351,12 @@ package body Gnatcheck.Projects is
 
                exit when not Success;
 
-            when 'a' =>
+            when 'a'       =>
                --  Ignore -a for compatibility
 
                null;
 
-            when 'f' =>
+            when 'f'       =>
                if Full_Switch (Parser => Parser) = "files" then
                   File_List_Specified := True;
 
@@ -1369,7 +1369,7 @@ package body Gnatcheck.Projects is
                   end if;
                end if;
 
-            when 'h' =>
+            when 'h'       =>
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "h" then
                      Generate_Rules_Help := True;
@@ -1378,14 +1378,14 @@ package body Gnatcheck.Projects is
                   end if;
                end if;
 
-            when 'l' =>
+            when 'l'       =>
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "log" then
                      Log_Mode := True;
                   end if;
                end if;
 
-            when 'm' =>
+            when 'm'       =>
                if not First_Pass then
                   begin
                      Max_Diagnoses :=
@@ -1407,7 +1407,7 @@ package body Gnatcheck.Projects is
                   end;
                end if;
 
-            when 'n' =>
+            when 'n'       =>
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "nt" then
                      Text_Report_ON := False;
@@ -1415,7 +1415,7 @@ package body Gnatcheck.Projects is
                   end if;
                end if;
 
-            when 'o' =>
+            when 'o'       =>
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "o" then
                      Set_Report_File_Name (Parameter (Parser => Parser));
@@ -1428,7 +1428,7 @@ package body Gnatcheck.Projects is
                   end if;
                end if;
 
-            when 'v' =>
+            when 'v'       =>
                if Full_Switch (Parser => Parser) = "v" then
                   Verbose_Mode := True;
                elsif Full_Switch (Parser => Parser) = "vP" then
@@ -1450,14 +1450,14 @@ package body Gnatcheck.Projects is
                   end if;
                end if;
 
-            when 'x' =>
+            when 'x'       =>
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "xml" then
                      XML_Report_ON := True;
                   end if;
                end if;
 
-            when '-' =>
+            when '-'       =>
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "-kp-version" then
                      Free (KP_Version);
@@ -1487,7 +1487,7 @@ package body Gnatcheck.Projects is
                   end if;
                end if;
 
-            when others =>
+            when others    =>
                Error
                  ("unrecognized switch: " & Full_Switch (Parser => Parser));
                raise Parameter_Error;

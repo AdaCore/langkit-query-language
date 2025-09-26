@@ -563,20 +563,20 @@ package body Gnatcheck.Source_Table is
 
       case Int_0_12 (Name_Len) is
 
-         when 0 =>
+         when 0  =>
             return 0;
 
-         when 1 =>
+         when 1  =>
             return Character'Pos (Name_Buffer (1));
 
-         when 2 =>
+         when 2  =>
             return
               ((Character'Pos (Name_Buffer (1)))
                * 64
                + Character'Pos (Name_Buffer (2)))
               mod Hash_Num;
 
-         when 3 =>
+         when 3  =>
             return
               (((Character'Pos (Name_Buffer (1)))
                 * 16
@@ -585,7 +585,7 @@ package body Gnatcheck.Source_Table is
                + Character'Pos (Name_Buffer (2)))
               mod Hash_Num;
 
-         when 4 =>
+         when 4  =>
             return
               ((((Character'Pos (Name_Buffer (1)))
                  * 8
@@ -596,7 +596,7 @@ package body Gnatcheck.Source_Table is
                + Character'Pos (Name_Buffer (4)))
               mod Hash_Num;
 
-         when 5 =>
+         when 5  =>
             return
               (((((Character'Pos (Name_Buffer (4)))
                   * 8
@@ -609,7 +609,7 @@ package body Gnatcheck.Source_Table is
                + Character'Pos (Name_Buffer (2)))
               mod Hash_Num;
 
-         when 6 =>
+         when 6  =>
             return
               ((((((Character'Pos (Name_Buffer (5)))
                    * 4
@@ -624,7 +624,7 @@ package body Gnatcheck.Source_Table is
                + Character'Pos (Name_Buffer (3)))
               mod Hash_Num;
 
-         when 7 =>
+         when 7  =>
             return
               (((((((Character'Pos (Name_Buffer (4)))
                     * 4
@@ -641,7 +641,7 @@ package body Gnatcheck.Source_Table is
                + Character'Pos (Name_Buffer (6)))
               mod Hash_Num;
 
-         when 8 =>
+         when 8  =>
             return
               ((((((((Character'Pos (Name_Buffer (2)))
                      * 4
@@ -660,7 +660,7 @@ package body Gnatcheck.Source_Table is
                + Character'Pos (Name_Buffer (8)))
               mod Hash_Num;
 
-         when 9 =>
+         when 9  =>
             return
               (((((((((Character'Pos (Name_Buffer (2)))
                       * 4
@@ -1182,10 +1182,10 @@ package body Gnatcheck.Source_Table is
          when Not_A_Legal_Source =>
             Illegal_Sources := Illegal_Sources + 1;
 
-         when Error_Detected =>
+         when Error_Detected     =>
             Tool_Failures := Tool_Failures + 1;
 
-         when others =>
+         when others             =>
             null;
       end case;
 

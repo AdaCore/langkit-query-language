@@ -677,7 +677,7 @@ package body Gnatcheck.Diagnoses is
          end if;
 
          case Error_Messages_Storage.Element (Position).Diagnosis_Kind is
-            when Rule_Violation =>
+            when Rule_Violation    =>
                if Error_Messages_Storage.Element (Position).Justification
                  = Null_Unbounded_String
                then
@@ -691,10 +691,10 @@ package body Gnatcheck.Diagnoses is
             when Exemption_Warning =>
                Detected_Exemption_Warning := @ + 1;
 
-            when Compiler_Error =>
+            when Compiler_Error    =>
                Detected_Compiler_Error := @ + 1;
 
-            when Internal_Error =>
+            when Internal_Error    =>
                Detected_Internal_Error := @ + 1;
          end case;
       end Count_Diagnoses;
@@ -779,16 +779,16 @@ package body Gnatcheck.Diagnoses is
    begin
       for C of S loop
          case C is
-            when '&' =>
+            when '&'                   =>
                Append (Result, "&amp;");
 
-            when '<' =>
+            when '<'                   =>
                Append (Result, "&lt;");
 
-            when '>' =>
+            when '>'                   =>
                Append (Result, "&gt;");
 
-            when '"' =>
+            when '"'                   =>
                Append (Result, "&quot;");
 
             when ASCII.NUL .. ASCII.US =>
@@ -799,7 +799,7 @@ package body Gnatcheck.Diagnoses is
                     (Result, "&#" & Img (Img'First + 1 .. Img'Last) & ";");
                end;
 
-            when others =>
+            when others                =>
                Append (Result, C);
          end case;
       end loop;
@@ -2056,7 +2056,7 @@ package body Gnatcheck.Diagnoses is
       --  Now - processing of the exemption action. If we are here, we are
       --  sure that Rule denotes an existing and enabled rule.
       case Action.Exemption_Control is
-         when Exempt_On =>
+         when Exempt_On        =>
             if Action.Justification = Null_Unbounded_String then
                Action.Justification := To_Unbounded_String ("unjustified");
             end if;
@@ -2204,7 +2204,7 @@ package body Gnatcheck.Diagnoses is
                    Params      => Action.Params));
             end if;
 
-         when Exempt_Off =>
+         when Exempt_Off       =>
             --  If there are no parameters provided, just verify that the name
             --  is exempted, if so close the exemption.
             if not Has_Params then
@@ -3071,12 +3071,12 @@ package body Gnatcheck.Diagnoses is
 
       Tag_String : constant String :=
         (case Self.Diagnosis_Kind is
-           when Rule_Violation =>
+           when Rule_Violation    =>
              (if Self.Justification /= Null_Unbounded_String
               then "rule violation (exempted): "
               else "rule violation: "),
            when Exemption_Warning => "warning: ",
-           when others => "");
+           when others            => "");
    begin
       return
         To_String (Self.File)

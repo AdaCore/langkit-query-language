@@ -680,7 +680,7 @@ package body Gnatcheck.Rules.Rule_Table is
                               end if;
                            end if;
 
-                        when Indefinite =>
+                        when Indefinite     =>
                            Error
                              ("bad format of rule file "
                               & RF_Name
@@ -742,7 +742,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
             if not Is_White_Space (Rule_Buf (J)) then
                case Rule_Buf (J) is
-                  when '=' =>
+                  when '='        =>
                      if not Eq_Detected then
                         Eq_Detected := True;
                      --  this means that we have '-from = <file_name>'
@@ -758,13 +758,12 @@ package body Gnatcheck.Rules.Rule_Table is
                      | '~'
                      | 'a' .. 'z'
                      | 'A' .. 'Z'
-                     | '0' .. '9'
-                  =>
+                     | '0' .. '9' =>
                      --  This can be the beginning of a file name
                      First_Idx := J;
                      exit;
 
-                  when others =>
+                  when others     =>
                      --  a file name can not start from this character
                      exit;
                end case;
@@ -877,7 +876,7 @@ package body Gnatcheck.Rules.Rule_Table is
                   Free (Include_RF_Name);
                end if;
 
-            when Indefinite =>
+            when Indefinite     =>
                Error
                  ("bad format of rule file "
                   & Rule_File_Base

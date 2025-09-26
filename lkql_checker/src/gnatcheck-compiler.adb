@@ -245,7 +245,7 @@ package body Gnatcheck.Compiler is
                  else
                    Diag (Diag'First .. Idx - 1)
                    & Diag (Idx + 9 .. Diag'Last))),
-           when Style =>
+           when Style                 =>
              (declare
                 Idx : constant Natural := Index (Diag, "(style) ");
               begin
@@ -254,7 +254,7 @@ package body Gnatcheck.Compiler is
                  else
                    Diag (Diag'First .. Idx - 1)
                    & Diag (Idx + 8 .. Diag'Last))),
-           when others => Diag);
+           when others                => Diag);
 
       Last_Idx  : Natural;
       Diag_End  : Natural;
@@ -672,7 +672,7 @@ package body Gnatcheck.Compiler is
             pragma Assert (False);
             return "";
 
-         when Warning =>
+         when Warning       =>
             if Parameter = "" then
                return " [warnings]";
             elsif Warning_To_Instance.Contains (Parameter)
@@ -688,7 +688,7 @@ package body Gnatcheck.Compiler is
                return " [warnings:" & Parameter & "]";
             end if;
 
-         when Style =>
+         when Style         =>
             if Parameter = "" then
                return " [style_checks]";
             elsif Style_To_Instance.Contains (Parameter)
@@ -704,7 +704,7 @@ package body Gnatcheck.Compiler is
                return " [style_checks:" & Parameter & "]";
             end if;
 
-         when Restriction =>
+         when Restriction   =>
             if Restriction_To_Instance.Contains (Parameter)
               and then Restriction_To_Instance (Parameter) /= "restrictions"
             then
@@ -714,7 +714,7 @@ package body Gnatcheck.Compiler is
                return " [restrictions]";
             end if;
 
-         when Error =>
+         when Error         =>
             return " [errors]";
       end case;
    end Annotation;
@@ -767,7 +767,7 @@ package body Gnatcheck.Compiler is
       for R in Special_Restriction_Setting'Range loop
          if Special_Restriction_Setting (R) then
             case R is
-               when No_Dependence =>
+               when No_Dependence              =>
                   Forbidden_Units_Dictionary.Reset_Iterator;
 
                   while not Forbidden_Units_Dictionary.Done loop
@@ -777,7 +777,7 @@ package body Gnatcheck.Compiler is
                      Add_Line (Forbidden_Units_Dictionary.Next_Entry & ");");
                   end loop;
 
-               when No_Use_Of_Entity =>
+               when No_Use_Of_Entity           =>
                   Forbidden_Entities_Dictionary.Reset_Iterator;
 
                   while not Forbidden_Entities_Dictionary.Done loop
@@ -841,13 +841,13 @@ package body Gnatcheck.Compiler is
             pragma Assert (False);
             return No_Rule_Id;
 
-         when Warning =>
+         when Warning               =>
             return Warnings_Id;
 
-         when Style =>
+         when Style                 =>
             return Style_Checks_Id;
 
-         when Restriction =>
+         when Restriction           =>
             return Restrictions_Id;
       end case;
    end Get_Rule_Id;
@@ -1085,7 +1085,7 @@ package body Gnatcheck.Compiler is
       for R in Special_Restriction_Setting'Range loop
          if Special_Restriction_Setting (R) then
             case R is
-               when No_Dependence =>
+               when No_Dependence              =>
                   Forbidden_Units_Dictionary.Reset_Iterator;
                   while not Forbidden_Units_Dictionary.Done loop
                      Append_Elem
@@ -1093,7 +1093,7 @@ package body Gnatcheck.Compiler is
                         & Forbidden_Units_Dictionary.Next_Entry);
                   end loop;
 
-               when No_Use_Of_Entity =>
+               when No_Use_Of_Entity           =>
                   Forbidden_Entities_Dictionary.Reset_Iterator;
                   while not Forbidden_Entities_Dictionary.Done loop
                      Append_Elem
@@ -1302,7 +1302,7 @@ package body Gnatcheck.Compiler is
          --  Special_R_Id /= Not_A_Special_Restriction_Id
 
          case Special_R_Id is
-            when No_Dependence =>
+            when No_Dependence                =>
                if not Arg_Present then
                   Instance.Error
                     ("Restrictions rule parameter: "
@@ -1317,7 +1317,7 @@ package body Gnatcheck.Compiler is
                Forbidden_Units_Dictionary.Add_To_Dictionary
                  (Trim (Param (Last_Idx .. Param'Last), Both));
 
-            when No_Use_Of_Entity =>
+            when No_Use_Of_Entity             =>
                if not Arg_Present then
                   Instance.Error
                     ("Restrictions rule parameter: "
@@ -1332,7 +1332,7 @@ package body Gnatcheck.Compiler is
                Forbidden_Entities_Dictionary.Add_To_Dictionary
                  (Trim (Param (Last_Idx .. Param'Last), Both));
 
-            when No_Specification_Of_Aspect =>
+            when No_Specification_Of_Aspect   =>
                if not Arg_Present then
                   Instance.Error
                     ("Restrictions rule parameter: "
@@ -1463,13 +1463,13 @@ package body Gnatcheck.Compiler is
                --  -gnatyLxx and -gnatyMxxx are represented respectively by
                --  "L" and "M". Skip all digits directly after the flag.
 
-               when 'L' | 'M' =>
+               when 'L' | 'M'  =>
                   while I < Param'Last and then Param (I + 1) in '0' .. '9'
                   loop
                      I := I + 1;
                   end loop;
 
-               when others =>
+               when others     =>
                   null;
             end case;
 
@@ -2102,7 +2102,7 @@ package body Gnatcheck.Compiler is
       for R in Special_Restriction_Setting'Range loop
          if Special_Restriction_Setting (R) then
             case R is
-               when No_Dependence =>
+               when No_Dependence              =>
                   Forbidden_Units_Dictionary.Reset_Iterator;
 
                   while not Forbidden_Units_Dictionary.Done loop
@@ -2113,7 +2113,7 @@ package body Gnatcheck.Compiler is
                         Indent_Level + 1);
                   end loop;
 
-               when No_Use_Of_Entity =>
+               when No_Use_Of_Entity           =>
                   Forbidden_Entities_Dictionary.Reset_Iterator;
 
                   while not Forbidden_Entities_Dictionary.Done loop

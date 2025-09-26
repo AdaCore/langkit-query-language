@@ -30,11 +30,11 @@ package body Rule_Commands is
      (Node : L.Lkql_Node'Class) return L.Node_Kind_Pattern is
    begin
       case Node.Kind is
-         when LCO.Lkql_Is_Clause =>
+         when LCO.Lkql_Is_Clause             =>
             return
               Find_Toplevel_Node_Kind_Pattern (Node.As_Is_Clause.F_Pattern);
 
-         when LCO.Lkql_Node_Kind_Pattern =>
+         when LCO.Lkql_Node_Kind_Pattern     =>
             return Node.As_Node_Kind_Pattern;
 
          when LCO.Lkql_Extended_Node_Pattern =>
@@ -42,17 +42,17 @@ package body Rule_Commands is
               Find_Toplevel_Node_Kind_Pattern
                 (Node.As_Extended_Node_Pattern.F_Node_Pattern);
 
-         when LCO.Lkql_Filtered_Pattern =>
+         when LCO.Lkql_Filtered_Pattern      =>
             return
               Find_Toplevel_Node_Kind_Pattern
                 (Node.As_Filtered_Pattern.F_Pattern);
 
-         when LCO.Lkql_Binding_Pattern =>
+         when LCO.Lkql_Binding_Pattern       =>
             return
               Find_Toplevel_Node_Kind_Pattern
                 (Node.As_Binding_Pattern.F_Value_Pattern);
 
-         when others =>
+         when others                         =>
             return L.No_Node_Kind_Pattern;
       end case;
    end Find_Toplevel_Node_Kind_Pattern;
@@ -71,16 +71,16 @@ package body Rule_Commands is
             when LCO.Lkql_Integer_Literal =>
                return One_Integer;
 
-            when LCO.Lkql_Bool_Literal =>
+            when LCO.Lkql_Bool_Literal    =>
                return One_Boolean;
 
-            when LCO.Lkql_String_Literal =>
+            when LCO.Lkql_String_Literal  =>
                return One_String;
 
-            when LCO.Lkql_List_Literal =>
+            when LCO.Lkql_List_Literal    =>
                return One_Array;
 
-            when others =>
+            when others                   =>
                null;
          end case;
       else
