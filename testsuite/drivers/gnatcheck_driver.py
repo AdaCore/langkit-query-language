@@ -62,6 +62,8 @@ class GnatcheckDriver(BaseDriver):
         - ``gnatcheck_working_dir`` (str): Path to set as working directory
           when spawning GNATcheck. This path should be relative to the test
           working directory.
+        - ``gnatcheck_env`` (dict[str, str]): Additional environment variable
+          to set when running GNATcheck.
         - ``in_tty`` (bool): Whether to run GNATcheck in a pseudo TTY using the
           ``pty`` Python module.
         - ``lkql_path`` (list[str]): A list of directories forwarded to the
@@ -415,7 +417,10 @@ class GnatcheckDriver(BaseDriver):
                 output_file_name = self.working_dir(f"{exe}.{'xml' if output_format == 'xml' else 'out'}")
             elif output_file_name:
                 output_file_name = self.working_dir(output_file_name)
-            test_env = dict(gnatcheck_env)
+
+            # The test environment is the common GNATcheck env merged with the
+            # test defined one.
+            test_env = dict(gnatcheck_env) | test_data.get("gnatcheck_env", {})
 
             pre_python = test_data.get("pre_python", None)
             post_python = test_data.get("post_python", None)
