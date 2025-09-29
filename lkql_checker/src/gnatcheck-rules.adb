@@ -576,6 +576,9 @@ package body Gnatcheck.Rules is
             Set_Unbounded_String (Buffer, "");
          end if;
       end loop;
+
+      XML_Report
+        (XML_Param (Prefix & To_String (Buffer) & Suffix), Indent_Level);
    end Print_XML_Params;
 
    ------------------------
