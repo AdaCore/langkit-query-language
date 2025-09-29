@@ -32,12 +32,12 @@ pre-commit:
     - echo $maven_local_repo
 
     # Install all pre-commit dependencies
-    - anod install gnatformat
+    - anod install gnatformat      -Q date=20250928
     - anod build   java            -Q version=17,vendor=graalvm
     - anod build   maven           -Q version=3.6.3
     - anod build   nodejs          -Q version=16.19.1
     - anod build   maven-repo-pull -Q client=lkql
-    - eval $(anod printenv gnatformat)
+    - eval $(anod printenv gnatformat -Q date=20250928)
     - eval $(anod printenv java       -Q version=17,vendor=graalvm)
     - eval $(anod printenv maven      -Q version=3.6.3)
     - eval $(anod printenv nodejs     -Q version=16.19.1)
