@@ -610,6 +610,29 @@ fun is_by_copy(param) =
     when t.p_is_discrete_type() or t.p_is_access_type() or
          t.p_is_fixed_point() or t.p_is_float_type()
 
+fun is_by_ref(param) =
+    |" Get whether the provided parameter (a ``ParamActual``) type is a
+    |" by-reference" type as defined in the reference manual at 6.2(4-9).
+    {
+        fun is_type_by_ref(type_decl) =
+            type_decl is (
+                BaseTypeDecl(p_is_tagged_type(): true)
+                | TaskTypeDecl
+                | ProtectedTypeDecl
+                | TypeDecl(f_type_def: RecordTypeDef(f_has_limited: LimitedPresent))
+                | BaseTypeDecl(p_is_private(): true) when is_type_by_ref(type_decl.p_full_view())
+                | BaseTypeDecl
+                    when is_composite_type(type_decl)
+                    and any([
+                        is_type_by_ref(t)
+                        for t in component_types(type_decl)
+                    ])
+                | SubtypeDecl when is_type_by_ref(type_decl.p_base_subtype())
+            );
+        val param_spec = from param.param through parent select first ParamSpec;
+        is_type_by_ref(param_spec.f_type_expr.p_designated_type_decl())
+    }
+
 fun get_parameter(params, actual) =
     |" Given a ``List[ParamActual]``, return the parameter corresponding to
     |" actual, null if actual is not found.
@@ -723,6 +746,13 @@ fun is_tasking_construct(node) =
             )
         )
     )
+
+fun is_subject_to_predicate(decl) =
+    |" Return whether the provided declaration is subject to a dynamic or
+    |" static predicate.
+    decl.p_has_aspect("predicate")
+    or decl.p_has_aspect("static_predicate")
+    or decl.p_has_aspect("dynamic_predicate")
 
 selector component_types
     |" Return all the ``BaseTypeDecl`` corresponding to all fields of a given

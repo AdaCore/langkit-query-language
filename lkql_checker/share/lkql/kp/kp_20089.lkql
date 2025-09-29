@@ -1,0 +1,26 @@
+import stdlib
+
+@check(help="possible occurrence of KP 20089",
+       message="possible occurrence of KP 20089")
+fun kp_20089(node) =
+    |" Flag subprogram calls which have at least one actual parameter passed in
+    |" ``out`` or ``in out`` mode, while being a type conversion where the
+    |" target subtype has an enabled predicate. The parameter also have to be
+    |" not a "by reference" parameter.
+    node is CallExpr(p_is_call(): true)
+    when {
+        val params = node.p_call_params();
+        stdlib.any([
+            param.actual is CallExpr(
+                p_kind(): "type_conversion",
+                f_name: Name(p_referenced_decl(): d@BaseTypeDecl)
+            ) when stdlib.is_subject_to_predicate(d)
+            and (
+                from param.param
+                through parent
+                select first ParamSpec
+            ) is s@ParamSpec(f_mode: ModeOut | ModeInOut)
+            and not stdlib.is_by_ref(param)
+            for param in params
+        ])
+    }

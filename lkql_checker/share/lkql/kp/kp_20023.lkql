@@ -8,8 +8,8 @@ fun is_class_subtype(type_expr) =
     | a@AttributeRef => a.f_attribute.p_name_is("class")
     | i@Identifier => i.p_referenced_decl() is BaseSubtypeDecl(p_get_type(): ClasswideTypeDecl)
 
-@check(help="occurrence of KP 20023",
-       message="occurrence of KP 20023")
+@check(help="possible occurrence of KP 20023",
+       message="possible occurrence of KP 20023")
 fun kp_20023(node) =
     |" Flag object assignments to class-wide type objects where the right hand
     |" side is a conditional expression containing function calls that dispatch

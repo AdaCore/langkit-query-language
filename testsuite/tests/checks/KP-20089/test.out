@@ -1,0 +1,20 @@
+main.adb:25:7: rule violation: possible occurrence of KP 20089
+25 |       Test_Out (With_Pred (B));          --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:26:7: rule violation: possible occurrence of KP 20089
+26 |       Test_In_Out (With_Pred (B));       --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:27:7: rule violation: possible occurrence of KP 20089
+27 |       Test_In_Out (Sub_With_Pred (B));   --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:28:7: rule violation: possible occurrence of KP 20089
+28 |       Test_In_Out (With_Stat_Pred (B));  --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:29:7: rule violation: possible occurrence of KP 20089
+29 |       Test_In_Out (With_Dyn_Pred (B));   --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
