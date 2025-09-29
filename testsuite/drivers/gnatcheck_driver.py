@@ -101,6 +101,8 @@ class GnatcheckDriver(BaseDriver):
 
         - ``check_semantic`` (bool): Whether to add the ``--check-semantic``
           flag when running GNATcheck.
+        - ``check_redefinition`` (bool): Whether to add the
+          ``--check-redefinition`` flag when running GNATcheck.
         - ``rules`` (list[str]): A list of rules with their arguments, in the
           gnatcheck format.  Note that the list can be empty, and people can
           instead decide to pass rules via the project file.
@@ -530,6 +532,10 @@ class GnatcheckDriver(BaseDriver):
             # If required, add the "--check-semantic" flag
             if test_data.get("check_semantic"):
                 args.append("--check-semantic")
+
+            # If required, add the "--check-redefinition" flag
+            if test_data.get("check_redefinition"):
+                args.append("--check-redefinition")
 
             # Add the rule directories
             for rule_dir in test_data.get("rules_dirs", []):
