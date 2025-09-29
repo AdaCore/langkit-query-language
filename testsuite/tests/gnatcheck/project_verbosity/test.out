@@ -1,0 +1,24 @@
+With "-vP 0"
+============
+
+prj.gpr:5:11: error: attribute "Check'Rule_File" expects a single value
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+With "-vP 1"
+============
+
+using project file <working-dir>/prj.gpr
+prj.gpr:5:11: error: attribute "Check'Rule_File" expects a single value
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+With "-vP 2"
+============
+
+using project file <working-dir>/prj.gpr
+prj.gpr: hint: Parsing "<working-dir>/prj.gpr"
+prj.gpr: hint: project search path: <gpr_path>
+prj.gpr:5:11: error: attribute "Check'Rule_File" expects a single value
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

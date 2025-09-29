@@ -26,25 +26,16 @@ with GPR2.Project.Tree;
 with GPR2.Project.View;
 
 with Langkit_Support.File_Readers; use Langkit_Support.File_Readers;
-with Langkit_Support.Generic_API.Introspection;
 
-with Libadalang.Analysis;         use Libadalang.Analysis;
 with Libadalang.Preprocessing;    use Libadalang.Preprocessing;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
-with Libadalang.Generic_API;      use Libadalang.Generic_API;
 with Libadalang.Common;
 with Libadalang.Config_Pragmas;
 
-with Liblkqllang.Analysis;
-
 package body Gnatcheck.Source_Table is
 
-   package LKI renames Langkit_Support.Generic_API.Introspection;
-
    subtype String_Access is GNAT.OS_Lib.String_Access;
-
-   Arg_File_Name : String_Access;
 
    use Temporary_File_Storages;
 
@@ -359,19 +350,6 @@ package body Gnatcheck.Source_Table is
          end;
       end if;
    end Adjust_From_Source_Table;
-
-   --------------------------
-   -- Arg_Source_File_Name --
-   --------------------------
-
-   function Arg_Source_File_Name return String is
-   begin
-      if Arg_File_Name = null then
-         return "";
-      else
-         return Arg_File_Name.all;
-      end if;
-   end Arg_Source_File_Name;
 
    -------------
    -- CU_Name --
@@ -887,7 +865,7 @@ package body Gnatcheck.Source_Table is
          end;
       end if;
 
-      if Verbose_Mode then
+      if Arg.Verbose.Get then
          Info ("[" & N (2 .. N'Last) & "] " & Short_Source_Name (SF));
 
       elsif not (Arg.Quiet_Mode or else Arg.Progress_Indicator_Mode.Get) then
@@ -914,11 +892,7 @@ package body Gnatcheck.Source_Table is
    -------------------------
 
    procedure Read_Args_From_File (Par_File_Name : String) is
-      Arg_File         : File_Type;
-      File_Name_Buffer : String (1 .. 16 * 1024);
-      File_Name_Len    : Natural := 0;
-      Next_Ch          : Character;
-      End_Of_Line      : Boolean;
+      Arg_File : File_Type;
 
       function Get_File_Name return String;
       --  Reads from Par_File_Name the name of the next file (the file to read
@@ -926,6 +900,10 @@ package body Gnatcheck.Source_Table is
       --  are no more file names in Par_File_Name.
 
       function Get_File_Name return String is
+         File_Name_Len    : Natural := 0;
+         File_Name_Buffer : String (1 .. 16 * 1024);
+         Next_Ch          : Character;
+         End_Of_Line      : Boolean;
       begin
          File_Name_Len := 0;
 
@@ -1007,14 +985,6 @@ package body Gnatcheck.Source_Table is
       --  Start of processing for Read_Args_From_File
 
    begin
-      if Argument_File_Specified then
-         Error ("cannot specify more than one -file");
-         return;
-      end if;
-
-      Argument_File_Specified := True;
-      Arg_File_Name := new String'(Par_File_Name);
-
       if not Is_Regular_File (Par_File_Name) then
          Error (Par_File_Name & " does not exist");
          return;
@@ -1160,7 +1130,7 @@ package body Gnatcheck.Source_Table is
 
       --  Only warn if no sources are specified explicitly
 
-      elsif not (File_List_Specified
+      elsif not (Arg.Source_Files_Specified
                  or else (Argument_File_Specified
                           and then not Arg.Transitive_Closure.Get))
       then
@@ -1402,7 +1372,8 @@ package body Gnatcheck.Source_Table is
    -- Process_Sources --
    ---------------------
 
-   procedure Process_Sources (Ctx : Checker_App.Lkql_Context) is
+   procedure Process_Sources is
+      Ctx     : constant Analysis_Context := Create_Ada_Context;
       Next_SF : SF_Id;
 
       use Libadalang.Iterators;
@@ -1419,7 +1390,7 @@ package body Gnatcheck.Source_Table is
 
          declare
             Unit : constant Analysis_Unit :=
-              Ctx.Analysis_Ctx.Get_From_File (Source_Name (Next_SF));
+              Ctx.Get_From_File (Source_Name (Next_SF));
          begin
             --  Process exemption pragmas for Unit
 
@@ -1470,73 +1441,38 @@ package body Gnatcheck.Source_Table is
       end loop;
    end Process_Sources;
 
-   --------------------
-   -- Create_Context --
-   --------------------
+   ------------------------
+   -- Create_Ada_Context --
+   ------------------------
 
-   Partition : GPR2_Provider_And_Projects_Array_Access;
-
-   function Create_Context return Checker_App.Lkql_Context is
-      Charset        : constant String := To_String (Arg.Charset.Get);
-      Ctx            : Checker_App.Lkql_Context;
-      File_Reader    : File_Reader_Reference;
-      Default_Config : File_Config;
-      File_Configs   : File_Config_Maps.Map;
+   function Create_Ada_Context return Analysis_Context is
+      Res              : Analysis_Context;
+      Charset          : constant String := To_String (Arg.Charset.Get);
+      File_Reader      : File_Reader_Reference;
+      Default_Config   : File_Config;
+      File_Configs     : File_Config_Maps.Map;
+      Project_Provider : constant GPR2_Provider_And_Projects_Array_Access :=
+        Create_Project_Unit_Providers (Gnatcheck_Prj.Tree);
    begin
-      --  Use a project unit provider, even with the implicit project
-      if not In_Aggregate_Project then
-         if Partition = null then
-            Partition := Create_Project_Unit_Providers (Gnatcheck_Prj.Tree);
-         end if;
+      --  Setup the file reader with preprocessing support
+      Extract_Preprocessor_Data_From_Project
+        (Gnatcheck_Prj.Tree, Gnatcheck_Prj.View, Default_Config, File_Configs);
+      File_Reader := Create_Preprocessor (Default_Config, File_Configs);
 
-         --  We can ignore multiple partitions: this will only occur with
-         --  aggregate projects, which are handled specially in lalcheck.adb
+      --  Create the Libadalang analysis context with extracted configuration
+      Res :=
+        Create_Context
+          (Charset       => Charset,
+           Unit_Provider => Project_Provider (Project_Provider'First).Provider,
+           Event_Handler => EHR_Object,
+           File_Reader   => File_Reader);
 
-         --  Setup the file reader with preprocessing support
-         Extract_Preprocessor_Data_From_Project
-           (Gnatcheck_Prj.Tree,
-            Gnatcheck_Prj.View,
-            Default_Config,
-            File_Configs);
+      --  Setup the configuration pragma mapping by reading the
+      --  configuration file given by the project.
+      Libadalang.Config_Pragmas.Import_From_Project (Res, Gnatcheck_Prj.Tree);
 
-         File_Reader := Create_Preprocessor (Default_Config, File_Configs);
-
-         Ctx.Analysis_Ctx :=
-           Create_Context
-             (Charset       => Charset,
-              Unit_Provider => Partition (Partition'First).Provider,
-              Event_Handler => EHR_Object,
-              File_Reader   => File_Reader);
-
-         --  Setup the configuration pragma mapping by reading the
-         --  configuration file given by the project.
-         Libadalang.Config_Pragmas.Import_From_Project
-           (Ctx.Analysis_Ctx, Gnatcheck_Prj.Tree);
-      end if;
-
-      --  Initialize the cached rules array, with an array that goes from
-      --  the index of the first root node type, to the index of the last
-      --  derived type. This array will have too many slots since is has
-      --  slots for abstract types, but we don't really care.
-      declare
-         use Checker_App;
-
-         Root_Node_Type : LKI.Type_Ref renames
-           LKI.Root_Node_Type (Ada_Lang_Id);
-         subtype Rules_By_Kind_Array_Subt is
-           Rules_By_Kind_Array
-             (LKI.To_Index (Root_Node_Type)
-              .. LKI.Last_Derived_Type (Root_Node_Type));
-
-      begin
-         Ctx.Cached_Rules := new Rules_By_Kind_Array_Subt;
-      end;
-
-      Ctx.LKQL_Analysis_Context :=
-        Liblkqllang.Analysis.Create_Context (Charset => "utf-8");
-
-      return Ctx;
-
-   end Create_Context;
+      --  Finally return the result
+      return Res;
+   end Create_Ada_Context;
 
 end Gnatcheck.Source_Table;

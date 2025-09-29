@@ -131,8 +131,8 @@ Rules can take different optional arguments:
 * ``message``: The custom message that is to be shown for a given rule on the
   command line. Defaults to the name of the rule if not specified.
 
-* ``help``: The help message that is to be shown via ``gnatcheck -h``. Defaults to
-  message if not specified.
+* ``help``: The help message that is to be shown via
+  ``gnatcheck --list-rules``. Defaults to message if not specified.
 
 * ``follow_generic_instantiations``: Whether to follow generic instantiations
   during the traversal of given Ada units. If ``true``, generic instantiations
@@ -147,8 +147,8 @@ Rules can take different optional arguments:
   * MEDIUM
   * MAJOR
 
-  Used by ``gnatcheck -h`` and by the SonarQube integration to compute technical debt.
-  Defaults to `MEDIUM`.
+  Used by ``gnatcheck --list-rules`` and by the SonarQube integration to
+  compute technical debt. Defaults to `MEDIUM`.
 
 Here is an example rule:
 
@@ -537,4 +537,3 @@ which gives us this complete rule:
         when not [t for t in types() if t == node]
          and not [t for t in instantiations() if t == node]
          and not [t for t in arithmetic_ops() if t == node]
-

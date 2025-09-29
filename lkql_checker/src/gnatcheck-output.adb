@@ -20,18 +20,40 @@ with Interfaces.C_Streams; use Interfaces.C_Streams;
 
 package body Gnatcheck.Output is
 
-   Report_File_Name     : String_Access;
-   XML_Report_File_Name : String_Access;
-   Log_File_Name        : String_Access;
+   -------------------
+   -- Local helpers --
+   -------------------
+
+   procedure Open_Or_Create
+     (File_Path : String; Mode : File_Mode; File : in out File_Type);
+   --  Open the specified ``File_Path`` if it already exists, otherwise create
+   --  it.
+   --  This function handles possible exceptions with the manipulated file.
+
+   procedure Open_Or_Create
+     (File_Path : String; Mode : File_Mode; File : in out File_Type) is
+   begin
+      if Is_Regular_File (File_Path) then
+         Open (File, Mode, File_Path);
+      else
+         Create (File, Mode, File_Path);
+      end if;
+   exception
+      when others =>
+         Error ("can not open the file: " & File_Path);
+         raise Fatal_Error;
+   end Open_Or_Create;
+
+   ------------------
+   -- Output files --
+   ------------------
+
+   Log_File_Name : String_Access;
    --  Variables that set the properties of the tool report and log files
 
    XML_Report_File : File_Type;
    Report_File     : File_Type;
    Log_File        : File_Type;
-
-   procedure Set_Report_File;
-   procedure Set_XML_Report_File;
-   --  Creates and/or opens the tool text/XML report file
 
    procedure Close_Report_File;
    procedure Close_XML_Report_File;
@@ -43,11 +65,8 @@ package body Gnatcheck.Output is
 
    procedure Close_Log_File is
    begin
-      if Log_Mode then
-         Close (Log_File);
-         Log_Mode := False;
-         Free (Log_File_Name);
-      end if;
+      Close (Log_File);
+      Free (Log_File_Name);
    end Close_Log_File;
 
    -----------------------
@@ -84,13 +103,13 @@ package body Gnatcheck.Output is
 
    procedure Close_Report_Files is
    begin
-      pragma Assert (Text_Report_ON or else XML_Report_ON);
+      pragma Assert (Arg.Text_Report_Enabled or else Arg.XML_Report_Enabled);
 
-      if Text_Report_ON then
+      if Arg.Text_Report_Enabled then
          Close_Report_File;
       end if;
 
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          Close_XML_Report_File;
       end if;
    end Close_Report_Files;
@@ -124,7 +143,7 @@ package body Gnatcheck.Output is
       end if;
 
       --  If required, log the message
-      if Log_Message and then Log_Mode and then Is_Open (Log_File) then
+      if Log_Message and then Arg.Log.Get and then Is_Open (Log_File) then
          Put (Log_File, Final_Message);
          if New_Line then
             Ada.Text_IO.New_Line (Log_File);
@@ -162,9 +181,9 @@ package body Gnatcheck.Output is
 
    function Get_Number return String is
       Report_File_Name : constant String :=
-        (if Text_Report_ON
-         then Get_Report_File_Name
-         else Get_XML_Report_File_Name);
+        (if Arg.Text_Report_Enabled
+         then Arg.Text_Report_File_Path
+         else Arg.XML_Report_File_Path);
 
       Idx_1, Idx_2 : Natural;
    begin
@@ -190,40 +209,6 @@ package body Gnatcheck.Output is
       return Report_File_Name (Idx_1 .. Idx_2);
    end Get_Number;
 
-   --------------------------
-   -- Get_Report_File_Name --
-   --------------------------
-
-   function Get_Report_File_Name return String is
-   begin
-      if Report_File_Name = null then
-         return "";
-      end if;
-
-      pragma
-        Assert
-          (Report_File_Name.all = Normalize_Pathname (Report_File_Name.all));
-
-      return Report_File_Name.all;
-   end Get_Report_File_Name;
-
-   --------------------------
-   -- Get_XML_Report_File_Name --
-   --------------------------
-
-   function Get_XML_Report_File_Name return String is
-   begin
-      if XML_Report_File_Name = null then
-         return "";
-      end if;
-
-      pragma
-        Assert
-          (XML_Report_File_Name.all
-             = Normalize_Pathname (XML_Report_File_Name.all));
-      return XML_Report_File_Name.all;
-   end Get_XML_Report_File_Name;
-
    ----------
    -- Info --
    ----------
@@ -238,10 +223,6 @@ package body Gnatcheck.Output is
          New_Line    => True,
          Log_Message => True);
    end Info;
-
-   -----------------
-   -- Info_No_EOL --
-   -----------------
 
    -----------------
    -- Info_In_Tty --
@@ -403,128 +384,15 @@ package body Gnatcheck.Output is
    -- Set_Log_File --
    ------------------
 
-   procedure Set_Log_File is
+   procedure Open_Log_File is
    begin
-      if Log_Mode then
-         if Log_File_Name = null then
-            Log_File_Name :=
-              new String'(Global_Report_Dir.all & Executable & ".log");
-         end if;
-
-         if Is_Regular_File (Log_File_Name.all) then
-            Open (Log_File, Out_File, Log_File_Name.all);
-         else
-            Create (Log_File, Out_File, Log_File_Name.all);
-         end if;
-      end if;
-   end Set_Log_File;
-
-   -----------------------
-   -- Set_Log_File_Name --
-   -----------------------
-
-   procedure Set_Log_File_Name (Fname : String) is
-   begin
-      Free (Log_File_Name);
-
-      if Fname /= "" then
-         Log_File_Name := new String'(Fname);
-      end if;
-   end Set_Log_File_Name;
-
-   ---------------------
-   -- Set_Report_File --
-   ---------------------
-
-   procedure Set_Report_File is
-      Mode    : constant File_Mode := Out_File;
-      Ignored : Boolean;
-   begin
-      if not Arg.Aggregated_Project then
-         if Report_File_Name /= null
-           and then Is_Absolute_Path (Report_File_Name.all)
-         then
-            Report_File_Name :=
-              new String'(Normalize_Pathname (Report_File_Name.all));
-         else
-            Report_File_Name :=
-              new String'
-                (Normalize_Pathname
-                   (Global_Report_Dir.all
-                    & (if Report_File_Name = null
-                       then Executable & ".out"
-                       else Report_File_Name.all)));
-         end if;
-
-      --  And in case of Aggregated_Project we already have in
-      --  Report_File_Name the needed name with full path in absolute
-      --  form
-
+      if Log_File_Name = null then
+         Log_File_Name :=
+           new String'(Global_Report_Dir.all & Executable & ".log");
       end if;
 
-      if Is_Regular_File (Report_File_Name.all) then
-         Open (Report_File, Mode, Report_File_Name.all);
-      else
-         Create (Report_File, Out_File, Report_File_Name.all);
-      end if;
-
-   exception
-      when Status_Error =>
-         Error ("can not open the report file, the file may be in use");
-         raise Fatal_Error;
-      when Fatal_Error =>
-         null;
-      when others =>
-         Error ("can not open the report file: " & Report_File_Name.all);
-         raise Fatal_Error;
-   end Set_Report_File;
-
-   -------------------------
-   -- Set_XML_Report_File --
-   -------------------------
-
-   procedure Set_XML_Report_File is
-      Mode    : constant File_Mode := Out_File;
-      Ignored : Boolean;
-   begin
-      if not Arg.Aggregated_Project then
-         if XML_Report_File_Name /= null
-           and then Is_Absolute_Path (XML_Report_File_Name.all)
-         then
-            XML_Report_File_Name :=
-              new String'(Normalize_Pathname (XML_Report_File_Name.all));
-         else
-            XML_Report_File_Name :=
-              new String'
-                (Normalize_Pathname
-                   (Global_Report_Dir.all
-                    & (if XML_Report_File_Name = null
-                       then Executable & ".xml"
-                       else XML_Report_File_Name.all)));
-         end if;
-
-      --  And in case of Aggregated_Project we already have in
-      --  Report_File_Name the needed name with full path in absolute
-      --  form
-
-      end if;
-
-      if Is_Regular_File (XML_Report_File_Name.all) then
-         Open (XML_Report_File, Mode, XML_Report_File_Name.all);
-      else
-         Create (XML_Report_File, Out_File, XML_Report_File_Name.all);
-      end if;
-
-   exception
-      when Status_Error =>
-         Error ("can not open the report file, the file may be in use");
-         raise Fatal_Error;
-      when Fatal_Error =>
-         null;
-      when others =>
-         Error ("can not open the report file: " & XML_Report_File_Name.all);
-         raise Fatal_Error;
-   end Set_XML_Report_File;
+      Open_Or_Create (Log_File_Name.all, Out_File, Log_File);
+   end Open_Log_File;
 
    ----------------------
    -- Set_Report_Files --
@@ -532,43 +400,16 @@ package body Gnatcheck.Output is
 
    procedure Set_Report_Files is
    begin
-      pragma Assert (Text_Report_ON or else XML_Report_ON);
+      pragma Assert (Arg.Text_Report_Enabled or else Arg.XML_Report_Enabled);
 
-      if Text_Report_ON then
-         Set_Report_File;
+      if Arg.Text_Report_Enabled then
+         Open_Or_Create (Arg.Text_Report_File_Path, Out_File, Report_File);
       end if;
 
-      if XML_Report_ON then
-         Set_XML_Report_File;
+      if Arg.XML_Report_Enabled then
+         Open_Or_Create (Arg.XML_Report_File_Path, Out_File, XML_Report_File);
       end if;
-
    end Set_Report_Files;
-
-   --------------------------
-   -- Set_Report_File_Name --
-   --------------------------
-
-   procedure Set_Report_File_Name (Fname : String) is
-   begin
-      Free (Report_File_Name);
-
-      if Fname /= "" then
-         Report_File_Name := new String'(Fname);
-      end if;
-   end Set_Report_File_Name;
-
-   --------------------------
-   -- Set_XML_Report_File_Name --
-   --------------------------
-
-   procedure Set_XML_Report_File_Name (Fname : String) is
-   begin
-      Free (XML_Report_File_Name);
-
-      if Fname /= "" then
-         XML_Report_File_Name := new String'(Fname);
-      end if;
-   end Set_XML_Report_File_Name;
 
    -------------
    -- Warning --
@@ -621,8 +462,8 @@ package body Gnatcheck.Output is
          Put_Line
            ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
          Put_Line ("options:");
-         Put_Line (" --version - Display version and exit");
-         Put_Line (" --help    - Display usage and exit");
+         Put_Line (" --version  - Display version and exit");
+         Put_Line (" -h, --help - Display usage and exit");
          Put_Line ("");
          Put_Line
            (" -Pproject        - Use project file project. Only one such switch can be used");
@@ -637,6 +478,8 @@ package body Gnatcheck.Output is
            (" --subdirs=dir    - specify subdirectory to place the result files into");
          Put_Line
            (" -eL              - follow all symbolic links when processing project files");
+         Put_Line
+           ("-vP               - verbosity level when parsing a project file (from 0 to 2, default is 0)");
          Put_Line (" -o filename      - specify the name of the report file");
          Put_Line ("");
          Put_Line
@@ -644,12 +487,12 @@ package body Gnatcheck.Output is
          Put_Line (" --RTS=<runtime>     - use runtime <runtime>");
          Put_Line ("");
          Put_Line
-           (" -h                       - print out the list of the available kp detectors");
+           (" --list-rules             - print out the list of the available kp detectors");
          Put_Line
            (" -jn                      - n is the maximal number of processes");
          Put_Line
            (" -q                       - quiet mode (do not report detections in Stderr)");
-         Put_Line (" -v                       - verbose mode");
+         Put_Line (" -v, --verbose            - enable the verbose mode");
          Put_Line
            (" -W, --warnings-as-errors - treat warning messages as errors");
          Put_Line
@@ -674,7 +517,7 @@ package body Gnatcheck.Output is
          Put_Line
            ("   where <kp_id>   - ID of one of the currently implemented");
          Put_Line
-           ("                     detectors, use '-h' for the full list");
+           ("                     detectors, use '--list-rules' for the full list");
          Put_Line ("");
          Put_Line
            ("KP detectors must be specified either implicitly via --kp-version ");
@@ -686,8 +529,8 @@ package body Gnatcheck.Output is
       Put_Line
         ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");
       Put_Line ("options:");
-      Put_Line (" --version - Display version and exit");
-      Put_Line (" --help    - Display usage and exit");
+      Put_Line (" --version  - Display version and exit");
+      Put_Line (" -h, --help - Display usage and exit");
       Put_Line ("");
       Put_Line
         (" -Pproject        - Use project file project. Only one such switch can be used");
@@ -704,6 +547,8 @@ package body Gnatcheck.Output is
         (" --no_objects_dir - place results into current dir instead of project dir");
       Put_Line
         (" -eL              - follow all symbolic links when processing project files");
+      Put_Line
+        ("-vP               - verbosity level when parsing a project file (from 0 to 2, default is 0)");
       Put_Line ("");
       Put_Line
         (" --ignore-project-switches - ignore switches specified in the project file");
@@ -714,7 +559,7 @@ package body Gnatcheck.Output is
         (" --config=<cgpr>           - use configuration project <cgpr>");
       Put_Line ("");
       Put_Line
-        (" -h                       - print out the list of the currently implemented rules");
+        (" --list-rules             - print out the list of the currently implemented rules");
       Put_Line
         (" -mn                      - n is the maximal number of diagnoses in Stderr");
       Put_Line
@@ -724,13 +569,13 @@ package body Gnatcheck.Output is
       Put_Line
         (" -q                       - quiet mode (do not report detections in Stderr)");
       Put_Line (" -t                       - report execution time in Stderr");
-      Put_Line (" -v                       - verbose mode");
+      Put_Line (" -v, --verbose            - enable the verbose mode");
       Put_Line
         (" -W, --warnings-as-errors - treat warning messages as errors");
       Put_Line
         (" -l                       - full pathname for file locations");
       Put_Line
-        (" -log                     - duplicate all the messages sent to Stderr in gnatcheck.log");
+        (" -log                     - duplicate all messages sent to stderr in gnatcheck.log");
       Put_Line (" -s                       - short form of the report file");
       Put_Line (" -xml                     - generate report in XML format");
       Put_Line
@@ -788,7 +633,8 @@ package body Gnatcheck.Output is
       Put_Line
         ("                         depending on the specified parameter");
       Put_Line ("where <rule_id> - ID of one of the currently implemented");
-      Put_Line ("                  rules, use '-h' for the full list");
+      Put_Line
+        ("                  rules, use '--list-rules' for the full list");
       Put_Line
         ("      param     - string representing parameter(s) of a given rule, more than ");
       Put_Line ("                  one parameter can be set separated by ','");

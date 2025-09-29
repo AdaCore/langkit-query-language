@@ -19,8 +19,6 @@ with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 
-with Liblkqllang.Analysis;
-
 with Rule_Commands; use Rule_Commands;
 
 with System.Rident;
@@ -133,8 +131,8 @@ package Gnatcheck.Rules is
       --  For a KP detector, regexp to match relevant target triplets impacted,
       --  if any. Ignored if null.
 
-      Parameters : Liblkqllang.Analysis.Parameter_Decl_List;
-      --  List of formal parameters for this rule
+      Parameters : Text_Vector;
+      --  Vector containing parameter names of the rule.
 
       Instances : Rule_Instance_Vector.Vector;
       --  Enabled instances of the rule

@@ -10,8 +10,6 @@ with Ada.Environment_Variables;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Checker_App;
-
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
@@ -32,7 +30,6 @@ procedure Gnatcheck_Main is
    Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
    use type Ada.Calendar.Time;
 
-   Ctx          : Checker_App.Lkql_Context;
    GPRbuild_Pid : Process_Id := Invalid_Pid;
 
    E_Success   : constant := 0; --  No tool failure, no rule violation detected
@@ -331,7 +328,7 @@ procedure Gnatcheck_Main is
       begin
          --  Process sources to take pragma Annotate into account
 
-         Process_Sources (Ctx);
+         Process_Sources;
 
          for Job in 1 .. Num_Jobs loop
             Create (File, Out_File, File_Name ("files", Job));
@@ -353,8 +350,8 @@ procedure Gnatcheck_Main is
 
             Close (File);
 
-            --  Spawn gnatcheck with --subprocess switch and
-            --  -rules -from=rules0.txt -files=files?.txt
+            --  Spawn a GNATcheck worker with -rules -from=rules0.txt
+            --  -files=files?.txt
 
             Pids (Job) :=
               Spawn_Gnatcheck_Worker
@@ -396,13 +393,13 @@ procedure Gnatcheck_Main is
 begin
    Initialize_Environment;
 
-   Gnatcheck_Prj.Scan_Arguments (First_Pass => True);
+   Scan_Arguments (First_Pass => True);
 
-   if Print_Version then
+   if Arg.Version.Get then
       Print_Tool_Version (2004);
       OS_Exit (E_Success);
 
-   elsif Print_Usage then
+   elsif Arg.Help.Get then
       Print_Gnatcheck_Usage;
       OS_Exit (E_Success);
    end if;
@@ -446,29 +443,9 @@ begin
       OS_Exit (E_Success);
    end if;
 
-   --  If no project is specified, just generate the rules help now as we
-   --  know the default project won't have any gnatcheck switches that may
-   --  change the list of rules.
-
-   if not Gnatcheck_Prj.Is_Specified then
-      if Generate_Rules_Help then
-         Rules_Help;
-         OS_Exit (E_Success);
-      end if;
-
-      if Gnatcheck.Options.Generate_XML_Help then
-         XML_Help;
-         OS_Exit (E_Success);
-      end if;
-   end if;
-
    --  If we have the project file specified as a tool parameter, analyze it.
 
    Gnatcheck.Projects.Process_Project_File (Gnatcheck_Prj);
-
-   --  Create the LKQL context
-
-   Ctx := Gnatcheck.Source_Table.Create_Context;
 
    --  Analyze relevant project properties if needed
 
@@ -495,7 +472,12 @@ begin
 
    --  Then analyze the command-line parameters
 
-   Gnatcheck_Prj.Scan_Arguments;
+   Scan_Arguments;
+
+   --  Process the source list file if there is one
+   if Arg.Source_Files.Get /= Null_Unbounded_String then
+      Read_Args_From_File (To_String (Arg.Source_Files.Get));
+   end if;
 
    --  Process the include file
    if Arg.Include_File.Get /= Null_Unbounded_String then
@@ -538,7 +520,7 @@ begin
 
    --  Load rule files after having parsed --rules-dir
 
-   Process_Rules (Ctx);
+   Process_Rules;
 
    --  And process all rule options after rule files have been loaded
 
@@ -547,9 +529,6 @@ begin
    --  Force some switches and perform some checks for gnatkp
 
    if Gnatkp_Mode then
-      Max_Diagnoses := 0;
-      Log_Mode := False;
-
       if Target = Null_Unbounded_String
         or else RTS_Path = Null_Unbounded_String
       then
@@ -558,7 +537,11 @@ begin
       end if;
    end if;
 
-   Set_Log_File;
+   --  Open the log file if required
+   if Arg.Log.Get then
+      Open_Log_File;
+   end if;
+
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
 
    if Analyze_Compiler_Output then
@@ -628,7 +611,11 @@ begin
    end if;
 
    Gnatcheck.Rules.Rule_Table.Clean_Up;
-   Close_Log_File;
+
+   --  Close the log file if required
+   if Arg.Log.Get then
+      Close_Log_File;
+   end if;
 
    OS_Exit
      (if Tool_Failures /= 0

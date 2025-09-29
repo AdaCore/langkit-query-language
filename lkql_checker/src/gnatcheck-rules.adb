@@ -57,14 +57,11 @@ package body Gnatcheck.Rules is
    --  Get the `Tri_State` value corresponding to the given boolean
 
    function Param_Name (Rule : Rule_Info; Index : Positive) return Text_Type
-   is (Rule.Parameters.Child (Index)
-         .As_Parameter_Decl
-         .F_Param_Identifier
-         .Text);
+   is (Rule.Parameters (Index));
    --  Get the name of the rule parameter at the given index
 
    function Param_Name (Rule : Rule_Info; Index : Positive) return String
-   is (To_String (Param_Name (Rule, Index)));
+   is (To_String (Rule.Parameters (Index)));
    --  Same as the previous `Param_Name` but returns the result as a string
 
    function Param_Name
@@ -1577,8 +1574,7 @@ package body Gnatcheck.Rules is
 
             --  Then find the relevant boolean if no integer has been parsed
             if not Param_Found then
-               for J in
-                 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index
+               for J in 2 .. All_Rules (Instance.Rule).Parameters.Last_Index
                loop
                   if Param_Name (All_Rules (Instance.Rule), J)
                     = To_Lower (Param)
@@ -2238,8 +2234,7 @@ package body Gnatcheck.Rules is
             Param_Name : constant String :=
               To_Lower (Param (Param'First .. First_Equal - 1));
          begin
-            for J in 1 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index
-            loop
+            for J in 1 .. All_Rules (Instance.Rule).Parameters.Last_Index loop
                if Gnatcheck.Rules.Param_Name (All_Rules (Instance.Rule), J)
                  = Param_Name
                then
@@ -3170,7 +3165,7 @@ package body Gnatcheck.Rules is
    begin
       --  Iterate over all rules parameters and try getting it from the
       --  arguments object.
-      for I in 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index loop
+      for I in 2 .. All_Rules (Instance.Rule).Parameters.Last_Index loop
          if Params_Object.Has_Field (Param_Name (Instance, I)) then
             --  Try getting the parameter as an integer
             begin
@@ -3444,7 +3439,7 @@ package body Gnatcheck.Rules is
    procedure Process_Instance_Params_Object
      (Instance : in out Custom_Instance; Params_Object : in out JSON_Value) is
    begin
-      for I in 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index loop
+      for I in 2 .. All_Rules (Instance.Rule).Parameters.Last_Index loop
          declare
             P_Name : constant String := Param_Name (Instance, I);
          begin
@@ -3509,7 +3504,7 @@ package body Gnatcheck.Rules is
         (Args,
          Param_Name (All_Rules (Instance.Rule), 2),
          Instance.Integer_Param);
-      for J in 2 .. All_Rules (Instance.Rule).Parameters.Last_Child_Index loop
+      for J in 2 .. All_Rules (Instance.Rule).Parameters.Last_Index loop
          Append_Bool_Param
            (Args,
             Param_Name (All_Rules (Instance.Rule), J),

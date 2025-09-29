@@ -1,0 +1,12 @@
+format: brief
+driver: gnatcheck
+tests:
+  - label: With "-vP 0"
+    extra_args:
+      - -vP=0
+  - label: With "-vP 1"
+    extra_args:
+      - -vP=1
+  - label: With "-vP 2"
+    extra_args:
+      - -vP=2

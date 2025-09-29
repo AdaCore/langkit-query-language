@@ -1885,7 +1885,7 @@ package body Gnatcheck.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'(LKQL_RF_Name);
 
-      if Verbose_Mode then
+      if Arg.Verbose.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--verbose");
       end if;
@@ -1963,7 +1963,7 @@ package body Gnatcheck.Compiler is
       --  If files are specified explicitly, only compile these files
 
       if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
-        or else File_List_Specified
+        or else Arg.Source_Files_Specified
       then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-u");

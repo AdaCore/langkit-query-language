@@ -159,9 +159,9 @@ package body Gnatcheck.Projects.Aggregate is
    procedure Process_Aggregated_Projects (My_Project : Arg_Project_Type'Class)
    is
       Report_File_Name     : constant String :=
-        (if Text_Report_ON then Get_Report_File_Name else "");
+        (if Arg.Text_Report_Enabled then Arg.Text_Report_File_Path else "");
       XML_Report_File_Name : constant String :=
-        (if XML_Report_ON then Get_XML_Report_File_Name else "");
+        (if Arg.XML_Report_Enabled then Arg.XML_Report_File_Path else "");
 
       Count : Natural := 1;
       --  Counts iterations on aggregated projects, this number is used to
@@ -188,7 +188,9 @@ package body Gnatcheck.Projects.Aggregate is
       Prj_Args       : Argument_List (1 .. 2);
       Out_Args       : Argument_List (1 .. 4);
       Out_Args_Count : constant Integer :=
-        (if Text_Report_ON and then XML_Report_ON then 4 else 2);
+        (if Arg.Text_Report_Enabled and then Arg.XML_Report_Enabled
+         then 4
+         else 2);
 
       Args      : Argument_List (1 .. Argument_Count);
       Arg_Count : Natural := 0;
@@ -221,7 +223,8 @@ package body Gnatcheck.Projects.Aggregate is
       end if;
 
       Prj_Args (1) := new String'("-A");
-      Out_Args (1) := new String'(if Text_Report_ON then "-o" else "-ox");
+      Out_Args (1) :=
+        new String'(if Arg.Text_Report_Enabled then "-o" else "-ox");
 
       if Out_Args_Count = 4 then
          Out_Args (3) := new String'("-ox");
@@ -252,7 +255,7 @@ package body Gnatcheck.Projects.Aggregate is
       Start_Prj_Iterator;
 
       while not Prj_Iterator_Done loop
-         if Verbose_Mode then
+         if Arg.Verbose.Get then
             Info ("Processing aggregated project " & String (Next_Prj_Name));
          end if;
 
@@ -263,7 +266,7 @@ package body Gnatcheck.Projects.Aggregate is
 
          Out_Args (2) :=
            new String'
-             ((if Text_Report_ON
+             ((if Arg.Text_Report_Enabled
                then
                  Prj_Out_File (Prj_Out_First .. Prj_Out_Dot)
                  & "_"
@@ -288,9 +291,9 @@ package body Gnatcheck.Projects.Aggregate is
            (Aggregate_Prj          => My_Project,
             Aggregated_Prj_Name    => Prj_Args (2).all,
             Expected_Text_Out_File =>
-              (if Text_Report_ON then Out_Args (2).all else ""),
+              (if Arg.Text_Report_Enabled then Out_Args (2).all else ""),
             Expected_XML_Out_File  =>
-              (if XML_Report_ON
+              (if Arg.XML_Report_Enabled
                then
                  (if Out_Args_Count = 2
                   then Out_Args (2).all

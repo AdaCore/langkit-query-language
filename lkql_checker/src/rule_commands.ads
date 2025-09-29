@@ -9,12 +9,7 @@ with GNAT.Regexp;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 
-with Langkit_Support.Diagnostics;          use Langkit_Support.Diagnostics;
-with Langkit_Support.Generic_API.Analysis;
-use Langkit_Support.Generic_API.Analysis;
-with Langkit_Support.Text;                 use Langkit_Support.Text;
-
-with Libadalang.Analysis;
+with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Liblkqllang.Analysis;
 
@@ -23,7 +18,6 @@ with Liblkqllang.Analysis;
 package Rule_Commands is
 
    package L renames Liblkqllang.Analysis;
-   package LAL renames Libadalang.Analysis;
 
    Rule_Error : exception;
 
@@ -113,19 +107,6 @@ package Rule_Commands is
       --  For a KP detector, regexp to match relevant target triplets impacted,
       --  if any. Ignored if null.
    end record;
-
-   type Output_Style is (Default, GNATcheck, Silent);
-   --  Style of output messages.
-   --  Default: gcc style colored output with source highlighting.
-   --  GNATcheck: gnatcheck default output with one line per detection.
-
-   type Eval_Diagnostic is record
-      Diag : Diagnostic;
-      Unit : Lk_Unit;
-   end record;
-
-   package Eval_Diagnostic_Vectors is new
-     Ada.Containers.Vectors (Positive, Eval_Diagnostic);
 
    function Create_Rule_Command
      (Lkql_File_Path : String;

@@ -10,8 +10,6 @@
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
 
-with Checker_App; use Checker_App;
-
 package Gnatcheck.Rules.Rule_Table is
 
    function Present (Rule : Rule_Id) return Boolean;
@@ -170,9 +168,9 @@ package Gnatcheck.Rules.Rule_Table is
    --  Checks if the argument is enabled (works for compiler checks as well).
    --  Assumes Present (Rule), otherwise raises Fatal_Error.
 
-   procedure Process_Rules (Ctx : in out Lkql_Context);
-   --  Process input rules: Put the rules that have been requested by the user
-   --  in internal data structures.
+   procedure Process_Rules;
+   --  Parse all accessible LKQL files and extract rules from them, populating
+   --  internal data structures.
 
    procedure Clean_Up;
    --  Release all allocated ressources for rules and instances storage.

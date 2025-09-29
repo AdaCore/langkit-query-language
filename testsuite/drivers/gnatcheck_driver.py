@@ -295,7 +295,7 @@ class GnatcheckDriver(BaseDriver):
             assert output_format in GnatcheckDriver.output_formats
             brief = output_format == "brief"
             exe = GnatcheckDriver.modes[test_data.get("mode", "gnatcheck")]
-            args = [exe, "-q", "-m0"]
+            args = [exe, "-q"]
             output_file_name = self.working_dir(
                 test_data.get(
                     "output_file", f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
@@ -557,4 +557,10 @@ class GnatcheckDriver(BaseDriver):
             )
         )
         result.append(PatternSubstitute("Copyright [0-9-]+", "Copyright <date>"))
+
+        # Remove project search path information
+        result.append(PatternSubstitute(
+            "project search path: .*",
+            "project search path: <gpr_path>",
+        ))
         return result

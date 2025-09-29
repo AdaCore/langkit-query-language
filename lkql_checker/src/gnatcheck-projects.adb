@@ -4,16 +4,12 @@
 --
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
-with Ada.Command_Line;
-with Ada.Containers.Vectors;
 with Ada.Directories;         use Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Exceptions;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
 
-with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.Directory_Operations;
 with GNAT.Regexp;       use GNAT.Regexp;
 with GNAT.String_Split; use GNAT.String_Split;
@@ -60,8 +56,6 @@ with Rule_Commands; use Rule_Commands;
 
 package body Gnatcheck.Projects is
 
-   subtype Unbounded_String is Ada.Strings.Unbounded.Unbounded_String;
-
    Project_File_Set : Boolean := False;
    Project_Options  : GPR2.Options.Object;
 
@@ -96,7 +90,21 @@ package body Gnatcheck.Projects is
 
    overriding
    function Verbosity
-     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level;
+     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level
+   is (case Arg.Project_Verbosity.Get is
+         when 0      => GPR2.Reporter.No_Warnings,
+         when 1      => GPR2.Reporter.Regular,
+         when 2      => GPR2.Reporter.Verbose,
+         when others => raise Constraint_Error with "should not happen");
+
+   overriding
+   function User_Verbosity
+     (Self : Gnatcheck_Reporter) return GPR2.Reporter.User_Verbosity_Level
+   is (case Arg.Project_Verbosity.Get is
+         when 0      => GPR2.Reporter.Important_Only,
+         when 1      => GPR2.Reporter.Regular,
+         when 2      => GPR2.Reporter.Verbose,
+         when others => raise Constraint_Error with "should not happen");
 
    Gpr2_Reporter : Gnatcheck_Reporter;
    --  Make libgpr2 report messages using the proper ``Gnatcheck.Output`` API.
@@ -113,36 +121,16 @@ package body Gnatcheck.Projects is
    procedure Internal_Report
      (Self : in out Gnatcheck_Reporter; Message : GPR2.Message.Object) is
    begin
-      case Message.Level is
-         when GPR2.Message.Error   =>
-            Print (Message.Format);
+      --  Check if the message is reporting about a missing file
+      if not Missing_File_Detected
+        and then Report_Missing_File (Message.Message)
+      then
+         Missing_File_Detected := True;
+      end if;
 
-         when GPR2.Message.Warning =>
-            if Verbose_Mode then
-               Print (Message.Format);
-            end if;
-
-            if not Missing_File_Detected
-              and then Report_Missing_File (Message.Message)
-            then
-               Missing_File_Detected := True;
-            end if;
-
-         when others               =>
-            null;
-      end case;
+      --  Then just print the formatted message
+      Print (Message.Format);
    end Internal_Report;
-
-   ---------------
-   -- Verbosity --
-   ---------------
-
-   overriding
-   function Verbosity
-     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level is
-   begin
-      return GPR2.Reporter.Regular;
-   end Verbosity;
 
    -----------
    -- Error --
@@ -161,9 +149,6 @@ package body Gnatcheck.Projects is
    -----------------------
    -- Local subprograms --
    -----------------------
-
-   procedure Store_Compiler_Option (Switch : String);
-   --  Stores compiler option as is
 
    procedure Load_Tool_Project
      (My_Project   : in out Arg_Project_Type'Class;
@@ -275,7 +260,7 @@ package body Gnatcheck.Projects is
       --  Process additional GNATcheck switches
       if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
          List_Val := Load_List_Attribute (Switches_Attr, Indexed => True);
-         Scan_Arguments (My_Project => My_Project, Args => List_Val);
+         Scan_Arguments (Args => List_Val);
          Free (List_Val);
       end if;
    end Extract_Tool_Options;
@@ -352,7 +337,7 @@ package body Gnatcheck.Projects is
 
    begin
       if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
-        or else File_List_Specified
+        or else Arg.Source_Files_Specified
       then
          return;
       end if;
@@ -574,12 +559,9 @@ package body Gnatcheck.Projects is
          My_Project.Error ("project has no Ada sources, processing failed");
          raise Parameter_Error;
 
+      --  Check that an Ada runtime has been found
       elsif not My_Project.Tree.Has_Runtime_Project then
-         --  Issue with the configuration of Ada
-         for Msg of My_Project.Tree.Configuration.Log_Messages loop
-            Print (Msg.Format);
-         end loop;
-         My_Project.Error ("processing failed");
+         My_Project.Error ("cannot load the Ada runtime, processing failed");
          raise Parameter_Error;
       end if;
 
@@ -668,13 +650,13 @@ package body Gnatcheck.Projects is
       pragma Unreferenced (Aggregate_Prj);
    begin
 
-      if Text_Report_ON then
+      if Arg.Text_Report_Enabled then
          Report ("");
          Report ("Processing aggregated project " & Aggregated_Prj_Name);
          Report ("Expected report file: " & Expected_Text_Out_File);
       end if;
 
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report ("<aggregated-project>", Indent_Level => 2);
 
          XML_Report
@@ -958,7 +940,7 @@ package body Gnatcheck.Projects is
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type) is
    begin
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report ("<?xml version=""1.0""?>");
          XML_Report_No_EOL ("<gnatcheck-report");
 
@@ -971,13 +953,13 @@ package body Gnatcheck.Projects is
 
       Gnatcheck.Diagnoses.Print_Report_Header;
 
-      if Text_Report_ON then
+      if Arg.Text_Report_Enabled then
          Report ("");
          Report ("Argument project is an aggregate project");
          Report ("Aggregated projects are processed separately");
       end if;
 
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report ("<aggregated-project-reports>", Indent_Level => 1);
       end if;
    end Aggregate_Project_Report_Header;
@@ -988,7 +970,7 @@ package body Gnatcheck.Projects is
 
    procedure Close_Aggregate_Project_Report (My_Project : Arg_Project_Type) is
    begin
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report ("</aggregated-project-reports>", Indent_Level => 1);
          XML_Report ("</gnatcheck-report>");
       end if;
@@ -1003,7 +985,7 @@ package body Gnatcheck.Projects is
    is
       pragma Unreferenced (Aggregate_Prj);
    begin
-      if Text_Report_ON then
+      if Arg.Text_Report_Enabled then
          Report
            ("Exit code is"
             & Exit_Code'Img
@@ -1017,7 +999,7 @@ package body Gnatcheck.Projects is
             & ")");
       end if;
 
-      if XML_Report_ON then
+      if Arg.XML_Report_Enabled then
          XML_Report
            ("<exit-code>" & Image (Exit_Code) & "</exit-code>",
             Indent_Level => 3);
@@ -1029,18 +1011,6 @@ package body Gnatcheck.Projects is
    --------------------------
    -- Process_Rule_Options --
    --------------------------
-
-   type Option_Kind is (File, Legacy_Option, Single_Rule_Name);
-
-   type Option_Record is record
-      Kind  : Option_Kind;
-      Value : Unbounded_String;
-   end record;
-
-   package Vector_Options is new
-     Ada.Containers.Vectors (Positive, Option_Record);
-
-   Rule_Options : Vector_Options.Vector;
 
    procedure Process_Rule_Options is
       use Ada.Strings.Unbounded;
@@ -1138,378 +1108,6 @@ package body Gnatcheck.Projects is
         and then LKQL_Rule_File_Name = Null_Unbounded_String;
    end Is_Rule_Options_Empty;
 
-   --------------------
-   -- Scan_Arguments --
-   --------------------
-
-   procedure Scan_Arguments
-     (My_Project : in out Arg_Project_Type;
-      First_Pass : Boolean := False;
-      Args       : GNAT.OS_Lib.Argument_List_Access := null)
-   is
-
-      Unknown_Opt_Parse_Args : XString_Vector;
-      Args_After_Opt_Parse   : Argument_List_Access;
-      Parser                 : Opt_Parser;
-
-      function To_Arg_List (Args : XString_Vector) return Argument_List_Access;
-      function To_XString_Array
-        (Args : Argument_List_Access) return XString_Array;
-
-      function To_Arg_List (Args : XString_Vector) return Argument_List_Access
-      is
-         Ret : constant Argument_List_Access :=
-           new String_List (1 .. Args.Last_Index);
-      begin
-         for I in Ret'Range loop
-            Ret (I) := new String'(Args (I).To_String);
-         end loop;
-         return Ret;
-      end To_Arg_List;
-
-      function To_XString_Array
-        (Args : Argument_List_Access) return XString_Array
-      is
-         Ret : XString_Array (Args'Range);
-      begin
-         for I in Args'Range loop
-            Ret (I) := To_XString (Args (I).all);
-         end loop;
-         return Ret;
-      end To_XString_Array;
-
-      procedure Process_Sections;
-      --  Processes the 'rules' section.
-
-      procedure Process_Sections is
-         use Ada.Strings.Unbounded;
-      begin
-         --  Processing the 'cargs' section
-
-         Goto_Section ("cargs", Parser => Parser);
-
-         while GNAT.Command_Line.Getopt ("*", Parser => Parser) /= ASCII.NUL
-         loop
-            Store_Compiler_Option (Full_Switch (Parser => Parser));
-         end loop;
-
-         --  Processing the 'rules' section
-         Goto_Section ("rules", Parser => Parser);
-
-         loop
-            case GNAT.Command_Line.Getopt ("* from=", Parser => Parser) is
-               --  We do not want to depend on the set of the currently
-               --  implemented rules
-
-               when ASCII.NUL =>
-                  exit;
-
-               when 'f'       =>
-                  Rule_Options.Append
-                    (Option_Record'
-                       (File,
-                        To_Unbounded_String (Parameter (Parser => Parser))));
-                  if not More_Than_One_Legacy_Rule_File_Set then
-                     Legacy_Rule_File_Name :=
-                       new String'(Parameter (Parser => Parser));
-                     More_Than_One_Legacy_Rule_File_Set := True;
-                  else
-                     Free (Legacy_Rule_File_Name);
-                  end if;
-
-               when others    =>
-                  Add_Legacy_Rule_Option (Full_Switch (Parser => Parser));
-                  Individual_Rules_Set := True;
-            end case;
-            if not Rules_Depreciation_Emitted then
-               Info_In_Tty
-                 ("The '-rules' section is now deprecated. You should only use"
-                  & " the '--rule' and '--rule-file' command-line options.");
-               Info_In_Tty
-                 ("You can use the '--emit-lkql-rule-file' flag to "
-                  & "automatically translate your rule configuration to the "
-                  & "new LKQL format.");
-               Rules_Depreciation_Emitted := True;
-            end if;
-         end loop;
-      end Process_Sections;
-
-      Executable : String_Access :=
-        GNAT.OS_Lib.Locate_Exec_On_Path (Ada.Command_Line.Command_Name);
-      Prefix     : constant String :=
-        Containing_Directory (Containing_Directory (Executable.all));
-      Lkql       : constant String :=
-        Compose (Compose (Prefix, "share"), "lkql");
-
-      Args_From_Project : constant Boolean := Args /= null;
-      Initial_Char      : Character;
-      Success           : Boolean;
-
-      --  Start of processing for Scan_Arguments
-
-   begin
-      --  Set Legacy early so that this flag can be checked elsewhere.
-      --  If legacy-rules.txt is found, it means we have a full packaging
-      --  and a full gnatcheck. If the file is not found, it means we have
-      --  a reduced packaging and a legacy gnatcheck.
-
-      if not Is_Regular_File (Compose (Lkql, "legacy-rules.txt")) then
-         Legacy := True;
-      end if;
-
-      Free (Executable);
-
-      --  Disallow arguments that are not allowed to be specified in project
-      --  files
-      --  TODO: It might be possible to have a list of subparsers and do a for
-      --  loop
-      if Args_From_Project then
-         declare
-            In_Project_Msg : constant String :=
-              " is forbidden in project file";
-         begin
-            Disallow (Arg.Aggregate_Subproject.This, "-A" & In_Project_Msg);
-            Disallow (Arg.Project_File.This, "-P" & In_Project_Msg);
-            Disallow (Arg.Transitive_Closure.This, "-U" & In_Project_Msg);
-            Disallow (Arg.Scenario_Vars.This, "-Xname=val" & In_Project_Msg);
-            Disallow (Arg.Follow_Symbolic_Links.This, "-eL" & In_Project_Msg);
-            Disallow (Arg.Lkql_Path.This, "--lkql-path" & In_Project_Msg);
-            Disallow (Arg.Rules.This, "-r" & In_Project_Msg);
-            Disallow (Arg.Rule_File.This, "--rule-file" & In_Project_Msg);
-            Disallow (Arg.Target.This, "--target" & In_Project_Msg);
-            Disallow (Arg.RTS.This, "--RTS" & In_Project_Msg);
-         end;
-      end if;
-
-      if Arg.Parser.Parse
-           ((if Args /= null then To_XString_Array (Args) else No_Arguments),
-            Unknown_Arguments => Unknown_Opt_Parse_Args)
-      then
-         Args_After_Opt_Parse := To_Arg_List (Unknown_Opt_Parse_Args);
-         Initialize_Option_Scan
-           (Parser, Args_After_Opt_Parse, Section_Delimiters => "cargs rules");
-      else
-         raise Parameter_Error;
-      end if;
-
-      --  Reallow arguments that were disallowed
-      if Args_From_Project then
-         Allow (Arg.Transitive_Closure.This);
-         Allow (Arg.Scenario_Vars.This);
-         Allow (Arg.Aggregate_Subproject.This);
-         Allow (Arg.Project_File.This);
-         Allow (Arg.Follow_Symbolic_Links.This);
-         Allow (Arg.Lkql_Path.This);
-         Allow (Arg.Rules.This);
-         Allow (Arg.Rule_File.This);
-         Allow (Arg.Target.This);
-         Allow (Arg.RTS.This);
-      end if;
-
-      loop
-         Initial_Char :=
-           GNAT.Command_Line.Getopt
-             ("v h hx "
-              & "m? files= a "
-              & "vP! "
-              &   --  project-specific options
-                                               "-kp-version= "
-              & "o= "
-              & "ox= "
-              & "log "
-              & "-subprocess "
-              & "-version -help "
-              & "nt xml",
-              Parser => Parser);
-
-         case Initial_Char is
-            when ASCII.NUL =>
-               Success := False;
-
-               loop
-                  declare
-                     Arg : constant String :=
-                       Get_Argument (Do_Expansion => True, Parser => Parser);
-
-                  begin
-                     exit when Arg = "";
-                     Success := True;
-
-                     if Options.Arg.Transitive_Closure.Get then
-                        Gnatcheck.Projects.Store_Main_Unit
-                          (Arg, Args_From_Project or First_Pass);
-                     else
-                        Store_Sources_To_Process
-                          (Arg, Args_From_Project or First_Pass);
-
-                        if not Args_From_Project then
-                           Argument_File_Specified := True;
-                        end if;
-                     end if;
-                  end;
-               end loop;
-
-               exit when not Success;
-
-            when 'a'       =>
-               --  Ignore -a for compatibility
-
-               null;
-
-            when 'f'       =>
-               if Full_Switch (Parser => Parser) = "files" then
-                  File_List_Specified := True;
-
-                  if First_Pass then
-                     Files_Switch_Used := True;
-                     Read_Args_From_File (Parameter (Parser => Parser));
-
-                  elsif Args_From_Project then
-                     Read_Args_From_File (Parameter (Parser => Parser));
-                  end if;
-               end if;
-
-            when 'h'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "h" then
-                     Generate_Rules_Help := True;
-                  elsif Full_Switch (Parser => Parser) = "hx" then
-                     Generate_XML_Help := True;
-                  end if;
-               end if;
-
-            when 'l'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "log" then
-                     Log_Mode := True;
-                  end if;
-               end if;
-
-            when 'm'       =>
-               if not First_Pass then
-                  begin
-                     Max_Diagnoses :=
-                       Natural'Value (Parameter (Parser => Parser));
-
-                     if Max_Diagnoses > 1000 then
-                        Error
-                          ("Parameter (Parser => Parser) of '-m' option "
-                           & "too big, max allowed is 1000");
-                        raise Parameter_Error;
-                     end if;
-
-                  exception
-                     when Constraint_Error =>
-                        Error
-                          ("Wrong Parameter of '-m' option: "
-                           & Parameter (Parser => Parser));
-                        raise Parameter_Error;
-                  end;
-               end if;
-
-            when 'n'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "nt" then
-                     Text_Report_ON := False;
-                     XML_Report_ON := True;
-                  end if;
-               end if;
-
-            when 'o'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "o" then
-                     Set_Report_File_Name (Parameter (Parser => Parser));
-                     Custom_Text_Report_File := True;
-
-                  elsif Full_Switch (Parser => Parser) = "ox" then
-                     Set_XML_Report_File_Name (Parameter (Parser => Parser));
-                     XML_Report_ON := True;
-                     Custom_XML_Report_File := True;
-                  end if;
-               end if;
-
-            when 'v'       =>
-               if Full_Switch (Parser => Parser) = "v" then
-                  Verbose_Mode := True;
-               elsif Full_Switch (Parser => Parser) = "vP" then
-                  if First_Pass then
-                     begin
-                        Gnatcheck.Projects.Verbosity_Level :=
-                          Verbosity_Levels'Value (Parameter);
-                     exception
-                        when Constraint_Error =>
-                           Error
-                             ("wrong switch parameter "
-                              & Parameter
-                              & " for -vP");
-                           raise Parameter_Error;
-                     end;
-                  elsif Args_From_Project then
-                     Error ("-vP option is not allowed in a project file");
-                     raise Parameter_Error;
-                  end if;
-               end if;
-
-            when 'x'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "xml" then
-                     XML_Report_ON := True;
-                  end if;
-               end if;
-
-            when '-'       =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "-kp-version" then
-                     Free (KP_Version);
-                     KP_Version := new String'(Parameter (Parser => Parser));
-                  end if;
-               else
-                  if Full_Switch (Parser => Parser) = "-help" then
-                     if Args_From_Project then
-                        Error
-                          ("project file should not contain '--help' option");
-                        raise Parameter_Error;
-                     end if;
-
-                     Print_Usage := True;
-                     return;
-
-                  elsif Full_Switch (Parser => Parser) = "-version" then
-                     if Args_From_Project then
-                        Error
-                          ("project file should not contain '--version' "
-                           & "option");
-                        raise Parameter_Error;
-                     end if;
-
-                     Print_Version := True;
-
-                  end if;
-               end if;
-
-            when others    =>
-               Error
-                 ("unrecognized switch: " & Full_Switch (Parser => Parser));
-               raise Parameter_Error;
-         end case;
-      end loop;
-
-      if Current_Section (Parser => Parser) = "" and then not First_Pass then
-         Process_Sections;
-      end if;
-
-   exception
-      when GNAT.Command_Line.Invalid_Switch =>
-         Error ("invalid switch: " & Full_Switch (Parser => Parser));
-         raise Parameter_Error;
-
-      when GNAT.Command_Line.Invalid_Parameter =>
-         Error
-           ("missing Parameter (Parser => Parser) for: -"
-            & Full_Switch (Parser => Parser));
-         raise Parameter_Error;
-   end Scan_Arguments;
-
    ---------------------------
    -- Store_Compiler_Option --
    ---------------------------
@@ -1535,21 +1133,19 @@ package body Gnatcheck.Projects is
    procedure Check_Parameters is
       use Ada.Strings.Unbounded;
    begin
-      if Verbose_Mode and then not Arg.Aggregated_Project then
-         --  When procressing aggregated projects one by one, we want
+      if Arg.Verbose.Get and then not Arg.Aggregated_Project then
+         --  When processing aggregated projects one by one, we want
          --  Verbose_Mode to print this only in the outer invocation.
          Print_Version_Info (2004);
       end if;
 
       --  We generate the rule help unconditionally
 
-      if Generate_Rules_Help and then not Arg.Aggregated_Project then
+      if Arg.List_Rules.Get and then not Arg.Aggregated_Project then
          Rules_Help;
       end if;
 
-      if Gnatcheck.Options.Generate_XML_Help
-        and then not Arg.Aggregated_Project
-      then
+      if Arg.List_Rules_XML.Get and then not Arg.Aggregated_Project then
          XML_Help;
       end if;
 
@@ -1561,17 +1157,10 @@ package body Gnatcheck.Projects is
          goto Processing_Aggregate_Project;
       end if;
 
-      --  Check the correctness of setting custom name for text report file
-
-      if Custom_Text_Report_File and then not Text_Report_ON then
-         Error ("custom text output file cannot be set if text output is off");
-         raise Parameter_Error;
-      end if;
-
       --  No need to perform similar checks for custom XML file because it can
       --  be set only with turning ON XML output
 
-      if Generate_Rules_Help or else Generate_XML_Help then
+      if Arg.List_Rules.Get or else Arg.List_Rules_XML.Get then
          Nothing_To_Do := True;
          return;
       end if;
@@ -1617,7 +1206,7 @@ package body Gnatcheck.Projects is
       --  If GNATcheck is in KP mode and there is a command line specified KP
       --  version, we have to iterate over all implemented rules to enable
       --  those which match the version.
-      if Gnatkp_Mode and then KP_Version /= null then
+      if Gnatkp_Mode and then Arg.KP_Version.Get /= Null_Unbounded_String then
          for Rule_Cursor in All_Rules.Iterate loop
             declare
                Id       : constant Rule_Id := Rule_Map.Key (Rule_Cursor);
@@ -1625,7 +1214,8 @@ package body Gnatcheck.Projects is
                Instance : Rule_Instance_Access;
             begin
                if Rule.Impact /= null
-                 and then Match (KP_Version.all, Rule.Impact.all)
+                 and then Match
+                            (To_String (Arg.KP_Version.Get), Rule.Impact.all)
                then
                   if Rule.Target /= null
                     and then Target /= Null_Unbounded_String
@@ -1656,7 +1246,8 @@ package body Gnatcheck.Projects is
       Active_Rule_Present := not All_Rule_Instances.Is_Empty;
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
-         if Gnatkp_Mode and then KP_Version /= null then
+         if Gnatkp_Mode and then Arg.KP_Version.Get /= Null_Unbounded_String
+         then
             Error ("no rule for the given kp-version");
             No_Detectors_For_KP_Version := True;
             return;
