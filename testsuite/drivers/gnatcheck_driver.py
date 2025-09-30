@@ -553,10 +553,7 @@ class GnatcheckDriver(BaseDriver):
         tests = self.test_env.get("tests")
         if tests:
             for i, test in enumerate(tests):
-                env = self.test_env.copy()
-                for k, v in test.items():
-                    env[k] = v
-                run_one_test(env)
+                run_one_test(self.test_env | test)
                 if i < len(tests) - 1:
                     self.output += "\n"
         else:
