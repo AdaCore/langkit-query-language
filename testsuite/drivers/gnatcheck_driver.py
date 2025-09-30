@@ -95,8 +95,6 @@ class GnatcheckDriver(BaseDriver):
           to gnatcheck.
         - ``rules_dirs`` (list[str]): A list of directories to pass to gnatcheck
           as rule containing directories.
-        - ``rule_list_file``: If provided, read the given rule file and add its
-          sorted content to the test output.
         - ``extra_rule_options`` (list[str]): Extra arguments for the rules
           section.
 
@@ -604,19 +602,6 @@ class GnatcheckDriver(BaseDriver):
 
                 # Add the execution output to the test output
                 self.output += exec_output + report_file_content
-
-                # If requested, add a list of enabled rules to the test output
-                if test_data.get("rule_list_file", None):
-                    try:
-                        with open(
-                            self.working_dir(test_data["rule_list_file"]), "r"
-                        ) as f:
-                            self.output += "".join(sorted(f.readlines()))
-                    except FileNotFoundError as _:
-                        self.output += (
-                            "testsuite_driver: Cannot found the rule "
-                            f"list file '{test_data['rule_list_file']}'"
-                        )
 
                 if (not brief and status_code not in [0, 1]) or (
                     brief and status_code != 0
