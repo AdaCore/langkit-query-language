@@ -112,13 +112,9 @@ package Gnatcheck.Projects is
    --  If the tool is called with "... Pproj -U main_unit1 main_unit2 ...",
    --  main units are stored here.
 
-   procedure Store_Main_Unit (Unit_Name : String; Store : Boolean := True);
-   --  Processes the result returned by GNAT.Comand_Line.Get_Argument provided
-   --  that it is supposed to be the main unit name for '-U' project file
+   procedure Store_Main_Unit (Unit_Name : String);
+   --  Processes the provided name as the main unit name for '-U' project file
    --  option.
-   --
-   --  If Store is ON, stores the name of the unit. If Store is OFF,
-   --  does not store anything.
 
    -----------------------------------------------------------
    --  -Xvariable=value  : set values of external variables --

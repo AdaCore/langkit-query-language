@@ -101,23 +101,11 @@ package body Gnatcheck.Options is
      (First_Pass : Boolean := False; Args : Argument_List_Access := null)
    is
       Unknown_Opt_Parse_Args : XString_Vector;
-      Args_After_Opt_Parse   : Argument_List_Access;
-      Parser                 : Opt_Parser;
+      Exp_It                 : Expansion_Iterator;
+      Explicit_Sources       : String_Vector;
 
-      function To_Arg_List (Args : XString_Vector) return Argument_List_Access;
       function To_XString_Array
         (Args : Argument_List_Access) return XString_Array;
-
-      function To_Arg_List (Args : XString_Vector) return Argument_List_Access
-      is
-         Ret : constant Argument_List_Access :=
-           new String_List (1 .. Args.Last_Index);
-      begin
-         for I in Ret'Range loop
-            Ret (I) := new String'(Args (I).To_String);
-         end loop;
-         return Ret;
-      end To_Arg_List;
 
       function To_XString_Array
         (Args : Argument_List_Access) return XString_Array
@@ -138,8 +126,6 @@ package body Gnatcheck.Options is
         Compose (Compose (Prefix, "share"), "lkql");
 
       Args_From_Project : constant Boolean := Args /= null;
-      Initial_Char      : Character;
-      Success           : Boolean;
 
       --  Start of processing for Scan_Arguments
 
@@ -183,14 +169,12 @@ package body Gnatcheck.Options is
          end;
       end if;
 
-      if Arg.Parser.Parse
-           ((if Args /= null then To_XString_Array (Args) else No_Arguments),
-            Unknown_Arguments => Unknown_Opt_Parse_Args)
+      if not Arg.Parser.Parse
+               ((if Args /= null
+                 then To_XString_Array (Args)
+                 else No_Arguments),
+                Unknown_Arguments => Unknown_Opt_Parse_Args)
       then
-         Args_After_Opt_Parse := To_Arg_List (Unknown_Opt_Parse_Args);
-         Initialize_Option_Scan
-           (Parser, Args_After_Opt_Parse, Section_Delimiters => "cargs rules");
-      else
          raise Parameter_Error;
       end if;
 
@@ -213,54 +197,56 @@ package body Gnatcheck.Options is
          Allow (Arg.List_Rules.This);
       end if;
 
-      loop
-         Initial_Char := Getopt (" ", Parser => Parser);
+      --  Now that we processed all switches, remaining arguments should be
+      --  source files to analyze.
+      --  We first have to check that there is no additional argument and
+      --  expand possible glob patterns.
+      for Unknown_Arg of Unknown_Opt_Parse_Args loop
+         --  We consider that arguments starting by "-" are remaining unknown
+         --  arguments.
+         if Unknown_Arg.Starts_With ("-") then
+            Error ("unrecognized switch: " & To_String (Unknown_Arg));
+            raise Parameter_Error;
 
-         case Initial_Char is
-            when ASCII.NUL =>
-               Success := False;
-
-               loop
-                  declare
-                     Arg : constant String :=
-                       Get_Argument (Do_Expansion => True, Parser => Parser);
-
-                  begin
-                     exit when Arg = "";
-                     Success := True;
-
-                     if Options.Arg.Transitive_Closure.Get then
-                        Store_Main_Unit (Arg, Args_From_Project or First_Pass);
-                     else
-                        Store_Sources_To_Process
-                          (Arg, Args_From_Project or First_Pass);
-
-                        if not Args_From_Project then
-                           Argument_File_Specified := True;
-                        end if;
-                     end if;
-                  end;
-               end loop;
-
-               exit when not Success;
-
-            when others    =>
-               Error
-                 ("unrecognized switch: " & Full_Switch (Parser => Parser));
-               raise Parameter_Error;
-         end case;
+         --  We now know that the current argument should be handled like an
+         --  Ada source file name OR a glob pattern.
+         --  We only handle explicit sources during the first pass to avoid
+         --  duplication.
+         elsif Args_From_Project or First_Pass then
+            declare
+               Is_Glob : constant Boolean :=
+                 Unknown_Arg.Find ('*') /= 0
+                 or else Unknown_Arg.Find ('?') /= 0
+                 or else Unknown_Arg.Find ('[') /= 0;
+            begin
+               if Is_Glob then
+                  Start_Expansion (Exp_It, To_String (Unknown_Arg));
+                  loop
+                     declare
+                        Expanded_Arg : constant String := Expansion (Exp_It);
+                     begin
+                        exit when Expanded_Arg = "";
+                        Explicit_Sources.Append (Expanded_Arg);
+                     end;
+                  end loop;
+               else
+                  Explicit_Sources.Append (To_String (Unknown_Arg));
+               end if;
+            end;
+         end if;
       end loop;
 
-   exception
-      when Invalid_Switch =>
-         Error ("invalid switch: " & Full_Switch (Parser => Parser));
-         raise Parameter_Error;
-
-      when Invalid_Parameter =>
-         Error
-           ("missing Parameter (Parser => Parser) for: -"
-            & Full_Switch (Parser => Parser));
-         raise Parameter_Error;
+      --  We can now store sources to process
+      for Arg of Explicit_Sources loop
+         if Options.Arg.Transitive_Closure.Get then
+            Store_Main_Unit (Arg);
+         else
+            Store_Sources_To_Process (Arg);
+            if not Args_From_Project then
+               Argument_File_Specified := True;
+            end if;
+         end if;
+      end loop;
    end Scan_Arguments;
 
    ---------------------------------

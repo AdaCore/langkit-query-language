@@ -892,11 +892,9 @@ package body Gnatcheck.Projects is
    -- Store_Main_Unit --
    ---------------------
 
-   procedure Store_Main_Unit (Unit_Name : String; Store : Boolean := True) is
+   procedure Store_Main_Unit (Unit_Name : String) is
    begin
-      if Store then
-         Gnatcheck.Projects.Main_Unit.Include (GPR2.Filename_Type (Unit_Name));
-      end if;
+      Gnatcheck.Projects.Main_Unit.Include (GPR2.Filename_Type (Unit_Name));
    end Store_Main_Unit;
 
    --------------------------
