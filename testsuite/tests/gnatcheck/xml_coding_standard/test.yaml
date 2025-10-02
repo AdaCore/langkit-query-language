@@ -1,0 +1,6 @@
+driver: gnatcheck
+description: Test the GNATcheck XML output
+format: xml
+input_sources:
+  - main.adb
+lkql_rule_file: rules.lkql

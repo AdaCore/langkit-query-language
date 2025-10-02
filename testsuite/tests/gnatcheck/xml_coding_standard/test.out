@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<gnatcheck-report>
+   <date>DATE</date>
+   <version>VERSION</version>
+   <command-line>COMMAND_LINE</command-line>
+   <runtime>RUNTIME</runtime>
+   <coding-standard from-file="gnatcheck-rule-list.out">
+      <rule id="identifier_casing">
+         <parameter>Type=upper</parameter>
+         <parameter>Enum=lower</parameter>
+         <parameter>Constant=mixed</parameter>
+         <parameter>Exception=upper</parameter>
+         <parameter>Others=lower</parameter>
+         <parameter>Exclude=My_Exclusion</parameter>
+      </rule>
+      <rule id="silent_exception_handlers">
+         <parameter>my_package.p1</parameter>
+         <parameter>my_package.p2</parameter>
+      </rule>
+      <rule id="duplicate_branches">
+         <parameter>min_size=4</parameter>
+         <parameter>min_stmt=3</parameter>
+      </rule>
+      <rule id="goto_statements">
+         <parameter>only_unconditional</parameter>
+      </rule>
+      <rule id="headers">
+         <parameter>My_Header</parameter>
+      </rule>
+      <rule alias="My_Name" of="deep_inheritance_hierarchies">
+         <parameter>1</parameter>
+      </rule>
+      <rule id="numeric_literals">
+         <parameter>2</parameter>
+         <parameter>statements_only</parameter>
+      </rule>
+      <rule id="identifier_suffixes">
+         <parameter>Type_Suffix=_T</parameter>
+         <parameter>Access_Suffix=_Acc</parameter>
+         <parameter>Class_Subtype_Suffix=_Sub_Cls_Acc</parameter>
+         <parameter>Class_Access_Suffix=_Cls_Acc</parameter>
+         <parameter>Constant_Suffix=_Cst</parameter>
+         <parameter>Renaming_Suffix=_Rename</parameter>
+         <parameter>Access_Obj_Suffix=_Acc_Obj</parameter>
+         <parameter>Interrupt_Suffix=_Inter</parameter>
+      </rule>
+      <rule id="forbidden_attributes">
+         <parameter>one</parameter>
+         <parameter>two</parameter>
+         <parameter>-test</parameter>
+      </rule>
+      <rule id="identifier_prefixes">
+         <parameter>Type=T_</parameter>
+         <parameter>Concurrent=Conc_</parameter>
+         <parameter>Access=Acc_</parameter>
+         <parameter>Class_Access=Cls_Acc</parameter>
+         <parameter>Subprogram_Access=Subp_Acc</parameter>
+         <parameter>Constant=Cst_</parameter>
+         <parameter>Exception=Exc_</parameter>
+         <parameter>Enum=Enum_</parameter>
+         <parameter>Derived=a_:B_,c_:D_</parameter>
+         <parameter>Exclusive</parameter>
+      </rule>
+   </coding-standard>
+   <sources from-file="gnatcheck-source-list.out">
+      <source><working-dir>/main.adb</source>
+   </sources>
+<summary>
+   <fully-compliant-sources>0</fully-compliant-sources>
+   <sources-with-exempted-violations-only>0</sources-with-exempted-violations-only>
+   <sources-with-non-exempted-violations>1</sources-with-non-exempted-violations>
+   <unverified-sources>0</unverified-sources>
+   <total-sources>1</total-sources>
+   <non-exempted-violations>2</non-exempted-violations>
+   <rule-exemption-warnings>0</rule-exemption-warnings>
+   <compilation-errors>0</compilation-errors>
+   <exempted-violations>0</exempted-violations>
+   <gnatcheck-errors>0</gnatcheck-errors>
+</summary>
+<violations>
+   no exempted violations detected
+      <violation file="main.adb" line="1" column="1" rule-id="headers">
+         <message>compilation unit does not start with header</message>
+      </violation>
+      <violation file="main.adb" line="1" column="11" rule-id="identifier_casing">
+         <message>Main does not have casing specified (lower)</message>
+      </violation>
+   no rule exemption problems detected
+   no language violations detected
+   no internal error detected
+</violations>
+</gnatcheck-report>

@@ -203,6 +203,23 @@ class GnatcheckDriver(BaseDriver):
             "xml": cls._parse_xml,
         }
 
+    @classmethod
+    def replace_xml_tag_content(
+        cls,
+        xml_buffer: str,
+        tag_name: str,
+        new_content: str
+    ) -> str:
+        """
+        Match all tags with the provided name and replace their content by the
+        provided new content, returning the result.
+        """
+        return re.sub(
+            f"<{tag_name}>.*</{tag_name}>",
+            f"<{tag_name}>{new_content}</{tag_name}>",
+            xml_buffer
+        )
+
     @property
     def default_process_timeout(self):
         return self.test_env.get("timeout", 300)
@@ -466,6 +483,15 @@ class GnatcheckDriver(BaseDriver):
                         with open(output_file_name) as f:
                             if output_format in ["short", "xml"]:
                                 report_file_content = f.read()
+                                if output_format == "xml":
+                                    # Remove changing parts of the GNATcheck XML report
+                                    for (tag_name, new_content) in [
+                                        ("date", "DATE"),
+                                        ("version", "VERSION"),
+                                        ("command-line", "COMMAND_LINE"),
+                                        ("runtime", "RUNTIME"),
+                                    ]:
+                                        report_file_content = self.replace_xml_tag_content(report_file_content, tag_name, new_content)
                             else:
                                 # Strip the 10 first lines of the report, which contain
                                 # run-specific information that we don't want to

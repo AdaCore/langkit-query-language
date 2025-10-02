@@ -1,0 +1,58 @@
+val rules = @{
+    Deep_Inheritance_Hierarchies: {
+        N: 1,
+        instance_name: "My_Name"
+    },
+    Goto_Statements: {
+        Only_Unconditional: true
+    },
+    Headers: {
+        Header: "header.txt"
+    },
+    Numeric_Literals: {
+        N: 2,
+        Statements_Only: true
+    },
+    Identifier_Prefixes: {
+        Type: "T_",
+        Concurrent: "Conc_",
+        Access: "Acc_",
+        Class_Access: "Cls_Acc",
+        Subprogram_Access: "Subp_Acc",
+        Derived: ["A_:B_", "C_:D_"],
+        Constant: "Cst_",
+        Enum: "Enum_",
+        Exception: "Exc_",
+        Exclusive: true
+    },
+    Identifier_Suffixes: {
+        Type_Suffix: "_T",
+        Access_Suffix: "_Acc",
+        Class_Access_Suffix: "_Cls_Acc",
+        Class_Subtype_Suffix: "_Sub_Cls_Acc",
+        Constant_Suffix: "_Cst",
+        Renaming_Suffix: "_Rename",
+        Access_Obj_Suffix: "_Acc_Obj",
+        Interrupt_Suffix: "_Inter"
+    },
+    Identifier_Casing: {
+        Type: "Upper",
+        Enum: "Lower",
+        Constant: "Mixed",
+        Exception: "Upper",
+        Others: "Lower",
+        Exclude: "exclude.txt"
+    },
+    Forbidden_Attributes: {
+        Forbidden: ["One", "Two"],
+        Allowed: ["Test"],
+        All: false
+    },
+    Silent_Exception_Handlers: {
+        Subprograms: ["My_Package.P1", "My_Package.P2"]
+    },
+    Duplicate_Branches: {
+        Min_Stmt: 3,
+        Min_Size: 4
+    }
+}
