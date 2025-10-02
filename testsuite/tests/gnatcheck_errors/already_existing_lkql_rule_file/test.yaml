@@ -4,4 +4,4 @@ rules:
   - +RGoto_Statements
 extra_args:
   - --emit-lkql-rule-file
-post_python: "cat('rules.lkql', sort=False)"
+post_python: cat("rules.lkql", sort=False)

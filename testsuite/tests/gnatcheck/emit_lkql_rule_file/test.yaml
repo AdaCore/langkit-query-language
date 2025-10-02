@@ -13,4 +13,5 @@ rules:
   - +RRestrictions:No_Abort_Statements,No_Use_Of_Attribute=>Image,No_Use_Of_Entity=>Ada.Text_IO.Put_Line
 extra_args:
   - --emit-lkql-rule-file
-post_python: "cat('rules.lkql', sort=True, trim_start=1, trim_end=1)"
+post_python: cat("rules.lkql", sort=True, trim_start=1, trim_end=1)
+canonicalize_backslashes: False

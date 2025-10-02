@@ -1,14 +1,13 @@
 import os
 import os.path as P
 import re
+import shutil
 import xml.etree.ElementTree as ET
 
 from drivers.base_driver import BaseDriver, TaggedLines
 
 from e3.testsuite.driver.diff import (
-    DiffTestDriver,
     PatternSubstitute,
-    Substitute,
     OutputRefiner,
 )
 
@@ -60,6 +59,11 @@ class GnatcheckDriver(BaseDriver):
         - ``auto_codepeer_target`` (bool): Whether to automatically add the
           codepeer target when the test is run in CodePeer mode. Default is
           True.
+        - ``gnatcheck_working_dir`` (str): Path to set as working directory
+          when spawning GNATcheck. This path should be relative to the test
+          working directory.
+        - ``gnatcheck_env`` (dict[str, str]): Additional environment variable
+          to set when running GNATcheck.
         - ``in_tty`` (bool): Whether to run GNATcheck in a pseudo TTY using the
           ``pty`` Python module.
         - ``lkql_path`` (list[str]): A list of directories forwarded to the
@@ -71,12 +75,20 @@ class GnatcheckDriver(BaseDriver):
           resolution.
         - ``subdirs`` (str): The directory to forward to GNATcheck `--subdirs`
           option.
+        - ``process_closure`` (bool): Whether to provide the ``-U`` flag when
+          spawning GNATcheck in order to only process the project closure.
+          If ``input_sources`` are provided, those are considered as roots
+          for closure resolution.
         - ``input_sources`` (list[str]): Ada files to analyze (if explicit,
           optional if `project` is passed).
+        - ``include_file`` (str): If passed, include all sources listed in the
+          provided file.
         - ``ignore_file`` (str): If passed, ignore all sources listed in the
           provided file.
-        - ``output_file`` (str): The file to pass to GNATcheck with the `-o` or
-          `-ox` option then to read the output in.
+        - ``output_file`` (str | bool): The file to pass to GNATcheck with the
+          `-o` or `-ox` option then to read the output in. If this attribute
+          is ``False``, no output file option is passed to GNATcheck and the
+          GNATcheck output file is not analyzed.
         - ``gpr_config_file`` (str): A GPR configuration file to pass through
           the '--config' option.
         - ``scenario_variables`` (dict[str, str]): Dict containing key to value
@@ -87,6 +99,10 @@ class GnatcheckDriver(BaseDriver):
           chain in diagnostics concerning generic constructs.
         - ``extra_args`` (list[str]): Extra arguments to pass to GNATcheck.
 
+        - ``check_semantic`` (bool): Whether to add the ``--check-semantic``
+          flag when running GNATcheck.
+        - ``check_redefinition`` (bool): Whether to add the
+          ``--check-redefinition`` flag when running GNATcheck.
         - ``rules`` (list[str]): A list of rules with their arguments, in the
           gnatcheck format.  Note that the list can be empty, and people can
           instead decide to pass rules via the project file.
@@ -96,8 +112,6 @@ class GnatcheckDriver(BaseDriver):
           to gnatcheck.
         - ``rules_dirs`` (list[str]): A list of directories to pass to gnatcheck
           as rule containing directories.
-        - ``rule_list_file``: If provided, read the given rule file and add its
-          sorted content to the test output.
         - ``extra_rule_options`` (list[str]): Extra arguments for the rules
           section.
 
@@ -105,8 +119,6 @@ class GnatcheckDriver(BaseDriver):
           name by a constant string in then test output. Default is True.
         - ``pre_python``/``post_python`` (str): Python code to be executed
           before/after the test.
-        - ``list_dirs`` (list[str]): A list of directories to display the content
-          of after the GNATcheck run.
         - ``perf``: Enable and configure the performance testing. Perf arguments:
             - ``default``: Time measuring repetition number as an integer.
             - ``profile-time``: Enable the time profiling or not as a boolean.
@@ -254,6 +266,40 @@ class GnatcheckDriver(BaseDriver):
                 ]
             )
 
+        # Create the environment for post and pre Python snippets
+        def ls(dirname: str):
+            """
+            Add the sorted content of the provided directory to the test output
+            if the directory exists and is readable, otherwise add an error
+            message.
+
+            :param dirname: Name of the directory to display the content of
+                relatively to the test working directory.
+            """
+            dirpath = self.working_dir(dirname)
+            self.output += (
+                "\n".join(sorted(os.listdir(dirpath)))
+                if os.path.isdir(dirpath) else
+                f"Cannot find the directory {dirname}"
+            ) + "\n"
+
+        def tree(root_dirname: str):
+            """
+            Add the directory tree of the provided root directory to the test
+            output.
+
+            :param root_dirname: Name of the directory to start the exploration
+                from relatively to the test working directory.
+            """
+            root_dirpath = self.working_dir(root_dirname)
+            if os.path.isdir(root_dirpath):
+                for path, _, files in os.walk(root_dirpath):
+                    self.output += f"{path}:\n"
+                    for f in sorted(files):
+                        self.output += f"    {f}\n"
+            else:
+                self.output += f"Cannot find the directory {root_dirname}\n"
+
         def cat(
             filename: str, sort: bool = False, trim_start: int = 0, trim_end: int = 0
         ):
@@ -271,13 +317,68 @@ class GnatcheckDriver(BaseDriver):
                     lines = lines[trim_start : len(lines) - trim_end]
                     if sort:
                         lines.sort()
-                    self.output += (
-                        f"testsuite_driver: Content of {filename}\n{''.join(lines)}"
-                    )
+                    self.output += ''.join(lines)
             except FileNotFoundError:
-                self.output += f"testsuite_driver: Cannot find the file {filename}\n"
+                self.output += f"Cannot find the file {filename}\n"
 
-        globs, locs = {"cat": cat}, {}
+        def mkdir(dirname: str):
+            """
+            Create a new empty directory name as specified in the test working
+            directory.
+            """
+            dirpath = self.working_dir(dirname)
+            if os.path.isdir(dirpath) or os.path.isfile(dirpath):
+                self.output += f"Cannot create {dirname}, already exists\n"
+            else:
+                os.makedirs(dirpath)
+
+        def ln(source: str, dest: str):
+            """
+            Create a symbolic link from the source file to the specified
+            destination. File names must be relative to the test working
+            directory.
+            """
+            source_path = self.working_dir(source)
+            dest_path = self.working_dir(dest)
+            try:
+                os.symlink(source_path, dest_path)
+            except Exception as e:
+                self.output += str(e) + "\n"
+
+        def rm(relative_path: str):
+            """
+            Remove the element designated by the provided path relatively to
+            the test working directory.
+            If the path points to a file, just remove this file.
+            If the path points to a directory, the directory and all its
+            content are removed.
+            """
+            to_remove = self.working_dir(relative_path)
+            if os.path.isfile(to_remove):
+                os.remove(to_remove)
+            elif os.path.isdir(to_remove):
+                shutil.rmtree(to_remove)
+
+        def cmd(f):
+            """
+            Wrap a Python function inside a logging function to add the name
+            of the underlying function and its unnamed arguments to the test
+            output before running it.
+            """
+            def res(*args, **kwargs):
+                args_image = f" {' '.join(args)}" if args else ""
+                self.output += f"Running \"{f.__name__}{args_image}\"...\n"
+                f(*args, **kwargs)
+            return res
+
+        globs, locs = {
+            "ls": cmd(ls),
+            "tree": cmd(tree),
+            "cat": cmd(cat),
+            "mkdir": cmd(mkdir),
+            "ln": cmd(ln),
+            "rm": cmd(rm),
+        }, {}
         global_python = self.test_env.get("global_python", None)
         if global_python:
             exec(global_python, globs, locs)
@@ -313,12 +414,15 @@ class GnatcheckDriver(BaseDriver):
             brief = output_format == "brief"
             exe = GnatcheckDriver.modes[test_data.get("mode", "gnatcheck")]
             args = [exe, "-q"]
-            output_file_name = self.working_dir(
-                test_data.get(
-                    "output_file", f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
-                )
-            )
-            test_env = dict(gnatcheck_env)
+            output_file_name = test_data.get("output_file")
+            if output_file_name is None or output_file_name == True:
+                output_file_name = self.working_dir(f"{exe}.{'xml' if output_format == 'xml' else 'out'}")
+            elif output_file_name:
+                output_file_name = self.working_dir(output_file_name)
+
+            # The test environment is the common GNATcheck env merged with the
+            # test defined one.
+            test_env = dict(gnatcheck_env) | test_data.get("gnatcheck_env", {})
 
             pre_python = test_data.get("pre_python", None)
             post_python = test_data.get("post_python", None)
@@ -381,10 +485,20 @@ class GnatcheckDriver(BaseDriver):
                 args += ["--subdirs", test_data["subdirs"]]
 
             # Set the output file path according to the requested format
-            if output_format in ["short", "full"]:
-                args.append(f"-o={output_file_name}")
-            elif output_format == "xml":
-                args.append(f"-ox={output_file_name}")
+            if output_file_name:
+                if output_format in ["short", "full"]:
+                    args.append(f"-o={output_file_name}")
+                elif output_format == "xml":
+                    args.append(f"-ox={output_file_name}")
+
+            # Add the include file if any
+            include_file = test_data.get("include_file", None)
+            if include_file:
+                abs_include_file = self.working_dir(include_file)
+                include_file = (
+                    abs_include_file if P.isfile(abs_include_file) else include_file
+                )
+                args += [f"-files={include_file}"]
 
             # Add the ignore file if any
             ignore_file = test_data.get("ignore_file", None)
@@ -394,6 +508,10 @@ class GnatcheckDriver(BaseDriver):
                     abs_ignore_file if P.isfile(abs_ignore_file) else ignore_file
                 )
                 args += [f"--ignore={ignore_file}"]
+
+            # Add the "-U" flag if required
+            if test_data.get("process_closure"):
+                args.append("-U")
 
             # Add the specified sources to GNATcheck arguments
             if test_data.get("input_sources", None):
@@ -410,6 +528,14 @@ class GnatcheckDriver(BaseDriver):
             # Add the scenario variables
             for k, v in test_data.get("scenario_variables", {}).items():
                 args.append(f"-X{k}={v}")
+
+            # If required, add the "--check-semantic" flag
+            if test_data.get("check_semantic"):
+                args.append("--check-semantic")
+
+            # If required, add the "--check-redefinition" flag
+            if test_data.get("check_redefinition"):
+                args.append("--check-redefinition")
 
             # Add the rule directories
             for rule_dir in test_data.get("rules_dirs", []):
@@ -454,13 +580,26 @@ class GnatcheckDriver(BaseDriver):
                     self.output += label + "\n" + ("=" * len(label)) + "\n\n"
 
                 # Execute GNATcheck and get its output
+                gnatcheck_cwd = (
+                    self.working_dir(test_data["gnatcheck_working_dir"])
+                    if test_data.get("gnatcheck_working_dir") else
+                    None
+                )
                 exec_output = ""
                 status_code = 0
                 if test_data.get("in_tty"):
-                    exec_output, status_code = self.run_in_tty(args, env=test_env)
+                    exec_output, status_code = self.run_in_tty(
+                        args,
+                        env=test_env,
+                        cwd=gnatcheck_cwd,
+                    )
                 else:
                     p = self.shell(
-                        args, env=test_env, catch_error=False, analyze_output=False
+                        args,
+                        env=test_env,
+                        catch_error=False,
+                        analyze_output=False,
+                        cwd=gnatcheck_cwd,
                     )
                     exec_output = p.out
                     status_code = p.status
@@ -477,8 +616,8 @@ class GnatcheckDriver(BaseDriver):
 
                 # Then read GNATcheck report file if there is one
                 report_file_content = ""
-                parse_output_for_flags = True
-                if output_format in ["full", "short", "xml"]:
+                has_output_file = False
+                if output_file_name and output_format in ["full", "short", "xml"]:
                     try:
                         with open(output_file_name) as f:
                             if output_format in ["short", "xml"]:
@@ -497,14 +636,14 @@ class GnatcheckDriver(BaseDriver):
                                 # run-specific information that we don't want to
                                 # include in the test baseline.
                                 report_file_content = "".join(f.readlines()[9:])
+                            has_output_file = True
                     except FileNotFoundError as _:
                         self.output += (
                             "testsuite_driver: No output file generated by gnatcheck\n"
                         )
-                        parse_output_for_flags = False
 
                 # Get the lines flagged by the test running and add it to all flagged lines
-                if self.flag_checking and parse_output_for_flags:
+                if self.flag_checking and (has_output_file or output_format == "brief"):
                     add_to_files_flagged_lines(
                         self.parse_flagged_lines(
                             (
@@ -519,33 +658,12 @@ class GnatcheckDriver(BaseDriver):
                 # Add the execution output to the test output
                 self.output += exec_output + report_file_content
 
-                # If requested, add a list of enabled rules to the test output
-                if test_data.get("rule_list_file", None):
-                    try:
-                        with open(
-                            self.working_dir(test_data["rule_list_file"]), "r"
-                        ) as f:
-                            self.output += "".join(sorted(f.readlines()))
-                    except FileNotFoundError as _:
-                        self.output += (
-                            "testsuite_driver: Cannot found the rule "
-                            f"list file '{test_data['rule_list_file']}'"
-                        )
-
                 if (not brief and status_code not in [0, 1]) or (
                     brief and status_code != 0
                 ):
                     self.output += ">>>program returned status code {}\n".format(
                         status_code
                     )
-
-                # List the content of directories if needed
-                if test_data.get("list_dirs"):
-                    for dir_name in test_data["list_dirs"]:
-                        self.output += (
-                            f"Content of {dir_name} : "
-                            f"{sorted(os.listdir(self.working_dir(dir_name)))}\n"
-                        )
 
             # If python code to be executed post running gnatcheck was passed
             # for this test, run it and capture its output
@@ -555,10 +673,7 @@ class GnatcheckDriver(BaseDriver):
         tests = self.test_env.get("tests")
         if tests:
             for i, test in enumerate(tests):
-                env = self.test_env.copy()
-                for k, v in test.items():
-                    env[k] = v
-                run_one_test(env)
+                run_one_test(self.test_env | test)
                 if i < len(tests) - 1:
                     self.output += "\n"
         else:

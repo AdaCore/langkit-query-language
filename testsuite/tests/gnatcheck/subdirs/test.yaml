@@ -5,5 +5,4 @@ project: prj.gpr
 rules:
   - +RGOTO_Statements
   - +RWarnings:a
-list_dirs:
-  - custom_subdirs/gnatcheck
+post_python: ls("custom_subdirs/gnatcheck")
