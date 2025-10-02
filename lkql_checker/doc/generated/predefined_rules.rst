@@ -1067,6 +1067,7 @@ Flag membership tests that can be replaced by a ``'Valid`` attribute.
 Two forms of membership tests are flagged:
 
 * X in Subtype_Of_X
+* X in Subtype_Of_Y'Range
 * X in Subtype_Of_X'First .. Subtype_Of_X'Last
 
 where X is a data object except for a loop parameter, and ``Subtype_Of_X``
