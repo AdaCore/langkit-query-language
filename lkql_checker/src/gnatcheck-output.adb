@@ -13,8 +13,7 @@ with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.OS_Lib;               use GNAT.OS_Lib;
 with GNAT.Traceback.Symbolic;
 
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Gnatcheck.Options; use Gnatcheck.Options;
 
 with Interfaces.C_Streams; use Interfaces.C_Streams;
 
@@ -251,38 +250,14 @@ package body Gnatcheck.Output is
    end Print;
 
    ------------------------
-   -- Print_Tool_Version --
-   ------------------------
-
-   procedure Print_Tool_Version (Released_At : Positive) is
-   begin
-      if Gnatkp_Mode then
-         Put_Line ("GNATKP " & Date);
-      else
-         Put_Line ("GNATCHECK " & Version_String);
-      end if;
-
-      Put_Line
-        ("Copyright (C) "
-         & Image (Released_At)
-         & '-'
-         & Current_Year
-         & ", AdaCore.");
-   end Print_Tool_Version;
-
-   ------------------------
    -- Print_Version_Info --
    ------------------------
 
-   procedure Print_Version_Info (Released_At : Positive) is
+   procedure Print_Version_Info is
    begin
-      Print (Executable & " " & Version_String, Log_Message => False);
+      Print (Executable & " " & Version_String);
       Print
-        ("Copyright "
-         & Image (Released_At)
-         & '-'
-         & Current_Year
-         & ", AdaCore.",
+        ("Copyright (C) " & "2004" & '-' & Current_Year & ", AdaCore.",
          Log_Message => False);
    end Print_Version_Info;
 

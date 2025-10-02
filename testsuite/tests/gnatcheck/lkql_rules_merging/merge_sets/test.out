@@ -11,7 +11,7 @@ rules1.lkql:7:20: info: register new instance sc1
 rules1.lkql:8:20: info: register new instance sc2
 rules2.lkql:6:13: warning: instance rule2b runs the same check than instance rule2 declared at rules1.lkql:6:5
 gnatcheck <version> (<date>)
-Copyright <date>, AdaCore.
+Copyright (C) <date>, AdaCore.
 test.adb:1:01: rule violation: rule2 [rule2]
 test.adb:1:01: rule violation: rule2 [rule2b|rule2]
 test.adb:1:11: rule violation: rule1 [name1d|rule1]

@@ -396,7 +396,7 @@ begin
    Scan_Arguments (First_Pass => True);
 
    if Arg.Version.Get then
-      Print_Tool_Version (2004);
+      Print_Version_Info;
       OS_Exit (E_Success);
 
    elsif Arg.Help.Get then

@@ -697,7 +697,12 @@ class GnatcheckDriver(BaseDriver):
                 "gnatcheck <version> (<date>)",
             )
         )
-        result.append(PatternSubstitute("Copyright [0-9-]+", "Copyright <date>"))
+        result.append(
+            PatternSubstitute(
+                "Copyright \\(C\\) [0-9-]+",
+                "Copyright (C) <date>"
+            )
+        )
 
         # Remove project search path information
         result.append(PatternSubstitute(
