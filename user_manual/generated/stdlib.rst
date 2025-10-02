@@ -108,6 +108,11 @@ Functions
     Return true if ``param`` (a ``ParamActual``) has a non aliased by-copy
     type
 
+.. function:: is_by_ref(param)
+
+    Get whether the provided parameter (a ``ParamActual``) type is a
+    by-reference" type as defined in the reference manual at 6.2(4-9).
+
 .. function:: is_classwide_type(t)
 
     Return true if t is a classwide TypeDecl.
@@ -185,6 +190,11 @@ Functions
 
     Get whether the given node is a Name representing the standard True
     literal.
+
+.. function:: is_subject_to_predicate(decl)
+
+    Return whether the provided declaration is subject to a dynamic or
+    static predicate.
 
 .. function:: is_tasking_construct(node)
 
