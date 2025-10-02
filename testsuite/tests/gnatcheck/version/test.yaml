@@ -1,0 +1,9 @@
+driver: gnatcheck
+format: brief
+tests:
+  - label: Long format
+    extra_args:
+      - '--version'
+  - label: Short format
+    extra_args:
+      - '-V'

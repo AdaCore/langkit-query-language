@@ -437,7 +437,7 @@ package body Gnatcheck.Output is
          Put_Line
            ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
          Put_Line ("options:");
-         Put_Line (" --version  - Display version and exit");
+         Put_Line (" -V, --version  - Display version and exit");
          Put_Line (" -h, --help - Display usage and exit");
          Put_Line ("");
          Put_Line
@@ -504,7 +504,7 @@ package body Gnatcheck.Output is
       Put_Line
         ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");
       Put_Line ("options:");
-      Put_Line (" --version  - Display version and exit");
+      Put_Line (" -V, --version  - Display version and exit");
       Put_Line (" -h, --help - Display usage and exit");
       Put_Line ("");
       Put_Line
