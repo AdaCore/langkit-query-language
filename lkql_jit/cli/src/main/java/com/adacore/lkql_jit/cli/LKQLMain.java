@@ -23,7 +23,9 @@ import picocli.CommandLine.Command;
         LKQLRefactor.class,
     },
     description = "Unified driver for LKQL (Langkit query language). Allows you to run LKQL " +
-    "scripts or apply specific checks on a given Ada codebase"
+    "scripts or apply specific checks on a given Ada codebase",
+    // Version information are substituted by anod for production builds
+    version = { "lkql 26.0w (unknown date)", "Copyright (C) 2004-2025, AdaCore." }
 )
 public class LKQLMain implements Callable<Integer> {
 
