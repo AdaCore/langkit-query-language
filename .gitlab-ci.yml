@@ -6,6 +6,14 @@ include:
     inputs:
       stage: checkstyle
 
+variables:
+  GNATFORMAT_DATE: 20250928
+  JAVA_VERSION: 24
+  JAVA_VENDOR: graalvm
+  MAVEN_VERSION: 3.9.9
+  NODEJS_VERSION: 16.19.1
+  NPM_CACHE_ARCHIVE: prettier_java-npm_cache-20250203.tar.gz
+
 stages:
   - checkstyle
   - test
@@ -32,17 +40,17 @@ pre-commit:
     - echo $maven_local_repo
 
     # Install all pre-commit dependencies
-    - anod install gnatformat      -Q date=20250928
-    - anod build   java            -Q version=17,vendor=graalvm
-    - anod build   maven           -Q version=3.6.3
-    - anod build   nodejs          -Q version=16.19.1
+    - anod install gnatformat      -Q date=$GNATFORMAT_DATE
+    - anod build   java            -Q version=$JAVA_VERSION,vendor=$JAVA_VENDOR
+    - anod build   maven           -Q version=$MAVEN_VERSION
+    - anod build   nodejs          -Q version=$NODEJS_VERSION
     - anod build   maven-repo-pull -Q client=lkql
-    - eval $(anod printenv gnatformat -Q date=20250928)
-    - eval $(anod printenv java       -Q version=17,vendor=graalvm)
-    - eval $(anod printenv maven      -Q version=3.6.3)
-    - eval $(anod printenv nodejs     -Q version=16.19.1)
+    - eval $(anod printenv gnatformat -Q date=$GNATFORMAT_DATE)
+    - eval $(anod printenv java       -Q version=$JAVA_VERSION,vendor=$JAVA_VENDOR)
+    - eval $(anod printenv maven      -Q version=$MAVEN_VERSION)
+    - eval $(anod printenv nodejs     -Q version=$NODEJS_VERSION)
     - mkdir -p $npm_cache_install
-    - e3-cathod thirdparty prettier_java-npm_cache-20250203.tar.gz --install $npm_cache_install --delete
+    - e3-cathod thirdparty $NPM_CACHE_ARCHIVE --install $npm_cache_install --delete
     - ls $npm_cache_install
     - echo "offline=true" > $npmrc_file
     - export MAVEN_ARGS="-Dmaven.repo.local=$maven_local_repo -Dconfig.npmInstallCache=$npm_cache -Dconfig.npmrc=$npmrc_file"
