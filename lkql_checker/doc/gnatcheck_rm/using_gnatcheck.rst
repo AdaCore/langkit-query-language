@@ -16,7 +16,7 @@ The following switches control the general ``gnatcheck`` behavior
   .. index:: --version
 
 
-``--version``
+``-V, --version``
   Display Copyright and version, then exit disregarding all other options.
 
   .. index:: --help
@@ -395,7 +395,7 @@ GNATcheck:
     There are several command-line switches that you cannot pass through the
     ``Switches`` attribute:
 
-    * ``--version``
+    * ``-V, --version``
     * ``-h, --help``
     * ``--list-rules``
     * ``-P``

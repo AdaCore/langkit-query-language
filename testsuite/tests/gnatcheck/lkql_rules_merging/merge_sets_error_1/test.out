@@ -5,7 +5,7 @@ rules2.lkql:5:14: error: instance name1b has a different configuration than the 
 rules1.lkql:4:5: info: register new instance rule2
 rules2.lkql:6:5: warning: ignore duplicate instance rule2, previous declaration at rules1.lkql:4:5
 gnatcheck <version> (<date>)
-Copyright <date>, AdaCore.
+Copyright (C) <date>, AdaCore.
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

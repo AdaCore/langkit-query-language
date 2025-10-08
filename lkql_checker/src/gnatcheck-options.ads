@@ -218,6 +218,7 @@ package Gnatcheck.Options is
           (Parser => Parser,
            Name   => "Version",
            Long   => "--version",
+           Short  => "-V",
            Help   => "show the tool version and exit");
 
       package Help is new

@@ -13,18 +13,11 @@ package Gnatcheck.Output is
    --  Whether a warning message has been emitted while "warnings as errors"
    --  mode is enabled. This ensure the return code of GNATcheck is not 0.
 
-   procedure Print_Version_Info (Released_At : Positive);
+   procedure Print_Version_Info;
    --  Prints into Stderr the tool version information in the following format:
    --
-   --  <toolname>
-   --  Copyright <Released_At>-<current year>, AdaCore.
-   --
-   --  Released_At is supposed to be the year when the tool is first released.
-
-   procedure Print_Tool_Version (Released_At : Positive);
-   --  Similar to Print_Version_Info, but sends the output into Stdout and
-   --  the format of the information printed is similar to what is printed
-   --  for '--version' option by all the other GNAT tools.
+   --  (gnatcheck|gnatkp) <version> (<date>)
+   --  Copyright (C) 2004-<current year>, AdaCore.
 
    procedure Report_Unhandled_Exception (Ex : Exception_Occurrence);
    --  Reports an unhandled exception into Standard_Error

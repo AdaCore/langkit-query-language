@@ -1136,7 +1136,7 @@ package body Gnatcheck.Projects is
       if Arg.Verbose.Get and then not Arg.Aggregated_Project then
          --  When processing aggregated projects one by one, we want
          --  Verbose_Mode to print this only in the outer invocation.
-         Print_Version_Info (2004);
+         Print_Version_Info;
       end if;
 
       --  We generate the rule help unconditionally
