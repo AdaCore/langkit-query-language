@@ -1773,6 +1773,15 @@ package body Gnatcheck.Compiler is
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--ignore-project-switches");
          end if;
+      elsif Gnatcheck_Prj.Tree.Is_Defined
+        and then Gnatcheck_Prj.Tree.Root_Project.Path_Name.Exists
+      then
+         --  In case Prj has not been explicitly set, spawn the project option
+         --  with the default project file used by gpr.
+         Num_Args := @ + 1;
+         Args (Num_Args) :=
+           new String'
+             ("-P" & Gnatcheck_Prj.Tree.Root_Project.Path_Name.String_Value);
       end if;
 
       if Arg.Aggregated_Project then

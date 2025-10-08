@@ -5,9 +5,9 @@ rules_dirs:
 rules:
   - +Rfoo
 tests:
-  - project: prj.gpr
+  - project: project/prj.gpr
   - input_sources: [main.adb]
-  - project: prj.gpr
+  - project: project/prj.gpr
     jobs: 2
   - input_sources: [main.adb]
     jobs: 2
