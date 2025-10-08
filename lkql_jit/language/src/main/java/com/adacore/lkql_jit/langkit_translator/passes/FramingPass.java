@@ -6,6 +6,9 @@
 package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.liblkqllang.Liblkqllang.ClassField;
+import com.adacore.liblkqllang.Liblkqllang.ClassFieldList;
+import com.adacore.liblkqllang.Liblkqllang.PrefixField;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.AllBuiltIns;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
@@ -989,6 +992,77 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.Tuple tuple) {
         traverseChildren(tuple);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.PassDecl pass) {
+        final String symbol = pass.fPassName().getText();
+        checkDuplicateBindings(symbol, pass.fPassName());
+        scriptFramesBuilder.addBinding(symbol);
+        scriptFramesBuilder.openFrame(pass);
+        for (var arg : Constants.PASS_FAKE_ARGS) {
+            scriptFramesBuilder.addParameter(arg);
+        }
+        pass.fBlocks().accept(this);
+        scriptFramesBuilder.closeFrame();
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.PassBlockList blocks) {
+        traverseChildren(blocks);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.AddBlock add) {
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.DelBlock del) {
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.RewriteBlock rewrite) {
+        traverseChildren(rewrite);
+        return null;
+    }
+
+    /**
+     * its not necessary to do anything since
+     * a class decl is found only in nanopass
+     * and nanopass are dynamically typed
+     */
+    @Override
+    public Void visit(Liblkqllang.ClassDecl classDecl) {
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.RunPass passRunner) {
+        final String symbol = passRunner.fStart().getText();
+        if (!scriptFramesBuilder.bindingExists(symbol)) {
+            throw framingError(passRunner, symbol + " does not exist");
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(ClassField classField) {
+        return null;
+    }
+
+    @Override
+    public Void visit(ClassFieldList classFields) {
+        traverseChildren(classFields);
+        return null;
+    }
+
+    @Override
+    public Void visit(PrefixField prefixField) {
         return null;
     }
 }

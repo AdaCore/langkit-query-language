@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -45,5 +44,5 @@ public abstract class NodePatternDetail extends LKQLNode {
      * @param node The node to test in the detail.
      * @return True if the detail is valid, false else.
      */
-    public abstract boolean executeDetail(VirtualFrame frame, LangkitSupport.NodeInterface node);
+    public abstract boolean executeDetail(VirtualFrame frame, Object node);
 }

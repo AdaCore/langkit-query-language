@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -98,11 +97,7 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to verify.
      * @return True if the traversal verify the pattern, false else.
      */
-    public boolean executeVerification(
-        VirtualFrame frame,
-        LangkitSupport.NodeInterface node,
-        BasePattern pattern
-    ) {
+    public boolean executeVerification(VirtualFrame frame, Object node, BasePattern pattern) {
         // Get the selector list
         LKQLSelectorList selectorListValue = this.getSelectorList(frame, node);
 
@@ -132,10 +127,7 @@ public final class SelectorCall extends LKQLNode {
      * @param node The root node of the selector list.
      * @return The selector list for the selector call.
      */
-    private LKQLSelectorList getSelectorList(
-        VirtualFrame frame,
-        LangkitSupport.NodeInterface node
-    ) {
+    private LKQLSelectorList getSelectorList(VirtualFrame frame, Object node) {
         // Get the selector and verify its type
         Object selectorObject = this.selectorExpr.executeGeneric(frame);
         if (!LKQLTypeSystemGen.isLKQLSelector(selectorObject)) {

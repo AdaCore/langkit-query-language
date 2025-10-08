@@ -1,0 +1,854 @@
+CompilationUnit main.adb:1:1-18:10>
+|f_prelude:
+|  AdaNodeList main.adb:1:1-1:35>
+|  |item_0:
+|  |  WithClause main.adb:1:1-1:18>
+|  |  |f_has_limited:
+|  |  |  LimitedAbsent main.adb:1:1-1:1>
+|  |  |f_has_private:
+|  |  |  PrivateAbsent main.adb:1:1-1:1>
+|  |  |f_packages:
+|  |  |  NameList main.adb:1:6-1:17>
+|  |  |  |item_0:
+|  |  |  |  DottedName main.adb:1:6-1:17>
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Id "Ada" main.adb:1:6-1:9>: Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Id "Text_IO" main.adb:1:10-1:17>: Text_IO
+|  |item_1:
+|  |  UsePackageClause main.adb:1:19-1:35>
+|  |  |f_packages:
+|  |  |  NameList main.adb:1:23-1:34>
+|  |  |  |item_0:
+|  |  |  |  DottedName main.adb:1:23-1:34>
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Id "Ada" main.adb:1:23-1:26>: Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Id "Text_IO" main.adb:1:27-1:34>: Text_IO
+|f_body:
+|  LibraryItem main.adb:3:1-18:10>
+|  |f_has_private:
+|  |  PrivateAbsent main.adb:1:35-1:35>
+|  |f_item:
+|  |  SubpBody ["Main"] main.adb:3:1-18:10>
+|  |  |f_overriding:
+|  |  |  OverridingUnspecified main.adb:1:35-1:35>
+|  |  |f_subp_spec:
+|  |  |  SubpSpec main.adb:3:1-3:15>
+|  |  |  |f_subp_kind:
+|  |  |  |  SubpKindProcedure main.adb:3:1-3:10>
+|  |  |  |f_subp_name:
+|  |  |  |  DefiningName "Main" main.adb:3:11-3:15>
+|  |  |  |  |f_name:
+|  |  |  |  |  Id "Main" main.adb:3:11-3:15>: Main
+|  |  |  |f_subp_params:
+|  |  |  |  one
+|  |  |  |f_subp_returns:
+|  |  |  |  one
+|  |  |f_aspects:
+|  |  |  one
+|  |  |f_decls:
+|  |  |  DeclarativePart main.adb:3:18-14:1>
+|  |  |  |f_decls:
+|  |  |  |  AdaNodeList main.adb:4:4-13:23>
+|  |  |  |  |item_0:
+|  |  |  |  |  ObjectDecl ["Original"] main.adb:4:4-4:51>
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList main.adb:4:4-4:12>
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName "Original" main.adb:4:4-4:12>
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Id "Original" main.adb:4:4-4:12>: Original
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent main.adb:4:14-4:14>
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantAbsent main.adb:4:14-4:14>
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault main.adb:4:14-4:14>
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication main.adb:4:15-4:31>
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent main.adb:4:14-4:14>
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Id "String" main.adb:4:15-4:21>: String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  CompositeConstraint main.adb:4:22-4:31>
+|  |  |  |  |  |  |  |f_constraints:
+|  |  |  |  |  |  |  |  AssocList main.adb:4:23-4:30>
+|  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  CompositeConstraintAssoc main.adb:4:23-4:30>
+|  |  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  |  DiscriminantChoiceList main.adb:4:23-4:23>
+|  |  |  |  |  |  |  |  |  |f_constraint_expr:
+|  |  |  |  |  |  |  |  |  |  BinOp main.adb:4:23-4:30>
+|  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  Int main.adb:4:23-4:24>: 1
+|  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  OpDoubleDot ".." main.adb:4:25-4:27>
+|  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  Int main.adb:4:28-4:30>: 13
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  Str ""Hello, World!"" main.adb:4:35-4:50>: "Hello, World!"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  one
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  one
+|  |  |  |  |item_1:
+|  |  |  |  |  ObjectDecl ["Reversed"] main.adb:5:4-5:33>
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList main.adb:5:4-5:12>
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName "Reversed" main.adb:5:4-5:12>
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Id "Reversed" main.adb:5:4-5:12>: Reversed
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent main.adb:5:15-5:15>
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantAbsent main.adb:5:15-5:15>
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault main.adb:5:15-5:15>
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication main.adb:5:16-5:32>
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent main.adb:5:15-5:15>
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Id "String" main.adb:5:16-5:22>: String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  CompositeConstraint main.adb:5:23-5:32>
+|  |  |  |  |  |  |  |f_constraints:
+|  |  |  |  |  |  |  |  AssocList main.adb:5:24-5:31>
+|  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  CompositeConstraintAssoc main.adb:5:24-5:31>
+|  |  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  |  DiscriminantChoiceList main.adb:5:24-5:24>
+|  |  |  |  |  |  |  |  |  |f_constraint_expr:
+|  |  |  |  |  |  |  |  |  |  BinOp main.adb:5:24-5:31>
+|  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  Int main.adb:5:24-5:25>: 1
+|  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  OpDoubleDot ".." main.adb:5:26-5:28>
+|  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  Int main.adb:5:29-5:31>: 13
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  one
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  one
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  one
+|  |  |  |  |item_2:
+|  |  |  |  |  SubpBody ["Reverse_String"] main.adb:6:4-13:23>
+|  |  |  |  |  |f_overriding:
+|  |  |  |  |  |  OverridingUnspecified main.adb:5:33-5:33>
+|  |  |  |  |  |f_subp_spec:
+|  |  |  |  |  |  SubpSpec main.adb:6:4-6:58>
+|  |  |  |  |  |  |f_subp_kind:
+|  |  |  |  |  |  |  SubpKindFunction main.adb:6:4-6:12>
+|  |  |  |  |  |  |f_subp_name:
+|  |  |  |  |  |  |  DefiningName "Reverse_String" main.adb:6:13-6:27>
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Id "Reverse_String" main.adb:6:13-6:27>: Reverse_String
+|  |  |  |  |  |  |f_subp_params:
+|  |  |  |  |  |  |  Params main.adb:6:28-6:44>
+|  |  |  |  |  |  |  |f_params:
+|  |  |  |  |  |  |  |  ParamSpecList main.adb:6:29-6:43>
+|  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  ParamSpec ["Input"] main.adb:6:29-6:43>
+|  |  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  |  DefiningNameList main.adb:6:29-6:34>
+|  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  DefiningName "Input" main.adb:6:29-6:34>
+|  |  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  |  Id "Input" main.adb:6:29-6:34>: Input
+|  |  |  |  |  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  |  |  |  |  AliasedAbsent main.adb:6:36-6:36>
+|  |  |  |  |  |  |  |  |  |f_mode:
+|  |  |  |  |  |  |  |  |  |  ModeDefault main.adb:6:36-6:36>
+|  |  |  |  |  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  |  |  |  |  SubtypeIndication main.adb:6:37-6:43>
+|  |  |  |  |  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  |  |  |  |  NotNullAbsent main.adb:6:36-6:36>
+|  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  Id "String" main.adb:6:37-6:43>: String
+|  |  |  |  |  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |f_subp_returns:
+|  |  |  |  |  |  |  SubtypeIndication main.adb:6:52-6:58>
+|  |  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  |  NotNullAbsent main.adb:6:51-6:51>
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Id "String" main.adb:6:52-6:58>: String
+|  |  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  |  one
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  one
+|  |  |  |  |  |f_decls:
+|  |  |  |  |  |  DeclarativePart main.adb:6:61-8:4>
+|  |  |  |  |  |  |f_decls:
+|  |  |  |  |  |  |  AdaNodeList main.adb:7:7-7:33>
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ObjectDecl ["Result"] main.adb:7:7-7:33>
+|  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  DefiningNameList main.adb:7:7-7:13>
+|  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  DefiningName "Result" main.adb:7:7-7:13>
+|  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  Id "Result" main.adb:7:7-7:13>: Result
+|  |  |  |  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  |  |  |  AliasedAbsent main.adb:7:15-7:15>
+|  |  |  |  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  |  |  |  ConstantAbsent main.adb:7:15-7:15>
+|  |  |  |  |  |  |  |  |f_mode:
+|  |  |  |  |  |  |  |  |  ModeDefault main.adb:7:15-7:15>
+|  |  |  |  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  |  |  |  SubtypeIndication main.adb:7:16-7:32>
+|  |  |  |  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  |  |  |  NotNullAbsent main.adb:7:15-7:15>
+|  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  Id "String" main.adb:7:16-7:22>: String
+|  |  |  |  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  |  |  |  CompositeConstraint main.adb:7:23-7:32>
+|  |  |  |  |  |  |  |  |  |  |f_constraints:
+|  |  |  |  |  |  |  |  |  |  |  AssocList main.adb:7:24-7:31>
+|  |  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  |  CompositeConstraintAssoc main.adb:7:24-7:31>
+|  |  |  |  |  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  |  |  |  |  DiscriminantChoiceList main.adb:7:24-7:24>
+|  |  |  |  |  |  |  |  |  |  |  |  |f_constraint_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  BinOp main.adb:7:24-7:31>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Int main.adb:7:24-7:25>: 1
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  OpDoubleDot ".." main.adb:7:26-7:28>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Int main.adb:7:29-7:31>: 13
+|  |  |  |  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |f_stmts:
+|  |  |  |  |  |  HandledStmts main.adb:8:9-13:4>
+|  |  |  |  |  |  |f_stmts:
+|  |  |  |  |  |  |  StmtList main.adb:9:7-12:21>
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ForLoopStmt main.adb:9:7-11:16>
+|  |  |  |  |  |  |  |  |f_spec:
+|  |  |  |  |  |  |  |  |  ForLoopSpec main.adb:9:11-9:27>
+|  |  |  |  |  |  |  |  |  |f_var_decl:
+|  |  |  |  |  |  |  |  |  |  ForLoopVarDecl ["I"] main.adb:9:11-9:12>
+|  |  |  |  |  |  |  |  |  |  |f_id:
+|  |  |  |  |  |  |  |  |  |  |  DefiningName "I" main.adb:9:11-9:12>
+|  |  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  |  Id "I" main.adb:9:11-9:12>: I
+|  |  |  |  |  |  |  |  |  |  |f_id_type:
+|  |  |  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |  |f_loop_type:
+|  |  |  |  |  |  |  |  |  |  IterTypeIn main.adb:9:13-9:15>
+|  |  |  |  |  |  |  |  |  |f_has_reverse:
+|  |  |  |  |  |  |  |  |  |  ReverseAbsent main.adb:9:15-9:15>
+|  |  |  |  |  |  |  |  |  |f_iter_expr:
+|  |  |  |  |  |  |  |  |  |  AttributeRef main.adb:9:16-9:27>
+|  |  |  |  |  |  |  |  |  |  |f_prefix:
+|  |  |  |  |  |  |  |  |  |  |  Id "Input" main.adb:9:16-9:21>: Input
+|  |  |  |  |  |  |  |  |  |  |f_attribute:
+|  |  |  |  |  |  |  |  |  |  |  Id "Range" main.adb:9:22-9:27>: Range
+|  |  |  |  |  |  |  |  |  |  |f_args:
+|  |  |  |  |  |  |  |  |  |  |  AssocList main.adb:9:27-9:27>
+|  |  |  |  |  |  |  |  |  |f_iter_filter:
+|  |  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |f_stmts:
+|  |  |  |  |  |  |  |  |  StmtList main.adb:10:10-10:61>
+|  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  AssignStmt main.adb:10:10-10:61>
+|  |  |  |  |  |  |  |  |  |  |f_dest:
+|  |  |  |  |  |  |  |  |  |  |  CallExpr main.adb:10:10-10:47>
+|  |  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  |  Id "Result" main.adb:10:10-10:16>: Result
+|  |  |  |  |  |  |  |  |  |  |  |f_suffix:
+|  |  |  |  |  |  |  |  |  |  |  |  AssocList main.adb:10:18-10:46>
+|  |  |  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  |  |  ParamAssoc main.adb:10:18-10:46>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  BinOp main.adb:10:18-10:46>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  BinOp main.adb:10:18-10:42>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AttributeRef main.adb:10:18-10:29>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_prefix:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Id "Input" main.adb:10:18-10:23>: Input
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_attribute:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Id "First" main.adb:10:24-10:29>: First
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_args:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AssocList main.adb:10:29-10:29>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  OpPlus "+" main.adb:10:30-10:31>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AttributeRef main.adb:10:32-10:42>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_prefix:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Id "Input" main.adb:10:32-10:37>: Input
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_attribute:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Id "Last" main.adb:10:38-10:42>: Last
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_args:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AssocList main.adb:10:42-10:42>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  OpMinus "-" main.adb:10:43-10:44>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Id "I" main.adb:10:45-10:46>: I
+|  |  |  |  |  |  |  |  |  |  |f_expr:
+|  |  |  |  |  |  |  |  |  |  |  CallExpr main.adb:10:51-10:60>
+|  |  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  |  Id "Input" main.adb:10:51-10:56>: Input
+|  |  |  |  |  |  |  |  |  |  |  |f_suffix:
+|  |  |  |  |  |  |  |  |  |  |  |  AssocList main.adb:10:58-10:59>
+|  |  |  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  |  |  ParamAssoc main.adb:10:58-10:59>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Id "I" main.adb:10:58-10:59>: I
+|  |  |  |  |  |  |  |  |f_end_name:
+|  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |item_1:
+|  |  |  |  |  |  |  |  ReturnStmt main.adb:12:7-12:21>
+|  |  |  |  |  |  |  |  |f_return_expr:
+|  |  |  |  |  |  |  |  |  Id "Result" main.adb:12:14-12:20>: Result
+|  |  |  |  |  |  |f_exceptions:
+|  |  |  |  |  |  |  AdaNodeList main.adb:12:21-12:21>
+|  |  |  |  |  |f_end_name:
+|  |  |  |  |  |  EndName main.adb:13:8-13:22>
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Id "Reverse_String" main.adb:13:8-13:22>: Reverse_String
+|  |  |f_stmts:
+|  |  |  HandledStmts main.adb:14:6-18:1>
+|  |  |  |f_stmts:
+|  |  |  |  StmtList main.adb:15:4-17:39>
+|  |  |  |  |item_0:
+|  |  |  |  |  AssignStmt main.adb:15:4-15:42>
+|  |  |  |  |  |f_dest:
+|  |  |  |  |  |  Id "Reversed" main.adb:15:4-15:12>: Reversed
+|  |  |  |  |  |f_expr:
+|  |  |  |  |  |  CallExpr main.adb:15:16-15:41>
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Id "Reverse_String" main.adb:15:16-15:30>: Reverse_String
+|  |  |  |  |  |  |f_suffix:
+|  |  |  |  |  |  |  AssocList main.adb:15:32-15:40>
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc main.adb:15:32-15:40>
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  Id "Original" main.adb:15:32-15:40>: Original
+|  |  |  |  |item_1:
+|  |  |  |  |  CallStmt main.adb:16:4-16:39>
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  CallExpr main.adb:16:4-16:38>
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Id "Put_Line" main.adb:16:4-16:12>: Put_Line
+|  |  |  |  |  |  |f_suffix:
+|  |  |  |  |  |  |  AssocList main.adb:16:14-16:37>
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc main.adb:16:14-16:37>
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  ConcatOp main.adb:16:14-16:37>
+|  |  |  |  |  |  |  |  |  |f_first_operand:
+|  |  |  |  |  |  |  |  |  |  Str ""Original: "" main.adb:16:14-16:26>: "Original: "
+|  |  |  |  |  |  |  |  |  |f_other_operands:
+|  |  |  |  |  |  |  |  |  |  ConcatOperandList main.adb:16:27-16:37>
+|  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  ConcatOperand main.adb:16:27-16:37>
+|  |  |  |  |  |  |  |  |  |  |  |f_operator:
+|  |  |  |  |  |  |  |  |  |  |  |  OpConcat "&" main.adb:16:27-16:28>
+|  |  |  |  |  |  |  |  |  |  |  |f_operand:
+|  |  |  |  |  |  |  |  |  |  |  |  Id "Original" main.adb:16:29-16:37>: Original
+|  |  |  |  |item_2:
+|  |  |  |  |  CallStmt main.adb:17:4-17:39>
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  CallExpr main.adb:17:4-17:38>
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Id "Put_Line" main.adb:17:4-17:12>: Put_Line
+|  |  |  |  |  |  |f_suffix:
+|  |  |  |  |  |  |  AssocList main.adb:17:14-17:37>
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc main.adb:17:14-17:37>
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  one
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  ConcatOp main.adb:17:14-17:37>
+|  |  |  |  |  |  |  |  |  |f_first_operand:
+|  |  |  |  |  |  |  |  |  |  Str ""Reversed: "" main.adb:17:14-17:26>: "Reversed: "
+|  |  |  |  |  |  |  |  |  |f_other_operands:
+|  |  |  |  |  |  |  |  |  |  ConcatOperandList main.adb:17:27-17:37>
+|  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  ConcatOperand main.adb:17:27-17:37>
+|  |  |  |  |  |  |  |  |  |  |  |f_operator:
+|  |  |  |  |  |  |  |  |  |  |  |  OpConcat "&" main.adb:17:27-17:28>
+|  |  |  |  |  |  |  |  |  |  |  |f_operand:
+|  |  |  |  |  |  |  |  |  |  |  |  Id "Reversed" main.adb:17:29-17:37>: Reversed
+|  |  |  |f_exceptions:
+|  |  |  |  AdaNodeList main.adb:17:39-17:39>
+|  |  |f_end_name:
+|  |  |  EndName main.adb:18:5-18:9>
+|  |  |  |f_name:
+|  |  |  |  Id "Main" main.adb:18:5-18:9>: Main
+|f_pragmas:
+|  PragmaNodeList main.adb:18:10-18:10>
+
+function<<pass:test>>
+CompilationUnit
+|f_pragmas:
+|  PragmaNodeList
+|f_prelude:
+|  AdaNodeList
+|  |item_1:
+|  |  UsePackageClause
+|  |  |f_packages:
+|  |  |  NameList
+|  |  |  |item_0:
+|  |  |  |  DottedName
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Text_IO
+|  |item_0:
+|  |  WithClause
+|  |  |f_has_limited:
+|  |  |  LimitedAbsent
+|  |  |f_has_private:
+|  |  |  PrivateAbsent
+|  |  |f_packages:
+|  |  |  NameList
+|  |  |  |item_0:
+|  |  |  |  DottedName
+|  |  |  |  |f_prefix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Ada
+|  |  |  |  |f_suffix:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Text_IO
+|f_body:
+|  LibraryItem
+|  |f_item:
+|  |  SubpBody
+|  |  |f_stmts:
+|  |  |  HandledStmts
+|  |  |  |f_stmts:
+|  |  |  |  StmtList
+|  |  |  |  |item_2:
+|  |  |  |  |  CallStmt
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  ProcedureCall
+|  |  |  |  |  |  |subpname:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=Put_Line
+|  |  |  |  |  |  |params:
+|  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  ConcatOp
+|  |  |  |  |  |  |  |  |  |f_first_operand:
+|  |  |  |  |  |  |  |  |  |  StringLiteral
+|  |  |  |  |  |  |  |  |  |  |value="Reversed: "
+|  |  |  |  |  |  |  |  |  |f_other_operands:
+|  |  |  |  |  |  |  |  |  |  ConcatOperandList
+|  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  ConcatOperand
+|  |  |  |  |  |  |  |  |  |  |  |f_operand:
+|  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |value=Reversed
+|  |  |  |  |  |  |  |  |  |  |  |f_operator:
+|  |  |  |  |  |  |  |  |  |  |  |  OpConcat
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |item_1:
+|  |  |  |  |  CallStmt
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  ProcedureCall
+|  |  |  |  |  |  |subpname:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=Put_Line
+|  |  |  |  |  |  |params:
+|  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  ConcatOp
+|  |  |  |  |  |  |  |  |  |f_first_operand:
+|  |  |  |  |  |  |  |  |  |  StringLiteral
+|  |  |  |  |  |  |  |  |  |  |value="Original: "
+|  |  |  |  |  |  |  |  |  |f_other_operands:
+|  |  |  |  |  |  |  |  |  |  ConcatOperandList
+|  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  ConcatOperand
+|  |  |  |  |  |  |  |  |  |  |  |f_operand:
+|  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |value=Original
+|  |  |  |  |  |  |  |  |  |  |  |f_operator:
+|  |  |  |  |  |  |  |  |  |  |  |  OpConcat
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |item_0:
+|  |  |  |  |  AssignStmt
+|  |  |  |  |  |f_dest:
+|  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |value=Reversed
+|  |  |  |  |  |f_expr:
+|  |  |  |  |  |  FunctionCall
+|  |  |  |  |  |  |subpname:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=Reverse_String
+|  |  |  |  |  |  |params:
+|  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ParamAssoc
+|  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |value=Original
+|  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |f_exceptions:
+|  |  |  |  AdaNodeList
+|  |  |f_aspects:
+|  |  |  AdaNode
+|  |  |f_overriding:
+|  |  |  OverridingUnspecified
+|  |  |f_end_name:
+|  |  |  EndName
+|  |  |  |f_name:
+|  |  |  |  Identifier
+|  |  |  |  |value=Main
+|  |  |f_subp_spec:
+|  |  |  SubpSpec
+|  |  |  |f_subp_params:
+|  |  |  |  AdaNode
+|  |  |  |f_subp_name:
+|  |  |  |  DefiningName
+|  |  |  |  |f_name:
+|  |  |  |  |  Identifier
+|  |  |  |  |  |value=Main
+|  |  |  |f_subp_returns:
+|  |  |  |  AdaNode
+|  |  |  |f_subp_kind:
+|  |  |  |  SubpKindProcedure
+|  |  |f_decls:
+|  |  |  DeclarativePart
+|  |  |  |f_decls:
+|  |  |  |  AdaNodeList
+|  |  |  |  |item_2:
+|  |  |  |  |  SubpBody
+|  |  |  |  |  |f_stmts:
+|  |  |  |  |  |  HandledStmts
+|  |  |  |  |  |  |f_stmts:
+|  |  |  |  |  |  |  StmtList
+|  |  |  |  |  |  |  |item_1:
+|  |  |  |  |  |  |  |  ReturnStmt
+|  |  |  |  |  |  |  |  |f_return_expr:
+|  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |value=Result
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ForLoopStmt
+|  |  |  |  |  |  |  |  |f_stmts:
+|  |  |  |  |  |  |  |  |  StmtList
+|  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  AssignStmt
+|  |  |  |  |  |  |  |  |  |  |f_dest:
+|  |  |  |  |  |  |  |  |  |  |  Index
+|  |  |  |  |  |  |  |  |  |  |  |name:
+|  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |value=Result
+|  |  |  |  |  |  |  |  |  |  |  |params:
+|  |  |  |  |  |  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  |  |  ParamAssoc
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  BinOp
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  OpMinus
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  BinOp
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  OpPlus
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AttributeRef
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_args:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_attribute:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |value=First
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_prefix:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |value=Input
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AttributeRef
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_args:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_attribute:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |value=Last
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_prefix:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |value=Input
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |value=I
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |  |  |f_expr:
+|  |  |  |  |  |  |  |  |  |  |  Index
+|  |  |  |  |  |  |  |  |  |  |  |name:
+|  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |value=Input
+|  |  |  |  |  |  |  |  |  |  |  |params:
+|  |  |  |  |  |  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  |  |  ParamAssoc
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_r_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |value=I
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_designator:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |f_end_name:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |f_spec:
+|  |  |  |  |  |  |  |  |  ForLoopSpec
+|  |  |  |  |  |  |  |  |  |f_iter_expr:
+|  |  |  |  |  |  |  |  |  |  AttributeRef
+|  |  |  |  |  |  |  |  |  |  |f_args:
+|  |  |  |  |  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |  |  |  |f_attribute:
+|  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |value=Range
+|  |  |  |  |  |  |  |  |  |  |f_prefix:
+|  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |value=Input
+|  |  |  |  |  |  |  |  |  |f_iter_filter:
+|  |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |  |f_loop_type:
+|  |  |  |  |  |  |  |  |  |  IterTypeIn
+|  |  |  |  |  |  |  |  |  |f_var_decl:
+|  |  |  |  |  |  |  |  |  |  ForLoopVarDecl
+|  |  |  |  |  |  |  |  |  |  |f_id:
+|  |  |  |  |  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |value=I
+|  |  |  |  |  |  |  |  |  |  |f_id_type:
+|  |  |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |  |f_has_reverse:
+|  |  |  |  |  |  |  |  |  |  ReverseAbsent
+|  |  |  |  |  |  |f_exceptions:
+|  |  |  |  |  |  |  AdaNodeList
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_overriding:
+|  |  |  |  |  |  OverridingUnspecified
+|  |  |  |  |  |f_end_name:
+|  |  |  |  |  |  EndName
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=Reverse_String
+|  |  |  |  |  |f_subp_spec:
+|  |  |  |  |  |  SubpSpec
+|  |  |  |  |  |  |f_subp_params:
+|  |  |  |  |  |  |  Params
+|  |  |  |  |  |  |  |f_params:
+|  |  |  |  |  |  |  |  ParamSpecList
+|  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  ParamSpec
+|  |  |  |  |  |  |  |  |  |f_mode:
+|  |  |  |  |  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |  |value=Input
+|  |  |  |  |  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |f_subp_name:
+|  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=Reverse_String
+|  |  |  |  |  |  |f_subp_returns:
+|  |  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |f_subp_kind:
+|  |  |  |  |  |  |  SubpKindFunction
+|  |  |  |  |  |f_decls:
+|  |  |  |  |  |  DeclarativePart
+|  |  |  |  |  |  |f_decls:
+|  |  |  |  |  |  |  AdaNodeList
+|  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  ObjectDecl
+|  |  |  |  |  |  |  |  |f_mode:
+|  |  |  |  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |  |value=Result
+|  |  |  |  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  |  |  |  ConstantAbsent
+|  |  |  |  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  |  |  |  CompositeConstraint
+|  |  |  |  |  |  |  |  |  |  |f_constraints:
+|  |  |  |  |  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  |  |  |  CompositeConstraintAssoc
+|  |  |  |  |  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  |  |  |  |  DiscriminantChoiceList
+|  |  |  |  |  |  |  |  |  |  |  |  |f_constraint_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  BinOp
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  OpDoubleDot
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  IntLiteral
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |value=1
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  IntLiteral
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |value=13
+|  |  |  |  |item_1:
+|  |  |  |  |  ObjectDecl
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=Reversed
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantAbsent
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  CompositeConstraint
+|  |  |  |  |  |  |  |f_constraints:
+|  |  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  CompositeConstraintAssoc
+|  |  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  |  DiscriminantChoiceList
+|  |  |  |  |  |  |  |  |  |f_constraint_expr:
+|  |  |  |  |  |  |  |  |  |  BinOp
+|  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  OpDoubleDot
+|  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  IntLiteral
+|  |  |  |  |  |  |  |  |  |  |  |value=1
+|  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  IntLiteral
+|  |  |  |  |  |  |  |  |  |  |  |value=13
+|  |  |  |  |item_0:
+|  |  |  |  |  ObjectDecl
+|  |  |  |  |  |f_mode:
+|  |  |  |  |  |  ModeDefault
+|  |  |  |  |  |f_ids:
+|  |  |  |  |  |  DefiningNameList
+|  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  DefiningName
+|  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |  |value=Original
+|  |  |  |  |  |f_aspects:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_has_aliased:
+|  |  |  |  |  |  AliasedAbsent
+|  |  |  |  |  |f_has_constant:
+|  |  |  |  |  |  ConstantAbsent
+|  |  |  |  |  |f_default_expr:
+|  |  |  |  |  |  StringLiteral
+|  |  |  |  |  |  |value="Hello, World!"
+|  |  |  |  |  |f_renaming_clause:
+|  |  |  |  |  |  AdaNode
+|  |  |  |  |  |f_type_expr:
+|  |  |  |  |  |  SubtypeIndication
+|  |  |  |  |  |  |f_has_not_null:
+|  |  |  |  |  |  |  NotNullAbsent
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  Identifier
+|  |  |  |  |  |  |  |value=String
+|  |  |  |  |  |  |f_constraint:
+|  |  |  |  |  |  |  CompositeConstraint
+|  |  |  |  |  |  |  |f_constraints:
+|  |  |  |  |  |  |  |  AssocList
+|  |  |  |  |  |  |  |  |item_0:
+|  |  |  |  |  |  |  |  |  CompositeConstraintAssoc
+|  |  |  |  |  |  |  |  |  |f_ids:
+|  |  |  |  |  |  |  |  |  |  DiscriminantChoiceList
+|  |  |  |  |  |  |  |  |  |f_constraint_expr:
+|  |  |  |  |  |  |  |  |  |  BinOp
+|  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  OpDoubleDot
+|  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  IntLiteral
+|  |  |  |  |  |  |  |  |  |  |  |value=1
+|  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  IntLiteral
+|  |  |  |  |  |  |  |  |  |  |  |value=13
+|  |f_has_private:
+|  |  PrivateAbsent
+

@@ -61,6 +61,9 @@ lexer lkql_lexer {
     @symbol() Not <- "not"
     @symbol() Null <- "null"
     @symbol() New <- "new"
+    @symbol() Class <- "class"
+    @symbol() Pass <- "pass"
+    @symbol() RunPass <- "run_pass"
     Integer <- p"[0-9]+"
     @symbol() Identifier <- p"[a-z][A-Za-z0-9_]*"
     @symbol() UpperIdentifier <- p"[A-Za-z][A-Za-z0-9_]*"
@@ -71,7 +74,7 @@ lexer lkql_lexer {
 @with_lexer(lkql_lexer)
 grammar lkql_grammar {
     @main_rule
-    main_rule <- TopLevelList*(or(import_clause | decl | expr))
+    main_rule <- TopLevelList*(or(import_clause | decl | expr | run_pass))
     import_clause <- Import("import" id)
     query <- or(
         | Query(
@@ -160,7 +163,7 @@ grammar lkql_grammar {
         "]"
     )
     listlit <- ListLiteral("[" list*(expr, ",") "]")
-    decl <- or(fun_decl | selector_decl | val_decl)
+    decl <- or(fun_decl | selector_decl | val_decl | pass_decl)
     expr <- or(
         | BinOp(expr or(Op.And("and") | Op.Or("or")) not_expr)
         | not_expr
@@ -278,6 +281,28 @@ grammar lkql_grammar {
     )
     decl_annotation <- DeclAnnotation("@" id ?pick("(" arg_list ")"))
     doc_node <- or(string_literal | block_string_literal)
+    pass_decl <- PassDecl(null(DeclAnnotation) "pass" id ?pick(":" id) "{"
+        list*(or(
+            | pass_del_block
+            | pass_add_block
+            | pass_rewrite_block
+        ))
+    "}" )
+    prefix_field <- DotAccess(upper_id "." id)
+    pass_del_block <- DelBlock(@Identifier("del") "{" list*(or(prefix_field | Identifier(@UpperIdentifier))) "}")
+    pass_add_block <- AddBlock(@Identifier("add") "{" list*(or(prefix_field_decl | class_decl)) "}")
+    pass_rewrite_block <- RewriteBlock(@Identifier("rewrite") "{" list*(match_arm) "}")
+    prefix_field_decl <- PrefixField(upper_id "." id ":" upper_id)
+    class_field <- ClassField(id ":" upper_id)
+    class_decl <- ClassDecl(
+        null(DeclAnnotation)
+        "class"
+        upper_id
+        "{"
+        list*(or(class_field))
+        "}"
+    )
+    run_pass <- RunPass("run_pass" id)
 }
 
 |" Root node class for LKQL AST nodes.
@@ -1140,3 +1165,86 @@ class SubBlockLiteral: LkqlNode {
 @qualifier
 enum class Unpack: LkqlNode {
 }
+
+|" Declaration of a pass for the nanopass framework
+class PassDecl: Declaration {
+    @parse_field
+    pass_name: Identifier
+    @parse_field
+    @nullable
+    previous_pass_name: Identifier
+    @parse_field
+    blocks: ASTList[PassBlock]
+
+    fun doc(): BaseStringLiteral = null[BaseStringLiteral]
+}
+
+|" Abstract wrapper for the different subparts found in 
+|" a pass declaration, namely 'add', 'del' and 'rewrite' blocks
+@abstract
+class PassBlock: LkqlNode {}
+
+|" deleted classes and members declaration for a pass
+class DelBlock: PassBlock {
+    @parse_field
+    clauses: ASTList[Expr]
+}
+
+|" new classes and members declaration for a pass
+class AddBlock: PassBlock {
+    @parse_field
+    clauses: ASTList[LkqlNode]
+}
+
+|" list of the rewriting rules for a pass
+class RewriteBlock: PassBlock {
+    @parse_field
+    clauses: ASTList[MatchArm]
+}
+
+|" new class declaration in an 'add' block
+|" this is made to mimic lkt syntax before
+|" unification with LKQL syntax
+class ClassDecl: Declaration {
+    @parse_field
+    name: Identifier
+
+    @parse_field
+    members: ASTList[ClassField]
+
+    fun doc(): BaseStringLiteral = null[BaseStringLiteral]
+}
+
+
+|" field in a class declaration
+class ClassField : LkqlNode {
+    @parse_field
+    field_name: Identifier
+
+    @parse_field
+    type_name: Identifier
+}
+
+|" Special annotation to specify the entry point for the nanopass framework.
+|" The pass designated by the associated identifier and all its transitive
+|" dependencies are going to be executed.
+class RunPass: LkqlNode {
+    @parse_field
+    start: Identifier
+}
+
+|" corresponds to the syntax `Class.member[: OptType]`
+|" can be found in 'add' or 'del' block in a pass
+|" serves as a shorthand syntax to declare a new pass
+|" with the same name but updated fields
+class PrefixField : LkqlNode {
+    @parse_field
+    prefix: Identifier
+
+    @parse_field
+    field_name: Identifier
+
+    @parse_field
+    type_name: Identifier
+}
+

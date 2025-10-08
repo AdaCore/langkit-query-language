@@ -21,9 +21,12 @@ class InterpreterDriver(BaseDriver):
     perf_supported = True
     flag_checking_supported = False
 
+    def base_args(self):
+        return self.lkql_exe
+
     def run(self) -> None:
         # Build the process's arguments list
-        args = [*self.lkql_exe, '--script-path', 'script.lkql']
+        args = [*self.base_args(), '--script-path', 'script.lkql']
 
         input_sources = self.test_env.get('input_sources', None)
         project = self.test_env.get('project', None)

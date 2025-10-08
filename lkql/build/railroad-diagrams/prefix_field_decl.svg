@@ -1,0 +1,41 @@
+<svg class="railroad-diagram" height="62" viewBox="0 0 618.5 62" width="618.5" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g transform="translate(.5 .5)">
+<style>/* <![CDATA[ */
+	svg.railroad-diagram {
+		background-color:hsl(30,20%,95%);
+	}
+	svg.railroad-diagram path {
+		stroke-width:3;
+		stroke:black;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram text {
+		font:bold 14px monospace;
+		text-anchor:middle;
+	}
+	svg.railroad-diagram text.label{
+		text-anchor:start;
+	}
+	svg.railroad-diagram text.comment{
+		font:italic 12px monospace;
+	}
+	svg.railroad-diagram rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(120,100%,90%);
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+
+/* ]]> */
+</style><g>
+<path d="M20 21v20m10 -20v20m-10 -10h154.5"></path><text style="text-anchor:start" x="20" y="16">prefix&#95;field&#95;decl</text></g><path d="M174.5 31h10"></path><g>
+<path d="M184.5 31h0.0"></path><path d="M568.5 31h0.0"></path><g class="terminal ">
+<path d="M184.5 31h0.0"></path><path d="M272.5 31h0.0"></path><rect height="22" rx="10" ry="10" width="88.0" x="184.5" y="20"></rect><text x="228.5" y="35">upper&#95;id</text></g><path d="M272.5 31h10"></path><path d="M282.5 31h10"></path><g class="terminal ">
+<path d="M292.5 31h0.0"></path><path d="M338.0 31h0.0"></path><rect height="22" rx="10" ry="10" width="45.5" x="292.5" y="20"></rect><text x="315.25" y="35">'.'</text></g><path d="M338.0 31h10"></path><path d="M348.0 31h10"></path><g class="terminal ">
+<path d="M358.0 31h0.0"></path><path d="M395.0 31h0.0"></path><rect height="22" rx="10" ry="10" width="37.0" x="358.0" y="20"></rect><text x="376.5" y="35">id</text></g><path d="M395.0 31h10"></path><path d="M405.0 31h10"></path><g class="terminal ">
+<path d="M415.0 31h0.0"></path><path d="M460.5 31h0.0"></path><rect height="22" rx="10" ry="10" width="45.5" x="415.0" y="20"></rect><text x="437.75" y="35">':'</text></g><path d="M460.5 31h10"></path><path d="M470.5 31h10"></path><g class="terminal ">
+<path d="M480.5 31h0.0"></path><path d="M568.5 31h0.0"></path><rect height="22" rx="10" ry="10" width="88.0" x="480.5" y="20"></rect><text x="524.5" y="35">upper&#95;id</text></g></g><path d="M568.5 31h10"></path><path d="M 578.5 31 h 20 m -10 -10 v 20 m 10 -20 v 20"></path></g></svg>

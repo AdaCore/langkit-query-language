@@ -1,0 +1,5 @@
+pass test1         { del {} add {} rewrite {} }
+pass test2 : test1 { del {} add {} rewrite {} }
+pass test3 : test2 { del {} add {} rewrite {} }
+
+run_pass test3

@@ -39,6 +39,7 @@ import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.value_read.*;
+import com.adacore.lkql_jit.nodes.pass.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
 import com.adacore.lkql_jit.utils.Constants;
@@ -63,6 +64,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     /** The frame descriptions for the LKQL script. */
     private final ScriptFrames scriptFrames;
+
+    /** Flag to handle some nodes differently if found inside pass declaration */
+    private boolean inPass = false;
 
     // ----- Constructors -----
 
@@ -1564,17 +1568,27 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     /**
      * Visit a constructor call node. For now constructor is only available for rewriting nodes,
      * thus we can statically determine required children and their order.
+     * If the node is encountered while parsing a 'pass', it is instead instanciated
+     * as a dynamic constructor call (creating a dynamically typed node).
      *
      * @param constructorCall The constructor call from Langkit.
      * @return The constructor call node for Truffle.
      */
     @Override
     public LKQLNode visit(Liblkqllang.ConstructorCall constructorCall) {
-        return new ConstructorCall(
-            loc(constructorCall),
-            new Identifier(loc(constructorCall.fName()), constructorCall.fName().getText()),
-            (ArgList) constructorCall.fArguments().accept(this)
-        );
+        if (inPass) {
+            return new DynamicConstructorCall(
+                loc(constructorCall),
+                constructorCall.fName().getText(),
+                (ArgList) constructorCall.fArguments().accept(this)
+            );
+        } else {
+            return new ConstructorCall(
+                loc(constructorCall),
+                new Identifier(loc(constructorCall.fName()), constructorCall.fName().getText()),
+                (ArgList) constructorCall.fArguments().accept(this)
+            );
+        }
     }
 
     // --- Selector declaration
@@ -1711,7 +1725,14 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.NodeKindPattern nodeKindPattern) {
-        return new NodeKindPattern(loc(nodeKindPattern), nodeKindPattern.fKindName().getText());
+        if (inPass) {
+            return new DynamicNodeKindPattern(
+                loc(nodeKindPattern),
+                nodeKindPattern.fKindName().getText()
+            );
+        } else {
+            return new NodeKindPattern(loc(nodeKindPattern), nodeKindPattern.fKindName().getText());
+        }
     }
 
     /**
@@ -1905,5 +1926,203 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
         // Return the tuple literal node
         return new TupleLiteral(loc(tuple), tupleExprs.toArray(new Expr[0]));
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.PassDecl passDecl) {
+        final SourceSection location = loc(passDecl);
+
+        var addCollector = new ArrayList<Liblkqllang.AddBlock>(1);
+        var delCollector = new ArrayList<Liblkqllang.DelBlock>(1);
+        var rewriteCollector = new ArrayList<Liblkqllang.RewriteBlock>(1);
+
+        for (Liblkqllang.PassBlock block : passDecl.fBlocks()) {
+            switch (block) {
+                case Liblkqllang.AddBlock addBlock:
+                    addCollector.add(addBlock);
+                    break;
+                case Liblkqllang.DelBlock delBlock:
+                    delCollector.add(delBlock);
+                    break;
+                case Liblkqllang.RewriteBlock rewriteBlock:
+                    rewriteCollector.add(rewriteBlock);
+                    break;
+                default:
+            }
+        }
+        if (addCollector.size() != 1) throw translationError(
+            passDecl,
+            "pass declaration should contain exactly one `add' block"
+        );
+        if (delCollector.size() != 1) throw translationError(
+            passDecl,
+            "pass declaration should contain exactly one `del' block"
+        );
+        if (rewriteCollector.size() != 1) throw translationError(
+            passDecl,
+            "pass declaration should contain exactly one `rewrite' block"
+        );
+
+        // Register pass as fake function
+        final String name = passDecl.fPassName().getText();
+        scriptFrames.declareBinding(name);
+        final int slot = scriptFrames.getBinding(name);
+        final Liblkqllang.Identifier previousName = passDecl.fPreviousPassName();
+        final Optional<Integer> previousSlot = previousName.isNone()
+            ? Optional.empty()
+            : Optional.of(scriptFrames.getBinding(previousName.getText()));
+
+        // Enter pass lexical environement
+        inPass = true;
+        scriptFrames.enterFrame(passDecl);
+
+        final int nbFakeArgs = Constants.PASS_FAKE_ARGS.length;
+        final var readParameters = new ReadParameter[nbFakeArgs];
+        for (int i = 0; i < nbFakeArgs; i++) {
+            final String argName = Constants.PASS_FAKE_ARGS[i];
+            readParameters[i] = new ReadParameter(
+                source.createUnavailableSection(),
+                scriptFrames.getParameter(argName)
+            );
+        }
+
+        // Digest children of passDecl
+        final var addBlock = (AddBlock) addCollector.get(0).accept(this);
+        final var delBlock = (DelBlock) delCollector.get(0).accept(this);
+        final var rewriteBlock = (RewriteBlock) rewriteCollector.get(0).accept(this);
+
+        final PassExpr passExpr = PassExprNodeGen.create(
+            location,
+            previousSlot,
+            addBlock,
+            delBlock,
+            rewriteBlock,
+            readParameters[0]
+        );
+
+        final var docstring = passDecl.pDoc();
+
+        final var funExpr = new FunExpr(
+            location,
+            scriptFrames.getFrameDescriptor(),
+            scriptFrames.getClosureDescriptor(),
+            Constants.PASS_FAKE_ARGS,
+            new Expr[Constants.PASS_FAKE_ARGS.length],
+            docstring.isNone() ? "" : parseStringLiteral(docstring),
+            passExpr,
+            "<pass:" + name + ">"
+        );
+
+        // Cleanup
+        inPass = false;
+        this.scriptFrames.exitFrame();
+
+        final var functionDecl = new FunctionDeclaration(location, null, slot, funExpr);
+
+        return functionDecl;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.PassBlockList blocks) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.AddBlock addBlock) {
+        final var prefixFields = new ArrayList<PrefixField>();
+        final var classDecls = new ArrayList<ClassDecl>();
+        for (var clause : addBlock.fClauses()) {
+            final var translated = clause.accept(this);
+            switch (translated) {
+                case PrefixField prefixField:
+                    prefixFields.add(prefixField);
+                    break;
+                case ClassDecl classDecl:
+                    classDecls.add(classDecl);
+                    break;
+                default:
+                    throw LKQLRuntimeException.shouldNotHappen(
+                        "found node of type " + translated.getClass().getCanonicalName()
+                    );
+            }
+        }
+        return new AddBlock(loc(addBlock), classDecls, prefixFields);
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.DelBlock delBlock) {
+        final var fields = new ArrayList<PrefixField>();
+        final var classes = new ArrayList<String>();
+        for (var clause : delBlock.fClauses()) {
+            switch (clause) {
+                case Liblkqllang.DotAccess prefixField:
+                    // translate dot access to prefix field
+                    fields.add(
+                        new PrefixField(
+                            loc(prefixField),
+                            prefixField.fReceiver().getText(),
+                            prefixField.fMember().getText()
+                        )
+                    );
+                    break;
+                case Liblkqllang.Identifier ident:
+                    classes.add(ident.getText());
+                    break;
+                default:
+                    throw LKQLRuntimeException.shouldNotHappen(
+                        "found node of type " + clause.getClass().getCanonicalName()
+                    );
+            }
+        }
+
+        return new DelBlock(loc(delBlock), classes, fields);
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.RewriteBlock rewriteBlock) {
+        final var arms = rewriteBlock.fClauses();
+        var clauses = new ArrayList<MatchArm>(arms.getChildrenCount());
+        for (Liblkqllang.MatchArm arm : arms) {
+            clauses.add((MatchArm) arm.accept(this));
+        }
+
+        return new RewriteBlock(loc(rewriteBlock), clauses);
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.ClassDecl classDecl) {
+        final var members = classDecl.fMembers();
+        var fields = new ArrayList<String>(members.getChildrenCount());
+        for (var member : members) {
+            fields.add(member.fFieldName().getText());
+        }
+
+        return new ClassDecl(loc(classDecl), classDecl.fName().getText(), fields);
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.RunPass runPass) {
+        final var name = runPass.fStart().getText();
+        final int slot = scriptFrames.getBinding(name);
+        return new RunPass(loc(runPass), slot);
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.ClassField classField) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.ClassFieldList classFields) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.PrefixField prefixField) {
+        return new PrefixField(
+            loc(prefixField),
+            prefixField.fPrefix().getText(),
+            prefixField.fFieldName().getText()
+        );
     }
 }
