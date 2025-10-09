@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
+        <groupId>com.adacore.lkql_jit</groupId>
         <artifactId>lkql_jit</artifactId>
-        <groupId>com.adacore</groupId>
         <version>0.1.0</version>
     </parent>
 
@@ -39,7 +39,7 @@
                 <configuration>
                     <annotationProcessorPaths>
                         <annotationProcessorPath>
-                            <groupId>com.adacore</groupId>
+                            <groupId>com.adacore.lkql_jit</groupId>
                             <artifactId>builtins_annotations</artifactId>
                             <version>0.1.0</version>
                         </annotationProcessorPath>
@@ -77,13 +77,13 @@
         </dependency>
 
         <dependency>
-            <groupId>com.adacore</groupId>
+            <groupId>com.adacore.lkql_jit</groupId>
             <artifactId>options</artifactId>
             <version>0.1.0</version>
         </dependency>
 
         <dependency>
-            <groupId>com.adacore</groupId>
+            <groupId>com.adacore.lkql_jit</groupId>
             <artifactId>builtins_annotations</artifactId>
             <version>0.1.0</version>
         </dependency>
@@ -104,12 +104,6 @@
             <groupId>com.adacore</groupId>
             <artifactId>langkit_support</artifactId>
             <version>${config.langkit_supportVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.adacore</groupId>
-            <artifactId>options</artifactId>
-            <version>0.1.0</version>
         </dependency>
     </dependencies>
 
