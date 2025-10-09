@@ -4,8 +4,6 @@ with Gnatcheck.Output;       use Gnatcheck.Output;
 with Gnatcheck.Projects;     use Gnatcheck.Projects;
 with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
 
-with GNATCOLL.Strings; use GNATCOLL.Strings;
-
 with System.Multiprocessors;
 
 package body Gnatcheck.Options is
@@ -87,6 +85,15 @@ package body Gnatcheck.Options is
    end Max_Diagnoses_Convert;
 
    --------------------
+   -- Is_New_Section --
+   --------------------
+
+   function Is_New_Section (Arg : XString) return Boolean is
+   begin
+      return Arg = "-rules" or else Arg = "-cargs";
+   end Is_New_Section;
+
+   --------------------
    -- Scan_Arguments --
    --------------------
 
@@ -94,23 +101,11 @@ package body Gnatcheck.Options is
      (First_Pass : Boolean := False; Args : Argument_List_Access := null)
    is
       Unknown_Opt_Parse_Args : XString_Vector;
-      Args_After_Opt_Parse   : Argument_List_Access;
-      Parser                 : Opt_Parser;
+      Exp_It                 : Expansion_Iterator;
+      Explicit_Sources       : String_Vector;
 
-      function To_Arg_List (Args : XString_Vector) return Argument_List_Access;
       function To_XString_Array
         (Args : Argument_List_Access) return XString_Array;
-
-      function To_Arg_List (Args : XString_Vector) return Argument_List_Access
-      is
-         Ret : constant Argument_List_Access :=
-           new String_List (1 .. Args.Last_Index);
-      begin
-         for I in Ret'Range loop
-            Ret (I) := new String'(Args (I).To_String);
-         end loop;
-         return Ret;
-      end To_Arg_List;
 
       function To_XString_Array
         (Args : Argument_List_Access) return XString_Array
@@ -123,60 +118,6 @@ package body Gnatcheck.Options is
          return Ret;
       end To_XString_Array;
 
-      procedure Process_Sections;
-      --  Processes the 'rules' section.
-
-      procedure Process_Sections is
-      begin
-         --  Processing the 'cargs' section
-
-         Goto_Section ("cargs", Parser => Parser);
-
-         while Getopt ("*", Parser => Parser) /= ASCII.NUL loop
-            Store_Compiler_Option (Full_Switch (Parser => Parser));
-         end loop;
-
-         --  Processing the 'rules' section
-         Goto_Section ("rules", Parser => Parser);
-
-         loop
-            case Getopt ("* from=", Parser => Parser) is
-               --  We do not want to depend on the set of the currently
-               --  implemented rules
-
-               when ASCII.NUL =>
-                  exit;
-
-               when 'f'       =>
-                  Rule_Options.Append
-                    (Option_Record'
-                       (File,
-                        To_Unbounded_String (Parameter (Parser => Parser))));
-                  if not More_Than_One_Legacy_Rule_File_Set then
-                     Legacy_Rule_File_Name :=
-                       new String'(Parameter (Parser => Parser));
-                     More_Than_One_Legacy_Rule_File_Set := True;
-                  else
-                     Free (Legacy_Rule_File_Name);
-                  end if;
-
-               when others    =>
-                  Add_Legacy_Rule_Option (Full_Switch (Parser => Parser));
-                  Individual_Rules_Set := True;
-            end case;
-            if not Rules_Depreciation_Emitted then
-               Info_In_Tty
-                 ("The '-rules' section is now deprecated. You should only use"
-                  & " the '--rule' and '--rule-file' command-line options.");
-               Info_In_Tty
-                 ("You can use the '--emit-lkql-rule-file' flag to "
-                  & "automatically translate your rule configuration to the "
-                  & "new LKQL format.");
-               Rules_Depreciation_Emitted := True;
-            end if;
-         end loop;
-      end Process_Sections;
-
       Executable : GNAT.OS_Lib.String_Access :=
         Locate_Exec_On_Path (Command_Name);
       Prefix     : constant String :=
@@ -185,8 +126,6 @@ package body Gnatcheck.Options is
         Compose (Compose (Prefix, "share"), "lkql");
 
       Args_From_Project : constant Boolean := Args /= null;
-      Initial_Char      : Character;
-      Success           : Boolean;
 
       --  Start of processing for Scan_Arguments
 
@@ -230,14 +169,12 @@ package body Gnatcheck.Options is
          end;
       end if;
 
-      if Arg.Parser.Parse
-           ((if Args /= null then To_XString_Array (Args) else No_Arguments),
-            Unknown_Arguments => Unknown_Opt_Parse_Args)
+      if not Arg.Parser.Parse
+               ((if Args /= null
+                 then To_XString_Array (Args)
+                 else No_Arguments),
+                Unknown_Arguments => Unknown_Opt_Parse_Args)
       then
-         Args_After_Opt_Parse := To_Arg_List (Unknown_Opt_Parse_Args);
-         Initialize_Option_Scan
-           (Parser, Args_After_Opt_Parse, Section_Delimiters => "cargs rules");
-      else
          raise Parameter_Error;
       end if;
 
@@ -260,58 +197,89 @@ package body Gnatcheck.Options is
          Allow (Arg.List_Rules.This);
       end if;
 
-      loop
-         Initial_Char := Getopt (" ", Parser => Parser);
+      --  Now that we processed all switches, remaining arguments should be
+      --  source files to analyze.
+      --  We first have to check that there is no additional argument and
+      --  expand possible glob patterns.
+      for Unknown_Arg of Unknown_Opt_Parse_Args loop
+         --  We consider that arguments starting by "-" are remaining unknown
+         --  arguments.
+         if Unknown_Arg.Starts_With ("-") then
+            Error ("unrecognized switch: " & To_String (Unknown_Arg));
+            raise Parameter_Error;
 
-         case Initial_Char is
-            when ASCII.NUL =>
-               Success := False;
-
-               loop
-                  declare
-                     Arg : constant String :=
-                       Get_Argument (Do_Expansion => True, Parser => Parser);
-
-                  begin
-                     exit when Arg = "";
-                     Success := True;
-
-                     if Options.Arg.Transitive_Closure.Get then
-                        Store_Main_Unit (Arg, Args_From_Project or First_Pass);
-                     else
-                        Store_Sources_To_Process
-                          (Arg, Args_From_Project or First_Pass);
-
-                        if not Args_From_Project then
-                           Argument_File_Specified := True;
-                        end if;
-                     end if;
-                  end;
-               end loop;
-
-               exit when not Success;
-
-            when others    =>
-               Error
-                 ("unrecognized switch: " & Full_Switch (Parser => Parser));
-               raise Parameter_Error;
-         end case;
+         --  We now know that the current argument should be handled like an
+         --  Ada source file name OR a glob pattern.
+         --  We only handle explicit sources during the first pass to avoid
+         --  duplication.
+         elsif Args_From_Project or First_Pass then
+            declare
+               Is_Glob : constant Boolean :=
+                 Unknown_Arg.Find ('*') /= 0
+                 or else Unknown_Arg.Find ('?') /= 0
+                 or else Unknown_Arg.Find ('[') /= 0;
+            begin
+               if Is_Glob then
+                  Start_Expansion (Exp_It, To_String (Unknown_Arg));
+                  loop
+                     declare
+                        Expanded_Arg : constant String := Expansion (Exp_It);
+                     begin
+                        exit when Expanded_Arg = "";
+                        Explicit_Sources.Append (Expanded_Arg);
+                     end;
+                  end loop;
+               else
+                  Explicit_Sources.Append (To_String (Unknown_Arg));
+               end if;
+            end;
+         end if;
       end loop;
 
-      if Current_Section (Parser => Parser) = "" and then not First_Pass then
-         Process_Sections;
-      end if;
-
-   exception
-      when Invalid_Switch =>
-         Error ("invalid switch: " & Full_Switch (Parser => Parser));
-         raise Parameter_Error;
-
-      when Invalid_Parameter =>
-         Error
-           ("missing Parameter (Parser => Parser) for: -"
-            & Full_Switch (Parser => Parser));
-         raise Parameter_Error;
+      --  We can now store sources to process
+      for Arg of Explicit_Sources loop
+         if Options.Arg.Transitive_Closure.Get then
+            Store_Main_Unit (Arg);
+         else
+            Store_Sources_To_Process (Arg);
+            if not Args_From_Project then
+               Argument_File_Specified := True;
+            end if;
+         end if;
+      end loop;
    end Scan_Arguments;
+
+   ---------------------------------
+   -- Process_Legacy_Rule_Options --
+   ---------------------------------
+
+   procedure Process_Legacy_Rule_Options
+     (Args : Arg.Legacy_Rules_Section.Result_Array)
+   is
+      Remaining_Options : XString_Vector;
+   begin
+      if Legacy_Rule_Options.Parser.Parse
+           (XString_Array (Args), Remaining_Options)
+      then
+         --  Add coding standard file(s)
+         if Legacy_Rule_Options.From_Files.Get'Length = 1 then
+            Legacy_Rule_File_Name :=
+              Legacy_Rule_Options.From_Files.Get
+                (Legacy_Rule_Options.From_Files.Get'First);
+         end if;
+
+         for From_File of Legacy_Rule_Options.From_Files.Get loop
+            Rule_Options.Append (Option_Record'(File, From_File));
+         end loop;
+
+         --  Store legacy rule options
+         for Rule_Option of Remaining_Options loop
+            Add_Legacy_Rule_Option (To_String (Rule_Option));
+            Individual_Rules_Set := True;
+         end loop;
+      else
+         raise Fatal_Error with "cannot parse legacy rule options";
+      end if;
+   end Process_Legacy_Rule_Options;
 
 end Gnatcheck.Options;

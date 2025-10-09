@@ -470,6 +470,20 @@ begin
         (Normalize_Pathname (To_String (Working_Dir_Path)));
    end loop;
 
+   --  Store legacy rule options before re-parsing the command-line
+   if Arg.Has_Legacy_Rule_Options then
+      --  Process the legacy rule options section
+      Process_Legacy_Rule_Options (Arg.Legacy_Rules_Section.Get);
+
+      --  Emit the depreciation message
+      Info_In_Tty
+        ("The '-rules' section is now deprecated. You should only use the "
+         & "'--rule' and '--rule-file' command-line options.");
+      Info_In_Tty
+        ("You can use the '--emit-lkql-rule-file' flag to automatically "
+         & "translate your rule configuration to the new LKQL format.");
+   end if;
+
    --  Then analyze the command-line parameters
 
    Scan_Arguments;

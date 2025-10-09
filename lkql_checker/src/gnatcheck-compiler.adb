@@ -1924,12 +1924,22 @@ package body Gnatcheck.Compiler is
    --------------------
 
    function Spawn_GPRbuild (Output_File : String) return Process_Id is
+
       Pid         : Process_Id;
       GPRbuild    : String_Access := Locate_Exec_On_Path (GPRbuild_Exec);
       Prj         : constant String := Gnatcheck_Prj.Source_Prj;
       Last_Source : constant SF_Id := Last_Argument_Source;
       Args        : Argument_List (1 .. 128 + Integer (Last_Source));
       Num_Args    : Integer := 0;
+
+      procedure Add_Arg (Arg : String);
+      --  Add an argument to the local argument list ``Args``.
+
+      procedure Add_Arg (Arg : String) is
+      begin
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'(Arg);
+      end Add_Arg;
 
       use Ada.Strings.Unbounded;
    begin
@@ -1950,23 +1960,19 @@ package body Gnatcheck.Compiler is
       Num_Args := 8;
 
       if Target /= Null_Unbounded_String then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--target=" & To_String (Target));
+         Add_Arg ("--target=" & To_String (Target));
       end if;
 
       if Arg.Jobs.Get > 1 then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-j" & Image (Arg.Jobs.Get));
+         Add_Arg ("-j" & Image (Arg.Jobs.Get));
       end if;
 
       if Prj /= "" then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-P" & Prj);
+         Add_Arg ("-P" & Prj);
       end if;
 
       if Arg.Follow_Symbolic_Links.Get then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-eL");
+         Add_Arg ("-eL");
       end if;
 
       --  If files are specified explicitly, only compile these files
@@ -1974,27 +1980,47 @@ package body Gnatcheck.Compiler is
       if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
         or else Arg.Source_Files_Specified
       then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-u");
+         Add_Arg ("-u");
 
          for SF in First_SF_Id .. Last_Source loop
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'(Short_Source_Name (SF));
+            Add_Arg (Short_Source_Name (SF));
          end loop;
       else
          if Arg.Transitive_Closure.Get then
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'("-U");
+            Add_Arg ("-U");
          end if;
 
          if not Main_Unit.Is_Empty then
             for MU of Main_Unit loop
-               Num_Args := @ + 1;
-               Args (Num_Args) := new String'(String (MU));
+               Add_Arg (String (MU));
             end loop;
          end if;
       end if;
 
+      --  Append options specified through the "-cargs" section
+      for Option of Arg.Cargs_Section.Get loop
+         Add_Arg (To_String (Option));
+      end loop;
+
+      if Analyze_Compiler_Output then
+         Add_Arg ("-gnatec=" & Gnatcheck_Config_File.all);
+         Add_Arg ("-gnatcU");
+         Add_Arg ("-gnatwnA.d");
+
+         if Use_gnatw_Option then
+            Add_Arg (Get_Warning_Option);
+         end if;
+
+         Add_Arg ("-gnatyN");
+
+         if Use_gnaty_Option then
+            for S of Split (Get_Style_Option, ' ') loop
+               Add_Arg (S);
+            end loop;
+         end if;
+      end if;
+
+      --  Add scenario variables to the compiler command
       Append_Variables (Args, Num_Args);
 
       if Arg.Debug_Mode.Get then
@@ -2004,17 +2030,13 @@ package body Gnatcheck.Compiler is
             Put (" " & Args (J).all);
          end loop;
 
-         for S of Compiler_Arg_List.all loop
-            Put (" " & S.all);
-         end loop;
-
          New_Line;
       end if;
 
       Pid :=
         Non_Blocking_Spawn
           (GPRbuild.all,
-           Args (1 .. Num_Args) & Compiler_Arg_List.all,
+           Args (1 .. Num_Args),
            Output_File & ".out",
            Output_File);
       Free (GPRbuild);

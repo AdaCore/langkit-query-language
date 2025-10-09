@@ -1280,8 +1280,6 @@ package body Gnatcheck.Diagnoses is
 
    procedure Print_Active_Rules_File is
       Rule_List_File : Ada.Text_IO.File_Type;
-
-      use all type GNAT.OS_Lib.String_Access;
    begin
       if Arg.Text_Report_Enabled then
          Report_No_EOL ("coding standard   : ");
@@ -1292,13 +1290,15 @@ package body Gnatcheck.Diagnoses is
            ("<coding-standard from-file=""", Indent_Level => 1);
       end if;
 
-      if not Individual_Rules_Set and then Legacy_Rule_File_Name /= null then
+      if not Individual_Rules_Set
+        and then Legacy_Rule_File_Name /= Null_Unbounded_String
+      then
          if Arg.Text_Report_Enabled then
-            Report (Legacy_Rule_File_Name.all);
+            Report (To_String (Legacy_Rule_File_Name));
          end if;
 
          if Arg.XML_Report_Enabled then
-            XML_Report (Legacy_Rule_File_Name.all & """>");
+            XML_Report (To_String (Legacy_Rule_File_Name) & """>");
          end if;
       else
          --  Creating the list of active rules

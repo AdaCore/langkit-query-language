@@ -11,9 +11,7 @@ with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 
 with GNAT.Directory_Operations;
-with GNAT.Regexp;       use GNAT.Regexp;
-with GNAT.String_Split; use GNAT.String_Split;
-with GNAT.Table;
+with GNAT.Regexp; use GNAT.Regexp;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses;
@@ -894,11 +892,9 @@ package body Gnatcheck.Projects is
    -- Store_Main_Unit --
    ---------------------
 
-   procedure Store_Main_Unit (Unit_Name : String; Store : Boolean := True) is
+   procedure Store_Main_Unit (Unit_Name : String) is
    begin
-      if Store then
-         Gnatcheck.Projects.Main_Unit.Include (GPR2.Filename_Type (Unit_Name));
-      end if;
+      Gnatcheck.Projects.Main_Unit.Include (GPR2.Filename_Type (Unit_Name));
    end Store_Main_Unit;
 
    --------------------------
@@ -1108,24 +1104,6 @@ package body Gnatcheck.Projects is
         and then LKQL_Rule_File_Name = Null_Unbounded_String;
    end Is_Rule_Options_Empty;
 
-   ---------------------------
-   -- Store_Compiler_Option --
-   ---------------------------
-
-   package Compiler_Switches is new
-     GNAT.Table
-       (Table_Component_Type => String_Access,
-        Table_Index_Type     => Natural,
-        Table_Low_Bound      => 1,
-        Table_Initial        => 20,
-        Table_Increment      => 100,
-        Table_Name           => "Compiler options");
-
-   procedure Store_Compiler_Option (Switch : String) is
-   begin
-      Compiler_Switches.Append (new String'(Switch));
-   end Store_Compiler_Option;
-
    ----------------------
    -- Check_Parameters --
    ----------------------
@@ -1184,24 +1162,6 @@ package body Gnatcheck.Projects is
         or Use_gnatw_Option
         or Check_Restrictions
         or Arg.Check_Semantic.Get;
-
-      if Analyze_Compiler_Output then
-         Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);
-         Store_Compiler_Option ("-gnatcU");
-         Store_Compiler_Option ("-gnatwnA.d");
-
-         if Use_gnatw_Option then
-            Store_Compiler_Option (Get_Warning_Option);
-         end if;
-
-         Store_Compiler_Option ("-gnatyN");
-
-         if Use_gnaty_Option then
-            for S of Create (Get_Style_Option, " ") loop
-               Store_Compiler_Option (S);
-            end loop;
-         end if;
-      end if;
 
       --  If GNATcheck is in KP mode and there is a command line specified KP
       --  version, we have to iterate over all implemented rules to enable
@@ -1272,13 +1232,6 @@ package body Gnatcheck.Projects is
       --  If we are here - we have sources to check and rules to apply
 
       Sources_Left := Total_Sources;
-
-      --  Save compiler switches computed in Compiler_Arg_List
-
-      Compiler_Arg_List :=
-        new Argument_List'
-          (String_List
-             (Compiler_Switches.Table (1 .. Compiler_Switches.Last)));
 
       <<Processing_Aggregate_Project>>
 

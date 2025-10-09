@@ -95,8 +95,6 @@ package Gnatcheck.Source_Table is
    --  Fname is stored in an internal database as the name of the file to be
    --  processed by the tool. No check is made if Fname denotes an existing
    --  file.
-   --
-   --  If Store is False then the procedure does not store anything.
 
    procedure Read_Args_From_Temp_Storage
      (Duplication_Report : Boolean;

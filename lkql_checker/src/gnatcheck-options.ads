@@ -17,6 +17,7 @@ with Gnatcheck.Projects;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
+with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
 with GPR2.Options;
 
@@ -170,14 +171,12 @@ package Gnatcheck.Options is
    --  section of the report file. If this option is not set, this section is
    --  not created in the report file.
 
-   Individual_Rules_Set               : Boolean := False;
-   More_Than_One_Legacy_Rule_File_Set : Boolean := False;
+   Individual_Rules_Set : Boolean := False;
    --  Flags used to detect if all the rules specified for a given gnatcheck
-   --  call, should be set when parsing rule options
+   --  call, should be set when parsing rule options.
 
-   Legacy_Rule_File_Name : GNAT.OS_Lib.String_Access;
-   --  If ``More_Than_One_Legacy_Rule_File_Set`` is OFF and if a rule file has
-   --  been processed, keeps the name of this file, otherwise is null.
+   Legacy_Rule_File_Name : Unbounded_String := Null_Unbounded_String;
+   --  If only one legacy rule file has been provided, store it here.
 
    LKQL_Rule_File_Name : Unbounded_String := Null_Unbounded_String;
    --  Name of the LKQL file to process as a rule file. We assume that the
@@ -202,6 +201,8 @@ package Gnatcheck.Options is
    function Jobs_Convert (Arg : String) return Natural;
    function Project_Verbosity_Convert (Arg : String) return Natural;
    function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count;
+
+   function Is_New_Section (Arg : XString) return Boolean;
 
    package Arg is
       Parser : Argument_Parser :=
@@ -625,6 +626,32 @@ package Gnatcheck.Options is
            Short  => "-W",
            Help   => "Treat warning messages as errors");
 
+      package Cargs_Section is new
+        Parse_Option_List
+          (Parser              => Parser,
+           Long                => "-cargs",
+           Name                => "Compiler options",
+           Accumulate          => True,
+           Arg_Number          => Multiple_Args,
+           Allow_Empty         => True,
+           Arg_Type            => Unbounded_String,
+           List_Stop_Predicate => Is_New_Section,
+           Help                => "options forwarded to the compiler",
+           Legacy_Long_Form    => True);
+
+      package Legacy_Rules_Section is new
+        Parse_Option_List
+          (Parser              => Parser,
+           Long                => "-rules",
+           Name                => "Rule options",
+           Accumulate          => True,
+           Arg_Number          => Multiple_Args,
+           Allow_Empty         => True,
+           Arg_Type            => XString,
+           List_Stop_Predicate => Is_New_Section,
+           Help                => "legacy rule options",
+           Legacy_Long_Form    => True);
+
       ----------------------
       -- Option shortcuts --
       ----------------------
@@ -656,6 +683,9 @@ package Gnatcheck.Options is
       function Source_Files_Specified return Boolean
       is (Source_Files.Get /= Null_Unbounded_String);
 
+      function Has_Legacy_Rule_Options return Boolean
+      is (Legacy_Rules_Section.Get'Length > 0);
+
    private
       function Resolve_Report_File
         (File_Name : Unbounded_String; Default_Name : String) return String
@@ -681,6 +711,26 @@ package Gnatcheck.Options is
       is (Resolve_Report_File (XML_Output.Get, Executable & ".xml"));
    end Arg;
 
+   --------------------------
+   -- Legacy option parser --
+   --------------------------
+
+   package Legacy_Rule_Options is
+      Parser : Argument_Parser :=
+        Create_Argument_Parser
+          (Help                => "Legacy rule options parser",
+           Generate_Help_Flag  => False,
+           Print_Help_On_Error => False);
+
+      package From_Files is new
+        Parse_Option_List
+          (Parser           => Parser,
+           Long             => "-from",
+           Arg_Type         => Unbounded_String,
+           Accumulate       => True,
+           Legacy_Long_Form => True);
+   end Legacy_Rule_Options;
+
    -----------------------
    -- Option processing --
    -----------------------
@@ -694,5 +744,9 @@ package Gnatcheck.Options is
    --  The ``First_Pass`` parameter indicates whether this is the first time
    --  arguments are processed. This is used to avoid processing same arguments
    --  multiple times.
+
+   procedure Process_Legacy_Rule_Options
+     (Args : Arg.Legacy_Rules_Section.Result_Array);
+   --  Process the options provided in ``Args`` as legacy rule options.
 
 end Gnatcheck.Options;
