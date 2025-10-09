@@ -1,0 +1,9 @@
+# Expected behavior here is that libgpr warns when a runtime doesn't exist
+
+driver: gnatcheck
+project: prj.gpr
+rules:
+  - +Rrecursive_subprograms
+extra_args:
+  - --RTS=unknown
+canonicalize_target: true

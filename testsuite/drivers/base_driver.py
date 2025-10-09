@@ -417,6 +417,9 @@ class BaseDriver(DiffTestDriver):
         result.append(Substitute(self.working_dir(), "<working-dir>"))
         if self.test_env.get("canonicalize_backslashes", True):
             result.append(Substitute("\\", "/"))
+        if self.test_env.get("canonicalize_target", False):
+            result.append(Substitute("x86_64-linux", "<target>"))
+            result.append(Substitute("x86_64-windows", "<target>"))
         return result
 
     def parse_flagged_lines(self, output: str) -> dict[str, TaggedLines]:

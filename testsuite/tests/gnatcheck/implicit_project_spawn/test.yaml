@@ -5,3 +5,4 @@ rules:
   - +Rsame_instantiations
 extra_args:
   - -d
+canonicalize_target: true
