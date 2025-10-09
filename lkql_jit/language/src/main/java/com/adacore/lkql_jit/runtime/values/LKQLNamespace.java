@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.runtime.values.bases.ObjectLKQLValue;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -28,7 +27,7 @@ import java.util.Map;
 
 /** This class represents the namespaces in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
+public class LKQLNamespace extends ObjectLKQLValue {
 
     public final String documentation;
 

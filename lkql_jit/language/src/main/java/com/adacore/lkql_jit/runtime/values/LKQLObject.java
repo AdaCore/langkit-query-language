@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.bases.ObjectLKQLValue;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -24,7 +23,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents an object value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public final class LKQLObject extends ObjectLKQLValue implements LKQLValue {
+public final class LKQLObject extends ObjectLKQLValue {
 
     // ----- Attributes -----*
 
