@@ -217,10 +217,7 @@ class GnatcheckDriver(BaseDriver):
 
     @classmethod
     def replace_xml_tag_content(
-        cls,
-        xml_buffer: str,
-        tag_name: str,
-        new_content: str
+        cls, xml_buffer: str, tag_name: str, new_content: str
     ) -> str:
         """
         Match all tags with the provided name and replace their content by the
@@ -229,7 +226,7 @@ class GnatcheckDriver(BaseDriver):
         return re.sub(
             f"<{tag_name}>.*</{tag_name}>",
             f"<{tag_name}>{new_content}</{tag_name}>",
-            xml_buffer
+            xml_buffer,
         )
 
     @property
@@ -279,8 +276,8 @@ class GnatcheckDriver(BaseDriver):
             dirpath = self.working_dir(dirname)
             self.output += (
                 "\n".join(sorted(os.listdir(dirpath)))
-                if os.path.isdir(dirpath) else
-                f"Cannot find the directory {dirname}"
+                if os.path.isdir(dirpath)
+                else f"Cannot find the directory {dirname}"
             ) + "\n"
 
         def tree(root_dirname: str):
@@ -317,7 +314,7 @@ class GnatcheckDriver(BaseDriver):
                     lines = lines[trim_start : len(lines) - trim_end]
                     if sort:
                         lines.sort()
-                    self.output += ''.join(lines)
+                    self.output += "".join(lines)
             except FileNotFoundError:
                 self.output += f"Cannot find the file {filename}\n"
 
@@ -365,10 +362,12 @@ class GnatcheckDriver(BaseDriver):
             of the underlying function and its unnamed arguments to the test
             output before running it.
             """
+
             def res(*args, **kwargs):
                 args_image = f" {' '.join(args)}" if args else ""
-                self.output += f"Running \"{f.__name__}{args_image}\"...\n"
+                self.output += f'Running "{f.__name__}{args_image}"...\n'
                 f(*args, **kwargs)
+
             return res
 
         globs, locs = {
@@ -416,7 +415,9 @@ class GnatcheckDriver(BaseDriver):
             args = [exe, "-q"]
             output_file_name = test_data.get("output_file")
             if output_file_name is None or output_file_name == True:
-                output_file_name = self.working_dir(f"{exe}.{'xml' if output_format == 'xml' else 'out'}")
+                output_file_name = self.working_dir(
+                    f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
+                )
             elif output_file_name:
                 output_file_name = self.working_dir(output_file_name)
 
@@ -582,8 +583,8 @@ class GnatcheckDriver(BaseDriver):
                 # Execute GNATcheck and get its output
                 gnatcheck_cwd = (
                     self.working_dir(test_data["gnatcheck_working_dir"])
-                    if test_data.get("gnatcheck_working_dir") else
-                    None
+                    if test_data.get("gnatcheck_working_dir")
+                    else None
                 )
                 exec_output = ""
                 status_code = 0
@@ -604,16 +605,6 @@ class GnatcheckDriver(BaseDriver):
                     exec_output = p.out
                     status_code = p.status
 
-                # If required, canonicalize gnatcheck worker name in the output
-                if test_data.get("canonicalize_worker", True):
-                    worker = " ".join(
-                        [
-                            P.basename(self.gnatcheck_worker_exe[0]),
-                            *self.gnatcheck_worker_exe[1:],
-                        ]
-                    )
-                    exec_output = exec_output.replace(worker, "<gnatcheck_worker_exe>")
-
                 # Then read GNATcheck report file if there is one
                 report_file_content = ""
                 has_output_file = False
@@ -624,13 +615,19 @@ class GnatcheckDriver(BaseDriver):
                                 report_file_content = f.read()
                                 if output_format == "xml":
                                     # Remove changing parts of the GNATcheck XML report
-                                    for (tag_name, new_content) in [
+                                    for tag_name, new_content in [
                                         ("date", "DATE"),
                                         ("version", "VERSION"),
                                         ("command-line", "COMMAND_LINE"),
                                         ("runtime", "RUNTIME"),
                                     ]:
-                                        report_file_content = self.replace_xml_tag_content(report_file_content, tag_name, new_content)
+                                        report_file_content = (
+                                            self.replace_xml_tag_content(
+                                                report_file_content,
+                                                tag_name,
+                                                new_content,
+                                            )
+                                        )
                             else:
                                 # Strip the 10 first lines of the report, which contain
                                 # run-specific information that we don't want to
@@ -689,7 +686,24 @@ class GnatcheckDriver(BaseDriver):
 
     @property
     def output_refiners(self) -> list[OutputRefiner]:
-        result = super().output_refiners
+        result = []
+        # Canonicalize gnatcheck worker name in the output before applying
+        # base_driver refiners.
+        if self.test_env.get("canonicalize_worker", True):
+            result.append(
+                PatternSubstitute(
+                    " ".join(
+                        [
+                            P.basename(self.gnatcheck_worker_exe[0]),
+                            *self.gnatcheck_worker_exe[1:],
+                        ]
+                    ),
+                    "<gnatcheck_worker_exe>",
+                )
+            )
+
+        result = result + super().output_refiners
+
         # Remove version information printed by gnatcheck in verbose mode
         result.append(
             PatternSubstitute(
@@ -698,15 +712,14 @@ class GnatcheckDriver(BaseDriver):
             )
         )
         result.append(
-            PatternSubstitute(
-                "Copyright \\(C\\) [0-9-]+",
-                "Copyright (C) <date>"
-            )
+            PatternSubstitute("Copyright \\(C\\) [0-9-]+", "Copyright (C) <date>")
         )
 
         # Remove project search path information
-        result.append(PatternSubstitute(
-            "project search path: .*",
-            "project search path: <gpr_path>",
-        ))
+        result.append(
+            PatternSubstitute(
+                "project search path: .*",
+                "project search path: <gpr_path>",
+            )
+        )
         return result

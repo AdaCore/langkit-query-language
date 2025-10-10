@@ -18,7 +18,12 @@ class RefactorDriver(BaseDriver):
     flag_checking_supported = False
 
     def run(self) -> None:
-        self.check_run([
-            *self.command_base, 'refactor',
-            '--refactoring', self.test_env['refactoring'], 'input.lkql'
-        ])
+        self.check_run(
+            [
+                *self.command_base,
+                "refactor",
+                "--refactoring",
+                self.test_env["refactoring"],
+                "input.lkql",
+            ]
+        )

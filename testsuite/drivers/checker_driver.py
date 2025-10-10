@@ -4,6 +4,7 @@ from drivers.base_driver import BaseDriver, TaggedLines
 
 from e3.testsuite.driver.diff import OutputRefiner, Substitute
 
+
 class CheckerDriver(BaseDriver):
     """
     This driver runs the checker with the given arguments and compares the
@@ -37,23 +38,23 @@ class CheckerDriver(BaseDriver):
         args = []
 
         # Use the test's project, if any
-        if self.test_env.get('project', None):
-            args += ['-P', self.test_env['project']]
+        if self.test_env.get("project", None):
+            args += ["-P", self.test_env["project"]]
         else:
-            args += self.test_env['input_sources']
+            args += self.test_env["input_sources"]
 
         # Use the wanted charset, if any
-        if self.test_env.get('source_charset'):
-            args += ['--charset', self.test_env['source_charset']]
+        if self.test_env.get("source_charset"):
+            args += ["--charset", self.test_env["source_charset"]]
 
-        for k, v in self.test_env.get('rule_arguments', {}).items():
-            args += ['--rule-arg', '{}={}'.format(k, v)]
+        for k, v in self.test_env.get("rule_arguments", {}).items():
+            args += ["--rule-arg", "{}={}".format(k, v)]
 
-        args += ['-r', self.test_env['rule_name']]
-        args += ['--rules-dir', self.test_env['test_dir']]
+        args += ["-r", self.test_env["rule_name"]]
+        args += ["--rules-dir", self.test_env["test_dir"]]
 
         if self.test_env.get("keep_going_on_missing_file", False):
-            args += ['--keep-going-on-missing-file']
+            args += ["--keep-going-on-missing-file"]
 
         # Run the checker
         if self.perf_mode:
@@ -61,10 +62,7 @@ class CheckerDriver(BaseDriver):
         else:
             # Use `catch_error=False` to avoid failing on non-zero status code,
             # as some tests actually exert erroneous behaviors.
-            self.check_run(
-                self.lkql_checker_exe + args,
-                catch_error=False
-            )
+            self.check_run(self.lkql_checker_exe + args, catch_error=False)
 
             # If required, run the LKQL fix command
             if self.test_env.get("auto_fix"):
@@ -75,14 +73,14 @@ class CheckerDriver(BaseDriver):
                 auto_fix_mode = self.test_env.get("auto_fix_mode", "DISPLAY")
                 assert auto_fix_mode in ["DISPLAY", "NEW_FILE", "PATCH_FILE"]
                 self.check_run(
-                    self.lkql_fix_exe + args + ['--auto-fix-mode', auto_fix_mode],
+                    self.lkql_fix_exe + args + ["--auto-fix-mode", auto_fix_mode],
                     check_flags=False,
                     catch_error=False,
                 )
 
                 # If the auto-fix mode is "NEW_FILE" or "PATCH_FILE", then
                 # display resulting files.
-                if auto_fix_mode in ['NEW_FILE', 'PATCH_FILE']:
+                if auto_fix_mode in ["NEW_FILE", "PATCH_FILE"]:
                     # Get the list of patched files by parsing the output
                     patched_files = []
                     for l in str(self.output).splitlines():
@@ -93,7 +91,7 @@ class CheckerDriver(BaseDriver):
 
                     # Then, for each patched file, display its content
                     for pf in patched_files:
-                        with open(self.working_dir(pf), 'r') as f:
+                        with open(self.working_dir(pf), "r") as f:
                             self.output += f"=== {pf} content:\n"
                             self.output += f.read()
 
