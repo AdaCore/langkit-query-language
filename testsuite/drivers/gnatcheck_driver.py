@@ -604,16 +604,6 @@ class GnatcheckDriver(BaseDriver):
                     exec_output = p.out
                     status_code = p.status
 
-                # If required, canonicalize gnatcheck worker name in the output
-                if test_data.get("canonicalize_worker", True):
-                    worker = " ".join(
-                        [
-                            P.basename(self.gnatcheck_worker_exe[0]),
-                            *self.gnatcheck_worker_exe[1:],
-                        ]
-                    )
-                    exec_output = exec_output.replace(worker, "<gnatcheck_worker_exe>")
-
                 # Then read GNATcheck report file if there is one
                 report_file_content = ""
                 has_output_file = False
@@ -689,7 +679,24 @@ class GnatcheckDriver(BaseDriver):
 
     @property
     def output_refiners(self) -> list[OutputRefiner]:
-        result = super().output_refiners
+        result = []
+        # Canonicalize gnatcheck worker name in the output before applying
+        # base_driver refiners.
+        if self.test_env.get("canonicalize_worker", True):
+            result.append(
+                PatternSubstitute(
+                    " ".join(
+                        [
+                            P.basename(self.gnatcheck_worker_exe[0]),
+                            *self.gnatcheck_worker_exe[1:],
+                        ]
+                    ),
+                    "<gnatcheck_worker_exe>",
+                )
+            )
+
+        result = result + super().output_refiners
+
         # Remove version information printed by gnatcheck in verbose mode
         result.append(
             PatternSubstitute(
