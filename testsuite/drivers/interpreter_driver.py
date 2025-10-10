@@ -26,17 +26,14 @@ class InterpreterDriver(BaseDriver):
 
     def run(self) -> None:
         # Build the process's arguments list
-        args = [*self.base_args(), '--script-path', 'script.lkql']
+        args = [*self.base_args(), "--script-path", "script.lkql"]
 
-        input_sources = self.test_env.get('input_sources', None)
-        project = self.test_env.get('project', None)
-        lkql_path = [
-            self.working_dir(d)
-            for d in self.test_env.get('lkql_path', [])
-        ]
+        input_sources = self.test_env.get("input_sources", None)
+        project = self.test_env.get("project", None)
+        lkql_path = [self.working_dir(d) for d in self.test_env.get("lkql_path", [])]
 
         if project:
-            args += ['-P', self.test_env['project']]
+            args += ["-P", self.test_env["project"]]
 
         if input_sources:
             args += input_sources

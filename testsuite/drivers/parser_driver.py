@@ -18,10 +18,10 @@ class ParserDriver(BaseDriver):
     flag_checking_supported = False
 
     def run(self) -> None:
-        rule = self.test_env['rule']
+        rule = self.test_env["rule"]
 
         # Run the `parse` program.
         # The `f` option is used to specify a file name, instead of passing
         # the text to parse as a command-line argument.
         # The `r` option is used to choose a starting rule for the parser.
-        self.check_run(['lkql_parse', '-f', 'input', '-r', rule, '--hide-slocs'])
+        self.check_run(["lkql_parse", "-f", "input", "-r", rule, "--hide-slocs"])

@@ -15,9 +15,7 @@ from e3.testsuite.driver.diff import (
     Substitute,
     OutputRefiner,
 )
-from e3.testsuite.driver.classic import (
-    TestAbortWithError, ProcessResult, TestSkip
-)
+from e3.testsuite.driver.classic import TestAbortWithError, ProcessResult, TestSkip
 
 
 @dataclass
@@ -95,21 +93,20 @@ class FileFlags:
             if self.noflag_annotations.tag_count(line) != 0:
                 res.append((line, "'NOFLAG' annotation violated"))
             elif flag_count == 0:
-                res.append((
-                    line,
-                    f"no 'FLAG' annotation (line flagged {count} time(s))"
-                ))
+                res.append(
+                    (line, f"no 'FLAG' annotation (line flagged {count} time(s))")
+                )
             elif flag_count != count:
-                res.append((
-                    line,
-                    f"unexpected flag count (expecting {flag_count}, actual {count})"
-                ))
+                res.append(
+                    (
+                        line,
+                        f"unexpected flag count (expecting {flag_count}, actual {count})",
+                    )
+                )
 
         for line, count in self.flag_annotations.tagged_lines.items():
             if self.flagged_lines.tag_count(line) == 0:
-                res.append((
-                    line, f"line is never flagged (expecting {count} time(s))"
-                ))
+                res.append((line, f"line is never flagged (expecting {count} time(s))"))
 
         return sorted(res, key=lambda t: t[0])
 
@@ -147,7 +144,9 @@ class FileFlags:
         for line, count in missing_flag_annotations.items():
             # Split the source line to get the code and the comment parts
             line_split = source_lines[line - 1].split("--", maxsplit=1)
-            code, comment = line_split[0], line_split[1].strip() if len(line_split) == 2 else ""
+            code, comment = line_split[0], (
+                line_split[1].strip() if len(line_split) == 2 else ""
+            )
 
             # Remove the already existing FLAG annotation if there is one
             search_res = re.search(r"FLAG\s*(\(\d+\))?\s*(.*)", comment)
@@ -166,7 +165,7 @@ class FileFlags:
             source_lines[line - 1] = f"{code}--  FLAG{count_str}{comment}"
 
         # Finally write the modified lines in the source file
-        with open(source, 'w', encoding=source_encoding) as f:
+        with open(source, "w", encoding=source_encoding) as f:
             for line in source_lines:
                 print(line, file=f)
 
@@ -179,7 +178,7 @@ class BaseDriver(DiffTestDriver):
     flag_pattern = re.compile(r"--\s*FLAG\s*(\((\d+)\))?\s*(.*)")
     noflag_pattern = re.compile(r"--\s*NOFLAG")
     ada_file_pattern = r"[a-zA-Z][a-zA-Z0-9_\.\-]*\.(adb|ads|ada|ada_spec)"
-    ada_source_encodings = ['utf-8', 'iso-8859-1']
+    ada_source_encodings = ["utf-8", "iso-8859-1"]
 
     perf_supported = False
     flag_checking_supported = False
@@ -190,12 +189,13 @@ class BaseDriver(DiffTestDriver):
 
     @property
     def perf_mode(self) -> bool:
-        return hasattr(self.env, 'perf_mode') and self.env.perf_mode
+        return hasattr(self.env, "perf_mode") and self.env.perf_mode
 
     @property
     def flag_checking(self) -> bool:
-        return ((not self.env.options.no_flag_checking) and
-                self.test_env.get("check_flags", True))
+        return (not self.env.options.no_flag_checking) and self.test_env.get(
+            "check_flags", True
+        )
 
     @property
     def lkql_jit_dir(self):
@@ -209,26 +209,28 @@ class BaseDriver(DiffTestDriver):
 
     @property
     def test_control_creator(self):
-        return YAMLTestControlCreator({
-            'mode': self.env.options.mode,
-            'os': self.env.build.os.name,
-            'is_codepeer': self.is_codepeer,
-        })
+        return YAMLTestControlCreator(
+            {
+                "mode": self.env.options.mode,
+                "os": self.env.build.os.name,
+                "is_codepeer": self.is_codepeer,
+            }
+        )
 
     def set_up(self) -> None:
         super().set_up()
 
         # If requested, skip internal testcases
         if (
-            hasattr(self.env.options, "skip_internal_tests") and
-            self.env.options.skip_internal_tests and
-            self.test_env['test_name'].startswith('internal__')
+            hasattr(self.env.options, "skip_internal_tests")
+            and self.env.options.skip_internal_tests
+            and self.test_env["test_name"].startswith("internal__")
         ):
-            raise TestSkip('Skipping internal testcase')
+            raise TestSkip("Skipping internal testcase")
 
         self._define_lkql_executables()
 
-        if hasattr(self.env.options, 'coverage') and self.env.options.coverage:
+        if hasattr(self.env.options, "coverage") and self.env.options.coverage:
             # Unique number to generate separate trace files in the "shell"
             # method.
             self.trace_counter = 0
@@ -241,12 +243,8 @@ class BaseDriver(DiffTestDriver):
             mkdir(self.traces_dir)
 
     def check_run(
-            self,
-            args: list[str],
-            check_flags: bool = True,
-            lkql_path = "",
-            **kwargs
-        ) -> ProcessResult:
+        self, args: list[str], check_flags: bool = True, lkql_path="", **kwargs
+    ) -> ProcessResult:
         """
         Run a process and check that its output is the expected one.
 
@@ -256,26 +254,22 @@ class BaseDriver(DiffTestDriver):
         env = dict(os.environ)
 
         # Ensure color codes are not output during the test execution
-        env.pop('TERM', None)
+        env.pop("TERM", None)
 
         # If code coverage is enabled, put trace files in the dedicated
         # directory.
         if self.env.options.coverage:
-            env['LIBLKQLLANG_TRACE_FILE'] = P.join(
-                self.traces_dir, f'lkql-{self.trace_counter}.srctrace'
+            env["LIBLKQLLANG_TRACE_FILE"] = P.join(
+                self.traces_dir, f"lkql-{self.trace_counter}.srctrace"
             )
-            env['GNATCOV_TRACE_FILE'] = P.join(
-                self.traces_dir, f'prog-{self.trace_counter}.srctrace'
+            env["GNATCOV_TRACE_FILE"] = P.join(
+                self.traces_dir, f"prog-{self.trace_counter}.srctrace"
             )
 
         # Add the provided LKQL path to environment variables
         env["LKQL_PATH"] = lkql_path
 
-        if (
-            self.flag_checking_supported and
-            self.flag_checking and
-            check_flags
-        ):
+        if self.flag_checking_supported and self.flag_checking and check_flags:
             run_result = self.shell(args, env=env, **kwargs)
             self.check_flags(self.parse_flagged_lines(run_result.out))
             return run_result
@@ -345,7 +339,7 @@ class BaseDriver(DiffTestDriver):
                     "-F100",
                     "-o",
                     P.join(perf_dir, perf_filename),
-                    "--"
+                    "--",
                 )
                 self.result.info["time-profile"] = perf_filename
 
@@ -362,9 +356,7 @@ class BaseDriver(DiffTestDriver):
         # documentation, the ``pty`` module is not working fine on it (see
         # https://docs.python.org/fr/3/library/pty.html).
         if self.env.build.os.name == "windows":
-            raise TestAbortWithError(
-                "Cannot run a pseudo-TTY on Windows systems"
-            )
+            raise TestAbortWithError("Cannot run a pseudo-TTY on Windows systems")
 
         # Only import ``pty`` after checking that we are not on a Windows
         # system.
@@ -376,13 +368,7 @@ class BaseDriver(DiffTestDriver):
 
         # Open a subprocess with using a pseudo TTY as output
         m, s = pty.openpty()
-        p = subprocess.Popen(
-            args=args,
-            stdout=s,
-            stderr=s,
-            close_fds=True,
-            **kwargs
-        )
+        p = subprocess.Popen(args=args, stdout=s, stderr=s, close_fds=True, **kwargs)
         os.close(s)
 
         # Read result of the process execution and get its return code
@@ -445,7 +431,9 @@ class BaseDriver(DiffTestDriver):
         )
         all_flags: list[FileFlags] = []
         for source_name in sorted(ada_source_names):
-            matching_sources = glob.glob(P.join(self.test_dir(), f"**/{source_name}"), recursive=True)
+            matching_sources = glob.glob(
+                P.join(self.test_dir(), f"**/{source_name}"), recursive=True
+            )
             flags, noflags = self.count_annotations_in_files(matching_sources)
             all_flags.append(
                 FileFlags(
@@ -453,7 +441,7 @@ class BaseDriver(DiffTestDriver):
                     matching_sources=matching_sources,
                     flag_annotations=flags,
                     noflag_annotations=noflags,
-                    flagged_lines=execution_flags.get(source_name, TaggedLines())
+                    flagged_lines=execution_flags.get(source_name, TaggedLines()),
                 )
             )
 
@@ -462,7 +450,7 @@ class BaseDriver(DiffTestDriver):
         for flags in all_flags:
             errors = flags.errors
             if errors:
-                errors_buffer.append(f"In file \"{flags.file_name}\":")
+                errors_buffer.append(f'In file "{flags.file_name}":')
                 for line, msg in errors:
                     errors_buffer.append(f"  - at line {line}: {msg}")
                 errors_buffer.append("")
@@ -477,7 +465,9 @@ class BaseDriver(DiffTestDriver):
             for flags in all_flags:
                 flags.add_missing_flags()
 
-    def count_annotations_in_files(self, files: list[str]) -> tuple[TaggedLines, TaggedLines]:
+    def count_annotations_in_files(
+        self, files: list[str]
+    ) -> tuple[TaggedLines, TaggedLines]:
         """
         Count `FLAG/NOFLAG` annotations in the provided list of files and
         return the result in a tuple structured like
@@ -506,11 +496,11 @@ class BaseDriver(DiffTestDriver):
 
         :param file_name: The Ada file to read.
         """
-        with open(file_name, mode='rb') as ada_file:
+        with open(file_name, mode="rb") as ada_file:
             ada_bytes = ada_file.read()
             for encoding in cls.ada_source_encodings:
                 try:
-                    lines = ada_bytes.decode(encoding).split('\n')
+                    lines = ada_bytes.decode(encoding).split("\n")
                     lines = lines[:-1] if not lines[-1] else lines
                     return (lines, encoding)
                 except ValueError as _:
@@ -543,7 +533,7 @@ class BaseDriver(DiffTestDriver):
         `PATH` environment variable and return its absolute path. If none has
         been found, return `None`.
         """
-        dirs = os.environ.get('PATH', "").split(os.pathsep)
+        dirs = os.environ.get("PATH", "").split(os.pathsep)
         for dir in dirs:
             possible_file = os.path.join(dir, exec_name)
             if os.path.isfile(possible_file):
