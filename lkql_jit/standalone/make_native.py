@@ -64,7 +64,6 @@ def look_for_files_in_env(files: list[str], env_var_name: str) -> dict[str, str]
         for file in files:
             if Path(directory, file).is_file():
                 res[file] = directory
-                break
     one_not_found = False
     for file, directory in res.items():
         if directory is None:
@@ -84,11 +83,11 @@ if __name__ == "__main__":
         # On Linux, we need to provide the compiler additional arguments for
         # it to find headers and shared objects.
         headers_paths = look_for_files_in_env(
-            ["libadalang.h", "liblkqllang.h"],
+            ["libadalang.h", "liblkqllang.h", "liblktlang.h"],
             "C_INCLUDE_PATH",
         )
         libs_paths = look_for_files_in_env(
-            ["libadalang.so", "liblkqllang.so", "libz.so"],
+            ["libadalang.so", "liblkqllang.so", "liblktlang.so", "libz.so"],
             "LIBRARY_PATH",
         )
         if headers_paths is None or libs_paths is None:
