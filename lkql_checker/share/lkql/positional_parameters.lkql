@@ -1,4 +1,4 @@
-fun check_actual_param(spec, node, check_dot) =
+fun check_actual_param(spec, check_dot) =
     match spec
     | SubpSpec => {
         val num_params = (
@@ -77,7 +77,6 @@ fun positional_parameters(node, all=false) =
             all
             or check_actual_param(
                 c.p_called_subp_spec(),
-                node,
                 id.p_is_dot_call()
             )
         )
