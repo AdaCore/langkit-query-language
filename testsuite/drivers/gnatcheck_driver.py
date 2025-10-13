@@ -8,6 +8,7 @@ from drivers.base_driver import BaseDriver, TaggedLines
 
 from e3.testsuite.driver.diff import (
     PatternSubstitute,
+    Substitute,
     OutputRefiner,
 )
 
@@ -686,15 +687,16 @@ class GnatcheckDriver(BaseDriver):
 
     @property
     def output_refiners(self) -> list[OutputRefiner]:
+        print(self.working_dir())
         result = []
         # Canonicalize gnatcheck worker name in the output before applying
         # base_driver refiners.
         if self.test_env.get("canonicalize_worker", True):
             result.append(
-                PatternSubstitute(
+                    Substitute(
                     " ".join(
                         [
-                            P.basename(self.gnatcheck_worker_exe[0]),
+                            P.basename(self.gnatcheck_worker_exe[0]).rsplit('.', maxsplit=1)[0],
                             *self.gnatcheck_worker_exe[1:],
                         ]
                     ),
