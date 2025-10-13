@@ -2,3 +2,11 @@ foo.adb:6:10: rule violation: raised exception is not declared in visible part o
 6 |          raise Exception_Declarations.Ex;   --  FLAG
   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+test.adb:15:10: rule violation: raised exception is not declared in visible part of enclosing library package
+15 |          raise Exception_2; -- FLAG
+   |          ^^^^^^^^^^^^^^^^^^
+
+test.adb:47:10: rule violation: raised exception is not declared in visible part of enclosing library package
+47 |          raise Exception_G2; -- FLAG
+   |          ^^^^^^^^^^^^^^^^^^^
+
