@@ -46,12 +46,6 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         )
         public String charset = null;
 
-        @CommandLine.Option(
-            names = { "--to-lkt" },
-            description = "List of units to auto translate to Lkt"
-        )
-        public List<String> autoTranslateUnits = new ArrayList<>();
-
         @CommandLine.Option(names = { "-P", "--project" }, description = "Project file to use")
         public String project = null;
 
@@ -170,8 +164,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             .runtime(this.args.RTS)
             .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
             .files(this.args.files)
-            .charset(this.args.charset)
-            .autoTranslateUnits(this.args.autoTranslateUnits);
+            .charset(this.args.charset);
 
         // Finally, pass the options to the LKQL engine
         contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());

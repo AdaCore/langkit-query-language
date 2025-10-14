@@ -19,7 +19,6 @@ import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
 import com.adacore.lkql_jit.options.LKQLOptions;
-import com.adacore.lkql_jit.options.Refactorings.LKQLToLkt;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
 import com.adacore.lkql_jit.utils.Constants;
@@ -30,7 +29,6 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Scanner;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.options.OptionDescriptors;
@@ -340,39 +338,9 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     public LKQLNode translate(final Source source, String sourceName) {
         var firstLine = new Scanner(source.getReader()).nextLine();
         LangkitSupport.AnalysisContextInterface langkitCtx = null;
-        var baseName = source.getName().replaceFirst("[.][^.]+$", "");
         Source src;
 
-        if (getContext(null).getOptions().autoTranslateUnits().contains(baseName)) {
-            System.out.println("Translating " + source.getName() + " to lkt");
-            String newSrc = source.getCharacters().toString();
-            var lines = newSrc.split("\n");
-
-            if (firstLine.startsWith("# lkql version:")) {
-                if (firstLine.equals("# lkql version: 1")) {
-                    // Translate LKQL to Lkt (LKQL v2)
-                    newSrc = String.join("\n", Arrays.stream(lines).skip(1).toList());
-                } else {
-                    throw LKQLRuntimeException.fromMessage(
-                        "Invalid lkql version line for autoTranslateUnit unit"
-                    );
-                }
-            }
-
-            var lktSrc = LKQLToLkt.lkqlToLkt(sourceName, newSrc);
-
-            if (getContext(null).isVerbose()) {
-                System.out.println("Lkt source for " + sourceName);
-                System.out.println("=============================");
-                System.out.println(lktSrc);
-                System.out.println();
-            }
-
-            // Build a new source
-            src = Source.newBuilder(Constants.LKQL_ID, lktSrc, source.getName()).build();
-
-            langkitCtx = lktAnalysisContext;
-        } else if (firstLine.startsWith("# lkql version:")) {
+        if (firstLine.startsWith("# lkql version:")) {
             if (firstLine.equals("# lkql version: 1")) {
                 // lkql V1 uses lkql syntax
                 langkitCtx = lkqlAnalysisContext;

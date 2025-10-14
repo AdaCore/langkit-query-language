@@ -1,4 +1,3 @@
 driver: 'interpreter'
 project: 'default_project/default.gpr'
-to_lkt:
-  - script
+lkt_refactor: True
