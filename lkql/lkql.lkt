@@ -1233,7 +1233,7 @@ class RunPass: LkqlNode {
     start: Identifier
 }
 
-|" corresponds to the syntax `Class.member[: OptType]`
+|" corresponds to the syntax ``Class.member[: OptType]``
 |" can be found in 'add' or 'del' block in a pass
 |" serves as a shorthand syntax to declare a new pass
 |" with the same name but updated fields
