@@ -10,4 +10,6 @@ File "main.adb" has been patched (result in "main.adb.patched")
 === main.adb.patched content:
 procedure Main is
 begin
-   null;null;end Main;
+   null;
+   null;
+end Main;

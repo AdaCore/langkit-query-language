@@ -34,11 +34,11 @@ Patched "pack.ads":
 ===================
 
 package Pack is
-   B : Boolean:=False;                  --  FLAG
-   I1 : Integer:=0;                 --  FLAG
-   C : Character:=Character'First;                --  FLAG
-   W_C : Wide_Character:=Wide_Character'First;         --  FLAG
-   W_W_C : Wide_Wide_Character:=Wide_Wide_Character'First;  --  FLAG
+   B     : Boolean := False;                  --  FLAG
+   I1    : Integer := 0;                 --  FLAG
+   C     : Character := Character'First;                --  FLAG
+   W_C   : Wide_Character := Wide_Character'First;         --  FLAG
+   W_W_C : Wide_Wide_Character := Wide_Wide_Character'First;  --  FLAG
    I2 : Integer := 13;           --  NOFLAG
 
    generic
@@ -53,7 +53,7 @@ package Pack is
    C2 : constant Integer;       --  NOFLAG
 
 private
-   Y1 : Integer:=0;                --  FLAG
+   Y1 : Integer := 0;                --  FLAG
    Y2 : Integer := 12;          --  NOFLAG
    C2 : constant Integer := 1;  --  NOFLAG
 end Pack;
@@ -62,7 +62,7 @@ Patched "pack.adb":
 ===================
 
 package body Pack is
-   Z1 : Integer:=0;          --  FLAG
+   Z1 : Integer := 0;          --  FLAG
    Z2 : Integer := 12;    --  NOFLAG
 
    procedure Proc (X : in out Integer) is

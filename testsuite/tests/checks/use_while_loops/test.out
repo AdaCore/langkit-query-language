@@ -23,13 +23,15 @@ procedure Loop1 (Str : in out String) is
    J : Integer;
 begin
    J := 0;
-   while J <=10 loop if Str (J) = ' ' then
+   while J <= 10 loop
+      if Str (J) = ' ' then
          Str (J) := 'a';
          return;
       end if;
 
       J := J + 1;
-   end loop;loop           --  NOFLAG
+   end loop;
+   loop           --  NOFLAG
       null;
    end loop;
 
@@ -40,6 +42,8 @@ begin
       end loop;
    end loop Outer_Loop;
 
-   Local_Loop:
-   while False loop end loop Local_Loop;end Loop1;
+   Local_Loop : while False loop
+
+   end loop Local_Loop;
+end Loop1;
 

@@ -20,9 +20,10 @@ Patched "proc.adb":
 procedure Proc (Buffer_Length : Integer) is
    Is_Data_Available : Boolean := Buffer_Length > 0;   --  NOFLAG
 begin
-   Is_Data_Available := Buffer_Length /=0;   --  FLAG
+   Is_Data_Available := Buffer_Length /= 0;   --  FLAG
 
-   if Is_Data_Available then             --  FLAG
+   if Is_Data_Available then
+      --  FLAG
       null;
    end if;
 end Proc;
@@ -70,7 +71,7 @@ begin
    Bool := Standard."not" (not Bool);  --  NOFLAG
    Bool := "not" (not Bool);           --  NOFLAG
 
-   Bool := Var1 <=Var2;          --  FLAG
+   Bool := Var1 <= Var2;          --  FLAG
    Bool := not (">" (Var1, A));        --  NOFLAG
 
 end Proc2;

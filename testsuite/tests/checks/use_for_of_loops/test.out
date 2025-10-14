@@ -58,8 +58,9 @@ begin
       X.Bounds (I) := Y.Bounds (I);
    end loop;
 
-   for I of X.Bounds loop                -- FLAG
-      I:= I;
+   for I of X.Bounds loop
+      -- FLAG
+      I := I;
    end loop;
 end Loop2;
 
@@ -96,19 +97,21 @@ procedure Loop3 is
         for I in L.Other_Content'Range loop      --  NOFLAG
             Put_Line (L.Other_Content (I)'Image);
         end loop;
-        for I of L.Undep_Content loop      --  FLAG
-            Put_Line (I'Image);
-        end loop;
-        for I in Copy.Dep_Content'Range loop     --  NOFLAG
+        for I of L.Undep_Content loop
+         --  FLAG
+         Put_Line (I'Image);
+      end loop;
+      for I in Copy.Dep_Content'Range loop     --  NOFLAG
             Put_Line (Copy.Dep_Content (I)'Image);
         end loop;
         for I in Renamed.Dep_Content'Range loop  --  NOFLAG
             Put_Line (Renamed.Dep_Content (I)'Image);
         end loop;
-        for I of Const.Dep_Content loop    --  FLAG
-            Put_Line (I'Image);
-        end loop;
-    end With_In_Out_Param;
+        for I of Const.Dep_Content loop
+         --  FLAG
+         Put_Line (I'Image);
+      end loop;
+   end With_In_Out_Param;
 
     procedure With_Out_Param (L : out Int_List) is
         Copy : Int_List := L;
@@ -124,10 +127,11 @@ procedure Loop3 is
     procedure With_In_Param (L : in Int_List) is
         Copy : Int_List := L;
     begin
-        for I of L.Dep_Content loop        --  FLAG
-            Put_Line (I'Image);
-        end loop;
-        for I in Copy.Dep_Content'Range loop     --  NOFLAG
+        for I of L.Dep_Content loop
+         --  FLAG
+         Put_Line (I'Image);
+      end loop;
+      for I in Copy.Dep_Content'Range loop     --  NOFLAG
             Put_Line (Copy.Dep_Content (I)'Image);
         end loop;
     end With_In_Param;
@@ -137,10 +141,11 @@ procedure Loop3 is
         for I in L.Content'Range loop            --  NOFLAG
             Put_Line (L.Content (I)'Image);
         end loop;
-        for I of L.Undep_Content loop      --  FLAG
-            Put_Line (I'Image);
-        end loop;
-    end Cond_Component;
+        for I of L.Undep_Content loop
+         --  FLAG
+         Put_Line (I'Image);
+      end loop;
+   end Cond_Component;
 begin
     null;
 end Loop3;

@@ -41,7 +41,8 @@ begin
    exception
       when others =>   --  FLAG
          null;
-   raise;end;
+   raise;
+   end;
 
 exception
    when Constraint_Error =>  --  NOFLAG
@@ -90,15 +91,18 @@ exception
       else
          Log ("");
       end if;
-   raise;when Program_Error =>     --  FLAG
+   raise;
+   when Program_Error =>     --  FLAG
       while I < 1 loop
          I := I + 1;
          Log ("");
       end loop;
-   raise;when E : others =>        --  FLAG
+   raise;
+   when E : others =>        --  FLAG
       for X in 1 .. I loop
          I := 0;
          Log (Exception_Message (E));
       end loop;
-raise;end Exc_2;
+raise;
+end Exc_2;
 

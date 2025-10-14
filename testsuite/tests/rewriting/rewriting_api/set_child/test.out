@@ -12,7 +12,8 @@ Patched "main.adb":
 
 procedure Main is
 begin
-   if REPLACED then  --  FLAG
+   if REPLACED then
+      --  FLAG
       null;
    end if;
 end Main;

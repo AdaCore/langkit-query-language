@@ -47,12 +47,16 @@ Patched "test.adb":
 function Test (Cond : Boolean; J : Integer) return Boolean is
    X : Boolean;
 begin
-   X :=Cond ;return Cond ;X := (Cond               -- FLAG
-         );
+   X := Cond;
+   return Cond;
+   X :=
+     (Cond               -- FLAG
+      );
 
-   X := X ;     --  FLAG
+   X := X;     --  FLAG
 
-   if J <=1 then         --  FLAG
+   if J <= 1 then
+      --  FLAG
       null;
    end if;
 
@@ -60,12 +64,13 @@ begin
       type Bool_N is new Boolean;
       Y : Bool_N;
    begin
-      if Y then    --  FLAG
+      if Y then
+         --  FLAG
          J := 1;
       end if;
    end;
 
-   return not X ;  --  FLAG
+   return not X;  --  FLAG
    return False;               --  NOFLAG
 end Test;
 

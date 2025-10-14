@@ -15,6 +15,6 @@ procedure Pos is
    Var1, Var2 : Integer;
 
 begin
-   Proc (Var1, J=>Var2);   --  FLAG
+   Proc (Var1, J => Var2);   --  FLAG
 end Pos;
 

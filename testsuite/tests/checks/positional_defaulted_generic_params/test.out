@@ -34,10 +34,12 @@ package Pos is
    package Pact_I_2 is new Pack_G
      (2, I_Par2 => 3, Fun_1 => Fun_2, Fun_3 => Fun_1);
 
-   package Pack_I_3 is new Pack_G (1,
-                                   I_Par2=>2,            --  FLAG
-                                   Fun_1=>Fun_2,        --  FLAG
-                                   Fun_3=>Fun_1);       --  FLAG
+   package Pack_I_3 is new
+     Pack_G
+       (1,
+        I_Par2 => 2,            --  FLAG
+        Fun_1  => Fun_2,        --  FLAG
+        Fun_3  => Fun_1);       --  FLAG
 
 end Pos;
 
