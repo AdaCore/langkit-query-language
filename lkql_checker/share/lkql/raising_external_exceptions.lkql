@@ -1,3 +1,5 @@
+import stdlib
+
 # TODO: share is_predefined_exception with raising_predefined_exception
 fun is_predefined_exception(e) = {
     val name = e.p_defining_name().p_canonical_fully_qualified_name();
@@ -7,9 +9,24 @@ fun is_predefined_exception(e) = {
     name == "standard.tasking_error"
 }
 
+fun internal_catch(n) =
+    |" Return whether the current RaiseStmt is locally caught.
+    n is *(
+        any parent: stmts@HandledStmts
+        when stmts.f_exceptions is *(
+            any children: eh@ExceptionHandler
+            when stdlib.any([
+                ex_name is OthersDesignator
+                or ex_name.p_referenced_decl() == n.f_exception_name.p_referenced_decl()
+                for ex_name in eh.f_handled_exceptions.children
+            ])
+        )
+    )
+
 fun check_raise(n, lib) = {
     val e = n.f_exception_name.p_referenced_decl();
     not (is_predefined_exception(e)
+         or internal_catch(n)
          or e is *(all parent: not PrivatePart,
                    any parent: exc_lib@LibraryItem when exc_lib == lib))
 }
