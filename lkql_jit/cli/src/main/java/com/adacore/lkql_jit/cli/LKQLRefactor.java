@@ -48,7 +48,7 @@ public class LKQLRefactor implements Callable<Integer> {
     @CommandLine.Option(names = { "-i", "--inplace" }, description = "Rewrite the files in place")
     public boolean inPlace;
 
-    private enum refactoringKind {
+    private enum RefactoringKind {
         IS_TO_COLON,
         TO_LKQL_V2,
     }
@@ -58,7 +58,7 @@ public class LKQLRefactor implements Callable<Integer> {
         description = "Refactoring to run. Valid values: ${COMPLETION-CANDIDATES}",
         required = true
     )
-    private refactoringKind refactoring;
+    private RefactoringKind refactoring;
 
     /**
      * Return the refactoring corresponding to enum value passed on command line. This is where
