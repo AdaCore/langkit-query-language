@@ -23,14 +23,15 @@ with GPR2.Options;
 
 package Lkql_Checker.Options is
 
-   Gnatcheck_Version : constant String := "26.0w";
+   Lkql_Checker_Version : constant String := "26.0w";
    --  Full major.minor version for Gnatcheck
 
    Date : constant String := "unknown date";
 
    Current_Year : constant String := "2025";
 
-   Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
+   Version_String : constant String :=
+     Lkql_Checker_Version & " (" & Date & ")";
 
    Executable : constant String := Base_Name (Command_Name);
    --  Name of the current executable (e.g. "gnatcheck" or "gnatkp")
