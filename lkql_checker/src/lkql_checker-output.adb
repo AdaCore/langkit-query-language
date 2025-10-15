@@ -617,15 +617,15 @@ package body Lkql_Checker.Output is
       pragma Style_Checks ("M79");
    end Brief_Help;
 
-   ---------------------------
-   -- Print_Gnatcheck_Usage --
-   ---------------------------
+   -----------------
+   -- Print_Usage --
+   -----------------
 
-   procedure Print_Gnatcheck_Usage is
+   procedure Print_Usage is
    begin
       Brief_Help;
       New_Line;
       Put_Line ("Report bugs to support@adacore.com");
-   end Print_Gnatcheck_Usage;
+   end Print_Usage;
 
 end Lkql_Checker.Output;

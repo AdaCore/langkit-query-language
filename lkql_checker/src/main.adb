@@ -400,7 +400,7 @@ begin
       OS_Exit (E_Success);
 
    elsif Arg.Help.Get then
-      Print_Gnatcheck_Usage;
+      Print_Usage;
       OS_Exit (E_Success);
    end if;
 
