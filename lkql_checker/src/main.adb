@@ -48,7 +48,7 @@ procedure Main is
    --  Return the full path for a temp file with a given Id
 
    function Default_LKQL_Rule_Options_File return String
-   is (Gnatcheck_Prj.Get_Project_Relative_File ("rules.lkql"));
+   is (Checker_Prj.Get_Project_Relative_File ("rules.lkql"));
    --  Get the default LKQL rule options file name.
 
    procedure Setup_Search_Paths;
@@ -406,7 +406,7 @@ begin
 
    --  Store project file
    if Arg.Project_File.Get /= Null_Unbounded_String then
-      Gnatcheck_Prj.Store_Project_Source (To_String (Arg.Project_File.Get));
+      Checker_Prj.Store_Project_Source (To_String (Arg.Project_File.Get));
    end if;
 
    --  Store aggregate subproject file
@@ -422,7 +422,7 @@ begin
 
    --  Store .cgpr
    if Arg.Config_File.Get /= Null_Unbounded_String then
-      Gnatcheck_Prj.Store_CGPR_Source (To_String (Arg.Config_File.Get));
+      Checker_Prj.Store_CGPR_Source (To_String (Arg.Config_File.Get));
    end if;
 
    --  Store target from project file
@@ -432,7 +432,7 @@ begin
    Lkql_Checker.Options.RTS_Path := Arg.RTS.Get;
 
    --  Register GNATcheck GPR attributes
-   Register_Tool_Attributes (Gnatcheck_Prj);
+   Register_Tool_Attributes (Checker_Prj);
 
    --  Print GPR registered and exit if requested
 
@@ -445,15 +445,15 @@ begin
 
    --  If we have the project file specified as a tool parameter, analyze it.
 
-   Lkql_Checker.Projects.Process_Project_File (Gnatcheck_Prj);
+   Lkql_Checker.Projects.Process_Project_File (Checker_Prj);
 
    --  Analyze relevant project properties if needed
 
-   if Gnatcheck_Prj.Is_Specified
+   if Checker_Prj.Is_Specified
      and then not In_Aggregate_Project
      and then not Arg.Ignore_Project_Switches
    then
-      Extract_Tool_Options (Gnatcheck_Prj);
+      Extract_Tool_Options (Checker_Prj);
    end if;
 
    --  Add the command-line rules to the rule options. Do this before the
@@ -516,7 +516,7 @@ begin
    end if;
 
    --  Get the default LKQL rule file if none has been specified
-   if Is_Rule_Options_Empty and then Gnatcheck_Prj.Is_Specified then
+   if Is_Rule_Options_Empty and then Checker_Prj.Is_Specified then
       declare
          Def_LKQL : constant String := Default_LKQL_Rule_Options_File;
       begin
@@ -592,17 +592,17 @@ begin
    end if;
 
    if No_Detectors_For_KP_Version then
-      Lkql_Checker.Projects.Clean_Up (Gnatcheck_Prj);
+      Lkql_Checker.Projects.Clean_Up (Checker_Prj);
       OS_Exit (E_Success);
    elsif Nothing_To_Do then
-      Lkql_Checker.Projects.Clean_Up (Gnatcheck_Prj);
+      Lkql_Checker.Projects.Clean_Up (Checker_Prj);
       OS_Exit (E_Missing_Source);
    end if;
 
    if In_Aggregate_Project then
       --  In this case we spawn gnatcheck for each project being aggregated
       Lkql_Checker.Projects.Aggregate.Process_Aggregated_Projects
-        (Gnatcheck_Prj);
+        (Checker_Prj);
 
    else
       --  Implement -j via multiple processes
@@ -618,7 +618,7 @@ begin
       end if;
    end if;
 
-   Lkql_Checker.Projects.Clean_Up (Lkql_Checker.Options.Gnatcheck_Prj);
+   Lkql_Checker.Projects.Clean_Up (Lkql_Checker.Options.Checker_Prj);
 
    if Arg.Time.Get then
       Print
@@ -670,6 +670,6 @@ exception
 
    when Ex : others =>
       Lkql_Checker.Output.Report_Unhandled_Exception (Ex);
-      Lkql_Checker.Projects.Clean_Up (Gnatcheck_Prj);
+      Lkql_Checker.Projects.Clean_Up (Checker_Prj);
       OS_Exit (E_Error);
 end Main;

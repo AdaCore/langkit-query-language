@@ -70,8 +70,8 @@ package body Lkql_Checker.Rules.Rule_Table is
    function Get_Rule_File_Name (RF : String) return String
    is (if Is_Absolute_Path (RF)
        then RF
-       else Gnatcheck_Prj.Get_Project_Relative_File (RF));
-   --  If gnatcheck is called with a project file, all the (relative) names
+       else Checker_Prj.Get_Project_Relative_File (RF));
+   --  If Lkql_Checker is called with a project file, all the (relative) names
    --  of the rule files are considered as related to the project file
    --  directory, otherwise - as related to the current directory
 

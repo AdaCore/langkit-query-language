@@ -1452,11 +1452,11 @@ package body Lkql_Checker.Source_Table is
       Default_Config   : File_Config;
       File_Configs     : File_Config_Maps.Map;
       Project_Provider : constant GPR2_Provider_And_Projects_Array_Access :=
-        Create_Project_Unit_Providers (Gnatcheck_Prj.Tree);
+        Create_Project_Unit_Providers (Checker_Prj.Tree);
    begin
       --  Setup the file reader with preprocessing support
       Extract_Preprocessor_Data_From_Project
-        (Gnatcheck_Prj.Tree, Gnatcheck_Prj.View, Default_Config, File_Configs);
+        (Checker_Prj.Tree, Checker_Prj.View, Default_Config, File_Configs);
       File_Reader := Create_Preprocessor (Default_Config, File_Configs);
 
       --  Create the Libadalang analysis context with extracted configuration
@@ -1469,7 +1469,7 @@ package body Lkql_Checker.Source_Table is
 
       --  Setup the configuration pragma mapping by reading the
       --  configuration file given by the project.
-      Libadalang.Config_Pragmas.Import_From_Project (Res, Gnatcheck_Prj.Tree);
+      Libadalang.Config_Pragmas.Import_From_Project (Res, Checker_Prj.Tree);
 
       --  Finally return the result
       return Res;

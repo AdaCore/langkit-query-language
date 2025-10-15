@@ -838,12 +838,12 @@ package body Lkql_Checker.Diagnoses is
          XML_Report ("<?xml version=""1.0""?>");
          XML_Report_No_EOL ("<gnatcheck-report");
 
-         if Gnatcheck_Prj.Is_Specified then
+         if Checker_Prj.Is_Specified then
             XML_Report
               (" project="""
                & (if Arg.Aggregated_Project
                   then Get_Aggregated_Project
-                  else Gnatcheck_Prj.Source_Prj)
+                  else Checker_Prj.Source_Prj)
                & """>");
          else
             XML_Report (">");

@@ -186,7 +186,7 @@ package Lkql_Checker.Options is
    -- Project support --
    ---------------------
 
-   Gnatcheck_Prj : aliased Lkql_Checker.Projects.Arg_Project_Type;
+   Checker_Prj : aliased Lkql_Checker.Projects.Arg_Project_Type;
 
    ---------------------------
    -- Opt_Parse integration --

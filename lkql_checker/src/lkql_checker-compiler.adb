@@ -1732,8 +1732,8 @@ package body Lkql_Checker.Compiler is
       Pid           : Process_Id;
       Split_Command : constant Slice_Set := Create (Worker_Name, " ");
       Worker        : String_Access := null;
-      Prj           : constant String := Gnatcheck_Prj.Source_Prj;
-      CGPR          : constant String := Gnatcheck_Prj.Source_CGPR;
+      Prj           : constant String := Checker_Prj.Source_Prj;
+      CGPR          : constant String := Checker_Prj.Source_CGPR;
       Args          : Argument_List (1 .. 128);
       Num_Args      : Integer := 0;
 
@@ -1773,15 +1773,15 @@ package body Lkql_Checker.Compiler is
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--ignore-project-switches");
          end if;
-      elsif Gnatcheck_Prj.Tree.Is_Defined
-        and then Gnatcheck_Prj.Tree.Root_Project.Path_Name.Exists
+      elsif Checker_Prj.Tree.Is_Defined
+        and then Checker_Prj.Tree.Root_Project.Path_Name.Exists
       then
          --  In case Prj has not been explicitly set, spawn the project option
          --  with the default project file used by gpr.
          Num_Args := @ + 1;
          Args (Num_Args) :=
            new String'
-             ("-P" & Gnatcheck_Prj.Tree.Root_Project.Path_Name.String_Value);
+             ("-P" & Checker_Prj.Tree.Root_Project.Path_Name.String_Value);
       end if;
 
       if Arg.Aggregated_Project then
@@ -1927,7 +1927,7 @@ package body Lkql_Checker.Compiler is
 
       Pid         : Process_Id;
       GPRbuild    : String_Access := Locate_Exec_On_Path (GPRbuild_Exec);
-      Prj         : constant String := Gnatcheck_Prj.Source_Prj;
+      Prj         : constant String := Checker_Prj.Source_Prj;
       Last_Source : constant SF_Id := Last_Argument_Source;
       Args        : Argument_List (1 .. 128 + Integer (Last_Source));
       Num_Args    : Integer := 0;

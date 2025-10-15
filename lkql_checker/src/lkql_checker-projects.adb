@@ -252,7 +252,7 @@ package body Lkql_Checker.Projects is
             Additional_Lkql_Paths.Append
               (if Is_Absolute_Path (Path.all)
                then Path.all
-               else Gnatcheck_Prj.Get_Project_Relative_File (Path.all));
+               else Checker_Prj.Get_Project_Relative_File (Path.all));
          end loop;
       end if;
 
@@ -419,13 +419,13 @@ package body Lkql_Checker.Projects is
    function Get_Project_Relative_File
      (My_Project : Arg_Project_Type; Filename : String) return String is
    begin
-      if Lkql_Checker.Options.Gnatcheck_Prj.Is_Specified
-        and then Lkql_Checker.Options.Gnatcheck_Prj.Tree.Is_Defined
+      if Lkql_Checker.Options.Checker_Prj.Is_Specified
+        and then Lkql_Checker.Options.Checker_Prj.Tree.Is_Defined
       then
          return
            Normalize_Pathname
              (GNAT.Directory_Operations.Dir_Name
-                (Gnatcheck_Prj.Tree.Root_Project.Path_Name.String_Value)
+                (Checker_Prj.Tree.Root_Project.Path_Name.String_Value)
               & Filename);
       else
          return Normalize_Pathname (Filename);
@@ -802,7 +802,7 @@ package body Lkql_Checker.Projects is
 
       Dir : constant String :=
         String
-          (if not Arg.No_Object_Dir.Get and then Gnatcheck_Prj.Is_Specified
+          (if not Arg.No_Object_Dir.Get and then Checker_Prj.Is_Specified
            then
              (if My_Project.Tree.Root_Project.Kind
                  not in GPR2.With_Object_Dir_Kind
@@ -941,8 +941,8 @@ package body Lkql_Checker.Projects is
          XML_Report ("<?xml version=""1.0""?>");
          XML_Report_No_EOL ("<gnatcheck-report");
 
-         if Gnatcheck_Prj.Is_Specified then
-            XML_Report (" project=""" & Gnatcheck_Prj.Source_Prj.all & """>");
+         if Checker_Prj.Is_Specified then
+            XML_Report (" project=""" & Checker_Prj.Source_Prj.all & """>");
          else
             XML_Report (">");
          end if;
@@ -1082,7 +1082,7 @@ package body Lkql_Checker.Projects is
          then File
          else
            (if Project_Relative
-            then Gnatcheck_Prj.Get_Project_Relative_File (File)
+            then Checker_Prj.Get_Project_Relative_File (File)
             else Normalize_Pathname (File)));
    begin
       if LKQL_Rule_File_Name = Null_Unbounded_String then
@@ -1132,7 +1132,7 @@ package body Lkql_Checker.Projects is
          --  We have to skip most of the checks because this call does not do
          --  anything except spawning another gnatcheck for individual projects
 
-         Set_Global_Result_Dirs (Gnatcheck_Prj);
+         Set_Global_Result_Dirs (Checker_Prj);
          goto Processing_Aggregate_Project;
       end if;
 
@@ -1145,8 +1145,8 @@ package body Lkql_Checker.Projects is
       end if;
 
       Read_Args_From_Temp_Storage
-        (Duplication_Report => not Is_Specified (Gnatcheck_Prj),
-         Arg_Project        => Gnatcheck_Prj);
+        (Duplication_Report => not Is_Specified (Checker_Prj),
+         Arg_Project        => Checker_Prj);
       Nothing_To_Do := Last_Source < First_SF_Id;
 
       if Nothing_To_Do then
@@ -1154,7 +1154,7 @@ package body Lkql_Checker.Projects is
          return;
       end if;
 
-      Lkql_Checker.Projects.Set_Global_Result_Dirs (Gnatcheck_Prj);
+      Lkql_Checker.Projects.Set_Global_Result_Dirs (Checker_Prj);
       Gnatcheck_Config_File :=
         new String'(Global_Report_Dir.all & Gnatcheck_Config_File.all);
 
