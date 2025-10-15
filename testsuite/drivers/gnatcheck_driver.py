@@ -687,7 +687,6 @@ class GnatcheckDriver(BaseDriver):
 
     @property
     def output_refiners(self) -> list[OutputRefiner]:
-        print(self.working_dir())
         result = []
         # Canonicalize gnatcheck worker name in the output before applying
         # base_driver refiners.
