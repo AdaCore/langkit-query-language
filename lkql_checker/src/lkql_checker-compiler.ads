@@ -10,9 +10,9 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Gnatcheck.Rules; use Gnatcheck.Rules;
+with Lkql_Checker.Rules; use Lkql_Checker.Rules;
 
-package Gnatcheck.Compiler is
+package Lkql_Checker.Compiler is
 
    ---------------------
    -- Runtime helpers --
@@ -228,4 +228,4 @@ package Gnatcheck.Compiler is
    --  some warning-based rule, returns the parameter of the rule (used
    --  in parametrized exemption sections for warnings).
 
-end Gnatcheck.Compiler;
+end Lkql_Checker.Compiler;

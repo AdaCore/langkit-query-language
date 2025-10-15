@@ -18,12 +18,12 @@ with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.Case_Util;
 with GNAT.OS_Lib;
 
-with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
-with Gnatcheck.Options;            use Gnatcheck.Options;
-with Gnatcheck.Output;             use Gnatcheck.Output;
-with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
+with Lkql_Checker.Compiler;           use Lkql_Checker.Compiler;
+with Lkql_Checker.Options;            use Lkql_Checker.Options;
+with Lkql_Checker.Output;             use Lkql_Checker.Output;
+with Lkql_Checker.Projects.Aggregate; use Lkql_Checker.Projects.Aggregate;
+with Lkql_Checker.Rules.Rule_Table;   use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.String_Utilities;   use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.Strings; use GNATCOLL.Strings;
 
@@ -31,7 +31,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Libadalang.Expr_Eval;
 
-package body Gnatcheck.Diagnoses is
+package body Lkql_Checker.Diagnoses is
 
    use all type Ada.Containers.Count_Type;
 
@@ -2361,7 +2361,7 @@ package body Gnatcheck.Diagnoses is
       SF          : constant SF_Id := File_Find (El.Unit.Get_Filename);
       Action      : Exempt_Action;
 
-      use Gnatcheck.Rules.Exemption_Parameters;
+      use Lkql_Checker.Rules.Exemption_Parameters;
       use LCO;
    begin
       Action.Unit := El.Unit;
@@ -2741,7 +2741,7 @@ package body Gnatcheck.Diagnoses is
      (Rule : Rule_Id; Input : String; SF : SF_Id; SLOC : String)
       return Exemption_Parameters.Set
    is
-      use Gnatcheck.Rules.Exemption_Parameters;
+      use Lkql_Checker.Rules.Exemption_Parameters;
 
       Is_Warning : constant Boolean := Rule in Warnings_Id | Style_Checks_Id;
       --  In case of Warnings rule, we consider parameters one by one. That is,
@@ -3098,4 +3098,4 @@ package body Gnatcheck.Diagnoses is
         & To_String (Self.Text);
    end Image;
 
-end Gnatcheck.Diagnoses;
+end Lkql_Checker.Diagnoses;

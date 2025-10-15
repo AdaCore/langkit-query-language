@@ -12,7 +12,7 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GNATCOLL.Utils; use GNATCOLL.Utils;
 
-package Gnatcheck.String_Utilities is
+package Lkql_Checker.String_Utilities is
 
    --  String-related utilities
 
@@ -142,4 +142,4 @@ package Gnatcheck.String_Utilities is
         Equivalent_Elements => "=",
         "="                 => "=");
 
-end Gnatcheck.String_Utilities;
+end Lkql_Checker.String_Utilities;

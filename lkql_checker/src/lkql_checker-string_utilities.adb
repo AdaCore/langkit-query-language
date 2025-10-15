@@ -6,9 +6,9 @@
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
 
-with Gnatcheck.Output; use Gnatcheck.Output;
+with Lkql_Checker.Output; use Lkql_Checker.Output;
 
-package body Gnatcheck.String_Utilities is
+package body Lkql_Checker.String_Utilities is
 
    ----------------
    -- Capitalize --
@@ -344,4 +344,4 @@ package body Gnatcheck.String_Utilities is
 
    end Simple_String_Dictionary;
 
-end Gnatcheck.String_Utilities;
+end Lkql_Checker.String_Utilities;

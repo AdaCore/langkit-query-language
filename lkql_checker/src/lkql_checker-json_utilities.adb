@@ -5,7 +5,7 @@
 
 with Ada.Strings.Unbounded;
 
-package body Gnatcheck.JSON_Utilities is
+package body Lkql_Checker.JSON_Utilities is
 
    ------------
    -- Expect --
@@ -160,4 +160,4 @@ package body Gnatcheck.JSON_Utilities is
       raise Invalid_Type with "expecting a tuple of strings";
    end Parse_String_Tuple;
 
-end Gnatcheck.JSON_Utilities;
+end Lkql_Checker.JSON_Utilities;

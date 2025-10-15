@@ -3,10 +3,10 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This package contains high-level interfaces to project files for gnatcheck.
+--  This package contains high-level interfaces to project files.
 --
 --  The interface provided here assumes that a tool is based on the Source
---  Table defined in Gnatcheck.Source_Table.
+--  Table defined in Lkql_Checker.Source_Table.
 --
 --  The recommended way of project file processing is:
 --
@@ -98,7 +98,7 @@ with GPR2.Containers;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
 
-package Gnatcheck.Projects is
+package Lkql_Checker.Projects is
 
    ------------------------------
    -- Project-specific options --
@@ -185,7 +185,7 @@ package Gnatcheck.Projects is
    --  Checks that:
    --    - this is the first -P option provided as a tool parameter;
    --    - the project file exists.
-   --  Raises Gnatcheck.Common.Parameter_Error if any of these check fails,
+   --  Raises Lkql_Checker.Common.Parameter_Error if any of these check fails,
    --  stores the name of the project file My_Project otherwise.
 
    procedure Store_CGPR_Source
@@ -194,7 +194,7 @@ package Gnatcheck.Projects is
    --  Checks that:
    --    - this is the first --config option provided as a tool parameter;
    --    - the configuration project file exists.???
-   --  Raises Gnatcheck.Common.Parameter_Error if any of these check fails,
+   --  Raises Lkql_Checker.Common.Parameter_Error if any of these check fails,
    --  stores the name of the configuration project file otherwise.
 
    function Is_Specified (My_Project : Arg_Project_Type) return Boolean;
@@ -338,4 +338,4 @@ private
      (My_Project : Arg_Project_Type) return GPR2.Project.View.Object
    is (My_Project.View);
 
-end Gnatcheck.Projects;
+end Lkql_Checker.Projects;

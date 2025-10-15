@@ -12,21 +12,21 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
-with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;              use Gnatcheck.Ids;
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.Projects;         use Gnatcheck.Projects;
-with Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Rules;            use Gnatcheck.Rules;
-with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
+with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
+with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
+with Lkql_Checker.Options;          use Lkql_Checker.Options;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
+with Lkql_Checker.Projects.Aggregate;
+with Lkql_Checker.Rules;            use Lkql_Checker.Rules;
+with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GPR2.Project.Registry.Exchange;
 
-procedure Gnatcheck_Main is
+procedure Main is
    Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
    use type Ada.Calendar.Time;
 
@@ -411,7 +411,7 @@ begin
 
    --  Store aggregate subproject file
    if Arg.Aggregate_Subproject.Get /= Null_Unbounded_String then
-      Gnatcheck.Projects.Aggregate.Store_Aggregated_Project
+      Lkql_Checker.Projects.Aggregate.Store_Aggregated_Project
         (To_String (Arg.Aggregate_Subproject.Get));
    end if;
 
@@ -426,10 +426,10 @@ begin
    end if;
 
    --  Store target from project file
-   Gnatcheck.Options.Target := Arg.Target.Get;
+   Lkql_Checker.Options.Target := Arg.Target.Get;
 
    --  Store target from project file
-   Gnatcheck.Options.RTS_Path := Arg.RTS.Get;
+   Lkql_Checker.Options.RTS_Path := Arg.RTS.Get;
 
    --  Register GNATcheck GPR attributes
    Register_Tool_Attributes (Gnatcheck_Prj);
@@ -445,7 +445,7 @@ begin
 
    --  If we have the project file specified as a tool parameter, analyze it.
 
-   Gnatcheck.Projects.Process_Project_File (Gnatcheck_Prj);
+   Lkql_Checker.Projects.Process_Project_File (Gnatcheck_Prj);
 
    --  Analyze relevant project properties if needed
 
@@ -495,7 +495,7 @@ begin
 
    --  Process the include file
    if Arg.Include_File.Get /= Null_Unbounded_String then
-      Gnatcheck.Diagnoses.Process_User_Filename
+      Lkql_Checker.Diagnoses.Process_User_Filename
         (To_String (Arg.Include_File.Get));
    end if;
 
@@ -556,7 +556,7 @@ begin
       Open_Log_File;
    end if;
 
-   Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
+   Lkql_Checker.Projects.Check_Parameters;  --  check that the rule exists
 
    if Analyze_Compiler_Output then
       Create_Restriction_Pragmas_File;
@@ -592,16 +592,17 @@ begin
    end if;
 
    if No_Detectors_For_KP_Version then
-      Gnatcheck.Projects.Clean_Up (Gnatcheck_Prj);
+      Lkql_Checker.Projects.Clean_Up (Gnatcheck_Prj);
       OS_Exit (E_Success);
    elsif Nothing_To_Do then
-      Gnatcheck.Projects.Clean_Up (Gnatcheck_Prj);
+      Lkql_Checker.Projects.Clean_Up (Gnatcheck_Prj);
       OS_Exit (E_Missing_Source);
    end if;
 
    if In_Aggregate_Project then
       --  In this case we spawn gnatcheck for each project being aggregated
-      Gnatcheck.Projects.Aggregate.Process_Aggregated_Projects (Gnatcheck_Prj);
+      Lkql_Checker.Projects.Aggregate.Process_Aggregated_Projects
+        (Gnatcheck_Prj);
 
    else
       --  Implement -j via multiple processes
@@ -610,21 +611,21 @@ begin
       Schedule_Files;
 
       Generate_Qualification_Report;
-      Gnatcheck.Output.Close_Report_Files;
+      Lkql_Checker.Output.Close_Report_Files;
 
       if Tool_Failures > 0 then
          Print ("Total gnatcheck failures:" & Tool_Failures'Img);
       end if;
    end if;
 
-   Gnatcheck.Projects.Clean_Up (Gnatcheck.Options.Gnatcheck_Prj);
+   Lkql_Checker.Projects.Clean_Up (Lkql_Checker.Options.Gnatcheck_Prj);
 
    if Arg.Time.Get then
       Print
         ("Execution time:" & Duration'Image (Ada.Calendar.Clock - Time_Start));
    end if;
 
-   Gnatcheck.Rules.Rule_Table.Clean_Up;
+   Lkql_Checker.Rules.Rule_Table.Clean_Up;
 
    --  Close the log file if required
    if Arg.Log.Get then
@@ -668,7 +669,7 @@ exception
       OS_Exit (E_Error);
 
    when Ex : others =>
-      Gnatcheck.Output.Report_Unhandled_Exception (Ex);
-      Gnatcheck.Projects.Clean_Up (Gnatcheck_Prj);
+      Lkql_Checker.Output.Report_Unhandled_Exception (Ex);
+      Lkql_Checker.Projects.Clean_Up (Gnatcheck_Prj);
       OS_Exit (E_Error);
-end Gnatcheck_Main;
+end Main;

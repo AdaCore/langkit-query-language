@@ -12,16 +12,16 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.Regpat; use GNAT.Regpat;
 
-with Gnatcheck.Ids;          use Gnatcheck.Ids;
-with Gnatcheck.Rules;        use Gnatcheck.Rules;
-with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
+with Lkql_Checker.Ids;          use Lkql_Checker.Ids;
+with Lkql_Checker.Rules;        use Lkql_Checker.Rules;
+with Lkql_Checker.Source_Table; use Lkql_Checker.Source_Table;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
 with Libadalang.Analysis;
 with Libadalang.Common;
 
-package Gnatcheck.Diagnoses is
+package Lkql_Checker.Diagnoses is
 
    package LAL renames Libadalang;
 
@@ -112,16 +112,16 @@ package Gnatcheck.Diagnoses is
    procedure Generate_Qualification_Report;
    --  Generate the report oriented for using as qualification materials. There
    --  is no parameter to configure this report except
-   --  Gnatcheck.Options.Short_Report flag.
+   --  Lkql_Checker.Options.Short_Report flag.
 
    procedure Print_Report_Header;
    --  Generates the report header, including the date, tool version and
    --  tool command liner invocation sequence. (We need it in spec because it
-   --  is used by Gnatcheck.Projects.Aggregate_Project_Report_Header.
+   --  is used by Lkql_Checker.Projects.Aggregate_Project_Report_Header.
 
    procedure Process_User_Filename (Fname : String);
    --  Checks if Fname is the name of the existing file. If it is, sets it as
-   --  the value of Gnatcheck.Options.User_Info_File, otherwise generates
+   --  the value of Lkql_Checker.Options.User_Info_File, otherwise generates
    --  warning and leaves User_Info_File unchanged. If User_Info_File is
    --  already set, and Fname denotes some existing file, generates a warning
    --  (user-defined part of the report file can be specified only once!) and
@@ -162,4 +162,4 @@ package Gnatcheck.Diagnoses is
    --  parameter is used to compute the end of non-closed exemption sections
    --  for compiler checks, if any.
 
-end Gnatcheck.Diagnoses;
+end Lkql_Checker.Diagnoses;

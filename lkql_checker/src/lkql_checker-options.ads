@@ -13,15 +13,15 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Gnatcheck.Projects;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Lkql_Checker.Projects;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
 with GPR2.Options;
 
-package Gnatcheck.Options is
+package Lkql_Checker.Options is
 
    Gnatcheck_Version : constant String := "26.0w";
    --  Full major.minor version for Gnatcheck
@@ -126,8 +126,8 @@ package Gnatcheck.Options is
    Active_Rule_Present : Boolean := False;
    --  Flag indicating if the tool has an activated rule to check. It does not
    --  take into account compiler check, use
-   --  Gnatcheck.Compiler.Analyze_Compiler_Output to see if any of the compiler
-   --  check is active.
+   --  Lkql_Checker.Compiler.Analyze_Compiler_Output to see if any of the
+   --  compiler check is active.
 
    Missing_Rule_File_Detected : Boolean := False;
    --  Parameter of some '-from=...' rule option denotes a file that does not
@@ -186,7 +186,7 @@ package Gnatcheck.Options is
    -- Project support --
    ---------------------
 
-   Gnatcheck_Prj : aliased Gnatcheck.Projects.Arg_Project_Type;
+   Gnatcheck_Prj : aliased Lkql_Checker.Projects.Arg_Project_Type;
 
    ---------------------------
    -- Opt_Parse integration --
@@ -749,4 +749,4 @@ package Gnatcheck.Options is
      (Args : Arg.Legacy_Rules_Section.Result_Array);
    --  Process the options provided in ``Args`` as legacy rule options.
 
-end Gnatcheck.Options;
+end Lkql_Checker.Options;

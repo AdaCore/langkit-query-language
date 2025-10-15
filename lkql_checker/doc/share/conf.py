@@ -52,7 +52,7 @@ author = 'AdaCore'
 
 
 def get_version():
-    for line in open("../../src/gnatcheck-options.ads").readlines():
+    for line in open("../../src/lkql_checker-options.ads").readlines():
         if line.lstrip().startswith('Gnatcheck_Version'):
             return line[line.find('"') + 1:line.rfind('"')]
     raise Exception("Could not find the current version of GNATcheck")

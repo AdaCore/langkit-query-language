@@ -12,15 +12,15 @@ with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.OS_Lib;
 with GNAT.String_Split;         use GNAT.String_Split;
 
-with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
-with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
+with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
+with Lkql_Checker.JSON_Utilities;   use Lkql_Checker.JSON_Utilities;
+with Lkql_Checker.Options;          use Lkql_Checker.Options;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-package body Gnatcheck.Rules is
+package body Lkql_Checker.Rules is
 
    --  ===== Local subprograms specs =====
 
@@ -124,7 +124,7 @@ package body Gnatcheck.Rules is
    --------------------------------------
 
    --  The following procedures are used to display rule help in the XML
-   --  format. See `Gnatcheck.Rules.Rule_Info.XML_Rule_Help` where those
+   --  format. See `Lkql_Checker.Rules.Rule_Info.XML_Rule_Help` where those
    --  procedures are stored.
 
    procedure No_Param_XML_Help (Rule : Rule_Info; Indent_Level : Natural);
@@ -208,8 +208,8 @@ package body Gnatcheck.Rules is
    -- Rule instance creation functions --
    --------------------------------------
 
-   --  The following functions are used to create rule instances from a
-   --  given rule identifier. See `Gnatcheck.Rules.Rule_Info.Create_Instance`
+   --  The following functions are used to create rule instances from a given
+   --  rule identifier. See `Lkql_Checker.Rules.Rule_Info.Create_Instance`
    --  where those functions are stored.
 
    function Create_No_Param_Instance
@@ -253,9 +253,10 @@ package body Gnatcheck.Rules is
    -------------------------------------------
 
    --  The following are functions to handle rule parameter parsing, they are
-   --  used during the `Gnatcheck.Rules.Rule_Table.Process_Legacy_Rule_Option`
-   --  procedure. Each rule info record has an associated actual parameter
-   --  processing function (see `Gnatcheck.Rules.Rule_Info`).
+   --  used during the
+   --  `Lkql_Checker.Rules.Rule_Table.Process_Legacy_Rule_Option` procedure.
+   --  Each rule info record has an associated actual parameter processing
+   --  function (see `Lkql_Checker.Rules.Rule_Info`).
 
    function Load_Dictionary
      (Instance  : Rule_Instance_Access;
@@ -483,7 +484,8 @@ package body Gnatcheck.Rules is
 
    function Find_File (Name : String) return String is
       Rule_File_Dir : constant String :=
-        Dir_Name (Gnatcheck.Rules.Rule_Table.Processed_Legacy_Rule_File_Name);
+        Dir_Name
+          (Lkql_Checker.Rules.Rule_Table.Processed_Legacy_Rule_File_Name);
 
    begin
       if GNAT.OS_Lib.Is_Regular_File (Rule_File_Dir & Name) then
@@ -1294,7 +1296,7 @@ package body Gnatcheck.Rules is
       if Param /= "" then
          Instance.Error
            ("no parameter can be set for rule "
-            & Gnatcheck.Rules.Instance_Name (Instance)
+            & Lkql_Checker.Rules.Instance_Name (Instance)
             & ", "
             & Param
             & " ignored");
@@ -2050,7 +2052,8 @@ package body Gnatcheck.Rules is
       procedure Process_Param
         (Param : String; Field : in out Unbounded_Wide_Wide_String)
       is
-         Rule_Name : constant String := Gnatcheck.Rules.Rule_Name (Instance);
+         Rule_Name : constant String :=
+           Lkql_Checker.Rules.Rule_Name (Instance);
       begin
          --  Add a comma to the field if needed
          if Length (Field) /= 0 then
@@ -2223,7 +2226,7 @@ package body Gnatcheck.Rules is
          if First_Equal = 0 then
             Instance.Error
               ("("
-               & Gnatcheck.Rules.Instance_Name (Instance)
+               & Lkql_Checker.Rules.Instance_Name (Instance)
                & ") missing = in parameter argument: "
                & Param);
             Bad_Rule_Detected := True;
@@ -2238,7 +2241,7 @@ package body Gnatcheck.Rules is
               To_Lower (Param (Param'First .. First_Equal - 1));
          begin
             for J in 1 .. All_Rules (Instance.Rule).Parameters.Last_Index loop
-               if Gnatcheck.Rules.Param_Name (All_Rules (Instance.Rule), J)
+               if Lkql_Checker.Rules.Param_Name (All_Rules (Instance.Rule), J)
                  = Param_Name
                then
                   Found := True;
@@ -2259,7 +2262,7 @@ package body Gnatcheck.Rules is
                --  Else, display an error and disable the instance
                Instance.Error
                  ("("
-                  & Gnatcheck.Rules.Instance_Name (Instance)
+                  & Lkql_Checker.Rules.Instance_Name (Instance)
                   & ") unknown parameter: "
                   & Param_Name);
                Bad_Rule_Detected := True;
@@ -2981,10 +2984,10 @@ package body Gnatcheck.Rules is
    procedure Error (Self : Rule_Instance'Class; Message : String) is
    begin
       if Self.Defined_At /= Null_Unbounded_String then
-         Gnatcheck.Output.Error
+         Lkql_Checker.Output.Error
            (Message, Location => To_String (Self.Defined_At));
       else
-         Gnatcheck.Output.Error (Message);
+         Lkql_Checker.Output.Error (Message);
       end if;
    end Error;
 
@@ -2995,10 +2998,10 @@ package body Gnatcheck.Rules is
    procedure Warning (Self : Rule_Instance'Class; Message : String) is
    begin
       if Self.Defined_At /= Null_Unbounded_String then
-         Gnatcheck.Output.Warning
+         Lkql_Checker.Output.Warning
            (Message, Location => To_String (Self.Defined_At));
       else
-         Gnatcheck.Output.Warning (Message);
+         Lkql_Checker.Output.Warning (Message);
       end if;
    end Warning;
 
@@ -4337,4 +4340,4 @@ package body Gnatcheck.Rules is
       end if;
    end Load_File;
 
-end Gnatcheck.Rules;
+end Lkql_Checker.Rules;

@@ -10,7 +10,7 @@
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
 
-package Gnatcheck.Rules.Rule_Table is
+package Lkql_Checker.Rules.Rule_Table is
 
    function Present (Rule : Rule_Id) return Boolean;
    --  Check if the argument represents an existing rule
@@ -175,4 +175,4 @@ package Gnatcheck.Rules.Rule_Table is
    procedure Clean_Up;
    --  Release all allocated ressources for rules and instances storage.
 
-end Gnatcheck.Rules.Rule_Table;
+end Lkql_Checker.Rules.Rule_Table;

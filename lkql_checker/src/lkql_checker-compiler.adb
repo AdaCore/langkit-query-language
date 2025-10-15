@@ -15,22 +15,22 @@ with GNAT.Regpat; use GNAT.Regpat;
 with GNAT.Strings;
 with GNAT.String_Split;
 
-with Gnatcheck.Diagnoses;          use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;                use Gnatcheck.Ids;
-with Gnatcheck.Options;            use Gnatcheck.Options;
-with Gnatcheck.Output;             use Gnatcheck.Output;
-with Gnatcheck.Projects;           use Gnatcheck.Projects;
-with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
-with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
+with Lkql_Checker.Diagnoses;          use Lkql_Checker.Diagnoses;
+with Lkql_Checker.Ids;                use Lkql_Checker.Ids;
+with Lkql_Checker.Options;            use Lkql_Checker.Options;
+with Lkql_Checker.Output;             use Lkql_Checker.Output;
+with Lkql_Checker.Projects;           use Lkql_Checker.Projects;
+with Lkql_Checker.Projects.Aggregate; use Lkql_Checker.Projects.Aggregate;
+with Lkql_Checker.Rules.Rule_Table;   use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;       use Lkql_Checker.Source_Table;
+with Lkql_Checker.String_Utilities;   use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 with GNATCOLL.VFS;  use GNATCOLL.VFS;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
-package body Gnatcheck.Compiler is
+package body Lkql_Checker.Compiler is
 
    use Rident;
 
@@ -60,7 +60,7 @@ package body Gnatcheck.Compiler is
    --  * Remove warning and style markers for Warning, Style, Restriction
    --    messages.
    --
-   --  * If Gnatcheck.Options.Mapping_Mode is ON, annotates the message by
+   --  * If Lkql_Checker.Options.Mapping_Mode is ON, annotates the message by
    --    adding the compiler check (if for a warning message '.d' is specified,
    --    the trailing part that indicates the warning message that causes this
    --    warning is removed from the diagnosis, and the corresponding warning
@@ -70,7 +70,7 @@ package body Gnatcheck.Compiler is
    function Annotation
      (Message_Kind : Message_Kinds; Parameter : String) return String;
    --  Returns annotation to be added to the compiler diagnostic message if
-   --  Gnatcheck.Options.Mapping_Mode is ON. Parameter, if non-empty, is the
+   --  Lkql_Checker.Options.Mapping_Mode is ON. Parameter, if non-empty, is the
    --  parameter of '-gnatw/y' option that causes the diagnosis
 
    function Get_Rule_Id (Check : Message_Kinds) return Rule_Id;
@@ -460,7 +460,7 @@ package body Gnatcheck.Compiler is
                     then To_Lower (Rule_Name)
                     else To_Lower (Instance_Name));
                Store_Diagnosis
-                 (Full_File_Name => Gnatcheck.Source_Table.File_Name (SF),
+                 (Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
                   Message        =>
                     Msg (Msg_Start + 7 .. Last - 2) & Instance.Annotate_Diag,
                   Sloc           => Sloc,
@@ -496,7 +496,7 @@ package body Gnatcheck.Compiler is
                Message_Kind := Restriction;
             elsif Msg (Msg_Start + 9 .. Msg_Start + 19) = "cannot find" then
                Report_Missing_File
-                 (Gnatcheck.Source_Table.File_Name (SF),
+                 (Lkql_Checker.Source_Table.File_Name (SF),
                   Msg (Msg_Start + 21 .. Msg_End));
                return;
             else
@@ -522,7 +522,7 @@ package body Gnatcheck.Compiler is
          --  Use File_Name to always use the same filename (including proper
          --  casing for case insensitive systems).
          Store_Diagnosis
-           (Full_File_Name => Gnatcheck.Source_Table.File_Name (SF),
+           (Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
             Sloc           => Sloc,
             Message        =>
               Adjust_Message (Msg (Msg_Start .. Msg_End), Message_Kind),
@@ -2172,4 +2172,4 @@ package body Gnatcheck.Compiler is
       XML_Report ("</rule>", Indent_Level);
    end XML_Print_Active_Restrictions;
 
-end Gnatcheck.Compiler;
+end Lkql_Checker.Compiler;

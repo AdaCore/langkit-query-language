@@ -22,7 +22,7 @@
 with GPR2.Path_Name;
 with GPR2.Project.Tree;
 
-package Gnatcheck.Projects.Aggregate is
+package Lkql_Checker.Projects.Aggregate is
 
    procedure Store_Aggregated_Project (S : String);
    function Get_Aggregated_Project return String;
@@ -77,4 +77,4 @@ package Gnatcheck.Projects.Aggregate is
    --  and an umbrella report that lists all the (non-aggregate) project that
    --  have been processed and corresponding report files.
 
-end Gnatcheck.Projects.Aggregate;
+end Lkql_Checker.Projects.Aggregate;

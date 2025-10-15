@@ -3,8 +3,8 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This is the top of the Gnatcheck hierarchy.
+--  This is the top of the Lkql_Checker hierarchy.
 
-package Gnatcheck is
+package Lkql_Checker is
    pragma Pure;
-end Gnatcheck;
+end Lkql_Checker;

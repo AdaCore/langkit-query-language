@@ -16,9 +16,9 @@ with GNAT.OS_Lib;               use GNAT.OS_Lib;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
-with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
-with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GPR2.Build.Source;
 with GPR2.Path_Name;
@@ -33,7 +33,7 @@ with Libadalang.Iterators;
 with Libadalang.Common;
 with Libadalang.Config_Pragmas;
 
-package body Gnatcheck.Source_Table is
+package body Lkql_Checker.Source_Table is
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
 
@@ -1134,7 +1134,7 @@ package body Gnatcheck.Source_Table is
                  or else (Argument_File_Specified
                           and then not Arg.Transitive_Closure.Get))
       then
-         Gnatcheck.Output.Warning
+         Lkql_Checker.Output.Warning
            ("exemption: source " & Fname & " not found");
       end if;
    end Set_Exemption;
@@ -1475,4 +1475,4 @@ package body Gnatcheck.Source_Table is
       return Res;
    end Create_Ada_Context;
 
-end Gnatcheck.Source_Table;
+end Lkql_Checker.Source_Table;
