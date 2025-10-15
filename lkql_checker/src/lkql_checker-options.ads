@@ -192,11 +192,11 @@ package Lkql_Checker.Options is
    -- Opt_Parse integration --
    ---------------------------
 
-   type Gnatcheck_Error_Handler is new Error_Handler with null record;
+   type Lkql_Checker_Error_Handler is new Error_Handler with null record;
    subtype Max_Diagnoses_Count is Natural range 0 .. 1000;
 
-   procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String);
-   procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String);
+   procedure Warning (Self : in out Lkql_Checker_Error_Handler; Msg : String);
+   procedure Error (Self : in out Lkql_Checker_Error_Handler; Msg : String);
 
    function Jobs_Convert (Arg : String) return Natural;
    function Project_Verbosity_Convert (Arg : String) return Natural;
@@ -211,7 +211,7 @@ package Lkql_Checker.Options is
            Incremental          => True,
            Generate_Help_Flag   => False,
            Custom_Error_Handler =>
-             Create (Gnatcheck_Error_Handler'(null record)),
+             Create (Lkql_Checker_Error_Handler'(null record)),
            Print_Help_On_Error  => False);
 
       package Version is new

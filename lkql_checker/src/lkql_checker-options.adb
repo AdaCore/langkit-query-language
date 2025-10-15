@@ -12,12 +12,13 @@ package body Lkql_Checker.Options is
    -- Opt_Parse error handling --
    ------------------------------
 
-   procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String) is
+   procedure Warning (Self : in out Lkql_Checker_Error_Handler; Msg : String)
+   is
    begin
       Warning (Msg);
    end Warning;
 
-   procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String) is
+   procedure Error (Self : in out Lkql_Checker_Error_Handler; Msg : String) is
    begin
       Error (Msg);
    end Error;
