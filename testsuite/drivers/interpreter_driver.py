@@ -1,4 +1,5 @@
 import os
+from e3.testsuite.result import FailureReason
 
 from drivers.base_driver import BaseDriver
 
@@ -21,6 +22,7 @@ class InterpreterDriver(BaseDriver):
 
     perf_supported = True
     flag_checking_supported = False
+    lkt_output = None
 
     def base_args(self):
         return self.lkql_exe
@@ -41,6 +43,26 @@ class InterpreterDriver(BaseDriver):
         return args
 
 
+    def compute_failures(self):
+        filename, baseline, is_regexp = self.baseline
+
+        # Normal test
+        result = self.compute_diff(filename, baseline, self.output.log)
+
+        # Lkt Refactor test
+        if self.lkt_output:
+            result += self.compute_diff(
+                None,
+                baseline,
+                self.lkt_output,
+                failure_message="execution after refactor TO_LKQL_V2: unexpected output"
+            )
+
+        if result:
+            self.result.failure_reasons.add(FailureReason.DIFF)
+
+        return result
+
     def run(self) -> None:
 
         lkql_path = [
@@ -53,10 +75,7 @@ class InterpreterDriver(BaseDriver):
         # This way we can compare the results of the rewritten script
         # with the original
         if self.test_env.get('lkt_refactor', False):
-            self.output += 'lkql to lkt\n'
-            self.output += '===========\n'
-             
-            # Translate "script.lkql" to "refactored.lkt"
+            # Translate "script.lkql" to "refactored.lkql"
             refactored_file_path = self.working_dir('refactored.lkql')
             with open(refactored_file_path, 'w') as file:
                 file.write(self.shell(
@@ -65,11 +84,13 @@ class InterpreterDriver(BaseDriver):
                 ).out)
 
             # Run test on refactored script
-            self.check_run(self.build_args(refactored_file_path), lkql_path=os.pathsep.join(lkql_path))
+            lkt_result = self.check_run(
+                self.build_args(refactored_file_path),
+                lkql_path=os.pathsep.join(lkql_path),
+                analyze_output=False
+            )
 
-            self.output += '\n'
-            self.output += 'lkql run\n'
-            self.output += '========\n'
+            self.lkt_output = lkt_result.out
 
         # Run the interpreter
         self.check_run(self.build_args('script.lkql'), lkql_path=os.pathsep.join(lkql_path))

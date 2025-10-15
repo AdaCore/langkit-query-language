@@ -1,2 +1,3 @@
 driver: 'interpreter'
 input_sources: ['test.adb']
+lkt_refactor: True
