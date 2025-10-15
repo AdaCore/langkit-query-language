@@ -354,7 +354,7 @@ procedure Main is
             --  -files=files?.txt
 
             Pids (Job) :=
-              Spawn_Gnatcheck_Worker
+              Spawn_Checker_Worker
                 (File_Name ("rules", 0),
                  File_Name ("out", Job),
                  File_Name ("files", Job),

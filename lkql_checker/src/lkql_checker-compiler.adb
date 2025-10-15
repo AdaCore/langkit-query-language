@@ -1717,11 +1717,11 @@ package body Lkql_Checker.Compiler is
       end if;
    end Set_Compiler_Checks;
 
-   ----------------------------
-   -- Spawn_Gnatcheck_Worker --
-   ----------------------------
+   --------------------------
+   -- Spawn_Checker_Worker --
+   --------------------------
 
-   function Spawn_Gnatcheck_Worker
+   function Spawn_Checker_Worker
      (Rule_File   : String;
       Msg_File    : String;
       Source_File : String;
@@ -1855,7 +1855,7 @@ package body Lkql_Checker.Compiler is
       end loop;
 
       return Pid;
-   end Spawn_Gnatcheck_Worker;
+   end Spawn_Checker_Worker;
 
    -----------------------------------
    -- Spawn_LKQL_Rule_Config_Parser --

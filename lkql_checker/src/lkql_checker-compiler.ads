@@ -155,16 +155,15 @@ package Lkql_Checker.Compiler is
    --  format of restriction rules and places the output into the specified
    --  file that is supposed to be an opened out file.
 
-   function Spawn_Gnatcheck_Worker
+   function Spawn_Checker_Worker
      (Rule_File   : String;
       Msg_File    : String;
       Source_File : String;
       Log_File    : String) return Process_Id;
-   --  Spawn a gnatcheck worker (LKQL) on the main project file with the
-   --  relevant options on the rules given by Rule_File, redirecting the
-   --  output to Msg_File. Source_File is the name of a file listing all the
-   --  source files to analyze. Log_File is the name of a file used to store
-   --  worker's logs.
+   --  Spawn a worker (LKQL) on the main project file with the relevant options
+   --  on the rules given by Rule_File, redirecting the output to Msg_File.
+   --  Source_File is the name of a file listing all the source files to
+   --  analyze. Log_File is the name of a file used to store worker's logs.
 
    function Spawn_LKQL_Rule_File_Parser
      (LKQL_RF_Name : String; Result_File : String) return Process_Id;
