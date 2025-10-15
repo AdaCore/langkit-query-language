@@ -63,10 +63,10 @@ package Lkql_Checker.Compiler is
    --  Boolean flag indicating if gnatcheck should spawn the compiler and
    --  analyze its output.
 
-   Gnatcheck_Config_File : String_Access :=
+   Checker_Config_File : String_Access :=
      new String'("restriction_pragmas.adc");
-   --  The name of the file to place configuration pragmas gnatcheck needs to
-   --  add the compiler checks to its report. This file always starts with:
+   --  The name of the file to place configuration pragmas that we need to add
+   --  the compiler checks to its report. This file always starts with:
    --
    --     pragma Warnings (Off, "[enabled by default]");
    --

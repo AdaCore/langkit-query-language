@@ -263,7 +263,7 @@ package body Lkql_Checker.Compiler is
       Sep_Idx   : Natural := 0;
 
    begin
-      Last_Idx := Path_Index (Result, Gnatcheck_Config_File.all);
+      Last_Idx := Path_Index (Result, Checker_Config_File.all);
 
       if Last_Idx = 0 then
          Last_Idx := Result'Last;
@@ -514,7 +514,7 @@ package body Lkql_Checker.Compiler is
 
          --  Skip restriction message not coming from the GNATcheck config file
          if Message_Kind = Restriction
-           and then Path_Index (Msg, Gnatcheck_Config_File.all) = 0
+           and then Path_Index (Msg, Checker_Config_File.all) = 0
          then
             return;
          end if;
@@ -804,7 +804,7 @@ package body Lkql_Checker.Compiler is
 
       declare
          Config_File   : constant Virtual_File :=
-           Create (+Gnatcheck_Config_File.all);
+           Create (+Checker_Config_File.all);
          File          : Writable_File;
          Old_Contents  : GNAT.Strings.String_Access;
          New_Contents  : constant String := To_String (Contents);
@@ -2003,7 +2003,7 @@ package body Lkql_Checker.Compiler is
       end loop;
 
       if Analyze_Compiler_Output then
-         Add_Arg ("-gnatec=" & Gnatcheck_Config_File.all);
+         Add_Arg ("-gnatec=" & Checker_Config_File.all);
          Add_Arg ("-gnatcU");
          Add_Arg ("-gnatwnA.d");
 
