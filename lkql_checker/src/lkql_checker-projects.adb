@@ -80,15 +80,15 @@ package body Lkql_Checker.Projects is
    -- GPR2 messages reporter --
    ----------------------------
 
-   type Gnatcheck_Reporter is new GPR2.Reporter.Object with null record;
+   type Lkql_Checker_Reporter is new GPR2.Reporter.Object with null record;
 
    overriding
    procedure Internal_Report
-     (Self : in out Gnatcheck_Reporter; Message : GPR2.Message.Object);
+     (Self : in out Lkql_Checker_Reporter; Message : GPR2.Message.Object);
 
    overriding
    function Verbosity
-     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level
+     (Self : Lkql_Checker_Reporter) return GPR2.Reporter.Verbosity_Level
    is (case Arg.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.No_Warnings,
          when 1      => GPR2.Reporter.Regular,
@@ -97,14 +97,14 @@ package body Lkql_Checker.Projects is
 
    overriding
    function User_Verbosity
-     (Self : Gnatcheck_Reporter) return GPR2.Reporter.User_Verbosity_Level
+     (Self : Lkql_Checker_Reporter) return GPR2.Reporter.User_Verbosity_Level
    is (case Arg.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.Important_Only,
          when 1      => GPR2.Reporter.Regular,
          when 2      => GPR2.Reporter.Verbose,
          when others => raise Constraint_Error with "should not happen");
 
-   Gpr2_Reporter : Gnatcheck_Reporter;
+   Gpr2_Reporter : Lkql_Checker_Reporter;
    --  Make libgpr2 report messages using the proper ``Lkql_Checker.Output``
    --  API.
 
@@ -118,7 +118,7 @@ package body Lkql_Checker.Projects is
 
    overriding
    procedure Internal_Report
-     (Self : in out Gnatcheck_Reporter; Message : GPR2.Message.Object) is
+     (Self : in out Lkql_Checker_Reporter; Message : GPR2.Message.Object) is
    begin
       --  Check if the message is reporting about a missing file
       if not Missing_File_Detected
