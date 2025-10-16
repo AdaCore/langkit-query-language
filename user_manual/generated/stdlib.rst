@@ -61,6 +61,11 @@ Functions
     Return the full view of the root type of ``t``, traversing subtypes,
     derivations and privacy.
 
+.. function:: get_formals(subp_spec)
+
+    Given a SubpSpec node, return a list of all its formal parameter
+    defining names, each one associated to its ParamSpec node.
+
 .. function:: get_parameter(params, actual)
 
     Given a ``List[ParamActual]``, return the parameter corresponding to

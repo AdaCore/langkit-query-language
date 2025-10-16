@@ -644,6 +644,17 @@ fun get_parameter(params, actual) =
     find(params, actual, params.length)
 }
 
+fun get_formals(subp_spec) =
+    |" Given a SubpSpec node, return a list of all its formal parameter
+    |" defining names, each one associated to its ParamSpec node.
+    concat([
+        [
+            {name: name, param_spec: param_spec}
+            for name in from param_spec select DefiningName
+        ].to_list
+        for param_spec in subp_spec.p_params()
+    ].to_list)
+
 @memoized
 fun strip_conversions(node) =
     |" Strip ``ParenExpr``, ``QualExpr`` and type conversions

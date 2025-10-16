@@ -4055,6 +4055,9 @@ except for the following:
 * Parameters of prefix or infix calls to operator functions are not flagged;
 * If the called subprogram or entry has only one formal parameter,
   the parameter of the call is not flagged;
+* If call expression only carries one actual parameter, corresponding formal
+  parameter doesn't have a default value, and all other formal parameters do,
+  then the sole actual is not flagged.
 * If a subprogram call uses the *Object.Operation* notation, then
   * the first parameter (that is, *Object*) is not flagged;
 

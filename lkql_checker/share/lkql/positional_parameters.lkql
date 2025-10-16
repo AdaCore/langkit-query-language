@@ -1,13 +1,23 @@
-fun check_actual_param(spec, check_dot) =
-    match spec
-    | SubpSpec => {
-        val num_params = (
-            from spec.f_subp_params?.f_params select DefiningName
-        ).length;
-        num_params > 2 or (num_params > 1 and not check_dot)
+import stdlib
+
+fun should_be_named(param_assoc, call_expr, check_dot) = {
+    val formals = stdlib.get_formals(call_expr.p_called_subp_spec());
+    if formals.length > 2 or (formals.length > 1 and not check_dot)
+    then {
+        val param_defining_name = stdlib.get_parameter(call_expr.p_call_params(), param_assoc.f_r_expr);
+        call_expr.f_suffix.children.length > 1
+        or stdlib.any([
+            {
+                val default_expr = formal.param_spec.f_default_expr;
+                if formal.name == param_defining_name
+                then default_expr != null
+                else default_expr == null
+            }
+            for formal in formals
+        ])
     }
-    | EntrySpec => spec.f_entry_params.f_params[2] != null
-    | * => false
+    else false
+}
 
 fun add_param_name(param, ctx) =
     ctx.set_child(
@@ -27,6 +37,9 @@ fun positional_parameters(node, all=false) =
     |" * Parameters of prefix or infix calls to operator functions are not flagged;
     |" * If the called subprogram or entry has only one formal parameter,
     |"   the parameter of the call is not flagged;
+    |" * If call expression only carries one actual parameter, corresponding formal
+    |"   parameter doesn't have a default value, and all other formal parameters do,
+    |"   then the sole actual is not flagged.
     |" * If a subprogram call uses the *Object.Operation* notation, then
     |"   * the first parameter (that is, *Object*) is not flagged;
     |"
@@ -74,10 +87,6 @@ fun positional_parameters(node, all=false) =
         p_is_call(): true,
         f_name: not AttributeRef,
         f_name: id@*(p_is_operator_name(): false) when (
-            all
-            or check_actual_param(
-                c.p_called_subp_spec(),
-                id.p_is_dot_call()
-            )
+            all or should_be_named(node, c, id.p_is_dot_call())
         )
     )

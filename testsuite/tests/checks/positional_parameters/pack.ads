@@ -15,6 +15,7 @@ package Pack is
       entry E1 (I : Integer; J : Integer);
       entry E2 (Boolean) (I : Integer; J : Integer);
       entry E3 (Boolean);
+      entry E4 (I : Integer; J : Integer := 5);
    end T;
 
 end Pack;
