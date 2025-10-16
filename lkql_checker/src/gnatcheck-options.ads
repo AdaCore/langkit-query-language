@@ -219,7 +219,8 @@ package Gnatcheck.Options is
    --  been processed, keeps the name of this file, otherwise is null.
 
    LKQL_Rule_File_Name : Unbounded_String := Null_Unbounded_String;
-   --  Name of the LKQL file to process as a rule file.
+   --  Name of the LKQL file to process as a rule file. We assume that the
+   --  stored value is an absolute path to the LKQL rule file.
 
    ---------------------
    -- Project support --

@@ -505,7 +505,7 @@ begin
 
    --  Add the command-line LKQL rule file to the rule options
    if Arg.Rule_File.Get /= Null_Unbounded_String then
-      Set_LKQL_Rule_File (To_String (Arg.Rule_File.Get));
+      Set_LKQL_Rule_File (To_String (Arg.Rule_File.Get), False);
    end if;
 
    --  Get the default LKQL rule file if none has been specified
@@ -514,7 +514,9 @@ begin
          Def_LKQL : constant String := Default_LKQL_Rule_Options_File;
       begin
          if Is_Regular_File (Def_LKQL) then
-            Set_LKQL_Rule_File (Def_LKQL);
+            --  The default rule file is already resolved relatively to the
+            --  current project file.
+            Set_LKQL_Rule_File (Def_LKQL, False);
          end if;
       end;
    end if;

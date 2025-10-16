@@ -250,14 +250,12 @@ package body Gnatcheck.Projects is
       end if;
 
       --  Process the LKQL rule file
-      --  Process the rule list
       if Proj.Has_Attribute (Rule_File_Attr) then
          declare
             Rule_File : constant String :=
               Load_Single_Attribute (Rule_File_Attr);
          begin
-            Set_LKQL_Rule_File
-              (My_Project.Get_Project_Relative_File (Rule_File));
+            Set_LKQL_Rule_File (Rule_File, True);
          end;
       end if;
 
@@ -1142,11 +1140,19 @@ package body Gnatcheck.Projects is
    -- Set_LKQL_Rule_File --
    ------------------------
 
-   procedure Set_LKQL_Rule_File (File : String) is
+   procedure Set_LKQL_Rule_File (File : String; Project_Relative : Boolean) is
       use Ada.Strings.Unbounded;
+
+      Resolved_File : constant String :=
+        (if Is_Absolute_Path (File)
+         then File
+         else
+           (if Project_Relative
+            then Gnatcheck_Prj.Get_Project_Relative_File (File)
+            else Normalize_Pathname (File)));
    begin
       if LKQL_Rule_File_Name = Null_Unbounded_String then
-         LKQL_Rule_File_Name := To_Unbounded_String (File);
+         LKQL_Rule_File_Name := To_Unbounded_String (Resolved_File);
       else
          Error ("only one LKQL configuration file is allowed");
          Rule_Option_Problem_Detected := True;

@@ -184,7 +184,8 @@ The following switches control the general ``gnatcheck`` behavior
 
 ``--rule-file=filename``
   Load the given file as an LKQL rule options file (see :ref:`LKQL_options_file`
-  for more information).
+  for more information). If not absolute, the provided path is relative to the
+  current working directory.
 
   .. index:: -r, --rule
 
@@ -359,9 +360,9 @@ GNATcheck:
   defining this attribute, then, values are concatenated.
 
 ``Rule_File``
-  Value is a path to a LKQL rule file. The path is relative to the project
-  file that defines this attribute. See :ref:`LKQL_options_file` for more
-  information.
+  Value is a path to a LKQL rule file. If not absolute, the path is relative
+  to the project file that defines this attribute.
+  See :ref:`LKQL_options_file` for more information.
 
   If the ``--rule-file`` switch is set when calling ``gnatcheck`` on a project
   file defining this attribute, then, an error is emitted and ``gnatcheck``

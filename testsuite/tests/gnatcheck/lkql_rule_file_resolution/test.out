@@ -1,0 +1,25 @@
+With CLI valid rule file
+========================
+
+main.adb:3:04: goto statement
+
+With CLI invalid rule file
+==========================
+
+gnatcheck: can not locate LKQL rule file <working-dir>/prj_rules.lkql
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+
+With a project provided valid rule file
+=======================================
+
+main.adb:7:04: redundant null statement
+
+With a project provided invalid rule file
+=========================================
+
+gnatcheck: can not locate LKQL rule file <working-dir>/prj/rules.lkql
+gnatcheck: No rule to check specified
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
