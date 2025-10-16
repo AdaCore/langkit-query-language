@@ -26,7 +26,7 @@ with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GPR2.Project.Registry.Exchange;
 
-procedure Main is
+procedure Main (Mode : Lkql_Checker_Mode) is
    Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
    use type Ada.Calendar.Time;
 
@@ -391,6 +391,9 @@ procedure Main is
 
    use Ada.Strings.Unbounded;
 begin
+   --  Set GNATcheck mode
+   Lkql_Checker.Options.Mode := Mode;
+
    Initialize_Environment;
 
    Scan_Arguments (First_Pass => True);
@@ -542,7 +545,7 @@ begin
 
    --  Force some switches and perform some checks for gnatkp
 
-   if Gnatkp_Mode then
+   if Mode = Gnatkp_Mode then
       if Target = Null_Unbounded_String
         or else RTS_Path = Null_Unbounded_String
       then

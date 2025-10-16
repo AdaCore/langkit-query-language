@@ -1556,7 +1556,7 @@ package body Lkql_Checker.Rules.Rule_Table is
       Set : Rule_Sets.Set;
 
    begin
-      if Gnatkp_Mode then
+      if Options.Mode = Gnatkp_Mode then
          Print ("gnatkp currently implements the following detectors:");
 
          if Arg.KP_Version.Get /= Null_Unbounded_String then

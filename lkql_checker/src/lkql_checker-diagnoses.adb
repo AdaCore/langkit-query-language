@@ -1695,7 +1695,7 @@ package body Lkql_Checker.Diagnoses is
 
    procedure Print_Out_Diagnoses is
       Max_Diagnoses      : constant Natural :=
-        (if Gnatkp_Mode then 0 else Arg.Max_Diagnoses.Get);
+        (if Options.Mode = Gnatkp_Mode then 0 else Arg.Max_Diagnoses.Get);
       Diagnoses_Reported : Natural := 0;
       Limit_Exceeded     : Boolean := False;
 
@@ -1923,7 +1923,7 @@ package body Lkql_Checker.Diagnoses is
       Pragma_Name : constant Text_Type := To_Lower (El.F_Id.Text);
       Pragma_Args : constant LAL.Analysis.Base_Assoc_List := El.F_Args;
       Tool_Name   : constant Text_Type :=
-        (if Gnatkp_Mode then "gnatkp" else "gnatcheck");
+        (if Options.Mode = Gnatkp_Mode then "gnatkp" else "gnatcheck");
    begin
       return
         Pragma_Name in "annotate" | "gnat_annotate"
@@ -2270,7 +2270,7 @@ package body Lkql_Checker.Diagnoses is
          return;
       end if;
 
-      if Gnatkp_Mode then
+      if Options.Mode = Gnatkp_Mode then
          Match (Match_Kp_Exempt_Comment, Text, Matches);
       else
          Match (Match_Rule_Exempt_Comment, Text, Matches);

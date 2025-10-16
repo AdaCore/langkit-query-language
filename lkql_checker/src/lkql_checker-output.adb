@@ -432,7 +432,7 @@ package body Lkql_Checker.Output is
    begin
       pragma Style_Checks ("M200"); -- Allow long lines
 
-      if Gnatkp_Mode then
+      if Options.Mode = Gnatkp_Mode then
          Put_Line ("gnatkp: the GNAT known problem detector");
          Put_Line
            ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");

@@ -69,10 +69,8 @@ package Lkql_Checker.Options is
    --  tool (includes both wrong parameters and wrong combinations of correct
    --  parameters).
 
-   Gnatkp_Mode : Boolean := Executable = "gnatkp";
-   --  Whether we are running in KP detection mode
-   --  Set either when the executable is called gnatkp or with the debug switch
-   --  '-dkp'
+   Mode : Lkql_Checker_Mode := Gnatcheck_Mode;
+   --  Set the mode of the driver, either GNATcheck or GNATkp modes.
 
    Legacy : Boolean := False;
    --  If True, run in legacy mode, with no support for additional rule files.
@@ -679,7 +677,7 @@ package Lkql_Checker.Options is
       function XML_Report_File_Path return String;
 
       function Ignore_Project_Switches return Boolean
-      is (Ignore_Project_Switches_Opt.Get or Gnatkp_Mode);
+      is (Ignore_Project_Switches_Opt.Get or Mode = Gnatkp_Mode);
 
       function Source_Files_Specified return Boolean
       is (Source_Files.Get /= Null_Unbounded_String);

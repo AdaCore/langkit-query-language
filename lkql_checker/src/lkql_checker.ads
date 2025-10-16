@@ -6,5 +6,5 @@
 --  This is the top of the Lkql_Checker hierarchy.
 
 package Lkql_Checker is
-   pragma Pure;
+   type Lkql_Checker_Mode is (Gnatcheck_Mode, Gnatkp_Mode);
 end Lkql_Checker;
