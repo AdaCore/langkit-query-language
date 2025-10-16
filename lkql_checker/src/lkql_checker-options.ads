@@ -23,8 +23,8 @@ with GPR2.Options;
 
 package Lkql_Checker.Options is
 
-   Lkql_Checker_Version : constant String := "26.0w";
-   --  Full major.minor version for Gnatcheck
+   Lkql_Checker_Version : constant String := "27.0w";
+   --  Full major.minor version for Lkql_Checker
 
    Date : constant String := "unknown date";
 
