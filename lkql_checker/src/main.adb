@@ -240,15 +240,15 @@ procedure Main is
          Next_SF : SF_Id := First_SF_Id;
          Files   : Natural;
 
-         procedure Wait_Gnatcheck;
-         --  Wait for one gnatcheck child process to finish and
+         procedure Wait_Lkql_Checker;
+         --  Wait for one Lkql_Checker child process to finish and
          --  analyze its output. Also deal with the gprbuild child if any.
 
-         --------------------
-         -- Wait_Gnatcheck --
-         --------------------
+         -----------------------
+         -- Wait_Lkql_Checker --
+         -----------------------
 
-         procedure Wait_Gnatcheck is
+         procedure Wait_Lkql_Checker is
             Process_Found : Boolean := False;
          begin
             loop
@@ -323,7 +323,7 @@ procedure Main is
                   exit;
                end if;
             end loop;
-         end Wait_Gnatcheck;
+         end Wait_Lkql_Checker;
 
       begin
          --  Process sources to take pragma Annotate into account
@@ -366,7 +366,7 @@ procedure Main is
             end if;
 
             if Job >= Process_Num then
-               Wait_Gnatcheck;
+               Wait_Lkql_Checker;
             end if;
          end loop;
 
@@ -380,7 +380,7 @@ procedure Main is
          --  Wait for remaining children
 
          while Current /= Total_Jobs loop
-            Wait_Gnatcheck;
+            Wait_Lkql_Checker;
          end loop;
 
          if not Arg.Debug_Mode.Get then
