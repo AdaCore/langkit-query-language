@@ -15,9 +15,10 @@ fun kp_t805_037(node) =
                     f_constraint: CompositeConstraint(
                         p_is_discriminant_constraint(): true
                     )
-                    and [
-                        id for id in (from c.f_default_expr select Identifier)
-                        if [d for d in discs if d.p_name_matches(id)]
-                    ]
+                )
+                and [
+                    id for id in (from c.f_default_expr select Identifier)
+                    if [d for d in discs if d.p_name_matches(id)]
+                ]
         ]
     }
