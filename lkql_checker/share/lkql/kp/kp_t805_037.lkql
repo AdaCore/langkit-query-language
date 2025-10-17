@@ -5,16 +5,19 @@
 @check(message="possible occurrence of KP T805-037")
 fun kp_t805_037(node) =
     node is TypeDecl(
-      f_discriminants: part@KnownDiscriminantPart,
-      f_type_def: r@RecordTypeDef(f_record_def: def@RecordDef)
+        f_discriminants: part@KnownDiscriminantPart,
+        f_type_def: r@RecordTypeDef(f_record_def: def@RecordDef)
     ) when {
-      val discs = from part select DefiningName;
-      [decl for decl in
-       from def.f_components select c@ComponentDecl
-       when c.f_component_def.f_type_expr is
-            s@SubtypeIndication(f_constraint: CompositeConstraint(
-                 p_is_discriminant_constraint(): true)
-        and [id for id in (from c.f_default_expr select Identifier)
-             if [d for d in discs if d.p_name_matches(id)]]]
+        val discs = from part select DefiningName;
+        [
+            decl for decl in from def.f_components select c@ComponentDecl
+                when c.f_component_def.f_type_expr is s@SubtypeIndication(
+                    f_constraint: CompositeConstraint(
+                        p_is_discriminant_constraint(): true
+                    )
+                    and [
+                        id for id in (from c.f_default_expr select Identifier)
+                        if [d for d in discs if d.p_name_matches(id)]
+                    ]
+        ]
     }
-
