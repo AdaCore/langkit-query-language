@@ -552,7 +552,7 @@ fun number_of_values(type) =
     |" Return the number of values covered by a given BaseTypeDecl, -1 if
     |" this value cannot be determined.
     match type
-    | SubtypeDecl(f_subtype: *(f_constraint: RangeConstraint(f_range: *(f_range: op@BinOp)) => range_values(op.f_left, op.f_right)
+    | SubtypeDecl(f_subtype: *(f_constraint: RangeConstraint(f_range: *(f_range: op@BinOp)))) => range_values(op.f_left, op.f_right)
     | SubtypeDecl => number_of_values(type.f_subtype.f_name.p_referenced_decl())
     | * when type == type.p_universal_int_type() => -1
     | TypeDecl(f_type_def: type_def) => match type_def
