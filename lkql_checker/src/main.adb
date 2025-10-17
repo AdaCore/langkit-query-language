@@ -391,8 +391,8 @@ procedure Main (Mode : Lkql_Checker_Mode) is
 
    use Ada.Strings.Unbounded;
 begin
-   --  Set GNATcheck mode
-   Lkql_Checker.Options.Mode := Mode;
+   --  Set the Lkql_Checker global mode
+   Lkql_Checker.Mode := Mode;
 
    Initialize_Environment;
 
@@ -663,7 +663,9 @@ exception
    when Parameter_Error =>
       --  The diagnosis is already generated
       Print
-        ("try """ & Executable & " --help"" for more information.",
+        ("try """
+         & Lkql_Checker_Mode_Image
+         & " --help"" for more information.",
          Log_Message => False);
       OS_Exit (E_Error);
 

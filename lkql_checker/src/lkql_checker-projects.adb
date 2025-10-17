@@ -1169,7 +1169,7 @@ package body Lkql_Checker.Projects is
       --  If GNATcheck is in KP mode and there is a command line specified KP
       --  version, we have to iterate over all implemented rules to enable
       --  those which match the version.
-      if Options.Mode = Gnatkp_Mode
+      if Mode = Gnatkp_Mode
         and then Arg.KP_Version.Get /= Null_Unbounded_String
       then
          for Rule_Cursor in All_Rules.Iterate loop
@@ -1211,7 +1211,7 @@ package body Lkql_Checker.Projects is
       Active_Rule_Present := not All_Rule_Instances.Is_Empty;
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
-         if Options.Mode = Gnatkp_Mode
+         if Mode = Gnatkp_Mode
            and then Arg.KP_Version.Get /= Null_Unbounded_String
          then
             Error ("no rule for the given kp-version");

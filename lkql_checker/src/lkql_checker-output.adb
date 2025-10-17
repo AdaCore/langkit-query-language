@@ -126,7 +126,7 @@ package body Lkql_Checker.Output is
       Log_Message : Boolean := False)
    is
       Final_Message : constant String :=
-        (if Tool_Name then Executable & ": " else "")
+        (if Tool_Name then Lkql_Checker_Mode_Image & ": " else "")
         & (if Location /= "" then Location & ": " else "")
         & (case Tag is
              when Info    => "info: ",
@@ -255,7 +255,7 @@ package body Lkql_Checker.Output is
 
    procedure Print_Version_Info is
    begin
-      Print (Executable & " " & Version_String);
+      Print (Lkql_Checker_Mode_Image & " " & Version_String);
       Print
         ("Copyright (C) " & "2004" & '-' & Current_Year & ", AdaCore.",
          Log_Message => False);
@@ -363,7 +363,8 @@ package body Lkql_Checker.Output is
    begin
       if Log_File_Name = null then
          Log_File_Name :=
-           new String'(Global_Report_Dir.all & Executable & ".log");
+           new String'
+             (Global_Report_Dir.all & Lkql_Checker_Mode_Image & ".log");
       end if;
 
       Open_Or_Create (Log_File_Name.all, Out_File, Log_File);
@@ -432,7 +433,7 @@ package body Lkql_Checker.Output is
    begin
       pragma Style_Checks ("M200"); -- Allow long lines
 
-      if Options.Mode = Gnatkp_Mode then
+      if Mode = Gnatkp_Mode then
          Put_Line ("gnatkp: the GNAT known problem detector");
          Put_Line
            ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");

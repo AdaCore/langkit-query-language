@@ -1,4 +1,6 @@
 with GNAT.Command_Line; use GNAT.Command_Line;
+with Ada.Command_Line;  use Ada.Command_Line;
+with Ada.Directories;   use Ada.Directories;
 
 with Lkql_Checker.Output;       use Lkql_Checker.Output;
 with Lkql_Checker.Projects;     use Lkql_Checker.Projects;

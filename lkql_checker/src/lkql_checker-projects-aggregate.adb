@@ -199,13 +199,13 @@ package body Lkql_Checker.Projects.Aggregate is
       Exit_Code : Integer;
 
       Full_Tool_Name : constant String_Access :=
-        Locate_Exec_On_Path (Executable);
+        Locate_Exec_On_Path (Lkql_Checker_Mode_Image);
 
    begin
       if Full_Tool_Name = null then
          Error
            ("cannot locate "
-            & Executable
+            & Lkql_Checker_Mode_Image
             & " on PATH, possible installation problem");
          raise Fatal_Error;
       end if;

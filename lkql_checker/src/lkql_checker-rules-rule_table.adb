@@ -1556,7 +1556,7 @@ package body Lkql_Checker.Rules.Rule_Table is
       Set : Rule_Sets.Set;
 
    begin
-      if Options.Mode = Gnatkp_Mode then
+      if Mode = Gnatkp_Mode then
          Print ("gnatkp currently implements the following detectors:");
 
          if Arg.KP_Version.Get /= Null_Unbounded_String then
@@ -1592,7 +1592,9 @@ package body Lkql_Checker.Rules.Rule_Table is
             end loop;
          end if;
       else
-         Print (Executable & " currently implements the following rules:");
+         Print
+           (Lkql_Checker_Mode_Image
+            & " currently implements the following rules:");
 
          for Rule in All_Rules.Iterate loop
             Set.Include (All_Rules (Rule));
@@ -1607,7 +1609,7 @@ package body Lkql_Checker.Rules.Rule_Table is
          end if;
 
          Print
-           (Executable
+           (Lkql_Checker_Mode_Image
             & " allows activation of the following checks "
             & "provided by GNAT");
          Print
