@@ -16,7 +16,7 @@ package Lkql_Checker.Output is
    procedure Print_Version_Info;
    --  Prints into Stderr the tool version information in the following format:
    --
-   --  (gnatcheck|gnatkp) <version> (<date>)
+   --  <tool> <version> (<date>)
    --  Copyright (C) 2004-<current year>, AdaCore.
 
    procedure Report_Unhandled_Exception (Ex : Exception_Occurrence);

@@ -1922,8 +1922,7 @@ package body Lkql_Checker.Diagnoses is
    is
       Pragma_Name : constant Text_Type := To_Lower (El.F_Id.Text);
       Pragma_Args : constant LAL.Analysis.Base_Assoc_List := El.F_Args;
-      Tool_Name   : constant Text_Type :=
-        (if Mode = Gnatkp_Mode then "gnatkp" else "gnatcheck");
+      Tool_Name   : constant Text_Type := To_Text (Lkql_Checker_Mode_Image);
    begin
       return
         Pragma_Name in "annotate" | "gnat_annotate"
