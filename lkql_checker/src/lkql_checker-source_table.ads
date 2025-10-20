@@ -9,14 +9,14 @@
 
 with Ada.Containers.Indefinite_Ordered_Sets;
 
-with Gnatcheck.Options;  use Gnatcheck.Options;
-with Gnatcheck.Projects; use Gnatcheck.Projects;
+with Lkql_Checker.Options;  use Lkql_Checker.Options;
+with Lkql_Checker.Projects; use Lkql_Checker.Projects;
 
 with GNATCOLL.Projects; use GNATCOLL.Projects;
 
 with Libadalang.Analysis; use Libadalang.Analysis;
 
-package Gnatcheck.Source_Table is
+package Lkql_Checker.Source_Table is
 
    Low_SF_Bound  : constant := 0;
    High_SF_Bound : constant := 999_999;
@@ -288,4 +288,4 @@ package Gnatcheck.Source_Table is
    Tool_Failures : Natural := 0;
    --  Counter for tool failures a tool has recovered from
 
-end Gnatcheck.Source_Table;
+end Lkql_Checker.Source_Table;

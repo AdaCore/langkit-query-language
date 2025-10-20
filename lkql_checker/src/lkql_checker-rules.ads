@@ -14,8 +14,8 @@ with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
 with Ada.Text_IO;                     use Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with Gnatcheck.Ids;              use Gnatcheck.Ids;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 
@@ -23,7 +23,7 @@ with Rule_Commands; use Rule_Commands;
 
 with System.Rident;
 
-package Gnatcheck.Rules is
+package Lkql_Checker.Rules is
 
    pragma Warnings (Off);
    package Rident is new System.Rident;
@@ -234,9 +234,9 @@ package Gnatcheck.Rules is
    --  This function will remove a key from `Args_Object` if it is used as an
    --  argument for the rule.
    --
-   --  This function may throw `Gnatcheck.JSON_Utilities.Field_Not_Found` if an
-   --  argument is missing, or `Gnatcheck.JSON_Utilities.Invalid_Type` if an
-   --  argument is not of the valid type.
+   --  This function may throw `Lkql_Checker.JSON_Utilities.Field_Not_Found` if
+   --  an argument is missing, or `Lkql_Checker.JSON_Utilities.Invalid_Type` if
+   --  an argument is not of the valid type.
 
    procedure Map_Parameters
      (Instance : in out Rule_Instance;
@@ -639,4 +639,4 @@ package Gnatcheck.Rules is
       Arguments : String_Vector;
    end record;
 
-end Gnatcheck.Rules;
+end Lkql_Checker.Rules;

@@ -6,11 +6,11 @@
 --  This package offer high level abstractions for manipulating JSON data
 --  during the GNATcheck process.
 
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 
-package Gnatcheck.JSON_Utilities is
+package Lkql_Checker.JSON_Utilities is
 
    -----------------------
    -- Exception objects --
@@ -71,4 +71,4 @@ package Gnatcheck.JSON_Utilities is
    --  Return its content as a string vector.
    --  Raise `Invalid_Type` if the given literal is not a tuple.
 
-end Gnatcheck.JSON_Utilities;
+end Lkql_Checker.JSON_Utilities;

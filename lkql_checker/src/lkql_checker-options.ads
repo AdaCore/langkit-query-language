@@ -13,24 +13,25 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Gnatcheck.Projects;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Lkql_Checker.Projects;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
 with GPR2.Options;
 
-package Gnatcheck.Options is
+package Lkql_Checker.Options is
 
-   Gnatcheck_Version : constant String := "26.0w";
-   --  Full major.minor version for Gnatcheck
+   Lkql_Checker_Version : constant String := "27.0w";
+   --  Full major.minor version for Lkql_Checker
 
    Date : constant String := "unknown date";
 
    Current_Year : constant String := "2025";
 
-   Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
+   Version_String : constant String :=
+     Lkql_Checker_Version & " (" & Date & ")";
 
    Executable : constant String := Base_Name (Command_Name);
    --  Name of the current executable (e.g. "gnatcheck" or "gnatkp")
@@ -126,8 +127,8 @@ package Gnatcheck.Options is
    Active_Rule_Present : Boolean := False;
    --  Flag indicating if the tool has an activated rule to check. It does not
    --  take into account compiler check, use
-   --  Gnatcheck.Compiler.Analyze_Compiler_Output to see if any of the compiler
-   --  check is active.
+   --  Lkql_Checker.Compiler.Analyze_Compiler_Output to see if any of the
+   --  compiler check is active.
 
    Missing_Rule_File_Detected : Boolean := False;
    --  Parameter of some '-from=...' rule option denotes a file that does not
@@ -186,17 +187,17 @@ package Gnatcheck.Options is
    -- Project support --
    ---------------------
 
-   Gnatcheck_Prj : aliased Gnatcheck.Projects.Arg_Project_Type;
+   Checker_Prj : aliased Lkql_Checker.Projects.Arg_Project_Type;
 
    ---------------------------
    -- Opt_Parse integration --
    ---------------------------
 
-   type Gnatcheck_Error_Handler is new Error_Handler with null record;
+   type Lkql_Checker_Error_Handler is new Error_Handler with null record;
    subtype Max_Diagnoses_Count is Natural range 0 .. 1000;
 
-   procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String);
-   procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String);
+   procedure Warning (Self : in out Lkql_Checker_Error_Handler; Msg : String);
+   procedure Error (Self : in out Lkql_Checker_Error_Handler; Msg : String);
 
    function Jobs_Convert (Arg : String) return Natural;
    function Project_Verbosity_Convert (Arg : String) return Natural;
@@ -211,7 +212,7 @@ package Gnatcheck.Options is
            Incremental          => True,
            Generate_Help_Flag   => False,
            Custom_Error_Handler =>
-             Create (Gnatcheck_Error_Handler'(null record)),
+             Create (Lkql_Checker_Error_Handler'(null record)),
            Print_Help_On_Error  => False);
 
       package Version is new
@@ -749,4 +750,4 @@ package Gnatcheck.Options is
      (Args : Arg.Legacy_Rules_Section.Result_Array);
    --  Process the options provided in ``Args`` as legacy rule options.
 
-end Gnatcheck.Options;
+end Lkql_Checker.Options;

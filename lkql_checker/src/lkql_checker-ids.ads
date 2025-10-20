@@ -11,7 +11,7 @@ with Ada.Containers.Indefinite_Vectors;
 with Langkit_Support.Symbols; use Langkit_Support.Symbols;
 with Langkit_Support.Text;    use Langkit_Support.Text;
 
-package Gnatcheck.Ids is
+package Lkql_Checker.Ids is
 
    -------------------------------
    -- Internal id symbol tables --
@@ -108,4 +108,4 @@ package Gnatcheck.Ids is
    is (Hash (To_Symbol (All_Exemption_Ids, Thin_Symbol (Id))));
    --  Hash an exemption identifier
 
-end Gnatcheck.Ids;
+end Lkql_Checker.Ids;

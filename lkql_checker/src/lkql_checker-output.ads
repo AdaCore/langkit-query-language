@@ -7,7 +7,7 @@
 
 with Ada.Exceptions; use Ada.Exceptions;
 
-package Gnatcheck.Output is
+package Lkql_Checker.Output is
 
    Error_From_Warning : Boolean;
    --  Whether a warning message has been emitted while "warnings as errors"
@@ -140,9 +140,9 @@ package Gnatcheck.Output is
    procedure Brief_Help;
    --  Prints the brief gnatcheck help info into Stderr
 
-   procedure Print_Gnatcheck_Usage;
+   procedure Print_Usage;
    --  Similar to Brief_Help, but corresponds to the general format generated
    --  by other GNAT tools for '--help' option, and sends the output into
    --  Stdout
 
-end Gnatcheck.Output;
+end Lkql_Checker.Output;

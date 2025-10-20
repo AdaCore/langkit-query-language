@@ -13,16 +13,16 @@ with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with GNAT.Directory_Operations;
 with GNAT.Regexp; use GNAT.Regexp;
 
-with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
-with Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;              use Gnatcheck.Ids;
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Rules;            use Gnatcheck.Rules;
-with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
+with Lkql_Checker.Diagnoses;
+with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
+with Lkql_Checker.Options;          use Lkql_Checker.Options;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.Projects.Aggregate;
+with Lkql_Checker.Rules;            use Lkql_Checker.Rules;
+with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GPR2;
 with GPR2.Build.Compilation_Unit;
@@ -52,7 +52,7 @@ with GNATCOLL.Traces;
 
 with Rule_Commands; use Rule_Commands;
 
-package body Gnatcheck.Projects is
+package body Lkql_Checker.Projects is
 
    Project_File_Set : Boolean := False;
    Project_Options  : GPR2.Options.Object;
@@ -80,15 +80,15 @@ package body Gnatcheck.Projects is
    -- GPR2 messages reporter --
    ----------------------------
 
-   type Gnatcheck_Reporter is new GPR2.Reporter.Object with null record;
+   type Lkql_Checker_Reporter is new GPR2.Reporter.Object with null record;
 
    overriding
    procedure Internal_Report
-     (Self : in out Gnatcheck_Reporter; Message : GPR2.Message.Object);
+     (Self : in out Lkql_Checker_Reporter; Message : GPR2.Message.Object);
 
    overriding
    function Verbosity
-     (Self : Gnatcheck_Reporter) return GPR2.Reporter.Verbosity_Level
+     (Self : Lkql_Checker_Reporter) return GPR2.Reporter.Verbosity_Level
    is (case Arg.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.No_Warnings,
          when 1      => GPR2.Reporter.Regular,
@@ -97,15 +97,16 @@ package body Gnatcheck.Projects is
 
    overriding
    function User_Verbosity
-     (Self : Gnatcheck_Reporter) return GPR2.Reporter.User_Verbosity_Level
+     (Self : Lkql_Checker_Reporter) return GPR2.Reporter.User_Verbosity_Level
    is (case Arg.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.Important_Only,
          when 1      => GPR2.Reporter.Regular,
          when 2      => GPR2.Reporter.Verbose,
          when others => raise Constraint_Error with "should not happen");
 
-   Gpr2_Reporter : Gnatcheck_Reporter;
-   --  Make libgpr2 report messages using the proper ``Gnatcheck.Output`` API.
+   Gpr2_Reporter : Lkql_Checker_Reporter;
+   --  Make libgpr2 report messages using the proper ``Lkql_Checker.Output``
+   --  API.
 
    function Report_Missing_File (Log : String) return Boolean
    is (Index (Log, "source file") /= 0 and then Index (Log, "not found") /= 0);
@@ -117,7 +118,7 @@ package body Gnatcheck.Projects is
 
    overriding
    procedure Internal_Report
-     (Self : in out Gnatcheck_Reporter; Message : GPR2.Message.Object) is
+     (Self : in out Lkql_Checker_Reporter; Message : GPR2.Message.Object) is
    begin
       --  Check if the message is reporting about a missing file
       if not Missing_File_Detected
@@ -137,10 +138,10 @@ package body Gnatcheck.Projects is
    procedure Error (My_Project : Arg_Project_Type; Message : String) is
    begin
       if My_Project.Is_Specified then
-         Gnatcheck.Output.Error
+         Lkql_Checker.Output.Error
            (Message, Location => Source_Prj (My_Project) & ":1:1");
       else
-         Gnatcheck.Output.Error (Message);
+         Lkql_Checker.Output.Error (Message);
       end if;
    end Error;
 
@@ -251,7 +252,7 @@ package body Gnatcheck.Projects is
             Additional_Lkql_Paths.Append
               (if Is_Absolute_Path (Path.all)
                then Path.all
-               else Gnatcheck_Prj.Get_Project_Relative_File (Path.all));
+               else Checker_Prj.Get_Project_Relative_File (Path.all));
          end loop;
       end if;
 
@@ -418,13 +419,13 @@ package body Gnatcheck.Projects is
    function Get_Project_Relative_File
      (My_Project : Arg_Project_Type; Filename : String) return String is
    begin
-      if Gnatcheck.Options.Gnatcheck_Prj.Is_Specified
-        and then Gnatcheck.Options.Gnatcheck_Prj.Tree.Is_Defined
+      if Lkql_Checker.Options.Checker_Prj.Is_Specified
+        and then Lkql_Checker.Options.Checker_Prj.Tree.Is_Defined
       then
          return
            Normalize_Pathname
              (GNAT.Directory_Operations.Dir_Name
-                (Gnatcheck_Prj.Tree.Root_Project.Path_Name.String_Value)
+                (Checker_Prj.Tree.Root_Project.Path_Name.String_Value)
               & Filename);
       else
          return Normalize_Pathname (Filename);
@@ -440,7 +441,7 @@ package body Gnatcheck.Projects is
    is
       use GPR2;
       use GPR2.Containers;
-      use Gnatcheck.Projects.Aggregate;
+      use Lkql_Checker.Projects.Aggregate;
 
       Conf_Obj : GPR2.Project.Configuration.Object;
 
@@ -584,7 +585,7 @@ package body Gnatcheck.Projects is
             --  arise). Let's check here, and run gnatcheck on
             --  each aggregated project when necessary.
 
-            Gnatcheck.Projects.Aggregate.Collect_Aggregated_Projects
+            Lkql_Checker.Projects.Aggregate.Collect_Aggregated_Projects
               (My_Project.Tree);
 
          end if;
@@ -801,7 +802,7 @@ package body Gnatcheck.Projects is
 
       Dir : constant String :=
         String
-          (if not Arg.No_Object_Dir.Get and then Gnatcheck_Prj.Is_Specified
+          (if not Arg.No_Object_Dir.Get and then Checker_Prj.Is_Specified
            then
              (if My_Project.Tree.Root_Project.Kind
                  not in GPR2.With_Object_Dir_Kind
@@ -894,7 +895,7 @@ package body Gnatcheck.Projects is
 
    procedure Store_Main_Unit (Unit_Name : String) is
    begin
-      Gnatcheck.Projects.Main_Unit.Include (GPR2.Filename_Type (Unit_Name));
+      Lkql_Checker.Projects.Main_Unit.Include (GPR2.Filename_Type (Unit_Name));
    end Store_Main_Unit;
 
    --------------------------
@@ -940,14 +941,14 @@ package body Gnatcheck.Projects is
          XML_Report ("<?xml version=""1.0""?>");
          XML_Report_No_EOL ("<gnatcheck-report");
 
-         if Gnatcheck_Prj.Is_Specified then
-            XML_Report (" project=""" & Gnatcheck_Prj.Source_Prj.all & """>");
+         if Checker_Prj.Is_Specified then
+            XML_Report (" project=""" & Checker_Prj.Source_Prj.all & """>");
          else
             XML_Report (">");
          end if;
       end if;
 
-      Gnatcheck.Diagnoses.Print_Report_Header;
+      Lkql_Checker.Diagnoses.Print_Report_Header;
 
       if Arg.Text_Report_Enabled then
          Report ("");
@@ -1081,7 +1082,7 @@ package body Gnatcheck.Projects is
          then File
          else
            (if Project_Relative
-            then Gnatcheck_Prj.Get_Project_Relative_File (File)
+            then Checker_Prj.Get_Project_Relative_File (File)
             else Normalize_Pathname (File)));
    begin
       if LKQL_Rule_File_Name = Null_Unbounded_String then
@@ -1131,7 +1132,7 @@ package body Gnatcheck.Projects is
          --  We have to skip most of the checks because this call does not do
          --  anything except spawning another gnatcheck for individual projects
 
-         Set_Global_Result_Dirs (Gnatcheck_Prj);
+         Set_Global_Result_Dirs (Checker_Prj);
          goto Processing_Aggregate_Project;
       end if;
 
@@ -1144,8 +1145,8 @@ package body Gnatcheck.Projects is
       end if;
 
       Read_Args_From_Temp_Storage
-        (Duplication_Report => not Is_Specified (Gnatcheck_Prj),
-         Arg_Project        => Gnatcheck_Prj);
+        (Duplication_Report => not Is_Specified (Checker_Prj),
+         Arg_Project        => Checker_Prj);
       Nothing_To_Do := Last_Source < First_SF_Id;
 
       if Nothing_To_Do then
@@ -1153,9 +1154,9 @@ package body Gnatcheck.Projects is
          return;
       end if;
 
-      Gnatcheck.Projects.Set_Global_Result_Dirs (Gnatcheck_Prj);
-      Gnatcheck_Config_File :=
-        new String'(Global_Report_Dir.all & Gnatcheck_Config_File.all);
+      Lkql_Checker.Projects.Set_Global_Result_Dirs (Checker_Prj);
+      Checker_Config_File :=
+        new String'(Global_Report_Dir.all & Checker_Config_File.all);
 
       Analyze_Compiler_Output :=
         Use_gnaty_Option
@@ -1236,7 +1237,7 @@ package body Gnatcheck.Projects is
       <<Processing_Aggregate_Project>>
 
       Ada.Directories.Create_Path (Global_Report_Dir.all);
-      Gnatcheck.Output.Set_Report_Files;
+      Lkql_Checker.Output.Set_Report_Files;
    end Check_Parameters;
 
-end Gnatcheck.Projects;
+end Lkql_Checker.Projects;

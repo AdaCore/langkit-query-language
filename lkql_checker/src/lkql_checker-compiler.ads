@@ -10,9 +10,9 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Gnatcheck.Rules; use Gnatcheck.Rules;
+with Lkql_Checker.Rules; use Lkql_Checker.Rules;
 
-package Gnatcheck.Compiler is
+package Lkql_Checker.Compiler is
 
    ---------------------
    -- Runtime helpers --
@@ -63,10 +63,10 @@ package Gnatcheck.Compiler is
    --  Boolean flag indicating if gnatcheck should spawn the compiler and
    --  analyze its output.
 
-   Gnatcheck_Config_File : String_Access :=
+   Checker_Config_File : String_Access :=
      new String'("restriction_pragmas.adc");
-   --  The name of the file to place configuration pragmas gnatcheck needs to
-   --  add the compiler checks to its report. This file always starts with:
+   --  The name of the file to place configuration pragmas that we need to add
+   --  the compiler checks to its report. This file always starts with:
    --
    --     pragma Warnings (Off, "[enabled by default]");
    --
@@ -155,16 +155,15 @@ package Gnatcheck.Compiler is
    --  format of restriction rules and places the output into the specified
    --  file that is supposed to be an opened out file.
 
-   function Spawn_Gnatcheck_Worker
+   function Spawn_Checker_Worker
      (Rule_File   : String;
       Msg_File    : String;
       Source_File : String;
       Log_File    : String) return Process_Id;
-   --  Spawn a gnatcheck worker (LKQL) on the main project file with the
-   --  relevant options on the rules given by Rule_File, redirecting the
-   --  output to Msg_File. Source_File is the name of a file listing all the
-   --  source files to analyze. Log_File is the name of a file used to store
-   --  worker's logs.
+   --  Spawn a worker (LKQL) on the main project file with the relevant options
+   --  on the rules given by Rule_File, redirecting the output to Msg_File.
+   --  Source_File is the name of a file listing all the source files to
+   --  analyze. Log_File is the name of a file used to store worker's logs.
 
    function Spawn_LKQL_Rule_File_Parser
      (LKQL_RF_Name : String; Result_File : String) return Process_Id;
@@ -228,4 +227,4 @@ package Gnatcheck.Compiler is
    --  some warning-based rule, returns the parameter of the rule (used
    --  in parametrized exemption sections for warnings).
 
-end Gnatcheck.Compiler;
+end Lkql_Checker.Compiler;

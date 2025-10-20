@@ -44,11 +44,11 @@ impacts:
 	[ -f "$(KP_JSON)" ] || "$(PYTHON)" "./utils/impact-db_impacts_gen.py"
 
 format:
-	gnatformat -P lkql_checker/gnatcheck.gpr --no-subprojects
+	gnatformat -P lkql_checker/lkql_checker.gpr --no-subprojects
 	$(MAVEN) -f lkql_jit spotless:apply $(MAVEN_ARGS)
 
 gnatcheck: lkql impacts
-	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
+	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 build/bin/liblkqllang_parse: lkql/lkql.lkt
 	$(LKM) make -c lkql/langkit.yaml \
@@ -87,8 +87,8 @@ automated:
 	rm -rf "$(PREFIX)"
 	mkdir -p "$(PREFIX)/share" "$(PREFIX)/share/examples" "$(PREFIX)/lib"
 	$(LKM) make -c lkql/langkit.yaml $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS)
-	$(GPRBUILD) -Plkql_checker/gnatcheck.gpr -largs -s
-	$(GPRINSTALL) --mode=usage -Plkql_checker/gnatcheck.gpr
+	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr -largs -s
+	$(GPRINSTALL) --mode=usage -Plkql_checker/lkql_checker.gpr
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
 	cp -pr lkql_checker/share/lkql "$(PREFIX)/share"
 	cp -pr lkql_checker/share/examples "$(PREFIX)/share/examples/gnatcheck"

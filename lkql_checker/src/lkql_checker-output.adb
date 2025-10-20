@@ -13,11 +13,11 @@ with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.OS_Lib;               use GNAT.OS_Lib;
 with GNAT.Traceback.Symbolic;
 
-with Gnatcheck.Options; use Gnatcheck.Options;
+with Lkql_Checker.Options; use Lkql_Checker.Options;
 
 with Interfaces.C_Streams; use Interfaces.C_Streams;
 
-package body Gnatcheck.Output is
+package body Lkql_Checker.Output is
 
    -------------------
    -- Local helpers --
@@ -617,15 +617,15 @@ package body Gnatcheck.Output is
       pragma Style_Checks ("M79");
    end Brief_Help;
 
-   ---------------------------
-   -- Print_Gnatcheck_Usage --
-   ---------------------------
+   -----------------
+   -- Print_Usage --
+   -----------------
 
-   procedure Print_Gnatcheck_Usage is
+   procedure Print_Usage is
    begin
       Brief_Help;
       New_Line;
       Put_Line ("Report bugs to support@adacore.com");
-   end Print_Gnatcheck_Usage;
+   end Print_Usage;
 
-end Gnatcheck.Output;
+end Lkql_Checker.Output;

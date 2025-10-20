@@ -18,11 +18,11 @@ with GNAT.OS_Lib;               use GNAT.OS_Lib;
 with GNAT.Regexp;               use GNAT.Regexp;
 with GNAT.Table;
 
-with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
-with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
+with Lkql_Checker.JSON_Utilities;   use Lkql_Checker.JSON_Utilities;
+with Lkql_Checker.Options;          use Lkql_Checker.Options;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -31,7 +31,7 @@ with Liblkqllang.Analysis;
 with Rule_Commands; use Rule_Commands;
 with Rules_Factory; use Rules_Factory;
 
-package body Gnatcheck.Rules.Rule_Table is
+package body Lkql_Checker.Rules.Rule_Table is
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
 
@@ -70,8 +70,8 @@ package body Gnatcheck.Rules.Rule_Table is
    function Get_Rule_File_Name (RF : String) return String
    is (if Is_Absolute_Path (RF)
        then RF
-       else Gnatcheck_Prj.Get_Project_Relative_File (RF));
-   --  If gnatcheck is called with a project file, all the (relative) names
+       else Checker_Prj.Get_Project_Relative_File (RF));
+   --  If Lkql_Checker is called with a project file, all the (relative) names
    --  of the rule files are considered as related to the project file
    --  directory, otherwise - as related to the current directory
 
@@ -1863,7 +1863,7 @@ package body Gnatcheck.Rules.Rule_Table is
          Error
            ("cannot turn on all rules when --emit-lkql-rule-file"
             & " option is enabled");
-         raise Gnatcheck.Options.Parameter_Error;
+         raise Lkql_Checker.Options.Parameter_Error;
       end if;
 
       for Rule_Cursor in All_Rules.Iterate loop
@@ -1910,7 +1910,7 @@ package body Gnatcheck.Rules.Rule_Table is
               or else Id = Warnings_Id
             then
                Error ("multiple rules with the same name: " & Name);
-               raise Gnatcheck.Options.Fatal_Error;
+               raise Lkql_Checker.Options.Fatal_Error;
             end if;
 
             Rule := Create_Rule (R.Param_Kind, To_Lower (Name));
@@ -1960,4 +1960,4 @@ package body Gnatcheck.Rules.Rule_Table is
       end loop;
    end Clean_Up;
 
-end Gnatcheck.Rules.Rule_Table;
+end Lkql_Checker.Rules.Rule_Table;

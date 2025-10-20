@@ -15,22 +15,22 @@ with GNAT.Regpat; use GNAT.Regpat;
 with GNAT.Strings;
 with GNAT.String_Split;
 
-with Gnatcheck.Diagnoses;          use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;                use Gnatcheck.Ids;
-with Gnatcheck.Options;            use Gnatcheck.Options;
-with Gnatcheck.Output;             use Gnatcheck.Output;
-with Gnatcheck.Projects;           use Gnatcheck.Projects;
-with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
-with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
-with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
+with Lkql_Checker.Diagnoses;          use Lkql_Checker.Diagnoses;
+with Lkql_Checker.Ids;                use Lkql_Checker.Ids;
+with Lkql_Checker.Options;            use Lkql_Checker.Options;
+with Lkql_Checker.Output;             use Lkql_Checker.Output;
+with Lkql_Checker.Projects;           use Lkql_Checker.Projects;
+with Lkql_Checker.Projects.Aggregate; use Lkql_Checker.Projects.Aggregate;
+with Lkql_Checker.Rules.Rule_Table;   use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;       use Lkql_Checker.Source_Table;
+with Lkql_Checker.String_Utilities;   use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 with GNATCOLL.VFS;  use GNATCOLL.VFS;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
-package body Gnatcheck.Compiler is
+package body Lkql_Checker.Compiler is
 
    use Rident;
 
@@ -60,7 +60,7 @@ package body Gnatcheck.Compiler is
    --  * Remove warning and style markers for Warning, Style, Restriction
    --    messages.
    --
-   --  * If Gnatcheck.Options.Mapping_Mode is ON, annotates the message by
+   --  * If Lkql_Checker.Options.Mapping_Mode is ON, annotates the message by
    --    adding the compiler check (if for a warning message '.d' is specified,
    --    the trailing part that indicates the warning message that causes this
    --    warning is removed from the diagnosis, and the corresponding warning
@@ -70,7 +70,7 @@ package body Gnatcheck.Compiler is
    function Annotation
      (Message_Kind : Message_Kinds; Parameter : String) return String;
    --  Returns annotation to be added to the compiler diagnostic message if
-   --  Gnatcheck.Options.Mapping_Mode is ON. Parameter, if non-empty, is the
+   --  Lkql_Checker.Options.Mapping_Mode is ON. Parameter, if non-empty, is the
    --  parameter of '-gnatw/y' option that causes the diagnosis
 
    function Get_Rule_Id (Check : Message_Kinds) return Rule_Id;
@@ -263,7 +263,7 @@ package body Gnatcheck.Compiler is
       Sep_Idx   : Natural := 0;
 
    begin
-      Last_Idx := Path_Index (Result, Gnatcheck_Config_File.all);
+      Last_Idx := Path_Index (Result, Checker_Config_File.all);
 
       if Last_Idx = 0 then
          Last_Idx := Result'Last;
@@ -460,7 +460,7 @@ package body Gnatcheck.Compiler is
                     then To_Lower (Rule_Name)
                     else To_Lower (Instance_Name));
                Store_Diagnosis
-                 (Full_File_Name => Gnatcheck.Source_Table.File_Name (SF),
+                 (Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
                   Message        =>
                     Msg (Msg_Start + 7 .. Last - 2) & Instance.Annotate_Diag,
                   Sloc           => Sloc,
@@ -496,7 +496,7 @@ package body Gnatcheck.Compiler is
                Message_Kind := Restriction;
             elsif Msg (Msg_Start + 9 .. Msg_Start + 19) = "cannot find" then
                Report_Missing_File
-                 (Gnatcheck.Source_Table.File_Name (SF),
+                 (Lkql_Checker.Source_Table.File_Name (SF),
                   Msg (Msg_Start + 21 .. Msg_End));
                return;
             else
@@ -514,7 +514,7 @@ package body Gnatcheck.Compiler is
 
          --  Skip restriction message not coming from the GNATcheck config file
          if Message_Kind = Restriction
-           and then Path_Index (Msg, Gnatcheck_Config_File.all) = 0
+           and then Path_Index (Msg, Checker_Config_File.all) = 0
          then
             return;
          end if;
@@ -522,7 +522,7 @@ package body Gnatcheck.Compiler is
          --  Use File_Name to always use the same filename (including proper
          --  casing for case insensitive systems).
          Store_Diagnosis
-           (Full_File_Name => Gnatcheck.Source_Table.File_Name (SF),
+           (Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
             Sloc           => Sloc,
             Message        =>
               Adjust_Message (Msg (Msg_Start .. Msg_End), Message_Kind),
@@ -804,7 +804,7 @@ package body Gnatcheck.Compiler is
 
       declare
          Config_File   : constant Virtual_File :=
-           Create (+Gnatcheck_Config_File.all);
+           Create (+Checker_Config_File.all);
          File          : Writable_File;
          Old_Contents  : GNAT.Strings.String_Access;
          New_Contents  : constant String := To_String (Contents);
@@ -1717,11 +1717,11 @@ package body Gnatcheck.Compiler is
       end if;
    end Set_Compiler_Checks;
 
-   ----------------------------
-   -- Spawn_Gnatcheck_Worker --
-   ----------------------------
+   --------------------------
+   -- Spawn_Checker_Worker --
+   --------------------------
 
-   function Spawn_Gnatcheck_Worker
+   function Spawn_Checker_Worker
      (Rule_File   : String;
       Msg_File    : String;
       Source_File : String;
@@ -1732,8 +1732,8 @@ package body Gnatcheck.Compiler is
       Pid           : Process_Id;
       Split_Command : constant Slice_Set := Create (Worker_Name, " ");
       Worker        : String_Access := null;
-      Prj           : constant String := Gnatcheck_Prj.Source_Prj;
-      CGPR          : constant String := Gnatcheck_Prj.Source_CGPR;
+      Prj           : constant String := Checker_Prj.Source_Prj;
+      CGPR          : constant String := Checker_Prj.Source_CGPR;
       Args          : Argument_List (1 .. 128);
       Num_Args      : Integer := 0;
 
@@ -1773,15 +1773,15 @@ package body Gnatcheck.Compiler is
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--ignore-project-switches");
          end if;
-      elsif Gnatcheck_Prj.Tree.Is_Defined
-        and then Gnatcheck_Prj.Tree.Root_Project.Path_Name.Exists
+      elsif Checker_Prj.Tree.Is_Defined
+        and then Checker_Prj.Tree.Root_Project.Path_Name.Exists
       then
          --  In case Prj has not been explicitly set, spawn the project option
          --  with the default project file used by gpr.
          Num_Args := @ + 1;
          Args (Num_Args) :=
            new String'
-             ("-P" & Gnatcheck_Prj.Tree.Root_Project.Path_Name.String_Value);
+             ("-P" & Checker_Prj.Tree.Root_Project.Path_Name.String_Value);
       end if;
 
       if Arg.Aggregated_Project then
@@ -1855,7 +1855,7 @@ package body Gnatcheck.Compiler is
       end loop;
 
       return Pid;
-   end Spawn_Gnatcheck_Worker;
+   end Spawn_Checker_Worker;
 
    -----------------------------------
    -- Spawn_LKQL_Rule_Config_Parser --
@@ -1927,7 +1927,7 @@ package body Gnatcheck.Compiler is
 
       Pid         : Process_Id;
       GPRbuild    : String_Access := Locate_Exec_On_Path (GPRbuild_Exec);
-      Prj         : constant String := Gnatcheck_Prj.Source_Prj;
+      Prj         : constant String := Checker_Prj.Source_Prj;
       Last_Source : constant SF_Id := Last_Argument_Source;
       Args        : Argument_List (1 .. 128 + Integer (Last_Source));
       Num_Args    : Integer := 0;
@@ -2003,7 +2003,7 @@ package body Gnatcheck.Compiler is
       end loop;
 
       if Analyze_Compiler_Output then
-         Add_Arg ("-gnatec=" & Gnatcheck_Config_File.all);
+         Add_Arg ("-gnatec=" & Checker_Config_File.all);
          Add_Arg ("-gnatcU");
          Add_Arg ("-gnatwnA.d");
 
@@ -2172,4 +2172,4 @@ package body Gnatcheck.Compiler is
       XML_Report ("</rule>", Indent_Level);
    end XML_Print_Active_Restrictions;
 
-end Gnatcheck.Compiler;
+end Lkql_Checker.Compiler;

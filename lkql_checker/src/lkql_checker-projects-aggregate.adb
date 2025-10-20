@@ -11,11 +11,11 @@ with Ada.Text_IO;       use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Lkql_Checker.Options;          use Lkql_Checker.Options;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
-package body Gnatcheck.Projects.Aggregate is
+package body Lkql_Checker.Projects.Aggregate is
 
    --------------------------------------------
    --  Storage for projects being aggregated --
@@ -361,4 +361,4 @@ package body Gnatcheck.Projects.Aggregate is
       Aggregated_Prj_Name := new String'(S);
    end Store_Aggregated_Project;
 
-end Gnatcheck.Projects.Aggregate;
+end Lkql_Checker.Projects.Aggregate;

@@ -2,7 +2,7 @@ with "libadalang";
 with "liblkqllang";
 with "gpr2";
 
-project GNATcheck is
+project LKQL_Checker is
    type Build_Mode_Type is ("dev", "prod");
    Build_Mode : Build_Mode_Type := external
      ("BUILD_MODE", external ("LKQL_CHECKER_BUILD_MODE", "dev"));
@@ -10,7 +10,7 @@ project GNATcheck is
    for Source_Dirs use ("src");
    for Object_Dir use "obj/" & Build_Mode;
    for Exec_Dir use "bin";
-   for Main use ("gnatcheck_main.adb");
+   for Main use ("main.adb");
 
    package Binder is
       case Build_Mode is
@@ -22,7 +22,7 @@ project GNATcheck is
    end Binder;
 
    package Builder is
-      for Executable ("gnatcheck_main.adb") use "gnatcheck";
+      for Executable ("main.adb") use "gnatcheck";
       for Switches ("Ada") use ("-j0");
    end Builder;
 
@@ -43,4 +43,4 @@ project GNATcheck is
       for Charset ("Ada") use "utf-8";
       for Width ("Ada") use "79";
    end Format;
-end GNATcheck;
+end LKQL_Checker;

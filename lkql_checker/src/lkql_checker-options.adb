@@ -1,23 +1,24 @@
 with GNAT.Command_Line; use GNAT.Command_Line;
 
-with Gnatcheck.Output;       use Gnatcheck.Output;
-with Gnatcheck.Projects;     use Gnatcheck.Projects;
-with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
+with Lkql_Checker.Output;       use Lkql_Checker.Output;
+with Lkql_Checker.Projects;     use Lkql_Checker.Projects;
+with Lkql_Checker.Source_Table; use Lkql_Checker.Source_Table;
 
 with System.Multiprocessors;
 
-package body Gnatcheck.Options is
+package body Lkql_Checker.Options is
 
    ------------------------------
    -- Opt_Parse error handling --
    ------------------------------
 
-   procedure Warning (Self : in out Gnatcheck_Error_Handler; Msg : String) is
+   procedure Warning (Self : in out Lkql_Checker_Error_Handler; Msg : String)
+   is
    begin
       Warning (Msg);
    end Warning;
 
-   procedure Error (Self : in out Gnatcheck_Error_Handler; Msg : String) is
+   procedure Error (Self : in out Lkql_Checker_Error_Handler; Msg : String) is
    begin
       Error (Msg);
    end Error;
@@ -282,4 +283,4 @@ package body Gnatcheck.Options is
       end if;
    end Process_Legacy_Rule_Options;
 
-end Gnatcheck.Options;
+end Lkql_Checker.Options;
