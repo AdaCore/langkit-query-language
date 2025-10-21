@@ -71,6 +71,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>langkit_support</artifactId>
+            <version>${config.langkit_supportVersion}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.adacore.lkql_jit</groupId>
             <artifactId>options</artifactId>
             <version>0.1.0</version>
