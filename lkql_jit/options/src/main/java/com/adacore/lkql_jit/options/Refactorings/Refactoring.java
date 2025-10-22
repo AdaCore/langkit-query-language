@@ -21,7 +21,7 @@ public interface Refactoring {
         public final Liblkqllang.AnalysisUnit unit;
 
         /** Kind of actions that can be attached to a token. */
-        enum actionKind {
+        enum ActionKind {
             APPEND,
             PREPEND,
             REPLACE,
@@ -34,7 +34,7 @@ public interface Refactoring {
          *
          * <p>To remove a token, simply use a REPLACE action with an empty text.
          */
-        record Action(actionKind kind, String text) {}
+        record Action(ActionKind kind, String text) {}
 
         /**
          * List of actions accumulated in this state object.
@@ -60,19 +60,19 @@ public interface Refactoring {
         }
 
         public void delete(Liblkqllang.Token token) {
-            addAction(token, new Action(actionKind.REPLACE, ""));
+            addAction(token, new Action(ActionKind.REPLACE, ""));
         }
 
         public void replace(Liblkqllang.Token token, String text) {
-            addAction(token, new Action(actionKind.REPLACE, text));
+            addAction(token, new Action(ActionKind.REPLACE, text));
         }
 
         public void append(Liblkqllang.Token token, String text) {
-            addAction(token, new Action(actionKind.APPEND, text));
+            addAction(token, new Action(ActionKind.APPEND, text));
         }
 
         public void prepend(Liblkqllang.Token token, String text) {
-            addAction(token, new Action(actionKind.PREPEND, text));
+            addAction(token, new Action(ActionKind.PREPEND, text));
         }
 
         /**
@@ -85,18 +85,18 @@ public interface Refactoring {
                 if (tokActions != null) {
                     var replaceActions = tokActions
                         .stream()
-                        .filter(c -> c.kind == actionKind.REPLACE)
+                        .filter(c -> c.kind == ActionKind.REPLACE)
                         .toList();
                     assert replaceActions.size() <= 1 : "Only one replace action per token";
 
                     var prependActions = tokActions
                         .stream()
-                        .filter(c -> c.kind == actionKind.PREPEND)
+                        .filter(c -> c.kind == ActionKind.PREPEND)
                         .toList();
 
                     var appendActions = tokActions
                         .stream()
-                        .filter(c -> c.kind == actionKind.APPEND)
+                        .filter(c -> c.kind == ActionKind.APPEND)
                         .toList();
 
                     for (var action : prependActions) {
