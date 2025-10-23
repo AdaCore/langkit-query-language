@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.options.Refactorings;
 
 import com.adacore.liblkqllang.Liblkqllang;
-import com.adacore.liblkqllang.Liblkqllang.AnalysisUnit;
 
 public class LKQLToLkt {
 
@@ -85,23 +84,5 @@ public class LKQLToLkt {
                 state.prepend(expr.tokenStart(), "val _ = ");
             }
         };
-    }
-
-    public static String lkqlToLkt(String lkqlFileName) {
-        var ctx = Liblkqllang.AnalysisContext.create();
-        var unit = ctx.getUnitFromFile(lkqlFileName);
-        return refactorUnit(unit);
-    }
-
-    public static String lkqlToLkt(String fileName, String content) {
-        var ctx = Liblkqllang.AnalysisContext.create();
-        var unit = ctx.getUnitFromBuffer(content, fileName);
-        return refactorUnit(unit);
-    }
-
-    private static String refactorUnit(AnalysisUnit unit) {
-        var state = new Refactoring.State(unit);
-        instantiate().applyRefactor(state);
-        return state.toString();
     }
 }
