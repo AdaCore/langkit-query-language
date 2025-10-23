@@ -59,8 +59,8 @@ public class CheckerUtils {
     }
 
     /**
-     * Common interface for diagnostic emitters. All given parameters need not be used in the
-     * output.
+     * BaseTranslationPass interface for diagnostic emitters. All given parameters need not be used
+     * in the output.
      */
     public interface DiagnosticEmitter {
         /** Emit a rule violation TODO: Meld that into emitDiagnostic eventually */

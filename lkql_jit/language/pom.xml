@@ -96,6 +96,12 @@
 
         <dependency>
             <groupId>com.adacore</groupId>
+            <artifactId>liblktlang</artifactId>
+            <version>${config.liblktlangVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
             <artifactId>libadalang</artifactId>
             <version>${config.libadalangVersion}</version>
         </dependency>

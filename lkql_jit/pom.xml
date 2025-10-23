@@ -32,6 +32,9 @@
         <!-- Liblkqllang version -->
         <config.liblkqllangVersion>0.1</config.liblkqllangVersion>
 
+        <!-- Liblktlang version -->
+        <config.liblktlangVersion>0.1</config.liblktlangVersion>
+
         <!-- Python interpreter -->
         <config.python>python</config.python>
 

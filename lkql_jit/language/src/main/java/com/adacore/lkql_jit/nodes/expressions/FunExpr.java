@@ -111,8 +111,8 @@ public final class FunExpr extends Expr {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
                 indentLevel,
-                new String[] { "names" },
-                new Object[] { Arrays.toString(this.parameterNames) }
+                new String[] { "names", "expr" },
+                new Object[] { Arrays.toString(this.parameterNames), this.functionRootNode }
             );
     }
 }

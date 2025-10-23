@@ -1,0 +1,8 @@
+val _ = {
+    val x = 40;
+    val y = 2;
+    val _ = 12;
+    x + y
+}
+val answer = 15
+print(answer)

@@ -13,14 +13,14 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class NotPattern extends ValuePattern {
+public final class NotPattern extends Pattern {
 
     // ----- Children -----
 
     /** The pattern to negate. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private ValuePattern pattern;
+    private Pattern pattern;
 
     // ----- Constructors -----
 
@@ -30,7 +30,7 @@ public final class NotPattern extends ValuePattern {
      * @param location The location of the node in the source.
      * @param pattern The pattern to negate.
      */
-    public NotPattern(SourceSection location, ValuePattern pattern) {
+    public NotPattern(SourceSection location, Pattern pattern) {
         super(location);
         this.pattern = pattern;
     }
@@ -38,7 +38,7 @@ public final class NotPattern extends ValuePattern {
     // ----- Execution methods -----
 
     /**
-     * @see BasePattern#executeValue(VirtualFrame, Object)
+     * @see Pattern#executeValue(VirtualFrame, Object)
      */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {

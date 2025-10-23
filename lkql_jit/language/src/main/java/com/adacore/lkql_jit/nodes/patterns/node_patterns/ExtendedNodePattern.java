@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
+import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -18,14 +18,14 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class ExtendedNodePattern extends NodePattern {
+public final class ExtendedNodePattern extends Pattern {
 
     // ----- Children -----
 
     /** The pattern to extend. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private ValuePattern basePattern;
+    private Pattern pattern;
 
     /** The details representing the extension. */
     @Children
@@ -37,26 +37,29 @@ public final class ExtendedNodePattern extends NodePattern {
      * Create a new extended node pattern node.
      *
      * @param location The location of the node in the source.
-     * @param basePattern The base pattern to extend.
+     * @param pattern The base pattern to extend.
      * @param details The extensions for the base pattern.
      */
     public ExtendedNodePattern(
         SourceSection location,
-        ValuePattern basePattern,
+        Pattern pattern,
         NodePatternDetail[] details
     ) {
         super(location);
-        this.basePattern = basePattern;
+        this.pattern = pattern;
         this.details = details;
     }
 
     // ----- Execution methods -----
 
+    /**
+     * @see Pattern#executeValue(VirtualFrame, Object)
+     */
     @Override
     @ExplodeLoop
     public boolean executeValue(VirtualFrame frame, Object value) {
         // Test the base pattern
-        if (this.basePattern.executeValue(frame, value)) {
+        if (this.pattern.executeValue(frame, value)) {
             if (LKQLTypeSystemGen.isNodeInterface(value)) {
                 var node = LKQLTypeSystemGen.asNodeInterface(value);
 

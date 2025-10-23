@@ -103,6 +103,7 @@ public class BuiltInProcessor extends AbstractProcessor {
             stream.println("import com.adacore.lkql_jit.utils.LKQLTypesHelper;");
             stream.println("import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;");
             stream.println("import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;");
+            stream.println("import org.graalvm.collections.Pair;");
 
             for (var p : builtInPackages) {
                 stream.println("import " + p.getKey() + "." + p.getValue() + ";");
@@ -110,7 +111,8 @@ public class BuiltInProcessor extends AbstractProcessor {
             stream.println("public class AllBuiltIns {");
 
             stream.println(
-                "    static private List<BuiltInFunctionValue> allFunctionsCache = null;"
+                "    static private Map<String, Pair<Integer, BuiltInFunctionValue>>" +
+                " allFunctionsCache = null;"
             );
             stream.println(
                 "    static private Map<String, Map<String, BuiltInMethodFactory>>" +
@@ -118,11 +120,15 @@ public class BuiltInProcessor extends AbstractProcessor {
             );
 
             // allFunctions method
-            stream.println("    public static List<BuiltInFunctionValue> allFunctions() {");
-            stream.println("        if (allFunctionsCache != null) {");
-            stream.println("            return allFunctionsCache;");
-            stream.println("        }");
-            stream.println("        allFunctionsCache = Stream.of(");
+            stream.println(
+                "public static Map<String, Pair<Integer, BuiltInFunctionValue>> functions() {"
+            );
+            stream.println("    if (allFunctionsCache != null) {");
+            stream.println("        return allFunctionsCache;");
+            stream.println("    }");
+            stream.println("    allFunctionsCache = new HashMap<>();");
+            stream.println("    var idx = 0;");
+            stream.println("    var fns = Stream.of(");
             stream.println(
                 builtInPackages
                     .stream()
@@ -130,8 +136,14 @@ public class BuiltInProcessor extends AbstractProcessor {
                     .collect(Collectors.joining(",\n")) +
                 ")"
             );
-            stream.println("           .reduce(Stream::concat).orElseGet(Stream::empty)");
-            stream.println("           .collect(Collectors.toList());");
+
+            stream.println(".reduce(Stream::concat).orElseGet(Stream::empty).toList();");
+            stream.println("    for (var fn : fns) {");
+            stream.println(
+                "        allFunctionsCache.put(fn.getExecutableName(), Pair.create(idx, fn));"
+            );
+            stream.println("        idx += 1;");
+            stream.println("     }");
             stream.println("        return allFunctionsCache;");
             stream.println("    }");
 

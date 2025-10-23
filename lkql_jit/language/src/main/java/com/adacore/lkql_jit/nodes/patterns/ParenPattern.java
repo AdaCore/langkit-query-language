@@ -13,14 +13,14 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class ParenPattern extends ValuePattern {
+public final class ParenPattern extends Pattern {
 
     // ----- Children -----
 
     /** The pattern inside the parenthesis. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private BasePattern pattern;
+    private Pattern pattern;
 
     // ----- Constructors -----
 
@@ -30,7 +30,7 @@ public final class ParenPattern extends ValuePattern {
      * @param location The location of the node in the source.
      * @param pattern The pattern inside the parenthesis.
      */
-    public ParenPattern(SourceSection location, BasePattern pattern) {
+    public ParenPattern(SourceSection location, Pattern pattern) {
         super(location);
         this.pattern = pattern;
     }
@@ -38,7 +38,7 @@ public final class ParenPattern extends ValuePattern {
     // ----- Execution methods -----
 
     /**
-     * @see BasePattern#executeValue(VirtualFrame, Object)
+     * @see Pattern#executeValue(VirtualFrame, Object)
      */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {

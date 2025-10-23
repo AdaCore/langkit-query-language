@@ -12,13 +12,13 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
-public abstract class ListPattern extends ValuePattern {
+public abstract class ListPattern extends Pattern {
 
     /** The sub-patterns for this list pattern. */
     @Node.Children
-    private final BasePattern[] patterns;
+    private final Pattern[] patterns;
 
-    public ListPattern(SourceSection location, BasePattern[] patterns) {
+    public ListPattern(SourceSection location, Pattern[] patterns) {
         super(location);
         this.patterns = patterns;
     }

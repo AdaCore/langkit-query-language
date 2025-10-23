@@ -10,7 +10,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-public abstract class IntegerPattern extends ValuePattern {
+public abstract class IntegerPattern extends Pattern {
 
     private final long toMatch;
 

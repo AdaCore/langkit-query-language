@@ -9,7 +9,7 @@ import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-public class SplatPattern extends ValuePattern {
+public class SplatPattern extends Pattern {
 
     private final int slot;
 

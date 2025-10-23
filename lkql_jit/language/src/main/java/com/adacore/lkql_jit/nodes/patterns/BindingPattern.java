@@ -14,7 +14,7 @@ import com.oracle.truffle.api.source.SourceSection;
  *
  * @author Hugo GUERRIER
  */
-public final class BindingPattern extends UnfilteredPattern {
+public final class BindingPattern extends Pattern {
 
     // ----- Attributes -----
 
@@ -26,7 +26,7 @@ public final class BindingPattern extends UnfilteredPattern {
     /** Pattern to execute once the binding done. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    public ValuePattern pattern;
+    public Pattern pattern;
 
     // ----- Constructors -----
 
@@ -37,7 +37,7 @@ public final class BindingPattern extends UnfilteredPattern {
      * @param slot The frame slot to put the node in.
      * @param pattern The pattern to bind in.
      */
-    public BindingPattern(SourceSection location, int slot, ValuePattern pattern) {
+    public BindingPattern(SourceSection location, int slot, Pattern pattern) {
         super(location);
         this.slot = slot;
         this.pattern = pattern;
@@ -46,7 +46,7 @@ public final class BindingPattern extends UnfilteredPattern {
     // ----- Execution methods -----
 
     /**
-     * @see BasePattern#executeValue(VirtualFrame, Object)
+     * @see Pattern#executeValue(VirtualFrame, Object)
      */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {

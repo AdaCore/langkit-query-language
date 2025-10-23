@@ -11,7 +11,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
 /** Pattern to match a boolean value */
-public abstract class BoolPattern extends ValuePattern {
+public abstract class BoolPattern extends Pattern {
 
     private final boolean toMatch;
 

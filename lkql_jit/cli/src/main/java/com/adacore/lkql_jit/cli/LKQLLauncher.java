@@ -172,7 +172,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
             if (this.args.script != null) {
-                final Source source = Source.newBuilder("lkql", new File(this.args.script)).build();
+                Source source = Source.newBuilder("lkql", new File(this.args.script)).build();
                 context.eval(source);
             }
 

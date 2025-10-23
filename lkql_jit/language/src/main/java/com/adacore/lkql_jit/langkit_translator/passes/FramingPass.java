@@ -10,8 +10,6 @@ import com.adacore.liblkqllang.Liblkqllang.ClassField;
 import com.adacore.liblkqllang.Liblkqllang.ClassFieldList;
 import com.adacore.liblkqllang.Liblkqllang.PrefixField;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.AllBuiltIns;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.TranslatorException;
@@ -74,7 +72,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      */
     private void checkDuplicateBindings(final String symbol, final Liblkqllang.LkqlNode node)
         throws LKQLRuntimeException {
-        if (this.scriptFramesBuilder.bindingExists(symbol)) {
+        if (!symbol.equals("_") && this.scriptFramesBuilder.bindingExists(symbol)) {
             throw framingError(node, "Already existing symbol: " + symbol);
         }
     }
@@ -132,11 +130,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.TopLevelList topLevelList) {
         this.scriptFramesBuilder.openFrame(topLevelList);
-
-        // Add the built-in functions
-        for (BuiltInFunctionValue function : AllBuiltIns.allFunctions()) {
-            this.scriptFramesBuilder.addBuiltIn(function.getExecutableName());
-        }
 
         this.traverseChildren(topLevelList);
         this.scriptFramesBuilder.closeFrame();
