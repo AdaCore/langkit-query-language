@@ -10,11 +10,9 @@ fun add_component_names(agg, ctx) =
             assoc[2],
             AggregateAssoc.f_designators,
             new AlternativesList([
-                new Identifier(
-                    match assoc[2].p_get_params()?[1]
-                    | null => assoc[1].img
-                    | name => name.text
-                )
+                match assoc[2].p_get_params()?[1]
+                | null => new IntLiteral(assoc[1].img)
+                | name => new Identifier(name.text)
             ])
         ),
         ctx
