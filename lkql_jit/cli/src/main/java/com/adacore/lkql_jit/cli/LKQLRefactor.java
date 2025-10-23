@@ -87,7 +87,7 @@ public class LKQLRefactor implements Callable<Integer> {
                     }
                 }
             };
-            case TO_LKQL_V2 -> LKQLToLkt.instantiate();
+            case TO_LKQL_V2 -> new LKQLToLkt();
         };
     }
 

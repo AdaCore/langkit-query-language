@@ -5,84 +5,184 @@
 
 package com.adacore.lkql_jit.options.Refactorings;
 
+import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
+
 import com.adacore.liblkqllang.Liblkqllang;
 
-public class LKQLToLkt {
+public class LKQLToLkt implements Refactoring {
 
-    public static Refactoring instantiate() {
-        return (Refactoring.State state) -> {
-            state.prepend(state.unit.getRoot().tokenStart(), "# lkql version: 2\n\n");
+    @Override
+    public void applyRefactor(Refactoring.State state) {
+        final var root = state.unit.getRoot();
+        state.prepend(root.tokenStart(), "# lkql version: 2\n\n");
 
-            // We need to handle:
-            for (var fd : Refactoring.findAll(state.unit.getRoot(), n ->
-                n instanceof Liblkqllang.NamedFunction
-            )) {
-                var namedFun = (Liblkqllang.NamedFunction) fd;
+        // Because this rewriting doesn't use the token/action API, this is a hack
+        state.replaceRange(root.tokenStart(), root.tokenEnd(), refactorNode(root));
+    }
 
-                // Docstrings: Remove the nested docstring and put it before the function
-                // declaration
-                var doc = namedFun.fDocNode();
-                if (!doc.isNone()) {
-                    var tok = doc.tokenStart();
-                    var afterEnd = doc.tokenEnd().next();
-                    while (!tok.equals(afterEnd)) {
-                        state.delete(tok);
-                        tok = tok.next();
-                    }
+    /** Computes the text representing the refactored node. */
+    private String refactorNode(Liblkqllang.LkqlNode node) {
+        if (node.isNone() || node.isGhost()) return "";
 
-                    while (Refactoring.isWhitespace(afterEnd)) {
-                        state.delete(afterEnd);
-                        afterEnd = afterEnd.next();
-                    }
-
-                    var funDecl = (Liblkqllang.FunDecl) fd.parent();
-                    state.prepend(funDecl.tokenStart(), doc.getText() + "\n");
-                }
-
-                // Type annotations: Add "Any" type annotations in every place where a type
-                // is mandatory in Lkt, so mainly in named function declarations (everything
-                // else is supposedly inferred).
-                for (var p : namedFun.fParameters().children()) {
-                    var param = (Liblkqllang.ParameterDecl) p;
-                    state.append(param.fParamIdentifier().tokenEnd(), ": Any");
-                }
-
-                state.append(namedFun.fParameters().tokenEnd().next(), ": Any");
-            }
-
-            // Match expressions
-            for (var me : Refactoring.findAll(state.unit.getRoot(), n ->
-                n instanceof Liblkqllang.Match
-            )) {
-                var matchExpr = (Liblkqllang.Match) me;
-                state.append(matchExpr.fMatchedVal().tokenEnd(), " {");
-
-                for (var ma : matchExpr.fArms().children()) {
-                    var matchArm = (Liblkqllang.MatchArm) ma;
-                    state.replace(matchArm.tokenStart(), "case ");
-                }
-
-                state.append(matchExpr.tokenEnd(), "\n}");
-            }
-
-            // Naked expressions in decl blocks
-            for (var bbe : Refactoring.findAll(state.unit.getRoot(), n ->
-                n instanceof Liblkqllang.BlockBodyExpr
-            )) {
-                var blockBodyExpr = (Liblkqllang.BlockBodyExpr) bbe;
-
-                state.prepend(blockBodyExpr.tokenStart(), "var _ = ");
-            }
-
-            // Naked expressions in the top-level
-            for (var e : Refactoring.findAll(
-                state.unit.getRoot(),
-                n -> n instanceof Liblkqllang.Expr && n.parent() instanceof Liblkqllang.TopLevelList
-            )) {
-                var expr = (Liblkqllang.Expr) e;
-
-                state.prepend(expr.tokenStart(), "val _ = ");
-            }
+        return switch (node) {
+            case Liblkqllang.FunDecl funDecl -> refactorFunDecl(funDecl);
+            case Liblkqllang.NamedFunction namedFunction -> refactorNamedFunction(namedFunction);
+            case Liblkqllang.ParameterDecl paramDecl -> refactorParamDecl(paramDecl);
+            case Liblkqllang.Match match -> refactorMatch(match);
+            case Liblkqllang.MatchArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
+            case Liblkqllang.SelectorDecl selectorDecl -> refactorSelectorDecl(selectorDecl);
+            case Liblkqllang.BlockBodyExpr bbe -> "var _ = " + refactorGeneric(bbe);
+            case Liblkqllang.Expr expr when (
+                expr.parent() instanceof Liblkqllang.TopLevelList
+            ) -> "val _ = " + refactorGeneric(expr);
+            default -> refactorGeneric(node);
         };
+    }
+
+    /**
+     * Copy all the text belonging to a node in the input source,
+     * but recursively refactor the code of its children.
+     */
+    private String refactorGeneric(Liblkqllang.LkqlNode node) {
+        if (node.isTokenNode()) return node.getText();
+        var s = new StringBuilder();
+        var cursor = node.tokenStart();
+
+        for (int i = 0; i < node.getChildrenCount(); i++) {
+            final var child = node.getChild(i);
+            if (child.isNone() || child.isGhost()) continue;
+            // copy until child
+            s.append(textRange(cursor, child.tokenStart().previous()));
+            // copy child
+            s.append(refactorNode(child));
+            // fast forward token cursor after child
+            cursor = child.tokenEnd().next();
+        }
+
+        // copy until end
+        s.append(textRange(cursor, node.tokenEnd()));
+
+        return s.toString();
+    }
+
+    /*
+     *
+     * fun <name> <funexpr>
+     *
+     * <docstring>\n
+     * fun <name> <funexpr>
+     *
+     */
+    private String refactorFunDecl(Liblkqllang.FunDecl funDecl) {
+        var s =
+            textRange(funDecl.tokenStart(), funDecl.fFunExpr().tokenStart().previous()) +
+            refactorNode(funDecl.fFunExpr());
+
+        // pull docstring out of function declaration
+        var docstring = funDecl.fFunExpr().fDocNode();
+        if (!docstring.isNone()) s = refactorNode(docstring) + "\n" + s;
+
+        return s;
+    }
+
+    /*
+     *
+     * (<params>) = <docstring> <body>
+     *
+     * (<params>) : Any = <body>
+     *
+     */
+    private String refactorNamedFunction(Liblkqllang.NamedFunction namedFunction) {
+        var s =
+            textRange(
+                namedFunction.tokenStart(),
+                namedFunction.fParameters().tokenStart().previous()
+            ) +
+            refactorNode(namedFunction.fParameters());
+
+        var cursor = namedFunction.fParameters().tokenEnd().next();
+        while (!cursor.getText().equals("=")) {
+            s += cursor.getText();
+            cursor = cursor.next();
+        }
+
+        s +=
+            ": Any " +
+            textRange(cursor, namedFunction.fBodyExpr().tokenStart().previous()) +
+            refactorNode(namedFunction.fBodyExpr());
+        return s;
+    }
+
+    /*
+     *
+     * <id> [: <type>] [= <expr>]
+     *
+     * <id> : (Any|<type>) [= expr]
+     *
+     */
+    private String refactorParamDecl(Liblkqllang.ParameterDecl paramDecl) {
+        var s = refactorNode(paramDecl.fParamIdentifier());
+
+        var cursor = paramDecl.fParamIdentifier().tokenEnd().next();
+
+        if (!paramDecl.fTypeAnnotation().isNone()) {
+            s +=
+                textRange(cursor, paramDecl.fTypeAnnotation().tokenStart().previous()) +
+                refactorNode(paramDecl.fTypeAnnotation());
+            cursor = paramDecl.fTypeAnnotation().tokenEnd().next();
+        } else {
+            s += " : Any"; // add type annotation if none
+        }
+
+        if (!paramDecl.fDefaultExpr().isNone()) {
+            s +=
+                textRange(cursor, paramDecl.fDefaultExpr().tokenStart().previous()) +
+                refactorNode(paramDecl.fDefaultExpr());
+        }
+
+        return s;
+    }
+
+    /*
+     *
+     * match <expr> <arms>
+     *
+     * match <expr> { <arms> }
+     *
+     */
+    private String refactorMatch(Liblkqllang.Match match) {
+        return (
+            textRange(match.tokenStart(), match.fMatchedVal().tokenStart().previous()) +
+            refactorNode(match.fMatchedVal()) +
+            " {" +
+            textRange(
+                match.fMatchedVal().tokenEnd().next(),
+                match.fArms().tokenStart().previous()
+            ) +
+            refactorNode(match.fArms()) +
+            "\n}\n"
+        );
+    }
+
+    /*
+     *
+     * | <pattern> => <expr>
+     *
+     * case <pattern> => <expr>
+     *
+     */
+    private String refactorArm(
+        Liblkqllang.LkqlNode arm,
+        Liblkqllang.BasePattern pattern,
+        Liblkqllang.Expr expr
+    ) {
+        return (
+            "case" +
+            textRange(arm.tokenStart().next(), pattern.tokenStart().previous()) +
+            refactorNode(pattern) +
+            textRange(pattern.tokenEnd().next(), expr.tokenStart().previous()) +
+            refactorNode(expr) +
+            textRange(expr.tokenEnd().next(), arm.tokenEnd())
+        );
     }
 }

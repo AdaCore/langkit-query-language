@@ -67,6 +67,16 @@ public interface Refactoring {
             addAction(token, new Action(ActionKind.REPLACE, text));
         }
 
+        public void replaceRange(Liblkqllang.Token start, Liblkqllang.Token end, String text) {
+            var cur = start;
+            while (cur.tokenIndex != end.tokenIndex) {
+                delete(cur);
+                cur = cur.next();
+            }
+            // append new code
+            replace(end, text);
+        }
+
         public void append(Liblkqllang.Token token, String text) {
             addAction(token, new Action(ActionKind.APPEND, text));
         }
