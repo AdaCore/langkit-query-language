@@ -10,6 +10,9 @@ procedure Pos is
 
    procedure Proc1 (I : Integer) with Import;
    procedure Proc2 (I : Integer; B : Boolean := True) with Import;
+   procedure Proc3 (X, Y : Integer := 0) with Import;
+   procedure Proc4 (X : Integer; Y, Z : Integer := 0) with Import;
+   procedure Proc5 (X : Integer; Y : Integer := 0) with Import;
 
    function Fun1 (I : Integer) return Integer with Import;
    function Fun2 (I : Integer; J : Integer) return Integer with Import;
@@ -33,17 +36,23 @@ begin
    T.E1 (10, 11);                       --  FLAG (2)
    T.E2 (True) (10, 11);                --  FLAG (2)
    T.E3 (True);                         --  NOFLAG
+   T.E4 (10);                           --  NOFLAG
+   T.E4 (10, 11);                       --  FLAG (2)
 
    --  Function calls
    I := Fun1 (J);                       --  NOFLAG because ALL is not set
    I := Fun2 (J, K);                    --  FLAG (2)
-   I := Fun2_Default (J);               --  FLAG
+   I := Fun2_Default (J);               --  NOFLAG
    I := Fun2 (I => 1, J => 2);          --  NOFLAG
 
    --  Procedure calls
    Proc1 (I);                           --  NOFLAG because ALL is not set
-   Proc2 (I);                           --  FLAG
+   Proc2 (I);                           --  NOFLAG
    Proc2 (I => 1, B => A);              --  NOFLAG
+   Proc3 (I);                           --  FLAG
+   Proc4 (1);                           -- NOFLAG
+   Proc4 (1, Y => 2);                   -- FLAG
+   Proc5 (1);                           -- NOFLAG
 
    --  Prefix notation
    Var_T.T_Proc1;                       --  NOFLAG
@@ -54,4 +63,3 @@ begin
    Var_T.T_Proc3 (10);                  --  FLAG
    Var_T.T_Proc3 (Y => 10);             --  NOFLAG
 end Pos;
-
