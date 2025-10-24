@@ -7,3 +7,4 @@ rules:
   - +Rmy_rule
 rules_dirs:
   - rules
+lkt_refactor: True
