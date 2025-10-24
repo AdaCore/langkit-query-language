@@ -67,25 +67,23 @@ public class LKQLRefactor implements Callable<Integer> {
     public Refactoring getRefactoring(AnalysisUnit unit) {
         return switch (refactoring) {
             case IS_TO_COLON -> (Refactoring.State state) -> {
-                for (var det : Refactoring.findAll(unit.getRoot(), n ->
-                    n instanceof NodePatternDetail
-                )) {
-                    var tokIs = Refactoring.firstWithPred(
-                        det.tokenStart(),
-                        t -> t.kind == TokenKind.LKQL_IS
-                    );
+                Refactoring.stream(state.unit.getRoot())
+                    .filter(n -> n instanceof NodePatternDetail)
+                    .forEach(det -> {
+                        Refactoring.streamFrom(det.tokenStart())
+                            .filter(t -> t.kind == TokenKind.LKQL_IS)
+                            .findFirst()
+                            .ifPresent(tokIs -> {
+                                // Replace "is" -> ":"
+                                state.replace(tokIs, ":");
 
-                    if (!tokIs.isNone()) {
-                        // Replace "is" -> ":"
-                        state.replace(tokIs, ":");
-
-                        // Get rid of previous token if it is a whitespace
-                        var prev = tokIs.previous();
-                        if (Refactoring.isWhitespace(prev)) {
-                            state.delete(tokIs.previous());
-                        }
-                    }
-                }
+                                // Get rid of previous token if it is a whitespace
+                                var prev = tokIs.previous();
+                                if (Refactoring.isWhitespace(prev)) {
+                                    state.delete(prev);
+                                }
+                            });
+                    });
             };
             case TO_LKQL_V2 -> new LKQLToLkt();
         };

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public interface Refactoring {
     class State {
@@ -173,57 +173,30 @@ public interface Refactoring {
     }
 
     /**
-     * Helper for refactor writers: Returns the first token that satisfies the predicate 'pred',
-     * iterating on tokens from 'fromTok' (including 'fromTok').
-     *
-     * <p>If no token is found, return the null token.
-     */
-    public static Liblkqllang.Token firstWithPred(
-        Liblkqllang.Token fromTok,
-        Predicate<Liblkqllang.Token> pred
-    ) {
-        var curTok = fromTok;
-        while (!curTok.isNone() && !pred.test(curTok)) {
-            curTok = curTok.next();
-        }
-        return curTok;
-    }
-
-    /**
-     * Helper for findAll. Visit all children of 'node', calling 'cons' on each of them. TODO: Hoist
-     * in Java bindings (see eng/libadalang/langkit#859)
+     * Internal helper for stream method.
+     * Visit all children of 'node', calling 'cons' on each of them.
+     * TODO: Hoist in Java bindings (see eng/libadalang/langkit#859)
      */
     private static void visitChildren(
         Liblkqllang.LkqlNode node,
         Consumer<Liblkqllang.LkqlNode> cons
     ) {
-        if (node == null || node.isNone()) {
-            return;
-        }
-
-        for (var c : node.children()) {
-            if (c != null && !c.isNone()) {
-                cons.accept(c);
-                visitChildren(c, cons);
-            }
+        if (node != null && !node.isNone()) {
+            cons.accept(node);
+            for (var child : node.children()) visitChildren(child, cons);
         }
     }
 
-    /**
-     * Helper for refactor writers: Find all nodes that are children of root and which satisfies the
-     * predicate 'pred'. TODO: Hoist in Java bindings (see eng/libadalang/langkit#859)
-     */
-    static List<Liblkqllang.LkqlNode> findAll(
-        Liblkqllang.LkqlNode root,
-        Predicate<Liblkqllang.LkqlNode> pred
-    ) {
-        var result = new ArrayList<Liblkqllang.LkqlNode>();
-        visitChildren(root, c -> {
-            if (pred.test(c)) {
-                result.add(c);
-            }
-        });
-        return result;
+    /** Creates a node stream visiting all children of the input node. */
+    public static Stream<Liblkqllang.LkqlNode> stream(Liblkqllang.LkqlNode root) {
+        final var b = Stream.<Liblkqllang.LkqlNode>builder();
+        visitChildren(root, b);
+        return b.build();
+    }
+
+    /** Creates a token stream starting at the input token. */
+    public static Stream<Liblkqllang.Token> streamFrom(Liblkqllang.Token start) {
+        return Stream.iterate(start, t -> !t.isNone(), t -> t.next());
     }
 
     void applyRefactor(State state);
