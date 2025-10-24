@@ -34,7 +34,7 @@ public interface Refactoring {
          *
          * <p>To remove a token, simply use a REPLACE action with an empty text.
          */
-        record Action(ActionKind kind, String text) {}
+        private record Action(ActionKind kind, String text) {}
 
         /**
          * List of actions accumulated in this state object.
@@ -46,7 +46,7 @@ public interface Refactoring {
         }
 
         /** Add an action to the list of actions to apply */
-        public void addAction(Liblkqllang.Token token, Action action) {
+        private void addAction(Liblkqllang.Token token, Action action) {
             List<Action> actionList;
             var tokenId = getTokenId(token);
             if (actions.containsKey(tokenId)) {
