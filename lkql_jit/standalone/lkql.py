@@ -58,6 +58,11 @@ if __name__ == '__main__':
         "PATH" if os.name == "nt" else "LD_LIBRARY_PATH", ""
     )
 
+    # Add "libjsig.so" to the LD_PRELOAD on Linux to avoid SIGILL errors
+    env = dict(os.environ)
+    if os.name != "nt":
+        env |= {"LD_PRELOAD": P.join(graal_home, "lib", "libjsig.so")}
+
     # Run the full Java command
     subprocess.run(
         [
@@ -102,5 +107,6 @@ if __name__ == '__main__':
             ['--engine.CompileImmediately=true']
             if args.compile_immediately
             else []
-        )
+        ),
+        env=env
     )

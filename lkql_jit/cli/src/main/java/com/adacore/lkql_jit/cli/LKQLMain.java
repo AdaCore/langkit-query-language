@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.cli;
 
+import com.adacore.langkit_support.NativeTools;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -39,6 +40,17 @@ public class LKQLMain implements Callable<Integer> {
     }
 
     public static void main(String[] args) {
+        // Start by unsetting the "LD_PRELOAD" environment variable to make
+        // sure child processes aren't impacted by it.
+        try {
+            NativeTools.setenv("LD_PRELOAD", "");
+        } catch (Throwable t) {
+            System.err.println("Error while calling the 'setenv' function");
+            t.printStackTrace();
+            System.exit(1);
+        }
+
+        // Then call the main processing function
         int rc = new CommandLine(new LKQLMain()).execute(args);
         System.exit(rc);
     }
