@@ -1,0 +1,12 @@
+main.ads:3:9: rule violation: possible occurrence of KP 20186
+3 |    type Priv_Range is private;                     --  FLAG
+  |         ^^^^^^^^^^
+
+main.ads:5:9: rule violation: possible occurrence of KP 20186
+5 |    type Priv_Float_Range is private;               --  FLAG
+  |         ^^^^^^^^^^^^^^^^
+
+main.ads:6:9: rule violation: possible occurrence of KP 20186
+6 |    type Priv_Enum is private;                      --  FLAG
+  |         ^^^^^^^^^
+
