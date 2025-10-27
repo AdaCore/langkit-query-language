@@ -1,0 +1,3 @@
+driver: checker
+rule_name: kp_20113
+project: prj.gpr
