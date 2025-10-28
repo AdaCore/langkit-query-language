@@ -11,6 +11,9 @@ import com.adacore.liblkqllang.Liblkqllang;
 
 public class LKQLToLkt implements Refactoring {
 
+    /** Pointer to last-entered selector during rewriting. */
+    private Liblkqllang.SelectorDecl currentSelector = Liblkqllang.SelectorDecl.NONE;
+
     @Override
     public void applyRefactor(Refactoring.State state) {
         final var root = state.unit.getRoot();
@@ -30,11 +33,15 @@ public class LKQLToLkt implements Refactoring {
             case Liblkqllang.ParameterDecl paramDecl -> refactorParamDecl(paramDecl);
             case Liblkqllang.Match match -> refactorMatch(match);
             case Liblkqllang.MatchArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
+            case Liblkqllang.SelectorArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
             case Liblkqllang.SelectorDecl selectorDecl -> refactorSelectorDecl(selectorDecl);
+            case Liblkqllang.RecExpr recExpr -> refactorRecExpr(recExpr);
             case Liblkqllang.BlockBodyExpr bbe -> "var _ = " + refactorGeneric(bbe);
+            case Liblkqllang.UnitLiteral _ -> "Unit()";
             case Liblkqllang.Expr expr when (
                 expr.parent() instanceof Liblkqllang.TopLevelList
             ) -> "val _ = " + refactorGeneric(expr);
+            case Liblkqllang.UniversalPattern _ -> "_";
             default -> refactorGeneric(node);
         };
     }
@@ -184,5 +191,87 @@ public class LKQLToLkt implements Refactoring {
             refactorNode(expr) +
             textRange(expr.tokenEnd().next(), arm.tokenEnd())
         );
+    }
+
+    /*
+     *
+     * <annotations> selector <name> <docstring> <arms>
+     *
+     * <docstring>\n
+     * <annotations> fun <name> (this : Any) : Any = match this { <arms> }
+     *
+     */
+    private String refactorSelectorDecl(Liblkqllang.SelectorDecl selectorDecl) {
+        // save selector state on entering this function
+        var previousSelector = currentSelector;
+        // set new state for nested refactors
+        currentSelector = selectorDecl;
+        var s = "";
+
+        // pull docstring before declaration
+        if (!selectorDecl.fDocNode().isNone()) s = refactorNode(selectorDecl.fDocNode()) + "\n";
+
+        if (!selectorDecl.fAnnotation().isNone()) s +=
+            refactorNode(selectorDecl.fAnnotation()) +
+            selectorDecl.fAnnotation().tokenEnd().next().getText();
+
+        final var whitespace = textRange(
+            (selectorDecl.fDocNode().isNone()
+                    ? selectorDecl.fName().tokenEnd().next()
+                    : selectorDecl.fDocNode().tokenEnd().next()),
+            selectorDecl.fArms().tokenStart().previous()
+        );
+
+        s +=
+            "fun " +
+            refactorNode(selectorDecl.fName()) +
+            "(this : Any) : Any = match this {" +
+            whitespace +
+            refactorNode(selectorDecl.fArms()) +
+            "\n}\n";
+
+        // restore previous state on exiting this function
+        currentSelector = previousSelector;
+        return s;
+    }
+
+    /*
+     *
+     * 1) Expansion of implicit argument
+     *
+     * rec(<expr>) --> rec(<expr>, <expr>)
+     *
+     * 2) Case disjonction
+     *
+     * rec( <left>,  <right>) --> <right>          ::  <selector>(<left>)
+     * rec(*<left>,  <right>) --> <right>          ::  <left>.iterator.flatMap(<selector>)
+     * rec( <left>, *<right>) --> <right>.iterator ::: <selector>(<left>)
+     * rec(*<left>, *<right>) --> <right>.iterator ::: <left>.iterator.flatMap(<selector>)
+     *
+     */
+    private String refactorRecExpr(Liblkqllang.RecExpr recExpr) {
+        final var hasRight = !recExpr.fResultExpr().isNone();
+
+        final var unpackLeft = recExpr.fRecurseUnpack().pAsBool();
+        final var unpackRight = hasRight ? recExpr.fResultUnpack().pAsBool() : unpackLeft;
+
+        final var left = recExpr.fRecurseExpr();
+        final var right = hasRight ? recExpr.fResultExpr() : left;
+
+        var s = unpackRight ? refactorNode(right) + ".iterator :::" : refactorNode(right) + " ::";
+
+        // try to preserve spacing after "," (any newline for example)
+        if (hasRight && left.tokenEnd().next().getText().equals(",")) {
+            for (var tok = left.tokenEnd().next().next(); tok.isTrivia(); tok = tok.next()) s +=
+                tok.getText();
+        } else {
+            s += " ";
+        }
+
+        s += unpackLeft
+            ? refactorNode(left) + ".iterator.flatMap(" + currentSelector.fName().getText() + ")"
+            : currentSelector.fName().getText() + "(" + refactorNode(left) + ")";
+
+        return s;
     }
 }
