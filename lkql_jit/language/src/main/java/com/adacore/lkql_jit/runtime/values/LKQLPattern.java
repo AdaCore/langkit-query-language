@@ -33,7 +33,7 @@ public final class LKQLPattern extends BasicLKQLValue {
     // ----- Attributes -----
 
     /** Members of the pattern LKQL value. */
-    private final LKQLList MEMBERS = new LKQLList(new String[] { "contains", "find" });
+    private static final LKQLList MEMBERS = new LKQLList(new String[] { "contains", "find" });
 
     /** The interop regex object from the TRegex language. */
     private final Object regexObject;
