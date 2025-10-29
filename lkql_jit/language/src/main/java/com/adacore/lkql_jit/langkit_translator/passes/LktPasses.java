@@ -314,7 +314,7 @@ public final class LktPasses {
                 frames.declareBinding(name);
                 return new ValueDeclaration(loc(valDecl), frames.getBinding(name), value);
             } else {
-                throw LKQLRuntimeException.fromMessage(
+                throw LKQLRuntimeException.create(
                     "Translation for " + decl.getKind() + " not implemented"
                 );
             }
@@ -437,7 +437,7 @@ public final class LktPasses {
                     .toArray(new MatchArm[0]);
                 return new Match(loc(matchExpr), matchVal, arms);
             } else {
-                throw LKQLRuntimeException.fromMessage(
+                throw LKQLRuntimeException.create(
                     "Translation for " + expr.getKind() + " not implemented"
                 );
             }
@@ -519,7 +519,7 @@ public final class LktPasses {
                 // Return the result binding pattern node
                 return new BindingPattern(loc(bindingPattern), this.frames.getBinding(name), ptn);
             } else {
-                throw LKQLRuntimeException.fromMessage(
+                throw LKQLRuntimeException.create(
                     "Translation for " + pattern.getKind() + " not implemented"
                 );
             }
@@ -538,7 +538,7 @@ public final class LktPasses {
             } else if (patternDetail instanceof Liblktlang.SelectorPatternDetail) {
                 return null;
             } else {
-                throw LKQLRuntimeException.fromMessage(
+                throw LKQLRuntimeException.create(
                     "Translation for " + patternDetail.getKind() + " not implemented"
                 );
             }

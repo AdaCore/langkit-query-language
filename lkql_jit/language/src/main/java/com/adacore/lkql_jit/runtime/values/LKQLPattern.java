@@ -85,7 +85,7 @@ public final class LKQLPattern extends BasicLKQLValue {
                 .invokeMember(this.regexObject, "exec", string, 0);
             return (boolean) InteropLibrary.getUncached().readMember(resultObject, "isMatch");
         } catch (Exception e) {
-            throw LKQLRuntimeException.fromMessage(
+            throw LKQLRuntimeException.create(
                 StringUtils.concat("Pattern execution failed: ", this.regexString)
             );
         }
@@ -98,7 +98,7 @@ public final class LKQLPattern extends BasicLKQLValue {
                 .invokeMember(this.regexObject, "exec", string, 0);
             return (int) InteropLibrary.getUncached().invokeMember(resultObject, "getStart", 0);
         } catch (Exception e) {
-            throw LKQLRuntimeException.fromMessage(
+            throw LKQLRuntimeException.create(
                 StringUtils.concat("Pattern execution failed: ", this.regexString)
             );
         }

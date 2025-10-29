@@ -235,7 +235,7 @@ public final class NodeCheckerFunction {
                         "Error(s) while applying a rewriting context: ",
                         ArrayUtils.toString(applyRes.getDiagnostics())
                     );
-                    throw LKQLRuntimeException.fromMessage(message);
+                    throw LKQLRuntimeException.create(message);
                 }
 
                 // Then output the rewrote unit as required

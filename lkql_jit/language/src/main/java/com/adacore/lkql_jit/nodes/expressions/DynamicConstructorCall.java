@@ -38,7 +38,7 @@ public final class DynamicConstructorCall extends Expr {
         this.nodeKind = nodeKind;
         this.args = argList;
         for (var arg : argList.getArgs()) {
-            if (!(arg instanceof NamedArg)) throw LKQLRuntimeException.fromMessage(
+            if (!(arg instanceof NamedArg)) throw LKQLRuntimeException.create(
                 "constructors in passes only accept named args",
                 arg
             );

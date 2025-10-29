@@ -42,7 +42,7 @@ public class BaseTranslationPass {
                 null,
                 new SourceSectionWrapper(location)
             );
-        return LKQLRuntimeException.fromMessage("Errors during analysis");
+        return LKQLRuntimeException.create("Errors during analysis");
     }
 
     protected RuntimeException translationError(LangkitSupport.NodeInterface node, String message) {
@@ -54,7 +54,7 @@ public class BaseTranslationPass {
                 null,
                 SourceSectionWrapper.create(node.getSourceLocationRange(), source)
             );
-        return LKQLRuntimeException.fromMessage("Errors during analysis");
+        return LKQLRuntimeException.create("Errors during analysis");
     }
 
     public BaseTranslationPass(Source source, ScriptFrames frames) {

@@ -318,7 +318,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             }
             return ast;
         } else {
-            throw LKQLRuntimeException.fromMessage("Should not happen");
+            throw LKQLRuntimeException.create("Should not happen");
         }
     }
 
@@ -350,7 +350,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                 langkitCtx = lktAnalysisContext;
                 src = source;
             } else {
-                throw LKQLRuntimeException.fromMessage("Invalid lkql version");
+                throw LKQLRuntimeException.create("Invalid lkql version");
             }
         } else {
             // By default, use lkql syntax
@@ -380,7 +380,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                         SourceSectionWrapper.create(diagnostic.getSourceLocationRange(), src)
                     );
             }
-            throw LKQLRuntimeException.fromMessage(
+            throw LKQLRuntimeException.create(
                 "Syntax errors in " + unit.getFileName(false) + ": stopping interpreter"
             );
         }

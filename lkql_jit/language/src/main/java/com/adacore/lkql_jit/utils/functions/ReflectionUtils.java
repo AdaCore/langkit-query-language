@@ -56,7 +56,7 @@ public final class ReflectionUtils {
                 }
                 res = Libadalang.Symbol.create(resString);
             } catch (Libadalang.SymbolException e) {
-                throw LKQLRuntimeException.fromMessage(e.getMessage());
+                throw LKQLRuntimeException.create(e.getMessage());
             }
         }
         // If the required type is a unit array
@@ -151,7 +151,7 @@ public final class ReflectionUtils {
             }
 
             // Throw a default exception
-            throw LKQLRuntimeException.fromMessage(
+            throw LKQLRuntimeException.create(
                 "Invalid argument type, but cannot find which",
                 caller
             );
@@ -171,7 +171,7 @@ public final class ReflectionUtils {
             }
             throw LKQLRuntimeException.fromJavaException(e.getTargetException(), caller);
         } catch (IllegalAccessException e) {
-            throw LKQLRuntimeException.fromMessage("Java reflection access failed", caller);
+            throw LKQLRuntimeException.create("Java reflection access failed", caller);
         }
     }
 
