@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLListIterator;
 import java.util.Arrays;
@@ -33,20 +32,12 @@ public final class LKQLList extends BaseLKQLList {
     }
 
     @Override
-    public Object get(long i) throws InvalidIndexException {
-        try {
-            return this.content[(int) i];
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidIndexException();
-        }
+    public Object get(long i) throws IndexOutOfBoundsException {
+        return this.content[(int) i];
     }
 
-    public Object[] getSlice(long first, long last) throws InvalidIndexException {
-        try {
-            return Arrays.copyOfRange(this.content, (int) first, (int) last);
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidIndexException();
-        }
+    public Object[] getSlice(long first, long last) throws IndexOutOfBoundsException {
+        return Arrays.copyOfRange(this.content, (int) first, (int) last);
     }
 
     @Override

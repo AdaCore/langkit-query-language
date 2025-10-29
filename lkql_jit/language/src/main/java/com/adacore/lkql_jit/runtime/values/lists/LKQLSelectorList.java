@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
@@ -141,12 +140,8 @@ public class LKQLSelectorList extends LKQLLazyList {
     }
 
     @Override
-    public Object get(long i) throws InvalidIndexException {
+    public Object get(long i) throws IndexOutOfBoundsException {
         this.computeItemAt(i);
-        try {
-            return this.cache.get((int) i);
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidIndexException();
-        }
+        return this.cache.get((int) i);
     }
 }

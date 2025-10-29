@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.runtime.values.iterators;
 
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
 
 /** This class represents an iterator for an LKQL lazy list. */
@@ -34,7 +33,7 @@ public class BaseLKQLListIterator extends LKQLIterator {
         try {
             this.lkqlList.get(cursor);
             return true;
-        } catch (InvalidIndexException e) {
+        } catch (IndexOutOfBoundsException e) {
             return false;
         }
     }

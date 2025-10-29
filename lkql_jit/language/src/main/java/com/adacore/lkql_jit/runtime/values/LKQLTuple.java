@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
@@ -102,12 +101,8 @@ public class LKQLTuple implements Indexable, TruffleObject {
     // ----- Indexable methods -----
 
     @Override
-    public Object get(long index) throws InvalidIndexException {
-        try {
-            return this.content[(int) index];
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidIndexException();
-        }
+    public Object get(long index) throws IndexOutOfBoundsException {
+        return this.content[(int) index];
     }
 
     @Override

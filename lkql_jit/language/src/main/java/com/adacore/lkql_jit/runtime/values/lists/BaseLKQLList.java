@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
@@ -36,10 +35,10 @@ public abstract class BaseLKQLList implements Iterable, Indexable, TruffleObject
     /**
      * Get the element at the given position in the list.
      *
-     * @throws InvalidIndexException If the provided index is not in the list bounds.
+     * @throws IndexOutOfBoundsException If the provided index is not in the list bounds.
      */
     @CompilerDirectives.TruffleBoundary
-    public abstract Object get(long i) throws InvalidIndexException;
+    public abstract Object get(long i) throws IndexOutOfBoundsException;
 
     /** Get the iterator for the list. */
     public abstract LKQLIterator iterator();
@@ -91,7 +90,7 @@ public abstract class BaseLKQLList implements Iterable, Indexable, TruffleObject
         try {
             this.get(0);
             return true;
-        } catch (InvalidIndexException e) {
+        } catch (IndexOutOfBoundsException e) {
             return false;
         }
     }
@@ -114,7 +113,7 @@ public abstract class BaseLKQLList implements Iterable, Indexable, TruffleObject
         try {
             this.get((int) index);
             return true;
-        } catch (InvalidIndexException e) {
+        } catch (IndexOutOfBoundsException e) {
             return false;
         }
     }
