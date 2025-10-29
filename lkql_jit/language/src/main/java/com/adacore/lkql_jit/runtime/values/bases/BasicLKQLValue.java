@@ -7,16 +7,16 @@ package com.adacore.lkql_jit.runtime.values.bases;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class is the base for all "basic" LKQL values. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class BasicLKQLValue implements LKQLValue {
+public abstract class BasicLKQLValue implements TruffleObject {
 
     public InteropLibrary getUncachedLibrary() {
         return InteropLibrary.getUncached(this);

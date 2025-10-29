@@ -142,12 +142,10 @@ public class LKQLSelector extends BasicLKQLValue {
 
     // ----- LKQL value methods -----
 
-    @Override
     public String lkqlDocumentation() {
         return this.documentation;
     }
 
-    @Override
     @CompilerDirectives.TruffleBoundary
     public String lkqlProfile() {
         return this.name + "()";

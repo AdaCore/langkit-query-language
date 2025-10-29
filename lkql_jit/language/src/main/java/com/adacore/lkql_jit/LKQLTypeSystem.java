@@ -53,7 +53,6 @@ import java.math.BigInteger;
         LKQLObject.class,
         Nullish.class,
         LKQLRecValue.class,
-        LKQLValue.class,
     }
 )
 public abstract class LKQLTypeSystem {

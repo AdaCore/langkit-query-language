@@ -220,18 +220,6 @@ public abstract class Expr extends LKQLNode {
     }
 
     /**
-     * Execute the expression as a LKQL value.
-     *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a lkql value.
-     * @throws UnexpectedResultException If the node cannot be evaluated as a lkql value.
-     */
-    @SuppressWarnings("unused")
-    public LKQLValue executeValue(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectLKQLValue(executeGeneric(frame));
-    }
-
-    /**
      * Execute the expression as a node.
      *
      * @param frame The frame for execution.

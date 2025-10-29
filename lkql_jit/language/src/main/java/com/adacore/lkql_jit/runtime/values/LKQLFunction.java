@@ -182,12 +182,10 @@ public class LKQLFunction extends BasicLKQLValue {
 
     // ----- LKQL values methods -----
 
-    @Override
     public String lkqlDocumentation() {
         return this.documentation;
     }
 
-    @Override
     @CompilerDirectives.TruffleBoundary
     public String lkqlProfile() {
         var expandedParams = new ArrayList<String>();

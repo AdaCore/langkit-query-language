@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.runtime.values.bases;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -23,7 +22,7 @@ import com.oracle.truffle.api.object.Shape;
 
 /** This class is the base for all LKQL object-like values. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue {
+public abstract class ObjectLKQLValue extends DynamicObject {
 
     protected static final DynamicObjectLibrary uncachedObjectLibrary =
         DynamicObjectLibrary.getUncached();

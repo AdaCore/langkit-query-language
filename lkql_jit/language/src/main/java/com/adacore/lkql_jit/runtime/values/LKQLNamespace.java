@@ -151,7 +151,6 @@ public class LKQLNamespace extends ObjectLKQLValue {
         return resultBuilder.toString();
     }
 
-    @Override
     public String lkqlDocumentation() {
         return this.documentation;
     }
