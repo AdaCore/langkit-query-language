@@ -454,7 +454,10 @@ public final class TranslationPass
             case OP_AND -> BinAndNodeGen.create(location, left, right);
             case OP_OR -> BinOrNodeGen.create(location, left, right);
             case OP_EQ -> BinEqNodeGen.create(location, left, right);
-            case OP_NEQ -> BinNeqNodeGen.create(location, left, right);
+            case OP_NEQ -> UnNotNodeGen.create(
+                location,
+                BinEqNodeGen.create(location, left, right)
+            );
             case OP_CONCAT -> BinConcatNodeGen.create(location, left, right);
             case OP_LT -> BinLtNodeGen.create(location, left, right);
             case OP_LEQ -> BinLeqNodeGen.create(location, left, right);

@@ -399,7 +399,10 @@ public final class LktPasses {
                     case OP_AND -> BinAndNodeGen.create(location, left, right);
                     case OP_OR -> BinOrNodeGen.create(location, left, right);
                     case OP_EQ -> BinEqNodeGen.create(location, left, right);
-                    case OP_NE -> BinNeqNodeGen.create(location, left, right);
+                    case OP_NE -> UnNotNodeGen.create(
+                        location,
+                        BinEqNodeGen.create(location, left, right)
+                    );
                     case OP_AMP -> BinConcatNodeGen.create(location, left, right);
                     case OP_LT -> BinLtNodeGen.create(location, left, right);
                     case OP_LTE -> BinLeqNodeGen.create(location, left, right);
