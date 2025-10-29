@@ -100,7 +100,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException shouldNotHappen(String message) {
-        return new LKQLRuntimeException("This exception should not happen: " + message, null);
+        return LKQLRuntimeException.fromMessage("This exception should not happen: " + message);
     }
 
     /**
