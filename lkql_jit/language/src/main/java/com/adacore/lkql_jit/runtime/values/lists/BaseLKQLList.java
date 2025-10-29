@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.runtime.values.lists;
 
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.runtime.values.bases.ArrayLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
@@ -16,13 +15,14 @@ import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 /** This abstract class represents all list like values in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, Indexable {
+public abstract class BaseLKQLList implements Iterable, Indexable, TruffleObject {
 
     // ----- Constructors -----
 

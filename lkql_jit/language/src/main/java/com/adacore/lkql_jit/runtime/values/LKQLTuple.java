@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.runtime.values.bases.ArrayLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
@@ -15,13 +14,14 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents a tuple in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLTuple extends ArrayLKQLValue implements Indexable {
+public class LKQLTuple implements Indexable, TruffleObject {
 
     // ----- Attributes -----
 
