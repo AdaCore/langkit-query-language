@@ -6,21 +6,15 @@
 package com.adacore.lkql_jit.runtime.values.bases;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class is the base for all "basic" LKQL values. */
 @ExportLibrary(InteropLibrary.class)
 public abstract class BasicLKQLValue implements TruffleObject {
-
-    public InteropLibrary getUncachedLibrary() {
-        return InteropLibrary.getUncached(this);
-    }
 
     // ----- Value methods -----
 
@@ -49,25 +43,17 @@ public abstract class BasicLKQLValue implements TruffleObject {
 
     @Override
     public String toString() {
-        return (String) getUncachedLibrary().toDisplayString(this);
+        return (String) InteropLibrary.getUncached().toDisplayString(this);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (o == this) return true;
         if (!(o instanceof BasicLKQLValue other)) return false;
-        InteropLibrary otherUncached = InteropLibrary.getUncached(other);
-        return getUncachedLibrary().isIdentical(this, other, otherUncached);
-    }
-
-    @Override
-    public int hashCode() {
-        try {
-            return getUncachedLibrary().identityHashCode(this);
-        } catch (UnsupportedMessageException e) {
-            throw LKQLRuntimeException.shouldNotHappen(
-                "All LKQL values must export an 'identityHashCode' message"
-            );
-        }
+        return InteropLibrary.getUncached(this).isIdentical(
+            this,
+            other,
+            InteropLibrary.getUncached(other)
+        );
     }
 }

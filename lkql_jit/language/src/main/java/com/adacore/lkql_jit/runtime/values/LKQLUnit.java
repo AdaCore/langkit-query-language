@@ -10,7 +10,6 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the unit value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
@@ -30,24 +29,6 @@ public class LKQLUnit extends BasicLKQLValue implements Nullish {
     private LKQLUnit() {}
 
     // ----- Value methods -----
-
-    /** Tell the interop API if the receiver is identical to the other. */
-    @ExportMessage
-    public static TriState isIdenticalOrUndefined(
-        @SuppressWarnings("unused") final LKQLUnit receiver,
-        final Object other
-    ) {
-        return TriState.valueOf(receiver == other);
-    }
-
-    /**
-     * Return the identity hash code for the given receiver (always the same because unit value is
-     * singleton).
-     */
-    @ExportMessage
-    public static int identityHashCode(@SuppressWarnings("unused") final LKQLUnit receiver) {
-        return IDENTITY_HASH;
-    }
 
     /** Get the displayable string for the interop library. */
     @Override
@@ -72,5 +53,17 @@ public class LKQLUnit extends BasicLKQLValue implements Nullish {
     @ExportMessage
     public boolean asBoolean() {
         return false;
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public int hashCode() {
+        return IDENTITY_HASH;
     }
 }

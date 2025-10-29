@@ -14,14 +14,12 @@ import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.api.utilities.TriState;
+import java.util.Objects;
 
 /**
  * This class represents the pattern values in the LKQL language. Pattern values are compiled
@@ -108,36 +106,6 @@ public final class LKQLPattern extends BasicLKQLValue {
 
     // ----- Value methods -----
 
-    /** Exported message to compare two LKQL patterns. */
-    @ExportMessage
-    public static class IsIdenticalOrUndefined {
-
-        /** Compare two LKQL patterns. */
-        @Specialization
-        protected static TriState onPattern(final LKQLPattern left, final LKQLPattern right) {
-            return TriState.valueOf(
-                left.regexString.equals(right.regexString) &&
-                left.caseSensitive == right.caseSensitive
-            );
-        }
-
-        /** Do the comparison with another element. */
-        @Fallback
-        protected static TriState onOther(
-            @SuppressWarnings("unused") final LKQLPattern receiver,
-            @SuppressWarnings("unused") final Object other
-        ) {
-            return TriState.UNDEFINED;
-        }
-    }
-
-    /** Return the identity hash code for the given LKQL pattern. */
-    @ExportMessage
-    @CompilerDirectives.TruffleBoundary
-    public static int identityHashCode(final LKQLPattern receiver) {
-        return System.identityHashCode(receiver);
-    }
-
     /** Get the displayable string for the interop library. */
     @Override
     @ExportMessage
@@ -191,5 +159,21 @@ public final class LKQLPattern extends BasicLKQLValue {
             case "find" -> this.find(arg);
             default -> throw UnknownIdentifierException.create(member);
         };
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LKQLPattern other)) return false;
+        return (
+            this.regexString.equals(other.regexString) && this.caseSensitive == other.caseSensitive
+        );
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.regexString, this.caseSensitive);
     }
 }

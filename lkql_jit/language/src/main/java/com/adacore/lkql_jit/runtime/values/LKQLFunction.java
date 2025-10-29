@@ -11,17 +11,16 @@ import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
-import com.oracle.truffle.api.utilities.TriState;
 import java.util.ArrayList;
 
 /** This class represents the function values in LKQL. */
@@ -98,33 +97,6 @@ public class LKQLFunction extends BasicLKQLValue {
     }
 
     // ----- Value methods -----
-
-    /** Exported message to compare two LKQL functions. */
-    @ExportMessage
-    public static class IsIdenticalOrUndefined {
-
-        /** Compare two LKQL functions. */
-        @Specialization
-        protected static TriState onFunction(final LKQLFunction left, final LKQLFunction right) {
-            return TriState.valueOf(left.rootNode == right.rootNode);
-        }
-
-        /** Do the comparison with another element. */
-        @Fallback
-        protected static TriState onOther(
-            @SuppressWarnings("unused") final LKQLFunction receiver,
-            @SuppressWarnings("unused") final Object other
-        ) {
-            return TriState.UNDEFINED;
-        }
-    }
-
-    /** Return the identity hash code for the given LKQL function. */
-    @ExportMessage
-    @CompilerDirectives.TruffleBoundary
-    public static int identityHashCode(final LKQLFunction receiver) {
-        return System.identityHashCode(receiver);
-    }
 
     /** Get the displayable string for the interop library. */
     @Override
@@ -213,5 +185,19 @@ public class LKQLFunction extends BasicLKQLValue {
 
     public boolean hasClosure() {
         return closure != Closure.EMPTY;
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof LKQLFunction other)) return false;
+        return ObjectUtils.equals(this.rootNode, other.rootNode);
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectUtils.hashCode(rootNode);
     }
 }

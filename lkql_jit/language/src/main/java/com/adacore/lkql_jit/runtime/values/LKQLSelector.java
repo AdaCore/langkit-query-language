@@ -9,13 +9,11 @@ import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLSelectorList;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the selector values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -89,33 +87,6 @@ public class LKQLSelector extends BasicLKQLValue {
 
     // ----- Value methods -----
 
-    /** Exported message to compare two LKQL selectors. */
-    @ExportMessage
-    public static class IsIdenticalOrUndefined {
-
-        /** Compare two LKQL selectors. */
-        @Specialization
-        protected static TriState onSelector(final LKQLSelector left, final LKQLSelector right) {
-            return TriState.valueOf(left.rootNode == right.rootNode);
-        }
-
-        /** Do the comparison with another element. */
-        @Fallback
-        protected static TriState onOther(
-            @SuppressWarnings("unused") final LKQLSelector receiver,
-            @SuppressWarnings("unused") final Object other
-        ) {
-            return TriState.UNDEFINED;
-        }
-    }
-
-    /** Return the identity hash code for the given LKQL selector. */
-    @ExportMessage
-    @CompilerDirectives.TruffleBoundary
-    public static int identityHashCode(final LKQLSelector receiver) {
-        return System.identityHashCode(receiver);
-    }
-
     /** Get the displayable string for the interop library. */
     @Override
     @ExportMessage
@@ -149,5 +120,19 @@ public class LKQLSelector extends BasicLKQLValue {
     @CompilerDirectives.TruffleBoundary
     public String lkqlProfile() {
         return this.name + "()";
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof LKQLSelector other)) return false;
+        return ObjectUtils.equals(rootNode, other.rootNode);
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectUtils.hashCode(rootNode);
     }
 }

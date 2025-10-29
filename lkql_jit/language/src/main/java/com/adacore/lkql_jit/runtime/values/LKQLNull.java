@@ -6,20 +6,17 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.utilities.TriState;
 import java.util.Collections;
 import java.util.Map;
 
 /** This class represents the null value in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLNull implements LangkitSupport.NodeInterface, Nullish, TruffleObject {
+public class LKQLNull extends BasicLKQLValue implements LangkitSupport.NodeInterface, Nullish {
 
     // ----- Attributes -----
 
@@ -136,39 +133,9 @@ public class LKQLNull implements LangkitSupport.NodeInterface, Nullish, TruffleO
 
     // ----- Value methods -----
 
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
-
-    /** Tell the interop API if the given other value is null. */
-    @ExportMessage
-    static TriState isIdenticalOrUndefined(
-        @SuppressWarnings("unused") final LKQLNull receiver,
-        final Object other
-    ) {
-        return TriState.valueOf(receiver == other);
-    }
-
-    /**
-     * Return the identity hash code for the given receiver (always the same because null value is
-     * singleton).
-     */
-    @ExportMessage
-    static int identityHashCode(@SuppressWarnings("unused") final LKQLNull receiver) {
-        return IDENTITY_HASH;
-    }
-
     /** Get the displayable string for the interop library. */
     @ExportMessage
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffect) {
+    public String toDisplayString(@SuppressWarnings("unused") boolean allowSideEffect) {
         return "null";
     }
 
@@ -190,18 +157,15 @@ public class LKQLNull implements LangkitSupport.NodeInterface, Nullish, TruffleO
         return false;
     }
 
-    @Override
-    public String toString() {
-        return "null";
-    }
+    // ----- Override methods -----
 
     @Override
     public boolean equals(Object o) {
-        return o == this;
+        return this == o;
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return IDENTITY_HASH;
     }
 }

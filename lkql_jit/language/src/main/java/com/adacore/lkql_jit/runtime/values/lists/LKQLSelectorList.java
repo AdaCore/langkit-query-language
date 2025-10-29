@@ -13,14 +13,10 @@ import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
 import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 
 /** This class represents the list returned by a selector call in the LKQL language. */
-@ExportLibrary(InteropLibrary.class)
 public class LKQLSelectorList extends LKQLLazyList {
 
     // ----- Attributes -----
@@ -48,6 +44,8 @@ public class LKQLSelectorList extends LKQLLazyList {
 
     /** The precise depth to get from the selector. */
     private final int exactDepth;
+
+    /** Whether to check if there is cycles in the selector list. */
     private final boolean checkCycles;
 
     // ----- Constructors -----
@@ -150,14 +148,5 @@ public class LKQLSelectorList extends LKQLLazyList {
         } catch (IndexOutOfBoundsException e) {
             throw new InvalidIndexException();
         }
-    }
-
-    // ----- Value methods -----
-
-    /** Return the identity hash code for the given LKQL selector list. */
-    @CompilerDirectives.TruffleBoundary
-    @ExportMessage
-    public static int identityHashCode(LKQLSelectorList receiver) {
-        return System.identityHashCode(receiver);
     }
 }

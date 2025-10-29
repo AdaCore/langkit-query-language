@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.bases.ArrayLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
@@ -16,13 +15,10 @@ import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.utilities.TriState;
 
 /** This abstract class represents all list like values in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
@@ -49,69 +45,6 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
     public abstract LKQLIterator iterator();
 
     // ----- Value methods -----
-
-    /** Exported message to compare two lists. */
-    @ExportMessage
-    public static class IsIdenticalOrUndefined {
-
-        /** Compare two LKQL lists. */
-        @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
-        public static TriState onList(
-            final BaseLKQLList left,
-            final BaseLKQLList right,
-            @CachedLibrary("left") InteropLibrary lefts,
-            @CachedLibrary("right") InteropLibrary rights,
-            @CachedLibrary(
-                limit = Constants.DISPATCHED_LIB_LIMIT
-            ) @Exclusive InteropLibrary leftElems,
-            @CachedLibrary(
-                limit = Constants.DISPATCHED_LIB_LIMIT
-            ) @Exclusive InteropLibrary rightElems
-        ) {
-            try {
-                // Get the left list size and compare it with the right list
-                long size = lefts.getArraySize(left);
-                if (size != rights.getArraySize(right)) return TriState.FALSE;
-
-                // Then compare each element of the lists
-                for (long i = 0; i < size; i++) {
-                    Object leftElem = lefts.readArrayElement(left, i);
-                    Object rightElem = rights.readArrayElement(right, i);
-                    if (leftElems.hasIdentity(leftElem)) {
-                        if (
-                            !leftElems.isIdentical(leftElem, rightElem, rightElems)
-                        ) return TriState.FALSE;
-                    } else {
-                        if (!ObjectUtils.equals(leftElem, rightElem)) return TriState.FALSE;
-                    }
-                }
-
-                // If we get here, lists are equal
-                return TriState.TRUE;
-            } catch (Exception e) {
-                throw LKQLRuntimeException.shouldNotHappen("Lists comparison");
-            }
-        }
-
-        /** Do the comparison with another element. */
-        @Fallback
-        public static TriState onOther(
-            @SuppressWarnings("unused") final BaseLKQLList receiver,
-            @SuppressWarnings("unused") final Object other
-        ) {
-            return TriState.UNDEFINED;
-        }
-    }
-
-    /** Get the identity hash code for the given LKQL list */
-    @ExportMessage
-    public static int identityHashCode(
-        BaseLKQLList receiver,
-        @CachedLibrary("receiver") InteropLibrary receivers,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) @Exclusive InteropLibrary elems
-    ) {
-        return arrayValueHashCode(receiver, receivers, elems);
-    }
 
     /** Get the displayable string for the interop library. */
     @CompilerDirectives.TruffleBoundary
@@ -213,5 +146,24 @@ public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, I
             res[i] = this.get(i);
         }
         return res;
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof BaseLKQLList other)) return false;
+        var size = this.size();
+        if (size != other.size()) return false;
+        for (int i = 0; i < size; i++) {
+            if (!ObjectUtils.equals(this.get(i), other.get(i))) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectUtils.hashCode(this.getContent());
     }
 }

@@ -8,14 +8,9 @@ package com.adacore.lkql_jit.runtime.values.lists;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLListIterator;
-import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
 
 /** This class represents an array list in the LKQL language. */
-@ExportLibrary(InteropLibrary.class)
 public final class LKQLList extends BaseLKQLList {
 
     // ----- Attributes -----
@@ -62,14 +57,5 @@ public final class LKQLList extends BaseLKQLList {
     @Override
     public Object[] getContent() {
         return this.content;
-    }
-
-    // ----- Value methods -----
-
-    /** Return the identity hash code for the given LKQL array list. */
-    @CompilerDirectives.TruffleBoundary
-    @ExportMessage
-    public static int identityHashCode(LKQLList receiver) {
-        return System.identityHashCode(receiver);
     }
 }

@@ -11,8 +11,6 @@ import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -21,7 +19,6 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
-import com.oracle.truffle.api.utilities.TriState;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,46 +62,6 @@ public class LKQLNamespace extends ObjectLKQLValue {
     }
 
     // ----- Value methods -----
-
-    /** Exported message to compare two LKQL namespaces. */
-    @ExportMessage
-    static class IsIdenticalOrUndefined {
-
-        /** Compare two LKQL namespaces. */
-        @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
-        protected static TriState onLKQLNamespace(
-            final LKQLNamespace left,
-            final LKQLNamespace right,
-            @CachedLibrary("left") DynamicObjectLibrary lefts,
-            @CachedLibrary("right") DynamicObjectLibrary rights,
-            @CachedLibrary(
-                limit = Constants.DISPATCHED_LIB_LIMIT
-            ) @Exclusive InteropLibrary leftValues,
-            @CachedLibrary(
-                limit = Constants.DISPATCHED_LIB_LIMIT
-            ) @Exclusive InteropLibrary rightValues
-        ) {
-            return TriState.valueOf(
-                objectValueEquals(left, right, lefts, rights, leftValues, rightValues)
-            );
-        }
-
-        /** Do the comparison with another element. */
-        @Fallback
-        protected static TriState onOther(
-            @SuppressWarnings("unused") final LKQLNamespace receiver,
-            @SuppressWarnings("unused") final Object other
-        ) {
-            return TriState.UNDEFINED;
-        }
-    }
-
-    /** Get the identity hash code for the given namespace */
-    @CompilerDirectives.TruffleBoundary
-    @ExportMessage
-    public static int identityHashCode(LKQLNamespace receiver) {
-        return System.identityHashCode(receiver);
-    }
 
     public Map<String, Object> asMap() {
         Object[] keys = this.keysUncached();
@@ -153,5 +110,13 @@ public class LKQLNamespace extends ObjectLKQLValue {
 
     public String lkqlDocumentation() {
         return this.documentation;
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof LKQLNamespace) return super.equals(o);
+        else return false;
     }
 }
