@@ -1,0 +1,40 @@
+fun is_constrained_arr_subtype(type_decl) =
+    |" Returns whether the provided BaseTypeDecl declares an array subtype with
+    |" bound constraints.
+    {
+        fun is_subtype_indication_constrained(subtype_indication) =
+        |" Returns whether the provided subtype indication caries a range
+        |" constraint or the designated type already is a constrained array
+        |" subtype.
+        subtype_indication.f_constraint is not null
+        or is_constrained_arr_subtype(subtype_indication.f_name.p_referenced_decl());
+
+        type_decl.p_full_view() is BaseTypeDecl(p_is_array_type(): true) when
+            match type_decl
+            | TypeDecl => (
+                match type_decl.f_type_def
+                | ArrayTypeDef(f_indices: ConstrainedArrayIndices) => true
+                | d@DerivedTypeDef => is_subtype_indication_constrained(d.f_subtype_indication)
+                | * => false
+            )
+            | SubtypeDecl => is_subtype_indication_constrained(type_decl.f_subtype)
+    }
+
+@check(help="possible occurrence of KP 20113",
+       message="possible occurrence of KP 20113")
+fun kp_20113(node) =
+    |" Flag all usages of the ``VADS_Size`` attribute, and all usages of the
+    |" ``Size`` attribute when the pragma ``Use_VADS_Size`` is enabled, when
+    |" the prefix may denote a constrained array subtype.
+    node is AttributeRef when {
+        val attribute_name = node.f_attribute;
+        (
+            attribute_name.p_name_is("vads_size")
+            or (
+                attribute_name.p_name_is("size")
+                and node.unit.root.p_config_pragmas("use_vads_size").length > 0
+            )
+        ) and node.f_prefix.p_referenced_decl().p_full_view() is td@BaseTypeDecl(
+            p_is_array_type(): true
+        ) when is_constrained_arr_subtype(td)
+    }

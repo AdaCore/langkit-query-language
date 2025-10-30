@@ -1,0 +1,52 @@
+with_use_vads.adb:6:35: rule violation: possible occurrence of KP 20113
+6 |       Local_Sub_Size : Integer := Local_Sub'Size;  --  FLAG
+  |                                   ^^^^^^^^^^^^^^
+
+with_use_vads.ads:9:38: rule violation: possible occurrence of KP 20113
+9 |    Constr_Arr_Size      : Integer := Constr_Arr'Size;       --  FLAG
+  |                                      ^^^^^^^^^^^^^^^
+
+with_use_vads.ads:10:38: rule violation: possible occurrence of KP 20113
+10 |    Constr_MD_Arr_Size   : Integer := Constr_MD_Arr'Size;    --  FLAG
+   |                                      ^^^^^^^^^^^^^^^^^^
+
+with_use_vads.ads:11:38: rule violation: possible occurrence of KP 20113
+11 |    Constr_Arr_VADS_Size : Integer := Constr_Arr'VADS_Size;  --  FLAG
+   |                                      ^^^^^^^^^^^^^^^^^^^^
+
+with_use_vads.ads:12:38: rule violation: possible occurrence of KP 20113
+12 |    Constr_Sub_Size      : Integer := Constr_Sub'Size;       --  FLAG
+   |                                      ^^^^^^^^^^^^^^^
+
+with_use_vads.ads:13:38: rule violation: possible occurrence of KP 20113
+13 |    Constr_Derived_Size  : Integer := Constr_Derived'Size;   --  FLAG
+   |                                      ^^^^^^^^^^^^^^^^^^^
+
+with_use_vads.ads:24:39: rule violation: possible occurrence of KP 20113
+24 |    Unconstr_Sub_Size     : Integer := Unconstr_Sub'Size;      --  FLAG
+   |                                       ^^^^^^^^^^^^^^^^^
+
+with_use_vads.ads:25:39: rule violation: possible occurrence of KP 20113
+25 |    Unconstr_Sub_Sub_Size : Integer := Unconstr_Sub_Sub'Size;  --  FLAG
+   |                                       ^^^^^^^^^^^^^^^^^^^^^
+
+with_use_vads.ads:26:39: rule violation: possible occurrence of KP 20113
+26 |    Unconstr_MD_Sub_Size  : Integer := Unconstr_MD_Sub'Size;   --  FLAG
+   |                                       ^^^^^^^^^^^^^^^^^^^^
+
+with_use_vads.ads:27:39: rule violation: possible occurrence of KP 20113
+27 |    Unconstr_Derived_Size : Integer := Unconstr_Derived'Size;  --  FLAG
+   |                                       ^^^^^^^^^^^^^^^^^^^^^
+
+with_use_vads.ads:32:33: rule violation: possible occurrence of KP 20113
+32 |    String_Sub_Size : Integer := String_Sub'Size;  --  FLAG
+   |                                 ^^^^^^^^^^^^^^^
+
+without_use_vads.adb:6:38: rule violation: possible occurrence of KP 20113
+6 |    Constr_Arr_VADS_Size : Integer := Constr_Arr'VADS_Size;       --  FLAG
+  |                                      ^^^^^^^^^^^^^^^^^^^^
+
+without_use_vads.adb:7:38: rule violation: possible occurrence of KP 20113
+7 |    Constr_Arr_Priv_Size : Integer := Constr_Arr_Priv'VADS_Size;  --  FLAG
+  |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+
