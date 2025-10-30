@@ -1,0 +1,10 @@
+@check(help="possible occurrence of KP 20186",
+       message="possible occurrence of KP 20186")
+fun kp_20186(node) =
+    |" Flag private type declarations which full type is a scalar type with a
+    |" size representation clause.
+    node is BaseTypeDecl(p_is_private(): true) when
+        node.p_full_view() is t@BaseTypeDecl(
+            p_is_scalar_type(): true,
+            p_has_aspect("size"): true
+        )
