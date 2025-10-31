@@ -9,18 +9,24 @@ import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 
 import com.adacore.liblkqllang.Liblkqllang;
 
-public class LKQLToLkt implements Refactoring {
+public class LKQLToLkt implements TreeBasedRefactoring {
 
     /** Pointer to last-entered selector during rewriting. */
     private Liblkqllang.SelectorDecl currentSelector = Liblkqllang.SelectorDecl.NONE;
 
     @Override
-    public void applyRefactor(Refactoring.State state) {
-        final var root = state.unit.getRoot();
-        state.prepend(root.tokenStart(), "# lkql version: 2\n\n");
+    public String apply(Liblkqllang.AnalysisUnit unit) {
+        var root = unit.getRoot();
+        return (
+            "# lkql version: 2\n\n" +
+            textRange(unit.getFirstToken(), root.tokenStart().previous()) +
+            apply(root) +
+            textRange(root.tokenEnd().next(), unit.getLastToken())
+        );
+    }
 
-        // Because this rewriting doesn't use the token/action API, this is a hack
-        state.replaceRange(root.tokenStart(), root.tokenEnd(), refactorNode(root));
+    public String apply(Liblkqllang.LkqlNode root) {
+        return refactorNode(root);
     }
 
     /** Computes the text representing the refactored node. */
