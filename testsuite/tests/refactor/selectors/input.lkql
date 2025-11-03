@@ -1,0 +1,22 @@
+selector parents
+    | AdaNode => rec(this.parent, this)
+    | * => ()
+
+selector super_types
+    | BaseTypeDecl => rec(*this.p_base_types())
+    | *            => ()
+
+selector children
+    | AdaNode => rec(*this.children ,this)
+    | * => ()
+
+selector foo
+    | Foo => rec(this, *[s, o, m, e, t, h, i, n, g])
+
+selector infinite_sequence
+    |" Infinite sequence generator
+    | nb => rec(
+        nb + 1, # Recurse with value nb + 1
+        nb # Add nb to the result list
+    )
+

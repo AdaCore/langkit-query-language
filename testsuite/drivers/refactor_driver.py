@@ -27,3 +27,6 @@ class RefactorDriver(BaseDriver):
                 "input.lkql",
             ]
         )
+
+        if self.test_env["refactoring"] == "TO_LKQL_V2":
+            self.check_run(["lkt_parse", "-s", "-f", "test.out"])
