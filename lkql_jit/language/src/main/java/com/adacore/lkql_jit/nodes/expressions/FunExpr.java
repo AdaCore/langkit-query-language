@@ -24,9 +24,6 @@ public final class FunExpr extends Expr {
 
     // ----- Attributes -----
 
-    /** Closure descriptor of the function. */
-    private final ClosureDescriptor closureDescriptor;
-
     /**
      * The root node representing the function execution.
      *
@@ -71,7 +68,6 @@ public final class FunExpr extends Expr {
         String name
     ) {
         super(location);
-        this.closureDescriptor = closureDescriptor;
         this.functionRootNode = new FunctionRootNode(
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
