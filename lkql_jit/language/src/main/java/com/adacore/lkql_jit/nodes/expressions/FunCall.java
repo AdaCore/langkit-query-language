@@ -33,6 +33,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
@@ -110,7 +111,13 @@ public abstract class FunCall extends Expr {
         }
 
         // Return the result of the method call
-        return this.executeLKQLFunction(frame, method, methodLibrary, argVals);
+        try {
+            return methodLibrary.execute(method, argVals);
+        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
+            // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
+            // (#138)
+            throw LKQLRuntimeException.fromJavaException(e, this.getCallee());
+        }
     }
 
     @Specialization(
@@ -255,7 +262,7 @@ public abstract class FunCall extends Expr {
         String[] paramNames,
         String[] argNames,
         Expr[] args,
-        Expr[] defaultValues,
+        Node[] defaultValues,
         LKQLNode caller
     ) {
         // Verify the arity
@@ -294,7 +301,7 @@ public abstract class FunCall extends Expr {
                 // and we don't raise exceptions on missing arguments.
                 if (defaultValues != null) {
                     if (defaultValues[i] != null) {
-                        res[i] = defaultValues[i];
+                        res[i] = (Expr) defaultValues[i];
                     } else {
                         throw LKQLRuntimeException.missingArgument(i + 1, caller);
                     }
@@ -304,27 +311,6 @@ public abstract class FunCall extends Expr {
 
         // Return the result array
         return res;
-    }
-
-    // ----- Instance methods -----
-
-    /** Util function to call an LKQL function with its precomputed arguments. */
-    private Object executeLKQLFunction(
-        VirtualFrame frame,
-        LKQLFunction function,
-        InteropLibrary functionLibrary,
-        Object[] args
-    ) {
-        // Include the closure in arguments if required
-        // We don't place the closure in the arguments because built-ins don't have any.
-        // Just execute the function.
-        try {
-            return functionLibrary.execute(function, function.computeArgs(args));
-        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
-            // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
-            // (#138)
-            throw LKQLRuntimeException.fromJavaException(e, this.getCallee());
-        }
     }
 
     // ----- Override methods -----

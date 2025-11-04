@@ -97,7 +97,8 @@ public final class FunExpr extends Expr {
             name,
             this.documentation,
             this.parameterNames,
-            this.parameterValues
+            this.parameterValues,
+            this.functionRootNode.getBody()
         );
     }
 

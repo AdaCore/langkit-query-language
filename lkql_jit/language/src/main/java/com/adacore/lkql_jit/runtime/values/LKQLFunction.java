@@ -5,12 +5,9 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -21,6 +18,8 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.nodes.RootNode;
 import java.util.ArrayList;
 
 /** This class represents the function values in LKQL. */
@@ -30,10 +29,13 @@ public class LKQLFunction extends BasicLKQLValue {
     // ----- Attributes -----
 
     /** The root node representing the function body. */
-    public final FunctionRootNode rootNode;
+    public final RootNode rootNode;
 
     /** The closure for the function execution. */
     public final Closure closure;
+
+    /** Name of the function. */
+    public final String name;
 
     /** The documentation of the function. */
     public final String documentation;
@@ -45,7 +47,10 @@ public class LKQLFunction extends BasicLKQLValue {
      * Default values of the function parameters (if a function parameter doesn't have any, the
      * value is 'null').
      */
-    protected final Expr[] parameterDefaultValues;
+    protected final Node[] parameterDefaultValues;
+
+    /** The node representing the body of the function. */
+    public final Node body;
 
     // ----- Constructors -----
 
@@ -59,18 +64,21 @@ public class LKQLFunction extends BasicLKQLValue {
      * @param parameterNames The names of the parameters.
      */
     public LKQLFunction(
-        final FunctionRootNode rootNode,
+        final RootNode rootNode,
         final Closure closure,
         final String name,
         final String documentation,
         final String[] parameterNames,
-        final Expr[] parameterDefaultValues
+        final Node[] parameterDefaultValues,
+        final Node body
     ) {
         this.rootNode = rootNode;
         this.closure = closure;
+        this.name = name;
         this.documentation = documentation;
         this.parameterNames = parameterNames;
         this.parameterDefaultValues = parameterDefaultValues;
+        this.body = body;
     }
 
     // ----- Instance methods -----
@@ -78,22 +86,6 @@ public class LKQLFunction extends BasicLKQLValue {
     /** Shortcut function to get the function associated call target. */
     public CallTarget getCallTarget() {
         return this.rootNode.getCallTarget();
-    }
-
-    /** Shortcut function to get the LKQL node representing the body of the function. */
-    public Expr getBody() {
-        return this.rootNode.getBody();
-    }
-
-    /**
-     * Compute the final args to call this function, prepending the potential
-     * closure argument if necessary.
-     */
-    public Object[] computeArgs(Object[] args) {
-        if (closure != Closure.EMPTY) {
-            return ArrayUtils.concat(new Object[] { closure.getContent() }, args);
-        }
-        return args;
     }
 
     // ----- Value methods -----
@@ -179,7 +171,7 @@ public class LKQLFunction extends BasicLKQLValue {
         );
     }
 
-    public Expr[] getParameterDefaultValues() {
+    public Node[] getParameterDefaultValues() {
         return parameterDefaultValues;
     }
 

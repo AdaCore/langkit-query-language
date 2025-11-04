@@ -16,6 +16,7 @@ import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLObject;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
@@ -121,7 +122,7 @@ public final class UnitCheckerFunction {
                     paramName
                 );
                 arguments[i + 1] = userDefinedArg == null
-                    ? functionValue.getParameterDefaultValues()[i].executeGeneric(frame)
+                    ? ((Expr) functionValue.getParameterDefaultValues()[i]).executeGeneric(frame)
                     : userDefinedArg;
             }
 
@@ -138,7 +139,7 @@ public final class UnitCheckerFunction {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_LIST,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    functionValue.getBody()
+                    functionValue.body
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
@@ -158,7 +159,7 @@ public final class UnitCheckerFunction {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_STRING,
                         LKQLTypesHelper.fromJava(e.getResult()),
-                        functionValue.getBody()
+                        functionValue.body
                     );
                 }
 
@@ -187,7 +188,7 @@ public final class UnitCheckerFunction {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.NODE_INTERFACE,
                         LKQLTypesHelper.fromJava(loc),
-                        functionValue.getBody()
+                        functionValue.body
                     );
                 }
 
