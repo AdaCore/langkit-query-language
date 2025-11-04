@@ -5,10 +5,8 @@
 
 package com.adacore.lkql_jit.runtime.values.bases;
 
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.CachedLibrary;
@@ -80,18 +78,6 @@ public abstract class ObjectLKQLValue extends DynamicObject {
     }
 
     // ----- Value methods -----
-
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    public boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    public Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
 
     /**
      * Get the default displayable string, exporting because this message is abstract and all

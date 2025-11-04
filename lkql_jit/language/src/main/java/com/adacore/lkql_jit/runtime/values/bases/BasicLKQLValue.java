@@ -5,8 +5,6 @@
 
 package com.adacore.lkql_jit.runtime.values.bases;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -17,18 +15,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 public abstract class BasicLKQLValue implements TruffleObject {
 
     // ----- Value methods -----
-
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    public boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    public Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
 
     /**
      * Get the default displayable string, exporting because this message is abstract and all
