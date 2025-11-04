@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLSelectorList;
@@ -14,6 +13,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.RootNode;
 
 /** This class represents the selector values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -22,7 +22,7 @@ public class LKQLSelector extends BasicLKQLValue {
     // ----- Attributes -----
 
     /** The root node containing the selector semantics. */
-    private final SelectorRootNode rootNode;
+    private final RootNode rootNode;
 
     /** Closure for the selector execution. */
     private final Closure closure;
@@ -46,7 +46,7 @@ public class LKQLSelector extends BasicLKQLValue {
      * @param documentation The documentation of the selector.
      */
     public LKQLSelector(
-        SelectorRootNode rootNode,
+        RootNode rootNode,
         Closure closure,
         String name,
         String documentation,
