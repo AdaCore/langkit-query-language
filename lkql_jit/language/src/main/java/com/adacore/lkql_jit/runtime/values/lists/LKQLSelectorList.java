@@ -5,13 +5,12 @@
 
 package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcher;
-import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcherNodeGen;
-import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
 import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.RootNode;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 
@@ -20,14 +19,11 @@ public class LKQLSelectorList extends LKQLLazyList {
 
     // ----- Attributes -----
 
-    /** The root node of the selector. */
-    private final SelectorRootNode rootNode;
+    /** Direct call node used to execute the selector logic. */
+    private final DirectCallNode callNode;
 
-    /** The closure for the root node execution. */
-    private final Closure closure;
-
-    /** The dispatcher for the selector root node. */
-    private final SelectorDispatcher dispatcher;
+    /** Pre-allocated array for arguments used to call the selector body. */
+    private final Object[] arguments;
 
     /** The cache of already explored nodes. */
     private final HashSet<LKQLDepthValue> alreadyVisited;
@@ -54,7 +50,7 @@ public class LKQLSelectorList extends LKQLLazyList {
      */
     @CompilerDirectives.TruffleBoundary
     public LKQLSelectorList(
-        SelectorRootNode rootNode,
+        RootNode rootNode,
         Closure closure,
         Object value,
         int maxDepth,
@@ -62,9 +58,9 @@ public class LKQLSelectorList extends LKQLLazyList {
         int depth,
         boolean checkCycles
     ) {
-        this.rootNode = rootNode;
-        this.closure = closure;
-        this.dispatcher = SelectorDispatcherNodeGen.create();
+        this.arguments = new Object[3];
+        this.arguments[0] = closure.getContent();
+        this.callNode = DirectCallNode.create(rootNode.getCallTarget());
         this.toVisitList = new ArrayDeque<>();
         this.maxDepth = maxDepth;
         this.minDepth = minDepth;
@@ -85,14 +81,11 @@ public class LKQLSelectorList extends LKQLLazyList {
         while (!(this.toVisitList.size() == 0) && (this.cache.size() - 1 < n || n == -1)) {
             // Get the first recurse item and execute the selector on it
             LKQLDepthValue nextNode = this.toVisitList.poll();
-            LKQLRecValue result =
-                this.dispatcher.executeDispatch(
-                        this.rootNode,
-                        this.closure.getContent(),
-                        nextNode.value,
-                        nextNode.depth
-                    );
+            arguments[1] = nextNode.value;
+            arguments[2] = (long) nextNode.depth;
+            LKQLRecValue result = (LKQLRecValue) this.callNode.call(arguments);
 
+            // Add the call result to the result and recurse list
             addToRecurse(result.recurseVal, result.depth);
             addToResult(result.resultVal, result.depth);
         }
