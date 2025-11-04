@@ -96,7 +96,7 @@ public class LKQLSelectorList extends LKQLLazyList {
                         nextNode.depth
                     );
 
-            addToRecurs(result.recurseVal, result.depth);
+            addToRecurse(result.recurseVal, result.depth);
             addToResult(result.resultVal, result.depth);
         }
     }
@@ -111,7 +111,7 @@ public class LKQLSelectorList extends LKQLLazyList {
 
     /** Add the object to the recursing list of the selector list. */
     @CompilerDirectives.TruffleBoundary
-    private void addToRecurs(Object[] toAdd, int depth) {
+    private void addToRecurse(Object[] toAdd, int depth) {
         for (var val : toAdd) {
             var depthVal = new LKQLDepthValue(depth, val);
             if (!checkCycles) {
