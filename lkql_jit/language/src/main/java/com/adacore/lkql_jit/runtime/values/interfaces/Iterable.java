@@ -5,8 +5,6 @@
 
 package com.adacore.lkql_jit.runtime.values.interfaces;
 
-import com.adacore.lkql_jit.utils.Iterator;
-
 /**
  * This interface defines the iterable interface for all the iterable LKQL types.
  *

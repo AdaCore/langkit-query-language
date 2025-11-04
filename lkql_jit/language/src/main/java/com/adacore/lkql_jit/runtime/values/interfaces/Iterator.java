@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.utils;
+package com.adacore.lkql_jit.runtime.values.interfaces;
 
 /**
  * This interface defines custom and generic iterators because the native one is not suitable for

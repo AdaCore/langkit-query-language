@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.runtime.values.iterators;
 
-import com.adacore.lkql_jit.utils.Iterator;
+import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.StopIterationException;
 import com.oracle.truffle.api.interop.TruffleObject;
