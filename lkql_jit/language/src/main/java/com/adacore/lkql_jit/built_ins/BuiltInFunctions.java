@@ -29,6 +29,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -70,7 +71,16 @@ public class BuiltInFunctions {
 
         @Specialization
         protected LKQLPattern onValidArgs(String regex, @DefaultVal("true") boolean caseSensitive) {
-            return new LKQLPattern(this, regex, caseSensitive);
+            // Call the TRegex language to create the pattern value
+            try {
+                return LKQLPattern.create(
+                    regex,
+                    caseSensitive,
+                    LKQLLanguage.getContext(this).getEnv()
+                );
+            } catch (AbstractTruffleException e) {
+                throw LKQLRuntimeException.regexSyntaxError(regex, this);
+            }
         }
     }
 
