@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.utils;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLObject;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
@@ -224,7 +223,7 @@ public final class LKQLTypesHelper {
      * @return The LKQL value.
      */
     @CompilerDirectives.TruffleBoundary
-    public static Object toLKQLValue(Object javaValue) throws UnsupportedTypeException {
+    public static Object toLKQLValue(Object javaValue) {
         // If the source is a boolean
         if (javaValue instanceof Boolean bool) {
             return bool;
@@ -305,13 +304,9 @@ public final class LKQLTypesHelper {
             Object[] values = { paramActual.actual, paramActual.param };
             return LKQLObject.createUncached(keys, values);
         }
-        // Else, throw an exception for the unsupported type
+        // Else, return null as an invalid result
         else {
-            if (javaValue == null) {
-                throw new UnsupportedTypeException(Void.class);
-            } else {
-                throw new UnsupportedTypeException(javaValue.getClass());
-            }
+            return null;
         }
     }
 

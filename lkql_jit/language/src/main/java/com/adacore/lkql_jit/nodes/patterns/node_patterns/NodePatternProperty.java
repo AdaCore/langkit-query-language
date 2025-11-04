@@ -86,23 +86,17 @@ public abstract class NodePatternProperty extends NodePatternDetail {
             arguments[i] = args[i].executeGeneric(frame);
         }
 
-        // Get the property result
-        Object result;
-        try {
-            result = ReflectionUtils.callProperty(
-                property.node,
-                property.description,
-                this,
-                args,
-                arguments
-            );
-        } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(e.getType(), this);
-        }
-        Object value = result;
-
         // Verify the pattern
-        return this.expected.executeValue(frame, value);
+        return this.expected.executeValue(
+                frame,
+                ReflectionUtils.callProperty(
+                    property.node,
+                    property.description,
+                    this,
+                    args,
+                    arguments
+                )
+            );
     }
 
     /**

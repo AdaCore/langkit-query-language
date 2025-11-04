@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
@@ -60,11 +59,7 @@ public class LKQLProperty extends BasicLKQLValue {
      */
     @CompilerDirectives.TruffleBoundary
     public Object executeAsField(Node caller) {
-        try {
-            return ReflectionUtils.callProperty(this.node, this.description, caller, null);
-        } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(e.getType(), caller);
-        }
+        return ReflectionUtils.callProperty(this.node, this.description, caller, null);
     }
 
     // ----- Value methods -----

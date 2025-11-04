@@ -191,17 +191,13 @@ public abstract class FunCall extends Expr {
         }
 
         // Call the property and return its result
-        try {
-            return ReflectionUtils.callProperty(
-                property.node,
-                property.description,
-                this,
-                args,
-                arguments
-            );
-        } catch (com.adacore.lkql_jit.exception.utils.UnsupportedTypeException e) {
-            throw LKQLRuntimeException.unsupportedType(e.getType(), this);
-        }
+        return ReflectionUtils.callProperty(
+            property.node,
+            property.description,
+            this,
+            args,
+            arguments
+        );
     }
 
     /**
