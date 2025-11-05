@@ -381,7 +381,7 @@ public class BuiltInFunctions {
 
             private long times;
 
-            private int done = 0;
+            private long done;
 
             InternalRepeatingNode(
                 LKQLFunction function,
@@ -391,6 +391,7 @@ public class BuiltInFunctions {
                 this.function = function;
                 this.functionLibrary = functionLibrary;
                 this.times = times;
+                this.done = 0;
             }
 
             public boolean executeRepeating(VirtualFrame frame) {
