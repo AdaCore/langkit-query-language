@@ -1,0 +1,8 @@
+test.ads:11:18: rule violation: possible occurrence of KP 20112
+11 |       Callback : access procedure (Val : S) with Convention => C;  --  FLAG
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test.ads:22:24: rule violation: possible occurrence of KP 20112
+22 |    function Baz return access procedure (Val : T; Vbl : S; Vcl : R) with Convention => C;  --  FLAG
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,26 @@
+import stdlib
+
+fun has_convention(node, convention) =
+    |" Return whether ``node`` has the Convention aspect sets to ``convention``.
+    {
+        val aspect = node.p_get_aspect("Convention");
+
+        aspect.exists
+        and aspect.value.text.to_lower_case == convention.to_lower_case
+    }
+
+@check(help="possible occurrence of KP 20112",
+       message="possible occurrence of KP 20112")
+fun kp_20112(node) =
+    |" Flag a convention-C anonymous access-to-subprogram types with a profile
+    |" that includes a parameter of a type for which a convention of
+    |" C_Pass_By_Copy is specified.
+    node is AnonymousTypeDecl
+    when node.f_type_def is as@AccessToSubpDef
+        when stdlib.any([
+            p is BasicDecl and has_convention(p, "C") for p in node.parents()
+        ]) and stdlib.any([
+            p.f_type_expr.p_designated_type_decl() is td@BaseTypeDecl
+                when has_convention(td, "C_Pass_By_Copy")
+            for p in as.f_subp_spec.f_subp_params.f_params.children
+        ])
