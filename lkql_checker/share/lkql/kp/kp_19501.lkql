@@ -1,42 +1,66 @@
 import stdlib
 
-fun is_static_int_attr(expr) =
+fun is_int_attr(expr) =
     |" Returns whether the given expression is a universal-integer valued
-    |" attribute reference known at compile time.
+    |" attribute reference.
     expr is AttributeRef
-    when expr.p_expression_type() == expr.p_universal_int_type() and
-         expr.p_is_static_expr()
+    when expr.p_expression_type() == expr.p_universal_int_type()
 
-fun is_dynamic_subtyped_entity(name) =
-    |" Returns whether the given name is a DefiningName and has a dynamic
-    |" subtype.
+
+fun is_subtype_indication_constrained(subtype_indication) =
+    |" Return whether the provided SubtypeIndication is constrained.
     {
-        val decl = match name
-                   | DefiningName => name.p_basic_decl()
-                   | Name => name.p_referenced_decl();
-        decl is (ComponentDef | DiscriminantSpec | ObjectDecl | ParamSpec)
-        when decl.f_type_expr is (SubtypeIndication)(
-            p_is_statically_constrained(): false
+
+        fun is_constrained_subtype(type_decl) =
+        |" Returns whether the provided BaseTypeDecl declares a constrained
+        |" subtype.
+        {
+            (type_decl.p_has_aspect("Predicate")
+                and not type_decl.p_is_statically_predicated())
+            or type_decl.p_has_aspect("Dynamic_Predicate")
+            or type_decl.p_full_view() is BaseTypeDecl when
+                match type_decl
+                | TypeDecl => (
+                    match type_decl.f_type_def
+                    | ArrayTypeDef(f_indices: ConstrainedArrayIndices) => true
+                    | d@DerivedTypeDef =>
+                        is_subtype_indication_constrained(
+                            d.f_subtype_indication
+                        )
+                    | * => false
+                )
+                | sd@SubtypeDecl =>
+                    is_subtype_indication_constrained(sd.f_subtype)
+        };
+
+        subtype_indication.f_constraint is not null
+        or is_constrained_subtype(
+            subtype_indication.f_name.p_referenced_decl()
         )
     }
 
-fun array_index_has_kp(expr, array_decl, child_n) =
-    |" Returns whether the given array indexing expression contains an index
-    |" being a reference to the ``Length`` attribute, while dimension bounds
-    |" aren't static. Recurse on all indexing expr params starting from
-    |" ``child_n``.
-    match expr.f_suffix[child_n]?.f_r_expr
-    | e when is_static_int_attr(e) =>
-        if array_decl.f_type_expr.p_is_statically_constrained()
-        then array_index_has_kp(expr, array_decl, child_n + 1)
-    | null => false
-    | *    => array_index_has_kp(expr, array_decl, child_n + 1)
+
+fun is_subject_to_constraint(name) =
+    |" Returns whether the given name refers to a subtype subject to a
+    |" constraint.
+    {
+        val decl = match name
+           | DefiningName => name.p_basic_decl()
+           | Name => name.p_referenced_decl();
+
+        match decl
+        | (ComponentDef | DiscriminantSpec | ObjectDecl | ParamSpec) =>
+            decl.f_type_expr is SubtypeIndication
+            and is_subtype_indication_constrained(decl.f_type_expr)
+        | SubtypeDecl => is_subtype_indication_constrained(decl.f_subtype)
+    }
+
 
 @check(help="possible occurrence of KP 19501",
        message="possible occurrence of KP 19501")
 fun kp_19501(node) =
-    |" Flag constructions involving an integer valued attribute reference known
-    |" at compile time, when the attribute reference is:
+    |" Flag constructions involving an integer valued attribute reference when
+    |" the attribute reference is:
     |" * an actual parameter in a call where the subtype of the corresponding
     |"   formal parameter is subject to a constraint
     |" * the expression of an assignment where the subtype of the target object
@@ -44,23 +68,20 @@ fun kp_19501(node) =
     |" * the operand of a qualified expression where the subtype mark
     |"   denotes a subtype that is subject to a constraint
     |" * an array index value in an indexed component name
-    |"
-    |" Additionally, at least one of the bounds of the applicable constraint
-    |" must be unknown at compile time.
     match node
     | CallExpr(p_is_call(): true) =>
         stdlib.any([
-            is_static_int_attr(p.actual) and
-            is_dynamic_subtyped_entity(p.param)
+            is_int_attr(p.actual) and is_subject_to_constraint(p.param)
             for p in node.p_call_params()
         ])
-    | CallExpr(p_kind(): "array_index") =>
-        array_index_has_kp(node, node.f_name.p_referenced_decl(), 1)
     | AssignStmt =>
-        is_static_int_attr(node.f_expr) and
-        is_dynamic_subtyped_entity(node.f_dest)
+        is_int_attr(node.f_expr) and is_subject_to_constraint(node.f_dest)
     | QualExpr(f_suffix: ParenExpr(f_expr: operand)) =>
-        is_static_int_attr(operand) and
-        node.f_prefix is (Name)(
-            p_name_designated_type(): BaseTypeDecl(p_is_statically_constrained(): false)
-        )
+        is_int_attr(operand)
+        and node.f_prefix is Name
+        and is_subject_to_constraint(node.f_prefix)
+    | CallExpr(p_kind(): "array_index") =>
+        stdlib.any([
+            is_int_attr(p.f_r_expr)
+            for p in node.f_suffix.children
+        ])
