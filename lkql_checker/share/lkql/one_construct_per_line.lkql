@@ -39,10 +39,7 @@ fun one_construct_per_line(node) =
         node is (
             Stmt
             | BasicDecl
-            | AttributeDefClause
-            | EnumRepClause
-            | RecordRepClause
-            | AtClause
+            | AspectClause
             | PragmaNode
             | WithClause
             | UseClause(p_matching_with_use_clause(): false)
