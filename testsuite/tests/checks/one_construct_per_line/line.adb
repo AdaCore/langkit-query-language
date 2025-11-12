@@ -1,4 +1,13 @@
+with Ada.Text_IO; with Ada.Strings.Unbounded; with Ada.Strings.Fixed; --  FLAG (3)
+with Ada.Strings.Wide_Wide_Fixed; use Ada.Strings.Wide_Wide_Fixed;    --  NOFLAG
+
+with Ada.Strings.Wide_Fixed; use Ada.Strings.Wide_Fixed; with Ada.Strings.Wide_Unbounded; use Ada.Strings.Wide_Unbounded; --  FLAG (2)
+
 package body Line is
+
+   use Ada.Text_IO; use Ada.Strings.Unbounded; --  FLAG (2)
+
+   pragma Annotate (gnatcheck, Exempt_On, "Goto_Statements", "because"); pragma Annotate (gnatcheck, Exempt_Off, "Goto_Statements"); --  FLAG (2)
 
    task type Tsk is
       entry Start (I : Integer; B : Boolean);               --  NOFLAG
