@@ -54,46 +54,54 @@ line.adb:29:50: rule violation: more than one construct on the same line
 29 |       accept Start (I : Integer; B : Boolean) do null;      --  FLAG
    |                                                  ^^^^^
 
-line.adb:38:7: rule violation: more than one construct on the same line
-38 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
+line.adb:40:7: rule violation: more than one construct on the same line
+40 |       A at 1 range 1 .. 2; B at 2 range 2 .. 3;             --  FLAG (2);
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+line.adb:40:28: rule violation: more than one construct on the same line
+40 |       A at 1 range 1 .. 2; B at 2 range 2 .. 3;             --  FLAG (2);
+   |                            ^^^^^^^^^^^^^^^^^^^^
+
+line.adb:49:7: rule violation: more than one construct on the same line
+49 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
    |       ^^
 
-line.adb:38:21: rule violation: more than one construct on the same line
-38 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
+line.adb:49:21: rule violation: more than one construct on the same line
+49 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
    |                     ^^
 
-line.adb:42:10: rule violation: more than one construct on the same line
-42 |          I := J; if I > 0 then                             --  FLAG (2)
+line.adb:53:10: rule violation: more than one construct on the same line
+53 |          I := J; if I > 0 then                             --  FLAG (2)
    |          ^^^^^^^
 
-line.adb:42:18: rule violation: more than one construct on the same line
-42 |           I := J; if I > 0 then                             --  FLAG (2)
+line.adb:53:18: rule violation: more than one construct on the same line
+53 |           I := J; if I > 0 then                             --  FLAG (2)
    | __________________^
-43 ||            I := 0; end if;                                 --  FLAG
+54 ||            I := 0; end if;                                 --  FLAG
    ||__________________________^
 
-line.adb:43:12: rule violation: more than one construct on the same line
-43 |            I := 0; end if;                                 --  FLAG
+line.adb:54:12: rule violation: more than one construct on the same line
+54 |            I := 0; end if;                                 --  FLAG
    |            ^^^^^^^
 
-line.adb:56:18: rule violation: more than one construct on the same line
-56 |        My_Loop_2: for I in 1 .. 2 loop                      --  FLAG
+line.adb:67:18: rule violation: more than one construct on the same line
+67 |        My_Loop_2: for I in 1 .. 2 loop                      --  FLAG
    | __________________^
    ||
    || ~~~ 1 other lines ~~~
    ||
-58 ||       end loop My_Loop_2;
+69 ||       end loop My_Loop_2;
    ||_________________________^
 
-line.adb:60:7: rule violation: more than one construct on the same line
-60 |       Tmp := I; I := I + 1;                                --  FLAG (2)
+line.adb:71:7: rule violation: more than one construct on the same line
+71 |       Tmp := I; I := I + 1;                                --  FLAG (2)
    |       ^^^^^^^^^
 
-line.adb:60:17: rule violation: more than one construct on the same line
-60 |       Tmp := I; I := I + 1;                                --  FLAG (2)
+line.adb:71:17: rule violation: more than one construct on the same line
+71 |       Tmp := I; I := I + 1;                                --  FLAG (2)
    |                 ^^^^^^^^^^^
 
-line.adb:62:7: rule violation: more than one construct on the same line
-62 |       I := I + 1; end Proc;                                --  FLAG
+line.adb:73:7: rule violation: more than one construct on the same line
+73 |       I := I + 1; end Proc;                                --  FLAG
    |       ^^^^^^^^^^^
 

@@ -30,6 +30,17 @@ package body Line is
       end Start;
    end Other_Tsk;
 
+   type R is record
+      A : Boolean;
+      B : Boolean;
+      C : Boolean;
+   end record;
+
+   for R use record
+      A at 1 range 1 .. 2; B at 2 range 2 .. 3;             --  FLAG (2);
+      C at 3 range 3 .. 4;                                  --  NOFLAG
+   end record;
+
    procedure Proc (I : in out Integer) is
       Tmp : Integer;
 

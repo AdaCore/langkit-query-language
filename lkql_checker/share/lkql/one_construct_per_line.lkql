@@ -40,6 +40,7 @@ fun one_construct_per_line(node) =
             Stmt
             | BasicDecl
             | AspectClause
+            | ComponentClause
             | PragmaNode
             | WithClause
             | UseClause(p_matching_with_use_clause(): false)
