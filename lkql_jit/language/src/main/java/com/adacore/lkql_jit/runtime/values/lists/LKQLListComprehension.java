@@ -11,7 +11,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
 
 /** This class represents a list comprehension value in the LKQL language. */
-public final class LKQLListComprehension extends LKQLLazyList {
+public final class LKQLListComprehension extends BaseLKQLLazyList {
 
     // ----- Attributes -----
 

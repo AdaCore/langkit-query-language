@@ -15,7 +15,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents the base of all LKQL lazy lists. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class LKQLLazyList extends BaseLKQLList {
+public abstract class BaseLKQLLazyList extends BaseLKQLList {
 
     // ----- Attributes -----
 
@@ -24,7 +24,7 @@ public abstract class LKQLLazyList extends BaseLKQLList {
 
     // ----- Constructors -----
 
-    protected LKQLLazyList() {
+    protected BaseLKQLLazyList() {
         this.cache = new ListStorage<>(16);
     }
 

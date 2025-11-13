@@ -15,7 +15,7 @@ import java.util.ArrayDeque;
 import java.util.HashSet;
 
 /** This class represents the list returned by a selector call in the LKQL language. */
-public class LKQLSelectorList extends LKQLLazyList {
+public class LKQLSelectorList extends BaseLKQLLazyList {
 
     // ----- Attributes -----
 
