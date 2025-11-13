@@ -1,0 +1,30 @@
+[a * 2 for a in int_list if is_prime(a)]
+
+print(
+    [
+        o.image & " " & st.image
+        for o in objects, st in subtypes
+        if (o.image & " " & st.image).length != 64
+    ].to_list
+)
+
+# Will select all non null nodes
+select AdaNode
+
+# Select all non null nodes starting from node a
+from a select AdaNode
+
+# Select all non null nodes starting from all nodes in list
+from [a, b, c] select AdaNode
+
+# Select first basic declaration
+select # useless comment 1
+first # useless comment 2
+BasicDecl # useless comment 3
+
+# Selects the parents of the first basic declaration
+from (select first BasicDecl) through parent select *
+
+# Selects all nodes following generic instantiations
+through follow_generics select *
+

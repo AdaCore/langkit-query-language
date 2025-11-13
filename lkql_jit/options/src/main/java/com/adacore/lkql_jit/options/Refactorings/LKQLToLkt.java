@@ -8,6 +8,8 @@ package com.adacore.lkql_jit.options.Refactorings;
 import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class LKQLToLkt implements TreeBasedRefactoring {
 
@@ -42,11 +44,13 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.SelectorArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
             case Liblkqllang.SelectorDecl selectorDecl -> refactorSelectorDecl(selectorDecl);
             case Liblkqllang.RecExpr recExpr -> refactorRecExpr(recExpr);
+            case Liblkqllang.Query query -> refactorQuery(query);
+            case Liblkqllang.ListComprehension comprehension -> refactorListComprehension(
+                comprehension
+            );
             case Liblkqllang.BlockBodyExpr bbe -> "val _ = " + refactorGeneric(bbe);
             case Liblkqllang.UnitLiteral _ -> "Unit()";
-            case Liblkqllang.Expr expr when (
-                expr.parent() instanceof Liblkqllang.TopLevelList
-            ) -> "val _ = " + refactorGeneric(expr);
+            case Liblkqllang.TopLevelList topLevel -> refactorTopLevelList(topLevel);
             case Liblkqllang.UniversalPattern _ -> "_";
             default -> refactorGeneric(node);
         };
@@ -55,6 +59,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     /**
      * Copy all the text belonging to a node in the input source,
      * but recursively refactor the code of its children.
+     * Ex:
+     * - node = SomeNode(... # comment 1\n ... # comment 2\n ...)
+     * - returns = "# comment 1\n#comment 2\n"
+     *
      */
     private String refactorGeneric(Liblkqllang.LkqlNode node) {
         if (node.isTokenNode()) return node.getText();
@@ -74,6 +82,43 @@ public class LKQLToLkt implements TreeBasedRefactoring {
 
         // copy until end
         s.append(textRange(cursor, node.tokenEnd()));
+
+        return s.toString();
+    }
+
+    /**
+     * Takes a node and returns the concatenation of all its comments
+     * as a block of text.
+     */
+    private String getAllComments(Liblkqllang.LkqlNode node) {
+        return Refactoring.streamFrom(node.tokenStart())
+            .takeWhile(tok -> tok.tokenIndex < node.tokenEnd().tokenIndex)
+            .filter(tok -> tok.isTrivia() && !tok.getText().isBlank())
+            .map(tok -> tok.getText() + "\n")
+            .collect(Collectors.joining());
+    }
+
+    private String refactorTopLevelList(Liblkqllang.TopLevelList topLevel) {
+        var s = new StringBuilder();
+        var cursor = topLevel.tokenStart();
+
+        for (int i = 0; i < topLevel.getChildrenCount(); i++) {
+            final var child = topLevel.getChild(i);
+            if (child.isNone() || child.isGhost()) continue;
+            // copy until child
+            s.append(textRange(cursor, child.tokenStart().previous()));
+            // copy child
+
+            if (child instanceof Liblkqllang.Expr) {
+                s.append("val _ = ");
+            }
+            s.append(refactorNode(child));
+            // fast forward token cursor after child
+            cursor = child.tokenEnd().next();
+        }
+
+        // copy until end
+        s.append(textRange(cursor, topLevel.tokenEnd()));
 
         return s.toString();
     }
@@ -249,10 +294,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      * 2) Case disjonction
      *
-     * rec( <left>,  <right>) --> <right>          ::  <selector>(<left>)
-     * rec(*<left>,  <right>) --> <right>          ::  <left>.iterator.flatMap(<selector>)
-     * rec( <left>, *<right>) --> <right>.iterator ::: <selector>(<left>)
-     * rec(*<left>, *<right>) --> <right>.iterator ::: <left>.iterator.flatMap(<selector>)
+     * rec( <left>,  <right>) --> <right> ::  <selector>(<left>)
+     * rec(*<left>,  <right>) --> <right> ::  <left>.flat_map(<selector>)
+     * rec( <left>, *<right>) --> <right> ::: <selector>(<left>)
+     * rec(*<left>, *<right>) --> <right> ::: <left>.flat_map(<selector>)
      *
      */
     private String refactorRecExpr(Liblkqllang.RecExpr recExpr) {
@@ -264,7 +309,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         final var left = recExpr.fRecurseExpr();
         final var right = hasRight ? recExpr.fResultExpr() : left;
 
-        var s = unpackRight ? refactorNode(right) + ".iterator :::" : refactorNode(right) + " ::";
+        var s = unpackRight ? refactorNode(right) + " :::" : refactorNode(right) + " ::";
 
         // try to preserve spacing after "," (any newline for example)
         if (hasRight && left.tokenEnd().next().getText().equals(",")) {
@@ -275,9 +320,133 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         }
 
         s += unpackLeft
-            ? refactorNode(left) + ".iterator.flatMap(" + currentSelector.fName().getText() + ")"
+            ? refactorNode(left) + ".flat_map(" + currentSelector.fName().getText() + ")"
             : currentSelector.fName().getText() + "(" + refactorNode(left) + ")";
 
         return s;
+    }
+
+    /*
+     * select <pattern>
+     * from all_nodes match <pattern>
+     *
+     * from <expr> through <selector> select <pattern>
+     * from <selector(expr)> match <pattern>
+     *
+     * Heuristics:
+     * from <expr> through <selector> select <pattern>  (where <expr> is plural)
+     * from <expr>.flat_map(<selector>) match <pattern>
+     *
+     * If first keyword:
+     * from <expr> select first <pattern>
+     * (from <expr> match <pattern>).head
+     *
+     */
+    private String refactorQuery(Liblkqllang.Query query) {
+        final var fromNode = query.fFromExpr();
+        final var throughNode = query.fThroughExpr();
+
+        final String source;
+
+        if (fromNode.isNone()) {
+            source = throughNode.isNone()
+                ? "all_nodes"
+                : "units().flat_map((unit) => " + refactorNode(throughNode) + "(unit.root))";
+        } else {
+            final var from = refactorNode(fromNode);
+            final var through = throughNode.isNone() ? "children" : refactorNode(throughNode);
+
+            // best effort heuristic to cover common cases
+            final var isPlural =
+                switch (fromNode) {
+                    case Liblkqllang.ListLiteral _ -> true;
+                    case Liblkqllang.ListComprehension _ -> true;
+                    case Liblkqllang.DotAccess dot -> dot.fMember().getText().equals("children");
+                    default -> false;
+                };
+
+            source = isPlural
+                ? "(" + from + ").flat_map(" + through + ")"
+                : through + "(" + from + ")";
+        }
+
+        var s = "from " + source + " match " + refactorNode(query.fPattern());
+
+        if (query.fQueryKind() instanceof Liblkqllang.QueryKindFirst) {
+            s = "(" + s + ").head";
+        }
+
+        return getAllComments(query) + s;
+    }
+
+    /*
+     *
+     * [ <expr> for <binding> in <source> if <guard> ]
+     * from <source> match <binding> select <expr> if <guard>
+     *
+     * Multiple generators is handled as follow:
+     * [ <expr> for <x_1> in <src_1>, ..., <x_n> in <src_n> if <guard> ]
+     * <src_1>.flat_map(<x_1> => ... <src_n>.flat_map(<x_n> => if <guard> then [<expr>] else []))
+     *
+     */
+    private String refactorListComprehension(Liblkqllang.ListComprehension comprehension) {
+        final var hasGuard = !comprehension.fGuard().isNone();
+        final var sb = new StringBuilder();
+
+        final int nbSources = comprehension.fGenerators().getChildrenCount();
+
+        final var generators = new ArrayList<Liblkqllang.ListCompAssoc>();
+        comprehension.fGenerators().iterator().forEachRemaining(generators::add);
+
+        sb.append(getAllComments(comprehension));
+
+        // default case
+        if (nbSources == 1) {
+            sb.append("from ");
+            sb.append(refactorNode(generators.get(0).fCollExpr()));
+            sb.append(" match ");
+            sb.append(refactorNode(generators.get(0).fBindingName()));
+            sb.append(" select ");
+            sb.append(refactorNode(comprehension.fExpr()));
+
+            if (hasGuard) {
+                sb.append(" if ");
+                sb.append(refactorNode(comprehension.fGuard()));
+            }
+        }
+        // special handling for multiple sources
+        else {
+            // open lambda for each source
+            for (final var generator : comprehension.fGenerators()) {
+                // simple heuristic to reduce parenthesis bloat
+                if (generator.fCollExpr().isTokenNode()) {
+                    sb.append(generator.fCollExpr().getText());
+                } else {
+                    sb.append("(");
+                    sb.append(refactorNode(generator.fCollExpr()));
+                    sb.append(")");
+                }
+                sb.append(".flat_map((");
+                sb.append(refactorNode(generator.fBindingName()));
+                sb.append(") => ");
+            }
+
+            if (hasGuard) {
+                sb.append("if ");
+                sb.append(refactorNode(comprehension.fGuard()));
+                sb.append(" then ");
+            }
+            sb.append("[");
+            sb.append(refactorNode(comprehension.fExpr()));
+            sb.append("]");
+            if (hasGuard) {
+                sb.append(" else []");
+            }
+
+            // balance parenthesis, closing lambdas
+            sb.repeat(')', nbSources);
+        }
+
+        return "(" + sb.toString() + ")";
     }
 }
