@@ -19,35 +19,35 @@ public abstract class BaseLKQLLazyList extends BaseLKQLList {
 
     // ----- Attributes -----
 
-    /** The cache of the lazy list. */
-    protected final ListStorage<Object> cache;
+    /** Cache to store elements of the lazy list */
+    protected ListStorage<Object> cache;
 
     // ----- Constructors -----
 
-    protected BaseLKQLLazyList() {
-        this.cache = new ListStorage<>(16);
+    protected BaseLKQLLazyList(ListStorage<Object> cache) {
+        this.cache = cache;
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     /**
-     * Initialize the lazy list cache to the given index. If n < 0 then initialize all the lazy list
-     * values.
+     * This method should initialize the element cache from the next lazy element to the provided
+     * index.
      */
-    public abstract void computeItemAt(long n);
+    protected abstract void initCacheTo(long n);
 
     // ----- List required methods -----
 
     @Override
-    public long size() {
-        this.computeItemAt(-1);
-        return this.cache.size();
+    public Object get(long n) {
+        this.initCacheTo(n);
+        return this.cache.get((int) n);
     }
 
     @Override
-    public Object get(long i) throws IndexOutOfBoundsException {
-        this.computeItemAt(i);
-        return this.cache.get((int) i);
+    public long size() {
+        this.initCacheTo(-1);
+        return this.cache.size();
     }
 
     @Override

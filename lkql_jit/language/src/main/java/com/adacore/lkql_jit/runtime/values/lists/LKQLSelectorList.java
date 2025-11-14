@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.runtime.values.lists;
 
 import com.adacore.lkql_jit.runtime.Closure;
+import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
 import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -58,6 +59,7 @@ public class LKQLSelectorList extends BaseLKQLLazyList {
         int depth,
         boolean checkCycles
     ) {
+        super(new ListStorage<>(16));
         this.arguments = new Object[3];
         this.arguments[0] = closure.getContent();
         this.callNode = DirectCallNode.create(rootNode.getCallTarget());
@@ -77,8 +79,8 @@ public class LKQLSelectorList extends BaseLKQLLazyList {
     // ----- Lazy list required methods -----
 
     @Override
-    public void computeItemAt(long n) {
-        while (!(this.toVisitList.size() == 0) && (this.cache.size() - 1 < n || n == -1)) {
+    protected void initCacheTo(long n) {
+        while (!(this.toVisitList.size() == 0) && (this.cache.size() - 1 < n || n < 0)) {
             // Get the first recurse item and execute the selector on it
             LKQLDepthValue nextNode = this.toVisitList.poll();
             arguments[1] = nextNode.value;
@@ -90,6 +92,8 @@ public class LKQLSelectorList extends BaseLKQLLazyList {
             addToResult(result.resultVal, result.depth);
         }
     }
+
+    // ----- Instance methods -----
 
     /** Add the object to the result cache of the selector list. */
     @CompilerDirectives.TruffleBoundary
@@ -130,11 +134,5 @@ public class LKQLSelectorList extends BaseLKQLLazyList {
                 this.cache.append(value);
             }
         }
-    }
-
-    @Override
-    public Object get(long i) throws IndexOutOfBoundsException {
-        this.computeItemAt(i);
-        return this.cache.get((int) i);
     }
 }

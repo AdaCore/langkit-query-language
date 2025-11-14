@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.runtime.values.lists;
 
 import com.adacore.lkql_jit.runtime.Closure;
+import com.adacore.lkql_jit.runtime.ListStorage;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
@@ -42,6 +43,7 @@ public final class LKQLListComprehension extends BaseLKQLLazyList {
         final Closure closure,
         final Object[][] argumentsList
     ) {
+        super(new ListStorage<>(argumentsList.length > 0 ? 16 : 0));
         this.callNode = DirectCallNode.create(rootNode.getCallTarget());
         this.argumentsList = argumentsList;
         this.arguments = this.argumentsList.length > 0
@@ -54,8 +56,9 @@ public final class LKQLListComprehension extends BaseLKQLLazyList {
     // ----- Lazy list required methods -----
 
     @Override
-    public void computeItemAt(long n) {
-        while (this.pointer < this.argumentsList.length && (this.cache.size() - 1 < n || n < 0)) {
+    protected void initCacheTo(long n) {
+        // If the item hasn't been found in the cache, we look for it
+        while (this.pointer < this.argumentsList.length && (n >= this.cache.size() || n < 0)) {
             final Object[] currentArguments = this.argumentsList[this.pointer++];
             System.arraycopy(currentArguments, 0, this.arguments, 1, currentArguments.length);
             Object value = this.callNode.call(this.arguments);
