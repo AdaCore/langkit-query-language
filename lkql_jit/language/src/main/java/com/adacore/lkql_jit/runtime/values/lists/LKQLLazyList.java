@@ -5,13 +5,11 @@
 
 package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.runtime.values.iterators.BaseLKQLListIterator;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -49,13 +47,9 @@ public abstract class LKQLLazyList extends BaseLKQLList {
     }
 
     @Override
-    public Object get(long i) throws InvalidIndexException {
+    public Object get(long i) throws IndexOutOfBoundsException {
         this.computeItemAt(i);
-        try {
-            return this.cache.get((int) i);
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidIndexException();
-        }
+        return this.cache.get((int) i);
     }
 
     @Override
@@ -64,13 +58,6 @@ public abstract class LKQLLazyList extends BaseLKQLList {
     }
 
     // ----- Value methods -----
-
-    /** Return the identity hash code for the given LKQL lazy list. */
-    @CompilerDirectives.TruffleBoundary
-    @ExportMessage
-    public static int identityHashCode(LKQLLazyList receiver) {
-        return System.identityHashCode(receiver);
-    }
 
     @Override
     @ExportMessage

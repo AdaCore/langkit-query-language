@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
+import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.utils.Constants;
@@ -74,7 +75,7 @@ public final class FunctionDeclaration extends Declaration {
         // Execute the function expression to get the functional value
         final LKQLFunction functionValue = this.functionExpression.executeFunction(frame);
 
-        functionValue.rootNode.setMemoized(this.isMemoized);
+        ((FunctionRootNode) functionValue.rootNode).setMemoized(this.isMemoized);
 
         // Write the slot in the frame
         FrameUtils.writeLocal(frame, this.slot, functionValue);

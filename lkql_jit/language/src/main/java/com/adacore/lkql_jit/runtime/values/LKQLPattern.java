@@ -5,23 +5,17 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.exception.AbstractTruffleException;
+import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.api.utilities.TriState;
+import java.util.Objects;
 
 /**
  * This class represents the pattern values in the LKQL language. Pattern values are compiled
@@ -33,7 +27,7 @@ public final class LKQLPattern extends BasicLKQLValue {
     // ----- Attributes -----
 
     /** Members of the pattern LKQL value. */
-    private final LKQLList MEMBERS = new LKQLList(new String[] { "contains", "find" });
+    private static final LKQLList MEMBERS = new LKQLList(new String[] { "contains", "find" });
 
     /** The interop regex object from the TRegex language. */
     private final Object regexObject;
@@ -46,36 +40,35 @@ public final class LKQLPattern extends BasicLKQLValue {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new pattern value with the regex string.
-     *
-     * @param creator The creator of the pattern.
-     * @param regexString The regex string.
-     * @param caseSensitive Whether the regex is case-sensitive.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public LKQLPattern(
-        final LKQLNode creator,
+    /** Create a new pattern value with the regex string. */
+    private LKQLPattern(
+        final Object regexObject,
         final String regexString,
         final boolean caseSensitive
     ) {
+        this.regexObject = regexObject;
         this.regexString = regexString;
         this.caseSensitive = caseSensitive;
+    }
 
-        // Prepare the regex string
-        String regexSource = "Flavor=Python/" + regexString + (caseSensitive ? "/" : "/i");
-
-        // Call the TRegex language
-        try {
-            this.regexObject = LKQLLanguage.getContext(creator)
-                .getEnv()
+    /**
+     * Create a new LKQL pattern.
+     *
+     * @param regex Python flavored regular expression.
+     * @param env Truffle environment to use to call the TRegex language.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLPattern create(String regex, boolean caseSensitive, TruffleLanguage.Env env) {
+        var regexString = "Flavor=Python/" + regex + (caseSensitive ? "/" : "/i");
+        return new LKQLPattern(
+            env
                 .parseInternal(
-                    Source.newBuilder("regex", regexSource, "lkql_jit").internal(true).build()
+                    Source.newBuilder("regex", regexString, "lkql_jit").internal(true).build()
                 )
-                .call();
-        } catch (AbstractTruffleException e) {
-            throw LKQLRuntimeException.regexSyntaxError(regexString, creator);
-        }
+                .call(),
+            regex,
+            caseSensitive
+        );
     }
 
     // ----- Instance methods -----
@@ -87,8 +80,9 @@ public final class LKQLPattern extends BasicLKQLValue {
                 .invokeMember(this.regexObject, "exec", string, 0);
             return (boolean) InteropLibrary.getUncached().readMember(resultObject, "isMatch");
         } catch (Exception e) {
-            throw LKQLRuntimeException.fromMessage(
-                StringUtils.concat("Pattern execution failed: ", this.regexString)
+            throw new RuntimeException(
+                StringUtils.concat("Pattern execution failed: ", this.regexString),
+                e
             );
         }
     }
@@ -100,43 +94,14 @@ public final class LKQLPattern extends BasicLKQLValue {
                 .invokeMember(this.regexObject, "exec", string, 0);
             return (int) InteropLibrary.getUncached().invokeMember(resultObject, "getStart", 0);
         } catch (Exception e) {
-            throw LKQLRuntimeException.fromMessage(
-                StringUtils.concat("Pattern execution failed: ", this.regexString)
+            throw new RuntimeException(
+                StringUtils.concat("Pattern execution failed: ", this.regexString),
+                e
             );
         }
     }
 
     // ----- Value methods -----
-
-    /** Exported message to compare two LKQL patterns. */
-    @ExportMessage
-    public static class IsIdenticalOrUndefined {
-
-        /** Compare two LKQL patterns. */
-        @Specialization
-        protected static TriState onPattern(final LKQLPattern left, final LKQLPattern right) {
-            return TriState.valueOf(
-                left.regexString.equals(right.regexString) &&
-                left.caseSensitive == right.caseSensitive
-            );
-        }
-
-        /** Do the comparison with another element. */
-        @Fallback
-        protected static TriState onOther(
-            @SuppressWarnings("unused") final LKQLPattern receiver,
-            @SuppressWarnings("unused") final Object other
-        ) {
-            return TriState.UNDEFINED;
-        }
-    }
-
-    /** Return the identity hash code for the given LKQL pattern. */
-    @ExportMessage
-    @CompilerDirectives.TruffleBoundary
-    public static int identityHashCode(final LKQLPattern receiver) {
-        return System.identityHashCode(receiver);
-    }
 
     /** Get the displayable string for the interop library. */
     @Override
@@ -180,10 +145,9 @@ public final class LKQLPattern extends BasicLKQLValue {
         }
 
         // Get the first arguments as a string
-        if (!LKQLTypeSystemGen.isString(args[0])) {
+        if (!(args[0] instanceof String arg)) {
             throw UnsupportedTypeException.create(args, "String is required as first argument");
         }
-        final String arg = LKQLTypeSystemGen.asString(args[0]);
 
         // Call the valid method
         return switch (member) {
@@ -191,5 +155,21 @@ public final class LKQLPattern extends BasicLKQLValue {
             case "find" -> this.find(arg);
             default -> throw UnknownIdentifierException.create(member);
         };
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LKQLPattern other)) return false;
+        return (
+            this.regexString.equals(other.regexString) && this.caseSensitive == other.caseSensitive
+        );
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.regexString, this.caseSensitive);
     }
 }

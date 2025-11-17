@@ -6,10 +6,13 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLPattern;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -36,7 +39,12 @@ public abstract class RegexPattern extends Pattern {
     @SuppressWarnings("this-escape")
     public RegexPattern(SourceSection location, String regex) {
         super(location);
-        this.pattern = new LKQLPattern(this, regex, true);
+        // Call the TRegex language to create the pattern value
+        try {
+            this.pattern = LKQLPattern.create(regex, true, LKQLLanguage.getContext(this).getEnv());
+        } catch (AbstractTruffleException e) {
+            throw LKQLRuntimeException.regexSyntaxError(regex, this);
+        }
     }
 
     @Specialization

@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.built_ins;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.*;
@@ -13,13 +14,11 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.utils.ConcatenationNode;
 import com.adacore.lkql_jit.nodes.utils.ValueCombiner;
 import com.adacore.lkql_jit.runtime.values.*;
-import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.TextWriter;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
@@ -28,7 +27,9 @@ import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -70,7 +71,16 @@ public class BuiltInFunctions {
 
         @Specialization
         protected LKQLPattern onValidArgs(String regex, @DefaultVal("true") boolean caseSensitive) {
-            return new LKQLPattern(this, regex, caseSensitive);
+            // Call the TRegex language to create the pattern value
+            try {
+                return LKQLPattern.create(
+                    regex,
+                    caseSensitive,
+                    LKQLLanguage.getContext(this).getEnv()
+                );
+            } catch (AbstractTruffleException e) {
+                throw LKQLRuntimeException.regexSyntaxError(regex, this);
+            }
         }
     }
 
@@ -121,8 +131,18 @@ public class BuiltInFunctions {
     abstract static class DocExpr extends BuiltInBody {
 
         @Specialization
-        protected String onLKQLValue(LKQLValue value) {
-            return value.lkqlDocumentation();
+        protected String onFunction(LKQLFunction function) {
+            return function.lkqlDocumentation();
+        }
+
+        @Specialization
+        protected String onSelector(LKQLSelector selector) {
+            return selector.lkqlDocumentation();
+        }
+
+        @Specialization
+        protected String onNamespace(LKQLNamespace namespace) {
+            return namespace.lkqlDocumentation();
         }
 
         @Specialization
@@ -456,12 +476,17 @@ public class BuiltInFunctions {
     abstract static class ProfileExpr extends BuiltInBody {
 
         @Specialization
-        protected String onLKQLValue(LKQLValue val) {
-            return val.lkqlProfile();
+        protected String onFunction(LKQLFunction function) {
+            return function.lkqlProfile();
         }
 
         @Specialization
-        protected String onOthers(Object obj) {
+        protected String onSelector(LKQLSelector selector) {
+            return selector.lkqlProfile();
+        }
+
+        @Specialization
+        protected String onAny(Object obj) {
             return "";
         }
     }
@@ -472,10 +497,10 @@ public class BuiltInFunctions {
     )
     abstract static class DocumentNamespaceExpr extends BuiltInBody {
 
-        private static void documentCallable(TextWriter writer, BasicLKQLValue callable) {
-            writer.write(".. function:: " + callable.lkqlProfile() + "\n\n");
+        private static void documentCallable(TextWriter writer, String profile, String doc) {
+            writer.write(".. function:: " + profile + "\n\n");
             writer.withIndent(() -> {
-                writer.write(callable.lkqlDocumentation());
+                writer.write(doc);
             });
             writer.write("\n\n");
         }
@@ -502,7 +527,7 @@ public class BuiltInFunctions {
                     .sorted(Comparator.comparing(LKQLFunction::getExecutableName));
 
                 for (var func : functions.toList()) {
-                    documentCallable(writer, func);
+                    documentCallable(writer, func.lkqlProfile(), func.lkqlDocumentation());
                 }
 
                 writer.write("Selectors\n");
@@ -517,7 +542,7 @@ public class BuiltInFunctions {
                     .sorted(Comparator.comparing(LKQLSelector::lkqlProfile));
 
                 for (var sel : selectors.toList()) {
-                    documentCallable(writer, sel);
+                    documentCallable(writer, sel.lkqlProfile(), sel.lkqlDocumentation());
                 }
 
                 return sw.getBuffer().toString();
@@ -532,11 +557,34 @@ public class BuiltInFunctions {
     abstract static class HelpExpr extends BuiltInBody {
 
         @Specialization
-        protected Object onLKQLValue(LKQLValue value) {
-            LKQLLanguage.getContext(this).println(
-                StringUtils.concat(value.lkqlProfile(), "\n", value.lkqlDocumentation())
+        protected Object onFunction(LKQLFunction function) {
+            printHelp(
+                LKQLLanguage.getContext(this),
+                function.lkqlProfile(),
+                function.lkqlDocumentation()
             );
             return LKQLUnit.INSTANCE;
+        }
+
+        @Specialization
+        protected Object onSelector(LKQLSelector selector) {
+            printHelp(
+                LKQLLanguage.getContext(this),
+                selector.lkqlProfile(),
+                selector.lkqlDocumentation()
+            );
+            return LKQLUnit.INSTANCE;
+        }
+
+        @Fallback
+        protected Object onAny(Object obj) {
+            LKQLLanguage.getContext(this).println("No help available");
+            return LKQLUnit.INSTANCE;
+        }
+
+        @CompilerDirectives.TruffleBoundary
+        private static void printHelp(LKQLContext context, String profile, String doc) {
+            context.println(profile + "\n" + doc);
         }
     }
 

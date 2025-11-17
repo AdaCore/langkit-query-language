@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLTuple;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
@@ -91,7 +90,7 @@ public abstract class Indexing extends Expr {
     protected Object indexIndexable(Indexable collection, long index) {
         try {
             return collection.get((int) index - 1);
-        } catch (InvalidIndexException e) {
+        } catch (IndexOutOfBoundsException e) {
             if (this.isSafe) {
                 return LKQLUnit.INSTANCE;
             } else {

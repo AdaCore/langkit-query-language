@@ -15,6 +15,7 @@ import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
 import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.adacore.lkql_jit.options.LKQLOptions;
@@ -73,7 +74,7 @@ public final class NodeCheckerFunction {
                     StringUtils.toLowerCase(paramName)
                 );
                 instance.arguments[j + 1] = userDefinedArg == null
-                    ? function.getParameterDefaultValues()[j].executeGeneric(frame)
+                    ? ((Expr) function.getParameterDefaultValues()[j]).executeGeneric(frame)
                     : userDefinedArg;
             }
 
@@ -235,7 +236,7 @@ public final class NodeCheckerFunction {
                         "Error(s) while applying a rewriting context: ",
                         ArrayUtils.toString(applyRes.getDiagnostics())
                     );
-                    throw LKQLRuntimeException.fromMessage(message);
+                    throw LKQLRuntimeException.create(message);
                 }
 
                 // Then output the rewrote unit as required
@@ -430,7 +431,7 @@ public final class NodeCheckerFunction {
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
-                throw LKQLRuntimeException.fromJavaException(e, checker.autoFix.getBody());
+                throw LKQLRuntimeException.fromJavaException(e, checker.autoFix.body);
             }
         }
 

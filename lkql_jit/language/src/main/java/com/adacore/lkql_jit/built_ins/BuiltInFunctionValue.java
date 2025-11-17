@@ -6,12 +6,14 @@
 package com.adacore.lkql_jit.built_ins;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.nodes.Node;
 
 /** This class represents the LKQL value of a built-in function. */
 public class BuiltInFunctionValue extends LKQLFunction {
@@ -36,7 +38,8 @@ public class BuiltInFunctionValue extends LKQLFunction {
             name,
             documentation,
             names,
-            new Expr[names.length]
+            new Expr[names.length],
+            body
         );
         stringDefaultVals = defaultValues;
     }
@@ -53,13 +56,14 @@ public class BuiltInFunctionValue extends LKQLFunction {
             functionRootNode.getName(),
             documentation,
             names,
-            new Expr[names.length]
+            new Expr[names.length],
+            functionRootNode.getBody()
         );
         stringDefaultVals = defaultValues;
     }
 
     @Override
-    public Expr[] getParameterDefaultValues() {
+    public Node[] getParameterDefaultValues() {
         if (stringDefaultVals != null && !defaultValsEvald) {
             for (int i = 0; i < parameterDefaultValues.length; i++) {
                 if (stringDefaultVals[i] != null) {
@@ -72,12 +76,12 @@ public class BuiltInFunctionValue extends LKQLFunction {
     }
 
     @CompilerDirectives.TruffleBoundary
-    private Expr getDefaultValAt(int i) {
+    private Node getDefaultValAt(int i) {
         var prg =
-            ((TopLevelList) LKQLLanguage.getLanguage(rootNode.getBody()).translate(
+            ((TopLevelList) LKQLLanguage.getLanguage((LKQLNode) body).translate(
                     stringDefaultVals[i],
                     "<defaultval>"
                 )).program;
-        return (Expr) prg[0];
+        return prg[0];
     }
 }

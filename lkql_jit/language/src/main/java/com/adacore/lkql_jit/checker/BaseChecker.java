@@ -120,7 +120,7 @@ public abstract class BaseChecker {
 
     /** Get the checker path name. */
     public String getPath() {
-        return function.rootNode.getBody().getSourceSection().getSource().getPath();
+        return function.body.getSourceSection().getSource().getPath();
     }
 
     // ----- Inner classes -----

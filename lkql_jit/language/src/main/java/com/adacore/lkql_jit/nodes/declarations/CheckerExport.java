@@ -110,7 +110,7 @@ public class CheckerExport extends Declaration {
 
         // If there is an auto fix, the checker must be a node checker
         if (autoFixObject != null && this.mode == CheckerMode.UNIT) {
-            throw LKQLRuntimeException.fromMessage(
+            throw LKQLRuntimeException.create(
                 "Auto fixes not available for unit checks",
                 autoFixArg.orElseGet(() -> this.annotation.getArguments().getArgs()[10])
             );

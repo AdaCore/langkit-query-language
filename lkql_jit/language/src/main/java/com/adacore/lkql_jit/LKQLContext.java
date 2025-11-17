@@ -512,7 +512,7 @@ public final class LKQLContext {
                 // We should not get any scenario variable if we are being run
                 // without a project file.
                 if (vars.length != 0) {
-                    throw LKQLRuntimeException.fromMessage(
+                    throw LKQLRuntimeException.create(
                         "Scenario variable specifications require a project file"
                     );
                 }
@@ -682,14 +682,14 @@ public final class LKQLContext {
 
                 // Verify that the instantiated rule exists
                 if (checker == null) {
-                    throw LKQLRuntimeException.fromMessage(
+                    throw LKQLRuntimeException.create(
                         "Could not find any rule named " + instance.ruleName()
                     );
                 }
 
                 // If the engine is in "fixer" mode, check that the rule has an auto-fixing function
                 if (getEngineMode() == LKQLOptions.EngineMode.FIXER && checker.autoFix == null) {
-                    throw LKQLRuntimeException.fromMessage(
+                    throw LKQLRuntimeException.create(
                         "Rule \"" +
                         instance.ruleName() +
                         "\" is not defining any auto-fixing function"

@@ -10,7 +10,6 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
-import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -56,7 +55,7 @@ public final class ReflectionUtils {
                 }
                 res = Libadalang.Symbol.create(resString);
             } catch (Libadalang.SymbolException e) {
-                throw LKQLRuntimeException.fromMessage(e.getMessage());
+                throw LKQLRuntimeException.create(e.getMessage());
             }
         }
         // If the required type is a unit array
@@ -104,7 +103,7 @@ public final class ReflectionUtils {
         Node caller,
         Expr[] args,
         Object... arguments
-    ) throws LangkitException, UnsupportedTypeException {
+    ) throws LangkitException {
         // Verify if there is more arguments than params
         if (arguments.length > fieldDescription.getParams().size()) {
             throw LKQLRuntimeException.wrongArity(
@@ -134,10 +133,16 @@ public final class ReflectionUtils {
                 }
             }
 
-            // Call the method
-            return LKQLTypesHelper.toLKQLValue(
-                fieldDescription.getJavaMethod().invoke(node, refinedArgs)
-            );
+            // Call the method and check the result is valid
+            var raw = fieldDescription.getJavaMethod().invoke(node, refinedArgs);
+            var res = LKQLTypesHelper.toLKQLValue(raw);
+            if (res == null) {
+                throw LKQLRuntimeException.unsupportedType(
+                    raw == null ? Void.class : raw.getClass(),
+                    caller
+                );
+            }
+            return res;
         } catch (IllegalArgumentException e) {
             // Explore the argument types
             for (int i = 0; i < refinedArgs.length; i++) {
@@ -151,7 +156,7 @@ public final class ReflectionUtils {
             }
 
             // Throw a default exception
-            throw LKQLRuntimeException.fromMessage(
+            throw LKQLRuntimeException.create(
                 "Invalid argument type, but cannot find which",
                 caller
             );
@@ -171,7 +176,7 @@ public final class ReflectionUtils {
             }
             throw LKQLRuntimeException.fromJavaException(e.getTargetException(), caller);
         } catch (IllegalAccessException e) {
-            throw LKQLRuntimeException.fromMessage("Java reflection access failed", caller);
+            throw LKQLRuntimeException.create("Java reflection access failed", caller);
         }
     }
 

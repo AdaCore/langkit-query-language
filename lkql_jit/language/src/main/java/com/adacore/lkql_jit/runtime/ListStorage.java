@@ -5,8 +5,6 @@
 
 package com.adacore.lkql_jit.runtime;
 
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-
 /**
  * Custom ArrayList like storage class. Meant to be used in our own data structures and control
  * flow. Useful so that Truffle's inliner can inline those operations in the compiled code
@@ -47,17 +45,17 @@ public class ListStorage<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public T get(int idx) throws InvalidIndexException {
+    public T get(int idx) throws IndexOutOfBoundsException {
         if (idx < current_size) {
             return (T) storage[idx];
         }
-        throw new InvalidIndexException();
+        throw new IndexOutOfBoundsException(idx);
     }
 
-    public void set(int idx, T el) throws InvalidIndexException {
+    public void set(int idx, T el) throws IndexOutOfBoundsException {
         if (idx < current_size) {
             storage[idx] = el;
         }
-        throw new InvalidIndexException();
+        throw new IndexOutOfBoundsException(idx);
     }
 }

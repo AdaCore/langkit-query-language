@@ -14,8 +14,8 @@ import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLSelector;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
+import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
-import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -333,7 +333,7 @@ public final class Query extends Expr {
         // ----- Override methods -----
 
         /**
-         * @see com.adacore.lkql_jit.utils.Iterator#hasNext()
+         * @see Iterator#hasNext()
          */
         @Override
         public boolean hasNext() {
@@ -341,7 +341,7 @@ public final class Query extends Expr {
         }
 
         /**
-         * @see com.adacore.lkql_jit.utils.Iterator#next()
+         * @see Iterator#next()
          */
         @Override
         public Object next() {

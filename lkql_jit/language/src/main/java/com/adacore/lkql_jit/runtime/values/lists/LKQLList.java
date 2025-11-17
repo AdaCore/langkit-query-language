@@ -5,17 +5,11 @@
 
 package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLListIterator;
-import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
 
 /** This class represents an array list in the LKQL language. */
-@ExportLibrary(InteropLibrary.class)
 public final class LKQLList extends BaseLKQLList {
 
     // ----- Attributes -----
@@ -38,20 +32,12 @@ public final class LKQLList extends BaseLKQLList {
     }
 
     @Override
-    public Object get(long i) throws InvalidIndexException {
-        try {
-            return this.content[(int) i];
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidIndexException();
-        }
+    public Object get(long i) throws IndexOutOfBoundsException {
+        return this.content[(int) i];
     }
 
-    public Object[] getSlice(long first, long last) throws InvalidIndexException {
-        try {
-            return Arrays.copyOfRange(this.content, (int) first, (int) last);
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidIndexException();
-        }
+    public Object[] getSlice(long first, long last) throws IndexOutOfBoundsException {
+        return Arrays.copyOfRange(this.content, (int) first, (int) last);
     }
 
     @Override
@@ -62,14 +48,5 @@ public final class LKQLList extends BaseLKQLList {
     @Override
     public Object[] getContent() {
         return this.content;
-    }
-
-    // ----- Value methods -----
-
-    /** Return the identity hash code for the given LKQL array list. */
-    @CompilerDirectives.TruffleBoundary
-    @ExportMessage
-    public static int identityHashCode(LKQLList receiver) {
-        return System.identityHashCode(receiver);
     }
 }

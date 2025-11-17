@@ -76,14 +76,14 @@ public final class ResolutionPass {
 
         for (var constructor : collectOfType(DynamicConstructorCall.class, passExpr.getRewrite())) {
             final var clazz = ctx.env.get(constructor.nodeKind);
-            if (clazz == null) throw LKQLRuntimeException.fromMessage(
+            if (clazz == null) throw LKQLRuntimeException.create(
                 "class does not exist, expected one of " + ctx.env.keySet(),
                 constructor
             );
             if (
                 clazz.fields().size() != constructor.arity() ||
                 !clazz.fields().containsAll(List.of(constructor.getArgNames()))
-            ) throw LKQLRuntimeException.fromMessage(
+            ) throw LKQLRuntimeException.create(
                 "wrong arguments, expected " +
                 clazz.fields() +
                 " instead of " +

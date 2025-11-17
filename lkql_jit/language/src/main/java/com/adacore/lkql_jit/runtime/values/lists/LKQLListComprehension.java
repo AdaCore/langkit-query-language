@@ -5,26 +5,18 @@
 
 package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.nodes.dispatchers.ListComprehensionDispatcher;
-import com.adacore.lkql_jit.nodes.dispatchers.ListComprehensionDispatcherNodeGen;
-import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.RootNode;
 
 /** This class represents a list comprehension value in the LKQL language. */
-@ExportLibrary(InteropLibrary.class)
 public final class LKQLListComprehension extends LKQLLazyList {
 
     // ----- Attributes -----
 
-    /** Root node of the list comprehension. */
-    private final ListComprehensionRootNode rootNode;
-
-    /** Dispatcher for the list comprehension root node. */
-    private final ListComprehensionDispatcher dispatcher;
+    /** Direct call node used to execute the list comprehension logic. */
+    private final DirectCallNode callNode;
 
     /** List of arguments to pass to the list comprehension root node. */
     private final Object[][] argumentsList;
@@ -46,12 +38,11 @@ public final class LKQLListComprehension extends LKQLLazyList {
      */
     @CompilerDirectives.TruffleBoundary
     public LKQLListComprehension(
-        final ListComprehensionRootNode rootNode,
+        final RootNode rootNode,
         final Closure closure,
         final Object[][] argumentsList
     ) {
-        this.rootNode = rootNode;
-        this.dispatcher = ListComprehensionDispatcherNodeGen.create();
+        this.callNode = DirectCallNode.create(rootNode.getCallTarget());
         this.argumentsList = argumentsList;
         this.arguments = this.argumentsList.length > 0
             ? new Object[this.argumentsList[0].length + 1]
@@ -67,19 +58,10 @@ public final class LKQLListComprehension extends LKQLLazyList {
         while (this.pointer < this.argumentsList.length && (this.cache.size() - 1 < n || n < 0)) {
             final Object[] currentArguments = this.argumentsList[this.pointer++];
             System.arraycopy(currentArguments, 0, this.arguments, 1, currentArguments.length);
-            Object value = this.dispatcher.executeDispatch(this.rootNode, this.arguments);
+            Object value = this.callNode.call(this.arguments);
             if (value != null) {
                 this.cache.append(value);
             }
         }
-    }
-
-    // ----- Value methods -----
-
-    /** Return the identity hash code for the given LKQL list comprehension. */
-    @CompilerDirectives.TruffleBoundary
-    @ExportMessage
-    public static int identityHashCode(LKQLListComprehension receiver) {
-        return System.identityHashCode(receiver);
     }
 }

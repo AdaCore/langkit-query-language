@@ -40,8 +40,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
 
     // ----- Constructors -----
 
-    private LKQLRuntimeException(String message, Node location) {
-        super(message, location);
+    private LKQLRuntimeException(String message, Node location, Throwable cause) {
+        super(message, cause, -1, location);
     }
 
     // ----- Exception creation methods -----
@@ -50,8 +50,8 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
 
     /** Create a new exception with an arbitrary message and a location. */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException fromMessage(String message, Node location) {
-        return new LKQLRuntimeException(message, location);
+    public static LKQLRuntimeException create(String message, Node location) {
+        return new LKQLRuntimeException(message, location, null);
     }
 
     /**
@@ -61,25 +61,24 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException fromMessage(String message) {
-        return new LKQLRuntimeException(message, null);
+    public static LKQLRuntimeException create(String message) {
+        return new LKQLRuntimeException(message, null, null);
     }
 
     /**
      * Create an exception from a Java exception with the location.
      *
-     * @param e The Java exception.
+     * @param cause The Java exception.
      * @param location The location of the LKQL call.
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException fromJavaException(Throwable e, Node location) {
-        LKQLRuntimeException res = LKQLRuntimeException.fromMessage(
-            "Error from Java bindings: " + e.getMessage(),
-            location
+    public static LKQLRuntimeException fromJavaException(Throwable cause, Node location) {
+        return new LKQLRuntimeException(
+            "Error from Java bindings: " + cause.getMessage(),
+            location,
+            cause
         );
-        res.setStackTrace(e.getStackTrace());
-        return res;
     }
 
     /**
@@ -90,7 +89,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException shouldNotExecute(Node location) {
-        return LKQLRuntimeException.fromMessage("Should not execute", location);
+        return LKQLRuntimeException.create("Should not execute", location);
     }
 
     /**
@@ -100,7 +99,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException shouldNotHappen(String message) {
-        return new LKQLRuntimeException("This exception should not happen: " + message, null);
+        return LKQLRuntimeException.create("This exception should not happen: " + message);
     }
 
     /**
@@ -112,7 +111,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException regexSyntaxError(String regex, Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Failed to compile regular expression: " + regex,
             location
         );
@@ -126,7 +125,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException ignoredExpressionReturn(Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Can't ignore the return value of an expr in a block expr",
             location
         );
@@ -143,7 +142,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException unknownSymbol(String symbol, Node location) {
-        return LKQLRuntimeException.fromMessage("Unknown symbol: " + symbol, location);
+        return LKQLRuntimeException.create("Unknown symbol: " + symbol, location);
     }
 
     /**
@@ -154,12 +153,12 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException invalidKindName(Node location) {
-        return LKQLRuntimeException.fromMessage("Invalid kind name", location);
+        return LKQLRuntimeException.create("Invalid kind name", location);
     }
 
     /** Create a new exception when expecting a concrete node kind and got an abstract one. */
     public static LKQLRuntimeException invalidAbstractKind(Node location) {
-        return LKQLRuntimeException.fromMessage("Expect a concrete kind", location);
+        return LKQLRuntimeException.create("Expect a concrete kind", location);
     }
 
     // --- Importation related exceptions
@@ -173,7 +172,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException moduleNotFound(String moduleName, Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Cannot import, module not found \"" + moduleName + "\"",
             location
         );
@@ -186,7 +185,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         Iterable<File> possibleFiles,
         Node location
     ) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Ambiguous importation, multiple \"" +
             moduleName +
             "\" modules found (" +
@@ -205,7 +204,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         Source responsible,
         Node location
     ) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Circular dependency in LKQL modules (" +
             importStack.stream().map(Source::getName).collect(Collectors.joining(" -> ")) +
             " -> " +
@@ -227,7 +226,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException wrongType(String expected, String actual, Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Type error: expected " + expected + " but got " + actual,
             location
         );
@@ -246,7 +245,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         String target,
         Node location
     ) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Cannot convert a " + source + " to a " + target,
             location
         );
@@ -260,7 +259,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException wrongFrom(Node location) {
-        return LKQLRuntimeException.fromMessage("Wrong kind of element in `from clause`", location);
+        return LKQLRuntimeException.create("Wrong kind of element in `from clause`", location);
     }
 
     /**
@@ -271,7 +270,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException wrongFromList(Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Wrong kind of element in list for `from clause`",
             location
         );
@@ -282,7 +281,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException unsupportedType(Class<?> type, Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Unsupported value type from the introspection API: " + type.getSimpleName(),
             location
         );
@@ -306,7 +305,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         String rightType,
         Node location
     ) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Unsupported operation: " + leftType + " " + op + " " + rightType,
             location
         );
@@ -320,7 +319,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException divByZero(Node location) {
-        return LKQLRuntimeException.fromMessage("Zero division", location);
+        return LKQLRuntimeException.create("Zero division", location);
     }
 
     /**
@@ -332,7 +331,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException invalidIndex(int index, Node location) {
-        return LKQLRuntimeException.fromMessage("Invalid index: " + index, location);
+        return LKQLRuntimeException.create("Invalid index: " + index, location);
     }
 
     /**
@@ -343,7 +342,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException noSuchMember(Node location) {
-        return LKQLRuntimeException.fromMessage("No such member", location);
+        return LKQLRuntimeException.create("No such member", location);
     }
 
     /**
@@ -354,7 +353,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException noSuchField(Node location) {
-        return LKQLRuntimeException.fromMessage("No such field", location);
+        return LKQLRuntimeException.create("No such field", location);
     }
 
     /**
@@ -367,7 +366,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException wrongMember(String member, String type, Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Cannot get member `%s` for %s value".formatted(member, type),
             location
         );
@@ -381,7 +380,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException nullReceiver(Node location) {
-        return LKQLRuntimeException.fromMessage("Null receiver in dot access", location);
+        return LKQLRuntimeException.create("Null receiver in dot access", location);
     }
 
     /** Create an exception when there is a collision during an object combination. */
@@ -390,7 +389,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         String collidingMember,
         Node location
     ) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Cannot combine objects, both define the \"" + collidingMember + "\" member",
             location
         );
@@ -408,7 +407,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException wrongArity(int expected, int actual, Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Expected " + expected + " arguments but got " + actual,
             location
         );
@@ -423,7 +422,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException unknownArgument(String unknown, Node location) {
-        return LKQLRuntimeException.fromMessage("Unknown argument name: " + unknown, location);
+        return LKQLRuntimeException.create("Unknown argument name: " + unknown, location);
     }
 
     /**
@@ -435,7 +434,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException missingArgument(int missingIndex, Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "Missing value for param # " + missingIndex + " in call",
             location
         );
@@ -449,10 +448,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException selectorWithoutNode(Node location) {
-        return LKQLRuntimeException.fromMessage(
-            "Selector call should have a node argument",
-            location
-        );
+        return LKQLRuntimeException.create("Selector call should have a node argument", location);
     }
 
     /**
@@ -463,13 +459,13 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException multipleSameNameArgument(Node location) {
-        return LKQLRuntimeException.fromMessage("Multiple arguments with the same name", location);
+        return LKQLRuntimeException.create("Multiple arguments with the same name", location);
     }
 
     /** Create an exception when a named argument re-set the value of a positional one. */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException namedOverlapPositional(Node location) {
-        return LKQLRuntimeException.fromMessage(
+        return LKQLRuntimeException.create(
             "This named argument overlaps a previous positional argument",
             location
         );
@@ -483,10 +479,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException positionAfterNamedArgument(Node location) {
-        return LKQLRuntimeException.fromMessage(
-            "positional argument after named argument",
-            location
-        );
+        return LKQLRuntimeException.create("positional argument after named argument", location);
     }
 
     // ----- Instance methods -----

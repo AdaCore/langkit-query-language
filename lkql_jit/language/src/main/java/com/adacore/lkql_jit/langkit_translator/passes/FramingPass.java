@@ -59,7 +59,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
                 null,
                 SourceSectionWrapper.create(node.getSourceLocationRange(), source)
             );
-        return LKQLRuntimeException.fromMessage("Errors during framing pass");
+        return LKQLRuntimeException.create("Errors during framing pass");
     }
 
     /**

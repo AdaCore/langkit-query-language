@@ -44,12 +44,12 @@ public class RunPass extends LKQLNode {
         // Build pass call-chain
         final Deque<LKQLFunction> callChain = new ArrayDeque<>();
         callChain.push((LKQLFunction) FrameUtils.readLocal(frame, slot));
-        while (((PassExpr) callChain.peek().rootNode.getBody()).getPreviousSlot().isPresent()) {
+        while (((PassExpr) callChain.peek().body).getPreviousSlot().isPresent()) {
             callChain.push(
                 (LKQLFunction) FrameUtils.readLocal(
                     frame,
                     // orElse is necessary to garantee no exception for native image
-                    ((PassExpr) callChain.peek().rootNode.getBody()).getPreviousSlot().orElse(0)
+                    ((PassExpr) callChain.peek().body).getPreviousSlot().orElse(0)
                 )
             );
         }

@@ -10,8 +10,6 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.frame.FrameInstance;
-import com.oracle.truffle.api.frame.FrameInstanceVisitor;
 import com.oracle.truffle.api.source.SourceSection;
 
 /** This node represents a base for all built-in functions body. */
@@ -30,18 +28,13 @@ public abstract class BuiltInBody extends Expr {
 
     protected SourceSection getCallLocation() {
         return Truffle.getRuntime()
-            .iterateFrames(
-                new FrameInstanceVisitor<SourceSection>() {
-                    @Override
-                    public SourceSection visitFrame(FrameInstance frameInstance) {
-                        var callnode = frameInstance.getCallNode();
-                        if (callnode != null) {
-                            return callnode.getEncapsulatingSourceSection();
-                        }
-                        return null;
-                    }
+            .iterateFrames(frameInstance -> {
+                var callnode = frameInstance.getCallNode();
+                if (callnode != null) {
+                    return callnode.getEncapsulatingSourceSection();
                 }
-            );
+                return null;
+            });
     }
 
     // ----- Override methods -----

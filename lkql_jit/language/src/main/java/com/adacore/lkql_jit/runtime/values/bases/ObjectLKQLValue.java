@@ -5,15 +5,10 @@
 
 package com.adacore.lkql_jit.runtime.values.bases;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -23,7 +18,7 @@ import com.oracle.truffle.api.object.Shape;
 
 /** This class is the base for all LKQL object-like values. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue {
+public abstract class ObjectLKQLValue extends DynamicObject {
 
     protected static final DynamicObjectLibrary uncachedObjectLibrary =
         DynamicObjectLibrary.getUncached();
@@ -55,37 +50,27 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
 
     // ----- Class methods -----
 
-    /**
-     * Internal method to perform equality checking on object like LKQL values.
-     *
-     * @param lefts The library to access 'left' messages.
-     * @param rights The library to access 'right' messages.
-     * @param leftValues Interop library to access the 'left' values messages.
-     * @param rightValues Interop library to access the 'right' values messages.
-     */
-    protected static boolean objectValueEquals(
+    /** Compare two "object-like" LKQL values using provided libraries to access them. */
+    public static boolean compareWithLib(
         ObjectLKQLValue left,
         ObjectLKQLValue right,
-        DynamicObjectLibrary lefts,
-        DynamicObjectLibrary rights,
-        InteropLibrary leftValues,
-        InteropLibrary rightValues
+        DynamicObjectLibrary leftLib,
+        DynamicObjectLibrary rightLib
     ) {
         // Get the objects key sets and compare their size
-        Object[] leftKeys = lefts.getKeyArray(left);
-        Object[] rightKeys = rights.getKeyArray(right);
+        Object[] leftKeys = leftLib.getKeyArray(left);
+        Object[] rightKeys = rightLib.getKeyArray(right);
         if (leftKeys.length != rightKeys.length) return false;
 
         // Then compare each value
         for (Object key : leftKeys) {
-            if (!rights.containsKey(right, key)) return false;
-            Object leftValue = lefts.getOrDefault(left, key, null);
-            Object rightValue = rights.getOrDefault(right, key, null);
-            if (leftValues.hasIdentity(leftValue)) {
-                if (!leftValues.isIdentical(leftValue, rightValue, rightValues)) return false;
-            } else {
-                if (!ObjectUtils.equals(leftValue, rightValue)) return false;
-            }
+            if (!rightLib.containsKey(right, key)) return false;
+            if (
+                !ObjectUtils.equals(
+                    leftLib.getOrDefault(left, key, null),
+                    rightLib.getOrDefault(right, key, null)
+                )
+            ) return false;
         }
 
         // If we get here, the objects are equals
@@ -93,18 +78,6 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
     }
 
     // ----- Value methods -----
-
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    public boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    public Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
 
     /**
      * Get the default displayable string, exporting because this message is abstract and all
@@ -157,28 +130,24 @@ public abstract class ObjectLKQLValue extends DynamicObject implements LKQLValue
 
     @Override
     public String toString() {
-        InteropLibrary thisUncached = InteropLibrary.getUncached(this);
-        return (String) thisUncached.toDisplayString(this);
+        return (String) InteropLibrary.getUncached().toDisplayString(this);
     }
 
+    /** Compare two "object-like" LKQL values, this function only compare keys and their values. */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BasicLKQLValue other)) return false;
-        InteropLibrary thisUncached = InteropLibrary.getUncached(this);
-        InteropLibrary otherUncached = InteropLibrary.getUncached(other);
-        return thisUncached.isIdentical(this, other, otherUncached);
+        if (!(o instanceof ObjectLKQLValue other)) return false;
+        return compareWithLib(
+            this,
+            other,
+            DynamicObjectLibrary.getUncached(),
+            DynamicObjectLibrary.getUncached()
+        );
     }
 
     @Override
     public int hashCode() {
-        try {
-            InteropLibrary thisUncached = InteropLibrary.getUncached(this);
-            return thisUncached.identityHashCode(this);
-        } catch (UnsupportedMessageException e) {
-            throw LKQLRuntimeException.shouldNotHappen(
-                "All LKQL values must export an 'identityHashCode' message"
-            );
-        }
+        return System.identityHashCode(this);
     }
 }

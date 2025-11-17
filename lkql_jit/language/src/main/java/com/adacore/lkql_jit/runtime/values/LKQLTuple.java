@@ -5,25 +5,22 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.runtime.values.bases.ArrayLKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents a tuple in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLTuple extends ArrayLKQLValue implements Indexable {
+public class LKQLTuple implements Indexable, TruffleObject {
 
     // ----- Attributes -----
 
@@ -38,49 +35,6 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
     }
 
     // ----- Value methods -----
-
-    /** Exported message to compare two tuples. */
-    @ExportMessage
-    public static class IsIdenticalOrUndefined {
-
-        /** Compare two LKQL tuples. */
-        @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
-        public static TriState onTuple(
-            final LKQLTuple left,
-            final LKQLTuple right,
-            @CachedLibrary("left") InteropLibrary lefts,
-            @CachedLibrary("right") InteropLibrary rights,
-            @CachedLibrary(
-                limit = Constants.DISPATCHED_LIB_LIMIT
-            ) @Exclusive InteropLibrary leftElems,
-            @CachedLibrary(
-                limit = Constants.DISPATCHED_LIB_LIMIT
-            ) @Exclusive InteropLibrary rightElems
-        ) {
-            return TriState.valueOf(
-                arrayValueEquals(left, right, lefts, rights, leftElems, rightElems)
-            );
-        }
-
-        /** Do the comparison with another element. */
-        @Fallback
-        public static TriState onOther(
-            @SuppressWarnings("unused") final LKQLTuple receiver,
-            @SuppressWarnings("unused") final Object other
-        ) {
-            return TriState.UNDEFINED;
-        }
-    }
-
-    /** Get the identity hash code for the given LKQL tuple */
-    @ExportMessage
-    public static int identityHashCode(
-        LKQLTuple receiver,
-        @CachedLibrary("receiver") InteropLibrary receivers,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) @Exclusive InteropLibrary elems
-    ) {
-        return arrayValueHashCode(receiver, receivers, elems);
-    }
 
     /** Get the displayable string for the interop library. */
     @CompilerDirectives.TruffleBoundary
@@ -147,16 +101,30 @@ public class LKQLTuple extends ArrayLKQLValue implements Indexable {
     // ----- Indexable methods -----
 
     @Override
-    public Object get(long index) throws InvalidIndexException {
-        try {
-            return this.content[(int) index];
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidIndexException();
-        }
+    public Object get(long index) throws IndexOutOfBoundsException {
+        return this.content[(int) index];
     }
 
     @Override
     public Object[] getContent() {
         return this.content;
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof LKQLTuple other)) return false;
+        if (this.content.length != other.content.length) return false;
+        for (int i = 0; i < this.content.length; i++) {
+            if (!ObjectUtils.equals(this.content[i], other.content[i])) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectUtils.hashCode(this.content);
     }
 }
