@@ -6230,10 +6230,9 @@ this is preceding by a declaration of a program unit spec, stub or body.
 
 .. index:: One_Construct_Per_Line
 
-Flag any statement, declaration or representation clause if the code
-line where this construct starts contains some other Ada code symbols
-preceding or following this construct. The following constructs are not
-flagged:
+Flag any statement, declaration or clause if the code line where this
+construct starts contains some other Ada code symbols preceding or
+following this construct. The following constructs are not flagged:
 
 * enumeration literal specification;
 * parameter specifications;

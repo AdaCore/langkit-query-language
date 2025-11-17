@@ -14,50 +14,94 @@ line.ads:20:14: rule violation: more than one construct on the same line
 20 |    procedure Proc (I : in out Integer); end Line; --  FLAG
    |              ^^^^
 
-line.adb:20:50: rule violation: more than one construct on the same line
-20 |       accept Start (I : Integer; B : Boolean) do null;      --  FLAG
+line.adb:1:1: rule violation: more than one construct on the same line
+1 | with Ada.Text_IO; with Ada.Strings.Unbounded; with Ada.Strings.Fixed; --  FLAG (3)
+  | ^^^^^^^^^^^^^^^^^
+
+line.adb:1:19: rule violation: more than one construct on the same line
+1 | with Ada.Text_IO; with Ada.Strings.Unbounded; with Ada.Strings.Fixed; --  FLAG (3)
+  |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+line.adb:1:47: rule violation: more than one construct on the same line
+1 | with Ada.Text_IO; with Ada.Strings.Unbounded; with Ada.Strings.Fixed; --  FLAG (3)
+  |                                               ^^^^^^^^^^^^^^^^^^^^^^^
+
+line.adb:4:1: rule violation: more than one construct on the same line
+4 | with Ada.Strings.Wide_Fixed; use Ada.Strings.Wide_Fixed; with Ada.Strings.Wide_Unbounded; use Ada.Strings.Wide_Unbounded; --  FLAG (2)
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+line.adb:4:58: rule violation: more than one construct on the same line
+4 | with Ada.Strings.Wide_Fixed; use Ada.Strings.Wide_Fixed; with Ada.Strings.Wide_Unbounded; use Ada.Strings.Wide_Unbounded; --  FLAG (2)
+  |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+line.adb:8:4: rule violation: more than one construct on the same line
+8 |    use Ada.Text_IO; use Ada.Strings.Unbounded; --  FLAG (2)
+  |    ^^^^^^^^^^^^^^^^
+
+line.adb:8:21: rule violation: more than one construct on the same line
+8 |    use Ada.Text_IO; use Ada.Strings.Unbounded; --  FLAG (2)
+  |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+line.adb:10:4: rule violation: more than one construct on the same line
+10 |    pragma Annotate (gnatcheck, Exempt_On, "Goto_Statements", "because"); pragma Annotate (gnatcheck, Exempt_Off, "Goto_Statements"); --  FLAG (2)
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+line.adb:10:74: rule violation: more than one construct on the same line
+10 |    pragma Annotate (gnatcheck, Exempt_On, "Goto_Statements", "because"); pragma Annotate (gnatcheck, Exempt_Off, "Goto_Statements"); --  FLAG (2)
+   |                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+line.adb:29:50: rule violation: more than one construct on the same line
+29 |       accept Start (I : Integer; B : Boolean) do null;      --  FLAG
    |                                                  ^^^^^
 
-line.adb:29:7: rule violation: more than one construct on the same line
-29 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
+line.adb:40:7: rule violation: more than one construct on the same line
+40 |       A at 1 range 1 .. 2; B at 2 range 2 .. 3;             --  FLAG (2);
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+line.adb:40:28: rule violation: more than one construct on the same line
+40 |       A at 1 range 1 .. 2; B at 2 range 2 .. 3;             --  FLAG (2);
+   |                            ^^^^^^^^^^^^^^^^^^^^
+
+line.adb:49:7: rule violation: more than one construct on the same line
+49 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
    |       ^^
 
-line.adb:29:21: rule violation: more than one construct on the same line
-29 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
+line.adb:49:21: rule violation: more than one construct on the same line
+49 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
    |                     ^^
 
-line.adb:33:10: rule violation: more than one construct on the same line
-33 |          I := J; if I > 0 then                             --  FLAG (2)
+line.adb:53:10: rule violation: more than one construct on the same line
+53 |          I := J; if I > 0 then                             --  FLAG (2)
    |          ^^^^^^^
 
-line.adb:33:18: rule violation: more than one construct on the same line
-33 |           I := J; if I > 0 then                             --  FLAG (2)
+line.adb:53:18: rule violation: more than one construct on the same line
+53 |           I := J; if I > 0 then                             --  FLAG (2)
    | __________________^
-34 ||            I := 0; end if;                                 --  FLAG
+54 ||            I := 0; end if;                                 --  FLAG
    ||__________________________^
 
-line.adb:34:12: rule violation: more than one construct on the same line
-34 |            I := 0; end if;                                 --  FLAG
+line.adb:54:12: rule violation: more than one construct on the same line
+54 |            I := 0; end if;                                 --  FLAG
    |            ^^^^^^^
 
-line.adb:47:18: rule violation: more than one construct on the same line
-47 |        My_Loop_2: for I in 1 .. 2 loop                      --  FLAG
+line.adb:67:18: rule violation: more than one construct on the same line
+67 |        My_Loop_2: for I in 1 .. 2 loop                      --  FLAG
    | __________________^
    ||
    || ~~~ 1 other lines ~~~
    ||
-49 ||       end loop My_Loop_2;
+69 ||       end loop My_Loop_2;
    ||_________________________^
 
-line.adb:51:7: rule violation: more than one construct on the same line
-51 |       Tmp := I; I := I + 1;                                --  FLAG (2)
+line.adb:71:7: rule violation: more than one construct on the same line
+71 |       Tmp := I; I := I + 1;                                --  FLAG (2)
    |       ^^^^^^^^^
 
-line.adb:51:17: rule violation: more than one construct on the same line
-51 |       Tmp := I; I := I + 1;                                --  FLAG (2)
+line.adb:71:17: rule violation: more than one construct on the same line
+71 |       Tmp := I; I := I + 1;                                --  FLAG (2)
    |                 ^^^^^^^^^^^
 
-line.adb:53:7: rule violation: more than one construct on the same line
-53 |       I := I + 1; end Proc;                                --  FLAG
+line.adb:73:7: rule violation: more than one construct on the same line
+73 |       I := I + 1; end Proc;                                --  FLAG
    |       ^^^^^^^^^^^
 
