@@ -54,42 +54,42 @@ procedure Main is
    Dyn_Index  : Dyn_Arr;
    Mult_Index : Multidim_Dyn_Arr;
 
-   Qual_Expr_1 : Stat_Int := Stat_Int'(C_S'Length);  --  NOFLAG
-   Qual_Expr_2 : Dyn_Int := Dyn_Int'(S'Length);      --  NOFLAG
+   Qual_Expr_1 : Stat_Int := Stat_Int'(C_S'Length);  --  FLAG
+   Qual_Expr_2 : Dyn_Int := Dyn_Int'(S'Length);      --  FLAG
    Qual_Expr_3 : Dyn_Int := Dyn_Int'(C_S'Length);    --  FLAG
-   Qual_Expr_4 : Dyn_Int := Dyn_Int'(C_S'Size);      --  NOFLAG
+   Qual_Expr_4 : Dyn_Int := Dyn_Int'(C_S'Size);      --  FLAG
 begin
    Process_Int (S'Length);              --  NOFLAG
    Process_Int (C_S'Length);            --  NOFLAG
-   Process_Stat_Int (S'Length);         --  NOFLAG
-   Process_Stat_Int (C_S'Length);       --  NOFLAG
-   Process_Dyn_Int (S'Length);          --  NOFLAG
+   Process_Stat_Int (S'Length);         --  FLAG
+   Process_Stat_Int (C_S'Length);       --  FLAG
+   Process_Dyn_Int (S'Length);          --  FLAG
    Process_Dyn_Int (C_S'Length);        --  FLAG
-   Process_Dyn_Int (C_S'Size);          --  NOFLAG
+   Process_Dyn_Int (C_S'Size);          --  FLAG
    Process_Stat_Pred_Int (S'Length);    --  NOFLAG
    Process_Stat_Pred_Int (C_S'Length);  --  NOFLAG
-   Process_Dyn_Pred_Int (S'Length);     --  NOFLAG
+   Process_Dyn_Pred_Int (S'Length);     --  FLAG
    Process_Dyn_Pred_Int (C_S'Length);   --  FLAG
-   Process_Dyn_Pred_Int (C_S'Size);     --  NOFLAG
+   Process_Dyn_Pred_Int (C_S'Size);     --  FLAG
 
-   Process_Multiple (S'Length, S'Size);      --  NOFLAG
+   Process_Multiple (S'Length, S'Size);      --  FLAG
    Process_Multiple (C_S'Length, C_S'Size);  --  FLAG
 
-   Stat_Assign := S'Length;      --  NOFLAG
-   Stat_Assign := C_S'Length;    --  NOFLAG
-   Dyn_Assign  := S'Length;      --  NOFLAG
+   Stat_Assign := S'Length;      --  FLAG
+   Stat_Assign := C_S'Length;    --  FLAG
+   Dyn_Assign  := S'Length;      --  FLAG
    Dyn_Assign  := C_S'Length;    --  FLAG
-   Dyn_Assign  := C_S'Size;      --  NOFLAG
+   Dyn_Assign  := C_S'Size;      --  FLAG
 
-   Stat_Index (S'Length) := 10;        --  NOFLAG
-   Stat_Index (C_S'Length) := 10;      --  NOFLAG
-   Dyn_Index (S'Length) := 10;         --  NOFLAG
+   Stat_Index (S'Length) := 10;        --  FLAG
+   Stat_Index (C_S'Length) := 10;      --  FLAG
+   Dyn_Index (S'Length) := 10;         --  FLAG
    Dyn_Index (C_S'Length) := 10;       --  FLAG
-   Dyn_Index (C_S'Size) := 10;         --  NOFLAG
+   Dyn_Index (C_S'Size) := 10;         --  FLAG
    Dyn_Index (1) := 10;                --  NOFLAG
-   Mult_Index (1, S'Length) := 10;     --  NOFLAG
+   Mult_Index (1, S'Length) := 10;     --  FLAG
    Mult_Index (1, C_S'Length) := 10;   --  FLAG
-   Mult_Index (1, C_S'Size) := 10;     --  NOFLAG
+   Mult_Index (1, C_S'Size) := 10;     --  FLAG
    Mult_Index (C_S'Length, 1) := 10;   --  FLAG
    Mult_Index (1, 1) := 10;            --  NOFLAG
 end Main;
