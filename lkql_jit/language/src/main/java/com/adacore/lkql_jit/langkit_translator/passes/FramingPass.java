@@ -325,24 +325,14 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      */
     @Override
     public Void visit(Liblkqllang.ListComprehension listComprehension) {
-        // Get the list comprehension generator list
-        final Liblkqllang.ListCompAssocList generators = listComprehension.fGenerators();
-        final int generatorsCount = generators.getChildrenCount();
-
         // Visit all generator expressions
-        for (int i = 0; i < generatorsCount; i++) {
-            final Liblkqllang.ListCompAssoc assoc = (Liblkqllang.ListCompAssoc) generators.getChild(
-                i
-            );
+        for (var assoc : listComprehension.fGenerators()) {
             assoc.fCollExpr().accept(this);
         }
 
         // Open the frame and visit the list comprehension expressions
         this.scriptFramesBuilder.openFrame(listComprehension);
-        for (int i = 0; i < generatorsCount; i++) {
-            final Liblkqllang.ListCompAssoc assoc = (Liblkqllang.ListCompAssoc) generators.getChild(
-                i
-            );
+        for (var assoc : listComprehension.fGenerators()) {
             final String symbol = assoc.fBindingName().getText();
             checkDuplicateParameters(symbol, assoc.fBindingName());
             this.scriptFramesBuilder.addParameter(symbol);
