@@ -544,10 +544,6 @@ public final class LKQLContext {
                     true,
                     8
                 );
-
-                // In the absence of a project file, we consider for now that there are no configuration
-                // pragmas.
-                this.analysisContext.setConfigPragmasMapping(null, null);
             }
         }
     }
