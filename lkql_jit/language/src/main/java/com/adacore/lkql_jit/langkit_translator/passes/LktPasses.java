@@ -331,6 +331,15 @@ public final class LktPasses {
             } else if (expr instanceof Liblktlang.ParenExpr parenExpr) {
                 return buildExpr(parenExpr.fExpr());
             } else if (expr instanceof CallExpr callExpr) {
+                final Liblktlang.Expr calleeNode = callExpr.fName();
+
+                // Special case for the "Unit()" call. This is the constructor for the "Unit" type
+                // in the Lkt language.
+                if (calleeNode.getText().equals("Unit")) {
+                    return new UnitLiteral(loc(callExpr));
+                }
+
+                // In all other cases, translate the call expression to a function call
                 final Expr callee = buildExpr(callExpr.fName());
                 final ArgList arguments = buildArgs(
                     Arrays.stream(callExpr.fArgs().children())
