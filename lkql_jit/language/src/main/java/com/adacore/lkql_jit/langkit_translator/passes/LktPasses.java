@@ -67,9 +67,26 @@ public final class LktPasses {
             None,
         }
 
+        /**
+         * Return whether the provided Lkt node is an expression used as a right hand operand in
+         * a stream related binary operation.
+         */
+        private static boolean isStreamOpRhs(LktNode node) {
+            return (
+                node instanceof Liblktlang.Expr &&
+                node.parent() instanceof Liblktlang.BinOp binOp &&
+                (binOp.fOp() instanceof OpStreamCons || binOp.fOp() instanceof OpStreamConcat) &&
+                binOp.fRight().equals(node)
+            );
+        }
+
         /** Whether "node" needs a frame to be introduced to contain inner bindings. */
         private static FrameKind needsFrame(LktNode node) {
-            if ((node instanceof FunDecl) || (node instanceof Liblktlang.LangkitRoot)) {
+            if (
+                node instanceof FunDecl ||
+                node instanceof Liblktlang.LangkitRoot ||
+                isStreamOpRhs(node)
+            ) {
                 return FrameKind.Concrete;
             } else if (
                 node instanceof Liblktlang.BlockExpr ||
@@ -402,6 +419,36 @@ public final class LktPasses {
                         .toList()
                         .toArray(new Expr[0])
                 );
+            } else if (
+                expr instanceof Liblktlang.BinOp binOp &&
+                (binOp.fOp() instanceof OpStreamCons || binOp.fOp() instanceof OpStreamConcat)
+            ) {
+                // Special case for stream constructors since the right operand is lazy
+                final var head = buildExpr(binOp.fLeft());
+                this.frames.enterFrame(binOp.fRight());
+                final var tail = buildExpr(binOp.fRight());
+
+                final var res =
+                    switch (binOp.fOp().getKind()) {
+                        case OP_STREAM_CONS -> StreamConsNodeGen.create(
+                            loc(binOp),
+                            tail,
+                            this.frames.getFrameDescriptor(),
+                            this.frames.getClosureDescriptor(),
+                            head
+                        );
+                        case OP_STREAM_CONCAT -> StreamConcatNodeGen.create(
+                            loc(binOp),
+                            tail,
+                            this.frames.getFrameDescriptor(),
+                            this.frames.getClosureDescriptor(),
+                            head
+                        );
+                        default -> null;
+                    };
+
+                this.frames.exitFrame();
+                return res;
             } else if (expr instanceof Liblktlang.BinOp binOp) {
                 final var left = buildExpr(binOp.fLeft());
                 final var right = buildExpr(binOp.fRight());

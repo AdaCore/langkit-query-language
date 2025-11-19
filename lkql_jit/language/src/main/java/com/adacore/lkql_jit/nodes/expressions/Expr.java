@@ -14,6 +14,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.*;
 import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLLazyList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLStream;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
@@ -157,6 +158,11 @@ public abstract class Expr extends LKQLNode {
     @SuppressWarnings("unused")
     public LKQLList executeList(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLList(executeGeneric(frame));
+    }
+
+    /** Execute the expression and expect a stream. */
+    public LKQLStream executeStream(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLStream(executeGeneric(frame));
     }
 
     /**
