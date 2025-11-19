@@ -1,0 +1,16 @@
+main.adb:2:9: rule violation: possible occurrence of KP 20227
+2 |    type R_1 (B : Boolean) is record  --  FLAG
+  |         ^^^
+
+main.adb:14:9: rule violation: possible occurrence of KP 20227
+14 |    type R_2 (B : Boolean) is record  --  FLAG
+   |         ^^^
+
+main.adb:35:12: rule violation: possible occurrence of KP 20227
+35 |    subtype S_R_1 is R_1;   --  FLAG
+   |            ^^^^^
+
+main.adb:36:9: rule violation: possible occurrence of KP 20227
+36 |    type D_R_1 is new R_1;  --  FLAG
+   |         ^^^^^
+
