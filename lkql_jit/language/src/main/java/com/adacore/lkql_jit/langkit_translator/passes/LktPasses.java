@@ -20,8 +20,7 @@ import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.declarations.*;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.FunCallNodeGen;
-import com.adacore.lkql_jit.nodes.expressions.FunExpr;
+import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockExpr;
@@ -422,6 +421,13 @@ public final class LktPasses {
                 };
             } else if (expr instanceof NotExpr notExpr) {
                 return UnNotNodeGen.create(loc(notExpr), buildExpr(notExpr.fExpr()));
+            } else if (expr instanceof SubscriptExpr subscriptExpr) {
+                return IndexingNodeGen.create(
+                    loc(subscriptExpr),
+                    subscriptExpr.fNullCond() instanceof NullCondQualifierPresent,
+                    buildExpr(subscriptExpr.fPrefix()),
+                    buildExpr(subscriptExpr.fIndex())
+                );
             } else if (expr instanceof DotExpr dotExpr) {
                 final var memberIdentifier = dotExpr.fSuffix();
                 return DotAccessWrapperNodeGen.create(
