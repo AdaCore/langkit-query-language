@@ -1,0 +1,5 @@
+@check(help="possible occurrence of KP 20227",
+       message="possible occurrence of KP 20227")
+fun kp_20227(node) =
+    |" Flags unchecked union types.
+    node is BaseTypeDecl(p_has_aspect("unchecked_union"): true)
