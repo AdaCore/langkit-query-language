@@ -329,6 +329,8 @@ public final class LktPasses {
                 }
             } else if (expr instanceof NullLit nullLit) {
                 return new NullLiteral(loc(nullLit));
+            } else if (expr instanceof Liblktlang.ParenExpr parenExpr) {
+                return buildExpr(parenExpr.fExpr());
             } else if (expr instanceof CallExpr callExpr) {
                 final Expr callee = buildExpr(callExpr.fName());
                 final ArgList arguments = buildArgs(
