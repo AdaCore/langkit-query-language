@@ -386,6 +386,14 @@ public final class LktPasses {
                 return IsClauseNodeGen.create(loc(isA), pattern, nodeExpr);
             } else if (expr instanceof StringLit stringLit) {
                 return new StringLiteral(loc(stringLit), parseStringLiteral(stringLit));
+            } else if (expr instanceof Liblktlang.ArrayLiteral arrayLiteral) {
+                return new ListLiteral(
+                    loc(arrayLiteral),
+                    Arrays.stream(arrayLiteral.fExprs().children())
+                        .map(e -> buildExpr((Liblktlang.Expr) e))
+                        .toList()
+                        .toArray(new Expr[0])
+                );
             } else if (expr instanceof Liblktlang.BinOp binOp) {
                 final var left = buildExpr(binOp.fLeft());
                 final var right = buildExpr(binOp.fRight());
