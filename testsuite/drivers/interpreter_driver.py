@@ -1,6 +1,6 @@
 import os
 from e3.testsuite.result import FailureReason
-
+from e3.testsuite.driver.classic import TestAbortWithFailure
 from drivers.base_driver import BaseDriver
 
 
@@ -50,13 +50,23 @@ class InterpreterDriver(BaseDriver):
         result = self.compute_diff(filename, baseline, self.output.log)
 
         # Lkt Refactor test
-        if self.lkt_output:
-            result += self.compute_diff(
-                None,
-                baseline,
-                self.lkt_output,
-                failure_message="execution after refactor TO_LKQL_V2: unexpected output"
-            )
+        match self.test_env.get('lkt_refactor'):
+            case None:
+                xfail = self.compute_diff(None, baseline, self.lkt_output)
+                if not xfail:
+                    self.result.diff = 'Test unexpectedly succeeded after refactor TO_LKQL_V2'
+                    raise TestAbortWithFailure
+
+            case True:
+                result += self.compute_diff(
+                    None,
+                    baseline,
+                    self.lkt_output,
+                    failure_message='execution after refactor TO_LKQL_V2: unexpected output'
+                )
+
+            case False:
+                pass
 
         if result:
             self.result.failure_reasons.add(FailureReason.DIFF)
@@ -74,7 +84,7 @@ class InterpreterDriver(BaseDriver):
         # we refactor the "script.lkql" file and run the interpreter on it.
         # This way we can compare the results of the rewritten script
         # with the original
-        if self.test_env.get('lkt_refactor', False):
+        if self.test_env.get('lkt_refactor') is not False:
             # Translate "script.lkql" to "refactored.lkql"
             refactored_file_path = self.working_dir('refactored.lkql')
             with open(refactored_file_path, 'w') as file:
