@@ -126,8 +126,7 @@ if __name__ == "__main__":
         # may be overridden by the polyglot.engine.userResourceCache value.
         # There is nothing in args (build_mode, classpath native_components) to
         # give a clue about buildspace location, guess it from this file's path.
-        buildspace: Path = Path(__file__).parents[3]
-        tmp_path: Path = Path(buildspace, "tmp")
+        tmp_path: Path = Path("target")
 
         # Create the base Native-Image command
         cmd = [
