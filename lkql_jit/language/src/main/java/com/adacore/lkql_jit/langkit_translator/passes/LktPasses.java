@@ -84,6 +84,7 @@ public final class LktPasses {
         private static FrameKind needsFrame(LktNode node) {
             if (
                 node instanceof FunDecl ||
+                node instanceof Liblktlang.LambdaExpr ||
                 node instanceof Liblktlang.LangkitRoot ||
                 isStreamOpRhs(node)
             ) {
@@ -122,6 +123,8 @@ public final class LktPasses {
 
             if (node instanceof FunParamDecl funParamDecl) {
                 builder.addParameter(funParamDecl.fSynName().getText());
+            } else if (node instanceof LambdaParamDecl lambdaParamDecl) {
+                builder.addParameter(lambdaParamDecl.fSynName().getText());
             }
 
             var frameKind = needsFrame(node);
@@ -209,11 +212,23 @@ public final class LktPasses {
             var defaultVals = new Expr[params.getChildrenCount()];
 
             for (int i = 0; i < params.getChildrenCount(); i++) {
-                var paramDecl = (FunParamDecl) params.getChild(i);
-                paramNames[i] = paramDecl.fSynName().getText();
-                defaultVals[i] = paramDecl.fDefaultVal().isNone()
-                    ? null
-                    : buildExpr(paramDecl.fDefaultVal());
+                String paramName;
+                Liblktlang.Expr defaultValue;
+                switch (params.getChild(i)) {
+                    case FunParamDecl funParamDecl -> {
+                        paramName = funParamDecl.fSynName().getText();
+                        defaultValue = funParamDecl.fDefaultVal();
+                    }
+                    case LambdaParamDecl lambdaParamDecl -> {
+                        paramName = lambdaParamDecl.fSynName().getText();
+                        defaultValue = lambdaParamDecl.fDefaultVal();
+                    }
+                    default -> throw LKQLRuntimeException.create(
+                        "Cannot handle " + params.getChild(i) + " parameter declaration"
+                    );
+                }
+                paramNames[i] = paramName;
+                defaultVals[i] = defaultValue.isNone() ? null : buildExpr(defaultValue);
             }
             final var body = buildExpr(functionBody);
 
@@ -223,7 +238,7 @@ public final class LktPasses {
                 this.frames.getClosureDescriptor(),
                 paramNames,
                 defaultVals,
-                doc.isNone() ? "" : doc.pDenotedValue().value,
+                doc == null || doc.isNone() ? "" : doc.pDenotedValue().value,
                 body,
                 functionName
             );
@@ -508,6 +523,14 @@ public final class LktPasses {
                     .toList()
                     .toArray(new MatchArm[0]);
                 return new Match(loc(matchExpr), matchVal, arms);
+            } else if (expr instanceof Liblktlang.LambdaExpr lambdaExpr) {
+                return createFunExpr(
+                    lambdaExpr,
+                    "<anonymous>",
+                    null,
+                    lambdaExpr.fBody(),
+                    lambdaExpr.fParams()
+                );
             } else {
                 throw LKQLRuntimeException.create(
                     "Translation for " + expr.getKind() + " not implemented"
