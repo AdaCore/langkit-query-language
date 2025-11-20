@@ -1,0 +1,18 @@
+main.adb:11:7: rule violation: possible occurrence of KP 20229
+11 |        Asm("addl $42, %1" & ASCII.LF & ASCII.HT &  --  FLAG
+   | _______^
+   ||
+   || ~~~ 3 other lines ~~~
+   ||
+15 ||           Clobber => "memory");
+   ||_______________________________^
+
+main.adb:62:10: rule violation: possible occurrence of KP 20229
+62 |           Asm("addl $42, %1" & ASCII.LF & ASCII.HT &  --  FLAG
+   | __________^
+   ||
+   || ~~~ 3 other lines ~~~
+   ||
+66 ||              Clobber => "memory");
+   ||__________________________________^
+

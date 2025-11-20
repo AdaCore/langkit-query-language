@@ -1,0 +1,56 @@
+import stdlib
+
+fun has_clobber(node) =
+    |" Return whether this call expression is an instance of
+    |" ``system.machine_code.asm`` that sets the ``clobber`` parameter.
+    node is CallExpr
+    when stdlib.any([
+        p.param.p_canonical_fully_qualified_name()
+            == "system.machine_code.asm.clobber"
+        for p in node.f_suffix.p_zip_with_params()
+    ])
+
+fun get_output(node) =
+    |" If node is an instance of ``system.machine_code.asm`` that defines only
+    |" one ``Asm_Output`` variable, then return it, null otherwise.
+    if node is CallExpr
+    then {
+        val output = [
+            p for p in node.f_suffix.p_zip_with_params()
+            if p.param.p_canonical_fully_qualified_name()
+                == "system.machine_code.asm.outputs"
+        ]?[1];
+
+        if output is not null
+            and output.actual is not Aggregate
+            and output.actual.f_name is AttributeRef
+            and output.actual.f_name.f_attribute.p_name_is("asm_output")
+        then
+            # Get the defining name of the output variable (this can't fail
+            # since this param is synthesized by Libadalang).
+            [
+                p for p in output.actual.f_suffix.p_zip_with_params()
+                if p.param.f_name.p_name_is("value")
+            ][1].actual.p_referenced_defining_name()
+        else null
+    }
+    else null
+
+@check(help="possible occurrence of KP 20229",
+       message="possible occurrence of KP 20229")
+fun kp_20229(node) =
+    |" Look for single-output extended ``asm`` statements
+    |" with clobbers followed by ``return`` statements that return
+    |" the single output from the ``asm`` statement.
+    node is CallStmt
+    when has_clobber(node.f_call)
+    and {
+        val output = get_output(node.f_call);
+
+        if output then
+            stdlib.any([
+                from r.ref through parent select first ReturnStmt
+                for r in output.p_find_all_references(units())
+            ])
+        else false
+    }
