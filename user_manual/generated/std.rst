@@ -12,7 +12,7 @@ Builtin functions
 
     Given a list, return the result of the concatenation of all its elements
 
-.. function:: doc(value)
+.. function:: doc(function)
 
     Given any object, return the documentation associated with it
 
@@ -24,7 +24,7 @@ Builtin functions
 
     Return a string in the RsT format containing documentation for all built-ins
 
-.. function:: help(value)
+.. function:: help(function)
 
     Print formatted help for the given object
 
@@ -48,7 +48,7 @@ Builtin functions
 
     Built-in print function. Prints the argument
 
-.. function:: profile(val)
+.. function:: profile(function)
 
     Given any object, if it is a callable, return its profile as text
 
