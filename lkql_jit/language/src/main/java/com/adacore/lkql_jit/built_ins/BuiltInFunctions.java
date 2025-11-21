@@ -432,43 +432,6 @@ public class BuiltInFunctions {
         }
     }
 
-    @BuiltInFunction(name = "map", doc = "Given a collection, a mapping function")
-    abstract static class MapExpr extends BuiltInBody {
-
-        @Specialization(
-            limit = Constants.SPECIALIZED_LIB_LIMIT,
-            guards = "function.parameterNames.length == 1"
-        )
-        protected LKQLList onValidArgs(
-            Iterable iterable,
-            LKQLFunction function,
-            @CachedLibrary("function") InteropLibrary functionLibrary
-        ) {
-            Object[] res = new Object[(int) iterable.size()];
-            int i = 0;
-            Iterator iterator = iterable.iterator();
-
-            while (iterator.hasNext()) {
-                try {
-                    res[i] = functionLibrary.execute(
-                        function,
-                        function.closure.getContent(),
-                        iterator.next()
-                    );
-                } catch (
-                    ArityException | UnsupportedTypeException | UnsupportedMessageException e
-                ) {
-                    // TODO: Implement runtime checks in the LKQLFunction class and base computing
-                    // on them (#138)
-                    throw LKQLRuntimeException.fromJavaException(e, this);
-                }
-                i++;
-            }
-
-            return new LKQLList(res);
-        }
-    }
-
     @BuiltInFunction(
         name = "profile",
         doc = "Given any object, if it is a callable, return its profile as text"

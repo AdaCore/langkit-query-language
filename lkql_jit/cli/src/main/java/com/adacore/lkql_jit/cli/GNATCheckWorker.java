@@ -641,7 +641,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         val analysis_units = specified_units()
         val roots = [unit.root for unit in analysis_units]
 
-        map(roots, (root) => node_checker(root))
-        map(analysis_units, (unit) => unit_checker(unit))
+        roots.map((root) => node_checker(root)).to_list
+        analysis_units.map((unit) => unit_checker(unit)).to_list
         """;
 }
