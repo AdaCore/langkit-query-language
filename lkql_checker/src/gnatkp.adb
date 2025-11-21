@@ -5,8 +5,6 @@
 
 with Lkql_Checker; use Lkql_Checker;
 
-with Main;
-
 procedure Gnatkp is
 begin
    Main (Gnatkp_Mode);

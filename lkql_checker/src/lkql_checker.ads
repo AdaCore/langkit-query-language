@@ -16,6 +16,9 @@ package Lkql_Checker is
    --
    --  TODO: Use the Put_Image attribute for Lkql_Checker_Mode instead when
    --  switching to Ada_2022.
+
+   procedure Main (Mode : Lkql_Checker_Mode);
+   --  Main entry point to Lkql_Checker.
 private
    function Lkql_Checker_Mode_Name (Mode : Lkql_Checker_Mode) return String;
    --  Return the name associated to the given Mode.

@@ -5,8 +5,6 @@
 
 with Lkql_Checker; use Lkql_Checker;
 
-with Main;
-
 procedure Gnatcheck is
 begin
    Main (Gnatcheck_Mode);
