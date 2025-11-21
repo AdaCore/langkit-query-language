@@ -6,8 +6,6 @@
 --  This package defines options that are supposed to be of a common interest
 --  for all the tools.
 
-with Ada.Command_Line;      use Ada.Command_Line;
-with Ada.Directories;       use Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -32,9 +30,6 @@ package Lkql_Checker.Options is
 
    Version_String : constant String :=
      Lkql_Checker_Version & " (" & Date & ")";
-
-   Executable : constant String := Base_Name (Command_Name);
-   --  Name of the current executable (e.g. "gnatcheck" or "gnatkp")
 
    Custom_Worker_Var : constant String := "GNATCHECK_WORKER";
    --  The name of the environment variable used to define a custom worker
@@ -68,11 +63,6 @@ package Lkql_Checker.Options is
    --  Is raised when an error is detected for the parameters supplied for the
    --  tool (includes both wrong parameters and wrong combinations of correct
    --  parameters).
-
-   Gnatkp_Mode : Boolean := Executable = "gnatkp";
-   --  Whether we are running in KP detection mode
-   --  Set either when the executable is called gnatkp or with the debug switch
-   --  '-dkp'
 
    Legacy : Boolean := False;
    --  If True, run in legacy mode, with no support for additional rule files.
@@ -679,7 +669,7 @@ package Lkql_Checker.Options is
       function XML_Report_File_Path return String;
 
       function Ignore_Project_Switches return Boolean
-      is (Ignore_Project_Switches_Opt.Get or Gnatkp_Mode);
+      is (Ignore_Project_Switches_Opt.Get or Mode = Gnatkp_Mode);
 
       function Source_Files_Specified return Boolean
       is (Source_Files.Get /= Null_Unbounded_String);
@@ -706,10 +696,12 @@ package Lkql_Checker.Options is
       --  the specified ``Default_Name``.
 
       function Text_Report_File_Path return String
-      is (Resolve_Report_File (Text_Output.Get, Executable & ".out"));
+      is (Resolve_Report_File
+            (Text_Output.Get, Lkql_Checker_Mode_Image & ".out"));
 
       function XML_Report_File_Path return String
-      is (Resolve_Report_File (XML_Output.Get, Executable & ".xml"));
+      is (Resolve_Report_File
+            (XML_Output.Get, Lkql_Checker_Mode_Image & ".xml"));
    end Arg;
 
    --------------------------
