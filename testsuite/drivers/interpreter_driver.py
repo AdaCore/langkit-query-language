@@ -49,6 +49,10 @@ class InterpreterDriver(BaseDriver):
         # Normal test
         result = self.compute_diff(filename, baseline, self.output.log)
 
+        # If the test has to change no point in checking lkt_refactor
+        if self.rewrite_baseline:
+            return result
+        
         # Lkt Refactor test
         match self.test_env.get('lkt_refactor'):
             case None:
