@@ -1156,7 +1156,9 @@ package body Lkql_Checker.Projects is
 
       Lkql_Checker.Projects.Set_Global_Result_Dirs (Checker_Prj);
       Checker_Config_File :=
-        new String'(Global_Report_Dir.all & Checker_Config_File.all);
+        new String'
+          (Normalize_Pathname
+             (Global_Report_Dir.all & Checker_Config_File.all));
 
       Analyze_Compiler_Output :=
         Use_gnaty_Option
