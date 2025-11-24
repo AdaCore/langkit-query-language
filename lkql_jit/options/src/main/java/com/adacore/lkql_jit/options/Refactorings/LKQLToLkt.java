@@ -42,7 +42,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.SelectorArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
             case Liblkqllang.SelectorDecl selectorDecl -> refactorSelectorDecl(selectorDecl);
             case Liblkqllang.RecExpr recExpr -> refactorRecExpr(recExpr);
-            case Liblkqllang.BlockBodyExpr bbe -> "var _ = " + refactorGeneric(bbe);
+            case Liblkqllang.BlockBodyExpr bbe -> "val _ = " + refactorGeneric(bbe);
             case Liblkqllang.UnitLiteral _ -> "Unit()";
             case Liblkqllang.Expr expr when (
                 expr.parent() instanceof Liblkqllang.TopLevelList
