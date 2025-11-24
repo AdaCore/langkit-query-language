@@ -173,6 +173,10 @@ Methods for `LazyList`
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
 
+.. method:: LazyList.flatten(this)
+
+    Given an iterable of iterables, flatten all of them in a resulting iterable value. The returned value is lazy.
+
 .. method:: LazyList.help(this)
 
     Print formatted help for the given object
@@ -215,6 +219,10 @@ Methods for `List`
 .. method:: List.enumerate(this)
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
+.. method:: List.flatten(this)
+
+    Given an iterable of iterables, flatten all of them in a resulting iterable value. The returned value is lazy.
 
 .. method:: List.help(this)
 
@@ -534,6 +542,10 @@ Methods for `SelectorList`
 .. method:: SelectorList.enumerate(this)
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
+.. method:: SelectorList.flatten(this)
+
+    Given an iterable of iterables, flatten all of them in a resulting iterable value. The returned value is lazy.
 
 .. method:: SelectorList.help(this)
 

@@ -13,6 +13,7 @@ import com.adacore.lkql_jit.runtime.values.LKQLTuple;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
 import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLLazyList;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLFlattenResult;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLMapResult;
 import com.adacore.lkql_jit.utils.Constants;
@@ -103,6 +104,21 @@ public class IterableMethods {
             @CachedLibrary("function") InteropLibrary functionLibrary
         ) {
             return new LKQLMapResult(iterable, function, functionLibrary);
+        }
+    }
+
+    @BuiltInMethod(
+        name = "flatten",
+        doc = """
+        Given an iterable of iterables, flatten all of them in a resulting iterable value. The \
+        returned value is lazy.""",
+        isProperty = true
+    )
+    abstract static class FlattenExpr extends BuiltInBody {
+
+        @Specialization
+        protected BaseLKQLLazyList onIterable(Iterable iterable) {
+            return new LKQLFlattenResult(iterable);
         }
     }
 }
