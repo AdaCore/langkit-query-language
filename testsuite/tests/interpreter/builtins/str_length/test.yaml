@@ -1,3 +1,0 @@
-driver: 'interpreter'
-project: 'default_project/default.gpr'
-lkt_refactor: True

@@ -1,2 +1,0 @@
-val o = select o @ ObjectDecl
-print(o.length)
