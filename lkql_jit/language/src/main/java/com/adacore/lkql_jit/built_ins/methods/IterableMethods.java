@@ -121,4 +121,26 @@ public class IterableMethods {
             return new LKQLFlattenResult(iterable);
         }
     }
+
+    @BuiltInMethod(
+        name = "flat_map",
+        doc = """
+        Given an iterable and a function that takes one argument and return another iterable \
+        value, return a new iterable, result of the function application on all elements, flatten \
+        in a sole iterable value. The returned iterable value is lazy."""
+    )
+    abstract static class FlatMapExpr extends BuiltInBody {
+
+        @Specialization(
+            limit = Constants.SPECIALIZED_LIB_LIMIT,
+            guards = "function.parameterNames.length == 1"
+        )
+        protected BaseLKQLLazyList onIterable(
+            Iterable iterable,
+            LKQLFunction function,
+            @CachedLibrary("function") InteropLibrary functionLibrary
+        ) {
+            return new LKQLFlattenResult(new LKQLMapResult(iterable, function, functionLibrary));
+        }
+    }
 }

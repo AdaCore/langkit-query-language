@@ -173,6 +173,10 @@ Methods for `LazyList`
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
 
+.. method:: LazyList.flat_map(this, function)
+
+    Given an iterable and a function that takes one argument and return another iterable value, return a new iterable, result of the function application on all elements, flatten in a sole iterable value. The returned iterable value is lazy.
+
 .. method:: LazyList.flatten(this)
 
     Given an iterable of iterables, flatten all of them in a resulting iterable value. The returned value is lazy.
@@ -219,6 +223,10 @@ Methods for `List`
 .. method:: List.enumerate(this)
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
+.. method:: List.flat_map(this, function)
+
+    Given an iterable and a function that takes one argument and return another iterable value, return a new iterable, result of the function application on all elements, flatten in a sole iterable value. The returned iterable value is lazy.
 
 .. method:: List.flatten(this)
 
@@ -542,6 +550,10 @@ Methods for `SelectorList`
 .. method:: SelectorList.enumerate(this)
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
+
+.. method:: SelectorList.flat_map(this, function)
+
+    Given an iterable and a function that takes one argument and return another iterable value, return a new iterable, result of the function application on all elements, flatten in a sole iterable value. The returned iterable value is lazy.
 
 .. method:: SelectorList.flatten(this)
 

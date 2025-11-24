@@ -1,0 +1,15 @@
+# Test a simple flat map
+val lst = [1, 2, 3]
+val fm_1 = lst.flat_map((x) => [x * x, x.img])
+print(fm_1.to_list)
+
+# Ensure flat map is lazy
+val fm_2 = lst.flat_map((x) => { print("Processing " & x.img); [x * x, x.img] })
+print(fm_2[1].img)
+print(fm_2[2].img)
+print(fm_2[5].img)
+print(fm_2[4].img)
+
+# Check that function not returning iterables triggers an error
+val fm_3 = lst.flat_map((x) => x*2)
+print(fm_3[1])
