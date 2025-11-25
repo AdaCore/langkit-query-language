@@ -24,8 +24,10 @@ import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockExpr;
+import com.adacore.lkql_jit.nodes.expressions.dot.BaseDotAccess;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessWrapperNodeGen;
+import com.adacore.lkql_jit.nodes.expressions.dot.SafeDotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
@@ -524,14 +526,14 @@ public final class LktPasses {
                 );
             } else if (expr instanceof DotExpr dotExpr) {
                 final var memberIdentifier = dotExpr.fSuffix();
-                return DotAccessWrapperNodeGen.create(
-                    loc(dotExpr),
-                    DotAccessNodeGen.create(
-                        loc(dotExpr),
-                        new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
-                        buildExpr(dotExpr.fPrefix())
-                    )
-                );
+                final var loc = loc(dotExpr);
+                final var id = new Identifier(loc(memberIdentifier), memberIdentifier.getText());
+                final var prefix = buildExpr(dotExpr.fPrefix());
+                final BaseDotAccess dotAccess = (dotExpr.fNullCond() instanceof
+                        Liblktlang.NullCondQualifierPresent)
+                    ? SafeDotAccessNodeGen.create(loc, id, prefix)
+                    : DotAccessNodeGen.create(loc, id, prefix);
+                return DotAccessWrapperNodeGen.create(dotAccess.getSourceSection(), dotAccess);
             } else if (expr instanceof MatchExpr matchExpr) {
                 Expr matchVal = buildExpr(matchExpr.fMatchExpr());
                 var arms = Arrays.stream(matchExpr.fBranches().children())
