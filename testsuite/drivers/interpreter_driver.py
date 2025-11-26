@@ -66,7 +66,9 @@ class InterpreterDriver(BaseDriver):
                     None,
                     baseline,
                     self.lkt_output,
-                    failure_message="execution after refactor TO_LKQL_V2: unexpected output",
+                    failure_message=(
+                        "execution after refactor TO_LKQL_V2: unexpected output"
+                    ),
                 )
 
             case False:

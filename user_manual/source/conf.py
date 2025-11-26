@@ -24,7 +24,7 @@ from sphinx.highlighting import lexers
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path)
 
-import lkql_lexer
+import lkql_lexer  # noqa: E402
 
 project = "LKQL"
 copyright = "2020, AdaCore"

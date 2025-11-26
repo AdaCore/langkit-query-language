@@ -16,7 +16,7 @@ try:
     LKQL_CLASSES = [
         v
         for _, v in liblkqllang.__dict__.items()
-        if (type(v) == type and issubclass(v, liblkqllang.LkqlNode))
+        if (type(v) is type and issubclass(v, liblkqllang.LkqlNode))
     ]
 
 except ImportError:

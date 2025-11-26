@@ -83,8 +83,8 @@ class CheckerDriver(BaseDriver):
                 if auto_fix_mode in ["NEW_FILE", "PATCH_FILE"]:
                     # Get the list of patched files by parsing the output
                     patched_files = []
-                    for l in str(self.output).splitlines():
-                        search_result = patched_file_pattern.search(l)
+                    for line in str(self.output).splitlines():
+                        search_result = patched_file_pattern.search(line)
                         if search_result is not None:
                             groups = search_result.groups()
                             patched_files.append(groups[2] or groups[0])

@@ -28,7 +28,7 @@ class BenchmarksDriver(BaseDriver):
             os.path.join(self.lkql_jit_dir, "benchmarks"),
             "jmh:benchmark",
             "-Djmh.rf=json",
-            f"-Djmh.v=SILENT",
+            "-Djmh.v=SILENT",
             f"-Djmh.rff={benchmark_results_json}",
         ]
         self.shell(

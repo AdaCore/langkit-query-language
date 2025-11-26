@@ -6,6 +6,7 @@
 
 from os import path as P
 import sys
+from sphinx.highlighting import lexers
 import time
 
 # Add own dir path
@@ -22,13 +23,11 @@ lkql_user_manual_path = P.join(
 
 sys.path.append(lkql_user_manual_path)
 
-import ada_pygments
-import latex_elements
-import lkql_lexer
+import ada_pygments  # noqa: E402
+import latex_elements  # noqa: E402
+import lkql_lexer  # noqa: E402
 
 # -- General configuration ---------------------------------------------------
-
-from sphinx.highlighting import lexers
 
 lexers["lkql"] = lkql_lexer.LKQLPygmentsLexer()
 lexers["ada"] = ada_pygments.AdaLexer()

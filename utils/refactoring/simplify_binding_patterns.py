@@ -7,7 +7,8 @@ class App(refactor.Refactor):
 
     def preprocess(self, unit):
         for binding_pat in unit.root.findall(lkql.BindingPattern):
-            # Remove every token from the @ token to the last whitespace after the '*' token
+            # Remove every token from the @ token to the last whitespace after the '*'
+            # token.
 
             if binding_pat.f_value_pattern and binding_pat.f_value_pattern.is_a(
                 lkql.UniversalPattern

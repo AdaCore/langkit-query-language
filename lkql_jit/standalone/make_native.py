@@ -1,3 +1,11 @@
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+sys.path.append("..")
+from utils import GraalManager, parse_args, is_windows  # noqa E402
+
 """----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
@@ -39,16 +47,6 @@ According to native-image documentation
 Java reflection objects that are statically fetched don't need to be
 specified at any other place.
 """
-
-import os
-import subprocess
-import sys
-
-from pathlib import Path
-
-sys.path.append("..")
-# noinspection PyUnresolvedReferences
-from utils import GraalManager, parse_args, is_windows
 
 
 def look_for_files_in_env(files: list[str], env_var_name: str) -> dict[str, str] | None:
