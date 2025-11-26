@@ -109,8 +109,8 @@ class Symbols:
                 if last_insn and not last_insn.is_ret():
                     if args.verbose:
                         print(
-                            f"{self}(0x{insn.i_offset}):" +
-                            " Stack increment detected")
+                            f"{self}(0x{insn.i_offset}):" + " Stack increment detected"
+                        )
                     stack_incr_detected = True
                     continue
 
@@ -127,9 +127,9 @@ class Symbols:
                     if insn.is_sp_related():
                         if args.verbose:
                             print(
-                                f"{self}(0x{insn.i_offset}):" +
-                                " %sp related store/load detected:" +
-                                " safe to ignore"
+                                f"{self}(0x{insn.i_offset}):"
+                                + " %sp related store/load detected:"
+                                + " safe to ignore"
                             )
                         continue
 
@@ -139,14 +139,15 @@ class Symbols:
                     if r is not None or insn.has_reloc():
                         if args.verbose:
                             print(
-                                f"{self}(0x{insn.i_offset}):" +
-                                " Symbol access detected: safe to ignore"
+                                f"{self}(0x{insn.i_offset}):"
+                                + " Symbol access detected: safe to ignore"
                             )
                         continue
 
                     print(
-                        f"{self}(0x{insn.i_offset}):" +
-                        " Suspicious store/load detected")
+                        f"{self}(0x{insn.i_offset}):"
+                        + " Suspicious store/load detected"
+                    )
                     has_errors = True
 
                 # If a branch inside the same function happens, the current
@@ -154,8 +155,8 @@ class Symbols:
                 # It shouldn't happen but this is a safeguard.
                 if insn.is_local_branch(self.s_name):
                     print(
-                        f"{self}(0x{insn.i_offset}): Local branch detected." +
-                        " Manual verification required."
+                        f"{self}(0x{insn.i_offset}): Local branch detected."
+                        + " Manual verification required."
                     )
                     has_errors = True
 
@@ -219,8 +220,7 @@ class Insn:
         r"\s*(!\s*(?P<comment>.*))?"
     )
 
-    re_insn = re.compile(
-        r"^ *([0-9A-Fa-f]+): *\t(.. .. .. ..) *\t([^ ]+)(.*)$")
+    re_insn = re.compile(r"^ *([0-9A-Fa-f]+): *\t(.. .. .. ..) *\t([^ ]+)(.*)$")
 
     def __init__(self, remo):
         self.i_offset = remo.group("offset")
@@ -259,8 +259,7 @@ class Insn:
         )
 
     def is_branch(self):
-        return self.i_mnemonic.startswith("b") or \
-            self.i_mnemonic.startswith("fb")
+        return self.i_mnemonic.startswith("b") or self.i_mnemonic.startswith("fb")
 
     def is_local_branch(self, s_name):
         return self.is_branch() and s_name in self.i_ops[0]
@@ -293,8 +292,7 @@ class Insn:
         # a symbol. It will then print its address and name in the
         # comment part.
         reloc_comment_re = r"^(?P<addr>[0-9A-Fa-f]+) <(?P<symname>.+)>"
-        return self.i_comment is not None and \
-            re.match(reloc_comment_re, self.i_comment)
+        return self.i_comment is not None and re.match(reloc_comment_re, self.i_comment)
 
 
 def parse_dissas(fname):
@@ -330,11 +328,13 @@ def parse_dissas(fname):
                 continue
 
     if not has_relocs:
-        print("""
+        print(
+            """
 Warning: no relocation have been found. This can lead to various false
 positives. Unless you're scanning an executable, please ensure that the
 objdump output was generated with -dr flags.
-""")
+"""
+        )
 
     if args.verbose:
         print("Parsing done")
@@ -343,7 +343,8 @@ objdump output was generated with -dr flags.
 
 
 argparser = argparse.ArgumentParser(
-    description="Scanning utility for KP-VA20-016 / GCC PR 107248")
+    description="Scanning utility for KP-VA20-016 / GCC PR 107248"
+)
 argparser.add_argument(
     "-v",
     "--verbose",
@@ -351,10 +352,8 @@ argparser.add_argument(
     default=0,
     help="dump analysis events of note",
 )
-argparser.add_argument(
-    "--version", action="version", version=f"{__version__}")
-argparser.add_argument(
-    "fname", metavar="file", help="objdump -dr output to be parsed")
+argparser.add_argument("--version", action="version", version=f"{__version__}")
+argparser.add_argument("fname", metavar="file", help="objdump -dr output to be parsed")
 
 
 if __name__ == "__main__":

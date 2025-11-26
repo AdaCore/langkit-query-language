@@ -1,6 +1,6 @@
 # define some latex elements to be used for PDF output
 
-PAGE_BLANK = r'''
+PAGE_BLANK = r"""
 \makeatletter
 \def\cleartooddpage{%%
    \cleardoublepage%%
@@ -27,14 +27,14 @@ PAGE_BLANK = r'''
    \fi%%
 }
 \makeatother
-'''
+"""
 
-TOC_DEPTH = r'''
+TOC_DEPTH = r"""
 \pagenumbering{arabic}
 \setcounter{tocdepth}{3}
-'''
+"""
 
-TOC_CMD = r'''
+TOC_CMD = r"""
 \makeatletter
 \def\tableofcontents{%%
     \pagestyle{plain}%%
@@ -44,21 +44,24 @@ TOC_CMD = r'''
     \@starttoc{toc}%%
 }
 \makeatother
-'''
+"""
 
-TOC = r'''
+TOC = r"""
 \cleardoublepage
 \tableofcontents
 \cleardoublepage\pagestyle{plain}
-'''
+"""
 
-LATEX_HYPHEN = r'''
+LATEX_HYPHEN = r"""
 \hyphenpenalty=5000
 \tolerance=1000
-'''
+"""
 
 
 def doc_settings(full_document_name, version):
-    return '\n'.join([
-        r'\newcommand*{\GNATFullDocumentName}[0]{' + full_document_name + r'}',
-        r'\newcommand*{\GNATVersion}[0]{' + version + r'}'])
+    return "\n".join(
+        [
+            r"\newcommand*{\GNATFullDocumentName}[0]{" + full_document_name + r"}",
+            r"\newcommand*{\GNATVersion}[0]{" + version + r"}",
+        ]
+    )

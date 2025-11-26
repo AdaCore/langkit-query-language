@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Get the Maven executable
     mvn = "mvn.cmd" if os.name == "nt" else "mvn"
 
@@ -25,9 +25,7 @@ if __name__ == '__main__':
     # Forward script arguments to Maven and ensure 'MAVEN_ARGS' is taken into
     # account.
     maven_args = sys.argv[1:] + (
-        os.environ['MAVEN_ARGS'].split(" ")
-        if os.environ.get('MAVEN_ARGS') else
-        []
+        os.environ["MAVEN_ARGS"].split(" ") if os.environ.get("MAVEN_ARGS") else []
     )
 
     # Set maven to offline mode when running in a Gitlab CI
@@ -39,13 +37,7 @@ if __name__ == '__main__':
 
     # Run Maven on LKQL JIT project with additional args of this script
     try:
-        subprocess.check_output([
-            mvn,
-            "-f",
-            pom_xml,
-            "-q",
-            *maven_args
-        ])
+        subprocess.check_output([mvn, "-f", pom_xml, "-q", *maven_args])
     except subprocess.CalledProcessError as e:
         print(e.output.decode())
         exit(e.returncode)

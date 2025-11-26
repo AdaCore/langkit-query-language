@@ -692,10 +692,12 @@ class GnatcheckDriver(BaseDriver):
         # base_driver refiners.
         if self.test_env.get("canonicalize_worker", True):
             result.append(
-                    Substitute(
+                Substitute(
                     " ".join(
                         [
-                            P.basename(self.gnatcheck_worker_exe[0]).rsplit('.', maxsplit=1)[0],
+                            P.basename(self.gnatcheck_worker_exe[0]).rsplit(
+                                ".", maxsplit=1
+                            )[0],
                             *self.gnatcheck_worker_exe[1:],
                         ]
                     ),
