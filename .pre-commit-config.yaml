@@ -6,6 +6,7 @@ repos:
         entry: gnatformat
         language: system
         files: "^lkql_checker/src/.*\\.ad(b|s)$"
+
   - repo: local
     hooks:
       - id: maven-spotless
@@ -18,3 +19,14 @@ repos:
         pass_filenames: false
         require_serial: true
         files: "^lkql_jit/.*\\.java$"
+
+  - repo: https://github.com/ambv/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        name: black-24.10.0
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8

@@ -19,12 +19,10 @@ import sys
 script_path = P.dirname(P.dirname(P.realpath(__file__)))
 
 a = argparse.ArgumentParser(description=__doc__)
-a.add_argument('-r', '--rule-name', type=str, required=True)
-a.add_argument('--rule-arg', type=str, nargs='+')
-a.add_argument('-t', '--test-name', type=str, required=True)
-a.add_argument(
-    'ada_files', help='Ada files to add to the test', type=str, nargs='+'
-)
+a.add_argument("-r", "--rule-name", type=str, required=True)
+a.add_argument("--rule-arg", type=str, nargs="+")
+a.add_argument("-t", "--test-name", type=str, required=True)
+a.add_argument("ada_files", help="Ada files to add to the test", type=str, nargs="+")
 
 YAML_TEMPLATE = """
 driver: 'checker'
@@ -34,8 +32,9 @@ input_sources: {input_sources}
 
 if __name__ == "__main__":
     args = a.parse_args()
-    test_dir_path = Path(
-        script_path) / "testsuite" / "tests" / "checks" / args.test_name
+    test_dir_path = (
+        Path(script_path) / "testsuite" / "tests" / "checks" / args.test_name
+    )
     try:
         test_dir_path.mkdir(parents=True)
     except Exception:
@@ -60,12 +59,13 @@ if __name__ == "__main__":
         f.write("")
 
     # Run lkql_checker on the files with given rule
-    o = subprocess.check_output([
-        "python", "testsuite/testsuite.py",
-        "-E", "-r", args.test_name
-    ], cwd=script_path, stderr=subprocess.STDOUT)
+    o = subprocess.check_output(
+        ["python", "testsuite/testsuite.py", "-E", "-r", args.test_name],
+        cwd=script_path,
+        stderr=subprocess.STDOUT,
+    )
 
     # Verify that test is fine:
-    subprocess.check_call([
-        "python", "testsuite/testsuite.py", "-E", args.test_name
-    ], cwd=script_path)
+    subprocess.check_call(
+        ["python", "testsuite/testsuite.py", "-E", args.test_name], cwd=script_path
+    )

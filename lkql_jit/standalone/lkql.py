@@ -8,27 +8,27 @@ import os
 import os.path as P
 import subprocess
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Create an argument parser to catch debug flags and leave remaining
     # options.
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
-        "--truffle-debug", action="store_true",
+        "--truffle-debug",
+        action="store_true",
         help="Activate many options for truffle that allows the user to debug"
-        "the JIT"
+        "the JIT",
     )
     parser.add_argument(
-        "--compile-immediately", action="store_true",
+        "--compile-immediately",
+        action="store_true",
         help="Activate an option for truffle that triggers automatic"
-        "compilation of root nodes. Useful to debug performance issues"
+        "compilation of root nodes. Useful to debug performance issues",
     )
     args, remaining = parser.parse_known_args()
 
     # Get the required paths
     graal_home = os.environ["GRAAL_HOME"]
-    lkql_jit_home = os.environ.get(
-        "LKQL_JIT_HOME", P.join(os.path.dirname(__file__))
-    )
+    lkql_jit_home = os.environ.get("LKQL_JIT_HOME", P.join(os.path.dirname(__file__)))
 
     # Ensure the 'lkql_jit_home' is a directory
     if not os.path.isdir(lkql_jit_home):
@@ -46,11 +46,7 @@ if __name__ == '__main__':
 
     # Create the class path by listing all JARs in 'lkql_jit_home'
     class_path = os.pathsep.join(
-        [
-            os.path.join(lib_dir, p)
-            for p in os.listdir(lib_dir)
-            if p.endswith(".jar")
-        ]
+        [os.path.join(lib_dir, p) for p in os.listdir(lib_dir) if p.endswith(".jar")]
     )
 
     # Create the java.library.path property
@@ -88,25 +84,21 @@ if __name__ == '__main__':
                 "--engine.TraceCompilationDetails=true",
                 "--engine.TracePerformanceWarnings=all",
                 "--engine.CompilationFailureAction=Diagnose",
-                '--vm.XX:+TraceDeoptimization',
-                '--engine.NodeSourcePositions',
-                '--engine.TraceTransferToInterpreter',
-                '--vm.XX:+TraceDeoptimizationDetails',
-                '--engine.NodeSourcePositions',
-                '--vm.XX:+UnlockDiagnosticVMOptions',
-                '--vm.XX:+DebugNonSafepoints',
-                '--vm.XX:+TraceDeoptimization',
-                '--engine.CompilationStatistics',
-                '--engine.BackgroundCompilation=false',
-                '--engine.TraceDeoptimizeFrame'
+                "--vm.XX:+TraceDeoptimization",
+                "--engine.NodeSourcePositions",
+                "--engine.TraceTransferToInterpreter",
+                "--vm.XX:+TraceDeoptimizationDetails",
+                "--engine.NodeSourcePositions",
+                "--vm.XX:+UnlockDiagnosticVMOptions",
+                "--vm.XX:+DebugNonSafepoints",
+                "--vm.XX:+TraceDeoptimization",
+                "--engine.CompilationStatistics",
+                "--engine.BackgroundCompilation=false",
+                "--engine.TraceDeoptimizeFrame",
             ]
             if args.truffle_debug
             else []
         )
-        + (
-            ['--engine.CompileImmediately=true']
-            if args.compile_immediately
-            else []
-        ),
-        env=env
+        + (["--engine.CompileImmediately=true"] if args.compile_immediately else []),
+        env=env,
     )

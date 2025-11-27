@@ -24,47 +24,46 @@ from sphinx.highlighting import lexers
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path)
 
-import lkql_lexer
+import lkql_lexer  # noqa: E402
 
-project = 'LKQL'
-copyright = '2020, AdaCore'
-author = 'Raphael Amiard'
+project = "LKQL"
+copyright = "2020, AdaCore"
+author = "Raphael Amiard"
 
-lexers['lkql'] = lkql_lexer.LKQLPygmentsLexer()
+lexers["lkql"] = lkql_lexer.LKQLPygmentsLexer()
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['lkql_doc_class']
+extensions = ["lkql_doc_class"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-html_css_files = [
-    'css/railroad.css'
-]
+html_css_files = ["css/railroad.css"]
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-if os.environ.get('USE_SPHINX_RTD_THEME'):
+if os.environ.get("USE_SPHINX_RTD_THEME"):
     import sphinx_rtd_theme
+
     html_theme = "sphinx_rtd_theme"
     html_theme_path = sphinx_rtd_theme.get_html_theme_path()
 else:
-    html_theme = 'alabaster'
+    html_theme = "alabaster"
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]

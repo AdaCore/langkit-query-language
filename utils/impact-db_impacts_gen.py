@@ -33,7 +33,7 @@ def list_impacts(issues: [str]) -> None:
 
 
 kps = [kp for kp in glob.glob("./lkql_checker/share/lkql/kp/*.lkql")]
-ids = [Path(id).stem[3:].upper().replace('_','-') for id in kps]
+ids = [Path(id).stem[3:].upper().replace("_", "-") for id in kps]
 list_impacts(sorted(ids))
 
 impacts = {"impacts": OrderedDict(sorted(res.items()))}

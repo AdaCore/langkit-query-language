@@ -100,7 +100,10 @@ class FileFlags:
                 res.append(
                     (
                         line,
-                        f"unexpected flag count (expecting {flag_count}, actual {count})",
+                        (
+                            f"unexpected flag count (expecting {flag_count}, actual "
+                            f"{count})"
+                        ),
                     )
                 )
 
@@ -132,7 +135,8 @@ class FileFlags:
         # source.
         if len(self.matching_sources) > 1:
             raise TestAbortWithError(
-                f"Cannot automatically add flags annotations in {self.file_name}, multiple sources are matching this name"
+                f"Cannot automatically add flags annotations in {self.file_name}, "
+                "multiple sources are matching this name"
             )
         source = self.matching_sources[0]
 
@@ -503,7 +507,7 @@ class BaseDriver(DiffTestDriver):
                     lines = ada_bytes.decode(encoding).split("\n")
                     lines = lines[:-1] if not lines[-1] else lines
                     return (lines, encoding)
-                except ValueError as _:
+                except ValueError:
                     pass
 
     def _define_lkql_executables(self) -> None:

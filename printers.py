@@ -12,42 +12,48 @@ class PrinterBase(object):
 
 
 class GlobalDataPrinter(PrinterBase):
-    typeName = 'interpreter__eval_contexts__global_data'
+    typeName = "interpreter__eval_contexts__global_data"
 
     def __init__(self, val):
         self.val = val
 
     def children(self):
-        return [("Ast_Root", self.val["ast_root"]),
-                ("Last_Error", self.val["last_error"])]
+        return [
+            ("Ast_Root", self.val["ast_root"]),
+            ("Last_Error", self.val["last_error"]),
+        ]
 
     def to_string(self):
         return "Kernel"
 
 
 class EnvironmentPrinter(PrinterBase):
-    typeName = 'interpreter__eval_contexts__environment'
+    typeName = "interpreter__eval_contexts__environment"
 
     def __init__(self, val):
         self.val = val
 
     def children(self):
-        return [("Bindings", self.val["local_bindings"]),
-                ("Parent", self.val["parent"].dereference())]
+        return [
+            ("Bindings", self.val["local_bindings"]),
+            ("Parent", self.val["parent"].dereference()),
+        ]
 
     def to_string(self):
         return "Environment"
 
 
 class EvalContextPrinter(PrinterBase):
-    typeName = 'interpreter__eval_contexts__eval_context'
+    typeName = "interpreter__eval_contexts__eval_context"
 
     def __init__(self, val):
         self.val = val
 
     def children(self):
-        return [("kernel", self.val["kernel"].dereference()),
-                ("frames", self.val["frames"].dereference())]
+        return [
+            ("kernel", self.val["kernel"].dereference()),
+            ("frames", self.val["frames"].dereference()),
+        ]
 
     def to_string(self):
         return "Evaluation context"
@@ -63,4 +69,3 @@ def eval_context_lookup(val):
 
 
 gdb.current_objfile().pretty_printers.append(eval_context_lookup)
-

@@ -4,7 +4,6 @@ hierarchy are already documented, in reference_manual.rst, and get a report of
 which classes remain to be documented.
 """
 
-
 from collections import defaultdict
 from docutils import nodes
 from functools import lru_cache
@@ -13,10 +12,11 @@ from sphinx.util.docutils import SphinxDirective
 
 try:
     import liblkqllang
+
     LKQL_CLASSES = [
-        v for _, v in liblkqllang.__dict__.items()
-        if (type(v) == type
-            and issubclass(v, liblkqllang.LkqlNode))
+        v
+        for _, v in liblkqllang.__dict__.items()
+        if (type(v) is type and issubclass(v, liblkqllang.LkqlNode))
     ]
 
 except ImportError:
@@ -48,11 +48,11 @@ def is_class_documented(lkql_class):
     if issubclass(lkql_class, liblkqllang.LkqlNodeBaseList):
         return True
     subclasses = lkql_cls_subclasses()[lkql_class]
-    return (
-        getattr(lkql_class, "documented", False)
-        or (len(subclasses) > 0
-            and all(is_class_documented(subcls)
-                    for subcls in lkql_cls_subclasses()[lkql_class]))
+    return getattr(lkql_class, "documented", False) or (
+        len(subclasses) > 0
+        and all(
+            is_class_documented(subcls) for subcls in lkql_cls_subclasses()[lkql_class]
+        )
     )
 
 
@@ -68,7 +68,7 @@ class LkqlDocClassDirective(SphinxDirective):
     def run(self):
         cls_name = self.arguments[0]
 
-        if not hasattr(self.env, 'documented_classes'):
+        if not hasattr(self.env, "documented_classes"):
             self.env.documented_classes = []
 
         try:
@@ -112,16 +112,16 @@ def check_lkql_code(app, doctree, fromdocname):
             """
 
             # Don't check non lkql blocks
-            if node.attributes['language'].lower().strip() != 'lkql':
+            if node.attributes["language"].lower().strip() != "lkql":
                 return
 
             text = node[0].astext()
-            unit = self.lkql_context.get_from_buffer('<buffer>', text)
+            unit = self.lkql_context.get_from_buffer("<buffer>", text)
             if unit.diagnostics:
                 for diag in unit.diagnostics:
                     doctree.reporter.warning(
                         f"LKQL syntax error: {diag.message}",
-                        line=node.line + 1 + diag.sloc_range.start.line
+                        line=node.line + 1 + diag.sloc_range.start.line,
                     )
 
         def unknown_visit(self, node) -> None:
@@ -136,12 +136,12 @@ def check_lkql_code(app, doctree, fromdocname):
 
 def setup(app):
     if liblkqllang:
-        app.add_directive('lkql_doc_class', LkqlDocClassDirective)
-        app.connect('doctree-resolved', process_lkql_classes_coverage)
-        app.connect('doctree-resolved', check_lkql_code)
+        app.add_directive("lkql_doc_class", LkqlDocClassDirective)
+        app.connect("doctree-resolved", process_lkql_classes_coverage)
+        app.connect("doctree-resolved", check_lkql_code)
 
     return {
-        'version': '0.1',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "0.1",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }
