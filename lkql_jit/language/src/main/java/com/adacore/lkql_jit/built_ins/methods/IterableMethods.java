@@ -8,14 +8,19 @@ package com.adacore.lkql_jit.built_ins.methods;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLTuple;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
+import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLLazyList;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLFlattenResult;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLMapResult;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.dsl.Specialization;
-import java.util.LinkedList;
-import java.util.List;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.CachedLibrary;
 
 /** This class contains all built-in methods for the iterable type in the LKQL language. */
 @BuiltinMethodContainer(
@@ -60,14 +65,14 @@ public class IterableMethods {
         @Specialization
         public LKQLList doGeneric(Iterable self) {
             // Create a new list from the iterable
-            List<Object> resList = new LinkedList<>();
+            var res = new Object[(int) self.size()];
             Iterator iterator = self.iterator();
-            while (iterator.hasNext()) {
-                resList.add(iterator.next());
+            for (int i = 0; i < res.length; i++) {
+                res[i] = iterator.next();
             }
 
             // Return the new list value
-            return new LKQLList(resList.toArray(new Object[0]));
+            return new LKQLList(res);
         }
     }
 
@@ -77,6 +82,65 @@ public class IterableMethods {
         @Specialization
         public long doGeneric(Iterable self) {
             return self.size();
+        }
+    }
+
+    @BuiltInMethod(
+        name = "map",
+        doc = """
+        Given an iterable and a function that takes one argument and return a value, return \
+        a new iterable, result of the application of the function on all iterable elements.
+        The returned iterable value is lazy."""
+    )
+    abstract static class MapExpr extends BuiltInBody {
+
+        @Specialization(
+            limit = Constants.SPECIALIZED_LIB_LIMIT,
+            guards = "function.parameterNames.length == 1"
+        )
+        protected BaseLKQLLazyList onIterable(
+            Iterable iterable,
+            LKQLFunction function,
+            @CachedLibrary("function") InteropLibrary functionLibrary
+        ) {
+            return new LKQLMapResult(iterable, function, functionLibrary);
+        }
+    }
+
+    @BuiltInMethod(
+        name = "flatten",
+        doc = """
+        Given an iterable of iterables, flatten all of them in a resulting iterable value. The \
+        returned value is lazy.""",
+        isProperty = true
+    )
+    abstract static class FlattenExpr extends BuiltInBody {
+
+        @Specialization
+        protected BaseLKQLLazyList onIterable(Iterable iterable) {
+            return new LKQLFlattenResult(iterable);
+        }
+    }
+
+    @BuiltInMethod(
+        name = "flat_map",
+        doc = """
+        Given an iterable and a function that takes one argument and return another iterable \
+        value, return a new iterable, result of the function application on all elements, flatten \
+        in a sole iterable value. The returned iterable value is lazy."""
+    )
+    abstract static class FlatMapExpr extends BuiltInBody {
+
+        @Specialization(
+            limit = Constants.SPECIALIZED_LIB_LIMIT,
+            guards = "function.parameterNames.length == 1"
+        )
+        protected BaseLKQLLazyList onIterable(
+            Iterable iterable,
+            LKQLFunction function,
+            @CachedLibrary("function") InteropLibrary functionLibrary
+        ) {
+            return new LKQLFlattenResult(new LKQLMapResult(iterable, function, functionLibrary));
         }
     }
 }

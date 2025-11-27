@@ -32,10 +32,6 @@ Builtin functions
 
     Return a string representation of an object
 
-.. function:: map(iterable, function)
-
-    Given a collection, a mapping function
-
 .. function:: node_checker(root)
 
     Given a root, execute all node checkers while traversing the tree
@@ -177,6 +173,14 @@ Methods for `LazyList`
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
 
+.. method:: LazyList.flat_map(this, function)
+
+    Given an iterable and a function that takes one argument and return another iterable value, return a new iterable, result of the function application on all elements, flatten in a sole iterable value. The returned iterable value is lazy.
+
+.. method:: LazyList.flatten(this)
+
+    Given an iterable of iterables, flatten all of them in a resulting iterable value. The returned value is lazy.
+
 .. method:: LazyList.help(this)
 
     Print formatted help for the given object
@@ -188,6 +192,11 @@ Methods for `LazyList`
 .. method:: LazyList.length(this)
 
     Return the length of the iterable
+
+.. method:: LazyList.map(this, function)
+
+    Given an iterable and a function that takes one argument and return a value, return a new iterable, result of the application of the function on all iterable elements.
+    The returned iterable value is lazy.
 
 .. method:: LazyList.print(this)
 
@@ -215,6 +224,14 @@ Methods for `List`
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
 
+.. method:: List.flat_map(this, function)
+
+    Given an iterable and a function that takes one argument and return another iterable value, return a new iterable, result of the function application on all elements, flatten in a sole iterable value. The returned iterable value is lazy.
+
+.. method:: List.flatten(this)
+
+    Given an iterable of iterables, flatten all of them in a resulting iterable value. The returned value is lazy.
+
 .. method:: List.help(this)
 
     Print formatted help for the given object
@@ -226,6 +243,11 @@ Methods for `List`
 .. method:: List.length(this)
 
     Return the length of the iterable
+
+.. method:: List.map(this, function)
+
+    Given an iterable and a function that takes one argument and return a value, return a new iterable, result of the application of the function on all iterable elements.
+    The returned iterable value is lazy.
 
 .. method:: List.print(this)
 
@@ -529,6 +551,14 @@ Methods for `SelectorList`
 
     Return the content of the iterable object with each element associated to its index in a tuple: [(<index>, <elem>), ...]
 
+.. method:: SelectorList.flat_map(this, function)
+
+    Given an iterable and a function that takes one argument and return another iterable value, return a new iterable, result of the function application on all elements, flatten in a sole iterable value. The returned iterable value is lazy.
+
+.. method:: SelectorList.flatten(this)
+
+    Given an iterable of iterables, flatten all of them in a resulting iterable value. The returned value is lazy.
+
 .. method:: SelectorList.help(this)
 
     Print formatted help for the given object
@@ -540,6 +570,11 @@ Methods for `SelectorList`
 .. method:: SelectorList.length(this)
 
     Return the length of the iterable
+
+.. method:: SelectorList.map(this, function)
+
+    Given an iterable and a function that takes one argument and return a value, return a new iterable, result of the application of the function on all iterable elements.
+    The returned iterable value is lazy.
 
 .. method:: SelectorList.print(this)
 

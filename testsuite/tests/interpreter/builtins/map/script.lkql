@@ -1,0 +1,11 @@
+# Perform a simple mapping operation
+val lst = [1, 2, 3]
+val m_1 = lst.map((x) => x * 2)
+print(m_1)
+print(m_1.to_list)
+
+# Ensure "map" implementation is lazy
+val m_2 = lst.map((x) => { print("Processing " & x.img); x * x })
+print(m_2)
+print(m_2[2])
+print(m_2[3])

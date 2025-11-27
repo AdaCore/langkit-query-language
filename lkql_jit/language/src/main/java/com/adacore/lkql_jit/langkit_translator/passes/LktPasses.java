@@ -20,8 +20,7 @@ import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.declarations.*;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.FunCallNodeGen;
-import com.adacore.lkql_jit.nodes.expressions.FunExpr;
+import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockExpr;
@@ -68,9 +67,27 @@ public final class LktPasses {
             None,
         }
 
+        /**
+         * Return whether the provided Lkt node is an expression used as a right hand operand in
+         * a stream related binary operation.
+         */
+        private static boolean isStreamOpRhs(LktNode node) {
+            return (
+                node instanceof Liblktlang.Expr &&
+                node.parent() instanceof Liblktlang.BinOp binOp &&
+                (binOp.fOp() instanceof OpStreamCons || binOp.fOp() instanceof OpStreamConcat) &&
+                binOp.fRight().equals(node)
+            );
+        }
+
         /** Whether "node" needs a frame to be introduced to contain inner bindings. */
         private static FrameKind needsFrame(LktNode node) {
-            if ((node instanceof FunDecl) || (node instanceof Liblktlang.LangkitRoot)) {
+            if (
+                node instanceof FunDecl ||
+                node instanceof Liblktlang.LambdaExpr ||
+                node instanceof Liblktlang.LangkitRoot ||
+                isStreamOpRhs(node)
+            ) {
                 return FrameKind.Concrete;
             } else if (
                 node instanceof Liblktlang.BlockExpr ||
@@ -106,6 +123,8 @@ public final class LktPasses {
 
             if (node instanceof FunParamDecl funParamDecl) {
                 builder.addParameter(funParamDecl.fSynName().getText());
+            } else if (node instanceof LambdaParamDecl lambdaParamDecl) {
+                builder.addParameter(lambdaParamDecl.fSynName().getText());
             }
 
             var frameKind = needsFrame(node);
@@ -193,11 +212,23 @@ public final class LktPasses {
             var defaultVals = new Expr[params.getChildrenCount()];
 
             for (int i = 0; i < params.getChildrenCount(); i++) {
-                var paramDecl = (FunParamDecl) params.getChild(i);
-                paramNames[i] = paramDecl.fSynName().getText();
-                defaultVals[i] = paramDecl.fDefaultVal().isNone()
-                    ? null
-                    : buildExpr(paramDecl.fDefaultVal());
+                String paramName;
+                Liblktlang.Expr defaultValue;
+                switch (params.getChild(i)) {
+                    case FunParamDecl funParamDecl -> {
+                        paramName = funParamDecl.fSynName().getText();
+                        defaultValue = funParamDecl.fDefaultVal();
+                    }
+                    case LambdaParamDecl lambdaParamDecl -> {
+                        paramName = lambdaParamDecl.fSynName().getText();
+                        defaultValue = lambdaParamDecl.fDefaultVal();
+                    }
+                    default -> throw LKQLRuntimeException.create(
+                        "Cannot handle " + params.getChild(i) + " parameter declaration"
+                    );
+                }
+                paramNames[i] = paramName;
+                defaultVals[i] = defaultValue.isNone() ? null : buildExpr(defaultValue);
             }
             final var body = buildExpr(functionBody);
 
@@ -207,7 +238,7 @@ public final class LktPasses {
                 this.frames.getClosureDescriptor(),
                 paramNames,
                 defaultVals,
-                doc.isNone() ? "" : doc.pDenotedValue().value,
+                doc == null || doc.isNone() ? "" : doc.pDenotedValue().value,
                 body,
                 functionName
             );
@@ -329,7 +360,18 @@ public final class LktPasses {
                 }
             } else if (expr instanceof NullLit nullLit) {
                 return new NullLiteral(loc(nullLit));
+            } else if (expr instanceof Liblktlang.ParenExpr parenExpr) {
+                return buildExpr(parenExpr.fExpr());
             } else if (expr instanceof CallExpr callExpr) {
+                final Liblktlang.Expr calleeNode = callExpr.fName();
+
+                // Special case for the "Unit()" call. This is the constructor for the "Unit" type
+                // in the Lkt language.
+                if (calleeNode.getText().equals("Unit")) {
+                    return new UnitLiteral(loc(callExpr));
+                }
+
+                // In all other cases, translate the call expression to a function call
                 final Expr callee = buildExpr(callExpr.fName());
                 final ArgList arguments = buildArgs(
                     Arrays.stream(callExpr.fArgs().children())
@@ -384,6 +426,44 @@ public final class LktPasses {
                 return IsClauseNodeGen.create(loc(isA), pattern, nodeExpr);
             } else if (expr instanceof StringLit stringLit) {
                 return new StringLiteral(loc(stringLit), parseStringLiteral(stringLit));
+            } else if (expr instanceof Liblktlang.ArrayLiteral arrayLiteral) {
+                return new ListLiteral(
+                    loc(arrayLiteral),
+                    Arrays.stream(arrayLiteral.fExprs().children())
+                        .map(e -> buildExpr((Liblktlang.Expr) e))
+                        .toList()
+                        .toArray(new Expr[0])
+                );
+            } else if (
+                expr instanceof Liblktlang.BinOp binOp &&
+                (binOp.fOp() instanceof OpStreamCons || binOp.fOp() instanceof OpStreamConcat)
+            ) {
+                // Special case for stream constructors since the right operand is lazy
+                final var head = buildExpr(binOp.fLeft());
+                this.frames.enterFrame(binOp.fRight());
+                final var tail = buildExpr(binOp.fRight());
+
+                final var res =
+                    switch (binOp.fOp().getKind()) {
+                        case OP_STREAM_CONS -> StreamConsNodeGen.create(
+                            loc(binOp),
+                            tail,
+                            this.frames.getFrameDescriptor(),
+                            this.frames.getClosureDescriptor(),
+                            head
+                        );
+                        case OP_STREAM_CONCAT -> StreamConcatNodeGen.create(
+                            loc(binOp),
+                            tail,
+                            this.frames.getFrameDescriptor(),
+                            this.frames.getClosureDescriptor(),
+                            head
+                        );
+                        default -> null;
+                    };
+
+                this.frames.exitFrame();
+                return res;
             } else if (expr instanceof Liblktlang.BinOp binOp) {
                 final var left = buildExpr(binOp.fLeft());
                 final var right = buildExpr(binOp.fRight());
@@ -412,6 +492,13 @@ public final class LktPasses {
                 };
             } else if (expr instanceof NotExpr notExpr) {
                 return UnNotNodeGen.create(loc(notExpr), buildExpr(notExpr.fExpr()));
+            } else if (expr instanceof SubscriptExpr subscriptExpr) {
+                return IndexingNodeGen.create(
+                    loc(subscriptExpr),
+                    subscriptExpr.fNullCond() instanceof NullCondQualifierPresent,
+                    buildExpr(subscriptExpr.fPrefix()),
+                    buildExpr(subscriptExpr.fIndex())
+                );
             } else if (expr instanceof DotExpr dotExpr) {
                 final var memberIdentifier = dotExpr.fSuffix();
                 return DotAccessWrapperNodeGen.create(
@@ -436,6 +523,14 @@ public final class LktPasses {
                     .toList()
                     .toArray(new MatchArm[0]);
                 return new Match(loc(matchExpr), matchVal, arms);
+            } else if (expr instanceof Liblktlang.LambdaExpr lambdaExpr) {
+                return createFunExpr(
+                    lambdaExpr,
+                    "<anonymous>",
+                    null,
+                    lambdaExpr.fBody(),
+                    lambdaExpr.fParams()
+                );
             } else {
                 throw LKQLRuntimeException.create(
                     "Translation for " + expr.getKind() + " not implemented"

@@ -1,0 +1,63 @@
+# lkql version: 2
+# Streams are only available through the LKQL V2 syntax
+
+# Simple stream definition
+val _ = print("=== Simple stream")
+val s_1 = 1 :: 2 :: 3 :: 4 :: 5 :: Unit()
+val _ = print(s_1[1])
+val _ = print(s_1[3])
+val _ = print(s_1.length)
+val _ = print("")
+
+# Ensure the laziness of streams
+val _ = print("=== Ensure laziness")
+val s_2 = { val _ = print("First!"); 1 } :: { val _ = print("Second!"); 2 } :: { val _ = print("Third!"); 3 } :: Unit()
+val _ = print(s_2[2])
+val _ = print(s_2[2])
+val _ = print("")
+
+# Test concatenating streams
+val _ = print("=== Concatenating two streams")
+val s_3 = ("a" :: "b" :: "c" :: Unit()) ::: ("d" :: "e" :: "f" :: Unit())
+val _ = print(s_3[1])
+val _ = print(s_3[2])
+val _ = print(s_3[5])
+val _ = print(s_3[6])
+val _ = print(s_3.length)
+val _ = print("")
+
+# Test concatenating a list with a stream
+val _ = print("=== Concatenating a list with a stream")
+val s_4 = [1, 2, 3, 4] ::: ("d" :: "e" :: "f" :: Unit())
+val _ = print(s_4[1])
+val _ = print(s_4[2])
+val _ = print(s_4[5])
+val _ = print(s_4[6])
+val _ = print(s_4.length)
+val _ = print("")
+
+# Test a stream from a recursive function
+val _ = print("=== Stream from a recursive function")
+fun all_ints(x: Any = 0): Any = x :: all_ints(x + 1)
+val s_all_int = all_ints()
+val _ = print(s_all_int[50])
+val _ = print("")
+
+# Try "map" and "flatten" on a stream
+val _ = print("=== Methods on stream")
+fun x_and_img(x: Any): Any = [x, x.img]
+val ints_and_images = s_all_int.map(x_and_img)
+val _ = print(ints_and_images[1])
+val _ = print(ints_and_images[2])
+val flatten_ints_and_images = ints_and_images.flatten
+val _ = print(flatten_ints_and_images[1].img)
+val _ = print(flatten_ints_and_images[2].img)
+val _ = print(flatten_ints_and_images[3].img)
+val _ = print(flatten_ints_and_images[4].img)
+val _ = print("")
+
+# Ensure invalid index raise an error
+val _ = print("=== Try to access an invalid index in the stream")
+val err_s = 1 :: 2 :: Unit()
+val _ = print(err_s[6])
+val _ = print("")

@@ -8,48 +8,46 @@ package com.adacore.lkql_jit.runtime.values.lists;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.runtime.values.iterators.BaseLKQLListIterator;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents the base of all LKQL lazy lists. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class LKQLLazyList extends BaseLKQLList {
+public abstract class BaseLKQLLazyList extends BaseLKQLList {
 
     // ----- Attributes -----
 
-    /** The cache of the lazy list. */
-    protected final ListStorage<Object> cache;
+    /** Cache to store elements of the lazy list */
+    protected ListStorage<Object> cache;
 
     // ----- Constructors -----
 
-    protected LKQLLazyList() {
-        this.cache = new ListStorage<>(16);
+    protected BaseLKQLLazyList(ListStorage<Object> cache) {
+        this.cache = cache;
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     /**
-     * Initialize the lazy list cache to the given index. If n < 0 then initialize all the lazy list
-     * values.
+     * This method should initialize the element cache from the next lazy element to the provided
+     * index.
      */
-    public abstract void computeItemAt(long n);
+    protected abstract void initCacheTo(long n);
 
     // ----- List required methods -----
 
     @Override
-    public long size() {
-        this.computeItemAt(-1);
-        return this.cache.size();
+    public Object get(long n) {
+        this.initCacheTo(n);
+        return this.cache.get((int) n);
     }
 
     @Override
-    public Object get(long i) throws IndexOutOfBoundsException {
-        this.computeItemAt(i);
-        return this.cache.get((int) i);
+    public long size() {
+        this.initCacheTo(-1);
+        return this.cache.size();
     }
 
     @Override
@@ -59,12 +57,8 @@ public abstract class LKQLLazyList extends BaseLKQLList {
 
     // ----- Value methods -----
 
-    @Override
     @ExportMessage
-    public Object toDisplayString(
-        @SuppressWarnings("unused") final boolean allowSideEffect,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems
-    ) {
+    public Object toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffect) {
         return "<" + LKQLTypesHelper.LKQL_LAZY_LIST + ">";
     }
 }

@@ -1,0 +1,20 @@
+# Perform a simple flattening operation
+val inner = [1, 2, 3]
+val lst_1 = [inner, inner, inner]
+print(lst_1.flatten.to_list)
+
+# Ensure flattening is lazy
+fun double(x) = {
+    print("Computing double of " & x.img);
+    x * 2
+}
+val lst_2 = [[1, 2, 3].map(double), [4, 5, 6].map(double)].flatten
+print(lst_2[2])
+print(lst_2[5])
+print(lst_2[4])
+
+# Ensure there is an error when calling "flatten" on a list of non-iterables
+val lst_3 = [[1, 2, 3], "what?"].flatten
+print(lst_3[1])
+print(lst_3[3])
+print(lst_3[4])

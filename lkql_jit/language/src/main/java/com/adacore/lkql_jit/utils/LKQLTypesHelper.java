@@ -179,7 +179,7 @@ public final class LKQLTypesHelper {
             return LKQL_TUPLE;
         } else if (LKQLTypeSystemGen.isLKQLList(obj)) {
             return LKQL_LIST;
-        } else if (LKQLTypeSystemGen.isLKQLLazyList(obj)) {
+        } else if (LKQLTypeSystemGen.isBaseLKQLLazyList(obj)) {
             return LKQL_LAZY_LIST;
         } else if (LKQLTypeSystemGen.isNodeInterface(obj)) {
             return NODE_INTERFACE;

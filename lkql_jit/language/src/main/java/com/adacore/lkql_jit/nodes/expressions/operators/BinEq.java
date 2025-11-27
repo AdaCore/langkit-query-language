@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.bases.ObjectLKQLValue;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
+import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLLazyList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
@@ -165,7 +165,7 @@ public abstract class BinEq extends BinOp {
 
     /** Do the equality verification in lazy lists. */
     @Specialization
-    protected boolean onLazyLists(final LKQLLazyList left, final LKQLLazyList right) {
+    protected boolean onLazyLists(final BaseLKQLLazyList left, final BaseLKQLLazyList right) {
         return left == right;
     }
 

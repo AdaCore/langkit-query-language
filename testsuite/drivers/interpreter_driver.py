@@ -52,12 +52,11 @@ class InterpreterDriver(BaseDriver):
         # If the test has to change no point in checking lkt_refactor
         if self.rewrite_baseline:
             return result
-        
+
         # Lkt Refactor test
         match self.test_env.get('lkt_refactor'):
             case None:
-                xfail = self.compute_diff(None, baseline, self.lkt_output)
-                if not xfail:
+                if baseline == self.lkt_output:
                     self.result.diff = 'Test unexpectedly succeeded after refactor TO_LKQL_V2'
                     raise TestAbortWithFailure
 
@@ -101,7 +100,7 @@ class InterpreterDriver(BaseDriver):
             lkt_result = self.check_run(
                 self.build_args(refactored_file_path),
                 lkql_path=os.pathsep.join(lkql_path),
-                analyze_output=False
+                analyze_output=False,
             )
 
             self.lkt_output = lkt_result.out

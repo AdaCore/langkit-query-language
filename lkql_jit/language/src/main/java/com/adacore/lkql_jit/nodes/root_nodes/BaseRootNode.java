@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.runtime.Cell;
-import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -35,15 +34,6 @@ public abstract class BaseRootNode extends RootNode {
     }
 
     // ----- Instance methods -----
-
-    /**
-     * Get the call target as a generic Truffle calling interface.
-     *
-     * @return The call target.
-     */
-    public CallTarget getRealCallTarget() {
-        return this.getCallTarget();
-    }
 
     /**
      * Initialize the frame slots at empty cells.
