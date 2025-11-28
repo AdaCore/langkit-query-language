@@ -80,7 +80,7 @@ package body Lkql_Checker is
       --  Get the default LKQL rule options file name.
 
       procedure Setup_Search_Paths;
-      --  Initialize LKQL_RULES_PATH to include path to built-in rules.
+      --  Initialize LKQL_PATH to include path to built-in rules.
       --  Assuming this executable is in $PREFIX/bin, this includes the
       --  $PREFIX/share/lkql and $PREFIX/share/lkql/kp paths. That way, only
       --  the driver needs to be aware of built-in rules, and worker can be
@@ -150,8 +150,8 @@ package body Lkql_Checker is
             Lib     : constant String := Compose (Prefix, "lib");
             Lib_LAL : constant String := Compose (Lib, "libadalang");
          begin
-            Add_Path ("LKQL_RULES_PATH", Lkql);
-            Add_Path ("LKQL_RULES_PATH", Kp);
+            Add_Path ("LKQL_PATH", Lkql);
+            Add_Path ("LKQL_PATH", Kp);
 
             Add_Path ("PATH", Lib);
             Add_Path ("PATH", Lib_LAL);
@@ -565,7 +565,7 @@ package body Lkql_Checker is
          end;
       end if;
 
-      --  Setup LKQL_RULES_PATH to point on built-in rules
+      --  Setup LKQL_PATH to point on built-in rules
 
       Setup_Search_Paths;
 

@@ -1,4 +1,5 @@
 import re
+import os
 
 from drivers.base_driver import BaseDriver, TaggedLines
 
@@ -62,7 +63,11 @@ class CheckerDriver(BaseDriver):
         else:
             # Use `catch_error=False` to avoid failing on non-zero status code,
             # as some tests actually exert erroneous behaviors.
-            self.check_run(self.lkql_checker_exe + args, catch_error=False)
+            self.check_run(
+                self.lkql_checker_exe + args,
+                catch_error=False,
+                lkql_path=os.environ["LKQL_PATH"],
+            )
 
             # If required, run the LKQL fix command
             if self.test_env.get("auto_fix"):
@@ -76,6 +81,7 @@ class CheckerDriver(BaseDriver):
                     self.lkql_fix_exe + args + ["--auto-fix-mode", auto_fix_mode],
                     check_flags=False,
                     catch_error=False,
+                    lkql_path=os.environ["LKQL_PATH"],
                 )
 
                 # If the auto-fix mode is "NEW_FILE" or "PATCH_FILE", then
