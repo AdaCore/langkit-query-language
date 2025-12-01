@@ -15,7 +15,7 @@ ADDITIONAL_LKM_ARGS=
 LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) $(ADDITIONAL_LKM_ARGS)
 MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON)
 
-all: liblkqllang lkql_jit gnatcheck doc
+all: liblkqllang lkql_jit lkql_checker doc
 
 liblkqllang:
 	$(LKM) make -c lkql/langkit.yaml \
@@ -29,7 +29,7 @@ install_lkql_java_bindings: liblkqllang
 lkql_jit: install_lkql_java_bindings
 	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
 
-gnatcheck: liblkqllang impacts
+lkql_checker: liblkqllang impacts
 	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 doc:
