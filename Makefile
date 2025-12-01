@@ -16,7 +16,7 @@ LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executab
 MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON)
 
 # WARNING: Note that for some reason parallelizing the build still doesn't work
-all: liblkqllang gnatcheck build_lkql_native_jit doc
+all: liblkqllang gnatcheck lkql_jit doc
 
 liblkqllang:
 	$(LKM) make -c lkql/langkit.yaml \
@@ -56,7 +56,7 @@ clean_lkql_checker:
 	cd lkql_checker && gprclean
 	[ -f $(KP_JSON) ] && rm $(KP_JSON)
 
-build_lkql_native_jit: install_lkql_java_bindings
+lkql_jit: install_lkql_java_bindings
 	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
 
 .PHONY: lkql_checker
