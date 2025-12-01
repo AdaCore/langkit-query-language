@@ -1,12 +1,4 @@
 BUILD_MODE=dev
-export BUILD_MODE
-
-ifeq ($(OS),Windows_NT)
-  SOEXT=.dll
-else
-  SOEXT=.so
-endif
-
 PROCS=0
 PREFIX=install
 PYTHON=python
@@ -74,10 +66,6 @@ clean_lkql_checker:
 	cd lkql_checker && gprclean
 	[ -f $(KP_JSON) ] && rm $(KP_JSON)
 
-build_lkql_jit: lkql
-	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean package $(MAVEN_ARGS)
-
 build_lkql_native_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
 	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
@@ -93,26 +81,3 @@ automated:
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
 	cp -pr lkql_checker/share/lkql "$(PREFIX)/share"
 	cp -pr lkql_checker/share/examples "$(PREFIX)/share/examples/gnatcheck"
-
-automated-cov:
-	rm -rf "$(PREFIX)" "$(BUILD_DIR)"
-	mkdir -p "$(PREFIX)/share/lkql" "$(LKQL_DIR)"
-	$(LKM) make -c lkql/langkit.yaml $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS) --coverage
-	$(LKM) install -c lkql/langkit.yaml $(MANAGE_ARGS) $(PREFIX)
-	# Build and install the lkql_checker program. Instrument it first.
-	# Note that we just copy the sources to the build directory since
-	# "gnatcov instrument" does not support build tree relocation.
-	cp -pr lkql_checker "$(BUILD_DIR)"
-	gnatcov instrument "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr" \
-	  --level=stmt --no-subprojects --dump-trigger=atexit \
-	  -XBUILD_MODE=$(BUILD_MODE)
-	$(GPRBUILD) "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr" \
-	  --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts
-	$(GPRINSTALL) --mode=dev "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr"
-	cp -pr lkql_checker/share/lkql "$(PREFIX)/share"
-	# Ship coverage data files for liblkqllang and lkql_checker so that the
-	# testsuite can use them.
-	cp -p "$(LKQL_DIR)/obj/instr/sids/"*.sid "$(PREFIX)/lib/liblkqllang.static"
-	mkdir -p "$(PREFIX)/lib/lkql_checker"
-	cp -p "$(BUILD_DIR)/lkql_checker/obj/$(BUILD_MODE)/"*.sid \
-	  "$(PREFIX)/lib/lkql_checker"
