@@ -16,9 +16,16 @@ LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executab
 MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON)
 
 # WARNING: Note that for some reason parallelizing the build still doesn't work
-all: lkql gnatcheck build_lkql_native_jit doc
+all: liblkqllang gnatcheck build_lkql_native_jit doc
 
-lkql: build/bin/liblkqllang_parse
+liblkqllang:
+	$(LKM) make -c lkql/langkit.yaml \
+	--pass-on="emit railroad diagrams" \
+	--disable-java \
+	$(LKM_ARGS)
+
+install_lkql_java_bindings: liblkqllang
+	$(MAVEN) -f lkql/build/java/ install $(MAVEN_ARGS)
 
 doc:
 	cd user_manual && make clean html
@@ -31,21 +38,15 @@ format:
 	gnatformat -P lkql_checker/lkql_checker.gpr --no-subprojects
 	$(MAVEN) -f lkql_jit spotless:apply $(MAVEN_ARGS)
 
-gnatcheck: lkql impacts
+gnatcheck: liblkqllang impacts
 	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
-
-build/bin/liblkqllang_parse: lkql/lkql.lkt
-	$(LKM) make -c lkql/langkit.yaml \
-	--pass-on="emit railroad diagrams" \
-	--enable-java \
-	$(LKM_ARGS)
 
 test:
 	testsuite/testsuite.py -Edtmp
 
-clean: clean_lkql_jit clean_lkql_checker clean_lkql
+clean: clean_lkql_jit clean_lkql_checker clean_liblkqllang
 
-clean_lkql:
+clean_liblkqllang:
 	rm lkql/build -rf
 
 clean_lkql_jit:
@@ -54,9 +55,6 @@ clean_lkql_jit:
 clean_lkql_checker:
 	cd lkql_checker && gprclean
 	[ -f $(KP_JSON) ] && rm $(KP_JSON)
-
-install_lkql_java_bindings: lkql
-	$(MAVEN) -f lkql/build/java/ install $(MAVEN_ARGS)
 
 build_lkql_native_jit: install_lkql_java_bindings
 	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
