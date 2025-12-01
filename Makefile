@@ -7,7 +7,8 @@ else
   SOEXT=.so
 endif
 
-PROCS=0 PREFIX=install
+PROCS=0
+PREFIX=install
 PYTHON=python
 MAVEN=mvn
 NPM_INSTALL_CACHE=true
