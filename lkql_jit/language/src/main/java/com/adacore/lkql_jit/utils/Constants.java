@@ -37,11 +37,8 @@ public class Constants {
     /** MIME type for LKQL. */
     public static final String LKQL_MIME = "application/langkit-query-language";
 
-    /** Environment variable which contains paths to look LKQL scripts in. */
+    /** Environment variable which contains paths to look LKQL scripts and rules in. */
     public static final String LKQL_PATH = "LKQL_PATH";
-
-    /** Environment variable which contains the paths to look LKQL rules in. */
-    public static final String LKQL_RULES_PATH = "LKQL_RULES_PATH";
 
     // ----- Built-in symbols -----
 

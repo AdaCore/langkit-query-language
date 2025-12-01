@@ -98,9 +98,9 @@ package body Rules_Factory is
          return True;
       end Add_Rules_Path;
    begin
-      if Ada.Environment_Variables.Exists ("LKQL_RULES_PATH") then
+      if Ada.Environment_Variables.Exists ("LKQL_PATH") then
          GNATCOLL.Utils.Split
-           (Ada.Environment_Variables.Value ("LKQL_RULES_PATH"),
+           (Ada.Environment_Variables.Value ("LKQL_PATH"),
             GNAT.OS_Lib.Path_Separator & "",
             Add_Rules_Path'Access);
       end if;

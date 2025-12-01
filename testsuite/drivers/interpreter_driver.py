@@ -81,7 +81,10 @@ class InterpreterDriver(BaseDriver):
 
     def run(self) -> None:
 
-        lkql_path = [self.working_dir(d) for d in self.test_env.get("lkql_path", [])]
+        lkql_path = os.pathsep.join(
+            [self.working_dir(d) for d in self.test_env.get("lkql_path", [])]
+            + [(os.environ["LKQL_PATH"])]
+        )
 
         # If lkt_refactor flag is set, then before we run the interpreter,
         # we refactor the "script.lkql" file and run the interpreter on it.
@@ -107,13 +110,11 @@ class InterpreterDriver(BaseDriver):
             # Run test on refactored script
             lkt_result = self.check_run(
                 self.build_args(refactored_file_path),
-                lkql_path=os.pathsep.join(lkql_path),
+                lkql_path=lkql_path,
                 analyze_output=False,
             )
 
             self.lkt_output = lkt_result.out
 
         # Run the interpreter
-        self.check_run(
-            self.build_args("script.lkql"), lkql_path=os.pathsep.join(lkql_path)
-        )
+        self.check_run(self.build_args("script.lkql"), lkql_path=lkql_path)

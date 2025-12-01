@@ -354,7 +354,7 @@ public final class LKQLContext {
     public String[] getRuleDirectories() {
         if (this.ruleDirectories == null) {
             final var rulesDirsList = new ArrayList<>(this.getOptions().rulesDirs());
-            final var additionalRulesDirs = System.getenv(Constants.LKQL_RULES_PATH);
+            final var additionalRulesDirs = System.getenv(Constants.LKQL_PATH);
             if (additionalRulesDirs != null) {
                 rulesDirsList.addAll(Arrays.asList(StringUtils.splitPaths(additionalRulesDirs)));
             }

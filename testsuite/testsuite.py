@@ -245,13 +245,10 @@ class LKQLTestsuite(Testsuite):
             )
 
             os.environ["LKQL_PATH"] = P.pathsep.join(
-                [in_repo("lkql_checker/share/lkql"), os.environ.get("LKQL_PATH", "")]
-            )
-
-            os.environ["LKQL_RULES_PATH"] = P.pathsep.join(
                 [
                     in_repo("lkql_checker/share/lkql"),
                     in_repo("lkql_checker/share/lkql/kp"),
+                    os.environ.get("LKQL_PATH", ""),
                 ]
             )
 
