@@ -55,8 +55,10 @@ clean_lkql_checker:
 	cd lkql_checker && gprclean
 	[ -f $(KP_JSON) ] && rm $(KP_JSON)
 
-build_lkql_native_jit: lkql
-	$(MAVEN) -f lkql/build/java/ install
+install_lkql_java_bindings: lkql
+	$(MAVEN) -f lkql/build/java/ install $(MAVEN_ARGS)
+
+build_lkql_native_jit: install_lkql_java_bindings
 	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
 
 .PHONY: lkql_checker
