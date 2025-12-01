@@ -9,19 +9,10 @@ BUILD_DIR=/undefined
 LKQL_DIR=$(BUILD_DIR)/lkql
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
 GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
-BUILD_FOR_JIT=false
 LKM=$(PYTHON) -m langkit.scripts.lkm
 KP_JSON=lkql_checker/share/lkql/kp/kp.json
-
-ifeq ($(BUILD_FOR_JIT),true)
-  MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
-    --library-types=relocatable
-else
-  MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
-    --library-types=static
-endif
-
-ADDITIONAL_MANAGE_ARGS=
+ADDITIONAL_LKM_ARGS=
+LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) $(ADDITIONAL_LKM_ARGS)
 MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON)
 
 # WARNING: Note that for some reason parallelizing the build still doesn't work
@@ -47,9 +38,7 @@ build/bin/liblkqllang_parse: lkql/lkql.lkt
 	$(LKM) make -c lkql/langkit.yaml \
 	--pass-on="emit railroad diagrams" \
 	--enable-java \
-	--maven-executable $(MAVEN) \
-	--build-mode=$(BUILD_MODE) \
-	$(ADDITIONAL_MANAGE_ARGS)
+	$(LKM_ARGS)
 
 test:
 	testsuite/testsuite.py -Edtmp
@@ -75,7 +64,7 @@ build_lkql_native_jit: lkql
 automated:
 	rm -rf "$(PREFIX)"
 	mkdir -p "$(PREFIX)/share" "$(PREFIX)/share/examples" "$(PREFIX)/lib"
-	$(LKM) make -c lkql/langkit.yaml $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS)
+	$(LKM) make -c lkql/langkit.yaml $(LKM_ARGS)
 	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr -largs -s
 	$(GPRINSTALL) --mode=usage -Plkql_checker/lkql_checker.gpr
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
