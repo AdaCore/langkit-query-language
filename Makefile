@@ -68,7 +68,7 @@ clean_lkql:
 	rm lkql/build -rf
 
 clean_lkql_jit:
-	cd lkql_jit && $(MAVEN) clean
+	$(MAVEN) -f lkql_jit clean $(MAVEN_ARGS)
 
 clean_lkql_checker:
 	cd lkql_checker && gprclean
