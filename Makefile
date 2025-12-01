@@ -15,7 +15,7 @@ ADDITIONAL_LKM_ARGS=
 LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) $(ADDITIONAL_LKM_ARGS)
 MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON)
 
-all: liblkqllang lkql_jit lkql_checker doc
+all: liblkqllang lkql_jit lkql_checker
 
 liblkqllang:
 	$(LKM) make -c lkql/langkit.yaml \
