@@ -30,7 +30,7 @@ lkql_jit: install_lkql_java_bindings
 	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
 
 lkql_checker: liblkqllang impacts
-	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
+	$(GPRBUILD) -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 doc:
 	cd user_manual && make clean html
