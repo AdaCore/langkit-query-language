@@ -12,7 +12,7 @@ GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
 LKM=$(PYTHON) -m langkit.scripts.lkm
 KP_JSON=lkql_checker/share/lkql/kp/kp.json
 ADDITIONAL_LKM_ARGS=
-LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) $(ADDITIONAL_LKM_ARGS)
+LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) -j$(PROCS) $(ADDITIONAL_LKM_ARGS)
 MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON)
 
 all: liblkqllang lkql_jit lkql_checker
@@ -44,7 +44,7 @@ format:
 	$(MAVEN) -f lkql_jit spotless:apply $(MAVEN_ARGS)
 
 test:
-	testsuite/testsuite.py -Edtmp
+	testsuite/testsuite.py -j$(PROCS) -Edtmp
 
 clean: clean_lkql_jit clean_lkql_checker clean_liblkqllang
 
