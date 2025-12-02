@@ -13,7 +13,8 @@ LKM=$(PYTHON) -m langkit.scripts.lkm
 KP_JSON=lkql_checker/share/lkql/kp/kp.json
 ADDITIONAL_LKM_ARGS=
 LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) -j$(PROCS) $(ADDITIONAL_LKM_ARGS)
-MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON)
+ADDITIONAL_MAVEN_ARGS=
+MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON) $(ADDITIONAL_MAVEN_ARGS)
 
 all: liblkqllang lkql_jit lkql_checker
 
