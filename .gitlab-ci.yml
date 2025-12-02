@@ -12,7 +12,6 @@ variables:
   JAVA_VENDOR: graalvm
   MAVEN_VERSION: 3.9.9
   NODEJS_VERSION: 16.19.1
-  NPM_CACHE_ARCHIVE: prettier_java-npm_cache-20250203.tar.gz
 
 stages:
   - checkstyle
@@ -29,14 +28,9 @@ pre-commit:
     - generic_anod_ci
     - . /tmp/ci_env.sh
     # Define working variables
-    - npm_cache=$PWD/npm_cache
-    - npm_cache_install=$npm_cache/spotless-prettier-node-modules-fbb3f0657a1374078dbfdc0a3df68734
     - maven_local_repo=$(anod info maven-repo-pull -Qclient=lkql --show working_dir)/install
-    - npmrc_file=$PWD/.npmrc
 
     # Echo vars to log information about the run
-    - echo $npm_cache
-    - echo $npm_cache_install
     - echo $maven_local_repo
 
     # Install all pre-commit dependencies
@@ -49,11 +43,7 @@ pre-commit:
     - eval $(anod printenv java       -Q version=$JAVA_VERSION,vendor=$JAVA_VENDOR)
     - eval $(anod printenv maven      -Q version=$MAVEN_VERSION)
     - eval $(anod printenv nodejs     -Q version=$NODEJS_VERSION)
-    - mkdir -p $npm_cache_install
-    - e3-cathod thirdparty $NPM_CACHE_ARCHIVE --install $npm_cache_install --delete
-    - ls $npm_cache_install
-    - echo "offline=true" > $npmrc_file
-    - export MAVEN_ARGS="-Dmaven.repo.local=$maven_local_repo -Dconfig.npmInstallCache=$npm_cache -Dconfig.npmrc=$npmrc_file"
+    - export MAVEN_ARGS="-Dmaven.repo.local=$maven_local_repo"
 
 # Common part for all testing CIs
 .common-test-part: &common-test-part
