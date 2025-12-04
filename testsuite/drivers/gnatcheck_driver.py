@@ -711,7 +711,7 @@ class GnatcheckDriver(BaseDriver):
         # Remove version information printed by gnatcheck in verbose mode
         result.append(
             PatternSubstitute(
-                "gnatcheck [0-9]+.[0-9]w \\([a-z0-9 ]+\\)",
+                "gnatcheck [0-9]+.[0-9](rc|w) \\([a-z0-9 ]+\\)",
                 "gnatcheck <version> (<date>)",
             )
         )
