@@ -65,6 +65,12 @@ pre-commit:
     - . /tmp/ci_env.sh
 
     - anod run --plan .gitlab-ci.plan $PLAN_ENTRY
+
+    # We must parse testsuite results with the same version of e3-testsuite
+    # that produced them. So we install e3-testsuite using the same sandbox as
+    # testing.
+    - anod install e3-for-testing
+    - eval $(anod printenv e3-for-testing)
     - testsuite_reports
   artifacts:
     reports:
