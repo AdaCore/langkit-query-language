@@ -29,7 +29,7 @@ lkql_checker: liblkqllang impacts
 
 doc:
 	cd user_manual && make clean html
-	cd lkql_checker/doc && make generate html-all
+	cd lkql_checker/doc && make generate all
 
 impacts:
 	[ -f "$(KP_JSON)" ] || "$(PYTHON)" "./utils/impact-db_impacts_gen.py"
