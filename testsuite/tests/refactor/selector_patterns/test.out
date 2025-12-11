@@ -1,0 +1,3 @@
+# lkql version: 2
+
+val _ = from all_nodes match some_name @ Body(f_field: _, p_prop(): True) when a or b and predicate(x) and children(node).any((n) => n is node @ ForLoopStmt when parent(node).all((n) => n is AdaNode))

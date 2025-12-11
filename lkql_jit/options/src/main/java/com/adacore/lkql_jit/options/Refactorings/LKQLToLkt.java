@@ -10,6 +10,7 @@ import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 import com.adacore.liblkqllang.Liblkqllang;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LKQLToLkt implements TreeBasedRefactoring {
 
@@ -43,6 +44,9 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.MatchArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
             case Liblkqllang.SelectorArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
             case Liblkqllang.SelectorDecl selectorDecl -> refactorSelectorDecl(selectorDecl);
+            case Liblkqllang.ComplexPattern complexPattern -> refactorComplexPattern(
+                complexPattern
+            );
             case Liblkqllang.RecExpr recExpr -> refactorRecExpr(recExpr);
             case Liblkqllang.Query query -> refactorQuery(query);
             case Liblkqllang.ListComprehension comprehension -> refactorListComprehension(
@@ -448,5 +452,95 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         }
 
         return "(" + sb.toString() + ")";
+    }
+
+    /*
+     * extrudes selectors sub-patterns into "when" clause
+     */
+    private String refactorComplexPattern(Liblkqllang.ComplexPattern complexPattern) {
+        // Eliminate simple binding pattern
+        if (complexPattern.fPattern().isNone()) return complexPattern.getText();
+
+        // Collect detail patterns
+        var selectorPatternDetails = new ArrayList<Liblkqllang.NodePatternSelector>();
+        var otherPatternDetails = new ArrayList<Liblkqllang.NodePatternDetail>();
+        for (var detail : complexPattern.fDetails()) {
+            switch (detail) {
+                case Liblkqllang.NodePatternSelector nps:
+                    selectorPatternDetails.add(nps);
+                    break;
+                default:
+                    otherPatternDetails.add(detail);
+                    break;
+            }
+        }
+
+        var sb = new StringBuilder();
+
+        // Pattern binding
+        if (!complexPattern.fBinding().isNone()) {
+            // pattern has a binding
+            sb.append(complexPattern.fBinding().getText());
+            sb.append(" @ ");
+        } else if (!selectorPatternDetails.isEmpty()) {
+            // pattern has no binding but needs one
+            sb.append("node @ ");
+        }
+
+        // Base pattern
+        sb.append(refactorNode(complexPattern.fPattern()));
+
+        // Pattern details
+        if (!otherPatternDetails.isEmpty()) {
+            sb.append("(");
+            sb.append(
+                otherPatternDetails
+                    .stream()
+                    .map(this::refactorNode)
+                    .collect(Collectors.joining(", "))
+            );
+            sb.append(")");
+        }
+
+        // Predicate
+        final var previousPredicate = complexPattern.fPredicate().isNone()
+            ? Stream.<String>empty()
+            : Stream.of(refactorNode(complexPattern.fPredicate()));
+        final var newPredicates = selectorPatternDetails
+            .stream()
+            .map(this::refactorNodePatternSelector);
+        final var predicates = Stream.concat(previousPredicate, newPredicates).collect(
+            Collectors.joining(" and ")
+        );
+        if (!predicates.isEmpty()) {
+            sb.append(" when ");
+            sb.append(predicates);
+        }
+
+        return sb.toString();
+    }
+
+    /*
+     * (<any|all> <selector>: <subpattern>)
+     * <selector>(node).<any|all>((n) => n is <subpattern>)
+     */
+    private String refactorNodePatternSelector(Liblkqllang.NodePatternSelector nps) {
+        final var quantifier = refactorNode(nps.fCall().fQuantifier());
+        final var selector = refactorNode(nps.fCall().fSelectorCall());
+        final var subPattern = refactorNode(nps.fPattern());
+
+        final var name = "n";
+        return (
+            selector +
+            "(node)." +
+            quantifier +
+            "((" +
+            name +
+            ") => " +
+            name +
+            " is " +
+            subPattern +
+            ")"
+        );
     }
 }

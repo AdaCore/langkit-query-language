@@ -1,2 +1,2 @@
 val p = select p @ ObjectDecl
-print (p)
+print (p.to_list)
