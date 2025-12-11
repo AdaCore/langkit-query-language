@@ -24,6 +24,7 @@ public class ListStorage<T> {
 
     public void append(T item) {
         if (current_size >= capacity) {
+            capacity = Math.max(capacity, 1);
             capacity *= 2;
             var new_storage = new Object[capacity];
             for (int i = 0; i < current_size; i++) {

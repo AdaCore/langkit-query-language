@@ -80,6 +80,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         |" Yields all the previous siblings of the given node
         | AdaNode => rec(this.previous_sibling())
         | * => ()
+
+        val all_nodes = units().flat_map((unit) => children(unit.root))
         """;
 
     // ----- Static variables -----

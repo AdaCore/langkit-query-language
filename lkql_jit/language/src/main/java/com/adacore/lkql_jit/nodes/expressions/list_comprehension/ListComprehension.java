@@ -30,31 +30,12 @@ public final class ListComprehension extends Expr {
 
     // ----- Attributes -----
 
-    /** Slots for the list comprehension parameters. */
-    private final int[] slots;
-
-    /** Descriptor of the frame to create. */
-    private final FrameDescriptor frameDescriptor;
-
-    /** Descriptor for the values to close. */
-    private final ClosureDescriptor closureDescriptor;
-
     // ----- Children -----
 
     /** Generators of the list comprehension. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ComprehensionAssocList generators;
-
-    /** Result expression of the list comprehension. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private Expr expr;
-
-    /** Guard expression of the list comprehension. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private Expr guard;
 
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -84,16 +65,13 @@ public final class ListComprehension extends Expr {
         final Expr guard
     ) {
         super(location);
-        this.frameDescriptor = frameDescriptor;
-        this.closureDescriptor = closureDescriptor;
         this.generators = generators;
-        this.slots = new int[generators.getCompAssocs().length];
-        for (int i = 0; i < this.slots.length; i++) {
-            this.slots[i] = generators.getCompAssocs()[i].getSlot();
-        }
-        this.expr = expr;
-        this.guard = guard;
-        this.rootNode = createRootNode();
+        this.rootNode = new ListComprehensionRootNode(
+            LKQLLanguage.getLanguage(this),
+            frameDescriptor,
+            guard,
+            expr
+        );
         this.createClosureNode = new CreateClosureNode(closureDescriptor);
     }
 
@@ -168,20 +146,6 @@ public final class ListComprehension extends Expr {
             }
         }
         return false;
-    }
-
-    /**
-     * Create a root node for the list comprehension.
-     *
-     * @return The root node for the list comprehension execution.
-     */
-    private ListComprehensionRootNode createRootNode() {
-        return new ListComprehensionRootNode(
-            LKQLLanguage.getLanguage(this),
-            this.frameDescriptor,
-            this.guard,
-            this.expr
-        );
     }
 
     // ----- Override methods -----

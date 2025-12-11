@@ -1,0 +1,28 @@
+# lkql version: 2
+
+val _ = (from int_list match a select a * 2 if is_prime(a))
+
+val _ = print(
+    (objects.flat_map((o) => subtypes.flat_map((st) => if (o.image & " " & st.image).length != 64 then [o.image & " " & st.image] else []))).to_list
+)
+
+# Will select all non null nodes
+val _ = from all_nodes match AdaNode
+
+# Select all non null nodes starting from node a
+val _ = from children(a) match AdaNode
+
+# Select all non null nodes starting from all nodes in list
+val _ = from ([a, b, c]).flat_map(children) match AdaNode
+
+# Select first basic declaration
+val _ = # useless comment 1
+# useless comment 2
+(from all_nodes match BasicDecl).head # useless comment 3
+
+# Selects the parents of the first basic declaration
+val _ = from parent((from all_nodes match BasicDecl).head) match _
+
+# Selects all nodes following generic instantiations
+val _ = from units().flat_map((unit) => follow_generics(unit.root)) match _
+

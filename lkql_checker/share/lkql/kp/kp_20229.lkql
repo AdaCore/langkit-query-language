@@ -50,7 +50,7 @@ fun kp_20229(node) =
         if output then
             stdlib.any([
                 from r.ref through parent select first ReturnStmt
-                for r in output.p_find_all_references(units())
+                for r in output.p_find_all_references(units().to_list)
             ])
         else false
     }

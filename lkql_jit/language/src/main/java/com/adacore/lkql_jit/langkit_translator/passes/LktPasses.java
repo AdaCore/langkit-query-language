@@ -24,8 +24,10 @@ import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockExpr;
+import com.adacore.lkql_jit.nodes.expressions.dot.BaseDotAccess;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessWrapperNodeGen;
+import com.adacore.lkql_jit.nodes.expressions.dot.SafeDotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
@@ -80,7 +82,11 @@ public final class LktPasses {
             );
         }
 
-        /** Whether "node" needs a frame to be introduced to contain inner bindings. */
+        /**
+         * Whether "node" needs a frame to be introduced to contain inner bindings.
+         * NB: this does not include the Query node (which needs a concrete frame)
+         * because its handled in its own separate function
+         */
         private static FrameKind needsFrame(LktNode node) {
             if (
                 node instanceof FunDecl ||
@@ -116,6 +122,12 @@ public final class LktPasses {
          * nodes and building the frame tree.
          */
         private static void recurseBuildFrames(LktNode node, ScriptFramesBuilder builder) {
+            // Queries need special handling
+            if (node instanceof Liblktlang.Query query) {
+                handleQuery(query, builder);
+                return;
+            }
+
             var bindingName = getBindingName(node);
             if (bindingName != null) {
                 builder.addBinding(bindingName);
@@ -151,6 +163,19 @@ public final class LktPasses {
             final ScriptFramesBuilder builder = new ScriptFramesBuilder();
             recurseBuildFrames(root, builder);
             return builder;
+        }
+
+        /**
+         * Special handling for query comprehensions
+         * since the source part is not included in the concrete frame.
+         */
+        public static void handleQuery(Liblktlang.Query query, ScriptFramesBuilder builder) {
+            recurseBuildFrames(query.fSource(), builder);
+            builder.openFrame(query);
+            recurseBuildFrames(query.fPattern(), builder);
+            if (!query.fGuard().isNone()) recurseBuildFrames(query.fGuard(), builder);
+            if (!query.fMapping().isNone()) recurseBuildFrames(query.fMapping(), builder);
+            builder.closeFrame();
         }
     }
 
@@ -501,14 +526,14 @@ public final class LktPasses {
                 );
             } else if (expr instanceof DotExpr dotExpr) {
                 final var memberIdentifier = dotExpr.fSuffix();
-                return DotAccessWrapperNodeGen.create(
-                    loc(dotExpr),
-                    DotAccessNodeGen.create(
-                        loc(dotExpr),
-                        new Identifier(loc(memberIdentifier), memberIdentifier.getText()),
-                        buildExpr(dotExpr.fPrefix())
-                    )
-                );
+                final var loc = loc(dotExpr);
+                final var id = new Identifier(loc(memberIdentifier), memberIdentifier.getText());
+                final var prefix = buildExpr(dotExpr.fPrefix());
+                final BaseDotAccess dotAccess = (dotExpr.fNullCond() instanceof
+                        Liblktlang.NullCondQualifierPresent)
+                    ? SafeDotAccessNodeGen.create(loc, id, prefix)
+                    : DotAccessNodeGen.create(loc, id, prefix);
+                return DotAccessWrapperNodeGen.create(dotAccess.getSourceSection(), dotAccess);
             } else if (expr instanceof MatchExpr matchExpr) {
                 Expr matchVal = buildExpr(matchExpr.fMatchExpr());
                 var arms = Arrays.stream(matchExpr.fBranches().children())
@@ -530,6 +555,29 @@ public final class LktPasses {
                     null,
                     lambdaExpr.fBody(),
                     lambdaExpr.fParams()
+                );
+            } else if (expr instanceof Liblktlang.Query query) {
+                var source = buildExpr(query.fSource());
+
+                this.frames.enterFrame(query);
+
+                var pattern = buildPattern(query.fPattern());
+                var guard = query.fGuard().isNone() ? null : buildExpr(query.fGuard());
+                var result = query.fMapping().isNone() ? null : buildExpr(query.fMapping());
+
+                var frameDescriptor = this.frames.getFrameDescriptor();
+                var closureDescriptor = this.frames.getClosureDescriptor();
+
+                this.frames.exitFrame();
+
+                return QueryComprehensionNodeGen.create(
+                    loc(query),
+                    frameDescriptor,
+                    closureDescriptor,
+                    pattern,
+                    guard,
+                    result,
+                    source
                 );
             } else {
                 throw LKQLRuntimeException.create(

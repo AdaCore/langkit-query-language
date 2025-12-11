@@ -7,19 +7,19 @@ fun parents(this : Any) : Any = match this {
 
 
 fun super_types(this : Any) : Any = match this {
-    case BaseTypeDecl => this.p_base_types().iterator ::: this.p_base_types().iterator.flatMap(super_types)
+    case BaseTypeDecl => this.p_base_types() ::: this.p_base_types().flat_map(super_types)
     case _            => Unit()
 }
 
 
 fun children(this : Any) : Any = match this {
-    case AdaNode => this :: this.children.iterator.flatMap(children)
+    case AdaNode => this :: this.children.flat_map(children)
     case _ => Unit()
 }
 
 
 fun foo(this : Any) : Any = match this {
-    case Foo => [s, o, m, e, t, h, i, n, g].iterator ::: foo(this)
+    case Foo => [s, o, m, e, t, h, i, n, g] ::: foo(this)
 }
 
 

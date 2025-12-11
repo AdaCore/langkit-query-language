@@ -17,6 +17,8 @@ import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
+import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyListStreamWrapper;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -556,12 +558,8 @@ public class BuiltInFunctions {
 
         @Specialization
         @CompilerDirectives.TruffleBoundary
-        protected LKQLList alwaysTrue() {
-            return new LKQLList(
-                LKQLLanguage.getContext(this)
-                    .getAllUnits()
-                    .toArray(LangkitSupport.AnalysisUnit[]::new)
-            );
+        protected BaseLKQLList alwaysTrue() {
+            return new LKQLLazyListStreamWrapper(LKQLLanguage.getContext(this).getAllUnits());
         }
     }
 
