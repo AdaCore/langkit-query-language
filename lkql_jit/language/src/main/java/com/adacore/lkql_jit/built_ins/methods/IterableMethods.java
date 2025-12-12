@@ -8,6 +8,9 @@ package com.adacore.lkql_jit.built_ins.methods;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
+import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLTuple;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
@@ -19,7 +22,10 @@ import com.adacore.lkql_jit.runtime.values.lists.LKQLMapResult;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 
 /** This class contains all built-in methods for the iterable type in the LKQL language. */
@@ -141,6 +147,86 @@ public class IterableMethods {
             @CachedLibrary("function") InteropLibrary functionLibrary
         ) {
             return new LKQLFlattenResult(new LKQLMapResult(iterable, function, functionLibrary));
+        }
+    }
+
+    @BuiltInMethod(
+        name = "any",
+        doc = "Given a collection and a predicate, returns true if any element satisfies the predicate."
+    )
+    abstract static class AnyExpr extends BuiltInBody {
+
+        @Child
+        private static LKQLToBoolean toBoolean = LKQLToBooleanNodeGen.create();
+
+        @Specialization(
+            limit = Constants.SPECIALIZED_LIB_LIMIT,
+            guards = "predicate.parameterNames.length == 1"
+        )
+        protected Object onValidArgs(
+            Iterable iterable,
+            LKQLFunction predicate,
+            @CachedLibrary("predicate") InteropLibrary functionLibrary
+        ) {
+            Iterator iterator = iterable.iterator();
+            while (iterator.hasNext()) {
+                try {
+                    if (
+                        toBoolean.execute(
+                            functionLibrary.execute(
+                                predicate,
+                                predicate.closure.getContent(),
+                                iterator.next()
+                            )
+                        )
+                    ) return true;
+                } catch (
+                    ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                ) {
+                    throw LKQLRuntimeException.fromJavaException(e, this);
+                }
+            }
+            return false;
+        }
+    }
+
+    @BuiltInMethod(
+        name = "all",
+        doc = "Given a collection and a predicate, returns true if all elements satisfies the predicate."
+    )
+    abstract static class AllExpr extends BuiltInBody {
+
+        @Child
+        private static LKQLToBoolean toBoolean = LKQLToBooleanNodeGen.create();
+
+        @Specialization(
+            limit = Constants.SPECIALIZED_LIB_LIMIT,
+            guards = "predicate.parameterNames.length == 1"
+        )
+        protected Object onValidArgs(
+            Iterable iterable,
+            LKQLFunction predicate,
+            @CachedLibrary("predicate") InteropLibrary functionLibrary
+        ) {
+            Iterator iterator = iterable.iterator();
+            while (iterator.hasNext()) {
+                try {
+                    if (
+                        !toBoolean.execute(
+                            functionLibrary.execute(
+                                predicate,
+                                predicate.closure.getContent(),
+                                iterator.next()
+                            )
+                        )
+                    ) return false;
+                } catch (
+                    ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                ) {
+                    throw LKQLRuntimeException.fromJavaException(e, this);
+                }
+            }
+            return true;
         }
     }
 }
