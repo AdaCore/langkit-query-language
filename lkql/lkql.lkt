@@ -145,7 +145,6 @@ grammar lkql_grammar {
     )
     selector_call <- SelectorCall(
         Identifier(or(@Identifier("any") | @Identifier("all")))
-        ?pick(id "@")
         value_expr
     )
     objectlit <- ObjectLiteral("{" list*(object_assoc, ",") "}")
@@ -1139,9 +1138,6 @@ class SelectorCall: LkqlNode {
     @parse_field
     quantifier: Identifier
     @parse_field
-    @nullable
-    binding: Identifier
-    @parse_field
     selector_call: Expr
 
     |" Return the selector's quantifier name.
@@ -1151,9 +1147,6 @@ class SelectorCall: LkqlNode {
     fun quantifier_name(): String =
         if node.quantifier.is_null then "all" else node.quantifier.text
 
-    |" Return the binding name associated with this selector call, if any.
-    @exported
-    fun binding_name(): Identifier = node.binding
 }
 
 |" Wrapper for a SubBlockLiteral token.

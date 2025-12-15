@@ -1,15 +1,21 @@
+import stdlib
+
 fun check_instantiations(node, n : int) =
     |" Return true if node has a chain of at least n instantiations
     n == 0 or
     match node
-    | GenericPackageInstantiation =>
-        node.f_generic_pkg_name?.p_referenced_decl() is
-        *(any c@children: GenericInstantiation)
-        when [x for x in c if check_instantiations(x, n - 1)]
-    | GenericSubpInstantiation =>
-        node.f_generic_subp_name?.p_referenced_decl() is
-        *(any c@children: GenericInstantiation)
-        when [x for x in c if check_instantiations(x, n - 1)]
+    | GenericPackageInstantiation => {
+            val c =
+                from node.f_generic_pkg_name?.p_referenced_decl()
+                select GenericInstantiation;
+            stdlib.any([x for x in c if check_instantiations(x, n - 1)])
+        }
+    | GenericSubpInstantiation => {
+            val c =
+                from node.f_generic_subp_name?.p_referenced_decl()
+                select GenericInstantiation;
+            stdlib.any([x for x in c if check_instantiations(x, n - 1)])
+        }
     | * => false
 
 @check(message="deeply nested instantiation",

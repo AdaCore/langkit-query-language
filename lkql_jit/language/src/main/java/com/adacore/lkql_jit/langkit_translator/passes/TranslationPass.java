@@ -1590,9 +1590,6 @@ public final class TranslationPass
             quantifier = SelectorCall.Quantifier.ALL;
         }
 
-        final Liblkqllang.Identifier bindingBase = selectorCall.fBinding();
-        final String binding = bindingBase.isNone() ? null : bindingBase.getText();
-
         final Liblkqllang.Expr selectorExprBase = selectorCall.fSelectorCall();
         final Expr selectorExpr;
         final ArgList args;
@@ -1606,15 +1603,9 @@ public final class TranslationPass
 
         // Get the slot for the binding
         final int bindingSlot;
-        if (binding != null) {
-            this.frames.declareBinding(binding);
-            bindingSlot = this.frames.getBinding(binding);
-        } else {
-            bindingSlot = -1;
-        }
 
         // Return the new node
-        return new SelectorCall(loc(selectorCall), quantifier, bindingSlot, selectorExpr, args);
+        return new SelectorCall(loc(selectorCall), quantifier, selectorExpr, args);
     }
 
     // --- Node patterns

@@ -257,12 +257,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      */
     @Override
     public Void visit(Liblkqllang.SelectorCall selectorCall) {
-        final Liblkqllang.Identifier binding = selectorCall.fBinding();
-        if (!binding.isNone()) {
-            final String symbol = binding.getText();
-            checkDuplicateBindings(symbol, binding);
-            this.scriptFramesBuilder.addBinding(symbol);
-        }
         selectorCall.fSelectorCall().accept(this);
         return null;
     }
