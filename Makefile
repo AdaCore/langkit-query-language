@@ -3,12 +3,12 @@ PROCS=0
 PYTHON=python
 MAVEN=mvn
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
-LKM=$(PYTHON) -m langkit.scripts.lkm
+LKM="$(PYTHON)" -m langkit.scripts.lkm
 KP_JSON=lkql_checker/share/lkql/kp/kp.json
 ADDITIONAL_LKM_ARGS=
 LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) -j$(PROCS) $(ADDITIONAL_LKM_ARGS)
 ADDITIONAL_MAVEN_ARGS=
-MAVEN_ARGS=-Dconfig.python=$(PYTHON) $(ADDITIONAL_MAVEN_ARGS)
+MAVEN_ARGS=-Dconfig.python="$(PYTHON)" $(ADDITIONAL_MAVEN_ARGS)
 
 all: liblkqllang lkql_jit lkql_checker
 
@@ -19,10 +19,10 @@ liblkqllang:
 	$(LKM_ARGS)
 
 install_lkql_java_bindings: liblkqllang
-	$(MAVEN) -f lkql/build/java/ install $(MAVEN_ARGS)
+	"$(MAVEN)" -f lkql/build/java/ install $(MAVEN_ARGS)
 
 lkql_jit: install_lkql_java_bindings
-	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
+	"$(MAVEN)" -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
 
 lkql_checker: liblkqllang impacts
 	$(GPRBUILD) -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
@@ -36,7 +36,7 @@ impacts:
 
 format:
 	gnatformat -P lkql_checker/lkql_checker.gpr --no-subprojects
-	$(MAVEN) -f lkql_jit spotless:apply $(MAVEN_ARGS)
+	"$(MAVEN)" -f lkql_jit spotless:apply $(MAVEN_ARGS)
 
 test:
 	testsuite/testsuite.py -j$(PROCS) -Edtmp
@@ -47,10 +47,10 @@ clean_liblkqllang:
 	rm lkql/build -rf
 
 clean_lkql_jit:
-	$(MAVEN) -f lkql_jit clean $(MAVEN_ARGS)
+	"$(MAVEN)" -f lkql_jit clean $(MAVEN_ARGS)
 
 clean_lkql_checker:
 	cd lkql_checker && gprclean
-	[ -f $(KP_JSON) ] && rm $(KP_JSON)
+	[ -f "$(KP_JSON)" ] && rm "$(KP_JSON)"
 
 .PHONY: liblkqllang install_lkql_java_bindings lkql_jit gnatcheck doc impacts format test clean_liblkqllang clean_lkql_jit clean_gnatcheck
