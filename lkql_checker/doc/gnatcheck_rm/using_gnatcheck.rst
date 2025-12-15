@@ -470,8 +470,8 @@ described in the following paragraph).
 
 By default, GNATcheck will look for a ``rules.lkql`` file besides the specified
 project file if any. If one is found and no other rule configuration has been
-provided (either through the LKQL ``--rule-file`` option, or by the now
-deprecated legacy ``-rules`` options), GNATcheck will load the rule
+provided (either through the LKQL ``--rule-file`` option, ``--rule`` option, or
+by the now deprecated legacy ``-rules`` options), GNATcheck will load the rule
 configuration file as if it was provided by the ``--rule-file`` option.
 
 .. note::
