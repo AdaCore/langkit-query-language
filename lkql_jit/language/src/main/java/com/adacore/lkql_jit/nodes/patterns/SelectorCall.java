@@ -13,17 +13,12 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.LKQLSelector;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This node represents the call of a selector in the LKQL language.
@@ -36,9 +31,6 @@ public final class SelectorCall extends LKQLNode {
 
     /** The quantifier for the selector call. */
     private final Quantifier quantifier;
-
-    /** The slot to put the binding value in, might be -1 if there is no binding. */
-    private final int bindingSlot;
 
     // ----- Children -----
 
@@ -59,20 +51,17 @@ public final class SelectorCall extends LKQLNode {
      *
      * @param location The location of the node in the source.
      * @param quantifier The quantifier for the selector.
-     * @param bindingSlot The slot of the binding.
      * @param selectorExpr The selector expression.
      * @param args The arguments for the call.
      */
     public SelectorCall(
         SourceSection location,
         Quantifier quantifier,
-        int bindingSlot,
         Expr selectorExpr,
         ArgList args
     ) {
         super(location);
         this.quantifier = quantifier;
-        this.bindingSlot = bindingSlot;
         this.selectorExpr = selectorExpr;
         this.args = args;
     }
@@ -107,11 +96,6 @@ public final class SelectorCall extends LKQLNode {
             isValid = this.isAll(frame, selectorListValue, pattern);
         } else {
             isValid = this.isAny(frame, selectorListValue, pattern);
-        }
-
-        // Do the bindings
-        if (this.bindingSlot > -1) {
-            this.doBinding(frame, selectorListValue, pattern);
         }
 
         // Return the result
@@ -233,61 +217,6 @@ public final class SelectorCall extends LKQLNode {
         return false;
     }
 
-    /**
-     * Get the list value filtered with the given pattern.
-     *
-     * @param frame The frame to execute in.
-     * @param selectorListValue The selector list value to filter.
-     * @param pattern The pattern for the filtering.
-     * @return The list value
-     */
-    private LKQLList getFilteredList(
-        VirtualFrame frame,
-        LKQLSelectorList selectorListValue,
-        Pattern pattern
-    ) {
-        // Prepare the result
-        List<Object> resList = new ArrayList<>();
-
-        // Iterate on nodes
-        Iterator iterator = selectorListValue.iterator();
-        while (iterator.hasNext()) {
-            Object value = iterator.next();
-            if (pattern.executeValue(frame, value)) {
-                resList.add(value);
-            }
-        }
-
-        // Return the result
-        return new LKQLList(resList.toArray(new Object[0]));
-    }
-
-    /**
-     * Do the binding process.
-     *
-     * @param frame The frame to execute in.
-     * @param selectorListValue The selector list to bind.
-     * @param pattern The pattern to filter the list.
-     */
-    private void doBinding(
-        VirtualFrame frame,
-        LKQLSelectorList selectorListValue,
-        Pattern pattern
-    ) {
-        LKQLList listValue = this.getFilteredList(frame, selectorListValue, pattern);
-        this.doBinding(frame, listValue);
-    }
-
-    /**
-     * Do the binding with the already computed list.
-     *
-     * @param frame The frame to execute in.
-     * @param listValue The list bind.
-     */
-    private void doBinding(VirtualFrame frame, LKQLList listValue) {
-        FrameUtils.writeLocal(frame, this.bindingSlot, listValue);
-    }
-
     // ----- Override methods -----
 
     /**
@@ -297,8 +226,8 @@ public final class SelectorCall extends LKQLNode {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
                 indentLevel,
-                new String[] { "quantifier", "slot" },
-                new Object[] { this.quantifier, this.bindingSlot }
+                new String[] { "quantifier" },
+                new Object[] { this.quantifier }
             );
     }
 

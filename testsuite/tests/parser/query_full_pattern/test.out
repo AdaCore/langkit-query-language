@@ -30,7 +30,6 @@ ValDecl
 |  |  |  |  |  |  |  SelectorCall
 |  |  |  |  |  |  |  |f_quantifier:
 |  |  |  |  |  |  |  |  Identifier: any
-|  |  |  |  |  |  |  |f_binding: <null>
 |  |  |  |  |  |  |  |f_selector_call:
 |  |  |  |  |  |  |  |  Identifier: children
 |  |  |  |  |  |  |f_pattern_detail_delimiter:
