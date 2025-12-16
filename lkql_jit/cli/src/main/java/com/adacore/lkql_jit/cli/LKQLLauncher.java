@@ -20,6 +20,7 @@ import org.graalvm.shadowed.org.jline.reader.EndOfFileException;
 import org.graalvm.shadowed.org.jline.reader.LineReader;
 import org.graalvm.shadowed.org.jline.reader.LineReaderBuilder;
 import org.graalvm.shadowed.org.jline.reader.UserInterruptException;
+import org.graalvm.shadowed.org.jline.terminal.TerminalBuilder;
 import picocli.CommandLine;
 
 /**
@@ -177,7 +178,9 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             }
 
             if (this.args.interactive) {
-                LineReader reader = LineReaderBuilder.builder().build();
+                LineReader reader = LineReaderBuilder.builder()
+                    .terminal(TerminalBuilder.builder().system(true).dumb(true).build())
+                    .build();
                 String prompt = "> ";
                 while (true) {
                     String line = null;
