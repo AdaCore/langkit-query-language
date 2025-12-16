@@ -1,8 +1,9 @@
+input:1:24: End of input expected, got "At"
 ValDecl
 |f_annotation: <null>
 |f_doc_node: <null>
 |f_identifier:
-|  Identifier: o
+|  Identifier: invalid
 |f_value:
 |  Query
 |  |f_unpack_from:
@@ -13,11 +14,9 @@ ValDecl
 |  |  QueryKindAll
 |  |f_pattern:
 |  |  ComplexPattern
-|  |  |f_binding: <null>
-|  |  |f_pattern:
-|  |  |  NodeKindPattern
-|  |  |  |f_kind_name:
-|  |  |  |  Identifier: ObjectDecl
+|  |  |f_binding:
+|  |  |  Identifier: x
+|  |  |f_pattern: <null>
 |  |  |f_details:
 |  |  |  NodePatternDetailList: <empty list>
 |  |  |f_predicate: <null>

@@ -332,9 +332,9 @@ fun identifier_prefixes(
                 )
 
             # Other access types
-            | (
-                p@TypeDecl(f_type_def: AccessDef)
-                | p@SubtypeDecl(
+            | p@(
+                TypeDecl(f_type_def: AccessDef)
+                | SubtypeDecl(
                     p_canonical_type(): TypeDecl(f_type_def: AccessDef)
                 )
             ) when access != "-"

@@ -97,27 +97,34 @@ grammar lkql_grammar {
         )
     )
     or_pattern <- or(OrPattern(pattern "|" or_pattern) | pattern)
-    pattern <- or(| FilteredPattern(value_pattern "when" expr) | value_pattern)
+    pattern <- or(
+        | NotPattern("not" pattern)
+        | complex_pattern
+    )
+    complex_pattern <- or(
+        | ComplexPattern(
+                ?pick(id "@")
+                value_pattern
+                ?pick("(" / list+(pattern_arg, ",") ")")
+                ?pick("when" expr)
+        )
+        | ComplexPattern(
+                id
+                null(ValuePattern)
+                null(ASTList[NodePatternDetail])
+                ?pick("when" expr)
+        )
+    )
     object_pattern_assoc <- ObjectPatternAssoc(id ":" pattern)
     value_pattern <- or(
-        | ExtendedNodePattern(
-            or(
-                | UniversalPattern("*")
-                | NodeKindPattern(upper_id)
-                | ParenPattern("(" or_pattern ")")
-            )
-            pick("(" / list+(pattern_arg, ",") ")")
-        )
         | NodeKindPattern(upper_id)
         | UniversalPattern("*")
         | NullPattern("null")
         | regex_pattern
-        | NotPattern("not" value_pattern)
         | bool_pattern
         | integer_pattern
         | list_pattern
         | object_pattern
-        | BindingPattern(id ?pick("@" value_pattern))
         | ParenPattern("(" or_pattern ")")
         | tuple_pattern
     )
@@ -126,12 +133,12 @@ grammar lkql_grammar {
     splat_pattern <- SplatPattern(?pick(id "@") "...")
     integer_pattern <- IntegerPattern(@Integer)
     list_pattern <- ListPattern(
-        "[" list+(or(splat_pattern | value_pattern), ",") "]"
+        "[" list+(or(splat_pattern | pattern), ",") "]"
     )
     object_pattern <- ObjectPattern(
         "{" list+(or(object_pattern_assoc | splat_pattern), ",") "}"
     )
-    tuple_pattern <- TuplePattern("(" list+(value_pattern, ",") ")")
+    tuple_pattern <- TuplePattern("(" list+(pattern, ",") ")")
     pattern_detail_delimiter <- or(
         | PatternDetailDelimiter.Is("is")
         | PatternDetailDelimiter.Colon(":")
@@ -370,37 +377,39 @@ class AtObjectAssoc: LkqlNode {
 class BasePattern: LkqlNode {
 }
 
-|" Pattern comprising a binding name and a value pattern.
-|"
-|" For instance::
-|"
-|"    o@ObjectDecl
-class BindingPattern: BasePattern {
-    @parse_field
-    binding: Identifier
-    @parse_field
-    @nullable
-    value_pattern: BasePattern
-}
-
-|" Pattern with a filtering predicate, of the form:
-|" ``<pattern> when <predicate>``
-|"
-|" For instance::
-|"
-|"    o@ObjectDecl when o.children.length == 3
-class FilteredPattern: BasePattern {
-    @parse_field
-    pattern: BasePattern
-    @parse_field
-    predicate: Expr
-}
 
 |" Root node class for patterns that filter values.
 |" (As opposed to patterns that only bind values to a given name without
 |" doing any kind of filtering)
 @abstract
 class ValuePattern: BasePattern {
+}
+
+|" Composition of any of the following components
+|" - a binding name
+|" - a value pattern
+|" - pattern details 
+|" - a when clause
+|"
+|" For instance::
+|"
+|"    o@ObjectDecl(field: Pattern, prop(): Pattern, any selector: Pattern)
+|"    when foo(o) == 42
+class ComplexPattern: BasePattern {
+    @nullable
+    @parse_field
+    binding: Identifier
+
+    @nullable
+    @parse_field
+    pattern: ValuePattern
+
+    @parse_field
+    details: ASTList[NodePatternDetail]
+
+    @nullable
+    @parse_field
+    predicate: Expr
 }
 
 |" Pattern to match on booleans.
@@ -421,20 +430,6 @@ class ListPattern: ValuePattern {
 |" Root node class for node patterns
 @abstract
 class NodePattern: ValuePattern {
-}
-
-|" Node pattern of the form:
-|"
-|" ``KindName(field: Pattern, prop(): Pattern, any selector: Pattern)``
-|"
-|" For instance::
-|"
-|"     ObjectDecl(any children: AspectAssoc)
-class ExtendedNodePattern: NodePattern {
-    @parse_field
-    node_pattern: ValuePattern
-    @parse_field
-    details: ASTList[NodePatternDetail]
 }
 
 |" Pattern of the form: KindName

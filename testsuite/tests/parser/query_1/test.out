@@ -12,15 +12,15 @@ ValDecl
 |  |f_query_kind:
 |  |  QueryKindAll
 |  |f_pattern:
-|  |  FilteredPattern
+|  |  ComplexPattern
+|  |  |f_binding:
+|  |  |  Identifier: o
 |  |  |f_pattern:
-|  |  |  BindingPattern
-|  |  |  |f_binding:
-|  |  |  |  Identifier: o
-|  |  |  |f_value_pattern:
-|  |  |  |  NodeKindPattern
-|  |  |  |  |f_kind_name:
-|  |  |  |  |  Identifier: ObjectDecl
+|  |  |  NodeKindPattern
+|  |  |  |f_kind_name:
+|  |  |  |  Identifier: ObjectDecl
+|  |  |f_details:
+|  |  |  NodePatternDetailList: <empty list>
 |  |  |f_predicate:
 |  |  |  InClause
 |  |  |  |f_value_expr:

@@ -7,9 +7,15 @@ SelectorDecl
 |  SelectorArmList
 |  |  SelectorArm
 |  |  |f_pattern:
-|  |  |  NodeKindPattern
-|  |  |  |f_kind_name:
-|  |  |  |  Identifier: FirstNodeKind
+|  |  |  ComplexPattern
+|  |  |  |f_binding: <null>
+|  |  |  |f_pattern:
+|  |  |  |  NodeKindPattern
+|  |  |  |  |f_kind_name:
+|  |  |  |  |  Identifier: FirstNodeKind
+|  |  |  |f_details:
+|  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |f_predicate: <null>
 |  |  |f_expr:
 |  |  |  RecExpr
 |  |  |  |f_recurse_unpack:
@@ -34,8 +40,9 @@ SelectorDecl
 |  |  |  |  UnitLiteral
 |  |  SelectorArm
 |  |  |f_pattern:
-|  |  |  ExtendedNodePattern
-|  |  |  |f_node_pattern:
+|  |  |  ComplexPattern
+|  |  |  |f_binding: <null>
+|  |  |  |f_pattern:
 |  |  |  |  NodeKindPattern
 |  |  |  |  |f_kind_name:
 |  |  |  |  |  Identifier: SecondNodeKind
@@ -47,9 +54,16 @@ SelectorDecl
 |  |  |  |  |  |f_pattern_detail_delimiter:
 |  |  |  |  |  |  PatternDetailDelimiterColon
 |  |  |  |  |  |f_expected_value:
-|  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  Identifier: ThirdNodeKind
+|  |  |  |  |  |  ComplexPattern
+|  |  |  |  |  |  |f_binding: <null>
+|  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  Identifier: ThirdNodeKind
+|  |  |  |  |  |  |f_details:
+|  |  |  |  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |  |  |  |f_predicate: <null>
+|  |  |  |f_predicate: <null>
 |  |  |f_expr:
 |  |  |  RecExpr
 |  |  |  |f_recurse_unpack:
@@ -66,6 +80,12 @@ SelectorDecl
 |  |  |  |  |  Identifier: field
 |  |  SelectorArm
 |  |  |f_pattern:
-|  |  |  UniversalPattern
+|  |  |  ComplexPattern
+|  |  |  |f_binding: <null>
+|  |  |  |f_pattern:
+|  |  |  |  UniversalPattern
+|  |  |  |f_details:
+|  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |f_predicate: <null>
 |  |  |f_expr:
 |  |  |  UnitLiteral

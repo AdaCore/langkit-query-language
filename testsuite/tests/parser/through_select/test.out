@@ -8,4 +8,10 @@ Query
 |f_query_kind:
 |  QueryKindAll
 |f_pattern:
-|  UniversalPattern
+|  ComplexPattern
+|  |f_binding: <null>
+|  |f_pattern:
+|  |  UniversalPattern
+|  |f_details:
+|  |  NodePatternDetailList: <empty list>
+|  |f_predicate: <null>

@@ -1,0 +1,1 @@
+val invalid = select AdaNode when foo when bar when baz
