@@ -1,117 +1,56 @@
 BUILD_MODE=dev
-export BUILD_MODE
-
-ifeq ($(OS),Windows_NT)
-  SOEXT=.dll
-else
-  SOEXT=.so
-endif
-
-PROCS=0 PREFIX=install
+PROCS=0
 PYTHON=python
 MAVEN=mvn
-NPM_INSTALL_CACHE=true
-NPMRC=
-BUILD_DIR=/undefined
-LKQL_DIR=$(BUILD_DIR)/lkql
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
-GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
-BUILD_FOR_JIT=false
-LKM=$(PYTHON) -m langkit.scripts.lkm
+LKM="$(PYTHON)" -m langkit.scripts.lkm
 KP_JSON=lkql_checker/share/lkql/kp/kp.json
+ADDITIONAL_LKM_ARGS=
+LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) -j$(PROCS) $(ADDITIONAL_LKM_ARGS)
+ADDITIONAL_MAVEN_ARGS=
+MAVEN_ARGS=-Dconfig.python="$(PYTHON)" $(ADDITIONAL_MAVEN_ARGS)
 
-ifeq ($(BUILD_FOR_JIT),true)
-  MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
-    --library-types=relocatable
-else
-  MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
-    --library-types=static
-endif
+all: liblkqllang lkql_jit lkql_checker
 
-ADDITIONAL_MANAGE_ARGS=
-MAVEN_ARGS=-Dconfig.npmInstallCache=$(NPM_INSTALL_CACHE) -Dconfig.npmrc=$(NPMRC) -Dconfig.python=$(PYTHON)
+liblkqllang:
+	$(LKM) make -c lkql/langkit.yaml \
+	--pass-on="emit railroad diagrams" \
+	--disable-java \
+	$(LKM_ARGS)
 
-# WARNING: Note that for some reason parallelizing the build still doesn't work
-all: lkql gnatcheck build_lkql_native_jit doc
+install_lkql_java_bindings: liblkqllang
+	"$(MAVEN)" -f lkql/build/java/ install $(MAVEN_ARGS)
 
-lkql: build/bin/liblkqllang_parse
+lkql_jit: install_lkql_java_bindings
+	"$(MAVEN)" -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
+
+lkql_checker: liblkqllang impacts
+	$(GPRBUILD) -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 doc:
 	cd user_manual && make clean html
-	cd lkql_checker/doc && make generate html-all
+	cd lkql_checker/doc && make generate all
 
 impacts:
 	[ -f "$(KP_JSON)" ] || "$(PYTHON)" "./utils/impact-db_impacts_gen.py"
 
 format:
 	gnatformat -P lkql_checker/lkql_checker.gpr --no-subprojects
-	$(MAVEN) -f lkql_jit spotless:apply $(MAVEN_ARGS)
-
-gnatcheck: lkql impacts
-	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
-
-build/bin/liblkqllang_parse: lkql/lkql.lkt
-	$(LKM) make -c lkql/langkit.yaml \
-	--pass-on="emit railroad diagrams" \
-	--enable-java \
-	--maven-executable $(MAVEN) \
-	--build-mode=$(BUILD_MODE) \
-	$(ADDITIONAL_MANAGE_ARGS)
+	"$(MAVEN)" -f lkql_jit spotless:apply $(MAVEN_ARGS)
 
 test:
-	testsuite/testsuite.py -Edtmp
+	testsuite/testsuite.py -j$(PROCS) -Edtmp
 
-clean: clean_lkql_jit clean_lkql_checker clean_lkql
+clean: clean_lkql_jit clean_lkql_checker clean_liblkqllang
 
-clean_lkql:
+clean_liblkqllang:
 	rm lkql/build -rf
 
 clean_lkql_jit:
-	cd lkql_jit && $(MAVEN) clean
+	"$(MAVEN)" -f lkql_jit clean $(MAVEN_ARGS)
 
 clean_lkql_checker:
 	cd lkql_checker && gprclean
-	[ -f $(KP_JSON) ] && rm $(KP_JSON)
+	[ -f "$(KP_JSON)" ] && rm "$(KP_JSON)"
 
-build_lkql_jit: lkql
-	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean package $(MAVEN_ARGS)
-
-build_lkql_native_jit: lkql
-	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean package -P native,$(BUILD_MODE) $(MAVEN_ARGS)
-
-.PHONY: lkql_checker
-
-automated:
-	rm -rf "$(PREFIX)"
-	mkdir -p "$(PREFIX)/share" "$(PREFIX)/share/examples" "$(PREFIX)/lib"
-	$(LKM) make -c lkql/langkit.yaml $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS)
-	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr -largs -s
-	$(GPRINSTALL) --mode=usage -Plkql_checker/lkql_checker.gpr
-	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
-	cp -pr lkql_checker/share/lkql "$(PREFIX)/share"
-	cp -pr lkql_checker/share/examples "$(PREFIX)/share/examples/gnatcheck"
-
-automated-cov:
-	rm -rf "$(PREFIX)" "$(BUILD_DIR)"
-	mkdir -p "$(PREFIX)/share/lkql" "$(LKQL_DIR)"
-	$(LKM) make -c lkql/langkit.yaml $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS) --coverage
-	$(LKM) install -c lkql/langkit.yaml $(MANAGE_ARGS) $(PREFIX)
-	# Build and install the lkql_checker program. Instrument it first.
-	# Note that we just copy the sources to the build directory since
-	# "gnatcov instrument" does not support build tree relocation.
-	cp -pr lkql_checker "$(BUILD_DIR)"
-	gnatcov instrument "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr" \
-	  --level=stmt --no-subprojects --dump-trigger=atexit \
-	  -XBUILD_MODE=$(BUILD_MODE)
-	$(GPRBUILD) "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr" \
-	  --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts
-	$(GPRINSTALL) --mode=dev "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr"
-	cp -pr lkql_checker/share/lkql "$(PREFIX)/share"
-	# Ship coverage data files for liblkqllang and lkql_checker so that the
-	# testsuite can use them.
-	cp -p "$(LKQL_DIR)/obj/instr/sids/"*.sid "$(PREFIX)/lib/liblkqllang.static"
-	mkdir -p "$(PREFIX)/lib/lkql_checker"
-	cp -p "$(BUILD_DIR)/lkql_checker/obj/$(BUILD_MODE)/"*.sid \
-	  "$(PREFIX)/lib/lkql_checker"
+.PHONY: liblkqllang install_lkql_java_bindings lkql_jit gnatcheck doc impacts format test clean_liblkqllang clean_lkql_jit clean_gnatcheck
