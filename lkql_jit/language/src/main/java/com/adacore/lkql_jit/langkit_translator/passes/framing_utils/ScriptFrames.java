@@ -10,7 +10,6 @@ import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.exception.TranslatorException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
-import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import java.util.ArrayList;

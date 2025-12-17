@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescriptor;
 import com.adacore.lkql_jit.nodes.declarations.Annotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -14,7 +15,6 @@ import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
 import com.adacore.lkql_jit.runtime.values.LKQLSelector;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
-import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameDescriptor;

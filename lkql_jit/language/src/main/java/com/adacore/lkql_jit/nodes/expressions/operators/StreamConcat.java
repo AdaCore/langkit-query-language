@@ -6,10 +6,10 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescriptor;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLStream;
-import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;

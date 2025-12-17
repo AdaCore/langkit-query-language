@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescriptor;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
 import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
@@ -14,7 +15,6 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
 import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLLazyList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLListComprehension;
-import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
