@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.options.Refactorings;
+package com.adacore.lkql_jit.options.refactorings;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import java.util.ArrayList;

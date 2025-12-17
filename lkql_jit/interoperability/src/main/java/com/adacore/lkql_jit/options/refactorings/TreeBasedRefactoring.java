@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.options.Refactorings;
+package com.adacore.lkql_jit.options.refactorings;
 
 import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 
