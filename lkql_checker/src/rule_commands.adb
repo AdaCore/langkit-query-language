@@ -15,47 +15,9 @@ package body Rule_Commands is
 
    package LCO renames Liblkqllang.Common;
 
-   function Find_Toplevel_Node_Kind_Pattern
-     (Node : L.Lkql_Node'Class) return L.Node_Kind_Pattern;
-
    function Find_Param_Kind
      (Params : L.Parameter_Decl_List) return Rule_Param_Kind;
    --  Return the parameter kind for the given function body Node.
-
-   --------------------------------
-   -- Find_Toplevel_Node_Pattern --
-   --------------------------------
-
-   function Find_Toplevel_Node_Kind_Pattern
-     (Node : L.Lkql_Node'Class) return L.Node_Kind_Pattern is
-   begin
-      case Node.Kind is
-         when LCO.Lkql_Is_Clause             =>
-            return
-              Find_Toplevel_Node_Kind_Pattern (Node.As_Is_Clause.F_Pattern);
-
-         when LCO.Lkql_Node_Kind_Pattern     =>
-            return Node.As_Node_Kind_Pattern;
-
-         when LCO.Lkql_Extended_Node_Pattern =>
-            return
-              Find_Toplevel_Node_Kind_Pattern
-                (Node.As_Extended_Node_Pattern.F_Node_Pattern);
-
-         when LCO.Lkql_Filtered_Pattern      =>
-            return
-              Find_Toplevel_Node_Kind_Pattern
-                (Node.As_Filtered_Pattern.F_Pattern);
-
-         when LCO.Lkql_Binding_Pattern       =>
-            return
-              Find_Toplevel_Node_Kind_Pattern
-                (Node.As_Binding_Pattern.F_Value_Pattern);
-
-         when others                         =>
-            return L.No_Node_Kind_Pattern;
-      end case;
-   end Find_Toplevel_Node_Kind_Pattern;
 
    ---------------------
    -- Find_Param_Kind --
@@ -160,7 +122,6 @@ package body Rule_Commands is
          Remediation_Level        : Remediation_Levels := Medium;
          Parametric_Exemption     : Boolean := False;
          Name                     : constant Text_Type := Fn.F_Name.Text;
-         Toplevel_Node_Pattern    : L.Node_Kind_Pattern;
 
          Param_Kind : Rule_Param_Kind;
 
@@ -217,8 +178,6 @@ package body Rule_Commands is
          end Get_Text;
 
       begin
-         Toplevel_Node_Pattern :=
-           Find_Toplevel_Node_Kind_Pattern (Fn.F_Fun_Expr.F_Body_Expr);
          Param_Kind := Find_Param_Kind (Fn.F_Fun_Expr.F_Parameters);
 
          --  Get the "follow_generic_instantiations" settings if the user
@@ -301,17 +260,9 @@ package body Rule_Commands is
          Rc :=
            Rule_Command'
              (Name                 => To_Unbounded_Text (To_Lower (Name)),
-              Message              => Msg,
               Help                 => Help,
               Category             => Category,
               Subcategory          => Subcategory,
-              Lkql_Root            => Root,
-              Function_Expr        => Fn.F_Fun_Expr.F_Body_Expr,
-              Rule_Args            => <>,
-              Is_Unit_Check        =>
-                Check_Annotation.F_Name.Text = "unit_check",
-              Code                 => <>,
-              Kind_Pattern         => Toplevel_Node_Pattern,
               Param_Kind           => Param_Kind,
               Parameters           => Fn.F_Fun_Expr.F_Parameters,
               Remediation_Level    => Remediation_Level,
