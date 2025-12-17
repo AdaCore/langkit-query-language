@@ -10,7 +10,7 @@
         <version>0.1.0</version>
     </parent>
 
-    <artifactId>options</artifactId>
+    <artifactId>interoperability</artifactId>
 
     <build>
         <plugins>
