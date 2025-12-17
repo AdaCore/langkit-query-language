@@ -3,13 +3,9 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.utils;
+package com.adacore.lkql_jit;
 
-/**
- * This class contains all constant values of the LKQL JIT implementation.
- *
- * @author Hugo GUERRIER
- */
+/** This class contains all constant values of the LKQL engine. */
 public class Constants {
 
     // ----- JIT configuration ----

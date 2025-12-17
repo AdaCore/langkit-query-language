@@ -5,9 +5,9 @@
 
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.built_ins.BuiltInPropertyValue;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;

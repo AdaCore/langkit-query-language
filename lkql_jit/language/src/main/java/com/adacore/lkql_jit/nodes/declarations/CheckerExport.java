@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.declarations;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.checker.BaseChecker;
@@ -16,7 +17,6 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.functions.OptionalUtils;

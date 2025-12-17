@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.cli;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class LKQLDocAPI implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        Context context = Context.newBuilder("lkql")
+        Context context = Context.newBuilder(Constants.LKQL_ID)
             .allowAllAccess(true)
             // Set default LKQL options
             .option("lkql.options", new LKQLOptions.Builder().build().toJson().toString())
@@ -57,7 +58,7 @@ public class LKQLDocAPI implements Callable<Integer> {
                 // We need to think about how to fix that at the language level, so that we don't
                 // have to call `eval` with `interactive=true` below.
                 var res = context.eval(
-                    Source.newBuilder("lkql", "document_builtins()", "<input>")
+                    Source.newBuilder(Constants.LKQL_ID, "document_builtins()", "<input>")
                         .interactive(true)
                         .build()
                 );
@@ -71,11 +72,13 @@ public class LKQLDocAPI implements Callable<Integer> {
             var path = FileSystems.getDefault().getPath(outputDir, mod + ".rst");
             try (BufferedWriter writer = Files.newBufferedWriter(path)) {
                 context.eval(
-                    Source.newBuilder("lkql", "import " + mod, "<input>").interactive(true).build()
+                    Source.newBuilder(Constants.LKQL_ID, "import " + mod, "<input>")
+                        .interactive(true)
+                        .build()
                 );
                 var doc = context.eval(
                     Source.newBuilder(
-                        "lkql",
+                        Constants.LKQL_ID,
                         "document_namespace(" + mod + ",\"" + mod + "\")",
                         "<input>"
                     )

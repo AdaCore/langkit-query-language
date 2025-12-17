@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.built_ins;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -20,7 +21,6 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
 import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyListStreamWrapper;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.TextWriter;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;

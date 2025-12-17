@@ -6,13 +6,13 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.adacore.lkql_jit.runtime.values.LKQLTuple;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;

@@ -5,11 +5,11 @@
 
 package com.adacore.lkql_jit.nodes.declarations;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.adacore.lkql_jit.runtime.values.LKQLUnit;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;

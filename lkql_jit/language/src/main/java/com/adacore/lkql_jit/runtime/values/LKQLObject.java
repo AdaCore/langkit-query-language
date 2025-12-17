@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.values.bases.ObjectLKQLValue;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;

@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.cli;
 
 import static com.adacore.liblkqllang.Liblkqllang.*;
 
+import com.adacore.lkql_jit.Constants;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -255,7 +256,9 @@ public class LKQLDocRules implements Callable<Integer> {
         // Get all lkql files from directories to analyse.
         List<File> ruleDirectoryFiles = new ArrayList<>();
         for (var dir : rulesDirs) ruleDirectoryFiles.addAll(
-            Arrays.asList(dir.listFiles(f -> f.canRead() && f.getName().endsWith(".lkql")))
+            Arrays.asList(
+                dir.listFiles(f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION))
+            )
         );
 
         List<AnalysisUnit> units = new ArrayList<>();

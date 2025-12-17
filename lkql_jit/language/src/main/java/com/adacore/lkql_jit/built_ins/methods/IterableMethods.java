@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
@@ -19,7 +20,6 @@ import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLLazyList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLFlattenResult;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.runtime.values.lists.LKQLMapResult;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;

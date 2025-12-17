@@ -5,10 +5,10 @@
 
 package com.adacore.lkql_jit.runtime.values.lists;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;

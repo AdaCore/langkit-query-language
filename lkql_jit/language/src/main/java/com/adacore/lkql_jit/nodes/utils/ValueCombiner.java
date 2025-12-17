@@ -5,10 +5,10 @@
 
 package com.adacore.lkql_jit.nodes.utils;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.LKQLObject;
-import com.adacore.lkql_jit.utils.Constants;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.GenerateInline;

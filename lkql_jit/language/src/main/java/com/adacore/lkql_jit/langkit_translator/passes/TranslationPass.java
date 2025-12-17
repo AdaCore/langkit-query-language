@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -40,7 +41,6 @@ import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.adacore.lkql_jit.nodes.pass.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.source.Source;

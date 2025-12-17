@@ -21,7 +21,6 @@ import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Option;
