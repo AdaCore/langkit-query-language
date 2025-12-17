@@ -5,8 +5,6 @@
 
 package com.adacore.lkql_jit.langkit_translator.passes;
 
-import static com.adacore.lkql_jit.options.IterationUtils.toStream;
-
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
@@ -49,6 +47,8 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * This class represents the translation pass to get a Truffle AST from a Langkit AST.
@@ -122,6 +122,11 @@ public final class TranslationPass
 
         // Return the result
         return res;
+    }
+
+    /** Util function to create a stream from an iterable instance. */
+    public static <T> Stream<T> toStream(Iterable<T> iterable) {
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 
     // ----- Node translation methods -----
