@@ -8,7 +8,9 @@ package com.adacore.lkql_jit.values;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.values.interop.LKQLCollection;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
+import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -59,6 +61,13 @@ public class LKQLNamespace extends LKQLDynamicObject {
             uncachedObjectLibrary.put(res, key, symbols.get(key));
         }
         return res;
+    }
+
+    // ----- Instance methods -----
+
+    @Override
+    protected LKQLCollection getKeys(DynamicObjectLibrary lib) {
+        return new LKQLList(lib.getKeyArray(this));
     }
 
     // ----- Value methods -----

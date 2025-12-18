@@ -23,7 +23,7 @@ import com.adacore.lkql_jit.values.*;
 import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
-import com.adacore.lkql_jit.values.lists.BaseLKQLList;
+import com.adacore.lkql_jit.values.interop.LKQLCollection;
 import com.adacore.lkql_jit.values.lists.LKQLLazyListStreamWrapper;
 import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -558,7 +558,7 @@ public class BuiltInFunctions {
 
         @Specialization
         @CompilerDirectives.TruffleBoundary
-        protected BaseLKQLList alwaysTrue() {
+        protected LKQLCollection alwaysTrue() {
             return new LKQLLazyListStreamWrapper(LKQLLanguage.getContext(this).getAllUnits());
         }
     }

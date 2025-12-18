@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLUnit;
+import com.adacore.lkql_jit.values.interop.LKQLCollection;
 import com.oracle.truffle.api.CallTarget;
 
 /**
@@ -89,7 +90,7 @@ public class LKQLStream extends BaseLKQLLazyList {
     public static class LKQLComposedStream extends LKQLStream {
 
         public LKQLComposedStream(
-            BaseLKQLList head,
+            LKQLCollection head,
             CallTarget tailExecutionUnit,
             Closure tailClosure
         ) {
@@ -98,7 +99,7 @@ public class LKQLStream extends BaseLKQLLazyList {
 
         @Override
         public Object get(long i) throws IndexOutOfBoundsException {
-            BaseLKQLList headList = (BaseLKQLList) this.head;
+            LKQLCollection headList = (LKQLCollection) this.head;
             try {
                 return headList.get(i);
             } catch (IndexOutOfBoundsException e) {
@@ -108,7 +109,7 @@ public class LKQLStream extends BaseLKQLLazyList {
 
         @Override
         public long size() {
-            return ((BaseLKQLList) this.head).size() + this.getTail().size();
+            return ((LKQLCollection) this.head).size() + this.getTail().size();
         }
     }
 }

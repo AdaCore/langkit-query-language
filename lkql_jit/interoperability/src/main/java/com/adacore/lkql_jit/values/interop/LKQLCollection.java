@@ -3,45 +3,22 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.interop;
 
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
-import com.adacore.lkql_jit.values.interop.LKQLIterator;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.dsl.Cached.Exclusive;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
-/** This abstract class represents all list like values in the LKQL language. */
+/** This class represents the base of collection like values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class BaseLKQLList implements Iterable, Indexable, TruffleObject {
-
-    // ----- Constructors -----
-
-    protected BaseLKQLList() {}
-
-    // ----- Basic list methods to fulfill -----
-
-    /** Get the size of the list as a long value. */
-    public abstract long size();
-
-    /**
-     * Get the element at the given position in the list.
-     *
-     * @throws IndexOutOfBoundsException If the provided index is not in the list bounds.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public abstract Object get(long i) throws IndexOutOfBoundsException;
-
-    /** Get the iterator for the list. */
-    public abstract LKQLIterator iterator();
+public abstract class LKQLCollection implements Iterable, Indexable, TruffleObject {
 
     // ----- Value methods -----
 
@@ -50,7 +27,9 @@ public abstract class BaseLKQLList implements Iterable, Indexable, TruffleObject
     @ExportMessage
     public Object toDisplayString(
         @SuppressWarnings("unused") final boolean allowSideEffect,
-        @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) @Exclusive InteropLibrary elems
+        @CachedLibrary(
+            limit = Constants.DISPATCHED_LIB_LIMIT
+        ) @Cached.Exclusive InteropLibrary elems
     ) {
         // Prepare the result
         StringBuilder resultBuilder = new StringBuilder("[");
@@ -62,7 +41,7 @@ public abstract class BaseLKQLList implements Iterable, Indexable, TruffleObject
             // Get the element string
             String elemString;
             if (elem instanceof String) {
-                elemString = StringUtils.toRepr((String) elems.toDisplayString(elem));
+                elemString = Utils.toRepr((String) elems.toDisplayString(elem));
             } else {
                 elemString = (String) elems.toDisplayString(elem);
             }
@@ -152,17 +131,17 @@ public abstract class BaseLKQLList implements Iterable, Indexable, TruffleObject
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof BaseLKQLList other)) return false;
+        if (!(o instanceof LKQLCollection other)) return false;
         var size = this.size();
         if (size != other.size()) return false;
         for (int i = 0; i < size; i++) {
-            if (!ObjectUtils.equals(this.get(i), other.get(i))) return false;
+            if (!Utils.eq(this.get(i), other.get(i))) return false;
         }
         return true;
     }
 
     @Override
     public int hashCode() {
-        return ObjectUtils.hashCode(this.getContent());
+        return Utils.hashCode(this.getContent());
     }
 }

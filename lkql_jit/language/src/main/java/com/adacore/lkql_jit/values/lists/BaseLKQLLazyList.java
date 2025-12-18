@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.values.lists;
 
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.values.interop.LKQLCollection;
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
 import com.adacore.lkql_jit.values.iterators.BaseLKQLListIterator;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -15,7 +16,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents the base of all LKQL lazy lists. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class BaseLKQLLazyList extends BaseLKQLList {
+public abstract class BaseLKQLLazyList extends LKQLCollection {
 
     // ----- Attributes -----
 

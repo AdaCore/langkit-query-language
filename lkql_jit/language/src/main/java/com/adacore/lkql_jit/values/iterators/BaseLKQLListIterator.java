@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.values.iterators;
 
+import com.adacore.lkql_jit.values.interop.LKQLCollection;
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
-import com.adacore.lkql_jit.values.lists.BaseLKQLList;
 
 /** This class represents an iterator for an LKQL lazy list. */
 public class BaseLKQLListIterator extends LKQLIterator {
@@ -14,7 +14,7 @@ public class BaseLKQLListIterator extends LKQLIterator {
     // ----- Attributes -----
 
     /** The lazy list to iterate on. */
-    private final BaseLKQLList lkqlList;
+    private final LKQLCollection lkqlList;
 
     /** The cursor for the iteration. */
     private long cursor;
@@ -22,7 +22,7 @@ public class BaseLKQLListIterator extends LKQLIterator {
     // ----- Constructors -----
 
     /** Create a new lazy list iterator for the given lazy list. */
-    public BaseLKQLListIterator(BaseLKQLList lkqlList) {
+    public BaseLKQLListIterator(LKQLCollection lkqlList) {
         this.lkqlList = lkqlList;
         this.cursor = 0;
     }

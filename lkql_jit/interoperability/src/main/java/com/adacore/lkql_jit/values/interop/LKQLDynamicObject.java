@@ -5,7 +5,6 @@
 
 package com.adacore.lkql_jit.values.interop;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.CachedLibrary;
@@ -78,7 +77,10 @@ public abstract class LKQLDynamicObject extends DynamicObject {
         for (Object key : leftKeys) {
             if (!rightLib.containsKey(right, key)) return false;
             if (
-                !eq(leftLib.getOrDefault(left, key, null), rightLib.getOrDefault(right, key, null))
+                !Utils.eq(
+                    leftLib.getOrDefault(left, key, null),
+                    rightLib.getOrDefault(right, key, null)
+                )
             ) return false;
         }
 
@@ -86,11 +88,10 @@ public abstract class LKQLDynamicObject extends DynamicObject {
         return true;
     }
 
-    /** Util function to compare values in Truffle inspectable code. */
-    @CompilerDirectives.TruffleBoundary
-    private static boolean eq(Object left, Object right) {
-        return left.equals(right);
-    }
+    // ----- Instance methods -----
+
+    /** This methods should return an LKQL collection containing all keys of the object value. */
+    protected abstract LKQLCollection getKeys(DynamicObjectLibrary lib);
 
     // ----- Value methods -----
 
@@ -127,7 +128,7 @@ public abstract class LKQLDynamicObject extends DynamicObject {
         @SuppressWarnings("unused") boolean includeInternal,
         @CachedLibrary("this") DynamicObjectLibrary objectLibrary
     ) {
-        return objectLibrary.getKeyArray(this);
+        return this.getKeys(objectLibrary);
     }
 
     /** Get the value of the wanted member in the receiver object like value. */
