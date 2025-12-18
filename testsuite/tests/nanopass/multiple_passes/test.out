@@ -127,6 +127,8 @@ CompilationUnit main.adb:1:1-8:10>
 |  |  |  |  |  |  |  |  |  Id "Message" main.adb:7:14-7:21>: Message
 |  |  |  |f_exceptions:
 |  |  |  |  AdaNodeList main.adb:7:23-7:23>
+|  |  |  |f_finally_part:
+|  |  |  |  one
 |  |  |f_end_name:
 |  |  |  EndName main.adb:8:5-8:9>
 |  |  |  |f_name:
@@ -192,6 +194,8 @@ CompilationUnit
 |  |  |  |  |  |  |  |  |  |value=Message
 |  |  |  |  |  |  |  |  |f_designator:
 |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |f_finally_part:
+|  |  |  |  AdaNode
 |  |  |  |f_exceptions:
 |  |  |  |  AdaNodeList
 |  |  |f_aspects:
@@ -343,6 +347,8 @@ CompilationUnit
 |  |  |  |  |  |  |  |  |  |value=Message
 |  |  |  |  |  |  |  |  |f_designator:
 |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |f_finally_part:
+|  |  |  |  AdaNode
 |  |  |  |f_exceptions:
 |  |  |  |  AdaNodeList
 |  |  |f_aspects:
@@ -494,6 +500,8 @@ CompilationUnit
 |  |  |  |  |  |  |  |  |  |value=Message
 |  |  |  |  |  |  |  |  |f_designator:
 |  |  |  |  |  |  |  |  |  AdaNode
+|  |  |  |f_finally_part:
+|  |  |  |  AdaNode
 |  |  |  |f_exceptions:
 |  |  |  |  AdaNodeList
 |  |  |f_aspects:
