@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.values.lists;
 
-import com.adacore.lkql_jit.values.iterators.LKQLIterator;
+import com.adacore.lkql_jit.values.interop.LKQLIterator;
 import com.adacore.lkql_jit.values.iterators.LKQLListIterator;
 import java.util.Arrays;
 

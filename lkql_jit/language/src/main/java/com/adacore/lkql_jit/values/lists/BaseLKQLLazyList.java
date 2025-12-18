@@ -7,8 +7,8 @@ package com.adacore.lkql_jit.values.lists;
 
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.values.interop.LKQLIterator;
 import com.adacore.lkql_jit.values.iterators.BaseLKQLListIterator;
-import com.adacore.lkql_jit.values.iterators.LKQLIterator;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;

@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.iterators;
+package com.adacore.lkql_jit.values.interop;
 
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.oracle.truffle.api.interop.InteropLibrary;

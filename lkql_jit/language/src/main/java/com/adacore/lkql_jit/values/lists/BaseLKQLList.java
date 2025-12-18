@@ -10,7 +10,7 @@ import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
-import com.adacore.lkql_jit.values.iterators.LKQLIterator;
+import com.adacore.lkql_jit.values.interop.LKQLIterator;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.interop.InteropLibrary;
