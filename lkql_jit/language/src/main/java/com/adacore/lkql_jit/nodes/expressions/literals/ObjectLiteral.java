@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.LKQLObject;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.LKQLObject;
+import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;

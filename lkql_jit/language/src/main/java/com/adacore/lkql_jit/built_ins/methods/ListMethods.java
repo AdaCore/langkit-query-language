@@ -9,8 +9,8 @@ import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.dsl.Specialization;
 import java.util.Arrays;
 

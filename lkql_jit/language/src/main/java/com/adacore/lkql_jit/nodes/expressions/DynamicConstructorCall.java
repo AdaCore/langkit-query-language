@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
-import com.adacore.lkql_jit.runtime.values.DynamicAdaNode;
+import com.adacore.lkql_jit.values.DynamicAdaNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 

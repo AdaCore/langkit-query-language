@@ -7,11 +7,11 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.runtime.values.*;
-import com.adacore.lkql_jit.runtime.values.bases.ObjectLKQLValue;
-import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLLazyList;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
+import com.adacore.lkql_jit.values.*;
+import com.adacore.lkql_jit.values.bases.ObjectLKQLValue;
+import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
+import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;

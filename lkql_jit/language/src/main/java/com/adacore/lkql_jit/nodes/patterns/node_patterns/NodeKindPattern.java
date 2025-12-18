@@ -9,7 +9,7 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
-import com.adacore.lkql_jit.runtime.values.LKQLNull;
+import com.adacore.lkql_jit.values.LKQLNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 

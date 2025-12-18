@@ -11,9 +11,9 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescr
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.nodes.root_nodes.QueryComprehensionRootNode;
 import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLQueryComprehension;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.values.interfaces.Iterable;
+import com.adacore.lkql_jit.values.lists.LKQLQueryComprehension;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
