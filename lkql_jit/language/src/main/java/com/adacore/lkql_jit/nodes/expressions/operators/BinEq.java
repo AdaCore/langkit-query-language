@@ -9,7 +9,7 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.values.*;
-import com.adacore.lkql_jit.values.bases.ObjectLKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
 import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -226,7 +226,7 @@ public abstract class BinEq extends BinOp {
         @CachedLibrary("left") DynamicObjectLibrary leftLib,
         @CachedLibrary("right") DynamicObjectLibrary rightLib
     ) {
-        return ObjectLKQLValue.compareWithLib(left, right, leftLib, rightLib);
+        return LKQLDynamicObject.compareWithLib(left, right, leftLib, rightLib);
     }
 
     /**
@@ -243,7 +243,7 @@ public abstract class BinEq extends BinOp {
         @CachedLibrary("left") DynamicObjectLibrary leftLib,
         @CachedLibrary("right") DynamicObjectLibrary rightLib
     ) {
-        return ObjectLKQLValue.compareWithLib(left, right, leftLib, rightLib);
+        return LKQLDynamicObject.compareWithLib(left, right, leftLib, rightLib);
     }
 
     /**

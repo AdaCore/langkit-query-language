@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.values;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.values.bases.ObjectLKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 /** This class represents the namespaces in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLNamespace extends ObjectLKQLValue {
+public class LKQLNamespace extends LKQLDynamicObject {
 
     public final String documentation;
 
@@ -62,15 +62,6 @@ public class LKQLNamespace extends ObjectLKQLValue {
     }
 
     // ----- Value methods -----
-
-    public Map<String, Object> asMap() {
-        Object[] keys = this.keysUncached();
-        var values = new HashMap<String, Object>();
-        for (int i = 0; i < keys.length; i++) {
-            values.put((String) keys[i], this.getUncached(keys[i]));
-        }
-        return values;
-    }
 
     /** Get the displayable string for the interop library. */
     @ExportMessage

@@ -3,10 +3,9 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.bases;
+package com.adacore.lkql_jit.values.interop;
 
-import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.CachedLibrary;
@@ -15,17 +14,20 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
+import java.util.HashMap;
+import java.util.Map;
 
-/** This class is the base for all LKQL object-like values. */
+/** This class represents the base of all "dynamic object"-like values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class ObjectLKQLValue extends DynamicObject {
+public abstract class LKQLDynamicObject extends DynamicObject {
 
+    /** Uncached library usable for uncached operations */
     protected static final DynamicObjectLibrary uncachedObjectLibrary =
         DynamicObjectLibrary.getUncached();
 
     // ----- Constructors -----
 
-    public ObjectLKQLValue(Shape shape) {
+    public LKQLDynamicObject(Shape shape) {
         super(shape);
     }
 
@@ -48,12 +50,22 @@ public abstract class ObjectLKQLValue extends DynamicObject {
         return uncachedObjectLibrary.getKeyArray(this);
     }
 
+    /** Get a map containing all keys in this object value, associated with their values. */
+    public Map<String, Object> asMap() {
+        Object[] keys = this.keysUncached();
+        var values = new HashMap<String, Object>();
+        for (int i = 0; i < keys.length; i++) {
+            values.put((String) keys[i], this.getUncached(keys[i]));
+        }
+        return values;
+    }
+
     // ----- Class methods -----
 
     /** Compare two "object-like" LKQL values using provided libraries to access them. */
     public static boolean compareWithLib(
-        ObjectLKQLValue left,
-        ObjectLKQLValue right,
+        LKQLDynamicObject left,
+        LKQLDynamicObject right,
         DynamicObjectLibrary leftLib,
         DynamicObjectLibrary rightLib
     ) {
@@ -66,15 +78,18 @@ public abstract class ObjectLKQLValue extends DynamicObject {
         for (Object key : leftKeys) {
             if (!rightLib.containsKey(right, key)) return false;
             if (
-                !ObjectUtils.equals(
-                    leftLib.getOrDefault(left, key, null),
-                    rightLib.getOrDefault(right, key, null)
-                )
+                !eq(leftLib.getOrDefault(left, key, null), rightLib.getOrDefault(right, key, null))
             ) return false;
         }
 
         // If we get here, the objects are equals
         return true;
+    }
+
+    /** Util function to compare values in Truffle inspectable code. */
+    @CompilerDirectives.TruffleBoundary
+    private static boolean eq(Object left, Object right) {
+        return left.equals(right);
     }
 
     // ----- Value methods -----
@@ -112,7 +127,7 @@ public abstract class ObjectLKQLValue extends DynamicObject {
         @SuppressWarnings("unused") boolean includeInternal,
         @CachedLibrary("this") DynamicObjectLibrary objectLibrary
     ) {
-        return new LKQLList(objectLibrary.getKeyArray(this));
+        return objectLibrary.getKeyArray(this);
     }
 
     /** Get the value of the wanted member in the receiver object like value. */
@@ -137,7 +152,7 @@ public abstract class ObjectLKQLValue extends DynamicObject {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ObjectLKQLValue other)) return false;
+        if (!(o instanceof LKQLDynamicObject other)) return false;
         return compareWithLib(
             this,
             other,

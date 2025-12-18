@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.values;
 
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.values.bases.ObjectLKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -20,7 +20,7 @@ import com.oracle.truffle.api.source.SourceSection;
 
 /** This class represents an object value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public final class LKQLObject extends ObjectLKQLValue {
+public final class LKQLObject extends LKQLDynamicObject {
 
     // ----- Attributes -----*
 
