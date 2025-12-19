@@ -134,12 +134,12 @@ public class BuiltInFunctions {
 
         @Specialization
         protected String onFunction(LKQLFunction function) {
-            return function.lkqlDocumentation();
+            return function.documentation;
         }
 
         @Specialization
         protected String onSelector(LKQLSelector selector) {
-            return selector.lkqlDocumentation();
+            return selector.documentation;
         }
 
         @Specialization
@@ -492,7 +492,7 @@ public class BuiltInFunctions {
                     .sorted(Comparator.comparing(LKQLFunction::getExecutableName));
 
                 for (var func : functions.toList()) {
-                    documentCallable(writer, func.lkqlProfile(), func.lkqlDocumentation());
+                    documentCallable(writer, func.lkqlProfile(), func.documentation);
                 }
 
                 writer.write("Selectors\n");
@@ -507,7 +507,7 @@ public class BuiltInFunctions {
                     .sorted(Comparator.comparing(LKQLSelector::lkqlProfile));
 
                 for (var sel : selectors.toList()) {
-                    documentCallable(writer, sel.lkqlProfile(), sel.lkqlDocumentation());
+                    documentCallable(writer, sel.lkqlProfile(), sel.documentation);
                 }
 
                 return sw.getBuffer().toString();
@@ -526,7 +526,7 @@ public class BuiltInFunctions {
             printHelp(
                 LKQLLanguage.getContext(this),
                 function.lkqlProfile(),
-                function.lkqlDocumentation()
+                function.documentation
             );
             return LKQLUnit.INSTANCE;
         }
@@ -536,7 +536,7 @@ public class BuiltInFunctions {
             printHelp(
                 LKQLLanguage.getContext(this),
                 selector.lkqlProfile(),
-                selector.lkqlDocumentation()
+                selector.documentation
             );
             return LKQLUnit.INSTANCE;
         }

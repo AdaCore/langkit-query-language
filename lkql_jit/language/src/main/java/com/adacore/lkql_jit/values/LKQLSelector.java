@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.values;
 
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.adacore.lkql_jit.values.interop.LKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.adacore.lkql_jit.values.lists.LKQLSelectorList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.*;
@@ -17,21 +17,18 @@ import com.oracle.truffle.api.nodes.RootNode;
 
 /** This class represents the selector values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLSelector extends LKQLValue {
+public class LKQLSelector extends LKQLCallable {
 
     // ----- Attributes -----
+
+    /** String array corresponding to parameters expected by a selector. */
+    private static final String[] SELECTOR_PARAMETERS = { "root" };
 
     /** The root node containing the selector semantics. */
     private final RootNode rootNode;
 
     /** Closure for the selector execution. */
     private final Closure closure;
-
-    /** The name of the selector. */
-    private final String name;
-
-    /** The documentation of the selector. */
-    private final String documentation;
 
     private final boolean checkCycles;
 
@@ -52,10 +49,14 @@ public class LKQLSelector extends LKQLValue {
         String documentation,
         boolean checkCycles
     ) {
+        super(
+            rootNode.getName(),
+            LKQLCallable.CallableKind.SELECTOR,
+            SELECTOR_PARAMETERS,
+            documentation
+        );
         this.rootNode = rootNode;
         this.closure = closure;
-        this.name = name;
-        this.documentation = documentation;
         this.checkCycles = checkCycles;
     }
 
@@ -87,35 +88,13 @@ public class LKQLSelector extends LKQLValue {
 
     // ----- Value methods -----
 
-    /** Get the displayable string for the interop library. */
-    @Override
     @ExportMessage
-    @CompilerDirectives.TruffleBoundary
-    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
-        return "selector<" + this.name + ">";
-    }
-
-    /** Tell the interop library that the value is not executable. */
-    @ExportMessage
-    public boolean isExecutable() {
-        // TODO (issue #143): Make the LKQLSelector executable as LKQLFunctions
-        return false;
-    }
-
-    /** Placeholder function for the Truffle DSL. */
-    @ExportMessage
-    public Object execute(@SuppressWarnings("unused") Object[] arguments)
-        throws UnsupportedTypeException, ArityException, UnsupportedMessageException {
-        // TODO (issue #143): implement this method to execute the selector as a simple function
-        // returning a selector list
-        return null;
+    public Object execute(Object[] arguments) throws ArityException {
+        if (arguments.length != 1) throw ArityException.create(1, 1, arguments.length);
+        return this.getList(arguments[0]);
     }
 
     // ----- LKQL value methods -----
-
-    public String lkqlDocumentation() {
-        return this.documentation;
-    }
 
     @CompilerDirectives.TruffleBoundary
     public String lkqlProfile() {

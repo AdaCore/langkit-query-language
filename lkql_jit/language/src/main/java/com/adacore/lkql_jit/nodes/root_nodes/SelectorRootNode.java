@@ -29,6 +29,7 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
     @CompilerDirectives.CompilationFinal
     private final boolean isMemoized;
 
+    /** Name of the selector. */
     private final String name;
 
     // ----- Children -----
@@ -107,6 +108,11 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
 
         // Return the result
         return res;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 
     @Override

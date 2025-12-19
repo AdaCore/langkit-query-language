@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.values;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.adacore.lkql_jit.values.interop.LKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 /** This class represents the function values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLFunction extends LKQLValue {
+public class LKQLFunction extends LKQLCallable {
 
     // ----- Attributes -----
 
@@ -33,15 +33,6 @@ public class LKQLFunction extends LKQLValue {
 
     /** The closure for the function execution. */
     public final Closure closure;
-
-    /** Name of the function. */
-    public final String name;
-
-    /** The documentation of the function. */
-    public final String documentation;
-
-    /** Names of the function parameters. */
-    public final String[] parameterNames;
 
     /**
      * Default values of the function parameters (if a function parameter doesn't have any, the
@@ -66,17 +57,19 @@ public class LKQLFunction extends LKQLValue {
     public LKQLFunction(
         final RootNode rootNode,
         final Closure closure,
-        final String name,
         final String documentation,
         final String[] parameterNames,
         final Node[] parameterDefaultValues,
         final Node body
     ) {
+        super(
+            rootNode.getName(),
+            LKQLCallable.CallableKind.FUNCTION,
+            parameterNames,
+            documentation
+        );
         this.rootNode = rootNode;
         this.closure = closure;
-        this.name = name;
-        this.documentation = documentation;
-        this.parameterNames = parameterNames;
         this.parameterDefaultValues = parameterDefaultValues;
         this.body = body;
     }
@@ -89,20 +82,6 @@ public class LKQLFunction extends LKQLValue {
     }
 
     // ----- Value methods -----
-
-    /** Get the displayable string for the interop library. */
-    @Override
-    @ExportMessage
-    @CompilerDirectives.TruffleBoundary
-    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
-        return "function<" + this.rootNode.getName() + ">";
-    }
-
-    /** Tell the interop library that the value is executable. */
-    @ExportMessage
-    public boolean isExecutable() {
-        return true;
-    }
 
     /** Inner class for the function execution. */
     @ExportMessage
@@ -132,23 +111,7 @@ public class LKQLFunction extends LKQLValue {
         }
     }
 
-    /** Tell the interop library that this value has an executable name. */
-    @ExportMessage
-    public boolean hasExecutableName() {
-        return true;
-    }
-
-    /** Return the function name to the interop library. */
-    @ExportMessage
-    public String getExecutableName() {
-        return this.rootNode.getName();
-    }
-
     // ----- LKQL values methods -----
-
-    public String lkqlDocumentation() {
-        return this.documentation;
-    }
 
     @CompilerDirectives.TruffleBoundary
     public String lkqlProfile() {

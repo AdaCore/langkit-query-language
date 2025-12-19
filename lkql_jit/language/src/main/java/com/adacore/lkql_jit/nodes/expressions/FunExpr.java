@@ -94,7 +94,6 @@ public final class FunExpr extends Expr {
         return new LKQLFunction(
             this.functionRootNode,
             createClosureNode.execute(frame),
-            name,
             this.documentation,
             this.parameterNames,
             this.parameterValues,

@@ -35,7 +35,6 @@ public class BuiltInFunctionValue extends LKQLFunction {
         super(
             new FunctionRootNode(null, null, false, body, name),
             Closure.EMPTY,
-            name,
             documentation,
             names,
             new Expr[names.length],
@@ -53,7 +52,6 @@ public class BuiltInFunctionValue extends LKQLFunction {
         super(
             functionRootNode,
             Closure.EMPTY,
-            functionRootNode.getName(),
             documentation,
             names,
             new Expr[names.length],

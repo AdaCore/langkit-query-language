@@ -29,7 +29,6 @@ public class Main {
         System.out.println("=== Property interop messages:");
         print("toString()", property.toString());
         print("canExecute()", property.canExecute());
-        // TODO (issue #143): Call the proerty when it will implements
-        // the interop API
+        print("property.execute()", property.execute());
     }
 }
