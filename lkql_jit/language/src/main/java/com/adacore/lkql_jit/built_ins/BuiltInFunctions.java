@@ -144,7 +144,7 @@ public class BuiltInFunctions {
 
         @Specialization
         protected String onNamespace(LKQLNamespace namespace) {
-            return namespace.lkqlDocumentation();
+            return namespace.documentation;
         }
 
         @Specialization

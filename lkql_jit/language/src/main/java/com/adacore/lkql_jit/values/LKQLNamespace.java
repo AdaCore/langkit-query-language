@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.values;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
 import com.adacore.lkql_jit.values.interop.LKQLCollection;
-import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
@@ -26,16 +26,13 @@ import java.util.Map;
 
 /** This class represents the namespaces in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLNamespace extends LKQLDynamicObject {
-
-    public final String documentation;
+public class LKQLNamespace extends LKQLBaseNamespace {
 
     // ----- Constructors -----
 
     /** Create a new LKQL namespace with its shape. */
     public LKQLNamespace(Shape shape, String documentation) {
-        super(shape);
-        this.documentation = documentation;
+        super(shape, documentation);
     }
 
     // ----- Class methods -----
@@ -106,10 +103,6 @@ public class LKQLNamespace extends LKQLDynamicObject {
         // Return the string result
         resultBuilder.append(")");
         return resultBuilder.toString();
-    }
-
-    public String lkqlDocumentation() {
-        return this.documentation;
     }
 
     // ----- Override methods -----
