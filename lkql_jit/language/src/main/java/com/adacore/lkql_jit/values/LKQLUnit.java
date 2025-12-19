@@ -5,15 +5,15 @@
 
 package com.adacore.lkql_jit.values;
 
-import com.adacore.lkql_jit.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.values.interfaces.Nullish;
+import com.adacore.lkql_jit.values.interop.LKQLValue;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents the unit value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLUnit extends BasicLKQLValue implements Nullish {
+public class LKQLUnit extends LKQLValue implements Nullish {
 
     // ----- Attributes -----
 

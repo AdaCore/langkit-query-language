@@ -59,7 +59,7 @@ public abstract class BaseLKQLLazyList extends LKQLCollection {
     // ----- Value methods -----
 
     @ExportMessage
-    public Object toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffect) {
+    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffect) {
         return "<" + LKQLTypesHelper.LKQL_LAZY_LIST + ">";
     }
 }

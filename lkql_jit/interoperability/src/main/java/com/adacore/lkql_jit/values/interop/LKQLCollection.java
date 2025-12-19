@@ -11,14 +11,13 @@ import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents the base of collection like values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class LKQLCollection implements Iterable, Indexable, TruffleObject {
+public abstract class LKQLCollection extends LKQLValue implements Iterable, Indexable {
 
     // ----- Value methods -----
 

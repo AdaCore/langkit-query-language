@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.values;
 
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.adacore.lkql_jit.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -17,7 +17,7 @@ import com.oracle.truffle.api.library.ExportMessage;
  */
 @ExportLibrary(InteropLibrary.class)
 @CompilerDirectives.ValueType
-public final class LKQLDepthValue extends BasicLKQLValue {
+public final class LKQLDepthValue extends LKQLValue {
 
     // ----- Attributes -----
 

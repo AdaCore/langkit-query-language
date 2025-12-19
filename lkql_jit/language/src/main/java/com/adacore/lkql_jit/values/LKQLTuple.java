@@ -9,18 +9,18 @@ import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.interfaces.Indexable;
+import com.adacore.lkql_jit.values.interop.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached.Exclusive;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents a tuple in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLTuple implements Indexable, TruffleObject {
+public class LKQLTuple extends LKQLValue implements Indexable {
 
     // ----- Attributes -----
 

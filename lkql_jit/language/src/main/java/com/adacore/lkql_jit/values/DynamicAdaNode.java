@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.values;
 
-import com.adacore.lkql_jit.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.util.HashMap;
 
@@ -13,7 +13,7 @@ import java.util.HashMap;
  * A dynamically typed runtime representation of an AST node
  * used in all nanopasses but the first one (see {@link AdaNodeProxy})
  */
-public class DynamicAdaNode extends BasicLKQLValue {
+public class DynamicAdaNode extends LKQLValue {
 
     public final String kind;
     public final HashMap<String, DynamicAdaNode> children;

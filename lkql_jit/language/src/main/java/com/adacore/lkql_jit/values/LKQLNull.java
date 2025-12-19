@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.values;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.values.interfaces.Nullish;
+import com.adacore.lkql_jit.values.interop.LKQLValue;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 /** This class represents the null value in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLNull extends BasicLKQLValue implements LangkitSupport.NodeInterface, Nullish {
+public class LKQLNull extends LKQLValue implements LangkitSupport.NodeInterface, Nullish {
 
     // ----- Attributes -----
 

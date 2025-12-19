@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.values;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
-import com.adacore.lkql_jit.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLValue;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 /** This class represents the function values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLFunction extends BasicLKQLValue {
+public class LKQLFunction extends LKQLValue {
 
     // ----- Attributes -----
 

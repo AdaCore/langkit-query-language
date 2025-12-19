@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.values;
 
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLValue;
 import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -22,7 +22,7 @@ import java.util.Objects;
  * regular expression.
  */
 @ExportLibrary(InteropLibrary.class)
-public final class LKQLPattern extends BasicLKQLValue {
+public final class LKQLPattern extends LKQLValue {
 
     // ----- Attributes -----
 

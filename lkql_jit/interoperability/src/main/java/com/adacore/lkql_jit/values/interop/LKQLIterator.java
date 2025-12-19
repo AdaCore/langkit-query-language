@@ -8,13 +8,12 @@ package com.adacore.lkql_jit.values.interop;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.StopIterationException;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents an iterator value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class LKQLIterator implements TruffleObject, Iterator {
+public abstract class LKQLIterator extends LKQLValue implements Iterator {
 
     // ----- Constructors -----
 

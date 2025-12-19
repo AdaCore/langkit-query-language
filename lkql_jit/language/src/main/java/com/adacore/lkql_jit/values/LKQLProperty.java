@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.values;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
-import com.adacore.lkql_jit.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.values.interop.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -17,7 +17,7 @@ import com.oracle.truffle.api.nodes.Node;
 
 /** This class represents a Libadalang property access in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLProperty extends BasicLKQLValue {
+public class LKQLProperty extends LKQLValue {
 
     // ----- Attributes -----
 
