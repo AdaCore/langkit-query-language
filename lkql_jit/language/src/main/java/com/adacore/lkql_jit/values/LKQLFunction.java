@@ -73,6 +73,14 @@ public class LKQLFunction extends LKQLCallable {
         return this.rootNode.getCallTarget();
     }
 
+    public Node[] getParameterDefaultValues() {
+        return parameterDefaultValues;
+    }
+
+    public boolean hasClosure() {
+        return closure != Closure.EMPTY;
+    }
+
     // ----- Value methods -----
 
     /** Inner class for the function execution. */
@@ -101,16 +109,6 @@ public class LKQLFunction extends LKQLCallable {
         ) {
             return indirectCallNode.call(function.getCallTarget(), arguments);
         }
-    }
-
-    // ----- LKQL values methods -----
-
-    public Node[] getParameterDefaultValues() {
-        return parameterDefaultValues;
-    }
-
-    public boolean hasClosure() {
-        return closure != Closure.EMPTY;
     }
 
     // ----- Override methods -----
