@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.built_ins;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.*;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.utils.ConcatenationNode;
@@ -448,67 +447,6 @@ public class BuiltInFunctions {
         @Specialization
         protected String onAny(Object obj) {
             return "";
-        }
-    }
-
-    @BuiltInFunction(
-        name = "document_namespace",
-        doc = "Return a string in the RsT format containing documentation for all built-ins"
-    )
-    abstract static class DocumentNamespaceExpr extends BuiltInBody {
-
-        private static void documentCallable(TextWriter writer, String profile, String doc) {
-            writer.write(".. function:: " + profile + "\n\n");
-            writer.withIndent(() -> {
-                writer.write(doc);
-            });
-            writer.write("\n\n");
-        }
-
-        @Specialization
-        @CompilerDirectives.TruffleBoundary
-        protected String impl(LKQLNamespace namespace, String name) {
-            var sw = new StringWriter();
-            try (TextWriter writer = new TextWriter(sw)) {
-                var header = name + "'s API doc";
-                writer.write(header + "\n");
-                writer.write("-".repeat(header.length()));
-                writer.write("\n\n");
-
-                writer.write("Functions\n");
-                writer.write("^^^^^^^^^\n");
-
-                var functions = namespace
-                    .asMap()
-                    .values()
-                    .stream()
-                    .filter(LKQLTypeSystemGen::isLKQLFunction)
-                    .map(LKQLTypeSystemGen::asLKQLFunction)
-                    .sorted(Comparator.comparing(LKQLFunction::getExecutableName));
-
-                for (var func : functions.toList()) {
-                    documentCallable(writer, func.lkqlProfile(), func.documentation);
-                }
-
-                writer.write("Selectors\n");
-                writer.write("^^^^^^^^^\n");
-
-                var selectors = namespace
-                    .asMap()
-                    .values()
-                    .stream()
-                    .filter(LKQLTypeSystemGen::isLKQLSelector)
-                    .map(LKQLTypeSystemGen::asLKQLSelector)
-                    .sorted(Comparator.comparing(LKQLSelector::lkqlProfile));
-
-                for (var sel : selectors.toList()) {
-                    documentCallable(writer, sel.lkqlProfile(), sel.documentation);
-                }
-
-                return sw.getBuffer().toString();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 

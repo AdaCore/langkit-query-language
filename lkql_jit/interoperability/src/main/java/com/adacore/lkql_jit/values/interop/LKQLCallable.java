@@ -27,7 +27,7 @@ public abstract class LKQLCallable extends LKQLValue {
     public final String name;
 
     /** Kind of the callable value. */
-    private final CallableKind kind;
+    public final CallableKind kind;
 
     /** Names of parameters of this callable value. */
     public final String[] parameterNames;

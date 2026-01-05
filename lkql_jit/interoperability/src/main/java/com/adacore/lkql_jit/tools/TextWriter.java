@@ -46,6 +46,11 @@ public class TextWriter implements AutoCloseable {
     }
 
     @Override
+    public String toString() {
+        return this.writer.toString();
+    }
+
+    @Override
     public void close() throws IOException {
         this.writer.close();
     }
