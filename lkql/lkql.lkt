@@ -110,7 +110,7 @@ grammar lkql_grammar {
         )
         | ComplexPattern(
                 id
-                null(ValuePattern)
+                null(BasePattern)
                 null(ASTList[NodePatternDetail])
                 ?pick("when" expr)
         )
@@ -377,14 +377,6 @@ class AtObjectAssoc: LkqlNode {
 class BasePattern: LkqlNode {
 }
 
-
-|" Root node class for patterns that filter values.
-|" (As opposed to patterns that only bind values to a given name without
-|" doing any kind of filtering)
-@abstract
-class ValuePattern: BasePattern {
-}
-
 |" Composition of any of the following components
 |" - a binding name
 |" - a value pattern
@@ -402,7 +394,7 @@ class ComplexPattern: BasePattern {
 
     @nullable
     @parse_field
-    pattern: ValuePattern
+    pattern: BasePattern
 
     @parse_field
     details: ASTList[NodePatternDetail]
@@ -413,23 +405,23 @@ class ComplexPattern: BasePattern {
 }
 
 |" Pattern to match on booleans.
-enum class BoolPattern: ValuePattern {
+enum class BoolPattern: BasePattern {
     case True, False
 }
 
 |" Pattern to match on integers.
-class IntegerPattern: ValuePattern implements TokenNode {
+class IntegerPattern: BasePattern implements TokenNode {
 }
 
 |" Pattern to match on lists.
-class ListPattern: ValuePattern {
+class ListPattern: BasePattern {
     @parse_field
     patterns: ASTList[BasePattern]
 }
 
 |" Root node class for node patterns
 @abstract
-class NodePattern: ValuePattern {
+class NodePattern: BasePattern {
 }
 
 |" Pattern of the form: KindName
@@ -443,17 +435,17 @@ class NodeKindPattern: NodePattern {
 |" For instance::
 |"
 |"    let non_objects = select not ObjectDecl
-class NotPattern: ValuePattern {
+class NotPattern: BasePattern {
     @parse_field
     pattern: BasePattern
 }
 
 |" Null pattern. Will only match the null node.
-class NullPattern: ValuePattern {
+class NullPattern: BasePattern {
 }
 
 |" Pattern to match on objects.
-class ObjectPattern: ValuePattern {
+class ObjectPattern: BasePattern {
     @parse_field
     patterns: ASTList[LkqlNode]
 }
@@ -463,7 +455,7 @@ class ObjectPattern: ValuePattern {
 |" For instance::
 |"
 |"     let value_decls = select ObjectDecl or ParamSpec
-class OrPattern: ValuePattern {
+class OrPattern: BasePattern {
     @parse_field
     left: BasePattern
     @parse_field
@@ -471,25 +463,25 @@ class OrPattern: ValuePattern {
 }
 
 |" A parenthesized pattern.
-class ParenPattern: ValuePattern {
+class ParenPattern: BasePattern {
     @parse_field
     pattern: BasePattern
 }
 
 |" Pattern that considers the value as text and matches it against the
 |" given regular expression.
-class RegexPattern: ValuePattern implements TokenNode {
+class RegexPattern: BasePattern implements TokenNode {
 }
 
 |" Pattern to match any remaining number of elements in a list pattern.
-class SplatPattern: ValuePattern {
+class SplatPattern: BasePattern {
     @parse_field
     @nullable
     binding: Identifier
 }
 
 |" Pattern to match on tuples.
-class TuplePattern: ValuePattern {
+class TuplePattern: BasePattern {
     @parse_field
     patterns: ASTList[BasePattern]
 }
@@ -499,7 +491,7 @@ class TuplePattern: ValuePattern {
 |" For instance::
 |"
 |"    let declParent = query * [children(depth==1)] BasicDecl
-class UniversalPattern: ValuePattern {
+class UniversalPattern: BasePattern {
 }
 
 |" Root node for block expression block before steps
