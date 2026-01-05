@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.built_ins;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.*;
@@ -23,6 +22,7 @@ import com.adacore.lkql_jit.values.*;
 import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
+import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.adacore.lkql_jit.values.interop.LKQLCollection;
 import com.adacore.lkql_jit.values.lists.LKQLLazyListStreamWrapper;
 import com.adacore.lkql_jit.values.lists.LKQLList;
@@ -441,13 +441,8 @@ public class BuiltInFunctions {
     abstract static class ProfileExpr extends BuiltInBody {
 
         @Specialization
-        protected String onFunction(LKQLFunction function) {
-            return function.lkqlProfile();
-        }
-
-        @Specialization
-        protected String onSelector(LKQLSelector selector) {
-            return selector.lkqlProfile();
+        protected String onCallable(LKQLCallable callable) {
+            return callable.profile();
         }
 
         @Specialization
@@ -522,21 +517,9 @@ public class BuiltInFunctions {
     abstract static class HelpExpr extends BuiltInBody {
 
         @Specialization
-        protected Object onFunction(LKQLFunction function) {
-            printHelp(
-                LKQLLanguage.getContext(this),
-                function.lkqlProfile(),
-                function.documentation
-            );
-            return LKQLUnit.INSTANCE;
-        }
-
-        @Specialization
-        protected Object onSelector(LKQLSelector selector) {
-            printHelp(
-                LKQLLanguage.getContext(this),
-                selector.lkqlProfile(),
-                selector.documentation
+        protected Object onCallable(LKQLCallable callable) {
+            LKQLLanguage.getContext(this).println(
+                StringUtils.concat(callable.profile(), "\n", callable.documentation)
             );
             return LKQLUnit.INSTANCE;
         }
@@ -545,11 +528,6 @@ public class BuiltInFunctions {
         protected Object onAny(Object obj) {
             LKQLLanguage.getContext(this).println("No help available");
             return LKQLUnit.INSTANCE;
-        }
-
-        @CompilerDirectives.TruffleBoundary
-        private static void printHelp(LKQLContext context, String profile, String doc) {
-            context.println(profile + "\n" + doc);
         }
     }
 

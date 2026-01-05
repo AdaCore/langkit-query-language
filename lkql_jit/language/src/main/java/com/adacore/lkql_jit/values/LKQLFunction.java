@@ -10,7 +10,6 @@ import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -20,7 +19,6 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
-import java.util.ArrayList;
 
 /** This class represents the function values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -33,12 +31,6 @@ public class LKQLFunction extends LKQLCallable {
 
     /** The closure for the function execution. */
     public final Closure closure;
-
-    /**
-     * Default values of the function parameters (if a function parameter doesn't have any, the
-     * value is 'null').
-     */
-    protected final Node[] parameterDefaultValues;
 
     /** The node representing the body of the function. */
     public final Node body;
@@ -66,11 +58,11 @@ public class LKQLFunction extends LKQLCallable {
             rootNode.getName(),
             LKQLCallable.CallableKind.FUNCTION,
             parameterNames,
+            parameterDefaultValues,
             documentation
         );
         this.rootNode = rootNode;
         this.closure = closure;
-        this.parameterDefaultValues = parameterDefaultValues;
         this.body = body;
     }
 
@@ -112,27 +104,6 @@ public class LKQLFunction extends LKQLCallable {
     }
 
     // ----- LKQL values methods -----
-
-    @CompilerDirectives.TruffleBoundary
-    public String lkqlProfile() {
-        var expandedParams = new ArrayList<String>();
-        for (int i = 0; i < parameterNames.length; i++) {
-            var defVal = parameterDefaultValues[i];
-            if (defVal != null) {
-                expandedParams.add(
-                    parameterNames[i] + "=" + defVal.getSourceSection().getCharacters().toString()
-                );
-            } else {
-                expandedParams.add(parameterNames[i]);
-            }
-        }
-        return (
-            rootNode.getName() +
-            "(" +
-            String.join(", ", expandedParams.toArray(new String[0])) +
-            ")"
-        );
-    }
 
     public Node[] getParameterDefaultValues() {
         return parameterDefaultValues;

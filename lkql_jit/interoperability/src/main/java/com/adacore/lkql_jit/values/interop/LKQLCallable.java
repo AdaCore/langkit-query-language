@@ -12,6 +12,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 
 /**
  * This class represents an abstraction over all LKQL callable values. To call such values, you
@@ -31,6 +32,12 @@ public abstract class LKQLCallable extends LKQLValue {
     /** Names of parameters of this callable value. */
     public final String[] parameterNames;
 
+    /**
+     * Truffle nodes representing default values for this callable parameters. This array may
+     * contain null nodes.
+     */
+    public final Node[] parameterDefaultValues;
+
     /** User documentation for the callable value. */
     public final String documentation;
 
@@ -40,12 +47,32 @@ public abstract class LKQLCallable extends LKQLValue {
         String name,
         CallableKind kind,
         String[] parameterNames,
+        Node[] parameterDefaultValues,
         String documentation
     ) {
         this.name = name;
         this.kind = kind;
         this.parameterNames = parameterNames;
+        this.parameterDefaultValues = parameterDefaultValues;
         this.documentation = documentation;
+    }
+
+    // ----- Instance methods -----
+
+    /** Get a string representation of this callable profile. */
+    @CompilerDirectives.TruffleBoundary
+    public String profile() {
+        var expandedParams = new String[this.parameterNames.length];
+        for (int i = 0; i < parameterNames.length; i++) {
+            var defVal = parameterDefaultValues[i];
+            if (defVal != null) {
+                expandedParams[i] =
+                    parameterNames[i] + "=" + defVal.getSourceSection().getCharacters().toString();
+            } else {
+                expandedParams[i] = parameterNames[i];
+            }
+        }
+        return (this.name + "(" + String.join(", ", expandedParams) + ")");
     }
 
     // ----- Value methods -----

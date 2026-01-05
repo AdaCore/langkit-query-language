@@ -13,6 +13,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 
 /** This class represents the selector values in LKQL. */
@@ -23,6 +24,9 @@ public class LKQLSelector extends LKQLCallable {
 
     /** String array corresponding to parameters expected by a selector. */
     private static final String[] SELECTOR_PARAMETERS = { "root" };
+
+    /** Node array containing default value for selector parameters. */
+    private static final Node[] SELECTOR_DEFAULT_PARAMETERS = { null };
 
     /** The root node containing the selector semantics. */
     private final RootNode rootNode;
@@ -53,6 +57,7 @@ public class LKQLSelector extends LKQLCallable {
             rootNode.getName(),
             LKQLCallable.CallableKind.SELECTOR,
             SELECTOR_PARAMETERS,
+            SELECTOR_DEFAULT_PARAMETERS,
             documentation
         );
         this.rootNode = rootNode;

@@ -41,6 +41,7 @@ public class LKQLProperty extends LKQLCallable {
             description == null
                 ? new String[0]
                 : description.getParams().stream().map(Param::getName).toArray(v -> new String[v]),
+            description == null ? new Node[0] : new Node[description.getParams().size()],
             ""
         );
         this.description = description;
