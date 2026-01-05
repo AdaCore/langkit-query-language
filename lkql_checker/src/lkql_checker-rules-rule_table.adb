@@ -413,19 +413,53 @@ package body Lkql_Checker.Rules.Rule_Table is
    function Check_Instance_Is_Unique
      (Instance_Name, Instantiation_Location : String) return Boolean
    is
+      Is_Legacy_File_Kind : constant Boolean :=
+        Instantiation_Location'Length > 0;
+
       Instance : constant Rule_Instance_Access := Get_Instance (Instance_Name);
    begin
       if Instance /= null then
-         Error
-           ("rule instance with the same name already exists: """
-            & Instance_Name
-            & """ previously instantiated at "
-            & (if Instance.Defined_At /= ""
+         declare
+            Location : constant String :=
+              (if Instance.Defined_At /= ""
                then To_String (Instance.Defined_At)
-               else "command line"),
-            Location => Instantiation_Location);
-         Bad_Rule_Detected := True;
-         return False;
+               else "command line");
+         begin
+
+            if not Is_Legacy_File_Kind
+              and then not Instance.Is_Alias
+              and then not Instance.Has_Parameters
+            then
+               --  If the instance to check for uniqueness comes from the
+               --  command line and is not an alias, we can salefy skip
+               --  duplicates if the rule has no parameters (we could also
+               --  compare parameters but this will require to add support to
+               --  compare them directly from the driver). Emit a simple
+               --  warning.
+
+               Warning
+                 ("skipping rule instance """
+                  & Instance_Name
+                  & """ (from command line) previously instantiated at "
+                  & Location);
+               return True;
+            else
+               --  Otherwise, emit an error.
+
+               Error
+                 ("cannot add rule instance named """
+                  & Instance_Name
+                  & """"
+                  & (if not Is_Legacy_File_Kind
+                     then " (specified from command line)"
+                     else "")
+                  & ", already instantiated at "
+                  & Location,
+                  Location => Instantiation_Location);
+               Bad_Rule_Detected := True;
+               return False;
+            end if;
+         end;
       end if;
       return True;
    end Check_Instance_Is_Unique;

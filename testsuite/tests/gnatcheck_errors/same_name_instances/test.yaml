@@ -10,12 +10,32 @@ tests:
       - +R:comp_check:Style_Checks:xz
       - +R:comp_check:Warnings:u
       - +R:comp_check:Restrictions:No_Access_Subprograms
-  - label: In command-line
+  - label: In rule options (with alias named after another rule)
+    rules:
+      - +R:Slices_Alias:Slices
+      - +R:Slices_Alias:Slices
+      - +RGoto_Statements
+      - +R:Goto_Statements:Slices
+      - +RSlices
+      - +RSlices
+  - label: In command-line (rules with default arguments)
     extra_args:
       - -r
       - goto_statements
       - -r
       - goto_statements
+  - label: In command-line (rules without arguments)
+    extra_args:
+      - -r
+      - slices
+      - -r
+      - slices
+  - label: In command-line and rules file (rules without arguments)
+    extra_args:
+      - -r
+      - slices
+      - --rule-file
+      - rules.lkql
   - label: In command-line and rule options
     extra_args:
       - -r
