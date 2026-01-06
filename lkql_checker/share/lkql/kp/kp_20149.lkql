@@ -1,0 +1,12 @@
+@check(help="possible occurrence of KP 20149",
+       message="possible occurrence of KP 20149")
+fun kp_20149(node) =
+    |" The compiler generates an executable that does not
+    |" run correctly for code involving a private scalar type, when
+    |" the program is compiled with both the -gnatVa switch (or the
+    |" equivalent pragma Validity_Checks) and aggressive optimization
+    |" (in other words, -O2 or higher optimization level).
+    |"
+    |" Flag every private scalar types
+    node is BaseTypeDecl(p_is_private(): true)
+    when node.p_full_view().p_is_scalar_type()
