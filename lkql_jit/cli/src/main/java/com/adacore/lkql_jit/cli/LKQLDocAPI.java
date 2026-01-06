@@ -66,16 +66,18 @@ public class LKQLDocAPI implements Callable<Integer> {
         if (documentStd) {
             var path = FileSystems.getDefault().getPath(outputDir, "std.rst");
             try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-                // TODO: This eval prints the result on stdout, because we have to use
-                //  "interactive" in order for the eval of the TopLevelList to return its result.
-                // We need to think about how to fix that at the language level, so that we don't
-                // have to call `eval` with `interactive=true` below.
-                var res = context.eval(
-                    Source.newBuilder(Constants.LKQL_ID, "document_builtins()", "<input>")
-                        .interactive(true)
-                        .build()
-                );
-                writer.write(res.toString());
+                System.out.print("Generating documentation for LKQL built-ins ...");
+                var res = context
+                    .eval(
+                        Source.newBuilder(
+                            Constants.LKQL_ID,
+                            "val res = document_builtins()",
+                            "<builtins_documentation>"
+                        ).build()
+                    )
+                    .as(LKQLBaseNamespace.class);
+                writer.write(res.getUncached("res").toString());
+                System.out.println(" Done");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
