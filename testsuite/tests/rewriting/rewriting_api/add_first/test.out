@@ -7,6 +7,7 @@ Patched "main.adb":
 
 procedure Main is
 begin
-   null;goto lbl;   --  FLAG
+   null;
+   goto lbl;   --  FLAG
 end Main;
 

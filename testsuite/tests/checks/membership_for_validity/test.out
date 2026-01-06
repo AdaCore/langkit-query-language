@@ -24,17 +24,23 @@ procedure Valid is
    Y : Integer;
 
 begin
-   if X 'Valid then                           --  FLAG
+   if X'Valid then
+      --  FLAG
       null;
-   elsif X 'Valid then   --  FLAG
+   elsif X'Valid then
+      --  FLAG
       null;
-   elsif X in Integer'First .. Integer'Last then --  NOFLAG
+   elsif X in Integer'First .. Integer'Last then
+      --  NOFLAG
       null;
-   elsif Y 'Valid then                       --  FLAG
+   elsif Y'Valid then
+      --  FLAG
       null;
-   elsif X in Integer then                       --  NOFLAG
+   elsif X in Integer then
+      --  NOFLAG
       null;
-   elsif Y 'Valid then                 --  FLAG
+   elsif Y'Valid then
+      --  FLAG
       null;
    end if;
 end Valid;

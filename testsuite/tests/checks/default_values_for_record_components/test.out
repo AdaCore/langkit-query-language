@@ -11,12 +11,13 @@ Patched "default_values_for_record_components.ads":
 
 package Default_Values_For_Record_Components is
    type Rec (D : Natural := 0) is record   --  NOFLAG
-      I : Integer ;                    --  FLAG
+      I : Integer;                    --  FLAG
       B : Boolean;
 
       case D is
          when 0 =>
-            C : Character ;          --  FLAG
+            C : Character;          --  FLAG
+
          when others =>
             F : Float;                     --  NOFLAG
       end case;

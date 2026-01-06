@@ -32,13 +32,15 @@ procedure Loop1 (Str : in out String) is
    J : Integer;
 begin
    J := 0;
-   loop if Str (J) = ' ' then
+   loop
+      if Str (J) = ' ' then
          Str (J) := 'a';
          return;
       end if;
 
       J := J + 1;
-   end loop;declare
+   end loop;
+   declare
       function True return Boolean is (False);
    begin
       while True loop         --  NOFLAG
@@ -46,7 +48,11 @@ begin
       end loop;
    end;
 
-   loop null;
-   end loop;loop null;
-   end loop;end Loop1;
+   loop
+      null;
+   end loop;
+   loop
+      null;
+   end loop;
+end Loop1;
 

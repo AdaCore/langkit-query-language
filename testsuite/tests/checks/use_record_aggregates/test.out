@@ -23,7 +23,8 @@ procedure Assign is
 
 begin
    null;
-   O1:=(Comp1 =>1,Comp2 =>2);O2.Comp1 := 1;   --  NOFLAG (single component)
+   O1 := (Comp1 => 1, Comp2 => 2);
+   O2.Comp1 := 1;   --  NOFLAG (single component)
 
    begin
       O1.Comp1 := 1;   --  NOFLAG (not consecutive assignments on O1)
@@ -33,7 +34,8 @@ begin
 
    begin
       null;
-      O3:=(Comp1 =>1,Comp2 =>2);end;
+      O3 := (Comp1 => 1, Comp2 => 2);
+   end;
 
    begin
       O3.Comp1 := 1;   --  NOFLAG

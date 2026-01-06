@@ -39,15 +39,19 @@ procedure Member (A, B : Integer) is
 
    function Func (A, B, C : Integer) return E is (X);
 begin
-   if A in 0            --  FLAG
-     |Natural
-     |2
-     |3 ..5 then
+   if A
+      in 0            --  FLAG
+       | Natural
+       | 2
+       | 3 .. 5
+   then
       null;
    end if;
 
-   if A in 0            --  FLAG if short_circuit
-     |3 ..5 then
+   if A
+      in 0            --  FLAG if short_circuit
+       | 3 .. 5
+   then
       null;
    end if;
 
@@ -71,10 +75,10 @@ begin
       end if;
    end;
 
-   Bool := A in B |1 ..B;  --  FLAG
-   Bool := A in 1 ..B;             --  FLAG
-   Bool := A in 100 |S;             --  FLAG
-   Bool := A in 100 |1 .. B;        --  FLAG
+   Bool := A in B | 1 .. B;  --  FLAG
+   Bool := A in 1 .. B;             --  FLAG
+   Bool := A in 100 | S;             --  FLAG
+   Bool := A in 100 | 1 .. B;        --  FLAG
 
    if Func (1, 2, 3) in X or  -- NOFLAG
       Func (3, 4, 5) in Y then

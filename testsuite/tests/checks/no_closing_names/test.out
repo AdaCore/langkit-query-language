@@ -37,8 +37,10 @@ names.ads:21:14: rule violation: no closing name
 Patched "names.adb":
 ====================
 
-package body Names is  --  FLAG
-   procedure Proc is   --  FLAG
+package body Names is
+   --  FLAG
+   procedure Proc is
+      --  FLAG
    begin
       null;
    end Proc;
@@ -48,7 +50,8 @@ package body Names is  --  FLAG
       null;
    end Proc2;
 
-   task body Task1 is   --  FLAG
+   task body Task1 is
+      --  FLAG
    begin
       null;
    end Task1;
@@ -56,8 +59,10 @@ package body Names is  --  FLAG
    task body Task2 is   --  NOFLAG
    begin null; end;
 
-   protected body Prot1 is   --  FLAG
-      procedure P is         --  FLAG
+   protected body Prot1 is
+      --  FLAG
+      procedure P is
+         --  FLAG
       begin
          null;
       end P;
@@ -73,10 +78,12 @@ end Names;
 Patched "names.ads":
 ====================
 
-package Names is       --  FLAG
+package Names is
+   --  FLAG
    procedure Proc;
 
-   package Nested is   --  FLAG
+   package Nested is
+      --  FLAG
       --
       --
    end Nested;
@@ -88,12 +95,14 @@ package Names is       --  FLAG
 
    task type Task1;     --  NOFLAG
 
-   task Task2 is        --  FLAG
+   task Task2 is
+      --  FLAG
       --
       --
    end Task2;
 
-   protected Prot1 is       --  FLAG
+   protected Prot1 is
+      --  FLAG
       --
       procedure P;
    end Prot1;

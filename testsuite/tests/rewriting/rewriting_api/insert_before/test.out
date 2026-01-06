@@ -11,7 +11,9 @@ Patched "main.adb":
 
 procedure Main is
 begin
-   null;goto lbl;   --  FLAG
-   null;goto other; --  FLAG
+   null;
+   goto lbl;   --  FLAG
+   null;
+   goto other; --  FLAG
 end Main;
 

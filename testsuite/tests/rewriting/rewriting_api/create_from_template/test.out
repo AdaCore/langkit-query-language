@@ -7,5 +7,6 @@ Patched "main.adb":
 
 procedure Main is
 begin
-   Call_Something(lbl);end Main;
+   Call_Something (lbl);
+end Main;
 

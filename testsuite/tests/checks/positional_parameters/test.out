@@ -80,15 +80,15 @@ begin
    K := Integer'Max (I, J);             --  NOFLAG
 
    --  Entry call
-   T.E1 (I=>10, J=>11);                       --  FLAG (2)
-   T.E2 (True) (I=>10, J=>11);                --  FLAG (2)
+   T.E1 (I => 10, J => 11);                       --  FLAG (2)
+   T.E2 (True) (I => 10, J => 11);                --  FLAG (2)
    T.E3 (True);                         --  NOFLAG
    T.E4 (10);                           --  NOFLAG
-   T.E4 (I=>10, J=>11);                       --  FLAG (2)
+   T.E4 (I => 10, J => 11);                       --  FLAG (2)
 
    --  Function calls
    I := Fun1 (J);                       --  NOFLAG because ALL is not set
-   I := Fun2 (I=>J, J=>K);                    --  FLAG (2)
+   I := Fun2 (I => J, J => K);                    --  FLAG (2)
    I := Fun2_Default (J);               --  NOFLAG
    I := Fun2 (I => 1, J => 2);          --  NOFLAG
 
@@ -96,9 +96,9 @@ begin
    Proc1 (I);                           --  NOFLAG because ALL is not set
    Proc2 (I);                           --  NOFLAG
    Proc2 (I => 1, B => A);              --  NOFLAG
-   Proc3 (X=>I);                           --  FLAG
+   Proc3 (X => I);                           --  FLAG
    Proc4 (1);                           -- NOFLAG
-   Proc4 (X=>1, Y => 2);                   -- FLAG
+   Proc4 (X => 1, Y => 2);                   -- FLAG
    Proc5 (1);                           -- NOFLAG
 
    --  Prefix notation
@@ -107,7 +107,7 @@ begin
    Var_T.T_Proc2 (12);                  --  NOFLAG because ALL is not set
    Var_T.T_Proc2 (Y => 10);             --  NOFLAG
 
-   Var_T.T_Proc3 (Y=>10);                  --  FLAG
+   Var_T.T_Proc3 (Y => 10);                  --  FLAG
    Var_T.T_Proc3 (Y => 10);             --  NOFLAG
 end Pos;
 

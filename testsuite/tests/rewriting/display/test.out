@@ -11,5 +11,7 @@ Patched "main.adb":
 
 procedure Main is
 begin
-   null;null;end Main;
+   null;
+   null;
+end Main;
 
