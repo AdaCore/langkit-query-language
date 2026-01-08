@@ -225,6 +225,10 @@ package Lkql_Checker.Rules is
    -- Operations that may be redefined by specific rule instances --
    -----------------------------------------------------------------
 
+   function Has_Parameters (Instance : Rule_Instance) return Boolean
+   is (False);
+   --  Return whether the Instance has some parameters set.
+
    procedure Process_Instance_Params_Object
      (Instance : in out Rule_Instance; Params_Object : in out JSON_Value)
    is null;
@@ -290,6 +294,10 @@ package Lkql_Checker.Rules is
    end record;
    --  Represents an instance of a rule with only one integer parameter
 
+   function Has_Parameters
+     (Instance : One_Integer_Parameter_Instance) return Boolean
+   is (True);
+
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Integer_Parameter_Instance;
@@ -321,6 +329,10 @@ package Lkql_Checker.Rules is
    end record;
    --  Represents an instance of a rule with only one boolean parameter
 
+   function Has_Parameters
+     (Instance : One_Boolean_Parameter_Instance) return Boolean
+   is (True);
+
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Boolean_Parameter_Instance;
@@ -350,6 +362,10 @@ package Lkql_Checker.Rules is
       File  : Unbounded_String := Null_Unbounded_String;
    end record;
    --  Represents an instance of a rule with only one string parameter
+
+   function Has_Parameters
+     (Instance : One_String_Parameter_Instance) return Boolean
+   is (True);
 
    overriding
    procedure Process_Instance_Params_Object
@@ -385,6 +401,10 @@ package Lkql_Checker.Rules is
    with null record;
    --  Represents an instance of a rule with only on array parameter
 
+   function Has_Parameters
+     (Instance : One_Array_Parameter_Instance) return Boolean
+   is (True);
+
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Array_Parameter_Instance;
@@ -407,6 +427,10 @@ package Lkql_Checker.Rules is
       Boolean_Params : Boolean_Parameters := [others => Unset];
    end record;
    --  Represents an instance of a rule with one integer and boolean parameters
+
+   function Has_Parameters
+     (Instance : One_Integer_Or_Booleans_Parameter_Instance) return Boolean
+   is (True);
 
    overriding
    procedure Process_Instance_Params_Object
@@ -447,6 +471,10 @@ package Lkql_Checker.Rules is
    end record;
    --  Represents an instance of a rule about identifier suffixes
 
+   function Has_Parameters
+     (Instance : Identifier_Suffixes_Instance) return Boolean
+   is (True);
+
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Suffixes_Instance;
@@ -486,6 +514,10 @@ package Lkql_Checker.Rules is
    end record;
    --  Represents an instance of a rule about identifier prefixes
 
+   function Has_Parameters
+     (Instance : Identifier_Prefixes_Instance) return Boolean
+   is (True);
+
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Prefixes_Instance;
@@ -522,6 +554,10 @@ package Lkql_Checker.Rules is
    end record;
    --  Represents an instance of a rule about identifiers casing
 
+   function Has_Parameters
+     (Instance : Identifier_Casing_Instance) return Boolean
+   is (True);
+
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Casing_Instance;
@@ -553,6 +589,9 @@ package Lkql_Checker.Rules is
    end record;
    --  Represents an instance of a rule about forbiddening things
 
+   function Has_Parameters (Instance : Forbidden_Instance) return Boolean
+   is (True);
+
    overriding
    procedure Process_Instance_Params_Object
      (Instance : in out Forbidden_Instance; Params_Object : in out JSON_Value);
@@ -581,6 +620,10 @@ package Lkql_Checker.Rules is
         Null_Unbounded_Wide_Wide_String;
    end record;
    --  Represents an instance of a rule about silent exception handlers
+
+   function Has_Parameters
+     (Instance : Silent_Exception_Handlers_Instance) return Boolean
+   is (True);
 
    overriding
    procedure Process_Instance_Params_Object
@@ -613,6 +656,9 @@ package Lkql_Checker.Rules is
    --  Represents an instance of a rule with arbitrary parameters
 
    overriding
+   function Has_Parameters (Instance : Custom_Instance) return Boolean;
+
+   overriding
    procedure Process_Instance_Params_Object
      (Instance : in out Custom_Instance; Params_Object : in out JSON_Value);
 
@@ -638,5 +684,8 @@ package Lkql_Checker.Rules is
    type Compiler_Instance is new Rule_Instance with record
       Arguments : String_Vector;
    end record;
+
+   overriding
+   function Has_Parameters (Instance : Compiler_Instance) return Boolean;
 
 end Lkql_Checker.Rules;

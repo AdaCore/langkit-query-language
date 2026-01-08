@@ -3007,6 +3007,22 @@ package body Lkql_Checker.Rules is
 
    --  == Overriding operations on rule instances
 
+   --------------------
+   -- Has_Parameters --
+   --------------------
+
+   overriding
+   function Has_Parameters (Instance : Custom_Instance) return Boolean is
+   begin
+      return not Instance.Arguments.Is_Empty;
+   end Has_Parameters;
+
+   overriding
+   function Has_Parameters (Instance : Compiler_Instance) return Boolean is
+   begin
+      return not Instance.Arguments.Is_Empty;
+   end Has_Parameters;
+
    ------------------------------------
    -- Process_Instance_Params_Object --
    ------------------------------------

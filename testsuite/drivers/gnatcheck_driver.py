@@ -726,4 +726,15 @@ class GnatcheckDriver(BaseDriver):
                 "project search path: <gpr_path>",
             )
         )
+
+        # Remove sloc information for gnatcheck rules temporary files (instances
+        # order is not deterministic)
+        if self.test_env.get("canonicalize_gnatcheck_tmp_files", False):
+            result.append(
+                PatternSubstitute(
+                    "gnatcheck-rules[0-9]+.TMP:[0-9]+:[0-9]+",
+                    "gnatcheck-rules<N>.TMP:<L>:<C>",
+                )
+            )
+
         return result
