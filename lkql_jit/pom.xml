@@ -150,7 +150,6 @@
                                 <printWidth>100</printWidth>
                                 <tabWidth>4</tabWidth>
                                 <endOfLine>lf</endOfLine>
-                                <parser>java</parser>
                                 <plugins>prettier-plugin-java</plugins>
                             </config>
                         </prettier>
