@@ -1,7 +1,7 @@
-fun indexed_function_result_has_nonstatic_size(subprogram) = {
-    # To determine if a function is indexed, check that its return
-    # type has the Constant_Indexing user-defined aspect.
-    val returns = subprogram.f_subp_spec.p_returns();
+fun indexed_function_result_has_nonstatic_size(subprogram_spec) = {
+    # Check that indexed function's return type has the Constant_Indexing
+    # user-defined aspect.
+    val returns = subprogram_spec.p_returns();
     match returns.p_designated_type_decl()
     | t@BaseTypeDecl => t.p_has_aspect("Constant_Indexing")
                         and not returns.p_is_statically_constrained()
@@ -15,8 +15,8 @@ fun kp_19625(node) =
     # function call when the indexed function result has a nonstatic size.
     node is CallExpr(
         f_name: CallExpr(p_is_call(): true),
-        p_kind(): "array_index"
+        p_kind(): "generalized_indexing"
     )
     when indexed_function_result_has_nonstatic_size(
-        node.f_name.p_referenced_decl()
+        node.f_name.p_called_subp_spec()
     )

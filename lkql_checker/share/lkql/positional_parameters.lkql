@@ -85,6 +85,7 @@ fun positional_parameters(node, all=false) =
     node is ParamAssoc(f_designator: null, parent: l@AssocList)
     when l.parent is c@CallExpr(
         p_is_call(): true,
+        p_kind(): not "generalized_indexing",
         f_name: not AttributeRef,
         f_name: id@*(p_is_operator_name(): false) when (
             all or should_be_named(node, c, id.p_is_dot_call())
