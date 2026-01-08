@@ -1,0 +1,8 @@
+@check(help="possible occurrence of KP 20273",
+       message="possible occurrence of KP 20273")
+fun kp_20273(node) =
+    |" Flag any iterated association. A Constraint_Error exception
+    |" might incorrectly be raised when evaluating an array
+    |" aggregate written using the Ada 2022 iterated component
+    |" association syntax and known to be empty at compile time.
+    node is IteratedAssoc

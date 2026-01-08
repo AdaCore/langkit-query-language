@@ -1,0 +1,6 @@
+main.adb:25:7: rule violation: possible occurrence of KP 20273
+25 |       [for I in Obj_Settings_List'Range =>  -- FLAG
+   | _______^
+26 ||         Create_Obj (Setttings => Obj_Settings_List (I))];
+   ||_______________________________________________________^
+
