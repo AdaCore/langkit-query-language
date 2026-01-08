@@ -1,0 +1,4 @@
+main.adb:4:12: rule violation: possible occurrence of KP 20149
+4 |       type T2 is private;  -- FLAG
+  |            ^^
+
