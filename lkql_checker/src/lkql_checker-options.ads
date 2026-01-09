@@ -725,6 +725,29 @@ package Lkql_Checker.Options is
      (Args : Arg.Legacy_Rules_Section.Result_Array);
    --  Process the options provided in ``Args`` as legacy rule options.
 
+   procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False);
+   --  Add the given ``Opt`` to the list of rule options processed by
+   --  ``Process_Rule_Options`` as a command-line rule option (e.g. +R...).
+   --  If ``Prepend`` is set to True, add the rule option at the start of
+   --  the processing list.
+
+   procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False);
+   --  Create a new rule option to enable the rule designated by the provided
+   --  name without any additional configuration.
+
+   procedure Set_LKQL_Rule_File (File : String; Project_Relative : Boolean);
+   --  Set the given ``File`` as the LKQL rule file to process during the
+   --  execution of ``Process_Rule_Options``. If a rule file has already been
+   --  set, this function displays an error and set the
+   --  ``Rule_Option_Problem_Detected`` flag to True.
+   --  If the provided ``File`` isn't an absolute path, if ``Project_Relative``
+   --  is set to ``True``, resolve the provided file relatively to
+   --  the current project file (if any). Else, resolve ``File`` relatively to
+   --  the current working directory.
+
+   function Is_Rule_Options_Empty return Boolean;
+   --  Get whether the rule options are empty.
+
    --------------------------------
    -- Legacy rule options parser --
    --------------------------------
