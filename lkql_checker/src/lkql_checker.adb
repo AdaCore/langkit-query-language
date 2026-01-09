@@ -438,8 +438,8 @@ package body Lkql_Checker is
    -----------
    procedure Main (Mode : Lkql_Checker_Mode) is
       Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
-      use type Ada.Calendar.Time;
 
+      use type Ada.Calendar.Time;
       use Ada.Strings.Unbounded;
    begin
       --  Set the Lkql_Checker global mode
@@ -480,28 +480,23 @@ package body Lkql_Checker is
       --  Store target from project file
       Lkql_Checker.Options.Target := Arg.Target.Get;
 
-      --  Store target from project file
+      --  Store runtime from project file
       Lkql_Checker.Options.RTS_Path := Arg.RTS.Get;
 
       --  Register GNATcheck GPR attributes
       Register_Tool_Attributes (Checker_Prj);
 
       --  Print GPR registered and exit if requested
-
       if Arg.Print_Gpr_Registry.Get then
-         --  Print GPR registry
-
          GPR2.Project.Registry.Exchange.Export (Output => Put'Access);
          OS_Exit (E_Success);
       end if;
 
       --  If we have the project file specified as a tool parameter,
       --  analyze it.
-
       Lkql_Checker.Projects.Process_Project_File (Checker_Prj);
 
       --  Analyze relevant project properties if needed
-
       if Checker_Prj.Is_Specified
         and then not In_Aggregate_Project
         and then not Arg.Ignore_Project_Switches
@@ -538,7 +533,6 @@ package body Lkql_Checker is
       end if;
 
       --  Then analyze the command-line parameters
-
       Scan_Arguments;
 
       --  Process the source list file if there is one
@@ -583,19 +577,15 @@ package body Lkql_Checker is
       end if;
 
       --  Setup LKQL_PATH to point on built-in rules
-
       Setup_Search_Paths;
 
       --  Load rule files after having parsed --rules-dir
-
       Process_Rules;
 
       --  And process all rule options after rule files have been loaded
-
       Process_Rule_Options;
 
       --  Force some switches and perform some checks for gnatkp
-
       if Mode = Gnatkp_Mode then
          if Target = Null_Unbounded_String
            or else RTS_Path = Null_Unbounded_String
