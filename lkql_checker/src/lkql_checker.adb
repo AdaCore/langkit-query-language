@@ -29,6 +29,35 @@ with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 with GPR2.Project.Registry.Exchange;
 
 package body Lkql_Checker is
+   ----------------
+   -- Exit codes --
+   ----------------
+
+   E_Success : constant := 0;
+   --  No tool failure, no rule violation detected
+
+   E_Violation : constant := 1;
+   --  No tool failure, rule violation(s) detected
+
+   E_Error : constant := 2;
+   --  Tool failure detected
+
+   E_Missing_Source : constant := 3;
+   --  Missing at least one argument source
+
+   E_Missing_Rule_File : constant := 4;
+   --  Missing coding standard file
+
+   E_Missing_Rule : constant := 5;
+   --  Bad rule name or bad rule parameter
+
+   E_Bad_Rules : constant := 6;
+   --  Other problem with rules options
+
+   ----------------------
+   -- Util subprograms --
+   ----------------------
+
    procedure Setup_Search_Paths;
    --  Initialize LKQL_PATH to include path to built-in rules.
    --  Assuming this executable is in $PREFIX/bin, this includes the
@@ -410,21 +439,6 @@ package body Lkql_Checker is
    procedure Main (Mode : Lkql_Checker_Mode) is
       Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
       use type Ada.Calendar.Time;
-
-      E_Success   : constant := 0;
-      --  No tool failure, no rule violation detected
-      E_Violation : constant := 1;
-      --  No tool failure, rule violation(s) detected
-      E_Error     : constant := 2; --  Tool failure detected
-
-      E_Missing_Source : constant := 3;
-      --  Missing at least one argument source
-
-      --  Exit code for problems with rule specifications
-      E_Missing_Rule_File : constant := 4; --  Missing coding standard file
-      E_Missing_Rule      : constant := 5;
-      --  Bad rule name or bad rule parameter
-      E_Bad_Rules         : constant := 6; --  Other problem with rules options
 
       use Ada.Strings.Unbounded;
    begin
