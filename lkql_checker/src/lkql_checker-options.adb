@@ -2,9 +2,10 @@ with GNAT.Command_Line; use GNAT.Command_Line;
 with Ada.Command_Line;  use Ada.Command_Line;
 with Ada.Directories;   use Ada.Directories;
 
-with Lkql_Checker.Output;       use Lkql_Checker.Output;
-with Lkql_Checker.Projects;     use Lkql_Checker.Projects;
-with Lkql_Checker.Source_Table; use Lkql_Checker.Source_Table;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
+with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
 
 with System.Multiprocessors;
 
@@ -251,6 +252,34 @@ package body Lkql_Checker.Options is
          end if;
       end loop;
    end Scan_Arguments;
+
+   --------------------------
+   -- Process_Rule_Options --
+   --------------------------
+
+   procedure Process_Rule_Options is
+   begin
+      --  First of all, process the provided LKQL rule file
+      if LKQL_Rule_File_Name /= Null_Unbounded_String then
+         Process_LKQL_Rule_File (To_String (LKQL_Rule_File_Name));
+      end if;
+
+      --  Then process the legacy rule options
+      for O of Rule_Options loop
+         case O.Kind is
+            when File             =>
+               Process_Legacy_Rule_File (To_String (O.Value));
+
+            when Legacy_Option    =>
+               Process_Legacy_Rule_Option
+                 (To_String (O.Value), Defined_At => "");
+
+            when Single_Rule_Name =>
+               Process_Single_Rule_Name (To_String (O.Value));
+         end case;
+      end loop;
+      Process_Compiler_Instances;
+   end Process_Rule_Options;
 
    ---------------------------------
    -- Process_Legacy_Rule_Options --

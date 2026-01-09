@@ -89,9 +89,6 @@
 --  and 3 above. For step 2, see the procedure Process_Project_File
 --  that combines all the steps of loading and analyzing the project file.
 
-with Ada.Containers.Vectors;
-with Ada.Strings.Unbounded;
-
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GPR2.Containers;
@@ -142,22 +139,6 @@ package Lkql_Checker.Projects is
    Print_Gpr_Registry : Boolean := False;
    --  If this flag is ON, gpr attributes registered by gnatcheck are printed
    --  and gnatcheck exit returning 0.
-
-   ------------------
-   -- Rule options --
-   ------------------
-
-   type Option_Kind is (File, Legacy_Option, Single_Rule_Name);
-
-   type Option_Record is record
-      Kind  : Option_Kind;
-      Value : Ada.Strings.Unbounded.Unbounded_String;
-   end record;
-
-   package Vector_Options is new
-     Ada.Containers.Vectors (Positive, Option_Record);
-
-   Rule_Options : Vector_Options.Vector;
 
    ---------------------------------------------------------
    -- Type to represent a project passed as a tool option --
@@ -241,9 +222,6 @@ package Lkql_Checker.Projects is
 
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type);
    --  Extracts gnatcheck options from the project file
-
-   procedure Process_Rule_Options;
-   --  Process all the rule options found as part of scanning arguments
 
    procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False);
    --  Add the given ``Opt`` to the list of rule options processed by

@@ -9,6 +9,7 @@ with Ada.Environment_Variables;
 with Ada.Exceptions;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
 
 with GNAT.Directory_Operations;
 with GNAT.Regexp; use GNAT.Regexp;
@@ -496,7 +497,6 @@ package body Lkql_Checker.Projects is
    is
       use GPR2;
       use GPR2.Containers;
-      use Ada.Strings.Unbounded;
    begin
       --  In case of autoconf, restrict to the Ada language
 
@@ -809,7 +809,6 @@ package body Lkql_Checker.Projects is
    ---------------------
 
    function Subdir_Name return String is
-      use Ada.Strings.Unbounded;
    begin
       if Arg.Subdirs.Get = Null_Unbounded_String then
          return "gnatcheck";
@@ -995,43 +994,12 @@ package body Lkql_Checker.Projects is
       end if;
    end Report_Aggregated_Project_Exit_Code;
 
-   --------------------------
-   -- Process_Rule_Options --
-   --------------------------
-
-   procedure Process_Rule_Options is
-      use Ada.Strings.Unbounded;
-   begin
-      --  First of all, process the provided LKQL rule file
-      if LKQL_Rule_File_Name /= Null_Unbounded_String then
-         Process_LKQL_Rule_File (To_String (LKQL_Rule_File_Name));
-      end if;
-
-      --  Then process the legacy rule options
-      for O of Rule_Options loop
-         case O.Kind is
-            when File             =>
-               Process_Legacy_Rule_File (To_String (O.Value));
-
-            when Legacy_Option    =>
-               Process_Legacy_Rule_Option
-                 (To_String (O.Value), Defined_At => "");
-
-            when Single_Rule_Name =>
-               Process_Single_Rule_Name (To_String (O.Value));
-         end case;
-      end loop;
-      Process_Compiler_Instances;
-   end Process_Rule_Options;
-
    ----------------------------
    -- Add_Legacy_Rule_Option --
    ----------------------------
 
    procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False)
    is
-      use Ada.Strings.Unbounded;
-
       Opt_Rec : constant Option_Record :=
         (Legacy_Option, To_Unbounded_String (Trim (Opt, Both)));
    begin
@@ -1048,8 +1016,6 @@ package body Lkql_Checker.Projects is
 
    procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False)
    is
-      use Ada.Strings.Unbounded;
-
       Opt_Rec : constant Option_Record :=
         (Single_Rule_Name, To_Unbounded_String (Trim (Rule_Name, Both)));
    begin
@@ -1065,8 +1031,6 @@ package body Lkql_Checker.Projects is
    ------------------------
 
    procedure Set_LKQL_Rule_File (File : String; Project_Relative : Boolean) is
-      use Ada.Strings.Unbounded;
-
       Resolved_File : constant String :=
         (if Is_Absolute_Path (File)
          then File
@@ -1088,7 +1052,6 @@ package body Lkql_Checker.Projects is
    ---------------------------
 
    function Is_Rule_Options_Empty return Boolean is
-      use Ada.Strings.Unbounded;
    begin
       return
         Rule_Options.Is_Empty
@@ -1100,7 +1063,6 @@ package body Lkql_Checker.Projects is
    ----------------------
 
    procedure Check_Parameters is
-      use Ada.Strings.Unbounded;
    begin
       if Arg.Verbose.Get and then not Arg.Aggregated_Project then
          --  When processing aggregated projects one by one, we want

@@ -6,6 +6,7 @@
 --  This package defines interfaces that provide support to process and store
 --  input for the GNATcheck tool.
 
+with Ada.Containers.Vectors;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -704,9 +705,46 @@ package Lkql_Checker.Options is
             (XML_Output.Get, Lkql_Checker_Mode_Image & ".xml"));
    end Arg;
 
-   --------------------------
-   -- Legacy option parser --
-   --------------------------
+   -----------------------
+   -- Option processing --
+   -----------------------
+
+   procedure Scan_Arguments
+     (First_Pass : Boolean := False; Args : Argument_List_Access := null);
+   --  Process GNATcheck CLI arguments. If provided ``Args`` is not null, this
+   --  procedure assumes that arguments are coming from a project file
+   --  ``Switches`` or ``Default_Switches`` attribute. Otherwise, arguments are
+   --  fetched from the application's command-line.
+   --  The ``First_Pass`` parameter indicates whether this is the first time
+   --  arguments are processed. This is used to avoid processing same arguments
+   --  multiple times.
+
+   ------------------
+   -- Rule options --
+   ------------------
+
+   type Option_Kind is (File, Legacy_Option, Single_Rule_Name);
+
+   type Option_Record is record
+      Kind  : Option_Kind;
+      Value : Ada.Strings.Unbounded.Unbounded_String;
+   end record;
+
+   package Vector_Options is new
+     Ada.Containers.Vectors (Positive, Option_Record);
+
+   Rule_Options : Vector_Options.Vector;
+
+   procedure Process_Rule_Options;
+   --  Process all the rule options found as part of scanning arguments.
+
+   procedure Process_Legacy_Rule_Options
+     (Args : Arg.Legacy_Rules_Section.Result_Array);
+   --  Process the options provided in ``Args`` as legacy rule options.
+
+   --------------------------------
+   -- Legacy rule options parser --
+   --------------------------------
 
    package Legacy_Rule_Options is
       Parser : Argument_Parser :=
@@ -723,23 +761,5 @@ package Lkql_Checker.Options is
            Accumulate       => True,
            Legacy_Long_Form => True);
    end Legacy_Rule_Options;
-
-   -----------------------
-   -- Option processing --
-   -----------------------
-
-   procedure Scan_Arguments
-     (First_Pass : Boolean := False; Args : Argument_List_Access := null);
-   --  Process GNATcheck CLI arguments. If provided ``Args`` is not null, this
-   --  procedure assumes that arguments are coming from a project file
-   --  ``Switches`` or ``Default_Switches`` attribute. Otherwise, arguments are
-   --  fetched from the application's command-line.
-   --  The ``First_Pass`` parameter indicates whether this is the first time
-   --  arguments are processed. This is used to avoid processing same arguments
-   --  multiple times.
-
-   procedure Process_Legacy_Rule_Options
-     (Args : Arg.Legacy_Rules_Section.Result_Array);
-   --  Process the options provided in ``Args`` as legacy rule options.
 
 end Lkql_Checker.Options;
