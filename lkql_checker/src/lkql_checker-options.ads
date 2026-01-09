@@ -3,8 +3,8 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This package defines options that are supposed to be of a common interest
---  for all the tools.
+--  This package defines interfaces that provide support to process and store
+--  input for the GNATcheck tool.
 
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
