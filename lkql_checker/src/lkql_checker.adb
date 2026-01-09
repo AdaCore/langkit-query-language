@@ -29,9 +29,36 @@ with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 with GPR2.Project.Registry.Exchange;
 
 package body Lkql_Checker is
+   procedure Setup_Search_Paths;
+   --  Initialize LKQL_PATH to include path to built-in rules.
+   --  Assuming this executable is in $PREFIX/bin, this includes the
+   --  $PREFIX/share/lkql and $PREFIX/share/lkql/kp paths. That way, only
+   --  the driver needs to be aware of built-in rules, and worker can be
+   --  located anywhere. This also extends dynamic library search paths
+   --  (PATH for Windows and LD_LIBRARY_PATH on Linux) to point on
+   --  $PREFIX/lib and $PREFIX/lib/libadalang, to allow worker processes
+   --  that rely on dynamic libraries to find their dependencies without
+   --  requiring users to explicitly set these paths.
+
+   procedure Print_LKQL_Rules
+     (File                   : File_Type;
+      Mode                   : Source_Modes;
+      Include_Compiler_Rules : Boolean := False;
+      For_Worker             : Boolean := True);
+   --  Print the rule configuration of the given source mode into the given
+   --  file using the LKQL rule config file format.
+   --  If ``Include_Compiler_Rules`` is True, the compiler based rules
+   --  options is included in the emitted LKQL config.
+   --  ``For_Worker`` gives the information whether this procedure should
+   --  emit an LKQL file formatted for the worker.
+
+   procedure Schedule_Files;
+   --  Schedule jobs per set of files
+
    --------------------------
    --  Lkql_Checker_Image  --
    --------------------------
+
    function Lkql_Checker_Mode_Image return String
    is (Lkql_Checker_Mode_Name (Mode));
 
@@ -47,14 +74,342 @@ package body Lkql_Checker is
            when Gnatkp_Mode    => "gnatkp");
    end Lkql_Checker_Mode_Name;
 
+   ---------------
+   -- File_Name --
+   ---------------
+
+   function File_Name (Id : String; Job : Natural) return String
+   is (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
+   --  Return the full path for a temp file with a given Id
+
+   ------------------------------------
+   -- Default_LKQL_Rule_Options_File --
+   ------------------------------------
+
+   function Default_LKQL_Rule_Options_File return String
+   is (Checker_Prj.Get_Project_Relative_File ("rules.lkql"));
+   --  Get the default LKQL rule options file name.
+
+   ------------------------
+   -- Setup_Search_Paths --
+   ------------------------
+
+   procedure Setup_Search_Paths is
+      use Ada;
+      use Ada.Directories;
+
+      procedure Add_Path (Env_Var : String; Path : String);
+      --  Add the given Path to the given environment variable, using the OS
+      --  path separator. If the variable does not exist yet, this defines
+      --  it.
+
+      procedure Add_Path (Env_Var : String; Path : String) is
+      begin
+         if Environment_Variables.Exists (Env_Var) then
+            Environment_Variables.Set
+              (Env_Var,
+               Path & Path_Separator & Environment_Variables.Value (Env_Var));
+         else
+            Environment_Variables.Set (Env_Var, Path);
+         end if;
+      end Add_Path;
+
+      Executable : String_Access :=
+        Locate_Exec_On_Path (Ada.Command_Line.Command_Name);
+   begin
+      if Executable = null then
+         raise Program_Error
+           with "cannot locate " & Ada.Command_Line.Command_Name;
+      end if;
+
+      declare
+         Prefix : constant String :=
+           Containing_Directory (Containing_Directory (Executable.all));
+
+         Lkql : constant String := Compose (Compose (Prefix, "share"), "lkql");
+         Kp   : constant String := Compose (Lkql, "kp");
+
+         Lib     : constant String := Compose (Prefix, "lib");
+         Lib_LAL : constant String := Compose (Lib, "libadalang");
+      begin
+         Add_Path ("LKQL_PATH", Lkql);
+         Add_Path ("LKQL_PATH", Kp);
+
+         Add_Path ("PATH", Lib);
+         Add_Path ("PATH", Lib_LAL);
+
+         Add_Path ("LD_LIBRARY_PATH", Lib);
+         Add_Path ("LD_LIBRARY_PATH", Lib_LAL);
+
+         for Path of Additional_Lkql_Paths loop
+            Add_Path ("LKQL_PATH", Path);
+         end loop;
+      end;
+
+      Free (Executable);
+   end Setup_Search_Paths;
+
+   ----------------------
+   -- Print_LKQL_Rules --
+   ----------------------
+
+   procedure Print_LKQL_Rules
+     (File                   : File_Type;
+      Mode                   : Source_Modes;
+      Include_Compiler_Rules : Boolean := False;
+      For_Worker             : Boolean := True)
+   is
+      First : Boolean := True;
+   begin
+      --  Always emit the "rules" object, otherwise the LKQL config file is
+      --  invalid.
+      if Mode = General then
+         Put_Line (File, "val rules = @{");
+      end if;
+
+      --  Write the configuration of all rules instance
+      for Rule in All_Rules.Iterate loop
+         if Is_Enabled (All_Rules (Rule)) then
+            Print_Rule_Instances_To_LKQL_File
+              (All_Rules (Rule), File, Mode, For_Worker, First);
+         end if;
+      end loop;
+
+      --  If required, emit the configuration of the compiler based rules
+      if Include_Compiler_Rules and then Mode = General then
+         Print_Compiler_Rule_To_LKQL_File (Style_Checks_Id, File, First);
+         Print_Compiler_Rule_To_LKQL_File (Warnings_Id, File, First);
+         Print_Compiler_Rule_To_LKQL_File (Restrictions_Id, File, First);
+      end if;
+
+      --  Close the rule config object
+      if not First or Mode = General then
+         New_Line (File);
+         Put_Line (File, "}");
+      end if;
+   end Print_LKQL_Rules;
+
+   --------------------
+   -- Schedule_Files --
+   --------------------
+
+   procedure Schedule_Files is
+      Minimum_Files : constant := 10;
+      Num_Files     : Natural := 0;
+      Num_Jobs      : Natural := 0;
+      Current       : Natural := 0;
+      Files_Per_Job : Natural;
+      File          : Ada.Text_IO.File_Type;
+      Status        : Boolean;
+      Total_Jobs    : Natural;
+      Process_Num   : Natural := Arg.Jobs.Get;
+      GPRbuild_Pid  : Process_Id := Invalid_Pid;
+   begin
+      --  Compute number of files
+
+      for SF in First_SF_Id .. Last_Argument_Source loop
+         if Source_Info (SF) /= Ignore_Unit then
+            Num_Files := @ + 1;
+         end if;
+      end loop;
+
+      Files_Per_Job := (Num_Files + Process_Num - 1) / Process_Num;
+      Num_Jobs := Process_Num;
+
+      if Files_Per_Job >= 2 * Minimum_Files then
+         Files_Per_Job := (@ + 1) / 2;
+         Num_Jobs := @ * 2;
+
+      --  Reduce number of jobs if too few files
+
+      elsif Files_Per_Job < Minimum_Files then
+         Files_Per_Job := Minimum_Files;
+         Process_Num := (Num_Files + Files_Per_Job - 1) / Files_Per_Job;
+         Num_Jobs := Process_Num;
+      end if;
+
+      --  Create the rules file
+
+      Create (File, Out_File, File_Name ("rules", 0));
+
+      Print_LKQL_Rules (File, General);
+      Print_LKQL_Rules (File, Ada_Only);
+      Print_LKQL_Rules (File, Spark_Only);
+
+      Close (File);
+
+      Total_Jobs := Num_Jobs + (if Analyze_Compiler_Output then 1 else 0);
+
+      if not Arg.Quiet_Mode and not Arg.Progress_Indicator_Mode.Get then
+         Print
+           ("Jobs remaining:" & Integer'Image (Total_Jobs) & ASCII.CR,
+            New_Line    => False,
+            Log_Message => False);
+      end if;
+
+      --  Process each job with all rules and a different subset of files
+
+      declare
+         Pids    : array (1 .. Num_Jobs) of Process_Id;
+         Pid     : Process_Id;
+         Next_SF : SF_Id := First_SF_Id;
+         Files   : Natural;
+
+         procedure Wait_Lkql_Checker;
+         --  Wait for one Lkql_Checker child process to finish and
+         --  analyze its output. Also deal with the gprbuild child if any.
+
+         -----------------------
+         -- Wait_Lkql_Checker --
+         -----------------------
+
+         procedure Wait_Lkql_Checker is
+            Process_Found : Boolean := False;
+         begin
+            loop
+               Wait_Process (Pid, Status);
+
+               if Pid = Invalid_Pid then
+                  --  We still want to set Current to avoid going into an
+                  --  infinite loop in Schedule_Files: if we are there, it
+                  --  means there are no more processes to wait for.
+
+                  Current := Total_Jobs;
+                  Tool_Failures := @ + 1;
+                  Error
+                    ("error while waiting for gnatcheck process, output "
+                     & "may be incomplete.");
+                  return;
+               end if;
+
+               Current := @ + 1;
+
+               if Arg.Progress_Indicator_Mode.Get then
+                  declare
+                     Percent : String :=
+                       Integer'Image ((Current * 100) / Total_Jobs);
+                  begin
+                     Percent (1) := '(';
+                     Print
+                       ("completed"
+                        & Integer'Image (Current)
+                        & " out of"
+                        & Integer'Image (Total_Jobs)
+                        & " "
+                        & Percent
+                        & "%)...",
+                        Log_Message => False);
+                  end;
+               elsif not Arg.Quiet_Mode then
+                  Print
+                    (Message     =>
+                       "Jobs remaining:"
+                       & Integer'Image (Total_Jobs - Current)
+                       & "     "
+                       & ASCII.CR,
+                     New_Line    => False,
+                     Log_Message => False);
+               end if;
+
+               if Pid = GPRbuild_Pid then
+                  Analyze_Output
+                    (Global_Report_Dir.all & "gprbuild.err", Status);
+                  exit when Current = Total_Jobs;
+
+               else
+                  for Job in Pids'Range loop
+                     if Pids (Job) = Pid then
+                        Analyze_Output (File_Name ("out", Job), Status);
+                        Process_Found := True;
+
+                        if not Arg.Debug_Mode.Get then
+                           Delete_File (File_Name ("out", Job), Status);
+                           Delete_File (File_Name ("files", Job), Status);
+                        end if;
+
+                        exit;
+                     end if;
+                  end loop;
+
+                  if not Process_Found then
+                     Error ("error while waiting for gprbuild process.");
+                  end if;
+
+                  exit;
+               end if;
+            end loop;
+         end Wait_Lkql_Checker;
+
+      begin
+         --  Process sources to take pragma Annotate into account
+
+         Process_Sources;
+
+         for Job in 1 .. Num_Jobs loop
+            Create (File, Out_File, File_Name ("files", Job));
+            Files := 0;
+
+            for SF in Next_SF .. Last_Argument_Source loop
+               if Source_Info (SF) /= Ignore_Unit then
+                  Put_Line (File, Source_Name (SF));
+                  Files := @ + 1;
+                  Set_Source_Status (SF, Processed);
+
+                  if Files = Files_Per_Job or else SF = Last_Argument_Source
+                  then
+                     Next_SF := SF + 1;
+                     exit;
+                  end if;
+               end if;
+            end loop;
+
+            Close (File);
+
+            --  Spawn a GNATcheck worker with -rules -from=rules0.txt
+            --  -files=files?.txt
+
+            Pids (Job) :=
+              Spawn_Checker_Worker
+                (File_Name ("rules", 0),
+                 File_Name ("out", Job),
+                 File_Name ("files", Job),
+                 File_Name ("log", Job));
+
+            if Next_SF > Last_Argument_Source then
+               Total_Jobs := @ - Num_Jobs + Job;
+               exit;
+            end if;
+
+            if Job >= Process_Num then
+               Wait_Lkql_Checker;
+            end if;
+         end loop;
+
+         --  Now that some processes are free, spawn gprbuild in background
+
+         if Analyze_Compiler_Output then
+            GPRbuild_Pid :=
+              Spawn_GPRbuild (Global_Report_Dir.all & "gprbuild.err");
+         end if;
+
+         --  Wait for remaining children
+
+         while Current /= Total_Jobs loop
+            Wait_Lkql_Checker;
+         end loop;
+
+         if not Arg.Debug_Mode.Get then
+            Delete_File (File_Name ("rules", 0), Status);
+         end if;
+      end;
+   end Schedule_Files;
+
    -----------
    --  Main --
    -----------
    procedure Main (Mode : Lkql_Checker_Mode) is
       Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
       use type Ada.Calendar.Time;
-
-      GPRbuild_Pid : Process_Id := Invalid_Pid;
 
       E_Success   : constant := 0;
       --  No tool failure, no rule violation detected
@@ -70,356 +425,6 @@ package body Lkql_Checker is
       E_Missing_Rule      : constant := 5;
       --  Bad rule name or bad rule parameter
       E_Bad_Rules         : constant := 6; --  Other problem with rules options
-
-      function File_Name (Id : String; Job : Natural) return String
-      is (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
-      --  Return the full path for a temp file with a given Id
-
-      function Default_LKQL_Rule_Options_File return String
-      is (Checker_Prj.Get_Project_Relative_File ("rules.lkql"));
-      --  Get the default LKQL rule options file name.
-
-      procedure Setup_Search_Paths;
-      --  Initialize LKQL_PATH to include path to built-in rules.
-      --  Assuming this executable is in $PREFIX/bin, this includes the
-      --  $PREFIX/share/lkql and $PREFIX/share/lkql/kp paths. That way, only
-      --  the driver needs to be aware of built-in rules, and worker can be
-      --  located anywhere. This also extends dynamic library search paths
-      --  (PATH for Windows and LD_LIBRARY_PATH on Linux) to point on
-      --  $PREFIX/lib and $PREFIX/lib/libadalang, to allow worker processes
-      --  that rely on dynamic libraries to find their dependencies without
-      --  requiring users to explicitly set these paths.
-
-      procedure Print_LKQL_Rules
-        (File                   : File_Type;
-         Mode                   : Source_Modes;
-         Include_Compiler_Rules : Boolean := False;
-         For_Worker             : Boolean := True);
-      --  Print the rule configuration of the given source mode into the given
-      --  file using the LKQL rule config file format.
-      --  If ``Include_Compiler_Rules`` is True, the compiler based rules
-      --  options is included in the emitted LKQL config.
-      --  ``For_Worker`` gives the information whether this procedure should
-      --  emit an LKQL file formatted for the worker.
-
-      procedure Schedule_Files;
-      --  Schedule jobs per set of files
-
-      ------------------------
-      -- Setup_Search_Paths --
-      ------------------------
-
-      procedure Setup_Search_Paths is
-         use Ada;
-         use Ada.Directories;
-
-         procedure Add_Path (Env_Var : String; Path : String);
-         --  Add the given Path to the given environment variable, using the OS
-         --  path separator. If the variable does not exist yet, this defines
-         --  it.
-
-         procedure Add_Path (Env_Var : String; Path : String) is
-         begin
-            if Environment_Variables.Exists (Env_Var) then
-               Environment_Variables.Set
-                 (Env_Var,
-                  Path
-                  & Path_Separator
-                  & Environment_Variables.Value (Env_Var));
-            else
-               Environment_Variables.Set (Env_Var, Path);
-            end if;
-         end Add_Path;
-
-         Executable : String_Access :=
-           Locate_Exec_On_Path (Ada.Command_Line.Command_Name);
-      begin
-         if Executable = null then
-            raise Program_Error
-              with "cannot locate " & Ada.Command_Line.Command_Name;
-         end if;
-
-         declare
-            Prefix : constant String :=
-              Containing_Directory (Containing_Directory (Executable.all));
-
-            Lkql : constant String :=
-              Compose (Compose (Prefix, "share"), "lkql");
-            Kp   : constant String := Compose (Lkql, "kp");
-
-            Lib     : constant String := Compose (Prefix, "lib");
-            Lib_LAL : constant String := Compose (Lib, "libadalang");
-         begin
-            Add_Path ("LKQL_PATH", Lkql);
-            Add_Path ("LKQL_PATH", Kp);
-
-            Add_Path ("PATH", Lib);
-            Add_Path ("PATH", Lib_LAL);
-
-            Add_Path ("LD_LIBRARY_PATH", Lib);
-            Add_Path ("LD_LIBRARY_PATH", Lib_LAL);
-
-            for Path of Additional_Lkql_Paths loop
-               Add_Path ("LKQL_PATH", Path);
-            end loop;
-         end;
-
-         Free (Executable);
-      end Setup_Search_Paths;
-
-      ----------------------
-      -- Print_LKQL_Rules --
-      ----------------------
-
-      procedure Print_LKQL_Rules
-        (File                   : File_Type;
-         Mode                   : Source_Modes;
-         Include_Compiler_Rules : Boolean := False;
-         For_Worker             : Boolean := True)
-      is
-         First : Boolean := True;
-      begin
-         --  Always emit the "rules" object, otherwise the LKQL config file is
-         --  invalid.
-         if Mode = General then
-            Put_Line (File, "val rules = @{");
-         end if;
-
-         --  Write the configuration of all rules instance
-         for Rule in All_Rules.Iterate loop
-            if Is_Enabled (All_Rules (Rule)) then
-               Print_Rule_Instances_To_LKQL_File
-                 (All_Rules (Rule), File, Mode, For_Worker, First);
-            end if;
-         end loop;
-
-         --  If required, emit the configuration of the compiler based rules
-         if Include_Compiler_Rules and then Mode = General then
-            Print_Compiler_Rule_To_LKQL_File (Style_Checks_Id, File, First);
-            Print_Compiler_Rule_To_LKQL_File (Warnings_Id, File, First);
-            Print_Compiler_Rule_To_LKQL_File (Restrictions_Id, File, First);
-         end if;
-
-         --  Close the rule config object
-         if not First or Mode = General then
-            New_Line (File);
-            Put_Line (File, "}");
-         end if;
-      end Print_LKQL_Rules;
-
-      --------------------
-      -- Schedule_Files --
-      --------------------
-
-      procedure Schedule_Files is
-         Minimum_Files : constant := 10;
-         Num_Files     : Natural := 0;
-         Num_Jobs      : Natural := 0;
-         Current       : Natural := 0;
-         Files_Per_Job : Natural;
-         File          : Ada.Text_IO.File_Type;
-         Status        : Boolean;
-         Total_Jobs    : Natural;
-         Process_Num   : Natural := Arg.Jobs.Get;
-      begin
-         --  Compute number of files
-
-         for SF in First_SF_Id .. Last_Argument_Source loop
-            if Source_Info (SF) /= Ignore_Unit then
-               Num_Files := @ + 1;
-            end if;
-         end loop;
-
-         Files_Per_Job := (Num_Files + Process_Num - 1) / Process_Num;
-         Num_Jobs := Process_Num;
-
-         if Files_Per_Job >= 2 * Minimum_Files then
-            Files_Per_Job := (@ + 1) / 2;
-            Num_Jobs := @ * 2;
-
-         --  Reduce number of jobs if too few files
-
-         elsif Files_Per_Job < Minimum_Files then
-            Files_Per_Job := Minimum_Files;
-            Process_Num := (Num_Files + Files_Per_Job - 1) / Files_Per_Job;
-            Num_Jobs := Process_Num;
-         end if;
-
-         --  Create the rules file
-
-         Create (File, Out_File, File_Name ("rules", 0));
-
-         Print_LKQL_Rules (File, General);
-         Print_LKQL_Rules (File, Ada_Only);
-         Print_LKQL_Rules (File, Spark_Only);
-
-         Close (File);
-
-         Total_Jobs := Num_Jobs + (if Analyze_Compiler_Output then 1 else 0);
-
-         if not Arg.Quiet_Mode and not Arg.Progress_Indicator_Mode.Get then
-            Print
-              ("Jobs remaining:" & Integer'Image (Total_Jobs) & ASCII.CR,
-               New_Line    => False,
-               Log_Message => False);
-         end if;
-
-         --  Process each job with all rules and a different subset of files
-
-         declare
-            Pids    : array (1 .. Num_Jobs) of Process_Id;
-            Pid     : Process_Id;
-            Next_SF : SF_Id := First_SF_Id;
-            Files   : Natural;
-
-            procedure Wait_Lkql_Checker;
-            --  Wait for one Lkql_Checker child process to finish and
-            --  analyze its output. Also deal with the gprbuild child if any.
-
-            -----------------------
-            -- Wait_Lkql_Checker --
-            -----------------------
-
-            procedure Wait_Lkql_Checker is
-               Process_Found : Boolean := False;
-            begin
-               loop
-                  Wait_Process (Pid, Status);
-
-                  if Pid = Invalid_Pid then
-                     --  We still want to set Current to avoid going into an
-                     --  infinite loop in Schedule_Files: if we are there, it
-                     --  means there are no more processes to wait for.
-
-                     Current := Total_Jobs;
-                     Tool_Failures := @ + 1;
-                     Error
-                       ("error while waiting for gnatcheck process, output "
-                        & "may be incomplete.");
-                     return;
-                  end if;
-
-                  Current := @ + 1;
-
-                  if Arg.Progress_Indicator_Mode.Get then
-                     declare
-                        Percent : String :=
-                          Integer'Image ((Current * 100) / Total_Jobs);
-                     begin
-                        Percent (1) := '(';
-                        Print
-                          ("completed"
-                           & Integer'Image (Current)
-                           & " out of"
-                           & Integer'Image (Total_Jobs)
-                           & " "
-                           & Percent
-                           & "%)...",
-                           Log_Message => False);
-                     end;
-                  elsif not Arg.Quiet_Mode then
-                     Print
-                       (Message     =>
-                          "Jobs remaining:"
-                          & Integer'Image (Total_Jobs - Current)
-                          & "     "
-                          & ASCII.CR,
-                        New_Line    => False,
-                        Log_Message => False);
-                  end if;
-
-                  if Pid = GPRbuild_Pid then
-                     Analyze_Output
-                       (Global_Report_Dir.all & "gprbuild.err", Status);
-                     exit when Current = Total_Jobs;
-
-                  else
-                     for Job in Pids'Range loop
-                        if Pids (Job) = Pid then
-                           Analyze_Output (File_Name ("out", Job), Status);
-                           Process_Found := True;
-
-                           if not Arg.Debug_Mode.Get then
-                              Delete_File (File_Name ("out", Job), Status);
-                              Delete_File (File_Name ("files", Job), Status);
-                           end if;
-
-                           exit;
-                        end if;
-                     end loop;
-
-                     if not Process_Found then
-                        Error ("error while waiting for gprbuild process.");
-                     end if;
-
-                     exit;
-                  end if;
-               end loop;
-            end Wait_Lkql_Checker;
-
-         begin
-            --  Process sources to take pragma Annotate into account
-
-            Process_Sources;
-
-            for Job in 1 .. Num_Jobs loop
-               Create (File, Out_File, File_Name ("files", Job));
-               Files := 0;
-
-               for SF in Next_SF .. Last_Argument_Source loop
-                  if Source_Info (SF) /= Ignore_Unit then
-                     Put_Line (File, Source_Name (SF));
-                     Files := @ + 1;
-                     Set_Source_Status (SF, Processed);
-
-                     if Files = Files_Per_Job or else SF = Last_Argument_Source
-                     then
-                        Next_SF := SF + 1;
-                        exit;
-                     end if;
-                  end if;
-               end loop;
-
-               Close (File);
-
-               --  Spawn a GNATcheck worker with -rules -from=rules0.txt
-               --  -files=files?.txt
-
-               Pids (Job) :=
-                 Spawn_Checker_Worker
-                   (File_Name ("rules", 0),
-                    File_Name ("out", Job),
-                    File_Name ("files", Job),
-                    File_Name ("log", Job));
-
-               if Next_SF > Last_Argument_Source then
-                  Total_Jobs := @ - Num_Jobs + Job;
-                  exit;
-               end if;
-
-               if Job >= Process_Num then
-                  Wait_Lkql_Checker;
-               end if;
-            end loop;
-
-            --  Now that some processes are free, spawn gprbuild in background
-
-            if Analyze_Compiler_Output then
-               GPRbuild_Pid :=
-                 Spawn_GPRbuild (Global_Report_Dir.all & "gprbuild.err");
-            end if;
-
-            --  Wait for remaining children
-
-            while Current /= Total_Jobs loop
-               Wait_Lkql_Checker;
-            end loop;
-
-            if not Arg.Debug_Mode.Get then
-               Delete_File (File_Name ("rules", 0), Status);
-            end if;
-         end;
-      end Schedule_Files;
 
       use Ada.Strings.Unbounded;
    begin
