@@ -304,12 +304,6 @@ package Lkql_Checker.Projects is
    -- General project file processing --
    -------------------------------------
 
-   procedure Initialize_Environment;
-   --  Initializes the environment for extracting the information from the
-   --  project file. This includes setting the parameters specific for the
-   --  given tool version assuming that the tools for cross environment are
-   --  named in a standard way (that is, <cross-prefix>-<tool_name>.
-
    procedure Process_Project_File (My_Project : in out Arg_Project_Type'Class);
    --  Combines all the actions needed to process the argument project file
    --  except storing individual compilation options for argument files.

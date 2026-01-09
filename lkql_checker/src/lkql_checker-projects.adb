@@ -48,7 +48,6 @@ with GPR2.Reporter.Console;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
-with GNATCOLL.Traces;
 
 with Rule_Commands; use Rule_Commands;
 
@@ -393,15 +392,6 @@ package body Lkql_Checker.Projects is
          My_Project.Error
            ("libgpr2 usage error: " & Ada.Exceptions.Exception_Message (E));
    end Get_Sources_From_Project;
-
-   ----------------------------
-   -- Initialize_Environment --
-   ----------------------------
-
-   procedure Initialize_Environment is
-   begin
-      GNATCOLL.Traces.Parse_Config_File;
-   end Initialize_Environment;
 
    ------------------
    -- Is_Specified --

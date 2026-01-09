@@ -426,8 +426,6 @@ package body Lkql_Checker is
       --  Set the Lkql_Checker global mode
       Lkql_Checker.Mode := Mode;
 
-      Initialize_Environment;
-
       Scan_Arguments (First_Pass => True);
 
       if Arg.Version.Get then
