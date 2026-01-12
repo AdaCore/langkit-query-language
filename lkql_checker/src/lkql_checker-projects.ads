@@ -132,14 +132,6 @@ package Lkql_Checker.Projects is
    function Subdir_Name return String;
    --  Return the subdir name to use, if one was set explicitly.
 
-   ----------------------------------------------------------------
-   -- --print-gpr-registry : print gnatcheck attributes and exit --
-   ----------------------------------------------------------------
-
-   Print_Gpr_Registry : Boolean := False;
-   --  If this flag is ON, gpr attributes registered by gnatcheck are printed
-   --  and gnatcheck exit returning 0.
-
    ---------------------------------------------------------
    -- Type to represent a project passed as a tool option --
    ---------------------------------------------------------

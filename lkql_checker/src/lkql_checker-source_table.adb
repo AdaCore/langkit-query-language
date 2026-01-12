@@ -1202,12 +1202,9 @@ package body Lkql_Checker.Source_Table is
    -- Store_Sources_To_Process --
    ------------------------------
 
-   procedure Store_Sources_To_Process (Fname : String; Store : Boolean := True)
-   is
+   procedure Store_Sources_To_Process (Fname : String) is
    begin
-      if Store then
-         Include (Temporary_File_Storage, Fname);
-      end if;
+      Include (Temporary_File_Storage, Fname);
    end Store_Sources_To_Process;
 
    ---------------------

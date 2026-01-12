@@ -95,13 +95,6 @@ package body Lkql_Checker.Projects.Aggregate is
    end Collect_Aggregated_Projects;
 
    ----------------------------
-   -- Get_Aggregated_Prj_Src --
-   ----------------------------
-
-   function Get_Aggregated_Prj_Src return GPR2.Path_Name.Object
-   is (Aggregated_Projects.First_Element.Project_Path);
-
-   ----------------------------
    -- Get_Aggregated_Project --
    ----------------------------
 

@@ -106,15 +106,6 @@ package Lkql_Checker.Options is
    -- options related to program global state analysis --
    ------------------------------------------------------
 
-   Do_Transitive_Closure : Boolean := False;
-   --  Flag indicating if the transitive closure of the call graph is needed.
-
-   Main_Subprogram_Name : GNAT.OS_Lib.String_Access;
-   --  -main=<name of the main subprogram>
-   --  The name of the source file containing the main subprogram. The name
-   --  may or may not contain the suffix. This subprogram is called by the
-   --  environment task.
-
    Active_Rule_Present : Boolean := False;
    --  Flag indicating if the tool has an activated rule to check. It does not
    --  take into account compiler check, use
@@ -136,10 +127,6 @@ package Lkql_Checker.Options is
    --  Any other problem with rule files and/or rule options is detected (bad
    --  format of a rule file, rule redefinition etc.)
 
-   Compiler_Arg_List : Argument_List_Access;
-   --  This variable should contain a full list of compilation options to be
-   --  passed to gcc.
-
    Additional_Lkql_Paths : String_Vector;
    --  Additional paths to add to the ``LKQL_PATH`` environment variable when
    --  spawning the LKQL worker.
@@ -147,10 +134,6 @@ package Lkql_Checker.Options is
    Instance_Help_Emitted : Boolean := False;
    --  Whether the help message about the new instance system has already been
    --  emitted. This message should be removed in 26.0.
-
-   Rules_Depreciation_Emitted : Boolean := False;
-   --  Whether the message about the ``-rules`` section depreciation has been
-   --  emitted in the TTY.
 
    --------------------------------------
    -- Controlling the gnatcheck report --

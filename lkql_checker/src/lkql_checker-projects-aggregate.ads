@@ -38,10 +38,6 @@ package Lkql_Checker.Projects.Aggregate is
    --  need to know this because the case when an aggregate project aggregates
    --  only one project is a useful special case.
 
-   function Get_Aggregated_Prj_Src return GPR2.Path_Name.Object
-   with Pre => Num_Of_Aggregated_Projects = 1;
-   --  Returns the (single!) aggregate project source file
-
    -----------------------
    --  Project iterator --
    -----------------------
