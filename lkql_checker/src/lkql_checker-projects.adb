@@ -432,7 +432,6 @@ package body Lkql_Checker.Projects is
    is
       use GPR2;
       use GPR2.Containers;
-      use Lkql_Checker.Projects.Aggregate;
 
       Conf_Obj : GPR2.Project.Configuration.Object;
 
@@ -451,7 +450,9 @@ package body Lkql_Checker.Projects is
 
       --  Amend the project options to load the aggregated project
       Project_Options.Add_Switch
-        (GPR2.Options.P, Get_Aggregated_Project, Override => True);
+        (GPR2.Options.P,
+         To_String (Arg.Aggregate_Subproject.Get),
+         Override => True);
 
       for C in Agg_Context.Iterate loop
          Project_Options.Add_Switch
@@ -471,7 +472,10 @@ package body Lkql_Checker.Projects is
             My_Project.Error ("no runtime information found");
          end if;
 
-         Error ("""" & Get_Aggregated_Project & """ processing failed");
+         Error
+           (""""
+            & To_String (Arg.Aggregate_Subproject.Get)
+            & """ processing failed");
 
          raise Parameter_Error;
       end if;
@@ -1067,8 +1071,8 @@ package body Lkql_Checker.Projects is
                Instance : Rule_Instance_Access;
             begin
                if Rule.Impact /= null
-                 and then Match
-                            (To_String (Arg.KP_Version.Get), Rule.Impact.all)
+                 and then
+                   Match (To_String (Arg.KP_Version.Get), Rule.Impact.all)
                then
                   if Rule.Target /= null
                     and then Target /= Null_Unbounded_String

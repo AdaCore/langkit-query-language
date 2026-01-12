@@ -15,15 +15,14 @@ with GNAT.Regpat; use GNAT.Regpat;
 with GNAT.Strings;
 with GNAT.String_Split;
 
-with Lkql_Checker.Diagnoses;          use Lkql_Checker.Diagnoses;
-with Lkql_Checker.Ids;                use Lkql_Checker.Ids;
-with Lkql_Checker.Options;            use Lkql_Checker.Options;
-with Lkql_Checker.Output;             use Lkql_Checker.Output;
-with Lkql_Checker.Projects;           use Lkql_Checker.Projects;
-with Lkql_Checker.Projects.Aggregate; use Lkql_Checker.Projects.Aggregate;
-with Lkql_Checker.Rules.Rule_Table;   use Lkql_Checker.Rules.Rule_Table;
-with Lkql_Checker.Source_Table;       use Lkql_Checker.Source_Table;
-with Lkql_Checker.String_Utilities;   use Lkql_Checker.String_Utilities;
+with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
+with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
+with Lkql_Checker.Options;          use Lkql_Checker.Options;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
+with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 with GNATCOLL.VFS;  use GNATCOLL.VFS;
@@ -1788,7 +1787,8 @@ package body Lkql_Checker.Compiler is
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-A");
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'(Get_Aggregated_Project);
+         Args (Num_Args) :=
+           new String'(To_String (Arg.Aggregate_Subproject.Get));
       end if;
 
       if CGPR = "" then

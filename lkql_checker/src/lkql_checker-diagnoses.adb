@@ -18,12 +18,11 @@ with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.Case_Util;
 with GNAT.OS_Lib;
 
-with Lkql_Checker.Compiler;           use Lkql_Checker.Compiler;
-with Lkql_Checker.Options;            use Lkql_Checker.Options;
-with Lkql_Checker.Output;             use Lkql_Checker.Output;
-with Lkql_Checker.Projects.Aggregate; use Lkql_Checker.Projects.Aggregate;
-with Lkql_Checker.Rules.Rule_Table;   use Lkql_Checker.Rules.Rule_Table;
-with Lkql_Checker.String_Utilities;   use Lkql_Checker.String_Utilities;
+with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
+with Lkql_Checker.Options;          use Lkql_Checker.Options;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.Strings; use GNATCOLL.Strings;
 
@@ -843,7 +842,7 @@ package body Lkql_Checker.Diagnoses is
             XML_Report
               (" project="""
                & (if Arg.Aggregated_Project
-                  then Get_Aggregated_Project
+                  then To_String (Arg.Aggregate_Subproject.Get)
                   else Checker_Prj.Source_Prj)
                & """>");
          else

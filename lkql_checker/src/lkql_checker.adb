@@ -461,12 +461,6 @@ package body Lkql_Checker is
          Checker_Prj.Store_Project_Source (To_String (Arg.Project_File.Get));
       end if;
 
-      --  Store aggregate subproject file
-      if Arg.Aggregate_Subproject.Get /= Null_Unbounded_String then
-         Lkql_Checker.Projects.Aggregate.Store_Aggregated_Project
-           (To_String (Arg.Aggregate_Subproject.Get));
-      end if;
-
       --  Store scenario variables
       for Var of Arg.Scenario_Vars.Get loop
          Store_External_Variable (To_String (Var));

@@ -42,9 +42,6 @@ package body Lkql_Checker.Projects.Aggregate is
    Iterator_C    : Cursor := No_Element;
    Iterator_El   : Project_Record;
 
-   Aggregated_Prj_Name : String_Access;
-   --  The name of a project file passed as a parameter of '-A' option
-
    ------------------------
    --  Local subprograms --
    ------------------------
@@ -93,13 +90,6 @@ package body Lkql_Checker.Projects.Aggregate is
          Include (Aggregated_Projects, New_Prj_Rec);
       end loop;
    end Collect_Aggregated_Projects;
-
-   ----------------------------
-   -- Get_Aggregated_Project --
-   ----------------------------
-
-   function Get_Aggregated_Project return String
-   is (Aggregated_Prj_Name.all);
 
    -------------------
    -- Next_Prj_Name --
@@ -343,15 +333,5 @@ package body Lkql_Checker.Projects.Aggregate is
          Error ("cannot start iterator on aggregated projects");
          raise Fatal_Error;
    end Start_Prj_Iterator;
-
-   ------------------------------
-   -- Store_Aggregated_Project --
-   ------------------------------
-
-   procedure Store_Aggregated_Project (S : String) is
-   begin
-      Free (Aggregated_Prj_Name);
-      Aggregated_Prj_Name := new String'(S);
-   end Store_Aggregated_Project;
 
 end Lkql_Checker.Projects.Aggregate;
