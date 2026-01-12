@@ -79,7 +79,7 @@ package body Lkql_Checker.Projects is
    overriding
    function Verbosity
      (Self : Lkql_Checker_Reporter) return GPR2.Reporter.Verbosity_Level
-   is (case Arg.Project_Verbosity.Get is
+   is (case Tool_Args.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.No_Warnings,
          when 1      => GPR2.Reporter.Regular,
          when 2      => GPR2.Reporter.Verbose,
@@ -88,7 +88,7 @@ package body Lkql_Checker.Projects is
    overriding
    function User_Verbosity
      (Self : Lkql_Checker_Reporter) return GPR2.Reporter.User_Verbosity_Level
-   is (case Arg.Project_Verbosity.Get is
+   is (case Tool_Args.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.Important_Only,
          when 1      => GPR2.Reporter.Regular,
          when 2      => GPR2.Reporter.Verbose,
@@ -148,7 +148,7 @@ package body Lkql_Checker.Projects is
 
    procedure Load_Aggregated_Project
      (My_Project : in out Arg_Project_Type'Class)
-   with Pre => Arg.Aggregated_Project;
+   with Pre => Tool_Args.Aggregated_Project;
    --  Loads My_Project (that is supposed to be an aggregate project), then
    --  unloads it and loads in the same environment the project passes as a
    --  parameter of '-A option' (which is supposed to be a (non-aggregate)
@@ -163,7 +163,7 @@ package body Lkql_Checker.Projects is
       Gprbuild : constant String := Global_Report_Dir.all & "gprbuild.err";
 
    begin
-      if not Arg.Debug_Mode.Get then
+      if not Tool_Args.Debug_Mode.Get then
          Delete_File (Gprbuild, Success);
          Delete_File (Gprbuild & ".out", Success);
       end if;
@@ -327,13 +327,14 @@ package body Lkql_Checker.Projects is
         My_Project.Tree.Namespace_Root_Projects.First_Element;
 
    begin
-      if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
-        or else Arg.Source_Files_Specified
+      if (Argument_File_Specified
+          and then not Tool_Args.Transitive_Closure.Get)
+        or else Tool_Args.Source_Files_Specified
       then
          return;
       end if;
 
-      if Arg.Transitive_Closure.Get then
+      if Tool_Args.Transitive_Closure.Get then
          if Main_Unit.Is_Empty then
             --  No argument sources, -U specified. Process recursively
             --  all sources.
@@ -347,11 +348,11 @@ package body Lkql_Checker.Projects is
             My_Project.Tree.For_Each_Ada_Closure
               (Action            => Store_Source'Access,
                Mains             => Main_Unit,
-               Root_Project_Only => Arg.No_Subprojects.Get,
+               Root_Project_Only => Tool_Args.No_Subprojects.Get,
                Externally_Built  => False);
          end if;
       else
-         if not Arg.No_Subprojects.Get then
+         if not Tool_Args.No_Subprojects.Get then
             if Root.Has_Mains and then Only_Ada_Mains (Root) then
                --  No argument sources, no -U/--no-subprojects specified,
                --  root project has mains, all of mains are Ada.
@@ -441,7 +442,7 @@ package body Lkql_Checker.Projects is
       --  Amend the project options to load the aggregated project
       My_Project.Options.Add_Switch
         (GPR2.Options.P,
-         To_String (Arg.Aggregate_Subproject.Get),
+         To_String (Tool_Args.Aggregate_Subproject.Get),
          Override => True);
 
       for C in Agg_Context.Iterate loop
@@ -464,7 +465,7 @@ package body Lkql_Checker.Projects is
 
          Error
            (""""
-            & To_String (Arg.Aggregate_Subproject.Get)
+            & To_String (Tool_Args.Aggregate_Subproject.Get)
             & """ processing failed");
 
          raise Parameter_Error;
@@ -564,16 +565,16 @@ package body Lkql_Checker.Projects is
    is
    begin
       --  Store options parsed by the GPR2 provided parser
-      My_Project.Options := Arg.GPR_Args.Parsed_GPR2_Options;
+      My_Project.Options := Tool_Args.GPR_Args.Parsed_GPR2_Options;
 
       Set_External_Values (My_Project);
 
-      if Arg.Aggregated_Project then
+      if Tool_Args.Aggregated_Project then
          Load_Aggregated_Project (My_Project);
       else
          Load_Tool_Project (My_Project);
-      end if;
 
+      end if;
       if Aggregate.Num_Of_Aggregated_Projects > 1 then
          if not Main_Unit.Is_Empty then
             Error
@@ -606,13 +607,13 @@ package body Lkql_Checker.Projects is
       pragma Unreferenced (Aggregate_Prj);
    begin
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report ("");
          Report ("Processing aggregated project " & Aggregated_Prj_Name);
          Report ("Expected report file: " & Expected_Text_Out_File);
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("<aggregated-project>", Indent_Level => 2);
 
          XML_Report
@@ -768,7 +769,7 @@ package body Lkql_Checker.Projects is
 
       Dir : constant String :=
         String
-          (if not Arg.No_Object_Dir.Get and then Checker_Prj.Is_Specified
+          (if not Tool_Args.No_Object_Dir.Get and then Checker_Prj.Is_Specified
            then
              (if My_Project.Tree.Root_Project.Kind
                  not in GPR2.With_Object_Dir_Kind
@@ -889,7 +890,7 @@ package body Lkql_Checker.Projects is
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type) is
    begin
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("<?xml version=""1.0""?>");
          XML_Report_No_EOL ("<gnatcheck-report");
 
@@ -902,13 +903,13 @@ package body Lkql_Checker.Projects is
 
       Lkql_Checker.Diagnoses.Print_Report_Header;
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report ("");
          Report ("Argument project is an aggregate project");
          Report ("Aggregated projects are processed separately");
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("<aggregated-project-reports>", Indent_Level => 1);
       end if;
    end Aggregate_Project_Report_Header;
@@ -919,7 +920,7 @@ package body Lkql_Checker.Projects is
 
    procedure Close_Aggregate_Project_Report (My_Project : Arg_Project_Type) is
    begin
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("</aggregated-project-reports>", Indent_Level => 1);
          XML_Report ("</gnatcheck-report>");
       end if;
@@ -934,7 +935,7 @@ package body Lkql_Checker.Projects is
    is
       pragma Unreferenced (Aggregate_Prj);
    begin
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report
            ("Exit code is"
             & Exit_Code'Img
@@ -948,7 +949,7 @@ package body Lkql_Checker.Projects is
             & ")");
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report
            ("<exit-code>" & Image (Exit_Code) & "</exit-code>",
             Indent_Level => 3);
@@ -963,7 +964,7 @@ package body Lkql_Checker.Projects is
 
    procedure Check_Parameters is
    begin
-      if Arg.Verbose.Get and then not Arg.Aggregated_Project then
+      if Tool_Args.Verbose.Get and then not Tool_Args.Aggregated_Project then
          --  When processing aggregated projects one by one, we want
          --  Verbose_Mode to print this only in the outer invocation.
          Print_Version_Info;
@@ -971,11 +972,13 @@ package body Lkql_Checker.Projects is
 
       --  We generate the rule help unconditionally
 
-      if Arg.List_Rules.Get and then not Arg.Aggregated_Project then
+      if Tool_Args.List_Rules.Get and then not Tool_Args.Aggregated_Project
+      then
          Rules_Help;
       end if;
 
-      if Arg.List_Rules_XML.Get and then not Arg.Aggregated_Project then
+      if Tool_Args.List_Rules_XML.Get and then not Tool_Args.Aggregated_Project
+      then
          XML_Help;
       end if;
 
@@ -990,7 +993,7 @@ package body Lkql_Checker.Projects is
       --  No need to perform similar checks for custom XML file because it can
       --  be set only with turning ON XML output
 
-      if Arg.List_Rules.Get or else Arg.List_Rules_XML.Get then
+      if Tool_Args.List_Rules.Get or else Tool_Args.List_Rules_XML.Get then
          Nothing_To_Do := True;
          return;
       end if;
@@ -1015,13 +1018,13 @@ package body Lkql_Checker.Projects is
         Use_gnaty_Option
         or Use_gnatw_Option
         or Check_Restrictions
-        or Arg.Check_Semantic.Get;
+        or Tool_Args.Check_Semantic.Get;
 
       --  If GNATcheck is in KP mode and there is a command line specified KP
       --  version, we have to iterate over all implemented rules to enable
       --  those which match the version.
       if Mode = Gnatkp_Mode
-        and then Arg.KP_Version.Get /= Null_Unbounded_String
+        and then Tool_Args.KP_Version.Get /= Null_Unbounded_String
       then
          for Rule_Cursor in All_Rules.Iterate loop
             declare
@@ -1031,19 +1034,20 @@ package body Lkql_Checker.Projects is
             begin
                if Rule.Impact /= null
                  and then
-                   Match (To_String (Arg.KP_Version.Get), Rule.Impact.all)
+                   Match
+                     (To_String (Tool_Args.KP_Version.Get), Rule.Impact.all)
                then
                   if Rule.Target /= null
                     and then Checker_Prj.Target /= ""
                     and then not Match (Checker_Prj.Target, Rule.Target.all)
                   then
-                     if not Arg.Quiet_Mode then
+                     if not Tool_Args.Quiet_Mode then
                         Info
                           (Ada.Strings.Unbounded.To_String (Rule.Name)
                            & " disabled, target does not match");
                      end if;
                   else
-                     if not Arg.Quiet_Mode then
+                     if not Tool_Args.Quiet_Mode then
                         Info
                           (Ada.Strings.Unbounded.To_String (Rule.Name)
                            & " enabled");
@@ -1063,7 +1067,7 @@ package body Lkql_Checker.Projects is
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
          if Mode = Gnatkp_Mode
-           and then Arg.KP_Version.Get /= Null_Unbounded_String
+           and then Tool_Args.KP_Version.Get /= Null_Unbounded_String
          then
             Error ("no rule for the given kp-version");
             No_Detectors_For_KP_Version := True;

@@ -541,9 +541,9 @@ package body Lkql_Checker.Diagnoses is
 
    function Auxiliary_List_File_Name (S : String) return String is
       Prj_Out_File   : constant String :=
-        (if Arg.Text_Report_Enabled
-         then Base_Name (Arg.Text_Report_File_Path)
-         else Base_Name (Arg.XML_Report_File_Path));
+        (if Tool_Args.Text_Report_Enabled
+         then Base_Name (Tool_Args.Text_Report_File_Path)
+         else Base_Name (Tool_Args.XML_Report_File_Path));
       Prj_Out_First  : constant Natural := Prj_Out_File'First;
       Prj_Out_Last   : constant Natural := Prj_Out_File'Last;
       Prj_Out_Dot    : Natural := Index (Prj_Out_File, ".", Backward);
@@ -562,7 +562,7 @@ package body Lkql_Checker.Diagnoses is
          Prj_Out_Dot := Prj_Out_Dot - 1;
       end if;
 
-      if Arg.Aggregated_Project then
+      if Tool_Args.Aggregated_Project then
          --  in case of aggregated project we have to move the index in the
          --  Prj_Out_File after S. That is, we do not need
          --  gnatcheck_1-source-list.out, we need gnatcheck-source-list_1.out
@@ -741,11 +741,11 @@ package body Lkql_Checker.Diagnoses is
 
          Get_Line (File => User_File, Item => Line_Buf, Last => Line_Len);
 
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report (Line_Buf (1 .. Line_Len));
          end if;
 
-         if Arg.XML_Report_Enabled then
+         if Tool_Args.XML_Report_Enabled then
             XML_Report (Line_Buf (1 .. Line_Len), 1);
          end if;
       end loop;
@@ -834,15 +834,15 @@ package body Lkql_Checker.Diagnoses is
       Process_Postponed_Exemptions;
       Compute_Statistics;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("<?xml version=""1.0""?>");
          XML_Report_No_EOL ("<gnatcheck-report");
 
          if Checker_Prj.Is_Specified then
             XML_Report
               (" project="""
-               & (if Arg.Aggregated_Project
-                  then To_String (Arg.Aggregate_Subproject.Get)
+               & (if Tool_Args.Aggregated_Project
+                  then To_String (Tool_Args.Aggregate_Subproject.Get)
                   else Checker_Prj.Source_Prj)
                & """>");
          else
@@ -852,27 +852,27 @@ package body Lkql_Checker.Diagnoses is
 
       --  OVERVIEW
 
-      if not Arg.Short_Report then
+      if not Tool_Args.Short_Report then
          Print_Report_Header;
          Print_Active_Rules_File;
          Print_File_List_File;
          Print_Ignored_File_List_File;
          Print_Argument_Files_Summary;
 
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report_EOL;
          end if;
 
          Print_Violation_Summary;
 
          --  2. DETECTED EXEMPTED RULE VIOLATIONS
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report_EOL;
             Report ("2. Exempted Coding Standard Violations");
             Report_EOL;
          end if;
 
-         if Arg.XML_Report_Enabled then
+         if Tool_Args.XML_Report_Enabled then
             XML_Report ("<violations>");
          end if;
       end if;
@@ -887,17 +887,18 @@ package body Lkql_Checker.Diagnoses is
          Print_Diagnoses;
 
       else
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report ("no exempted violations detected", 1);
          end if;
 
-         if not Arg.Short_Report and then Arg.XML_Report_Enabled then
+         if not Tool_Args.Short_Report and then Tool_Args.XML_Report_Enabled
+         then
             XML_Report ("no exempted violations detected", 1);
          end if;
       end if;
 
-      if not Arg.Short_Report then
-         if Arg.Text_Report_Enabled then
+      if not Tool_Args.Short_Report then
+         if Tool_Args.Text_Report_Enabled then
             Report_EOL;
             Report ("3. Non-exempted Coding Standard Violations");
             Report_EOL;
@@ -914,17 +915,18 @@ package body Lkql_Checker.Diagnoses is
          Print_Diagnoses;
 
       else
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report ("no non-exempted violations detected", 1);
          end if;
 
-         if not Arg.Short_Report and then Arg.XML_Report_Enabled then
+         if not Tool_Args.Short_Report and then Tool_Args.XML_Report_Enabled
+         then
             XML_Report ("no non-exempted violations detected", 1);
          end if;
       end if;
 
-      if not Arg.Short_Report then
-         if Arg.Text_Report_Enabled then
+      if not Tool_Args.Short_Report then
+         if Tool_Args.Text_Report_Enabled then
             Report_EOL;
             Report ("4. Rule exemption problems");
             Report_EOL;
@@ -940,18 +942,19 @@ package body Lkql_Checker.Diagnoses is
          Print_Diagnoses;
 
       else
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report ("no rule exemption problems detected", 1);
          end if;
 
-         if not Arg.Short_Report and then Arg.XML_Report_Enabled then
+         if not Tool_Args.Short_Report and then Tool_Args.XML_Report_Enabled
+         then
             XML_Report ("no rule exemption problems detected", 1);
          end if;
 
       end if;
 
-      if not Arg.Short_Report then
-         if Arg.Text_Report_Enabled then
+      if not Tool_Args.Short_Report then
+         if Tool_Args.Text_Report_Enabled then
             Report_EOL;
             Report ("5. Language violations");
             Report_EOL;
@@ -967,17 +970,18 @@ package body Lkql_Checker.Diagnoses is
          Print_Diagnoses;
 
       else
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report ("no language violations detected", 1);
          end if;
 
-         if not Arg.Short_Report and then Arg.XML_Report_Enabled then
+         if not Tool_Args.Short_Report and then Tool_Args.XML_Report_Enabled
+         then
             XML_Report ("no language violations detected", 1);
          end if;
       end if;
 
-      if not Arg.Short_Report then
-         if Arg.Text_Report_Enabled then
+      if not Tool_Args.Short_Report then
+         if Tool_Args.Text_Report_Enabled then
             Report_EOL;
             Report ("6. Gnatcheck internal errors");
             Report_EOL;
@@ -993,55 +997,56 @@ package body Lkql_Checker.Diagnoses is
          Print_Diagnoses;
 
       else
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report ("no internal error detected", 1);
          end if;
 
-         if not Arg.Short_Report and then Arg.XML_Report_Enabled then
+         if not Tool_Args.Short_Report and then Tool_Args.XML_Report_Enabled
+         then
             XML_Report ("no internal error detected", 1);
          end if;
       end if;
 
       --  User-defined part
 
-      if not Arg.Short_Report then
-         if Arg.XML_Report_Enabled then
+      if not Tool_Args.Short_Report then
+         if Tool_Args.XML_Report_Enabled then
             XML_Report ("</violations>");
          end if;
 
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report_EOL;
          end if;
 
          if User_Info_File /= null then
-            if Arg.Text_Report_Enabled then
+            if Tool_Args.Text_Report_Enabled then
                Report ("7. Additional Information");
                Report_EOL;
             end if;
 
-            if Arg.XML_Report_Enabled then
+            if Tool_Args.XML_Report_Enabled then
                XML_Report ("<additional-information>");
             end if;
 
             Copy_User_Info;
 
-            if Arg.Text_Report_Enabled then
+            if Tool_Args.Text_Report_Enabled then
                Report_EOL;
             end if;
 
-            if Arg.XML_Report_Enabled then
+            if Tool_Args.XML_Report_Enabled then
                XML_Report ("</additional-information>");
             end if;
          end if;
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("</gnatcheck-report>");
       end if;
 
       --  Sending the diagnoses into Stderr
 
-      if Arg.Brief_Mode or not Arg.Quiet_Mode then
+      if Tool_Args.Brief_Mode or not Tool_Args.Quiet_Mode then
          Print_Out_Diagnoses;
       end if;
    end Generate_Qualification_Report;
@@ -1281,11 +1286,11 @@ package body Lkql_Checker.Diagnoses is
    procedure Print_Active_Rules_File is
       Rule_List_File : Ada.Text_IO.File_Type;
    begin
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report_No_EOL ("coding standard   : ");
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report_No_EOL
            ("<coding-standard from-file=""", Indent_Level => 1);
       end if;
@@ -1293,11 +1298,11 @@ package body Lkql_Checker.Diagnoses is
       if not Individual_Rules_Set
         and then Legacy_Rule_File_Name /= Null_Unbounded_String
       then
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report (To_String (Legacy_Rule_File_Name));
          end if;
 
-         if Arg.XML_Report_Enabled then
+         if Tool_Args.XML_Report_Enabled then
             XML_Report (To_String (Legacy_Rule_File_Name) & """>");
          end if;
       else
@@ -1305,11 +1310,13 @@ package body Lkql_Checker.Diagnoses is
 
          declare
             Full_Rule_List_File_Name : constant String :=
-              (if Arg.Text_Report_File_Path /= ""
+              (if Tool_Args.Text_Report_File_Path /= ""
                then
-                 GNAT.Directory_Operations.Dir_Name (Arg.Text_Report_File_Path)
+                 GNAT.Directory_Operations.Dir_Name
+                   (Tool_Args.Text_Report_File_Path)
                else
-                 GNAT.Directory_Operations.Dir_Name (Arg.XML_Report_File_Path))
+                 GNAT.Directory_Operations.Dir_Name
+                   (Tool_Args.XML_Report_File_Path))
               & Auxiliary_List_File_Name (Rule_List_File_Name_Str);
 
          begin
@@ -1349,18 +1356,18 @@ package body Lkql_Checker.Diagnoses is
 
             Close (Rule_List_File);
 
-            if Arg.Text_Report_Enabled then
+            if Tool_Args.Text_Report_Enabled then
                Report (Auxiliary_List_File_Name (Rule_List_File_Name_Str));
             end if;
 
-            if Arg.XML_Report_Enabled then
+            if Tool_Args.XML_Report_Enabled then
                XML_Report
                  (Auxiliary_List_File_Name (Rule_List_File_Name_Str) & """>");
             end if;
          end;
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          for Cursor in All_Rule_Instances.Iterate loop
             XML_Print_Rule_Instance (All_Rule_Instances (Cursor).all, 2);
          end loop;
@@ -1396,7 +1403,7 @@ package body Lkql_Checker.Diagnoses is
    procedure Print_Argument_Files_Summary is
    begin
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report ("1. Summary");
          Report_EOL;
 
@@ -1424,7 +1431,7 @@ package body Lkql_Checker.Diagnoses is
             1);
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("<summary>");
 
          XML_Report
@@ -1501,7 +1508,7 @@ package body Lkql_Checker.Diagnoses is
                return;
             end if;
 
-            if Arg.Text_Report_Enabled then
+            if Tool_Args.Text_Report_Enabled then
                Report (Strip_Tag (Image (Diag)));
 
                if Diag.Justification /= Null_Unbounded_String then
@@ -1509,8 +1516,8 @@ package body Lkql_Checker.Diagnoses is
                end if;
             end if;
 
-            if Arg.XML_Report_Enabled then
-               XML_Report_Diagnosis (Diag, Arg.Short_Report);
+            if Tool_Args.XML_Report_Enabled then
+               XML_Report_Diagnosis (Diag, Tool_Args.Short_Report);
             end if;
          end if;
       end Print_Specified_Diagnoses;
@@ -1526,11 +1533,11 @@ package body Lkql_Checker.Diagnoses is
    procedure Print_File_List_File is
       Source_List_File : Ada.Text_IO.File_Type;
    begin
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report_No_EOL ("list of sources   : ");
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report_No_EOL ("<sources from-file=""", Indent_Level => 1);
       end if;
 
@@ -1538,13 +1545,17 @@ package body Lkql_Checker.Diagnoses is
 
       declare
          Full_Source_List_File_Name : constant String :=
-           (if Arg.Text_Report_File_Path /= ""
-            then GNAT.Directory_Operations.Dir_Name (Arg.Text_Report_File_Path)
-            else GNAT.Directory_Operations.Dir_Name (Arg.XML_Report_File_Path))
+           (if Tool_Args.Text_Report_File_Path /= ""
+            then
+              GNAT.Directory_Operations.Dir_Name
+                (Tool_Args.Text_Report_File_Path)
+            else
+              GNAT.Directory_Operations.Dir_Name
+                (Tool_Args.XML_Report_File_Path))
            & Auxiliary_List_File_Name (Source_List_File_Name_Str);
 
       begin
-         if Arg.XML_Report_Enabled then
+         if Tool_Args.XML_Report_Enabled then
             XML_Report
               (Auxiliary_List_File_Name (Source_List_File_Name_Str) & """>");
          end if;
@@ -1563,18 +1574,19 @@ package body Lkql_Checker.Diagnoses is
 
          Close (Source_List_File);
 
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report (Auxiliary_List_File_Name (Source_List_File_Name_Str));
          end if;
       end;
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report_EOL;
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          for SF in First_SF_Id .. Last_Argument_Source loop
-            if Arg.XML_Report_Enabled and then Source_Info (SF) /= Ignore_Unit
+            if Tool_Args.XML_Report_Enabled
+              and then Source_Info (SF) /= Ignore_Unit
             then
                XML_Report
                  ("<source>" & Source_Name (SF) & "</source>",
@@ -1620,24 +1632,28 @@ package body Lkql_Checker.Diagnoses is
          return;
       end if;
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report_No_EOL ("list of ignored sources   : ");
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report_No_EOL
            ("<ignored-sources from-file=""", Indent_Level => 1);
       end if;
 
       declare
          Full_Ignored_Source_List_File_Name : constant String :=
-           (if Arg.Text_Report_File_Path /= ""
-            then GNAT.Directory_Operations.Dir_Name (Arg.Text_Report_File_Path)
-            else GNAT.Directory_Operations.Dir_Name (Arg.XML_Report_File_Path))
+           (if Tool_Args.Text_Report_File_Path /= ""
+            then
+              GNAT.Directory_Operations.Dir_Name
+                (Tool_Args.Text_Report_File_Path)
+            else
+              GNAT.Directory_Operations.Dir_Name
+                (Tool_Args.XML_Report_File_Path))
            & Auxiliary_List_File_Name (Ignored_Source_List_File_Name_Str);
 
       begin
-         if Arg.XML_Report_Enabled then
+         if Tool_Args.XML_Report_Enabled then
             XML_Report
               (Auxiliary_List_File_Name (Ignored_Source_List_File_Name_Str)
                & """>");
@@ -1664,19 +1680,20 @@ package body Lkql_Checker.Diagnoses is
 
          Close (Ignored_Source_List_File);
 
-         if Arg.Text_Report_Enabled then
+         if Tool_Args.Text_Report_Enabled then
             Report
               (Auxiliary_List_File_Name (Ignored_Source_List_File_Name_Str));
          end if;
       end;
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report_EOL;
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          for SF in First_SF_Id .. Last_Argument_Source loop
-            if Arg.XML_Report_Enabled and then Source_Info (SF) = Ignore_Unit
+            if Tool_Args.XML_Report_Enabled
+              and then Source_Info (SF) = Ignore_Unit
             then
                XML_Report
                  ("<source>" & Source_Name (SF) & "</source>",
@@ -1694,7 +1711,7 @@ package body Lkql_Checker.Diagnoses is
 
    procedure Print_Out_Diagnoses is
       Max_Diagnoses      : constant Natural :=
-        (if Mode = Gnatkp_Mode then 0 else Arg.Max_Diagnoses.Get);
+        (if Mode = Gnatkp_Mode then 0 else Tool_Args.Max_Diagnoses.Get);
       Diagnoses_Reported : Natural := 0;
       Limit_Exceeded     : Boolean := False;
 
@@ -1766,7 +1783,7 @@ package body Lkql_Checker.Diagnoses is
       Hour_Of_Check := Sec_Of_Day / Seconds_In_Hour;
       Minute_Of_Check := (Sec_Of_Day rem Seconds_In_Hour) / 60;
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report ("GNATCheck report");
          Report_EOL;
 
@@ -1806,7 +1823,7 @@ package body Lkql_Checker.Diagnoses is
          Print_Runtime;
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report_No_EOL
            ("<date>" & Trim (Year (Time_Of_Check)'Img, Left) & '-',
             Indent_Level => 1);
@@ -1860,7 +1877,7 @@ package body Lkql_Checker.Diagnoses is
 
    procedure Print_Violation_Summary is
    begin
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report
            ("non-exempted violations               :"
             & Detected_Non_Exempted_Violations'Img,
@@ -1883,7 +1900,7 @@ package body Lkql_Checker.Diagnoses is
             1);
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report
            ("<non-exempted-violations>"
             & Image (Detected_Non_Exempted_Violations)
@@ -2875,7 +2892,7 @@ package body Lkql_Checker.Diagnoses is
       use Ada.Directories;
       File_Name : constant Unbounded_String :=
         To_Unbounded_String
-          (if Arg.Full_Source_Locations.Get
+          (if Tool_Args.Full_Source_Locations.Get
            then Full_File_Name
            else Simple_Name (Full_File_Name));
       Tmp       : Diag_Message :=

@@ -173,7 +173,7 @@ package Lkql_Checker.Options is
 
    function Is_New_Section (Arg : XString) return Boolean;
 
-   package Arg is
+   package Tool_Args is
       Parser : Argument_Parser :=
         Create_Argument_Parser
           (Help                 => "GNATcheck help",
@@ -612,7 +612,7 @@ package Lkql_Checker.Options is
       function XML_Report_File_Path return String
       is (Resolve_Report_File
             (XML_Output.Get, Lkql_Checker_Mode_Image & ".xml"));
-   end Arg;
+   end Tool_Args;
 
    -----------------------
    -- Option processing --
@@ -648,7 +648,7 @@ package Lkql_Checker.Options is
    --  Process all the rule options found as part of scanning arguments.
 
    procedure Process_Legacy_Rule_Options
-     (Args : Arg.Legacy_Rules_Section.Result_Array);
+     (Args : Tool_Args.Legacy_Rules_Section.Result_Array);
    --  Process the options provided in ``Args`` as legacy rule options.
 
    procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False);

@@ -1026,7 +1026,7 @@ package body Lkql_Checker.Rules.Rule_Table is
          end if;
 
          --  Delete the temporary JSON files if not it debug mode
-         if not Arg.Debug_Mode.Get then
+         if not Tool_Args.Debug_Mode.Get then
             Delete_File (JSON_Config_File_Name, Success);
          end if;
       end if;
@@ -1355,7 +1355,7 @@ package body Lkql_Checker.Rules.Rule_Table is
       pragma Unreferenced (Instance_Id);
 
       Output_Rule_File   : constant String :=
-        (if Arg.Full_Source_Locations.Get
+        (if Tool_Args.Full_Source_Locations.Get
          then LKQL_Rule_File_Name
          else Base_Name (LKQL_Rule_File_Name))
         & ":1:1";
@@ -1593,11 +1593,11 @@ package body Lkql_Checker.Rules.Rule_Table is
       if Mode = Gnatkp_Mode then
          Print ("gnatkp currently implements the following detectors:");
 
-         if Arg.KP_Version.Get /= Null_Unbounded_String then
+         if Tool_Args.KP_Version.Get /= Null_Unbounded_String then
             for Rule in All_Rules.Iterate loop
                if All_Rules (Rule).Impact = null
                  or else (Match
-                            (To_String (Arg.KP_Version.Get),
+                            (To_String (Tool_Args.KP_Version.Get),
                              All_Rules (Rule).Impact.all)
                           and then (All_Rules (Rule).Target = null
                                     or else Checker_Prj.Target = ""
@@ -1895,7 +1895,7 @@ package body Lkql_Checker.Rules.Rule_Table is
 
    procedure Turn_All_Rules_On is
    begin
-      if Arg.Emit_LKQL_Rule_File.Get then
+      if Tool_Args.Emit_LKQL_Rule_File.Get then
          Error
            ("cannot turn on all rules when --emit-lkql-rule-file"
             & " option is enabled");
@@ -1932,7 +1932,7 @@ package body Lkql_Checker.Rules.Rule_Table is
    begin
       All_Rules_Vec :=
         Rules_Factory.All_Rules
-          (Lkql_Context, Path_Array (Arg.Rules_Dirs.Get));
+          (Lkql_Context, Path_Array (Tool_Args.Rules_Dirs.Get));
 
       for R of All_Rules_Vec loop
          declare

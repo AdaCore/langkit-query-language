@@ -229,7 +229,7 @@ package body Lkql_Checker is
       File          : Ada.Text_IO.File_Type;
       Status        : Boolean;
       Total_Jobs    : Natural;
-      Process_Num   : Natural := Arg.Jobs.Get;
+      Process_Num   : Natural := Tool_Args.Jobs.Get;
       GPRbuild_Pid  : Process_Id := Invalid_Pid;
    begin
       --  Compute number of files
@@ -267,7 +267,8 @@ package body Lkql_Checker is
 
       Total_Jobs := Num_Jobs + (if Analyze_Compiler_Output then 1 else 0);
 
-      if not Arg.Quiet_Mode and not Arg.Progress_Indicator_Mode.Get then
+      if not Tool_Args.Quiet_Mode and not Tool_Args.Progress_Indicator_Mode.Get
+      then
          Print
            ("Jobs remaining:" & Integer'Image (Total_Jobs) & ASCII.CR,
             New_Line    => False,
@@ -311,7 +312,7 @@ package body Lkql_Checker is
 
                Current := @ + 1;
 
-               if Arg.Progress_Indicator_Mode.Get then
+               if Tool_Args.Progress_Indicator_Mode.Get then
                   declare
                      Percent : String :=
                        Integer'Image ((Current * 100) / Total_Jobs);
@@ -327,7 +328,7 @@ package body Lkql_Checker is
                         & "%)...",
                         Log_Message => False);
                   end;
-               elsif not Arg.Quiet_Mode then
+               elsif not Tool_Args.Quiet_Mode then
                   Print
                     (Message     =>
                        "Jobs remaining:"
@@ -349,7 +350,7 @@ package body Lkql_Checker is
                         Analyze_Output (File_Name ("out", Job), Status);
                         Process_Found := True;
 
-                        if not Arg.Debug_Mode.Get then
+                        if not Tool_Args.Debug_Mode.Get then
                            Delete_File (File_Name ("out", Job), Status);
                            Delete_File (File_Name ("files", Job), Status);
                         end if;
@@ -425,7 +426,7 @@ package body Lkql_Checker is
             Wait_Lkql_Checker;
          end loop;
 
-         if not Arg.Debug_Mode.Get then
+         if not Tool_Args.Debug_Mode.Get then
             Delete_File (File_Name ("rules", 0), Status);
          end if;
       end;
@@ -445,11 +446,11 @@ package body Lkql_Checker is
 
       Scan_Arguments (First_Pass => True);
 
-      if Arg.Version.Get then
+      if Tool_Args.Version.Get then
          Print_Version_Info;
          OS_Exit (E_Success);
 
-      elsif Arg.Help.Get then
+      elsif Tool_Args.Help.Get then
          Print_Usage;
          OS_Exit (E_Success);
       end if;
@@ -467,7 +468,7 @@ package body Lkql_Checker is
       --  Analyze relevant project properties if needed
       if Checker_Prj.Is_Specified
         and then not In_Aggregate_Project
-        and then not Arg.Ignore_Project_Switches
+        and then not Tool_Args.Ignore_Project_Switches
       then
          Extract_Tool_Options (Checker_Prj);
       end if;
@@ -475,21 +476,21 @@ package body Lkql_Checker is
       --  Add the command-line rules to the rule options. Do this before the
       --  second argument parsing to avoid duplicate rule names coming from the
       --  command-line.
-      for Rule of Arg.Rules.Get loop
+      for Rule of Tool_Args.Rules.Get loop
          Add_Rule_By_Name (To_String (Rule), Prepend => True);
       end loop;
 
       --  Add the command-line LKQL_PATH elements to the vector of additional
       --  searching paths.
-      for Working_Dir_Path of Arg.Lkql_Path.Get loop
+      for Working_Dir_Path of Tool_Args.Lkql_Path.Get loop
          Additional_Lkql_Paths.Append
            (Normalize_Pathname (To_String (Working_Dir_Path)));
       end loop;
 
       --  Store legacy rule options before re-parsing the command-line
-      if Arg.Has_Legacy_Rule_Options then
+      if Tool_Args.Has_Legacy_Rule_Options then
          --  Process the legacy rule options section
-         Process_Legacy_Rule_Options (Arg.Legacy_Rules_Section.Get);
+         Process_Legacy_Rule_Options (Tool_Args.Legacy_Rules_Section.Get);
 
          --  Emit the depreciation message
          Info_In_Tty
@@ -504,31 +505,31 @@ package body Lkql_Checker is
       Scan_Arguments;
 
       --  Process the source list file if there is one
-      if Arg.Source_Files.Get /= Null_Unbounded_String then
-         Read_Args_From_File (To_String (Arg.Source_Files.Get));
+      if Tool_Args.Source_Files.Get /= Null_Unbounded_String then
+         Read_Args_From_File (To_String (Tool_Args.Source_Files.Get));
       end if;
 
       --  Process the include file
-      if Arg.Include_File.Get /= Null_Unbounded_String then
+      if Tool_Args.Include_File.Get /= Null_Unbounded_String then
          Lkql_Checker.Diagnoses.Process_User_Filename
-           (To_String (Arg.Include_File.Get));
+           (To_String (Tool_Args.Include_File.Get));
       end if;
 
       --  Set up ignore list
-      if Arg.Ignore_Files.Get /= Null_Unbounded_String then
-         if Is_Regular_File (To_String (Arg.Ignore_Files.Get)) then
+      if Tool_Args.Ignore_Files.Get /= Null_Unbounded_String then
+         if Is_Regular_File (To_String (Tool_Args.Ignore_Files.Get)) then
             Exempted_Units :=
               new String'
-                (Normalize_Pathname (To_String (Arg.Ignore_Files.Get)));
+                (Normalize_Pathname (To_String (Tool_Args.Ignore_Files.Get)));
          else
-            Error (To_String (Arg.Ignore_Files.Get) & " not found");
+            Error (To_String (Tool_Args.Ignore_Files.Get) & " not found");
             raise Parameter_Error;
          end if;
       end if;
 
       --  Add the command-line LKQL rule file to the rule options
-      if Arg.Rule_File.Get /= Null_Unbounded_String then
-         Set_LKQL_Rule_File (To_String (Arg.Rule_File.Get), False);
+      if Tool_Args.Rule_File.Get /= Null_Unbounded_String then
+         Set_LKQL_Rule_File (To_String (Tool_Args.Rule_File.Get), False);
       end if;
 
       --  Get the default LKQL rule file if none has been specified
@@ -562,7 +563,7 @@ package body Lkql_Checker is
       end if;
 
       --  Open the log file if required
-      if Arg.Log.Get then
+      if Tool_Args.Log.Get then
          Open_Log_File;
       end if;
 
@@ -574,7 +575,7 @@ package body Lkql_Checker is
 
       --  If required, export the current rule configuration to the
       --  'rules.lkql' file.
-      if Arg.Emit_LKQL_Rule_File.Get then
+      if Tool_Args.Emit_LKQL_Rule_File.Get then
          --  Ensure that the 'rules.lkql' file doesn't exists
          if Is_Regular_File (Default_LKQL_Rule_Options_File) then
             Error
@@ -629,7 +630,7 @@ package body Lkql_Checker is
 
       Lkql_Checker.Projects.Clean_Up (Lkql_Checker.Options.Checker_Prj);
 
-      if Arg.Time.Get then
+      if Tool_Args.Time.Get then
          Print
            ("Execution time:"
             & Duration'Image (Ada.Calendar.Clock - Time_Start));
@@ -638,7 +639,7 @@ package body Lkql_Checker is
       Lkql_Checker.Rules.Rule_Table.Clean_Up;
 
       --  Close the log file if required
-      if Arg.Log.Get then
+      if Tool_Args.Log.Get then
          Close_Log_File;
       end if;
 
@@ -662,7 +663,7 @@ package body Lkql_Checker is
 
          elsif (Detected_Non_Exempted_Violations > 0
                 or else Detected_Compiler_Error > 0)
-           and then not Arg.Brief_Mode
+           and then not Tool_Args.Brief_Mode
          then E_Violation
          else E_Success);
 

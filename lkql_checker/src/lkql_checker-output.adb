@@ -102,13 +102,15 @@ package body Lkql_Checker.Output is
 
    procedure Close_Report_Files is
    begin
-      pragma Assert (Arg.Text_Report_Enabled or else Arg.XML_Report_Enabled);
+      pragma
+        Assert
+          (Tool_Args.Text_Report_Enabled or else Tool_Args.XML_Report_Enabled);
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Close_Report_File;
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          Close_XML_Report_File;
       end if;
    end Close_Report_Files;
@@ -142,7 +144,8 @@ package body Lkql_Checker.Output is
       end if;
 
       --  If required, log the message
-      if Log_Message and then Arg.Log.Get and then Is_Open (Log_File) then
+      if Log_Message and then Tool_Args.Log.Get and then Is_Open (Log_File)
+      then
          Put (Log_File, Final_Message);
          if New_Line then
             Ada.Text_IO.New_Line (Log_File);
@@ -180,13 +183,13 @@ package body Lkql_Checker.Output is
 
    function Get_Number return String is
       Report_File_Name : constant String :=
-        (if Arg.Text_Report_Enabled
-         then Arg.Text_Report_File_Path
-         else Arg.XML_Report_File_Path);
+        (if Tool_Args.Text_Report_Enabled
+         then Tool_Args.Text_Report_File_Path
+         else Tool_Args.XML_Report_File_Path);
 
       Idx_1, Idx_2 : Natural;
    begin
-      if not Arg.Aggregated_Project then
+      if not Tool_Args.Aggregated_Project then
          return "";
       end if;
 
@@ -333,7 +336,7 @@ package body Lkql_Checker.Output is
    procedure Report_Unhandled_Exception (Ex : Exception_Occurrence) is
    begin
       Error (Exception_Message (Ex));
-      if Arg.Debug_Mode.Get then
+      if Tool_Args.Debug_Mode.Get then
          Print (GNAT.Traceback.Symbolic.Symbolic_Traceback_No_Hex (Ex));
       end if;
    end Report_Unhandled_Exception;
@@ -344,7 +347,7 @@ package body Lkql_Checker.Output is
 
    procedure Report_Missing_File (From_File, Missing_File : String) is
       function Format_Filename (F : String) return String
-      is (if Arg.Full_Source_Locations.Get then F else Base_Name (F));
+      is (if Tool_Args.Full_Source_Locations.Get then F else Base_Name (F));
       --  Formats filename
    begin
       Warning
@@ -376,14 +379,18 @@ package body Lkql_Checker.Output is
 
    procedure Set_Report_Files is
    begin
-      pragma Assert (Arg.Text_Report_Enabled or else Arg.XML_Report_Enabled);
+      pragma
+        Assert
+          (Tool_Args.Text_Report_Enabled or else Tool_Args.XML_Report_Enabled);
 
-      if Arg.Text_Report_Enabled then
-         Open_Or_Create (Arg.Text_Report_File_Path, Out_File, Report_File);
+      if Tool_Args.Text_Report_Enabled then
+         Open_Or_Create
+           (Tool_Args.Text_Report_File_Path, Out_File, Report_File);
       end if;
 
-      if Arg.XML_Report_Enabled then
-         Open_Or_Create (Arg.XML_Report_File_Path, Out_File, XML_Report_File);
+      if Tool_Args.XML_Report_Enabled then
+         Open_Or_Create
+           (Tool_Args.XML_Report_File_Path, Out_File, XML_Report_File);
       end if;
    end Set_Report_Files;
 
@@ -393,7 +400,7 @@ package body Lkql_Checker.Output is
 
    procedure Warning (Message : String; Location : String := "") is
    begin
-      if Arg.Warnings_As_Errors.Get then
+      if Tool_Args.Warnings_As_Errors.Get then
          Error (Message, Location);
          Error_From_Warning := True;
       else

@@ -142,9 +142,13 @@ package body Lkql_Checker.Projects.Aggregate is
    procedure Process_Aggregated_Projects (My_Project : Arg_Project_Type'Class)
    is
       Report_File_Name     : constant String :=
-        (if Arg.Text_Report_Enabled then Arg.Text_Report_File_Path else "");
+        (if Tool_Args.Text_Report_Enabled
+         then Tool_Args.Text_Report_File_Path
+         else "");
       XML_Report_File_Name : constant String :=
-        (if Arg.XML_Report_Enabled then Arg.XML_Report_File_Path else "");
+        (if Tool_Args.XML_Report_Enabled
+         then Tool_Args.XML_Report_File_Path
+         else "");
 
       Count : Natural := 1;
       --  Counts iterations on aggregated projects, this number is used to
@@ -171,7 +175,7 @@ package body Lkql_Checker.Projects.Aggregate is
       Prj_Args       : Argument_List (1 .. 2);
       Out_Args       : Argument_List (1 .. 4);
       Out_Args_Count : constant Integer :=
-        (if Arg.Text_Report_Enabled and then Arg.XML_Report_Enabled
+        (if Tool_Args.Text_Report_Enabled and then Tool_Args.XML_Report_Enabled
          then 4
          else 2);
 
@@ -207,7 +211,7 @@ package body Lkql_Checker.Projects.Aggregate is
 
       Prj_Args (1) := new String'("-A");
       Out_Args (1) :=
-        new String'(if Arg.Text_Report_Enabled then "-o" else "-ox");
+        new String'(if Tool_Args.Text_Report_Enabled then "-o" else "-ox");
 
       if Out_Args_Count = 4 then
          Out_Args (3) := new String'("-ox");
@@ -238,7 +242,7 @@ package body Lkql_Checker.Projects.Aggregate is
       Start_Prj_Iterator;
 
       while not Prj_Iterator_Done loop
-         if Arg.Verbose.Get then
+         if Tool_Args.Verbose.Get then
             Info ("Processing aggregated project " & String (Next_Prj_Name));
          end if;
 
@@ -249,7 +253,7 @@ package body Lkql_Checker.Projects.Aggregate is
 
          Out_Args (2) :=
            new String'
-             ((if Arg.Text_Report_Enabled
+             ((if Tool_Args.Text_Report_Enabled
                then
                  Prj_Out_File (Prj_Out_First .. Prj_Out_Dot)
                  & "_"
@@ -274,16 +278,16 @@ package body Lkql_Checker.Projects.Aggregate is
            (Aggregate_Prj          => My_Project,
             Aggregated_Prj_Name    => Prj_Args (2).all,
             Expected_Text_Out_File =>
-              (if Arg.Text_Report_Enabled then Out_Args (2).all else ""),
+              (if Tool_Args.Text_Report_Enabled then Out_Args (2).all else ""),
             Expected_XML_Out_File  =>
-              (if Arg.XML_Report_Enabled
+              (if Tool_Args.XML_Report_Enabled
                then
                  (if Out_Args_Count = 2
                   then Out_Args (2).all
                   else Out_Args (4).all)
                else ""));
 
-         if Arg.Debug_Mode.Get then
+         if Tool_Args.Debug_Mode.Get then
             Put (Full_Tool_Name.all);
 
             for Arg of Prj_Args loop

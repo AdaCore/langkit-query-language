@@ -1062,7 +1062,7 @@ package body Lkql_Checker.Rules is
       First_Idx : Natural := Index (Diag, " ", Going => Backward) + 1;
       Last_Idx  : Natural := Diag'Last;
    begin
-      if Arg.Show_Rule.Get then
+      if Tool_Args.Show_Rule.Get then
 
          --  The diagnosis has the following format:
          --     foo.adb:nn:mm: use of pragma Bar [Rule_Name]
@@ -1332,7 +1332,7 @@ package body Lkql_Checker.Rules is
       else
          --  Else, the param has a value
          if Enable then
-            if Arg.Check_Redefinition.Get
+            if Tool_Args.Check_Redefinition.Get
               and then Tagged_Instance.Param /= Integer'First
             then
                Emit_Redefining (Instance, "");
@@ -1386,7 +1386,8 @@ package body Lkql_Checker.Rules is
       elsif Enable then
          --  Else, if the command line is enabling the rule, the parameter is
          --  not empty and is valid. Just set the instance parameter value.
-         if Arg.Check_Redefinition.Get and then Tagged_Instance.Param /= Unset
+         if Tool_Args.Check_Redefinition.Get
+           and then Tagged_Instance.Param /= Unset
          then
             Emit_Redefining (Instance, Param);
          end if;
@@ -1422,7 +1423,7 @@ package body Lkql_Checker.Rules is
       elsif Enable then
          --  Else, the parameter is not empty, if the instance is enabled
          --  check the parameter value and enable the instance.
-         if Arg.Check_Redefinition.Get
+         if Tool_Args.Check_Redefinition.Get
            and then not Ada.Strings.Wide_Wide_Unbounded."="
                           (Tagged_Instance.Param,
                            Null_Unbounded_Wide_Wide_String)
@@ -1469,7 +1470,7 @@ package body Lkql_Checker.Rules is
       elsif Enable then
          --  Else, the param is not empty, if the command line is enabling the
          --  instance process the parameter.
-         if Arg.Check_Redefinition.Get
+         if Tool_Args.Check_Redefinition.Get
            and then not Ada.Strings.Wide_Wide_Unbounded."="
                           (Tagged_Instance.Param,
                            Null_Unbounded_Wide_Wide_String)
@@ -1558,7 +1559,7 @@ package body Lkql_Checker.Rules is
             begin
                Int_Param_Value := Integer'Value (Param);
 
-               if Arg.Check_Redefinition.Get
+               if Tool_Args.Check_Redefinition.Get
                  and then Tagged_Instance.Integer_Param /= Integer'First
                then
                   Emit_Redefining (Instance, "N");
@@ -1584,7 +1585,7 @@ package body Lkql_Checker.Rules is
                   if Param_Name (All_Rules (Instance.Rule), J)
                     = To_Lower (Param)
                   then
-                     if Arg.Check_Redefinition.Get
+                     if Tool_Args.Check_Redefinition.Get
                        and then Tagged_Instance.Boolean_Params (J) = On
                      then
                         Emit_Redefining (Instance, Param);
@@ -1874,7 +1875,7 @@ package body Lkql_Checker.Rules is
         (S : in out Unbounded_Wide_Wide_String; Val : String; Label : String)
       is
       begin
-         if Arg.Check_Redefinition.Get and then Length (S) /= 0 then
+         if Tool_Args.Check_Redefinition.Get and then Length (S) /= 0 then
             Emit_Redefining (Instance, Label);
          end if;
 
@@ -2203,7 +2204,7 @@ package body Lkql_Checker.Rules is
          --  Special case for the "USE_Clauses" rule
          if R_Name = "use_clauses" then
             if To_Lower (Param) = "exempt_operator_packages" then
-               if Arg.Check_Redefinition.Get
+               if Tool_Args.Check_Redefinition.Get
                  and then not Tagged_Instance.Arguments.Is_Empty
                then
                   Emit_Redefining (Instance, Param);
@@ -2964,7 +2965,7 @@ package body Lkql_Checker.Rules is
 
    function Annotate_Diag (Instance : Rule_Instance'Class) return String is
    begin
-      if Arg.Show_Rule.Get then
+      if Tool_Args.Show_Rule.Get then
          return
            " ["
            & (if Instance.Is_Alias

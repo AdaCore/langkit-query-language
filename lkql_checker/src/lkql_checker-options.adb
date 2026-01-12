@@ -157,21 +157,28 @@ package body Lkql_Checker.Options is
             In_Project_Msg : constant String :=
               " is forbidden in project file";
          begin
-            Disallow (Arg.Transitive_Closure.This, "-U" & In_Project_Msg);
-            Disallow (Arg.Aggregate_Subproject.This, "-A" & In_Project_Msg);
             Disallow
-              (Arg.No_Subprojects.This, "--no-subprojects" & In_Project_Msg);
-            Disallow (Arg.Project_Verbosity.This, "-vP" & In_Project_Msg);
-            Disallow (Arg.Lkql_Path.This, "--lkql-path" & In_Project_Msg);
-            Disallow (Arg.Rules.This, "-r" & In_Project_Msg);
-            Disallow (Arg.Rule_File.This, "--rule-file" & In_Project_Msg);
-            Disallow (Arg.Version.This, "--version" & In_Project_Msg);
-            Disallow (Arg.Help.This, "-h, --help" & In_Project_Msg);
-            Disallow (Arg.List_Rules.This, "--list-rules" & In_Project_Msg);
+              (Tool_Args.Transitive_Closure.This, "-U" & In_Project_Msg);
+            Disallow
+              (Tool_Args.Aggregate_Subproject.This, "-A" & In_Project_Msg);
+            Disallow
+              (Tool_Args.No_Subprojects.This,
+               "--no-subprojects" & In_Project_Msg);
+            Disallow
+              (Tool_Args.Project_Verbosity.This, "-vP" & In_Project_Msg);
+            Disallow
+              (Tool_Args.Lkql_Path.This, "--lkql-path" & In_Project_Msg);
+            Disallow (Tool_Args.Rules.This, "-r" & In_Project_Msg);
+            Disallow
+              (Tool_Args.Rule_File.This, "--rule-file" & In_Project_Msg);
+            Disallow (Tool_Args.Version.This, "--version" & In_Project_Msg);
+            Disallow (Tool_Args.Help.This, "-h, --help" & In_Project_Msg);
+            Disallow
+              (Tool_Args.List_Rules.This, "--list-rules" & In_Project_Msg);
          end;
       end if;
 
-      if not Arg.Parser.Parse
+      if not Tool_Args.Parser.Parse
                ((if Args /= null
                  then To_XString_Array (Args)
                  else No_Arguments),
@@ -182,16 +189,16 @@ package body Lkql_Checker.Options is
 
       --  Reallow arguments that were disallowed
       if Args_From_Project then
-         Allow (Arg.Transitive_Closure.This);
-         Allow (Arg.Aggregate_Subproject.This);
-         Allow (Arg.No_Subprojects.This);
-         Allow (Arg.Project_Verbosity.This);
-         Allow (Arg.Lkql_Path.This);
-         Allow (Arg.Rules.This);
-         Allow (Arg.Rule_File.This);
-         Allow (Arg.Version.This);
-         Allow (Arg.Help.This);
-         Allow (Arg.List_Rules.This);
+         Allow (Tool_Args.Transitive_Closure.This);
+         Allow (Tool_Args.Aggregate_Subproject.This);
+         Allow (Tool_Args.No_Subprojects.This);
+         Allow (Tool_Args.Project_Verbosity.This);
+         Allow (Tool_Args.Lkql_Path.This);
+         Allow (Tool_Args.Rules.This);
+         Allow (Tool_Args.Rule_File.This);
+         Allow (Tool_Args.Version.This);
+         Allow (Tool_Args.Help.This);
+         Allow (Tool_Args.List_Rules.This);
       end if;
 
       --  Now that we processed all switches, remaining arguments should be
@@ -235,7 +242,7 @@ package body Lkql_Checker.Options is
 
       --  We can now store sources to process
       for Arg of Explicit_Sources loop
-         if Options.Arg.Transitive_Closure.Get then
+         if Options.Tool_Args.Transitive_Closure.Get then
             Store_Main_Unit (Arg);
          else
             Store_Sources_To_Process (Arg);
@@ -279,7 +286,7 @@ package body Lkql_Checker.Options is
    ---------------------------------
 
    procedure Process_Legacy_Rule_Options
-     (Args : Arg.Legacy_Rules_Section.Result_Array)
+     (Args : Tool_Args.Legacy_Rules_Section.Result_Array)
    is
       Remaining_Options : XString_Vector;
    begin

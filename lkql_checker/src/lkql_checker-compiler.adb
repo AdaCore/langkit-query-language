@@ -270,7 +270,7 @@ package body Lkql_Checker.Compiler is
          Last_Idx := Last_Idx - 5;
       end if;
 
-      if Arg.Show_Rule.Get then
+      if Tool_Args.Show_Rule.Get then
          if Message_Kind in Warning | Style then
             Diag_End :=
               Index
@@ -1255,7 +1255,7 @@ package body Lkql_Checker.Compiler is
                       (Trim (Param (Last_Idx .. Param'Last), Both));
 
                   if not Restriction_Setting (R_Id).Param.Is_Empty
-                    and then Arg.Check_Redefinition.Get
+                    and then Tool_Args.Check_Redefinition.Get
                   then
                      Restriction_Setting (R_Id).Param.Clear;
                      Last_Idx := Index (Param, "=", Backward) - 1;
@@ -1759,7 +1759,7 @@ package body Lkql_Checker.Compiler is
          raise Fatal_Error;
       end if;
 
-      if Arg.Show_Instantiation_Chain.Get then
+      if Tool_Args.Show_Instantiation_Chain.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--show-instantiation-chain");
       end if;
@@ -1768,7 +1768,7 @@ package body Lkql_Checker.Compiler is
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);
 
-         if Arg.Ignore_Project_Switches then
+         if Tool_Args.Ignore_Project_Switches then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--ignore-project-switches");
          end if;
@@ -1783,12 +1783,12 @@ package body Lkql_Checker.Compiler is
              ("-P" & Checker_Prj.Tree.Root_Project.Path_Name.String_Value);
       end if;
 
-      if Arg.Aggregated_Project then
+      if Tool_Args.Aggregated_Project then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-A");
          Num_Args := @ + 1;
          Args (Num_Args) :=
-           new String'(To_String (Arg.Aggregate_Subproject.Get));
+           new String'(To_String (Tool_Args.Aggregate_Subproject.Get));
       end if;
 
       if CGPR = "" then
@@ -1807,7 +1807,7 @@ package body Lkql_Checker.Compiler is
          Args (Num_Args) := new String'("--config=" & CGPR);
       end if;
 
-      if Arg.Debug_Mode.Get then
+      if Tool_Args.Debug_Mode.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-d");
       end if;
@@ -1820,7 +1820,7 @@ package body Lkql_Checker.Compiler is
          Args (Num_Args) := new String'("-eL");
       end if;
 
-      for Dir of Arg.Rules_Dirs.Get loop
+      for Dir of Tool_Args.Rules_Dirs.Get loop
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--rules-dir=" & To_String (Dir));
       end loop;
@@ -1835,7 +1835,7 @@ package body Lkql_Checker.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("--rules-from=" & Rule_File);
 
-      if Arg.Debug_Mode.Get then
+      if Tool_Args.Debug_Mode.Get then
          --  For debug purposes, we don't want to put the full path to the
          --  worker command, if it is a full path. We just want the base name
          Put (Base_Name (Worker.all));
@@ -1896,13 +1896,13 @@ package body Lkql_Checker.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'(LKQL_RF_Name);
 
-      if Arg.Verbose.Get then
+      if Tool_Args.Verbose.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--verbose");
       end if;
 
       --  Output the called command if in debug mode
-      if Arg.Debug_Mode.Get then
+      if Tool_Args.Debug_Mode.Get then
          Put (Base_Name (Worker.all));
          for J in 1 .. Num_Args loop
             Put (" " & Args (J).all);
@@ -1965,8 +1965,8 @@ package body Lkql_Checker.Compiler is
          Add_Arg ("--target=" & Checker_Prj.Target);
       end if;
 
-      if Arg.Jobs.Get > 1 then
-         Add_Arg ("-j" & Image (Arg.Jobs.Get));
+      if Tool_Args.Jobs.Get > 1 then
+         Add_Arg ("-j" & Image (Tool_Args.Jobs.Get));
       end if;
 
       if Prj /= "" then
@@ -1979,8 +1979,9 @@ package body Lkql_Checker.Compiler is
 
       --  If files are specified explicitly, only compile these files
 
-      if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
-        or else Arg.Source_Files_Specified
+      if (Argument_File_Specified
+          and then not Tool_Args.Transitive_Closure.Get)
+        or else Tool_Args.Source_Files_Specified
       then
          Add_Arg ("-u");
 
@@ -1988,7 +1989,7 @@ package body Lkql_Checker.Compiler is
             Add_Arg (Short_Source_Name (SF));
          end loop;
       else
-         if Arg.Transitive_Closure.Get then
+         if Tool_Args.Transitive_Closure.Get then
             Add_Arg ("-U");
          end if;
 
@@ -2000,7 +2001,7 @@ package body Lkql_Checker.Compiler is
       end if;
 
       --  Append options specified through the "-cargs" section
-      for Option of Arg.Cargs_Section.Get loop
+      for Option of Tool_Args.Cargs_Section.Get loop
          Add_Arg (To_String (Option));
       end loop;
 
@@ -2027,7 +2028,7 @@ package body Lkql_Checker.Compiler is
          Checker_Prj.Append_External_Variables (Args, Num_Args);
       end if;
 
-      if Arg.Debug_Mode.Get then
+      if Tool_Args.Debug_Mode.Get then
          Put (GPRbuild_Exec);
 
          for J in 1 .. Num_Args loop
@@ -2059,7 +2060,7 @@ package body Lkql_Checker.Compiler is
    function Style_Rule_Parameter (Diag : String) return String is
       First_Idx        : Natural;
       String_To_Search : constant String :=
-        (if Arg.Show_Rule.Get then "style_checks:" else "[-gnaty");
+        (if Tool_Args.Show_Rule.Get then "style_checks:" else "[-gnaty");
 
    begin
       --  This function returns non-empty result only if .d parameter is
@@ -2083,7 +2084,7 @@ package body Lkql_Checker.Compiler is
    function Warning_Rule_Parameter (Diag : String) return String is
       First_Idx, Last_Idx : Natural;
       String_To_Search    : constant String :=
-        (if Arg.Show_Rule.Get then "warnings:" else "[-gnatw");
+        (if Tool_Args.Show_Rule.Get then "warnings:" else "[-gnatw");
 
    begin
       --  This function returns non-empty result only if .d parameter is
