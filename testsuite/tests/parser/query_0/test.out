@@ -6,15 +6,15 @@ Query
 |f_query_kind:
 |  QueryKindAll
 |f_pattern:
-|  FilteredPattern
+|  ComplexPattern
+|  |f_binding:
+|  |  Identifier: n
 |  |f_pattern:
-|  |  BindingPattern
-|  |  |f_binding:
-|  |  |  Identifier: n
-|  |  |f_value_pattern:
-|  |  |  NodeKindPattern
-|  |  |  |f_kind_name:
-|  |  |  |  Identifier: NodeKind
+|  |  NodeKindPattern
+|  |  |f_kind_name:
+|  |  |  Identifier: NodeKind
+|  |f_details:
+|  |  NodePatternDetailList: <empty list>
 |  |f_predicate:
 |  |  RelBinOp
 |  |  |f_left:

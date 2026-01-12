@@ -6,6 +6,12 @@ IsClause
 |  |f_member:
 |  |  Identifier: field
 |f_pattern:
-|  NodeKindPattern
-|  |f_kind_name:
-|  |  Identifier: FieldKind
+|  ComplexPattern
+|  |f_binding: <null>
+|  |f_pattern:
+|  |  NodeKindPattern
+|  |  |f_kind_name:
+|  |  |  Identifier: FieldKind
+|  |f_details:
+|  |  NodePatternDetailList: <empty list>
+|  |f_predicate: <null>

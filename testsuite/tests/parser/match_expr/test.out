@@ -5,13 +5,25 @@ Match
 |  MatchArmList
 |  |  MatchArm
 |  |  |f_pattern:
-|  |  |  NodeKindPattern
-|  |  |  |f_kind_name:
-|  |  |  |  Identifier: ObjectDecl
+|  |  |  ComplexPattern
+|  |  |  |f_binding: <null>
+|  |  |  |f_pattern:
+|  |  |  |  NodeKindPattern
+|  |  |  |  |f_kind_name:
+|  |  |  |  |  Identifier: ObjectDecl
+|  |  |  |f_details:
+|  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |f_predicate: <null>
 |  |  |f_expr:
 |  |  |  BoolLiteralTrue
 |  |  MatchArm
 |  |  |f_pattern:
-|  |  |  UniversalPattern
+|  |  |  ComplexPattern
+|  |  |  |f_binding: <null>
+|  |  |  |f_pattern:
+|  |  |  |  UniversalPattern
+|  |  |  |f_details:
+|  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |f_predicate: <null>
 |  |  |f_expr:
 |  |  |  BoolLiteralFalse

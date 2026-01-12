@@ -7,27 +7,48 @@ TopLevelList
 |  |f_query_kind:
 |  |  QueryKindAll
 |  |f_pattern:
-|  |  BindingPattern
+|  |  ComplexPattern
 |  |  |f_binding:
 |  |  |  Identifier: x
-|  |  |f_value_pattern:
+|  |  |f_pattern:
 |  |  |  ParenPattern
 |  |  |  |f_pattern:
 |  |  |  |  OrPattern
 |  |  |  |  |f_left:
-|  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  Identifier: A
+|  |  |  |  |  ComplexPattern
+|  |  |  |  |  |f_binding: <null>
+|  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  Identifier: A
+|  |  |  |  |  |f_details:
+|  |  |  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |  |  |f_predicate: <null>
 |  |  |  |  |f_right:
 |  |  |  |  |  OrPattern
 |  |  |  |  |  |f_left:
-|  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  Identifier: B
+|  |  |  |  |  |  ComplexPattern
+|  |  |  |  |  |  |f_binding: <null>
+|  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  Identifier: B
+|  |  |  |  |  |  |f_details:
+|  |  |  |  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |  |  |  |f_predicate: <null>
 |  |  |  |  |  |f_right:
-|  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  Identifier: C
+|  |  |  |  |  |  ComplexPattern
+|  |  |  |  |  |  |f_binding: <null>
+|  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  Identifier: C
+|  |  |  |  |  |  |f_details:
+|  |  |  |  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |  |  |  |f_predicate: <null>
+|  |  |f_details:
+|  |  |  NodePatternDetailList: <empty list>
+|  |  |f_predicate: <null>
 |  Query
 |  |f_unpack_from:
 |  |  UnpackAbsent
@@ -36,32 +57,47 @@ TopLevelList
 |  |f_query_kind:
 |  |  QueryKindAll
 |  |f_pattern:
-|  |  ParenPattern
+|  |  ComplexPattern
+|  |  |f_binding: <null>
 |  |  |f_pattern:
-|  |  |  OrPattern
-|  |  |  |f_left:
-|  |  |  |  BindingPattern
-|  |  |  |  |f_binding:
-|  |  |  |  |  Identifier: x
-|  |  |  |  |f_value_pattern:
-|  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  Identifier: A
-|  |  |  |f_right:
+|  |  |  ParenPattern
+|  |  |  |f_pattern:
 |  |  |  |  OrPattern
 |  |  |  |  |f_left:
-|  |  |  |  |  BindingPattern
+|  |  |  |  |  ComplexPattern
 |  |  |  |  |  |f_binding:
 |  |  |  |  |  |  Identifier: x
-|  |  |  |  |  |f_value_pattern:
+|  |  |  |  |  |f_pattern:
 |  |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  Identifier: B
+|  |  |  |  |  |  |  Identifier: A
+|  |  |  |  |  |f_details:
+|  |  |  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |  |  |f_predicate: <null>
 |  |  |  |  |f_right:
-|  |  |  |  |  BindingPattern
-|  |  |  |  |  |f_binding:
-|  |  |  |  |  |  Identifier: x
-|  |  |  |  |  |f_value_pattern:
-|  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  Identifier: C
+|  |  |  |  |  OrPattern
+|  |  |  |  |  |f_left:
+|  |  |  |  |  |  ComplexPattern
+|  |  |  |  |  |  |f_binding:
+|  |  |  |  |  |  |  Identifier: x
+|  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  Identifier: B
+|  |  |  |  |  |  |f_details:
+|  |  |  |  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |  |  |  |f_predicate: <null>
+|  |  |  |  |  |f_right:
+|  |  |  |  |  |  ComplexPattern
+|  |  |  |  |  |  |f_binding:
+|  |  |  |  |  |  |  Identifier: x
+|  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  Identifier: C
+|  |  |  |  |  |  |f_details:
+|  |  |  |  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |  |  |  |f_predicate: <null>
+|  |  |f_details:
+|  |  |  NodePatternDetailList: <empty list>
+|  |  |f_predicate: <null>

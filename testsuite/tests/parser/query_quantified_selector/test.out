@@ -6,27 +6,32 @@ Query
 |f_query_kind:
 |  QueryKindAll
 |f_pattern:
-|  BindingPattern
+|  ComplexPattern
 |  |f_binding:
 |  |  Identifier: o
-|  |f_value_pattern:
-|  |  ExtendedNodePattern
-|  |  |f_node_pattern:
-|  |  |  NodeKindPattern
-|  |  |  |f_kind_name:
-|  |  |  |  Identifier: ObjectDecl
-|  |  |f_details:
-|  |  |  NodePatternDetailList
-|  |  |  |  NodePatternSelector
-|  |  |  |  |f_call:
-|  |  |  |  |  SelectorCall
-|  |  |  |  |  |f_quantifier:
-|  |  |  |  |  |  Identifier: all
-|  |  |  |  |  |f_selector_call:
-|  |  |  |  |  |  Identifier: children
-|  |  |  |  |f_pattern_detail_delimiter:
-|  |  |  |  |  PatternDetailDelimiterColon
+|  |f_pattern:
+|  |  NodeKindPattern
+|  |  |f_kind_name:
+|  |  |  Identifier: ObjectDecl
+|  |f_details:
+|  |  NodePatternDetailList
+|  |  |  NodePatternSelector
+|  |  |  |f_call:
+|  |  |  |  SelectorCall
+|  |  |  |  |f_quantifier:
+|  |  |  |  |  Identifier: all
+|  |  |  |  |f_selector_call:
+|  |  |  |  |  Identifier: children
+|  |  |  |f_pattern_detail_delimiter:
+|  |  |  |  PatternDetailDelimiterColon
+|  |  |  |f_pattern:
+|  |  |  |  ComplexPattern
+|  |  |  |  |f_binding: <null>
 |  |  |  |  |f_pattern:
 |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  Identifier: AspectAssoc
+|  |  |  |  |f_details:
+|  |  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |  |f_predicate: <null>
+|  |f_predicate: <null>

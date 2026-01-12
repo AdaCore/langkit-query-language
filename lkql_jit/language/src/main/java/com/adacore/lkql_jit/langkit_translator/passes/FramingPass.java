@@ -262,19 +262,25 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     /**
-     * Create the frame description for a binding pattern.
+     * Create the frame description for a complex pattern.
      *
-     * @param bindingPattern The Langkit binding pattern node.
+     * @param complexPattern The Langkit complex pattern node.
      * @return Nothing.
      */
     @Override
-    public Void visit(Liblkqllang.BindingPattern bindingPattern) {
-        final String symbol = bindingPattern.fBinding().getText();
-        // TODO: Enable the duplicate binding detection here
-        // checkDuplicateBindings(symbol, bindingPattern.fBinding());
-        this.scriptFramesBuilder.addBinding(symbol);
-        if (!bindingPattern.fValuePattern().isNone()) {
-            bindingPattern.fValuePattern().accept(this);
+    public Void visit(Liblkqllang.ComplexPattern complexPattern) {
+        if (!complexPattern.fBinding().isNone()) {
+            final String symbol = complexPattern.fBinding().getText();
+            this.scriptFramesBuilder.addBinding(symbol);
+        }
+        if (!complexPattern.fPattern().isNone()) {
+            complexPattern.fPattern().accept(this);
+        }
+        if (complexPattern.fDetails().getChildrenCount() > 0) {
+            traverseChildren(complexPattern.fDetails());
+        }
+        if (!complexPattern.fPredicate().isNone()) {
+            complexPattern.fPredicate().accept(this);
         }
         return null;
     }
@@ -709,12 +715,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
-    public Void visit(Liblkqllang.FilteredPattern filteredPattern) {
-        traverseChildren(filteredPattern);
-        return null;
-    }
-
-    @Override
     public Void visit(Liblkqllang.BoolPatternFalse boolPatternFalse) {
         return null;
     }
@@ -945,12 +945,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.NodePatternProperty nodePatternProperty) {
         traverseChildren(nodePatternProperty);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.ExtendedNodePattern extendedNodePattern) {
-        traverseChildren(extendedNodePattern);
         return null;
     }
 

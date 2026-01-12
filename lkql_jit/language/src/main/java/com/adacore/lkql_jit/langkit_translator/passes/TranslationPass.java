@@ -749,20 +749,54 @@ public final class TranslationPass
 
     // --- General patterns
 
-    /**
-     * Visit a filtered pattern node.
-     *
-     * @param filteredPattern The filtered pattern node from Langkit.
-     * @return The filtered pattern node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.FilteredPattern filteredPattern) {
-        // Translate the filtered pattern fields
-        final Pattern pattern = (Pattern) filteredPattern.fPattern().accept(this);
-        final Expr predicate = (Expr) filteredPattern.fPredicate().accept(this);
+    public LKQLNode visit(Liblkqllang.ComplexPattern complexPattern) {
+        Pattern pattern = null;
 
-        // Create the new filtered pattern node
-        return new FilteredPattern(loc(filteredPattern), pattern, predicate);
+        final Integer slot;
+        if (complexPattern.fBinding().isNone()) {
+            slot = null;
+        } else {
+            // Get the value of the binding
+            final String name = complexPattern.fBinding().getText();
+
+            // Get the slot of the binding
+            this.frames.declareBinding(name);
+            slot = this.frames.getBinding(name);
+        }
+
+        // Make simple pattern
+        if (!complexPattern.fPattern().isNone()) {
+            pattern = (Pattern) complexPattern.fPattern().accept(this);
+        }
+
+        // Make extended pattern
+        if (complexPattern.fDetails().getChildrenCount() > 0) {
+            // Get the pattern details
+            final List<NodePatternDetail> details = new ArrayList<>();
+            for (var detail : complexPattern.fDetails()) {
+                details.add((NodePatternDetail) detail.accept(this));
+            }
+
+            pattern = new ExtendedNodePattern(
+                loc(complexPattern),
+                pattern,
+                details.toArray(new NodePatternDetail[0])
+            );
+        }
+
+        if (!complexPattern.fBinding().isNone()) {
+            // Make binding pattern
+            pattern = new BindingPattern(loc(complexPattern), slot, pattern);
+        }
+
+        if (!complexPattern.fPredicate().isNone()) {
+            final Expr predicate = (Expr) complexPattern.fPredicate().accept(this);
+
+            // Make filtered pattern
+            pattern = new FilteredPattern(loc(complexPattern), pattern, predicate);
+        }
+
+        return pattern;
     }
 
     @Override
@@ -808,31 +842,6 @@ public final class TranslationPass
         final int slot = this.frames.getBinding(name);
 
         return new SplatPattern(loc(splatPattern), slot);
-    }
-
-    /**
-     * Visit a binding pattern node.
-     *
-     * @param bindingPattern The binding pattern node from Langkit.
-     * @return The binding pattern node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.BindingPattern bindingPattern) {
-        // Get the binding value name
-        final String name = bindingPattern.fBinding().getText();
-
-        // Get the slot of the binding
-        this.frames.declareBinding(name);
-        final int slot = this.frames.getBinding(name);
-
-        Pattern pattern = null;
-        // Visit the associated value pattern
-        if (!bindingPattern.fValuePattern().isNone()) {
-            pattern = (Pattern) bindingPattern.fValuePattern().accept(this);
-        }
-
-        // Return the result binding pattern node
-        return new BindingPattern(loc(bindingPattern), slot, pattern);
     }
 
     /**
@@ -1601,9 +1610,6 @@ public final class TranslationPass
             args = null;
         }
 
-        // Get the slot for the binding
-        final int bindingSlot;
-
         // Return the new node
         return new SelectorCall(loc(selectorCall), quantifier, selectorExpr, args);
     }
@@ -1699,31 +1705,6 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.NodePatternDetailList nodePatternDetailList) {
         return null;
-    }
-
-    /**
-     * Visit an extended node kind pattern node.
-     *
-     * @param extendedNodePattern The extended node kind node from Langkit.
-     * @return The extended node kind node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.ExtendedNodePattern extendedNodePattern) {
-        // Translate the extended node pattern fields
-        final Pattern nodePattern = (Pattern) extendedNodePattern.fNodePattern().accept(this);
-
-        // Get the pattern details
-        final List<NodePatternDetail> details = new ArrayList<>();
-        for (Liblkqllang.LkqlNode node : extendedNodePattern.fDetails().children()) {
-            details.add((NodePatternDetail) node.accept(this));
-        }
-
-        // Return the new extended node pattern node
-        return new ExtendedNodePattern(
-            loc(extendedNodePattern),
-            nodePattern,
-            details.toArray(new NodePatternDetail[0])
-        );
     }
 
     // --- Pattern matching

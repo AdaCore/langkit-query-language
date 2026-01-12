@@ -1,8 +1,9 @@
+input:1:39: End of input expected, got "When"
 ValDecl
 |f_annotation: <null>
 |f_doc_node: <null>
 |f_identifier:
-|  Identifier: o
+|  Identifier: invalid
 |f_value:
 |  Query
 |  |f_unpack_from:
@@ -17,7 +18,8 @@ ValDecl
 |  |  |f_pattern:
 |  |  |  NodeKindPattern
 |  |  |  |f_kind_name:
-|  |  |  |  Identifier: ObjectDecl
+|  |  |  |  Identifier: AdaNode
 |  |  |f_details:
 |  |  |  NodePatternDetailList: <empty list>
-|  |  |f_predicate: <null>
+|  |  |f_predicate:
+|  |  |  Identifier: foo

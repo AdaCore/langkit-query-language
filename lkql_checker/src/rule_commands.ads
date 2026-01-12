@@ -51,10 +51,6 @@ package Rule_Commands is
       Name : Unbounded_Text_Type;
       --  Name of the Rule
 
-      Message : Unbounded_Text_Type;
-      --  Diagnostic messages associated with the rule.
-      --  Defaults to Name if not specified.
-
       Help : Unbounded_Text_Type;
       --  Short help message associated with the rule.
       --  Defaults to Message if not specified.
@@ -64,29 +60,6 @@ package Rule_Commands is
 
       Subcategory : Unbounded_Text_Type;
       --  Subcategory of this rule, if relevant
-
-      Lkql_Root : L.Lkql_Node;
-      --  Root of the LKQL AST
-
-      Function_Expr : L.Expr;
-      --  Body expr of the LKQL function. Will be used in case of node checks,
-      --  to directly eval the expr without creating a function scope.
-
-      Rule_Args : Rule_Argument_Vectors.Vector;
-      --  Optional arguments to pass to the rule. Empty by default.
-
-      Code : L.Lkql_Node;
-      --  Store (cache) the code for the rule, so as to not recompute it
-      --  everytime we want to evaluate it.
-
-      Is_Unit_Check : Boolean;
-      --  Whether the rule is expressed via a unit check (function that
-      --  returns a list of messages) or a node check (function that returns a
-      --  node).
-
-      Kind_Pattern : L.Node_Kind_Pattern;
-      --  If we determined that the rule only needs to run on a specific node
-      --  kind, store the corresponding node pattern here.
 
       Param_Kind : Rule_Param_Kind;
       --  Category of parameters.

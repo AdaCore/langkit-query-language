@@ -26,32 +26,34 @@ FunDecl
 |  |  |f_query_kind:
 |  |  |  QueryKindAll
 |  |  |f_pattern:
-|  |  |  FilteredPattern
+|  |  |  ComplexPattern
+|  |  |  |f_binding:
+|  |  |  |  Identifier: t
 |  |  |  |f_pattern:
-|  |  |  |  BindingPattern
-|  |  |  |  |f_binding:
-|  |  |  |  |  Identifier: t
-|  |  |  |  |f_value_pattern:
-|  |  |  |  |  ExtendedNodePattern
-|  |  |  |  |  |f_node_pattern:
-|  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  Identifier: TypeDecl
-|  |  |  |  |  |f_details:
-|  |  |  |  |  |  NodePatternDetailList
-|  |  |  |  |  |  |  NodePatternSelector
-|  |  |  |  |  |  |  |f_call:
-|  |  |  |  |  |  |  |  SelectorCall
-|  |  |  |  |  |  |  |  |f_quantifier:
-|  |  |  |  |  |  |  |  |  Identifier: any
-|  |  |  |  |  |  |  |  |f_selector_call:
-|  |  |  |  |  |  |  |  |  Identifier: children
-|  |  |  |  |  |  |  |f_pattern_detail_delimiter:
-|  |  |  |  |  |  |  |  PatternDetailDelimiterColon
-|  |  |  |  |  |  |  |f_pattern:
-|  |  |  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  |  |  Identifier: OrdinaryFixedPointDef
+|  |  |  |  NodeKindPattern
+|  |  |  |  |f_kind_name:
+|  |  |  |  |  Identifier: TypeDecl
+|  |  |  |f_details:
+|  |  |  |  NodePatternDetailList
+|  |  |  |  |  NodePatternSelector
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  SelectorCall
+|  |  |  |  |  |  |f_quantifier:
+|  |  |  |  |  |  |  Identifier: any
+|  |  |  |  |  |  |f_selector_call:
+|  |  |  |  |  |  |  Identifier: children
+|  |  |  |  |  |f_pattern_detail_delimiter:
+|  |  |  |  |  |  PatternDetailDelimiterColon
+|  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  ComplexPattern
+|  |  |  |  |  |  |f_binding: <null>
+|  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  Identifier: OrdinaryFixedPointDef
+|  |  |  |  |  |  |f_details:
+|  |  |  |  |  |  |  NodePatternDetailList: <empty list>
+|  |  |  |  |  |  |f_predicate: <null>
 |  |  |  |f_predicate:
 |  |  |  |  UnOp
 |  |  |  |  |f_op:
