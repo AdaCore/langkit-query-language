@@ -1,0 +1,20 @@
+main.ads:49:11: rule violation: possible occurrence of KP 20303
+49 |       is (T.Func (I));  -- FLAG
+   |           ^^^^^^^^^^
+
+main.ads:59:11: rule violation: possible occurrence of KP 20303
+59 |       is (T.Func (O, I));  -- FLAG (False positive)
+   |           ^^^^^^^^^^^^^
+
+main.adb:15:10: rule violation: possible occurrence of KP 20303
+15 |          T.all.Proc (I_Sub);             -- FLAG
+   |          ^^^^^^^^^^^^^^^^^^
+
+main.adb:16:10: rule violation: possible occurrence of KP 20303
+16 |          T.all.Proc (I_Der);             -- FLAG
+   |          ^^^^^^^^^^^^^^^^^^
+
+main.adb:39:10: rule violation: possible occurrence of KP 20303
+39 |          T.all.Proc (S_I);          -- FLAG
+   |          ^^^^^^^^^^^^^^^^
+

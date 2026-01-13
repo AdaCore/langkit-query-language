@@ -1,0 +1,37 @@
+import stdlib
+
+@check(help="possible occurrence of KP 20303",
+       message="possible occurrence of KP 20303",
+       follow_generic_instantiations=true)
+fun kp_20303(node) =
+    |" Flag subprogram calls located in a subprogram body which is in a generic
+    |" instantiation if:
+    |"   * The called subprogram has a class-wide precondition
+    |"   * A formal parameter of the called subprogram is an out-mode scalar
+    |"   * The type of the actual for the scalar parameter described in the
+    |"     previous point is constrained
+    node is CallExpr(p_is_call(): true, p_is_dispatching_call(): true) when (
+        stdlib.in_generic_instance(node)
+        and parent(node).any((p) => p is BaseSubpBody)
+        and {
+            val call_params = node.p_call_params();
+            call_params.any((p) => {
+                val actual_type_decl = p.actual.p_expression_type();
+                actual_type_decl.p_is_scalar_type()
+                and stdlib.is_constrained_subtype(actual_type_decl)
+                and p.param.p_basic_decl() is formal@ParamSpec when
+                    formal.f_mode is (ModeOut | ModeInOut)
+                    and formal.p_formal_type() != actual_type_decl
+            })
+            and call_params.any((p) => {
+                val actual_type_decl = p.actual.p_expression_type();
+                match p.actual
+                | d@ExplicitDeref => actual_type_decl.p_is_classwide()
+                | a => (
+                    actual_type_decl.p_is_access_type()
+                    and actual_type_decl.p_accessed_type().p_is_classwide()
+                )
+            })
+        }
+        and node.p_referenced_decl() is BasicDecl(p_has_aspect("pre'class"): true)
+    )
