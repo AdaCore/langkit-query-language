@@ -1,2 +1,3 @@
 driver: 'interpreter'
 project: 'default_project/default.gpr'
+lkt_refactor: False # multiplicity cannot be infered in query comprehension translation

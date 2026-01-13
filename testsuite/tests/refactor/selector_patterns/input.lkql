@@ -1,0 +1,5 @@
+select some_name @ Body(
+    f_field: *,
+    p_prop(): True,
+    any children: ForLoopStmt(all parent: AdaNode)
+) when a or b and predicate(x)

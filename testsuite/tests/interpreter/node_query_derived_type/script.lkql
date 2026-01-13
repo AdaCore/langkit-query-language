@@ -1,2 +1,2 @@
 val p = select BasicDecl
-print (p)
+print (p.to_list)
