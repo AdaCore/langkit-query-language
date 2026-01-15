@@ -324,7 +324,7 @@ package body Lkql_Checker.Projects is
 
       --  Get the root project:
       --  * if the root project is a regular project then
-      --  Namespece_Root_Projects will have just one element, this root project
+      --  Namespace_Root_Projects will have just one element, this root project
       --  * if the root project is an aggregate project with just one element
       --  then Namespace_Root_Projects.First_Element will return it
       --  * if the root project is an aggregate with several subprojects then

@@ -204,7 +204,7 @@ package Lkql_Checker.Projects is
    function Get_Project_Relative_File
      (My_Project : Arg_Project_Type; Filename : String) return String;
    --  From the given ``Filename``, get the absolute path leading to it
-   --  realtively to the current project file. If there is no specified
+   --  relatively to the current project file. If there is no specified
    --  project file, then get the file from the current directory.
 
    procedure Clean_Up (My_Project : Arg_Project_Type);
