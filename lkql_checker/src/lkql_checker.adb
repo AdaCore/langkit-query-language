@@ -26,8 +26,6 @@ with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
 with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
-with GPR2.Project.Registry.Exchange;
-
 package body Lkql_Checker is
    ----------------
    -- Exit codes --
@@ -456,39 +454,15 @@ package body Lkql_Checker is
          OS_Exit (E_Success);
       end if;
 
-      --  Store project file
-      if Arg.Project_File.Get /= Null_Unbounded_String then
-         Checker_Prj.Store_Project_Source (To_String (Arg.Project_File.Get));
-      end if;
-
-      --  Store scenario variables
-      for Var of Arg.Scenario_Vars.Get loop
-         Store_External_Variable (To_String (Var));
-      end loop;
-
-      --  Store .cgpr
-      if Arg.Config_File.Get /= Null_Unbounded_String then
-         Checker_Prj.Store_CGPR_Source (To_String (Arg.Config_File.Get));
-      end if;
-
-      --  Store target from project file
-      Lkql_Checker.Options.Target := Arg.Target.Get;
-
-      --  Store runtime from project file
-      Lkql_Checker.Options.RTS_Path := Arg.RTS.Get;
-
       --  Register GNATcheck GPR attributes
       Register_Tool_Attributes (Checker_Prj);
-
-      --  Print GPR registered and exit if requested
-      if Arg.Print_Gpr_Registry.Get then
-         GPR2.Project.Registry.Exchange.Export (Output => Put'Access);
-         OS_Exit (E_Success);
-      end if;
 
       --  If we have the project file specified as a tool parameter,
       --  analyze it.
       Lkql_Checker.Projects.Process_Project_File (Checker_Prj);
+
+      --  Print GPR registered and exit if requested
+      Checker_Prj.Print_GPR_Registry;
 
       --  Analyze relevant project properties if needed
       if Checker_Prj.Is_Specified
@@ -581,9 +555,7 @@ package body Lkql_Checker is
 
       --  Force some switches and perform some checks for gnatkp
       if Mode = Gnatkp_Mode then
-         if Target = Null_Unbounded_String
-           or else RTS_Path = Null_Unbounded_String
-         then
+         if Checker_Prj.Target = "" or else Checker_Prj.Runtime = "" then
             Error ("missing explicit target and/or runtime");
             OS_Exit (E_Error);
          end if;

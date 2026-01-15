@@ -92,6 +92,7 @@
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GPR2.Containers;
+with GPR2.Options;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
 
@@ -113,25 +114,6 @@ package Lkql_Checker.Projects is
    --  Processes the provided name as the main unit name for '-U' project file
    --  option.
 
-   -----------------------------------------------------------
-   --  -Xvariable=value  : set values of external variables --
-   -----------------------------------------------------------
-
-   --  An external variable is the parameter of a '-X<par>' tool option, it
-   --  is guaranteed that it has a structure <variable_name>=<value>
-
-   procedure Store_External_Variable (Var : String);
-   --  Checks if the value for the given external variable is already stored
-   --  (the check is case-sensitive), and if it is not, stores the value
-   --  setting for the given variable. If it is, overrides the stored value.
-
-   procedure Append_Variables
-     (Args : in out Argument_List; Last : in out Natural);
-   --  Append a "-XVAR=value" string for each stored external variable
-
-   function Subdir_Name return String;
-   --  Return the subdir name to use, if one was set explicitly.
-
    ---------------------------------------------------------
    -- Type to represent a project passed as a tool option --
    ---------------------------------------------------------
@@ -151,25 +133,6 @@ package Lkql_Checker.Projects is
    procedure Error (My_Project : Arg_Project_Type; Message : String);
    --  Emit an error message about this ``My_Project`` project
 
-   procedure Store_Project_Source
-     (My_Project : in out Arg_Project_Type; Project_File_Name : String);
-   --  If Project_File_Name ends with ".gpr", it is taken to be the name of
-   --  the project file; otherwise Project_File_Name & ".gpr" is used.
-   --  Checks that:
-   --    - this is the first -P option provided as a tool parameter;
-   --    - the project file exists.
-   --  Raises Lkql_Checker.Common.Parameter_Error if any of these check fails,
-   --  stores the name of the project file My_Project otherwise.
-
-   procedure Store_CGPR_Source
-     (My_Project : in out Arg_Project_Type; CGPR_File_Name : String);
-   --  Stores configuration project file.
-   --  Checks that:
-   --    - this is the first --config option provided as a tool parameter;
-   --    - the configuration project file exists.???
-   --  Raises Lkql_Checker.Common.Parameter_Error if any of these check fails,
-   --  stores the name of the configuration project file otherwise.
-
    function Is_Specified (My_Project : Arg_Project_Type) return Boolean;
    --  Checks if the argument represents a project that corresponds to some
    --  project file specified as a tool parameter.
@@ -186,13 +149,37 @@ package Lkql_Checker.Projects is
 
    function Source_Prj (My_Project : Arg_Project_Type) return String;
    --  If My_Project.Is_Specified then returns the full normalized name of the
-   --  project file, otherwise returns a null string.
+   --  project file, otherwise returns an empty string.
 
    function Source_CGPR (My_Project : Arg_Project_Type) return String;
-   --  If My_Project.Source_CGPR is specified then returns its value,
-   --  otherwise returns a null string.
+   --  If a source CGPR has been specified then returns its value, otherwise
+   --  returns an empty string.
 
-   procedure Set_External_Values (My_Project : Arg_Project_Type);
+   function Target (My_Project : Arg_Project_Type) return String;
+   --  Target name as it is specified by the command-line ``--target=...``
+   --  option, or by the ``'Target`` attribute in the argument project file.
+
+   function Runtime (My_Project : Arg_Project_Type) return String;
+   --  Runtime as specified via ``--RTS=...`` in the command-line, or by the
+   --  ``Runtime`` attribute. If no runtime has been selected, this function
+   --  returns an empty string.
+
+   function Subdir_Name (My_Project : Arg_Project_Type) return String;
+   --  Return the subdir name to use, if one was set explicitly.
+
+   function Follow_Symbolic_Links
+     (My_Project : Arg_Project_Type) return Boolean;
+   --  Get whether the project as been loaded with the ``-eL`` switch that
+   --  enable the symbolic links following.
+
+   procedure Append_External_Variables
+     (My_Project : Arg_Project_Type;
+      Args       : in out Argument_List;
+      Last       : in out Natural);
+   --  Append a "-XVAR=value" string for each external variable stored in the
+   --  provided project options.
+
+   procedure Set_External_Values (My_Project : in out Arg_Project_Type);
    --  For each value of an external variable that has been stored as a result
    --  of the initial parameter processing, changes environment accordingly.
    --  Any inconsistencies coming from improper values of scenario variables
@@ -211,6 +198,10 @@ package Lkql_Checker.Projects is
    procedure Register_Tool_Attributes (My_Project : Arg_Project_Type);
    --  Register tool specific attributes. In particular, gnatcheck needs
    --  to recognise Codepeer.File_Patterns.
+
+   procedure Print_GPR_Registry (My_Project : Arg_Project_Type);
+   --  If it has been required in the provided project option, print the GPR
+   --  registry (formatted in JSON) and exit the program.
 
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type);
    --  Extracts gnatcheck options from the project file
@@ -265,10 +256,9 @@ package Lkql_Checker.Projects is
 private
 
    type Arg_Project_Type is tagged record
-      Tree        : aliased GPR2.Project.Tree.Object;
-      View        : aliased GPR2.Project.View.Object;
-      Source_Prj  : String_Access;
-      Source_CGPR : String_Access;
+      Tree    : aliased GPR2.Project.Tree.Object;
+      View    : aliased GPR2.Project.View.Object;
+      Options : GPR2.Options.Object;
    end record;
 
    function Tree

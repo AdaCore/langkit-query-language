@@ -1839,11 +1839,11 @@ package body Lkql_Checker.Diagnoses is
 
    procedure Print_Runtime (XML : Boolean := False) is
    begin
-      if RTS_Path /= Null_Unbounded_String then
+      if Checker_Prj.Runtime /= "" then
          if XML then
-            XML_Report (To_String (RTS_Path));
+            XML_Report (Checker_Prj.Runtime);
          else
-            Report (To_String (RTS_Path));
+            Report (Checker_Prj.Runtime);
          end if;
       else
          if XML then

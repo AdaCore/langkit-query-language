@@ -157,19 +157,14 @@ package body Lkql_Checker.Options is
             In_Project_Msg : constant String :=
               " is forbidden in project file";
          begin
-            Disallow (Arg.Aggregate_Subproject.This, "-A" & In_Project_Msg);
-            Disallow (Arg.Project_File.This, "-P" & In_Project_Msg);
             Disallow (Arg.Transitive_Closure.This, "-U" & In_Project_Msg);
-            Disallow (Arg.Scenario_Vars.This, "-Xname=val" & In_Project_Msg);
+            Disallow (Arg.Aggregate_Subproject.This, "-A" & In_Project_Msg);
             Disallow
               (Arg.No_Subprojects.This, "--no-subprojects" & In_Project_Msg);
             Disallow (Arg.Project_Verbosity.This, "-vP" & In_Project_Msg);
-            Disallow (Arg.Follow_Symbolic_Links.This, "-eL" & In_Project_Msg);
             Disallow (Arg.Lkql_Path.This, "--lkql-path" & In_Project_Msg);
             Disallow (Arg.Rules.This, "-r" & In_Project_Msg);
             Disallow (Arg.Rule_File.This, "--rule-file" & In_Project_Msg);
-            Disallow (Arg.Target.This, "--target" & In_Project_Msg);
-            Disallow (Arg.RTS.This, "--RTS" & In_Project_Msg);
             Disallow (Arg.Version.This, "--version" & In_Project_Msg);
             Disallow (Arg.Help.This, "-h, --help" & In_Project_Msg);
             Disallow (Arg.List_Rules.This, "--list-rules" & In_Project_Msg);
@@ -188,17 +183,12 @@ package body Lkql_Checker.Options is
       --  Reallow arguments that were disallowed
       if Args_From_Project then
          Allow (Arg.Transitive_Closure.This);
-         Allow (Arg.Scenario_Vars.This);
          Allow (Arg.Aggregate_Subproject.This);
-         Allow (Arg.Project_File.This);
          Allow (Arg.No_Subprojects.This);
          Allow (Arg.Project_Verbosity.This);
-         Allow (Arg.Follow_Symbolic_Links.This);
          Allow (Arg.Lkql_Path.This);
          Allow (Arg.Rules.This);
          Allow (Arg.Rule_File.This);
-         Allow (Arg.Target.This);
-         Allow (Arg.RTS.This);
          Allow (Arg.Version.This);
          Allow (Arg.Help.This);
          Allow (Arg.List_Rules.This);

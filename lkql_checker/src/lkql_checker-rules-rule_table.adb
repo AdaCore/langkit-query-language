@@ -1600,9 +1600,9 @@ package body Lkql_Checker.Rules.Rule_Table is
                             (To_String (Arg.KP_Version.Get),
                              All_Rules (Rule).Impact.all)
                           and then (All_Rules (Rule).Target = null
-                                    or else To_String (Target) = ""
+                                    or else Checker_Prj.Target = ""
                                     or else Match
-                                              (To_String (Target),
+                                              (Checker_Prj.Target,
                                                All_Rules (Rule).Target.all)))
                then
                   Set.Include (All_Rules (Rule));

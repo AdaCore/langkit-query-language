@@ -1682,9 +1682,9 @@ package body Lkql_Checker.Compiler is
    -------------------
 
    function GPRbuild_Exec return String is
-      use Ada.Strings.Unbounded;
    begin
-      if Target = "gnatsas" or else Target = "codepeer" then
+      if Checker_Prj.Target = "gnatsas" or else Checker_Prj.Target = "codepeer"
+      then
          return "codepeer-gprbuild";
       else
          return "gprbuild";
@@ -1792,14 +1792,14 @@ package body Lkql_Checker.Compiler is
       end if;
 
       if CGPR = "" then
-         if RTS_Path /= Null_Unbounded_String then
+         if Checker_Prj.Runtime /= "" then
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--RTS=" & To_String (RTS_Path));
+            Args (Num_Args) := new String'("--RTS=" & Checker_Prj.Runtime);
          end if;
 
-         if Target /= Null_Unbounded_String then
+         if Checker_Prj.Target /= "" then
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--target=" & To_String (Target));
+            Args (Num_Args) := new String'("--target=" & Checker_Prj.Target);
          end if;
       else
          --  Target and runtime will be taken from config project anyway
@@ -1815,7 +1815,7 @@ package body Lkql_Checker.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("--log-file=" & Log_File);
 
-      if Arg.Follow_Symbolic_Links.Get then
+      if Checker_Prj.Follow_Symbolic_Links then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-eL");
       end if;
@@ -1828,7 +1828,9 @@ package body Lkql_Checker.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("--files-from=" & Source_File);
 
-      Append_Variables (Args, Num_Args);
+      if Checker_Prj.Is_Specified then
+         Checker_Prj.Append_External_Variables (Args, Num_Args);
+      end if;
 
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("--rules-from=" & Rule_File);
@@ -1952,15 +1954,15 @@ package body Lkql_Checker.Compiler is
       Args (2) := new String'("-s");
       Args (3) := new String'("-k");
       Args (4) := new String'("-q");
-      Args (5) := new String'("--subdirs=" & Subdir_Name);
+      Args (5) := new String'("--subdirs=" & Checker_Prj.Subdir_Name);
 
       Args (6) := new String'("--no-object-check");
       Args (7) := new String'("--complete-output");
       Args (8) := new String'("--restricted-to-languages=ada");
       Num_Args := 8;
 
-      if Target /= Null_Unbounded_String then
-         Add_Arg ("--target=" & To_String (Target));
+      if Checker_Prj.Target /= "" then
+         Add_Arg ("--target=" & Checker_Prj.Target);
       end if;
 
       if Arg.Jobs.Get > 1 then
@@ -1971,7 +1973,7 @@ package body Lkql_Checker.Compiler is
          Add_Arg ("-P" & Prj);
       end if;
 
-      if Arg.Follow_Symbolic_Links.Get then
+      if Checker_Prj.Follow_Symbolic_Links then
          Add_Arg ("-eL");
       end if;
 
@@ -2021,7 +2023,9 @@ package body Lkql_Checker.Compiler is
       end if;
 
       --  Add scenario variables to the compiler command
-      Append_Variables (Args, Num_Args);
+      if Checker_Prj.Is_Specified then
+         Checker_Prj.Append_External_Variables (Args, Num_Args);
+      end if;
 
       if Arg.Debug_Mode.Get then
          Put (GPRbuild_Exec);

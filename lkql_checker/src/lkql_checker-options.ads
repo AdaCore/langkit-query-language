@@ -12,6 +12,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
+with GPR2.Options.Opt_Parse;
 with Lkql_Checker.Projects;
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
@@ -44,13 +45,6 @@ package Lkql_Checker.Options is
       then Ada.Environment_Variables.Value (Custom_Worker_Var)
       else Default_Worker);
    --  The name of the worker to use.
-
-   RTS_Path : Unbounded_String := Null_Unbounded_String;
-   --  Runtime as specified via --RTS= or Runtime attribute
-
-   Target : Unbounded_String := Null_Unbounded_String;
-   --  Target as it is specified by the command-line '--target=...' option, or
-   --  by the 'Target attribute in the argument project file.
 
    Global_Report_Dir : GNAT.OS_Lib.String_Access := new String'("./");
    --  The name of the directory to place the global results into
@@ -189,6 +183,8 @@ package Lkql_Checker.Options is
              Create (Lkql_Checker_Error_Handler'(null record)),
            Print_Help_On_Error  => False);
 
+      package GPR_Args is new GPR2.Options.Opt_Parse.Args (Parser);
+
       package Version is new
         Parse_Flag
           (Parser => Parser,
@@ -282,24 +278,6 @@ package Lkql_Checker.Options is
            Help       =>
              "specify an alternate directory containing rule files");
 
-      package Project_File is new
-        Parse_Option
-          (Parser      => Parser,
-           Short       => "-P",
-           Long        => "--project",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        => "project file to use");
-
-      package Scenario_Vars is new
-        Parse_Option_List
-          (Parser     => Parser,
-           Short      => "-X",
-           Name       => "Scenario variable",
-           Arg_Type   => Unbounded_String,
-           Accumulate => True,
-           Help       => "scenario variables to pass to the project file");
-
       package Project_Verbosity is new
         Parse_Option
           (Parser           => Parser,
@@ -312,35 +290,6 @@ package Lkql_Checker.Options is
            Help             =>
              "verbosity level when parsing a project file (from 0 to 2, "
              & "default is 0)");
-
-      package Config_File is new
-        Parse_Option
-          (Parser      => Parser,
-           Long        => "--config",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "name of the configuration project file. If passed, "
-             & "this file must exist and neither --target nor --RTS "
-             & "must be passed.");
-
-      package Target is new
-        Parse_Option
-          (Parser      => Parser,
-           Long        => "--target",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "name of the target to use when loading the project");
-
-      package RTS is new
-        Parse_Option
-          (Parser      => Parser,
-           Long        => "--RTS",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "name of the runtime (RTS) to use when loading the project");
 
       package Full_Source_Locations is new
         Parse_Flag
@@ -374,14 +323,6 @@ package Lkql_Checker.Options is
            Help        =>
              "private flag - used when processing a subproject of "
              & "a root aggregate project");
-
-      package Follow_Symbolic_Links is new
-        Parse_Flag
-          (Parser => Parser,
-           Short  => "-eL",
-           Name   => "Follow symbolic links",
-           Help   =>
-             "follow all symbolic links when processing project files");
 
       function Aggregated_Project return Boolean
       is (Aggregate_Subproject.Get /= Null_Unbounded_String);
@@ -508,12 +449,6 @@ package Lkql_Checker.Options is
            Long   => "--no_objects_dir",
            Help   => "issue warning if a rule parameter is redefined");
 
-      package Print_Gpr_Registry is new
-        Parse_Flag
-          (Parser => Parser,
-           Long   => GPR2.Options.Print_GPR_Registry_Option,
-           Help   => "TODO");
-
       package Ignore_Project_Switches_Opt is new
         Parse_Flag
           (Parser => Parser,
@@ -527,15 +462,6 @@ package Lkql_Checker.Options is
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
            Help        => "add the content of filename into generated report");
-
-      package Subdirs is new
-        Parse_Option
-          (Parser      => Parser,
-           Long        => "--subdirs",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "specify subdirectory to place the result files into");
 
       package Source_Files is new
         Parse_Option
