@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.cli;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
 import java.io.File;
@@ -135,11 +136,6 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         this.args = args;
     }
 
-    // ----- Macros and enums -----
-
-    /** The identifier of the LKQL language. */
-    private static final String ID = "lkql";
-
     // ----- Checker methods -----
 
     /**
@@ -159,7 +155,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      */
     @Override
     protected String getLanguageId() {
-        return ID;
+        return Constants.LKQL_ID;
     }
 
     /**
@@ -275,7 +271,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql").build();
+            final Source source = Source.newBuilder(
+                Constants.LKQL_ID,
+                checkerSource,
+                "checker.lkql"
+            ).build();
             context.eval(source);
             return 0;
         } catch (Exception e) {
@@ -351,7 +351,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 .build()
         ) {
             // Parse the LKQL rule configuration file with a polyglot context
-            final Source source = Source.newBuilder("lkql", lkqlFile).build();
+            final Source source = Source.newBuilder(Constants.LKQL_ID, lkqlFile).build();
             final Value executable = context.parse(source);
             final Value topLevel = executable.execute(false);
 

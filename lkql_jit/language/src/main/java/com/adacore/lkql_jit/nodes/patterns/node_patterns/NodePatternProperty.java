@@ -6,13 +6,13 @@
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
-import com.adacore.lkql_jit.runtime.values.AdaNodeProxy;
-import com.adacore.lkql_jit.runtime.values.LKQLProperty;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
+import com.adacore.lkql_jit.values.AdaNodeProxy;
+import com.adacore.lkql_jit.values.LKQLProperty;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;

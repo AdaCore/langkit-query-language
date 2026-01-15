@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
-import com.adacore.lkql_jit.runtime.values.AdaNodeProxy;
+import com.adacore.lkql_jit.values.AdaNodeProxy;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 

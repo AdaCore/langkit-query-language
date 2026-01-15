@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 import static com.adacore.liblktlang.Liblktlang.*;
 
 import com.adacore.liblktlang.Liblktlang;
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
@@ -44,7 +45,6 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.ExtendedNodePattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternFieldNodeGen;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;

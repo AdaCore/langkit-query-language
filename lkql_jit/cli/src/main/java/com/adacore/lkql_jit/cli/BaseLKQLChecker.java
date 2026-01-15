@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.cli;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
 import java.util.*;
@@ -56,10 +57,9 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
         args.spec.commandLine().usage(args.spec.commandLine().getOut());
     }
 
-    /** Language ID is always "lkql". */
     @Override
     protected String getLanguageId() {
-        return "lkql";
+        return Constants.LKQL_ID;
     }
 
     /** Arguments passed to this method are always JVM/GraalVM specific. */
@@ -91,7 +91,11 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
         // Create the context and run the checker source in it
         int exitCode;
         try (Context context = contextBuilder.build()) {
-            final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql").build();
+            final Source source = Source.newBuilder(
+                Constants.LKQL_ID,
+                checkerSource,
+                "checker.lkql"
+            ).build();
             context.eval(source);
             exitCode = 0;
         } catch (Exception e) {

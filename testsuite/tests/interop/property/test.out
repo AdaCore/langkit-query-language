@@ -1,3 +1,4 @@
 === Property interop messages:
   toString(): property<p_enclosing_compilation_unit>
-  canExecute(): false
+  canExecute(): true
+  property.execute(): <CompilationUnit main.adb:1:1-8:10>

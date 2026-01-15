@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.cli;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.File;
 import java.io.IOException;
@@ -103,11 +104,6 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
     private LKQLRun args = null;
 
-    // ----- Macros and enums -----
-
-    /** The identifier of the LKQL language. */
-    private static final String ID = "lkql";
-
     // ----- Launcher methods -----
 
     /**
@@ -127,7 +123,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
      */
     @Override
     protected String getLanguageId() {
-        return ID;
+        return Constants.LKQL_ID;
     }
 
     /**
@@ -173,7 +169,10 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
             if (this.args.script != null) {
-                Source source = Source.newBuilder("lkql", new File(this.args.script)).build();
+                Source source = Source.newBuilder(
+                    Constants.LKQL_ID,
+                    new File(this.args.script)
+                ).build();
                 context.eval(source);
             }
 
@@ -186,7 +185,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                     String line = null;
                     try {
                         line = reader.readLine(prompt);
-                        final Source source = Source.newBuilder("lkql", line, "<input>")
+                        final Source source = Source.newBuilder(Constants.LKQL_ID, line, "<input>")
                             .interactive(true)
                             .build();
                         context.eval(source);

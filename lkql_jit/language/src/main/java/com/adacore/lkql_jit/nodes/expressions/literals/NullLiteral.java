@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.LKQLNull;
+import com.adacore.lkql_jit.values.LKQLNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 

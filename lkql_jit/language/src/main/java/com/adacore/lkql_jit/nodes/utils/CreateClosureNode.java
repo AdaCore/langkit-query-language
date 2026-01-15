@@ -5,9 +5,9 @@
 
 package com.adacore.lkql_jit.nodes.utils;
 
+import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescriptor;
 import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.runtime.Closure;
-import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;

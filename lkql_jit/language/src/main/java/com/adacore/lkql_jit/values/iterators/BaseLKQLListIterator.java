@@ -1,0 +1,51 @@
+//
+//  Copyright (C) 2005-2025, AdaCore
+//  SPDX-License-Identifier: GPL-3.0-or-later
+//
+
+package com.adacore.lkql_jit.values.iterators;
+
+import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.interop.LKQLIterator;
+
+/** This class represents an iterator for an LKQL lazy list. */
+public class BaseLKQLListIterator extends LKQLIterator {
+
+    // ----- Attributes -----
+
+    /** The lazy list to iterate on. */
+    private final LKQLCollection lkqlList;
+
+    /** The cursor for the iteration. */
+    private long cursor;
+
+    // ----- Constructors -----
+
+    /** Create a new lazy list iterator for the given lazy list. */
+    public BaseLKQLListIterator(LKQLCollection lkqlList) {
+        this.lkqlList = lkqlList;
+        this.cursor = 0;
+    }
+
+    // ----- Iterator required methods -----
+
+    @Override
+    public boolean hasNext() {
+        try {
+            this.lkqlList.get(cursor);
+            return true;
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public Object next() {
+        return this.lkqlList.get(this.cursor++);
+    }
+
+    @Override
+    public void reset() {
+        this.cursor = 0;
+    }
+}

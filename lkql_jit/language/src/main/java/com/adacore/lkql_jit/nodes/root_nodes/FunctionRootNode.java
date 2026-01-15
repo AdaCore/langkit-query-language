@@ -31,7 +31,7 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     @SuppressWarnings("FieldMayBeFinal")
     private Expr body;
 
-    private final String name;
+    public final String name;
 
     // ----- Constructors -----
 

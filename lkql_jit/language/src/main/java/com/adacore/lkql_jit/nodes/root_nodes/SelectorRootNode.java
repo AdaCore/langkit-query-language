@@ -8,8 +8,8 @@ package com.adacore.lkql_jit.nodes.root_nodes;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.values.LKQLRecValue;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -29,6 +29,7 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
     @CompilerDirectives.CompilationFinal
     private final boolean isMemoized;
 
+    /** Name of the selector. */
     private final String name;
 
     // ----- Children -----
@@ -107,6 +108,11 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
 
         // Return the result
         return res;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 
     @Override

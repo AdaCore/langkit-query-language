@@ -78,7 +78,7 @@
 
         <dependency>
             <groupId>com.adacore.lkql_jit</groupId>
-            <artifactId>options</artifactId>
+            <artifactId>interoperability</artifactId>
             <version>0.1.0</version>
         </dependency>
 

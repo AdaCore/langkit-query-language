@@ -5,9 +5,9 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.runtime.values.LKQLObject;
-import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
+import com.adacore.lkql_jit.values.LKQLObject;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;

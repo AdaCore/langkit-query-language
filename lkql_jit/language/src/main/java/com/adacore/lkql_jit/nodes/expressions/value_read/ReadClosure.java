@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.Cell;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;

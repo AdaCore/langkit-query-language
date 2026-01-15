@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.match;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.LKQLUnit;
+import com.adacore.lkql_jit.values.LKQLUnit;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;

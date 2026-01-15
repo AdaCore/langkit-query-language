@@ -1,4 +1,5 @@
 import com.adacore.lkql_jit.options.LKQLOptions;
+import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 
@@ -28,12 +29,18 @@ public class Main {
             ).build();
         Value executable = context.parse("lkql", LKQL_SOURCE);
 
-        Value namespace = executable.execute(false);
-        Value selector = namespace.getMember("my_selector");
+        LKQLBaseNamespace namespace = executable.execute(false).as(LKQLBaseNamespace.class);
+        Object node = namespace.getUncached("node");
+        Value selector = context.asValue(namespace.getUncached("my_selector"));
         System.out.println("=== Selector interop messages:");
         print("toString()", selector.toString());
         print("canExecute()", selector.canExecute());
-        // TODO (issue #143): Call the selector when it will implements
-        // the interop API
+        Value callRes = selector.execute(node);
+        long callResSize = callRes.getArraySize();
+        print("execute(node)", callRes);
+        print("callRes.getArraySize()", callResSize);
+        for (long i = 0; i < callResSize; i++) {
+            print("callRes.getArrayElement(" + i + ")", callRes.getArrayElement(i));
+        }
     }
 }

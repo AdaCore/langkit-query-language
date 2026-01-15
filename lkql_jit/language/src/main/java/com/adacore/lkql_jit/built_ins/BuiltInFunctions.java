@@ -6,26 +6,25 @@
 package com.adacore.lkql_jit.built_ins;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.LKQLContext;
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.annotations.*;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.utils.ConcatenationNode;
 import com.adacore.lkql_jit.nodes.utils.ValueCombiner;
-import com.adacore.lkql_jit.runtime.values.*;
-import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterator;
-import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyListStreamWrapper;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
-import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.tools.TextWriter;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.TextWriter;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.values.*;
+import com.adacore.lkql_jit.values.interfaces.Indexable;
+import com.adacore.lkql_jit.values.interfaces.Iterable;
+import com.adacore.lkql_jit.values.interfaces.Iterator;
+import com.adacore.lkql_jit.values.interop.LKQLCallable;
+import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.lists.LKQLLazyListStreamWrapper;
+import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
@@ -134,17 +133,17 @@ public class BuiltInFunctions {
 
         @Specialization
         protected String onFunction(LKQLFunction function) {
-            return function.lkqlDocumentation();
+            return function.documentation;
         }
 
         @Specialization
         protected String onSelector(LKQLSelector selector) {
-            return selector.lkqlDocumentation();
+            return selector.documentation;
         }
 
         @Specialization
         protected String onNamespace(LKQLNamespace namespace) {
-            return namespace.lkqlDocumentation();
+            return namespace.documentation;
         }
 
         @Specialization
@@ -441,13 +440,8 @@ public class BuiltInFunctions {
     abstract static class ProfileExpr extends BuiltInBody {
 
         @Specialization
-        protected String onFunction(LKQLFunction function) {
-            return function.lkqlProfile();
-        }
-
-        @Specialization
-        protected String onSelector(LKQLSelector selector) {
-            return selector.lkqlProfile();
+        protected String onCallable(LKQLCallable callable) {
+            return callable.profile();
         }
 
         @Specialization
@@ -456,87 +450,14 @@ public class BuiltInFunctions {
         }
     }
 
-    @BuiltInFunction(
-        name = "document_namespace",
-        doc = "Return a string in the RsT format containing documentation for all built-ins"
-    )
-    abstract static class DocumentNamespaceExpr extends BuiltInBody {
-
-        private static void documentCallable(TextWriter writer, String profile, String doc) {
-            writer.write(".. function:: " + profile + "\n\n");
-            writer.withIndent(() -> {
-                writer.write(doc);
-            });
-            writer.write("\n\n");
-        }
-
-        @Specialization
-        @CompilerDirectives.TruffleBoundary
-        protected String impl(LKQLNamespace namespace, String name) {
-            var sw = new StringWriter();
-            try (TextWriter writer = new TextWriter(sw)) {
-                var header = name + "'s API doc";
-                writer.write(header + "\n");
-                writer.write("-".repeat(header.length()));
-                writer.write("\n\n");
-
-                writer.write("Functions\n");
-                writer.write("^^^^^^^^^\n");
-
-                var functions = namespace
-                    .asMap()
-                    .values()
-                    .stream()
-                    .filter(LKQLTypeSystemGen::isLKQLFunction)
-                    .map(LKQLTypeSystemGen::asLKQLFunction)
-                    .sorted(Comparator.comparing(LKQLFunction::getExecutableName));
-
-                for (var func : functions.toList()) {
-                    documentCallable(writer, func.lkqlProfile(), func.lkqlDocumentation());
-                }
-
-                writer.write("Selectors\n");
-                writer.write("^^^^^^^^^\n");
-
-                var selectors = namespace
-                    .asMap()
-                    .values()
-                    .stream()
-                    .filter(LKQLTypeSystemGen::isLKQLSelector)
-                    .map(LKQLTypeSystemGen::asLKQLSelector)
-                    .sorted(Comparator.comparing(LKQLSelector::lkqlProfile));
-
-                for (var sel : selectors.toList()) {
-                    documentCallable(writer, sel.lkqlProfile(), sel.lkqlDocumentation());
-                }
-
-                return sw.getBuffer().toString();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     @BuiltInFunction(name = "help", doc = "Print formatted help for the given object")
     @BuiltInMethod(isProperty = true)
     abstract static class HelpExpr extends BuiltInBody {
 
         @Specialization
-        protected Object onFunction(LKQLFunction function) {
-            printHelp(
-                LKQLLanguage.getContext(this),
-                function.lkqlProfile(),
-                function.lkqlDocumentation()
-            );
-            return LKQLUnit.INSTANCE;
-        }
-
-        @Specialization
-        protected Object onSelector(LKQLSelector selector) {
-            printHelp(
-                LKQLLanguage.getContext(this),
-                selector.lkqlProfile(),
-                selector.lkqlDocumentation()
+        protected Object onCallable(LKQLCallable callable) {
+            LKQLLanguage.getContext(this).println(
+                StringUtils.concat(callable.profile(), "\n", callable.documentation)
             );
             return LKQLUnit.INSTANCE;
         }
@@ -546,11 +467,6 @@ public class BuiltInFunctions {
             LKQLLanguage.getContext(this).println("No help available");
             return LKQLUnit.INSTANCE;
         }
-
-        @CompilerDirectives.TruffleBoundary
-        private static void printHelp(LKQLContext context, String profile, String doc) {
-            context.println(profile + "\n" + doc);
-        }
     }
 
     @BuiltInFunction(name = "units", doc = "Return a list of all units")
@@ -558,7 +474,7 @@ public class BuiltInFunctions {
 
         @Specialization
         @CompilerDirectives.TruffleBoundary
-        protected BaseLKQLList alwaysTrue() {
+        protected LKQLCollection alwaysTrue() {
             return new LKQLLazyListStreamWrapper(LKQLLanguage.getContext(this).getAllUnits());
         }
     }

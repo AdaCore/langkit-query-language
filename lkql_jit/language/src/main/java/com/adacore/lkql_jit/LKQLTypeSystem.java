@@ -7,13 +7,14 @@ package com.adacore.lkql_jit;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.runtime.values.*;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.*;
-import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLLazyList;
-import com.adacore.lkql_jit.runtime.values.lists.BaseLKQLList;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
-import com.adacore.lkql_jit.runtime.values.lists.LKQLStream;
+import com.adacore.lkql_jit.values.*;
+import com.adacore.lkql_jit.values.interfaces.Indexable;
+import com.adacore.lkql_jit.values.interfaces.Iterable;
+import com.adacore.lkql_jit.values.interfaces.Nullish;
+import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
+import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLStream;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
@@ -41,7 +42,7 @@ import java.math.BigInteger;
         LKQLList.class,
         LKQLStream.class,
         BaseLKQLLazyList.class,
-        BaseLKQLList.class,
+        LKQLCollection.class,
         Indexable.class,
         Iterable.class,
         LangkitSupport.NodeInterface.class,

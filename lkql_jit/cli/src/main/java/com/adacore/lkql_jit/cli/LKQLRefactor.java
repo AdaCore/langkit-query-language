@@ -7,9 +7,9 @@ package com.adacore.lkql_jit.cli;
 
 import static com.adacore.liblkqllang.Liblkqllang.*;
 
-import com.adacore.lkql_jit.options.Refactorings.LKQLToLkt;
-import com.adacore.lkql_jit.options.Refactorings.Refactoring;
-import com.adacore.lkql_jit.options.Refactorings.TokenBasedRefactoring;
+import com.adacore.lkql_jit.cli.refactorings.LKQLToLkt;
+import com.adacore.lkql_jit.cli.refactorings.Refactoring;
+import com.adacore.lkql_jit.cli.refactorings.TokenBasedRefactoring;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

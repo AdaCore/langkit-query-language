@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.utils.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.values.interop.Utils;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.io.File;
 import java.util.ArrayList;
@@ -138,7 +139,7 @@ public final class StringUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static String toRepr(String source) {
-        return ("\"" + source.replace("\"", "\\\"").replace("\n", "\\x0a") + "\"");
+        return Utils.toRepr(source);
     }
 
     /**

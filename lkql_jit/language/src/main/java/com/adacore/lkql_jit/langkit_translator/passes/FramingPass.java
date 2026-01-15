@@ -9,12 +9,12 @@ import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.liblkqllang.Liblkqllang.ClassField;
 import com.adacore.liblkqllang.Liblkqllang.ClassFieldList;
 import com.adacore.liblkqllang.Liblkqllang.PrefixField;
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.TranslatorException;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
-import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.source.Source;
 

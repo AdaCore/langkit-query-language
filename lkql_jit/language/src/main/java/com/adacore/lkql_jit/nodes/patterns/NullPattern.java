@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.runtime.values.LKQLNull;
-import com.adacore.lkql_jit.runtime.values.LKQLUnit;
+import com.adacore.lkql_jit.values.LKQLNull;
+import com.adacore.lkql_jit.values.LKQLUnit;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
