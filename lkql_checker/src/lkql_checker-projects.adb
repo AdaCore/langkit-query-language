@@ -251,7 +251,7 @@ package body Lkql_Checker.Projects is
       --  Process additional GNATcheck switches
       if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
          List_Val := Load_List_Attribute (Switches_Attr, Indexed => True);
-         Scan_Arguments (Args => List_Val);
+         Scan_Tool_Arguments (Args => List_Val);
          Free (List_Val);
       end if;
    end Extract_Tool_Options;

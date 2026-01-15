@@ -104,7 +104,7 @@ package body Lkql_Checker.Options is
    -- Scan_Arguments --
    --------------------
 
-   procedure Scan_Arguments
+   procedure Scan_Tool_Arguments
      (First_Pass : Boolean := False; Args : Argument_List_Access := null)
    is
       Unknown_Opt_Parse_Args : XString_Vector;
@@ -251,7 +251,7 @@ package body Lkql_Checker.Options is
             end if;
          end if;
       end loop;
-   end Scan_Arguments;
+   end Scan_Tool_Arguments;
 
    --------------------------
    -- Process_Rule_Options --

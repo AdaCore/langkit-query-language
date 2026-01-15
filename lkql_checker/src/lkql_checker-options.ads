@@ -618,7 +618,7 @@ package Lkql_Checker.Options is
    -- Option processing --
    -----------------------
 
-   procedure Scan_Arguments
+   procedure Scan_Tool_Arguments
      (First_Pass : Boolean := False; Args : Argument_List_Access := null);
    --  Process GNATcheck CLI arguments. If provided ``Args`` is not null, this
    --  procedure assumes that arguments are coming from a project file

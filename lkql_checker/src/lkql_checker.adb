@@ -444,7 +444,7 @@ package body Lkql_Checker is
       --  Set the Lkql_Checker global mode
       Lkql_Checker.Mode := Mode;
 
-      Scan_Arguments (First_Pass => True);
+      Scan_Tool_Arguments (First_Pass => True);
 
       if Tool_Args.Version.Get then
          Print_Version_Info;
@@ -502,7 +502,7 @@ package body Lkql_Checker is
       end if;
 
       --  Then analyze the command-line parameters
-      Scan_Arguments;
+      Scan_Tool_Arguments;
 
       --  Process the source list file if there is one
       if Tool_Args.Source_Files.Get /= Null_Unbounded_String then
