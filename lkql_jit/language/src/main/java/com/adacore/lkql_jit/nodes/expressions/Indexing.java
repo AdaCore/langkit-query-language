@@ -148,9 +148,9 @@ public abstract class Indexing extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "isSafe" },
-                new Object[] { this.isSafe }
-            );
+            indentLevel,
+            new String[] { "isSafe" },
+            new Object[] { this.isSafe }
+        );
     }
 }

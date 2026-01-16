@@ -468,24 +468,23 @@ public final class LktPasses {
                 this.frames.enterFrame(binOp.fRight());
                 final var tail = buildExpr(binOp.fRight());
 
-                final var res =
-                    switch (binOp.fOp().getKind()) {
-                        case OP_STREAM_CONS -> StreamConsNodeGen.create(
-                            loc(binOp),
-                            tail,
-                            this.frames.getFrameDescriptor(),
-                            this.frames.getClosureDescriptor(),
-                            head
-                        );
-                        case OP_STREAM_CONCAT -> StreamConcatNodeGen.create(
-                            loc(binOp),
-                            tail,
-                            this.frames.getFrameDescriptor(),
-                            this.frames.getClosureDescriptor(),
-                            head
-                        );
-                        default -> null;
-                    };
+                final var res = switch (binOp.fOp().getKind()) {
+                    case OP_STREAM_CONS -> StreamConsNodeGen.create(
+                        loc(binOp),
+                        tail,
+                        this.frames.getFrameDescriptor(),
+                        this.frames.getClosureDescriptor(),
+                        head
+                    );
+                    case OP_STREAM_CONCAT -> StreamConcatNodeGen.create(
+                        loc(binOp),
+                        tail,
+                        this.frames.getFrameDescriptor(),
+                        this.frames.getClosureDescriptor(),
+                        head
+                    );
+                    default -> null;
+                };
 
                 this.frames.exitFrame();
                 return res;
@@ -530,7 +529,7 @@ public final class LktPasses {
                 final var id = new Identifier(loc(memberIdentifier), memberIdentifier.getText());
                 final var prefix = buildExpr(dotExpr.fPrefix());
                 final BaseDotAccess dotAccess = (dotExpr.fNullCond() instanceof
-                        Liblktlang.NullCondQualifierPresent)
+                            Liblktlang.NullCondQualifierPresent)
                     ? SafeDotAccessNodeGen.create(loc, id, prefix)
                     : DotAccessNodeGen.create(loc, id, prefix);
                 return DotAccessWrapperNodeGen.create(dotAccess.getSourceSection(), dotAccess);

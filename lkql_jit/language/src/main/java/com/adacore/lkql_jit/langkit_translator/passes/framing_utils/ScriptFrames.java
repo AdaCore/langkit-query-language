@@ -72,11 +72,11 @@ public final class ScriptFrames {
             if (!this.current.children.containsKey(node)) {
                 throw new TranslatorException(
                     "Cannot enter the frame, " +
-                    node +
-                    " isn't in the children" +
-                    " (current: " +
-                    this.current.node +
-                    ")"
+                        node +
+                        " isn't in the children" +
+                        " (current: " +
+                        this.current.node +
+                        ")"
                 );
             }
             this.current = this.current.children.get(node);
@@ -562,12 +562,13 @@ public final class ScriptFrames {
             }
 
             // Get the next available slot for the child and return it
-            final List<Integer> childAssociatedSlots =
-                this.virtualChildrenAssociatedSlots.get(child);
+            final List<Integer> childAssociatedSlots = this.virtualChildrenAssociatedSlots.get(
+                child
+            );
             if (childAssociatedSlots.size() >= this.virtualChildrenSlots.size()) {
                 this.virtualChildrenSlots.add(
-                        this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, null, null)
-                    );
+                    this.frameDescriptorBuilder.addSlot(FrameSlotKind.Object, null, null)
+                );
             }
             final int slot = this.virtualChildrenSlots.get(childAssociatedSlots.size());
             childAssociatedSlots.add(slot);

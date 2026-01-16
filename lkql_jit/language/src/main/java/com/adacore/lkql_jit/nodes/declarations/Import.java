@@ -202,9 +202,9 @@ public final class Import extends LKQLNode {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "name", "slot" },
-                new Object[] { this.name, this.slot }
-            );
+            indentLevel,
+            new String[] { "name", "slot" },
+            new Object[] { this.name, this.slot }
+        );
     }
 }

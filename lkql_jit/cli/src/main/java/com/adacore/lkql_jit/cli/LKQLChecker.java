@@ -23,7 +23,7 @@ public class LKQLChecker extends BaseLKQLChecker {
     @CommandLine.Command(
         name = "check",
         description = "Alternative checker driver. Like GNATcheck but with less options " +
-        "& a more modern command line interface"
+            "& a more modern command line interface"
     )
     public static class Args extends BaseLKQLChecker.Args {
 

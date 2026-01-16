@@ -63,9 +63,9 @@ public class CheckerExport extends Declaration {
 
         // Export the checker in the current context
         this.exportChecker(
-                frame,
-                (LKQLFunction) FrameUtils.readLocal(frame, this.functionDecl.slot)
-            );
+            frame,
+            (LKQLFunction) FrameUtils.readLocal(frame, this.functionDecl.slot)
+        );
 
         return LKQLUnit.INSTANCE;
     }
@@ -88,8 +88,8 @@ public class CheckerExport extends Declaration {
 
         // Set the default values of the checker arguments
         for (int i = 0; i < checkerArguments.length; i++) {
-            if (checkerArguments[i] == null) checkerArguments[i] =
-                Constants.CHECKER_PARAMETER_DEFAULT_VALUES[i];
+            if (checkerArguments[i] == null) checkerArguments[i] = Constants
+                .CHECKER_PARAMETER_DEFAULT_VALUES[i];
         }
 
         // Verify the message and help
@@ -97,12 +97,11 @@ public class CheckerExport extends Declaration {
         if (checkerArguments[1] == null) checkerArguments[1] = functionValue.getExecutableName();
 
         // Verify the remediation mode
-        final BaseChecker.Remediation remediation =
-            switch ((String) checkerArguments[5]) {
-                case "EASY" -> BaseChecker.Remediation.EASY;
-                case "MAJOR" -> BaseChecker.Remediation.MAJOR;
-                default -> BaseChecker.Remediation.MEDIUM;
-            };
+        final BaseChecker.Remediation remediation = switch ((String) checkerArguments[5]) {
+            case "EASY" -> BaseChecker.Remediation.EASY;
+            case "MAJOR" -> BaseChecker.Remediation.MAJOR;
+            default -> BaseChecker.Remediation.MEDIUM;
+        };
 
         // Get the auto fix function
         final var autoFixObject = checkerArguments[10];
@@ -133,32 +132,32 @@ public class CheckerExport extends Declaration {
         // Create the object value representing the checker
         final BaseChecker checker = this.mode == CheckerMode.NODE
             ? new NodeChecker(
-                functionValue.getExecutableName(),
-                functionValue,
-                autoFix,
-                (String) checkerArguments[0],
-                (String) checkerArguments[1],
-                (boolean) checkerArguments[2],
-                (String) checkerArguments[3],
-                (String) checkerArguments[4],
-                remediation,
-                (long) checkerArguments[6],
-                (boolean) checkerArguments[7],
-                (String) checkerArguments[8]
-            )
+                  functionValue.getExecutableName(),
+                  functionValue,
+                  autoFix,
+                  (String) checkerArguments[0],
+                  (String) checkerArguments[1],
+                  (boolean) checkerArguments[2],
+                  (String) checkerArguments[3],
+                  (String) checkerArguments[4],
+                  remediation,
+                  (long) checkerArguments[6],
+                  (boolean) checkerArguments[7],
+                  (String) checkerArguments[8]
+              )
             : new UnitChecker(
-                functionValue.getExecutableName(),
-                functionValue,
-                (String) checkerArguments[0],
-                (String) checkerArguments[1],
-                (boolean) checkerArguments[2],
-                (String) checkerArguments[3],
-                (String) checkerArguments[4],
-                remediation,
-                (long) checkerArguments[6],
-                (boolean) checkerArguments[7],
-                (String) checkerArguments[8]
-            );
+                  functionValue.getExecutableName(),
+                  functionValue,
+                  (String) checkerArguments[0],
+                  (String) checkerArguments[1],
+                  (boolean) checkerArguments[2],
+                  (String) checkerArguments[3],
+                  (String) checkerArguments[4],
+                  remediation,
+                  (long) checkerArguments[6],
+                  (boolean) checkerArguments[7],
+                  (String) checkerArguments[8]
+              );
 
         // Put the object in the context
         LKQLLanguage.getContext(this)
@@ -171,10 +170,10 @@ public class CheckerExport extends Declaration {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "mode" },
-                new Object[] { this.mode }
-            );
+            indentLevel,
+            new String[] { "mode" },
+            new Object[] { this.mode }
+        );
     }
 
     // ----- Inner classes -----

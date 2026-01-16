@@ -149,8 +149,10 @@ public final class Query extends Expr {
             // For each root node, explore it and return the result
             for (int i = fromNodes.length - 1; i >= 0; i--) {
                 Iterable nodes = this.createNodeIterable(fromNodes[i], through);
-                List<LangkitSupport.NodeInterface> result =
-                    this.exploreAll(frame, nodes.iterator());
+                List<LangkitSupport.NodeInterface> result = this.exploreAll(
+                    frame,
+                    nodes.iterator()
+                );
                 for (int j = 0; j < result.size(); j++) resNodes.add(result.get(j));
             }
 
@@ -246,10 +248,10 @@ public final class Query extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "queryKind" },
-                new Object[] { this.kind }
-            );
+            indentLevel,
+            new String[] { "queryKind" },
+            new Object[] { this.kind }
+        );
     }
 
     // ----- Inner classes -----

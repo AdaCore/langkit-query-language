@@ -181,7 +181,9 @@ public class IterableMethods {
                         )
                     ) return true;
                 } catch (
-                    ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                    ArityException
+                    | UnsupportedTypeException
+                    | UnsupportedMessageException e
                 ) {
                     throw LKQLRuntimeException.fromJavaException(e, this);
                 }
@@ -221,7 +223,9 @@ public class IterableMethods {
                         )
                     ) return false;
                 } catch (
-                    ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                    ArityException
+                    | UnsupportedTypeException
+                    | UnsupportedMessageException e
                 ) {
                     throw LKQLRuntimeException.fromJavaException(e, this);
                 }

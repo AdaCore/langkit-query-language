@@ -58,8 +58,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * TODO: Genericize LKQL issue #499. Cannot genericize the prelude because NODE_DESCRIPTION_MAP
      * doesn't contain any node named NodeInterface but AdaNode here for Ada.
      */
-    private static final String PRELUDE_SOURCE =
-        """
+    private static final String PRELUDE_SOURCE = """
         selector children
         |" Yields all the descendants of the given node
         | AdaNode => rec(*this.children)
@@ -241,9 +240,9 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         if (getContext(result).isVerbose()) {
             System.out.println(
                 "=== Truffle AST <" +
-                result.getSourceSection().getSource().getPath() +
-                "> :\n" +
-                result
+                    result.getSourceSection().getSource().getPath() +
+                    "> :\n" +
+                    result
             );
         }
 

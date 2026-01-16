@@ -60,9 +60,9 @@ public final class NodeKindPattern extends Pattern {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "nodeClazz" },
-                new Object[] { this.nodeClazz.getSimpleName() }
-            );
+            indentLevel,
+            new String[] { "nodeClazz" },
+            new Object[] { this.nodeClazz.getSimpleName() }
+        );
     }
 }

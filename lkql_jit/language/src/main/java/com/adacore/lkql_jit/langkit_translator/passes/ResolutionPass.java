@@ -36,7 +36,7 @@ public final class ResolutionPass {
             .flatMap(fn -> {
                 if (
                     fn.getFunctionExpression().getFunctionRootNode().getBody() instanceof
-                    PassExpr passExpr
+                        PassExpr passExpr
                 ) {
                     return Stream.of(Map.entry(fn.slot, passExpr));
                 } else {
@@ -85,9 +85,9 @@ public final class ResolutionPass {
                 !clazz.fields().containsAll(List.of(constructor.getArgNames()))
             ) throw LKQLRuntimeException.create(
                 "wrong arguments, expected " +
-                clazz.fields() +
-                " instead of " +
-                List.of(constructor.getArgNames()),
+                    clazz.fields() +
+                    " instead of " +
+                    List.of(constructor.getArgNames()),
                 constructor
             );
         }

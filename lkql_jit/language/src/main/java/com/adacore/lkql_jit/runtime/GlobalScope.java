@@ -87,12 +87,12 @@ public final class GlobalScope {
         if (previousValue != null) {
             System.err.println(
                 "Warning: a checker named \"" +
-                name +
-                "\" from: " +
-                previousValue.getPath() +
-                ", has been replaced by the one from: " +
-                checker.getPath() +
-                ". Note: checkers should have unique names."
+                    name +
+                    "\" from: " +
+                    previousValue.getPath() +
+                    ", has been replaced by the one from: " +
+                    checker.getPath() +
+                    ". Note: checkers should have unique names."
             );
         }
     }

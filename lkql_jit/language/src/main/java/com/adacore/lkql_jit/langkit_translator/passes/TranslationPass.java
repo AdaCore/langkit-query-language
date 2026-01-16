@@ -101,8 +101,7 @@ public final class TranslationPass
         // If the string literal is a block iterate over all of its parts
         else {
             final StringBuilder builder = new StringBuilder();
-            for (Liblkqllang.LkqlNode subBlock : ((Liblkqllang.BlockStringLiteral) stringLiteral).fDocs()
-                .children()) {
+            for (Liblkqllang.LkqlNode subBlock : ((Liblkqllang.BlockStringLiteral) stringLiteral).fDocs().children()) {
                 var str = StringUtils.translateEscapes(subBlock.getText().substring(2));
 
                 if (str.length() > 0) {
@@ -412,7 +411,9 @@ public final class TranslationPass
      */
     @Override
     public LKQLNode visit(Liblkqllang.ArgList argList) {
-        var args = Arrays.stream(argList.children()).map(a -> (Arg) a.accept(this)).toList();
+        var args = Arrays.stream(argList.children())
+            .map(a -> (Arg) a.accept(this))
+            .toList();
         return buildArgs(args, loc(argList));
     }
 
@@ -539,8 +540,8 @@ public final class TranslationPass
             .emitDiagnostic(
                 CheckerUtils.MessageKind.WARNING,
                 "'is' syntax is deprecated for patterns. Please consider migrating your" +
-                " code via 'lkql refactor -r IS_TO_COLON " +
-                "path/to/your/rule_file.lkql'.",
+                    " code via 'lkql refactor -r IS_TO_COLON " +
+                    "path/to/your/rule_file.lkql'.",
                 null,
                 SourceSectionWrapper.create(
                     patternDetailDelimiterIs.getSourceLocationRange(),
@@ -1251,9 +1252,11 @@ public final class TranslationPass
             final Liblkqllang.Expr exprBase = assoc.fExpr();
             values[i] = exprBase.isNone()
                 ? new ListLiteral(
-                    loc(assoc.fName()),
-                    new Expr[] { new ObjectLiteral(loc(assoc.fName()), new String[0], new Expr[0]) }
-                )
+                      loc(assoc.fName()),
+                      new Expr[] {
+                          new ObjectLiteral(loc(assoc.fName()), new String[0], new Expr[0]),
+                      }
+                  )
                 : AtObjectValueWrapperNodeGen.create(loc(exprBase), (Expr) exprBase.accept(this));
         }
 
@@ -1336,9 +1339,9 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.NamedFunction namedFunction) {
         return this.functionExprHelper(
-                namedFunction,
-                ((Liblkqllang.FunDecl) namedFunction.parent()).fName().getText()
-            );
+            namedFunction,
+            ((Liblkqllang.FunDecl) namedFunction.parent()).fName().getText()
+        );
     }
 
     /**

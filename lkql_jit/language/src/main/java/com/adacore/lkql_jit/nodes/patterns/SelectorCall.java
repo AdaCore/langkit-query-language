@@ -225,10 +225,10 @@ public final class SelectorCall extends LKQLNode {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "quantifier" },
-                new Object[] { this.quantifier }
-            );
+            indentLevel,
+            new String[] { "quantifier" },
+            new Object[] { this.quantifier }
+        );
     }
 
     // ----- Inner classes -----

@@ -106,9 +106,9 @@ public final class FunExpr extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "names", "expr" },
-                new Object[] { Arrays.toString(this.parameterNames), this.functionRootNode }
-            );
+            indentLevel,
+            new String[] { "names", "expr" },
+            new Object[] { Arrays.toString(this.parameterNames), this.functionRootNode }
+        );
     }
 }

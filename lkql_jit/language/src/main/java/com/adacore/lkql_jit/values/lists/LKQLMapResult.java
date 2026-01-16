@@ -49,12 +49,12 @@ public class LKQLMapResult extends BaseLKQLLazyList {
         try {
             while (this.generatorIterator.hasNext() && (n >= this.cache.size() || n < 0)) {
                 this.cache.append(
-                        this.functionLibrary.execute(
-                                this.mappingFunction,
-                                this.mappingFunction.closure.getContent(),
-                                this.generatorIterator.next()
-                            )
-                    );
+                    this.functionLibrary.execute(
+                        this.mappingFunction,
+                        this.mappingFunction.closure.getContent(),
+                        this.generatorIterator.next()
+                    )
+                );
             }
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
             throw LKQLRuntimeException.fromJavaException(e, null);

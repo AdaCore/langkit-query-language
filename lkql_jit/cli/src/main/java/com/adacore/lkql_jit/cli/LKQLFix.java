@@ -22,14 +22,14 @@ public class LKQLFix extends BaseLKQLChecker {
     @CommandLine.Command(
         name = "fix",
         description = "Fixer driver, to apply LKQL defined auto-fixes to sources. In this mode, you" +
-        " can only enable rules that defines an auto-fixing function."
+            " can only enable rules that defines an auto-fixing function."
     )
     public static class Args extends BaseLKQLChecker.Args {
 
         @CommandLine.Option(
             names = { "--auto-fix-mode" },
             description = "Mode to apply auto fixes (default is DISPLAY)" +
-            "%nPossible values: ${COMPLETION-CANDIDATES}",
+                "%nPossible values: ${COMPLETION-CANDIDATES}",
             completionCandidates = AutoFixModeCompletion.class
         )
         public LKQLOptions.AutoFixMode autoFixMode = LKQLOptions.AutoFixMode.DISPLAY;

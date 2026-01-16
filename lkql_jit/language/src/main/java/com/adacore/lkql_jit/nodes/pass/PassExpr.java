@@ -81,10 +81,10 @@ public abstract class PassExpr extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "previousSlot" },
-                new Object[] { previousSlot }
-            );
+            indentLevel,
+            new String[] { "previousSlot" },
+            new Object[] { previousSlot }
+        );
     }
 
     // getters

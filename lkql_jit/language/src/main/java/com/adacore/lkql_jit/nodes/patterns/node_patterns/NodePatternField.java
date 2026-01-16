@@ -110,9 +110,9 @@ public abstract class NodePatternField extends NodePatternDetail {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "fieldName" },
-                new Object[] { this.fieldName }
-            );
+            indentLevel,
+            new String[] { "fieldName" },
+            new Object[] { this.fieldName }
+        );
     }
 }

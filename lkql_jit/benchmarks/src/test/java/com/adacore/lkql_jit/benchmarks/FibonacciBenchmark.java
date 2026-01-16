@@ -20,8 +20,7 @@ public class FibonacciBenchmark extends TruffleBenchmark {
     private static final int term = 20;
 
     /** The fibonacci function in LKQL */
-    private static final String lkqlFibo =
-        """
+    private static final String lkqlFibo = """
         fun fibo(n) =
             if n <= 0
             then 0
@@ -32,8 +31,7 @@ public class FibonacciBenchmark extends TruffleBenchmark {
         """.formatted(term);
 
     /** The fibonacci function in JS */
-    private static final String jsFibo =
-        """
+    private static final String jsFibo = """
         function fibo(n) {
             if (n == 0) return 0;
             else if (n == 1) return 1;
@@ -43,8 +41,7 @@ public class FibonacciBenchmark extends TruffleBenchmark {
         """.formatted(term);
 
     /** The fibonacci function in SimpleLanguage */
-    private static final String slFibo =
-        """
+    private static final String slFibo = """
         function fibo(n) {
             if (n < 2) {
                 return 1;

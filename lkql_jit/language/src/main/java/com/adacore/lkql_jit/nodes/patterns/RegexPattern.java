@@ -76,9 +76,9 @@ public abstract class RegexPattern extends Pattern {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "pattern" },
-                new Object[] { this.pattern }
-            );
+            indentLevel,
+            new String[] { "pattern" },
+            new Object[] { this.pattern }
+        );
     }
 }

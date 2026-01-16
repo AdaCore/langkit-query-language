@@ -51,7 +51,7 @@ public class LKQLPasses extends AbstractLanguageLauncher {
         @CommandLine.Option(
             names = { "-U", "--recursive" },
             description = "Process all units in the project tree, excluding externally built" +
-            " projects"
+                " projects"
         )
         public boolean recursive;
 

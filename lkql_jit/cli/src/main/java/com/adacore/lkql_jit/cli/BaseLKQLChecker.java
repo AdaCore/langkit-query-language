@@ -30,8 +30,7 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
     protected Args args;
 
     /** Common source to perform checker like process. */
-    public static final String checkerSource =
-        """
+    public static final String checkerSource = """
         val analysis_units = specified_units()
         analysis_units.map((unit) => node_checker(unit.root)).to_list
         analysis_units.map((unit) => unit_checker(unit)).to_list
@@ -227,14 +226,14 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
         @CommandLine.Option(
             names = { "-r", "--rule" },
             description = "Rules to run on the provided code base (run all rules if none is " +
-            "provided)"
+                "provided)"
         )
         public List<String> rules = new ArrayList<>();
 
         @CommandLine.Option(
             names = { "-a", "--rule-arg" },
             description = "Argument to pass to a rule, with the syntax" +
-            " <rule_name>.<arg_name>=<arg_value>"
+                " <rule_name>.<arg_name>=<arg_value>"
         )
         public List<String> rulesArgs = new ArrayList<>();
 

@@ -49,8 +49,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         @CommandLine.Option(
             names = { "--parse-lkql-config" },
             description = "Parse the given LKQL file as a rule configuration file and return its" +
-            " result as a JSON encoded string. If this option is provided, all" +
-            " other features are disabled."
+                " result as a JSON encoded string. If this option is provided, all" +
+                " other features are disabled."
         )
         public String lkqlConfigFile = null;
 
@@ -78,7 +78,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         @CommandLine.Option(
             names = "-A",
             description = "The name of the subproject to analyse, if any. This implies that" +
-            " `projectFile` designates an aggregate project."
+                " `projectFile` designates an aggregate project."
         )
         public String subProject = null;
 
@@ -109,7 +109,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         @CommandLine.Option(
             names = "--ignore-project-switches",
             description = "Process all units in the project tree, excluding externally built" +
-            " projects"
+                " projects"
         )
         public boolean ignoreProjectSwitches;
 
@@ -419,9 +419,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             errorInLKQLRuleFile(
                 lkqlRuleFile,
                 "The value associated to the '" +
-                instancesObjectSymbol +
-                "' symbol must be an LKQL object, got " +
-                instancesObject
+                    instancesObjectSymbol +
+                    "' symbol must be an LKQL object, got " +
+                    instancesObject
             );
         }
 
@@ -485,11 +485,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                             "WORKER_WARNING",
                             current.locationToGNATDiagnosisFormatString(),
                             "instance " +
-                            current.instanceId() +
-                            " runs the same check than instance " +
-                            instance.instanceId() +
-                            " declared at " +
-                            instance.locationToGNATDiagnosisFormatString()
+                                current.instanceId() +
+                                " runs the same check than instance " +
+                                instance.instanceId() +
+                                " declared at " +
+                                instance.locationToGNATDiagnosisFormatString()
                         );
                     }
                 }
@@ -542,9 +542,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                     "WORKER_WARNING",
                     newInstance.locationToGNATDiagnosisFormatString(),
                     "ignore duplicate instance " +
-                    instanceId +
-                    ", previous declaration at " +
-                    oldInstance.locationToGNATDiagnosisFormatString()
+                        instanceId +
+                        ", previous declaration at " +
+                        oldInstance.locationToGNATDiagnosisFormatString()
                 );
             } else {
                 // On the contrary, emit an error.
@@ -552,10 +552,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                     "WORKER_ERROR",
                     newInstance.locationToGNATDiagnosisFormatString(),
                     "instance " +
-                    instanceId +
-                    " has a different configuration than the one previously declared at " +
-                    oldInstance.locationToGNATDiagnosisFormatString() +
-                    " (instances should have unique names)"
+                        instanceId +
+                        " has a different configuration than the one previously declared at " +
+                        oldInstance.locationToGNATDiagnosisFormatString() +
+                        " (instances should have unique names)"
                 );
             }
         } else {
@@ -608,13 +608,13 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 "WORKER_ERROR",
                 newInstance.locationToGNATDiagnosisFormatString(),
                 "cannot add instance " +
-                ruleName +
-                " twice using the shortcut argument format. Previous instance has been declared in" +
-                ((newInstance
-                                .instanceLocation()
-                                .equals(toPopulate.get(ruleName).instanceLocation()))
-                        ? " the same set"
-                        : ": " + toPopulate.get(ruleName).locationToGNATDiagnosisFormatString())
+                    ruleName +
+                    " twice using the shortcut argument format. Previous instance has been declared in" +
+                    ((newInstance
+                                    .instanceLocation()
+                                    .equals(toPopulate.get(ruleName).instanceLocation()))
+                            ? " the same set"
+                            : ": " + toPopulate.get(ruleName).locationToGNATDiagnosisFormatString())
             );
         }
     }
@@ -636,8 +636,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     // ----- The LKQL checker -----
 
-    public static final String checkerSource =
-        """
+    public static final String checkerSource = """
         val analysis_units = specified_units()
         val roots = [unit.root for unit in analysis_units]
 

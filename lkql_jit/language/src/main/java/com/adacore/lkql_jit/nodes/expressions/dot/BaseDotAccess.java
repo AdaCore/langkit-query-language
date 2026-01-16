@@ -71,9 +71,9 @@ public abstract class BaseDotAccess extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "member" },
-                new Object[] { this.member }
-            );
+            indentLevel,
+            new String[] { "member" },
+            new Object[] { this.member }
+        );
     }
 }

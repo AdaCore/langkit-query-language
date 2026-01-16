@@ -10,8 +10,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 
 public class ClosureBenchmark extends TruffleBenchmark {
 
-    private static final String lkqlClosure =
-        """
+    private static final String lkqlClosure = """
         fun foo(v) = {
             fun bar(w) = {
                 fun baz(x) = {
@@ -26,8 +25,7 @@ public class ClosureBenchmark extends TruffleBenchmark {
         fun r() = clos(14)
         repeat(1000000, r)""";
 
-    private static final String jsClosure =
-        """
+    private static final String jsClosure = """
         function foo(v) {
             function bar(w) {
                 function baz(x) {

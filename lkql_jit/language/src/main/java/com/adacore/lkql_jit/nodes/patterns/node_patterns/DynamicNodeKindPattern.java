@@ -66,9 +66,9 @@ public final class DynamicNodeKindPattern extends Pattern {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "kindName" },
-                new Object[] { this.kindName }
-            );
+            indentLevel,
+            new String[] { "kindName" },
+            new Object[] { this.kindName }
+        );
     }
 }
