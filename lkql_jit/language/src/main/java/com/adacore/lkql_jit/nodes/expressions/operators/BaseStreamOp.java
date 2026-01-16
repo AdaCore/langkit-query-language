@@ -64,9 +64,9 @@ public abstract class BaseStreamOp extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "head", "tail" },
-                new Object[] { this.getHead(), this.tailLazyValue }
-            );
+            indentLevel,
+            new String[] { "head", "tail" },
+            new Object[] { this.getHead(), this.tailLazyValue }
+        );
     }
 }

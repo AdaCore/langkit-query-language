@@ -115,12 +115,12 @@ public class CheckerUtils {
         ) {
             LKQLLanguage.getContext(null).println(
                 this.diagnostic(
-                        messageKind,
-                        errorMessage,
-                        adaErrorLocation,
-                        lkqlErrorLocation,
-                        ruleName
-                    )
+                    messageKind,
+                    errorMessage,
+                    adaErrorLocation,
+                    lkqlErrorLocation,
+                    ruleName
+                )
             );
         }
 
@@ -149,14 +149,14 @@ public class CheckerUtils {
         /** Shortcut to emit a "file not found" message. */
         default void emitFileNotFound(SourceLocation from, String fileName, boolean isError) {
             this.emitDiagnostic(
-                    isError ? MessageKind.ERROR : MessageKind.WARNING,
-                    "File " +
+                isError ? MessageKind.ERROR : MessageKind.WARNING,
+                "File " +
                     (useFullFilePath() ? fileName : FileUtils.baseName(fileName)) +
                     " not found",
-                    from,
-                    null,
-                    null
-                );
+                from,
+                null,
+                null
+            );
         }
 
         /** Method used to report an error array returned by a project loading. */
@@ -190,13 +190,13 @@ public class CheckerUtils {
             // Print the things
             context.println(
                 "%s%s:%s rule violation: %s%s\n%s\n".formatted(
-                        (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_BOLD : ""),
-                        violationLocation.display(),
-                        (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_YELLOW : ""),
-                        (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_RESET : ""),
-                        message,
-                        StringUtils.underlineSource(violationLocation, StringUtils.ANSI_YELLOW)
-                    )
+                    (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_BOLD : ""),
+                    violationLocation.display(),
+                    (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_YELLOW : ""),
+                    (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_RESET : ""),
+                    message,
+                    StringUtils.underlineSource(violationLocation, StringUtils.ANSI_YELLOW)
+                )
             );
         }
 
@@ -263,13 +263,13 @@ public class CheckerUtils {
             // Print the things
             context.println(
                 violationLocation.display() +
-                ": " +
-                "check: " +
-                message +
-                " [" +
-                (checker.getAlias() == null ? "" : checker.getAlias() + "|") +
-                StringUtils.toLowerCase(checker.getName()) +
-                "]"
+                    ": " +
+                    "check: " +
+                    message +
+                    " [" +
+                    (checker.getAlias() == null ? "" : checker.getAlias() + "|") +
+                    StringUtils.toLowerCase(checker.getName()) +
+                    "]"
             );
         }
 
@@ -329,12 +329,12 @@ public class CheckerUtils {
         @Override
         public void emitFileNotFound(SourceLocation from, String fileName, boolean isError) {
             this.emitDiagnostic(
-                    isError ? MessageKind.ERROR : MessageKind.WARNING,
-                    "cannot find " + (FileUtils.baseName(fileName)),
-                    from,
-                    null,
-                    null
-                );
+                isError ? MessageKind.ERROR : MessageKind.WARNING,
+                "cannot find " + (FileUtils.baseName(fileName)),
+                from,
+                null,
+                null
+            );
         }
 
         @Override

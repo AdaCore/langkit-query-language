@@ -75,11 +75,10 @@ public class BuiltInFunctionValue extends LKQLFunction {
 
     @CompilerDirectives.TruffleBoundary
     private Node getDefaultValAt(int i) {
-        var prg =
-            ((TopLevelList) LKQLLanguage.getLanguage((LKQLNode) body).translate(
-                    stringDefaultVals[i],
-                    "<defaultval>"
-                )).program;
+        var prg = ((TopLevelList) LKQLLanguage.getLanguage((LKQLNode) body).translate(
+                stringDefaultVals[i],
+                "<defaultval>"
+            )).program;
         return prg[0];
     }
 }

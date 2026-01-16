@@ -70,12 +70,11 @@ public final class LKQLContext {
         (ctx, name, from, found, notFoundIsError) -> {
             if (!found && notFoundIsError) {
                 boolean isFatal = !this.keepGoingOnMissingFile();
-                this.getDiagnosticEmitter()
-                    .emitFileNotFound(
-                        new LangkitLocationWrapper(from.getRoot(), this.linesCache),
-                        name,
-                        isFatal
-                    );
+                this.getDiagnosticEmitter().emitFileNotFound(
+                    new LangkitLocationWrapper(from.getRoot(), this.linesCache),
+                    name,
+                    isFatal
+                );
                 if (isFatal) {
                     this.env.getContext().closeExited(null, 1);
                 }
@@ -186,15 +185,16 @@ public final class LKQLContext {
 
     public Stream<LangkitSupport.AnalysisUnit> getAllUnits() {
         String[] ignores = this.getIgnores();
-        return this.allSourceFiles.stream()
-            .map(f -> {
-                return analysisContext.getUnitFromFile(f);
-            });
+        return this.allSourceFiles.stream().map(f -> {
+            return analysisContext.getUnitFromFile(f);
+        });
     }
 
     @CompilerDirectives.TruffleBoundary
     public LangkitSupport.NodeInterface[] allUnitsRoots() {
-        return getAllUnits().map(u -> u.getRoot()).toArray(LangkitSupport.NodeInterface[]::new);
+        return getAllUnits()
+            .map(u -> u.getRoot())
+            .toArray(LangkitSupport.NodeInterface[]::new);
     }
 
     public boolean hasRewritingContext() {
@@ -428,8 +428,11 @@ public final class LKQLContext {
                 if (sourceFile.isFile()) {
                     this.specifiedSourceFiles.add(sourceFile.getAbsolutePath());
                 } else {
-                    this.getDiagnosticEmitter()
-                        .emitFileNotFound(null, file, !this.keepGoingOnMissingFile());
+                    this.getDiagnosticEmitter().emitFileNotFound(
+                        null,
+                        file,
+                        !this.keepGoingOnMissingFile()
+                    );
                 }
             }
         }
@@ -440,7 +443,7 @@ public final class LKQLContext {
         final String target = this.getTarget();
         final String runtime = this.getRuntime();
         final String configFile = this.getConfigFile();
-        try (Libadalang.ProjectOptions opts = new Libadalang.ProjectOptions();) {
+        try (Libadalang.ProjectOptions opts = new Libadalang.ProjectOptions()) {
             for (var v : vars) {
                 opts.addSwitch(Libadalang.ProjectOption.X, v);
             }
@@ -460,49 +463,50 @@ public final class LKQLContext {
 
                 // Forward the project diagnostics if there are some
                 if (!this.projectManager.getDiagnostics().isEmpty()) {
-                    this.getDiagnosticEmitter()
-                        .emitProjectErrors(
-                            new File(projectFileName).getName(),
-                            this.projectManager.getDiagnostics()
-                        );
+                    this.getDiagnosticEmitter().emitProjectErrors(
+                        new File(projectFileName).getName(),
+                        this.projectManager.getDiagnostics()
+                    );
                 }
 
                 // Get the subproject provided by the user
-                final String[] subprojects =
-                    this.getOptions().subprojectFile().map(s -> new String[] { s }).orElse(null);
+                final String[] subprojects = this.getOptions()
+                    .subprojectFile()
+                    .map(s -> new String[] { s })
+                    .orElse(null);
 
                 // If no files were specified by the user, the files to analyze
                 // are those of the root project (i.e. without recursing into
                 // project dependencies)
                 if (this.specifiedSourceFiles.isEmpty()) {
                     this.specifiedSourceFiles.addAll(
-                            Arrays.stream(
-                                this.projectManager.getFiles(
-                                        Libadalang.SourceFileMode.ROOT_PROJECT,
-                                        subprojects
-                                    )
-                            ).toList()
-                        );
+                        Arrays.stream(
+                            this.projectManager.getFiles(
+                                Libadalang.SourceFileMode.ROOT_PROJECT,
+                                subprojects
+                            )
+                        ).toList()
+                    );
                 }
 
                 // The `units()` built-in function must return all units of the
                 // project including units from its dependencies. So let's
                 // retrieve all those files as well.
                 this.allSourceFiles.addAll(
-                        Arrays.stream(
-                            this.projectManager.getFiles(
-                                    Libadalang.SourceFileMode.WHOLE_PROJECT,
-                                    subprojects
-                                )
-                        ).toList()
-                    );
+                    Arrays.stream(
+                        this.projectManager.getFiles(
+                            Libadalang.SourceFileMode.WHOLE_PROJECT,
+                            subprojects
+                        )
+                    ).toList()
+                );
 
                 this.analysisContext = this.projectManager.createContext(
-                        this.getOptions().subprojectFile().orElse(null),
-                        this.eventHandler,
-                        true,
-                        8
-                    );
+                    this.getOptions().subprojectFile().orElse(null),
+                    this.eventHandler,
+                    true,
+                    8
+                );
             }
             // Else, either load the implicit project.
             else {
@@ -524,10 +528,10 @@ public final class LKQLContext {
                 // Load the implicit project
                 this.projectManager = new Libadalang.ProjectManager(opts, true);
                 this.allSourceFiles.addAll(
-                        Arrays.stream(
-                            this.projectManager.getFiles(Libadalang.SourceFileMode.WHOLE_PROJECT)
-                        ).toList()
-                    );
+                    Arrays.stream(
+                        this.projectManager.getFiles(Libadalang.SourceFileMode.WHOLE_PROJECT)
+                    ).toList()
+                );
                 final Libadalang.UnitProvider provider = this.projectManager.getProvider();
 
                 // Create the ada context and store it in the LKQL context
@@ -562,8 +566,10 @@ public final class LKQLContext {
      */
     @CompilerDirectives.TruffleBoundary
     public Object getRuleArg(String instanceId, String argName) {
-        final Map<String, Object> instanceArgs =
-            this.instancesArgsCache.getOrDefault(instanceId, new HashMap<>());
+        final Map<String, Object> instanceArgs = this.instancesArgsCache.getOrDefault(
+            instanceId,
+            new HashMap<>()
+        );
 
         // If an argument is not already in the argument values cache, get its source from the
         // registered instances and evaluate it if some.
@@ -668,8 +674,10 @@ public final class LKQLContext {
         }
         // Iterate over all rule instance to create the checker lists
         else {
-            for (Map.Entry<String, RuleInstance> instanceEntry : this.getRuleInstances()
-                .entrySet()) {
+            for (Map.Entry<
+                String,
+                RuleInstance
+            > instanceEntry : this.getRuleInstances().entrySet()) {
                 final RuleInstance instance = instanceEntry.getValue();
 
                 // Get the checker associated to the rule instance
@@ -686,8 +694,8 @@ public final class LKQLContext {
                 if (getEngineMode() == LKQLOptions.EngineMode.FIXER && checker.autoFix == null) {
                     throw LKQLRuntimeException.create(
                         "Rule \"" +
-                        instance.ruleName() +
-                        "\" is not defining any auto-fixing function"
+                            instance.ruleName() +
+                            "\" is not defining any auto-fixing function"
                     );
                 }
 

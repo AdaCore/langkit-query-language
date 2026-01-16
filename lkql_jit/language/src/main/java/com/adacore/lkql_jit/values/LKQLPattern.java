@@ -76,8 +76,12 @@ public final class LKQLPattern extends LKQLValue {
     /** Get whether the given string contains a substring that validate the regex. */
     public boolean contains(String string) {
         try {
-            Object resultObject = InteropLibrary.getUncached()
-                .invokeMember(this.regexObject, "exec", string, 0);
+            Object resultObject = InteropLibrary.getUncached().invokeMember(
+                this.regexObject,
+                "exec",
+                string,
+                0
+            );
             return (boolean) InteropLibrary.getUncached().readMember(resultObject, "isMatch");
         } catch (Exception e) {
             throw new RuntimeException(
@@ -90,8 +94,12 @@ public final class LKQLPattern extends LKQLValue {
     /** Get the index of the first matched group in the given string, return -1 if there is none. */
     public int find(String string) {
         try {
-            Object resultObject = InteropLibrary.getUncached()
-                .invokeMember(this.regexObject, "exec", string, 0);
+            Object resultObject = InteropLibrary.getUncached().invokeMember(
+                this.regexObject,
+                "exec",
+                string,
+                0
+            );
             return (int) InteropLibrary.getUncached().invokeMember(resultObject, "getStart", 0);
         } catch (Exception e) {
             throw new RuntimeException(

@@ -105,8 +105,18 @@ public record LKQLOptions(
             Optional.ofNullable(jsonLKQLOptions.optString("target", null)),
             Optional.ofNullable(jsonLKQLOptions.optString("configFile", null)),
             JSONUtils.parseStringMap(jsonLKQLOptions.getJSONObject("scenarioVariables")),
-            jsonLKQLOptions.getJSONArray("files").toList().stream().map(e -> (String) e).toList(),
-            jsonLKQLOptions.getJSONArray("ignores").toList().stream().map(e -> (String) e).toList(),
+            jsonLKQLOptions
+                .getJSONArray("files")
+                .toList()
+                .stream()
+                .map(e -> (String) e)
+                .toList(),
+            jsonLKQLOptions
+                .getJSONArray("ignores")
+                .toList()
+                .stream()
+                .map(e -> (String) e)
+                .toList(),
             jsonLKQLOptions
                 .getJSONArray("rulesDirs")
                 .toList()

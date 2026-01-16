@@ -27,14 +27,13 @@ public abstract class BuiltInBody extends Expr {
     // ----- Instance methods -----
 
     protected SourceSection getCallLocation() {
-        return Truffle.getRuntime()
-            .iterateFrames(frameInstance -> {
-                var callnode = frameInstance.getCallNode();
-                if (callnode != null) {
-                    return callnode.getEncapsulatingSourceSection();
-                }
-                return null;
-            });
+        return Truffle.getRuntime().iterateFrames(frameInstance -> {
+            var callnode = frameInstance.getCallNode();
+            if (callnode != null) {
+                return callnode.getEncapsulatingSourceSection();
+            }
+            return null;
+        });
     }
 
     // ----- Override methods -----

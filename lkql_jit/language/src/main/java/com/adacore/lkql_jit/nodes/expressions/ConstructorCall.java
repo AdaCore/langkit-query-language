@@ -167,10 +167,10 @@ public final class ConstructorCall extends Expr {
                     final var args = new LangkitSupport.RewritingNodeInterface[objectArgs.length];
                     for (int i = 0; i < objectArgs.length; i++) {
                         args[i] = this.rewritingNodeConverter.execute(
-                                objectArgs[i],
-                                true,
-                                this.args[0].getArgExpr()
-                            );
+                            objectArgs[i],
+                            true,
+                            this.args[0].getArgExpr()
+                        );
                     }
                     return rewritingContext.createNode(this.nodeKind, args);
                 } catch (UnexpectedResultException e) {
@@ -187,10 +187,10 @@ public final class ConstructorCall extends Expr {
             final var args = new LangkitSupport.RewritingNodeInterface[this.args.length];
             for (int i = 0; i < args.length; i++) {
                 args[i] = this.rewritingNodeConverter.execute(
-                        this.args[i].getArgExpr().executeGeneric(frame),
-                        true,
-                        this.args[i].getArgExpr()
-                    );
+                    this.args[i].getArgExpr().executeGeneric(frame),
+                    true,
+                    this.args[i].getArgExpr()
+                );
             }
             return rewritingContext.createNode(this.nodeKind, args);
         }

@@ -112,11 +112,11 @@ public class BuiltInProcessor extends AbstractProcessor {
 
             stream.println(
                 "    static private Map<String, Pair<Integer, BuiltInFunctionValue>>" +
-                " allFunctionsCache = null;"
+                    " allFunctionsCache = null;"
             );
             stream.println(
                 "    static private Map<String, Map<String, BuiltInMethodFactory>>" +
-                " allMethodsCache = null;"
+                    " allMethodsCache = null;"
             );
 
             // allFunctions method
@@ -131,10 +131,10 @@ public class BuiltInProcessor extends AbstractProcessor {
             stream.println("    var fns = Stream.of(");
             stream.println(
                 builtInPackages
-                    .stream()
-                    .map(p -> "            Arrays.stream(" + p.getValue() + ".getFunctions())")
-                    .collect(Collectors.joining(",\n")) +
-                ")"
+                        .stream()
+                        .map(p -> "            Arrays.stream(" + p.getValue() + ".getFunctions())")
+                        .collect(Collectors.joining(",\n")) +
+                    ")"
             );
 
             stream.println(".reduce(Stream::concat).orElseGet(Stream::empty).toList();");
@@ -150,25 +150,25 @@ public class BuiltInProcessor extends AbstractProcessor {
             // allMethods method
             stream.println(
                 "    public static Map<String, Map<String, BuiltInMethodFactory>>" +
-                " allMethods() {"
+                    " allMethods() {"
             );
             stream.println("        if (allMethodsCache != null) {");
             stream.println("            return allMethodsCache;");
             stream.println("        }");
             stream.println(
                 "        allMethodsCache = new HashMap<String, Map<String," +
-                " BuiltInMethodFactory>>();"
+                    " BuiltInMethodFactory>>();"
             );
             for (var p : builtInPackages) {
                 stream.println("        for (var pair : " + p.getValue() + ".getMethods()) {");
                 stream.println(
                     "       var keys = pair.getLeft().length == 0 ?" +
-                    " LKQLTypesHelper.ALL_TYPES : pair.getLeft();"
+                        " LKQLTypesHelper.ALL_TYPES : pair.getLeft();"
                 );
                 stream.println("            for (var key : keys) {");
                 stream.println(
                     "            var typeMap = allMethodsCache.computeIfAbsent(key, t ->" +
-                    " new HashMap<>());"
+                        " new HashMap<>());"
                 );
                 stream.println(
                     "                 typeMap.put(pair.getRight().name, pair.getRight());"

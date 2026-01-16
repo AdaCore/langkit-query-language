@@ -73,7 +73,9 @@ public class RunPass extends LKQLNode {
                 try {
                     units[i] = InteropLibrary.getUncached().execute(pass, frame, units[i]);
                 } catch (
-                    UnsupportedTypeException | ArityException | UnsupportedMessageException e
+                    UnsupportedTypeException
+                    | ArityException
+                    | UnsupportedMessageException e
                 ) {
                     LKQLRuntimeException.fromJavaException(e, this);
                 }

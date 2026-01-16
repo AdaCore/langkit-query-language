@@ -155,7 +155,7 @@ public class BuiltInFunctions {
     @BuiltInFunction(
         name = "reduce",
         doc = "Given a collection, a reduction function, and an initial value reduce the" +
-        " result"
+            " result"
     )
     @BuiltInMethod(
         targetTypes = {
@@ -186,7 +186,9 @@ public class BuiltInFunctions {
                         iterator.next()
                     );
                 } catch (
-                    ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                    ArityException
+                    | UnsupportedTypeException
+                    | UnsupportedMessageException e
                 ) {
                     throw LKQLRuntimeException.fromJavaException(e, this);
                 }
@@ -265,11 +267,13 @@ public class BuiltInFunctions {
                         writer.write(typeName + "." + method.getKey());
                         writer.write(
                             "(" +
-                            String.join(
-                                ", ",
-                                Arrays.stream(method.getValue().paramNames).toArray(String[]::new)
-                            ) +
-                            ")"
+                                String.join(
+                                    ", ",
+                                    Arrays.stream(method.getValue().paramNames).toArray(
+                                        String[]::new
+                                    )
+                                ) +
+                                ")"
                         );
                         writer.write("\n\n");
                         writer.withIndent(() -> {
@@ -355,8 +359,9 @@ public class BuiltInFunctions {
             LKQLFunction function,
             InteropLibrary functionLibrary
         ) {
-            return Truffle.getRuntime()
-                .createLoopNode(new InternalRepeatingNode(function, functionLibrary, times));
+            return Truffle.getRuntime().createLoopNode(
+                new InternalRepeatingNode(function, functionLibrary, times)
+            );
         }
 
         @Specialization(
@@ -420,7 +425,9 @@ public class BuiltInFunctions {
                     try {
                         functionLibrary.execute(function, (Object) function.closure.getContent());
                     } catch (
-                        ArityException | UnsupportedTypeException | UnsupportedMessageException e
+                        ArityException
+                        | UnsupportedTypeException
+                        | UnsupportedMessageException e
                     ) {
                         throw LKQLRuntimeException.fromJavaException(e, this);
                     }

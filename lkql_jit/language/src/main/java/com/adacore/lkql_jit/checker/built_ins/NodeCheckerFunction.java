@@ -189,12 +189,12 @@ public final class NodeCheckerFunction {
                 // If we're in Ada code execute the Ada checkers else execute the SPARK checkers
                 if (inSparkCode) {
                     this.executeCheckers(
-                            frame,
-                            currentStep,
-                            currentNode,
-                            sparkNodeCheckers,
-                            context
-                        );
+                        frame,
+                        currentStep,
+                        currentNode,
+                        sparkNodeCheckers,
+                        context
+                    );
                 } else {
                     this.executeCheckers(frame, currentStep, currentNode, nodeCheckers, context);
                 }

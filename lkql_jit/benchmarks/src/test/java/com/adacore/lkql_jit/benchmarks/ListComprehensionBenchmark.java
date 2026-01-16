@@ -29,22 +29,22 @@ public class ListComprehensionBenchmark extends TruffleBenchmark {
     private static final int size = 10_000;
 
     /** The source for the LKQL list comprehension value. */
-    private static final String lkqlSource =
-        """
+    private static final String lkqlSource = """
         val generator = [%s]
         val result = [x * 2 for x in generator].to_list
         """;
 
     /** The fibonacci function in JS */
-    private static final String jsSource =
-        """
+    private static final String jsSource = """
         var generator = [%s];
         var result = generator.map(x => x * 2);
         """;
 
     /** Java recursive fibonacci implementation. */
     private void javaListComp() {
-        Arrays.stream(this.generator).map(x -> x * 2).toArray();
+        Arrays.stream(this.generator)
+            .map(x -> x * 2)
+            .toArray();
     }
 
     // ----- Benchmark lifecycle -----

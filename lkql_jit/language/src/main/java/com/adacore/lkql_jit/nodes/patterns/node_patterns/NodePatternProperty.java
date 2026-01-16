@@ -88,15 +88,9 @@ public abstract class NodePatternProperty extends NodePatternDetail {
 
         // Verify the pattern
         return this.expected.executeValue(
-                frame,
-                ReflectionUtils.callProperty(
-                    property.node,
-                    property.description,
-                    this,
-                    args,
-                    arguments
-                )
-            );
+            frame,
+            ReflectionUtils.callProperty(property.node, property.description, this, args, arguments)
+        );
     }
 
     /**
@@ -133,9 +127,9 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "propertyName" },
-                new Object[] { this.propertyName }
-            );
+            indentLevel,
+            new String[] { "propertyName" },
+            new Object[] { this.propertyName }
+        );
     }
 }

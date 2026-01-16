@@ -127,7 +127,7 @@ public class Hierarchy {
     @TruffleBoundary
     public boolean isInstance(String classX, String classY) {
         return inheritanceMatrix[classNamesToIndex.get(classX) * size() +
-            classNamesToIndex.get(classY)];
+        classNamesToIndex.get(classY)];
     }
 
     /**

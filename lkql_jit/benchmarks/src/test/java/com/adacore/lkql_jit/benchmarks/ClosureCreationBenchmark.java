@@ -13,40 +13,40 @@ public class ClosureCreationBenchmark extends TruffleBenchmark {
     @Benchmark
     public void truffle_js() {
         this.context.eval(
-                "js",
-                """
-                function foo(v) {
-                    function bar(w) {
-                        function baz(x) {
-                            return v + w + x;
-                        }
-                        return baz;
+            "js",
+            """
+            function foo(v) {
+                function bar(w) {
+                    function baz(x) {
+                        return v + w + x;
                     }
-                    return bar;
+                    return baz;
                 }
+                return bar;
+            }
 
-                for (let i = 0; i < 10000; i++) {
-                    foo(12)(13)(14)
-                }"""
-            );
+            for (let i = 0; i < 10000; i++) {
+                foo(12)(13)(14)
+            }"""
+        );
     }
 
     @Benchmark
     public void truffle_lkql() {
         this.context.eval(
-                "lkql",
-                """
-                fun foo(v) = {
-                    fun bar(w) = {
-                        fun baz(x) = {
-                            v + w + x
-                        };
-                        baz
+            "lkql",
+            """
+            fun foo(v) = {
+                fun bar(w) = {
+                    fun baz(x) = {
+                        v + w + x
                     };
-                    bar
-                }
+                    baz
+                };
+                bar
+            }
 
-                repeat(10000, () => foo(12)(13)(14))"""
-            );
+            repeat(10000, () => foo(12)(13)(14))"""
+        );
     }
 }

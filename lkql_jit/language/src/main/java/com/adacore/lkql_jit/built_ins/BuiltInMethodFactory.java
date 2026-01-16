@@ -61,12 +61,12 @@ public final class BuiltInMethodFactory {
         return this.isProperty
             ? new BuiltInPropertyValue(documentation, functionRootNode, thisValue)
             : new BuiltInMethodValue(
-                documentation,
-                paramNames,
-                defaultValues,
-                functionRootNode,
-                thisValue
-            );
+                  documentation,
+                  paramNames,
+                  defaultValues,
+                  functionRootNode,
+                  thisValue
+              );
     }
 
     // ----- Class methods -----

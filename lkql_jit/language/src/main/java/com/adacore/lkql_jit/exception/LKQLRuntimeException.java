@@ -187,12 +187,12 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     ) {
         return LKQLRuntimeException.create(
             "Ambiguous importation, multiple \"" +
-            moduleName +
-            "\" modules found (" +
-            StreamSupport.stream(possibleFiles.spliterator(), false)
-                .map(File::getAbsolutePath)
-                .collect(Collectors.joining(" & ")) +
-            ")",
+                moduleName +
+                "\" modules found (" +
+                StreamSupport.stream(possibleFiles.spliterator(), false)
+                    .map(File::getAbsolutePath)
+                    .collect(Collectors.joining(" & ")) +
+                ")",
             location
         );
     }
@@ -206,10 +206,10 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     ) {
         return LKQLRuntimeException.create(
             "Circular dependency in LKQL modules (" +
-            importStack.stream().map(Source::getName).collect(Collectors.joining(" -> ")) +
-            " -> " +
-            responsible.getName() +
-            ")",
+                importStack.stream().map(Source::getName).collect(Collectors.joining(" -> ")) +
+                " -> " +
+                responsible.getName() +
+                ")",
             location
         );
     }
@@ -566,11 +566,11 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
                     .append(
                         pretty && LKQLLanguage.SUPPORT_COLOR
                             ? "%s%s%s%s".formatted(
-                                    StringUtils.ANSI_RED,
-                                    StringUtils.ANSI_BOLD,
-                                    rootNode.getName(),
-                                    StringUtils.ANSI_RESET
-                                )
+                                  StringUtils.ANSI_RED,
+                                  StringUtils.ANSI_BOLD,
+                                  rootNode.getName(),
+                                  StringUtils.ANSI_RESET
+                              )
                             : rootNode.getName()
                     )
                     .append("\n");

@@ -36,9 +36,9 @@ public abstract class BoolPattern extends Pattern {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[] { "toMatch" },
-                new Object[] { this.toMatch }
-            );
+            indentLevel,
+            new String[] { "toMatch" },
+            new Object[] { this.toMatch }
+        );
     }
 }

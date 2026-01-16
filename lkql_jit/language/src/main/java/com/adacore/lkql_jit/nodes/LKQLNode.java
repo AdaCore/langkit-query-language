@@ -211,9 +211,9 @@ public abstract class LKQLNode extends Node {
             } catch (Exception e) {
                 System.err.println(
                     "Cannot get the child " +
-                    childField.getName() +
-                    " for " +
-                    this.getClass().getSimpleName()
+                        childField.getName() +
+                        " for " +
+                        this.getClass().getSimpleName()
                 );
             }
         }

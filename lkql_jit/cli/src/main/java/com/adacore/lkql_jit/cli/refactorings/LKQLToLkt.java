@@ -361,13 +361,12 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             final var through = throughNode.isNone() ? "children" : refactorNode(throughNode);
 
             // best effort heuristic to cover common cases
-            final var isPlural =
-                switch (fromNode) {
-                    case Liblkqllang.ListLiteral _ -> true;
-                    case Liblkqllang.ListComprehension _ -> true;
-                    case Liblkqllang.DotAccess dot -> dot.fMember().getText().equals("children");
-                    default -> false;
-                };
+            final var isPlural = switch (fromNode) {
+                case Liblkqllang.ListLiteral _ -> true;
+                case Liblkqllang.ListComprehension _ -> true;
+                case Liblkqllang.DotAccess dot -> dot.fMember().getText().equals("children");
+                default -> false;
+            };
 
             source = isPlural
                 ? "(" + from + ").flat_map(" + through + ")"

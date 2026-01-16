@@ -114,8 +114,8 @@ public class LKQLDocRules implements Callable<Integer> {
     }
 
     /** Object to represent a LKQL rule for easier documentation generation. */
-    private record Rule(FunDecl check, String name, String category, String subcategory)
-        implements Comparable<Rule> {
+    private record Rule(FunDecl check, String name, String category, String subcategory) implements
+        Comparable<Rule> {
         public Rule(FunDecl check) {
             this(
                 check,
@@ -178,10 +178,10 @@ public class LKQLDocRules implements Callable<Integer> {
             } else {
                 System.out.println(
                     "Warning: wrong or missing documentation for " +
-                    this.name +
-                    " (doc_node: " +
-                    doc +
-                    ")"
+                        this.name +
+                        " (doc_node: " +
+                        doc +
+                        ")"
                 );
             }
 
@@ -255,11 +255,14 @@ public class LKQLDocRules implements Callable<Integer> {
 
         // Get all lkql files from directories to analyse.
         List<File> ruleDirectoryFiles = new ArrayList<>();
-        for (var dir : rulesDirs) ruleDirectoryFiles.addAll(
-            Arrays.asList(
-                dir.listFiles(f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION))
-            )
-        );
+        for (var dir : rulesDirs)
+            ruleDirectoryFiles.addAll(
+                Arrays.asList(
+                    dir.listFiles(
+                        f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION)
+                    )
+                )
+            );
 
         List<AnalysisUnit> units = new ArrayList<>();
 

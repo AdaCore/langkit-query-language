@@ -78,8 +78,8 @@ public class StrMethods {
     @BuiltInMethod(
         name = "is_mixed_case",
         doc = "Return whether the given string is written in mixed case, that is," +
-        " with only lower case characters except the first one and every" +
-        " character following an underscore",
+            " with only lower case characters except the first one and every" +
+            " character following an underscore",
         isProperty = true
     )
     public abstract static class IsMixedCaseExpr extends BuiltInBody {
@@ -126,7 +126,7 @@ public class StrMethods {
     @BuiltInMethod(
         name = "substring",
         doc = "Given a string and two indices (from and to), return the substring" +
-        " contained between indices from and to (both included)"
+            " contained between indices from and to (both included)"
     )
     abstract static class SubstringExpr extends BuiltInBody {
 
@@ -151,7 +151,7 @@ public class StrMethods {
     @BuiltInMethod(
         name = "split",
         doc = "Given a string, split it on the given separator, and return an iterator on the" +
-        " parts"
+            " parts"
     )
     abstract static class SplitExpr extends BuiltInBody {
 
@@ -164,7 +164,7 @@ public class StrMethods {
     @BuiltInMethod(
         name = "contains",
         doc = "Search for to_find in the given string. Return whether a match is" +
-        " found. to_find can be either a pattern or a string"
+            " found. to_find can be either a pattern or a string"
     )
     abstract static class ContainsExpr extends BuiltInBody {
 
@@ -182,7 +182,7 @@ public class StrMethods {
     @BuiltInMethod(
         name = "find",
         doc = "Search for to_find in the given string. Return position of the match," +
-        " or -1 if no match. to_find can be either a pattern or a string"
+            " or -1 if no match. to_find can be either a pattern or a string"
     )
     abstract static class FindExpr extends BuiltInBody {
 
