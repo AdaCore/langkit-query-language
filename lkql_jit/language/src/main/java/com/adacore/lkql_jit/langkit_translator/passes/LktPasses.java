@@ -586,84 +586,99 @@ public final class LktPasses {
         }
 
         private Pattern buildPattern(Liblktlang.Pattern pattern) {
-            if (pattern instanceof Liblktlang.NullPattern nullPattern) {
-                return new NullPattern(loc(nullPattern));
-            } else if (pattern instanceof Liblktlang.IntegerPattern integerPattern) {
-                try {
-                    return IntegerPatternNodeGen.create(
-                        loc(integerPattern),
-                        Integer.parseInt(integerPattern.getText())
+            switch (pattern) {
+                case Liblktlang.ComplexPattern complexPattern -> {
+                    Pattern result = null;
+
+                    final Integer slot;
+                    if (complexPattern.fDecl().isNone()) {
+                        slot = null;
+                    } else {
+                        // Get the value of the binding
+                        final String name = complexPattern.fDecl().fSynName().getText();
+                        this.frames.declareBinding(name);
+                        slot = this.frames.getBinding(name);
+                    }
+
+                    // Make simple pattern
+                    if (!complexPattern.fPattern().isNone()) {
+                        result = buildPattern(complexPattern.fPattern());
+                    }
+
+                    // Make extended pattern
+                    if (complexPattern.fDetails().getChildrenCount() > 0) {
+                        // Get the pattern details
+                        final List<NodePatternDetail> details = new ArrayList<>();
+                        for (var detail : complexPattern.fDetails()) {
+                            details.add(buildPatternDetail(detail));
+                        }
+
+                        result = new ExtendedNodePattern(
+                            loc(complexPattern),
+                            result,
+                            details.toArray(new NodePatternDetail[0])
+                        );
+                    }
+
+                    if (!complexPattern.fDecl().isNone()) {
+                        // Make binding pattern
+                        result = new BindingPattern(loc(complexPattern), slot, result);
+                    }
+
+                    if (!complexPattern.fPredicate().isNone()) {
+                        // Make filtered pattern
+                        result = new FilteredPattern(
+                            loc(complexPattern),
+                            result,
+                            buildExpr(complexPattern.fPredicate())
+                        );
+                    }
+
+                    return result;
+                }
+                case Liblktlang.NullPattern nullPattern -> {
+                    return new NullPattern(loc(nullPattern));
+                }
+                case Liblktlang.IntegerPattern integerPattern -> {
+                    try {
+                        return IntegerPatternNodeGen.create(
+                            loc(integerPattern),
+                            Integer.parseInt(integerPattern.getText())
+                        );
+                    } catch (NumberFormatException e) {
+                        throw translationError(
+                            integerPattern,
+                            "Invalid number literal for pattern"
+                        );
+                    }
+                }
+                case Liblktlang.TypePattern typePattern -> {
+                    return new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
+                }
+                case Liblktlang.AnyTypePattern univPattern -> {
+                    return new UniversalPattern(loc(univPattern));
+                }
+                case Liblktlang.RegexPattern regexPattern -> {
+                    var regex = regexPattern.getText();
+                    regex = regex.substring(1, regex.length() - 1);
+                    return RegexPatternNodeGen.create(loc(regexPattern), regex);
+                }
+                case Liblktlang.ParenPattern parenPattern -> {
+                    final Pattern p = buildPattern(parenPattern.fSubPattern());
+                    return new ParenPattern(loc(parenPattern), p);
+                }
+                case Liblktlang.OrPattern orPattern -> {
+                    return new OrPattern(
+                        loc(orPattern),
+                        buildPattern(orPattern.fLeftSubPattern()),
+                        buildPattern(orPattern.fRightSubPattern())
                     );
-                } catch (NumberFormatException e) {
-                    throw translationError(integerPattern, "Invalid number literal for pattern");
                 }
-            } else if (pattern instanceof Liblktlang.AnyTypePattern univPattern) {
-                return new UniversalPattern(loc(univPattern));
-            } else if (pattern instanceof Liblktlang.RegexPattern regexPattern) {
-                var regex = regexPattern.getText();
-                regex = regex.substring(1, regex.length() - 1);
-                return RegexPatternNodeGen.create(loc(regexPattern), regex);
-            } else if (pattern instanceof Liblktlang.TuplePattern tuplePattern) {
-                // Get the sub-patterns inside the tuple pattern
-                final List<Pattern> tuplePatterns = new ArrayList<>();
-                for (var p : tuplePattern.fSubPatterns().children()) {
-                    tuplePatterns.add(buildPattern((Liblktlang.Pattern) p));
+                default -> {
+                    throw LKQLRuntimeException.create(
+                        "Translation for " + pattern.getKind() + " not implemented"
+                    );
                 }
-                return TuplePatternNodeGen.create(
-                    loc(tuplePattern),
-                    tuplePatterns.toArray(new Pattern[0])
-                );
-            } else if (pattern instanceof Liblktlang.ParenPattern parenPattern) {
-                final Pattern p = buildPattern(parenPattern.fSubPattern());
-                return new ParenPattern(loc(parenPattern), p);
-            } else if (pattern instanceof Liblktlang.OrPattern orPattern) {
-                return new OrPattern(
-                    loc(orPattern),
-                    buildPattern(orPattern.fLeftSubPattern()),
-                    buildPattern(orPattern.fRightSubPattern())
-                );
-            } else if (pattern instanceof Liblktlang.FilteredPattern filteredPattern) {
-                return new FilteredPattern(
-                    loc(filteredPattern),
-                    buildPattern(filteredPattern.fSubPattern()),
-                    buildExpr(filteredPattern.fPredicate())
-                );
-            } else if (pattern instanceof Liblktlang.TypePattern typePattern) {
-                return new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
-            } else if (pattern instanceof Liblktlang.ExtendedPattern extendedPattern) {
-                // Translate the extended node pattern fields
-                final Pattern nodePattern = buildPattern(extendedPattern.fSubPattern());
-
-                // Get the pattern details
-                final List<NodePatternDetail> details = new ArrayList<>();
-                for (var patternDetail : extendedPattern.fDetails()) {
-                    details.add(buildPatternDetail(patternDetail));
-                }
-
-                // Return the new extended node pattern node
-                return new ExtendedNodePattern(
-                    loc(extendedPattern),
-                    nodePattern,
-                    details.toArray(new NodePatternDetail[0])
-                );
-            } else if (pattern instanceof Liblktlang.BindingPattern bindingPattern) {
-                // Get the binding value name
-                final String name = bindingPattern.fDecl().fSynName().getText();
-
-                // Get the slot of the binding
-                this.frames.declareBinding(name);
-
-                // Visit the associated value pattern
-                Pattern ptn = !bindingPattern.fSubPattern().isNone()
-                    ? buildPattern(bindingPattern.fSubPattern())
-                    : null;
-
-                // Return the result binding pattern node
-                return new BindingPattern(loc(bindingPattern), this.frames.getBinding(name), ptn);
-            } else {
-                throw LKQLRuntimeException.create(
-                    "Translation for " + pattern.getKind() + " not implemented"
-                );
             }
         }
 
@@ -676,8 +691,6 @@ public final class LktPasses {
                 // Return the new node pattern field detail
                 return NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);
             } else if (patternDetail instanceof Liblktlang.PropertyPatternDetail) {
-                return null;
-            } else if (patternDetail instanceof Liblktlang.SelectorPatternDetail) {
                 return null;
             } else {
                 throw LKQLRuntimeException.create(
