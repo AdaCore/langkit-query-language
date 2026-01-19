@@ -53,4 +53,4 @@ clean_lkql_checker:
 	cd lkql_checker && gprclean
 	[ -f "$(KP_JSON)" ] && rm "$(KP_JSON)"
 
-.PHONY: liblkqllang install_lkql_java_bindings lkql_jit gnatcheck doc impacts format test clean_liblkqllang clean_lkql_jit clean_gnatcheck
+.PHONY: liblkqllang install_lkql_java_bindings lkql_jit lkql_checker doc impacts format test clean_liblkqllang clean_lkql_jit clean_lkql_checker
