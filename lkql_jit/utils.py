@@ -1,7 +1,7 @@
 """----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2023, AdaCore                          --
+--                   Copyright (C) 2023-2026, AdaCore                       --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --

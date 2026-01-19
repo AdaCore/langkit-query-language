@@ -3,7 +3,7 @@
 --              GNATCHECK QUALIFICATION TEST SUITE COMPONENTS               --
 --                                                                          --
 --                                                                          --
---                       Copyright (C) 2021, AdaCore                        --
+--                    Copyright (C) 2021-2026, AdaCore                      --
 --                                                                          --
 ------------------------------------------------------------------------------
 

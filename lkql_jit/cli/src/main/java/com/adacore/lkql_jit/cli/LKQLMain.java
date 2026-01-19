@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2005-2025, AdaCore
+//  Copyright (C) 2005-2026, AdaCore
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
@@ -27,7 +27,7 @@ import picocli.CommandLine.Command;
     description = "Unified driver for LKQL (Langkit query language). Allows you to run LKQL " +
         "scripts or apply specific checks on a given Ada codebase",
     // Version information are substituted by anod for production builds
-    version = { "lkql 26.0w (unknown date)", "Copyright (C) 2004-2025, AdaCore." }
+    version = { "lkql 27.0w (unknown date)", "Copyright (C) 2004-2026, AdaCore." }
 )
 public class LKQLMain implements Callable<Integer> {
 
