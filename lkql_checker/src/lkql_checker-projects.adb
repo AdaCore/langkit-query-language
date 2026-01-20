@@ -79,7 +79,7 @@ package body Lkql_Checker.Projects is
    overriding
    function Verbosity
      (Self : Lkql_Checker_Reporter) return GPR2.Reporter.Verbosity_Level
-   is (case Tool_Args.Project_Verbosity.Get is
+   is (case GPR_Args.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.No_Warnings,
          when 1      => GPR2.Reporter.Regular,
          when 2      => GPR2.Reporter.Verbose,
@@ -88,7 +88,7 @@ package body Lkql_Checker.Projects is
    overriding
    function User_Verbosity
      (Self : Lkql_Checker_Reporter) return GPR2.Reporter.User_Verbosity_Level
-   is (case Tool_Args.Project_Verbosity.Get is
+   is (case GPR_Args.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.Important_Only,
          when 1      => GPR2.Reporter.Regular,
          when 2      => GPR2.Reporter.Verbose,
@@ -148,7 +148,7 @@ package body Lkql_Checker.Projects is
 
    procedure Load_Aggregated_Project
      (My_Project : in out Arg_Project_Type'Class)
-   with Pre => Tool_Args.Aggregated_Project;
+   with Pre => GPR_Args.Aggregated_Project;
    --  Loads My_Project (that is supposed to be an aggregate project), then
    --  unloads it and loads in the same environment the project passes as a
    --  parameter of '-A option' (which is supposed to be a (non-aggregate)
@@ -173,18 +173,17 @@ package body Lkql_Checker.Projects is
    -- Extract_Tool_Options --
    --------------------------
 
-   procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type) is
+   procedure Extract_Tool_Options (My_Project : Arg_Project_Type) is
       use GPR2;
 
-      Proj     : constant GPR2.Project.View.Object :=
+      Proj    : constant GPR2.Project.View.Object :=
         My_Project.Tree.Namespace_Root_Projects.First_Element;
-      Ada_Idx  : constant GPR2.Project.Attribute_Index.Object :=
+      Ada_Idx : constant GPR2.Project.Attribute_Index.Object :=
         GPR2.Project.Attribute_Index.Create (Ada_Language);
-      List_Val : GNAT.OS_Lib.Argument_List_Access;
 
       function Load_List_Attribute
         (Attr_Id : GPR2.Q_Attribute_Id; Indexed : Boolean := False)
-         return GNAT.OS_Lib.Argument_List_Access;
+         return String_Vector;
       --  Load the attribute designated by ``Attr_Id`` in the project ``Proj``
       --  as a list value, allocating and returning an ``Argument_List_Access``
       --  that the caller must free after usage.
@@ -192,6 +191,8 @@ package body Lkql_Checker.Projects is
       --  attribute, if ``True`` this procedure will look at the "ada" index of
       --  this attribute. See ``GPR2.Project.Attribute_Index`` package for more
       --  information about attribute indexes.
+
+      function To_XString_Array (Vec : String_Vector) return XString_Array;
 
       function Load_Single_Attribute
         (Attr_Id : GPR2.Q_Attribute_Id) return String
@@ -201,30 +202,35 @@ package body Lkql_Checker.Projects is
 
       function Load_List_Attribute
         (Attr_Id : GPR2.Q_Attribute_Id; Indexed : Boolean := False)
-         return GNAT.OS_Lib.Argument_List_Access
+         return String_Vector
       is
          Attr : constant GPR2.Project.Attribute.Object :=
            (if Indexed
             then Proj.Attribute (Attr_Id, Ada_Idx)
             else Proj.Attribute (Attr_Id));
-         Res  : GNAT.OS_Lib.Argument_List_Access;
+         Res  : String_Vector;
       begin
-         Res :=
-           new String_List (Attr.Values.First_Index .. Attr.Values.Last_Index);
          for J in Attr.Values.First_Index .. Attr.Values.Last_Index loop
-            Res (J) := new String'(Attr.Values.Element (J).Text);
+            Res.Append (String (Attr.Values.Element (J).Text));
          end loop;
          return Res;
       end Load_List_Attribute;
 
+      function To_XString_Array (Vec : String_Vector) return XString_Array is
+         Res : XString_Array (Vec.First_Index .. Vec.Last_Index);
+      begin
+         for I in Res'Range loop
+            Res (I) := To_XString (Vec (I));
+         end loop;
+         return Res;
+      end To_XString_Array;
+
    begin
       --  Process the rule list
       if Proj.Has_Attribute (Rules_Attr) then
-         List_Val := Load_List_Attribute (Rules_Attr);
-         for Rule of List_Val.all loop
-            Add_Rule_By_Name (Rule.all, Prepend => True);
+         for Rule of Load_List_Attribute (Rules_Attr) loop
+            Add_Rule_By_Name (Rule, Prepend => True);
          end loop;
-         Free (List_Val);
       end if;
 
       --  Process the LKQL rule file
@@ -239,20 +245,21 @@ package body Lkql_Checker.Projects is
 
       --  Process the LKQL path
       if Proj.Has_Attribute (Lkql_Path_Attr) then
-         List_Val := Load_List_Attribute (Lkql_Path_Attr);
-         for Path of List_Val.all loop
+         for Path of Load_List_Attribute (Lkql_Path_Attr) loop
             Additional_Lkql_Paths.Append
-              (if Is_Absolute_Path (Path.all)
-               then Path.all
-               else Checker_Prj.Get_Project_Relative_File (Path.all));
+              (if Is_Absolute_Path (Path)
+               then Path
+               else Checker_Prj.Get_Project_Relative_File (Path));
          end loop;
       end if;
 
       --  Process additional GNATcheck switches
       if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
-         List_Val := Load_List_Attribute (Switches_Attr, Indexed => True);
-         Scan_Tool_Arguments (Args => List_Val);
-         Free (List_Val);
+         Scan_Tool_Arguments
+           (Args              =>
+              To_XString_Array
+                (Load_List_Attribute (Switches_Attr, Indexed => True)),
+            From_Project_File => True);
       end if;
    end Extract_Tool_Options;
 
@@ -429,7 +436,7 @@ package body Lkql_Checker.Projects is
       Conf_Obj    : GPR2.Project.Configuration.Object;
       Agg_Context : GPR2.Context.Object;
    begin
-      Load_Tool_Project (My_Project, Load_Sources => False);
+      My_Project.Load_Tool_Project (Load_Sources => False);
 
       pragma Assert (My_Project.Tree.Root_Project.Kind in Aggregate_Kind);
 
@@ -442,7 +449,7 @@ package body Lkql_Checker.Projects is
       --  Amend the project options to load the aggregated project
       My_Project.Options.Add_Switch
         (GPR2.Options.P,
-         To_String (Tool_Args.Aggregate_Subproject.Get),
+         To_String (GPR_Args.Aggregate_Subproject.Get),
          Override => True);
 
       for C in Agg_Context.Iterate loop
@@ -465,7 +472,7 @@ package body Lkql_Checker.Projects is
 
          Error
            (""""
-            & To_String (Tool_Args.Aggregate_Subproject.Get)
+            & To_String (GPR_Args.Aggregate_Subproject.Get)
             & """ processing failed");
 
          raise Parameter_Error;
@@ -523,6 +530,7 @@ package body Lkql_Checker.Projects is
          raise Parameter_Error;
       end if;
 
+      --  Check that the project contains Ada sources
       if not My_Project.Tree.Languages.Contains (GPR2.Ada_Language) then
          My_Project.Error ("project has no Ada sources, processing failed");
          raise Parameter_Error;
@@ -557,42 +565,21 @@ package body Lkql_Checker.Projects is
          raise Parameter_Error;
    end Load_Tool_Project;
 
-   --------------------------
-   -- Process_Project_File --
-   --------------------------
+   ------------------
+   -- Load_Project --
+   ------------------
 
-   procedure Process_Project_File (My_Project : in out Arg_Project_Type'Class)
-   is
+   procedure Load_Project
+     (My_Project : in out Arg_Project_Type; Options : GPR2.Options.Object) is
    begin
-      --  Store options parsed by the GPR2 provided parser
-      My_Project.Options := Tool_Args.GPR_Args.Parsed_GPR2_Options;
-
+      My_Project.Options := Options;
       Set_External_Values (My_Project);
-
-      if Tool_Args.Aggregated_Project then
+      if GPR_Args.Aggregated_Project then
          Load_Aggregated_Project (My_Project);
       else
          Load_Tool_Project (My_Project);
-
       end if;
-      if Aggregate.Num_Of_Aggregated_Projects > 1 then
-         if not Main_Unit.Is_Empty then
-            Error
-              ("'-U main' cannot be used if aggregate project "
-               & "aggregates more than one non-aggregate project");
-
-            raise Parameter_Error;
-         end if;
-
-         --  No information is extracted from the aggregate project
-         --  itself.
-
-         In_Aggregate_Project := True;
-         return;
-      else
-         Get_Sources_From_Project (My_Project);
-      end if;
-   end Process_Project_File;
+   end Load_Project;
 
    -------------------------------
    -- Report_Aggregated_Project --
@@ -964,7 +951,7 @@ package body Lkql_Checker.Projects is
 
    procedure Check_Parameters is
    begin
-      if Tool_Args.Verbose.Get and then not Tool_Args.Aggregated_Project then
+      if Tool_Args.Verbose.Get and then not GPR_Args.Aggregated_Project then
          --  When processing aggregated projects one by one, we want
          --  Verbose_Mode to print this only in the outer invocation.
          Print_Version_Info;
@@ -972,12 +959,11 @@ package body Lkql_Checker.Projects is
 
       --  We generate the rule help unconditionally
 
-      if Tool_Args.List_Rules.Get and then not Tool_Args.Aggregated_Project
-      then
+      if Tool_Args.List_Rules.Get and then not GPR_Args.Aggregated_Project then
          Rules_Help;
       end if;
 
-      if Tool_Args.List_Rules_XML.Get and then not Tool_Args.Aggregated_Project
+      if Tool_Args.List_Rules_XML.Get and then not GPR_Args.Aggregated_Project
       then
          XML_Help;
       end if;
@@ -1033,9 +1019,9 @@ package body Lkql_Checker.Projects is
                Instance : Rule_Instance_Access;
             begin
                if Rule.Impact /= null
-                 and then
-                   Match
-                     (To_String (Tool_Args.KP_Version.Get), Rule.Impact.all)
+                 and then Match
+                            (To_String (Tool_Args.KP_Version.Get),
+                             Rule.Impact.all)
                then
                   if Rule.Target /= null
                     and then Checker_Prj.Target /= ""

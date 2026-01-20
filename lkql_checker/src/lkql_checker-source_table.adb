@@ -163,7 +163,7 @@ package body Lkql_Checker.Source_Table is
 
    procedure Add_Source_To_Process
      (Fname              : String;
-      Arg_Project        : Arg_Project_Type'Class;
+      Arg_Project        : Arg_Project_Type;
       Duplication_Report : Boolean := True;
       Status             : SF_Status := Waiting);
    --  Fname is treated as the name of the file to process by the tool. We try
@@ -216,7 +216,7 @@ package body Lkql_Checker.Source_Table is
 
    procedure Add_Source_To_Process
      (Fname              : String;
-      Arg_Project        : Arg_Project_Type'Class;
+      Arg_Project        : Arg_Project_Type;
       Duplication_Report : Boolean := True;
       Status             : SF_Status := Waiting)
    is
@@ -1034,7 +1034,7 @@ package body Lkql_Checker.Source_Table is
 
    procedure Read_Args_From_Temp_Storage
      (Duplication_Report : Boolean;
-      Arg_Project        : Arg_Project_Type'Class;
+      Arg_Project        : Arg_Project_Type;
       Status             : SF_Status := Waiting)
    is
       procedure Action (File_Name : String);

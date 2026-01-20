@@ -185,13 +185,6 @@ package Lkql_Checker.Projects is
    --  Any inconsistencies coming from improper values of scenario variables
    --  etc. will be reported during project loading.
 
-   procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type);
-   --  Extracts and stores the list of sources of the project to process as
-   --  tool arguments.
-   --
-   --  Currently, main units are ignored pending libgpr2 support for computing
-   --  a closure on main units, so basically -U is implicit.
-
    procedure Set_Global_Result_Dirs (My_Project : in out Arg_Project_Type);
    --  Sets the directory to place the global tool results into.
 
@@ -203,7 +196,7 @@ package Lkql_Checker.Projects is
    --  If it has been required in the provided project option, print the GPR
    --  registry (formatted in JSON) and exit the program.
 
-   procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type);
+   procedure Extract_Tool_Options (My_Project : Arg_Project_Type);
    --  Extracts gnatcheck options from the project file
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type);
@@ -242,9 +235,18 @@ package Lkql_Checker.Projects is
    -- General project file processing --
    -------------------------------------
 
-   procedure Process_Project_File (My_Project : in out Arg_Project_Type'Class);
-   --  Combines all the actions needed to process the argument project file
-   --  except storing individual compilation options for argument files.
+   procedure Load_Project
+     (My_Project : in out Arg_Project_Type; Options : GPR2.Options.Object);
+   --  From the provided GPR options, load a project file and fill the provided
+   --  project object with loaded information. This function also checks that
+   --  the project loading succeeded and raises error if not.
+
+   procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type);
+   --  Load sources to analyze with the tool from information stored in the
+   --  provided project and store them in the dedicated internal data
+   --  structure.
+   --  This function assumes that the provided project has been loaded and that
+   --  all command-line arguments have been processed.
 
    -------------------------------------
    -- General command line processing --

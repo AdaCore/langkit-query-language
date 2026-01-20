@@ -562,7 +562,7 @@ package body Lkql_Checker.Diagnoses is
          Prj_Out_Dot := Prj_Out_Dot - 1;
       end if;
 
-      if Tool_Args.Aggregated_Project then
+      if GPR_Args.Aggregated_Project then
          --  in case of aggregated project we have to move the index in the
          --  Prj_Out_File after S. That is, we do not need
          --  gnatcheck_1-source-list.out, we need gnatcheck-source-list_1.out
@@ -841,8 +841,8 @@ package body Lkql_Checker.Diagnoses is
          if Checker_Prj.Is_Specified then
             XML_Report
               (" project="""
-               & (if Tool_Args.Aggregated_Project
-                  then To_String (Tool_Args.Aggregate_Subproject.Get)
+               & (if GPR_Args.Aggregated_Project
+                  then To_String (GPR_Args.Aggregate_Subproject.Get)
                   else Checker_Prj.Source_Prj)
                & """>");
          else

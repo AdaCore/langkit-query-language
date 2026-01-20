@@ -14,6 +14,9 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
+with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
+with GNATCOLL.Strings;   use GNATCOLL.Strings;
+
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
 with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
 with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
@@ -436,7 +439,19 @@ package body Lkql_Checker is
    --  Main --
    -----------
    procedure Main (Mode : Lkql_Checker_Mode) is
-      Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+      Time_Start     : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+      Remaining_Args : XString_Vector;
+
+      function To_XString_Array (Vec : XString_Vector) return XString_Array;
+
+      function To_XString_Array (Vec : XString_Vector) return XString_Array is
+         Res : XString_Array (Vec.First_Index .. Vec.Last_Index);
+      begin
+         for I in Res'Range loop
+            Res (I) := Vec (I);
+         end loop;
+         return Res;
+      end To_XString_Array;
 
       use type Ada.Calendar.Time;
       use Ada.Strings.Unbounded;
@@ -444,8 +459,53 @@ package body Lkql_Checker is
       --  Set the Lkql_Checker global mode
       Lkql_Checker.Mode := Mode;
 
-      Scan_Tool_Arguments (First_Pass => True);
+      --  Register GNATcheck GPR attributes
+      Register_Tool_Attributes (Checker_Prj);
 
+      --  In a first time, we parse the GPR related switches from the
+      --  command-line in order to create the project instance we're going to
+      --  use for this run.
+      if not GPR_Args.Parser.Parse (No_Arguments, Remaining_Args) then
+         raise Parameter_Error;
+      end if;
+      Checker_Prj.Load_Project (GPR_Args.GPR2_Parser.Parsed_GPR2_Options);
+
+      --  If requested, print the GPR registry and exit
+      Checker_Prj.Print_GPR_Registry;
+
+      --  Then we fetch tool specific switches from the project file if
+      --  required.
+      if Checker_Prj.Is_Specified
+        and then not In_Aggregate_Project
+        and then not GPR_Args.Ignore_Project_Switches
+      then
+         Checker_Prj.Extract_Tool_Options;
+      end if;
+
+      --  Finally, we parse remaining switches from the command-line with the
+      --  GNATcheck arguments parser.
+      Scan_Tool_Arguments
+        (Args              => To_XString_Array (Remaining_Args),
+         From_Project_File => False);
+
+      --  Fetch all sources from the loaded project
+      if Aggregate.Num_Of_Aggregated_Projects > 1 then
+         if not Main_Unit.Is_Empty then
+            Error
+              ("'-U main' cannot be used if aggregate project "
+               & "aggregates more than one non-aggregate project");
+
+            raise Parameter_Error;
+         end if;
+
+         --  No information is extracted from the aggregate project
+         --  itself.
+         In_Aggregate_Project := True;
+      else
+         Checker_Prj.Get_Sources_From_Project;
+      end if;
+
+      --  Print help or version if required
       if Tool_Args.Version.Get then
          Print_Version_Info;
          OS_Exit (E_Success);
@@ -453,24 +513,6 @@ package body Lkql_Checker is
       elsif Tool_Args.Help.Get then
          Print_Usage;
          OS_Exit (E_Success);
-      end if;
-
-      --  Register GNATcheck GPR attributes
-      Register_Tool_Attributes (Checker_Prj);
-
-      --  If we have the project file specified as a tool parameter,
-      --  analyze it.
-      Lkql_Checker.Projects.Process_Project_File (Checker_Prj);
-
-      --  Print GPR registered and exit if requested
-      Checker_Prj.Print_GPR_Registry;
-
-      --  Analyze relevant project properties if needed
-      if Checker_Prj.Is_Specified
-        and then not In_Aggregate_Project
-        and then not Tool_Args.Ignore_Project_Switches
-      then
-         Extract_Tool_Options (Checker_Prj);
       end if;
 
       --  Add the command-line rules to the rule options. Do this before the
@@ -500,9 +542,6 @@ package body Lkql_Checker is
            ("You can use the '--emit-lkql-rule-file' flag to automatically "
             & "translate your rule configuration to the new LKQL format.");
       end if;
-
-      --  Then analyze the command-line parameters
-      Scan_Tool_Arguments;
 
       --  Process the source list file if there is one
       if Tool_Args.Source_Files.Get /= Null_Unbounded_String then
@@ -563,7 +602,7 @@ package body Lkql_Checker is
       end if;
 
       --  Open the log file if required
-      if Tool_Args.Log.Get then
+      if GPR_Args.Log.Get then
          Open_Log_File;
       end if;
 
@@ -639,7 +678,7 @@ package body Lkql_Checker is
       Lkql_Checker.Rules.Rule_Table.Clean_Up;
 
       --  Close the log file if required
-      if Tool_Args.Log.Get then
+      if GPR_Args.Log.Get then
          Close_Log_File;
       end if;
 

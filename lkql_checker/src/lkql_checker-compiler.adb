@@ -1768,7 +1768,7 @@ package body Lkql_Checker.Compiler is
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);
 
-         if Tool_Args.Ignore_Project_Switches then
+         if GPR_Args.Ignore_Project_Switches then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--ignore-project-switches");
          end if;
@@ -1783,12 +1783,12 @@ package body Lkql_Checker.Compiler is
              ("-P" & Checker_Prj.Tree.Root_Project.Path_Name.String_Value);
       end if;
 
-      if Tool_Args.Aggregated_Project then
+      if GPR_Args.Aggregated_Project then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-A");
          Num_Args := @ + 1;
          Args (Num_Args) :=
-           new String'(To_String (Tool_Args.Aggregate_Subproject.Get));
+           new String'(To_String (GPR_Args.Aggregate_Subproject.Get));
       end if;
 
       if CGPR = "" then

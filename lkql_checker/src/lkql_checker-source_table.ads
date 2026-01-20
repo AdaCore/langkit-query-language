@@ -97,7 +97,7 @@ package Lkql_Checker.Source_Table is
 
    procedure Read_Args_From_Temp_Storage
      (Duplication_Report : Boolean;
-      Arg_Project        : Arg_Project_Type'Class;
+      Arg_Project        : Arg_Project_Type;
       Status             : SF_Status := Waiting);
    --  Reads argument files from temporary storage (where they are placed by
    --  Store_Sources_To_Process/Store_Args_From_File routine(s)). Uses

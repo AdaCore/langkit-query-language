@@ -12,14 +12,14 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with GPR2.Options.Opt_Parse;
-with Lkql_Checker.Projects;
-with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
-
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
+with GPR2.Options.Opt_Parse;
 with GPR2.Options;
+
+with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 package Lkql_Checker.Options is
 
@@ -151,24 +151,90 @@ package Lkql_Checker.Options is
    --  Name of the LKQL file to process as a rule file. We assume that the
    --  stored value is an absolute path to the LKQL rule file.
 
+   ------------------------------------
+   -- Option parsing error reporting --
+   ------------------------------------
+
+   type Lkql_Checker_Error_Handler is new Error_Handler with null record;
+
+   procedure Warning (Self : in out Lkql_Checker_Error_Handler; Msg : String);
+   procedure Error (Self : in out Lkql_Checker_Error_Handler; Msg : String);
+
    ---------------------
    -- Project support --
    ---------------------
 
    Checker_Prj : aliased Lkql_Checker.Projects.Arg_Project_Type;
 
-   ---------------------------
-   -- Opt_Parse integration --
-   ---------------------------
+   function Project_Verbosity_Convert (Arg : String) return Natural;
 
-   type Lkql_Checker_Error_Handler is new Error_Handler with null record;
+   package GPR_Args is
+      Parser : Argument_Parser :=
+        Create_Argument_Parser
+          (Help                 => "GNATcheck GPR specific options",
+           Incremental          => False,
+           Generate_Help_Flag   => False,
+           Custom_Error_Handler =>
+             Create (Lkql_Checker_Error_Handler'(null record)),
+           Print_Help_On_Error  => False);
+
+      package Aggregate_Subproject is new
+        Parse_Option
+          (Parser      => Parser,
+           Short       => "-A",
+           Name        => "Aggregate project",
+           Arg_Type    => Unbounded_String,
+           Default_Val => Null_Unbounded_String,
+           Hidden      => True,
+           Help        =>
+             "private flag - used when processing a subproject of "
+             & "a root aggregate project");
+
+      package Ignore_Project_Switches_Opt is new
+        Parse_Flag
+          (Parser => Parser,
+           Long   => "--ignore-project-switches",
+           Help   => "ignore switches specified in the project file");
+
+      package Project_Verbosity is new
+        Parse_Option
+          (Parser           => Parser,
+           Long             => "-vP",
+           Name             => "Project verbosity",
+           Legacy_Long_Form => True,
+           Arg_Type         => Natural,
+           Default_Val      => 0,
+           Convert          => Project_Verbosity_Convert,
+           Help             =>
+             "verbosity level when parsing a project file (from 0 to 2, "
+             & "default is 0)");
+
+      package Log is new
+        Parse_Flag
+          (Parser           => Parser,
+           Long             => "-log",
+           Name             => "Log mode",
+           Legacy_Long_Form => True,
+           Help             =>
+             "duplicate all messages sent to stderr in gnatcheck.log");
+
+      package GPR2_Parser is new
+        GPR2.Options.Opt_Parse.Args (Parser => Parser);
+
+      function Aggregated_Project return Boolean
+      is (Aggregate_Subproject.Get /= Null_Unbounded_String);
+
+      function Ignore_Project_Switches return Boolean
+      is (Ignore_Project_Switches_Opt.Get or Mode = Gnatkp_Mode);
+   end GPR_Args;
+
+   ----------------------------
+   -- Tool specific switches --
+   ----------------------------
+
    subtype Max_Diagnoses_Count is Natural range 0 .. 1000;
 
-   procedure Warning (Self : in out Lkql_Checker_Error_Handler; Msg : String);
-   procedure Error (Self : in out Lkql_Checker_Error_Handler; Msg : String);
-
    function Jobs_Convert (Arg : String) return Natural;
-   function Project_Verbosity_Convert (Arg : String) return Natural;
    function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count;
 
    function Is_New_Section (Arg : XString) return Boolean;
@@ -182,8 +248,6 @@ package Lkql_Checker.Options is
            Custom_Error_Handler =>
              Create (Lkql_Checker_Error_Handler'(null record)),
            Print_Help_On_Error  => False);
-
-      package GPR_Args is new GPR2.Options.Opt_Parse.Args (Parser);
 
       package Version is new
         Parse_Flag
@@ -278,19 +342,6 @@ package Lkql_Checker.Options is
            Help       =>
              "specify an alternate directory containing rule files");
 
-      package Project_Verbosity is new
-        Parse_Option
-          (Parser           => Parser,
-           Long             => "-vP",
-           Name             => "Project verbosity",
-           Legacy_Long_Form => True,
-           Arg_Type         => Natural,
-           Default_Val      => 0,
-           Convert          => Project_Verbosity_Convert,
-           Help             =>
-             "verbosity level when parsing a project file (from 0 to 2, "
-             & "default is 0)");
-
       package Full_Source_Locations is new
         Parse_Flag
           (Parser => Parser,
@@ -312,21 +363,6 @@ package Lkql_Checker.Options is
            Name   => "Progress indicator mode",
            Help   => "activate progress indicator mode");
 
-      --  TODO: This needs to be private (undocumented)
-      package Aggregate_Subproject is new
-        Parse_Option
-          (Parser      => Parser,
-           Short       => "-A",
-           Name        => "Aggregate project",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "private flag - used when processing a subproject of "
-             & "a root aggregate project");
-
-      function Aggregated_Project return Boolean
-      is (Aggregate_Subproject.Get /= Null_Unbounded_String);
-
       package Quiet is new
         Parse_Flag
           (Parser => Parser,
@@ -341,15 +377,6 @@ package Lkql_Checker.Options is
            Long   => "--verbose",
            Name   => "Verbose mode",
            Help   => "enable the verbose mode");
-
-      package Log is new
-        Parse_Flag
-          (Parser           => Parser,
-           Long             => "-log",
-           Name             => "Log mode",
-           Legacy_Long_Form => True,
-           Help             =>
-             "duplicate all messages sent to stderr in gnatcheck.log");
 
       package Max_Diagnoses is new
         Parse_Option
@@ -448,12 +475,6 @@ package Lkql_Checker.Options is
           (Parser => Parser,
            Long   => "--no_objects_dir",
            Help   => "issue warning if a rule parameter is redefined");
-
-      package Ignore_Project_Switches_Opt is new
-        Parse_Flag
-          (Parser => Parser,
-           Long   => "--ignore-project-switches",
-           Help   => "ignore switches specified in the project file");
 
       package Include_File is new
         Parse_Option
@@ -578,9 +599,6 @@ package Lkql_Checker.Options is
 
       function XML_Report_File_Path return String;
 
-      function Ignore_Project_Switches return Boolean
-      is (Ignore_Project_Switches_Opt.Get or Mode = Gnatkp_Mode);
-
       function Source_Files_Specified return Boolean
       is (Source_Files.Get /= Null_Unbounded_String);
 
@@ -619,14 +637,11 @@ package Lkql_Checker.Options is
    -----------------------
 
    procedure Scan_Tool_Arguments
-     (First_Pass : Boolean := False; Args : Argument_List_Access := null);
-   --  Process GNATcheck CLI arguments. If provided ``Args`` is not null, this
-   --  procedure assumes that arguments are coming from a project file
-   --  ``Switches`` or ``Default_Switches`` attribute. Otherwise, arguments are
-   --  fetched from the application's command-line.
-   --  The ``First_Pass`` parameter indicates whether this is the first time
-   --  arguments are processed. This is used to avoid processing same arguments
-   --  multiple times.
+     (Args : XString_Array; From_Project_File : Boolean);
+   --  Process the provided string array as a set of tool specific command-line
+   --  argument.
+   --  The ``From_Project_File`` indicates whether provided arguments come from
+   --  ``Switches`` or ``Default_Switches`` attribute in a project file.
 
    ------------------
    -- Rule options --

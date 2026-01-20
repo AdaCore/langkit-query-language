@@ -6,7 +6,6 @@ with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with GNAT.Command_Line; use GNAT.Command_Line;
 
 with Lkql_Checker.Output;           use Lkql_Checker.Output;
-with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
 with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
 with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
 
@@ -47,20 +46,6 @@ package body Lkql_Checker.Options is
       end;
    end Parse_Arg_As_Natural;
 
-   ------------------
-   -- Jobs_Convert --
-   ------------------
-
-   function Jobs_Convert (Arg : String) return Natural is
-      Value : constant Natural := Parse_Arg_As_Natural (Arg);
-   begin
-      if Value = 0 then
-         return Natural (System.Multiprocessors.Number_Of_CPUs);
-      else
-         return Value;
-      end if;
-   end Jobs_Convert;
-
    -------------------------------
    -- Project_Verbosity_Convert --
    -------------------------------
@@ -74,6 +59,20 @@ package body Lkql_Checker.Options is
          return Value;
       end if;
    end Project_Verbosity_Convert;
+
+   ------------------
+   -- Jobs_Convert --
+   ------------------
+
+   function Jobs_Convert (Arg : String) return Natural is
+      Value : constant Natural := Parse_Arg_As_Natural (Arg);
+   begin
+      if Value = 0 then
+         return Natural (System.Multiprocessors.Number_Of_CPUs);
+      else
+         return Value;
+      end if;
+   end Jobs_Convert;
 
    ---------------------------
    -- Max_Diagnoses_Convert --
@@ -105,25 +104,11 @@ package body Lkql_Checker.Options is
    --------------------
 
    procedure Scan_Tool_Arguments
-     (First_Pass : Boolean := False; Args : Argument_List_Access := null)
+     (Args : XString_Array; From_Project_File : Boolean)
    is
       Unknown_Opt_Parse_Args : XString_Vector;
       Exp_It                 : Expansion_Iterator;
       Explicit_Sources       : String_Vector;
-
-      function To_XString_Array
-        (Args : Argument_List_Access) return XString_Array;
-
-      function To_XString_Array
-        (Args : Argument_List_Access) return XString_Array
-      is
-         Ret : XString_Array (Args'Range);
-      begin
-         for I in Args'Range loop
-            Ret (I) := To_XString (Args (I).all);
-         end loop;
-         return Ret;
-      end To_XString_Array;
 
       Executable : GNAT.OS_Lib.String_Access :=
         Locate_Exec_On_Path (Command_Name);
@@ -131,8 +116,6 @@ package body Lkql_Checker.Options is
         Containing_Directory (Containing_Directory (Executable.all));
       Lkql       : constant String :=
         Compose (Compose (Prefix, "share"), "lkql");
-
-      Args_From_Project : constant Boolean := Args /= null;
 
       --  Start of processing for Scan_Arguments
 
@@ -152,7 +135,7 @@ package body Lkql_Checker.Options is
       --  files
       --  TODO: It might be possible to have a list of subparsers and do a for
       --  loop
-      if Args_From_Project then
+      if From_Project_File then
          declare
             In_Project_Msg : constant String :=
               " is forbidden in project file";
@@ -160,12 +143,8 @@ package body Lkql_Checker.Options is
             Disallow
               (Tool_Args.Transitive_Closure.This, "-U" & In_Project_Msg);
             Disallow
-              (Tool_Args.Aggregate_Subproject.This, "-A" & In_Project_Msg);
-            Disallow
               (Tool_Args.No_Subprojects.This,
                "--no-subprojects" & In_Project_Msg);
-            Disallow
-              (Tool_Args.Project_Verbosity.This, "-vP" & In_Project_Msg);
             Disallow
               (Tool_Args.Lkql_Path.This, "--lkql-path" & In_Project_Msg);
             Disallow (Tool_Args.Rules.This, "-r" & In_Project_Msg);
@@ -179,20 +158,17 @@ package body Lkql_Checker.Options is
       end if;
 
       if not Tool_Args.Parser.Parse
-               ((if Args /= null
-                 then To_XString_Array (Args)
-                 else No_Arguments),
-                Unknown_Arguments => Unknown_Opt_Parse_Args)
+               (Args,
+                Unknown_Arguments        => Unknown_Opt_Parse_Args,
+                Fallback_On_Command_Line => False)
       then
          raise Parameter_Error;
       end if;
 
       --  Reallow arguments that were disallowed
-      if Args_From_Project then
+      if From_Project_File then
          Allow (Tool_Args.Transitive_Closure.This);
-         Allow (Tool_Args.Aggregate_Subproject.This);
          Allow (Tool_Args.No_Subprojects.This);
-         Allow (Tool_Args.Project_Verbosity.This);
          Allow (Tool_Args.Lkql_Path.This);
          Allow (Tool_Args.Rules.This);
          Allow (Tool_Args.Rule_File.This);
@@ -216,7 +192,8 @@ package body Lkql_Checker.Options is
          --  Ada source file name OR a glob pattern.
          --  We only handle explicit sources during the first pass to avoid
          --  duplication.
-         elsif Args_From_Project or First_Pass then
+
+         else
             declare
                Is_Glob : constant Boolean :=
                  Unknown_Arg.Find ('*') /= 0
@@ -246,7 +223,7 @@ package body Lkql_Checker.Options is
             Store_Main_Unit (Arg);
          else
             Store_Sources_To_Process (Arg);
-            if not Args_From_Project then
+            if not From_Project_File then
                Argument_File_Specified := True;
             end if;
          end if;
