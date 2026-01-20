@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2005-2025, AdaCore
+//  Copyright (C) 2005-2026, AdaCore
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 

@@ -9,7 +9,7 @@ from utils import GraalManager, parse_args, is_windows  # noqa E402
 """----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                   Copyright (C) 2023-2025, AdaCore                       --
+--                   Copyright (C) 2023-2026, AdaCore                       --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
