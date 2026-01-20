@@ -15,6 +15,7 @@ class InterpreterDriver(BaseDriver):
     Test arguments:
         - project: GPR build file to use (if any)
         - input_sources: A list of Ada sources to run analyze with LKQL
+        - script: The LKQL script to interpret (default is script.lkql)
         - lkql_path: A list of directories forwarded to the `LKQL_PATH`
             variable when the test is run.
         - lkt_refactor: Should the test try refactor to Lkt syntax (default is False).
@@ -86,11 +87,13 @@ class InterpreterDriver(BaseDriver):
             + [(os.environ["LKQL_PATH"])]
         )
 
+        script = self.test_env.get("script", "script.lkql")
+
         # If lkt_refactor flag is set, then before we run the interpreter,
         # we refactor the "script.lkql" file and run the interpreter on it.
         # This way we can compare the results of the rewritten script
         # with the original
-        if self.test_env.get("lkt_refactor") is not False:
+        if self.test_env.get("lkt_refactor") is True:
             # Translate "script.lkql" to "refactored.lkql"
             refactored_file_path = self.working_dir("refactored.lkql")
             with open(refactored_file_path, "w") as file:
@@ -101,7 +104,7 @@ class InterpreterDriver(BaseDriver):
                             "refactor",
                             "-r",
                             "TO_LKQL_V2",
-                            "script.lkql",
+                            script,
                         ],
                         analyze_output=False,
                     ).out
@@ -117,4 +120,4 @@ class InterpreterDriver(BaseDriver):
             self.lkt_output = lkt_result.out
 
         # Run the interpreter
-        self.check_run(self.build_args("script.lkql"), lkql_path=lkql_path)
+        self.check_run(self.build_args(script), lkql_path=lkql_path)
