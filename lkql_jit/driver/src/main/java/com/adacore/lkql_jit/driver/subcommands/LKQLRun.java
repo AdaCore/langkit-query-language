@@ -31,10 +31,10 @@ import picocli.CommandLine;
  * @author Hugo GUERRIER
  *     <p>TODO : Support all features of the original LKQL Ada implementation
  */
-public class LKQLLauncher extends AbstractLanguageLauncher {
+public class LKQLRun extends AbstractLanguageLauncher {
 
     @CommandLine.Command(name = "run", description = "Run the LKQL interpreter on a given script")
-    public static class LKQLRun implements Callable<Integer> {
+    public static class Args implements Callable<Integer> {
 
         @CommandLine.Spec
         public CommandLine.Model.CommandSpec spec;
@@ -93,16 +93,16 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             } else {
                 unmatchedArgs = this.unmatched.toArray(new String[0]);
             }
-            new LKQLLauncher(this).launch(unmatchedArgs);
+            new com.adacore.lkql_jit.driver.subcommands.LKQLRun(this).launch(unmatchedArgs);
             return 0;
         }
     }
 
-    public LKQLLauncher(LKQLRun args) {
+    public LKQLRun(Args args) {
         this.args = args;
     }
 
-    private LKQLRun args = null;
+    private Args args = null;
 
     // ----- Launcher methods -----
 

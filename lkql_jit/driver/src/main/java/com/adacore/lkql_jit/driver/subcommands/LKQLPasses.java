@@ -25,7 +25,7 @@ public class LKQLPasses extends AbstractLanguageLauncher {
         name = "run-passes",
         description = "Run the LKQL interpreter on a given script (nanopass mode)"
     )
-    public static class LKQLRun implements Callable<Integer> {
+    public static class Args implements Callable<Integer> {
 
         @CommandLine.Spec
         public CommandLine.Model.CommandSpec spec;
@@ -80,11 +80,11 @@ public class LKQLPasses extends AbstractLanguageLauncher {
         }
     }
 
-    public LKQLPasses(LKQLRun args) {
+    public LKQLPasses(Args args) {
         this.args = args;
     }
 
-    private LKQLRun args = null;
+    private Args args = null;
 
     // ----- Launcher methods -----
 

@@ -16,8 +16,8 @@ import picocli.CommandLine.Command;
     name = "lkql",
     synopsisSubcommandLabel = "COMMAND",
     subcommands = {
-        LKQLLauncher.LKQLRun.class,
-        LKQLPasses.LKQLRun.class,
+        LKQLRun.Args.class,
+        LKQLPasses.Args.class,
         LKQLChecker.Args.class,
         LKQLFix.Args.class,
         GNATCheckWorker.Args.class,
