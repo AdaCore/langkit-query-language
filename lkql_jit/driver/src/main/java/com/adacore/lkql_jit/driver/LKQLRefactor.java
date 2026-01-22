@@ -3,13 +3,13 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.cli;
+package com.adacore.lkql_jit.driver;
 
 import static com.adacore.liblkqllang.Liblkqllang.*;
 
-import com.adacore.lkql_jit.cli.refactorings.LKQLToLkt;
-import com.adacore.lkql_jit.cli.refactorings.Refactoring;
-import com.adacore.lkql_jit.cli.refactorings.TokenBasedRefactoring;
+import com.adacore.lkql_jit.driver.refactorings.LKQLToLkt;
+import com.adacore.lkql_jit.driver.refactorings.Refactoring;
+import com.adacore.lkql_jit.driver.refactorings.TokenBasedRefactoring;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

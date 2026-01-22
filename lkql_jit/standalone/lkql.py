@@ -74,7 +74,7 @@ if __name__ == "__main__":
             if args.truffle_debug
             else []
         )
-        + ["com.adacore.lkql_jit.cli.LKQLMain"]
+        + ["com.adacore.lkql_jit.driver.LKQLMain"]
         + remaining
         + (
             [

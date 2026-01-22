@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.cli;
+package com.adacore.lkql_jit.driver;
 
 import com.adacore.langkit_support.NativeTools;
 import java.util.concurrent.Callable;

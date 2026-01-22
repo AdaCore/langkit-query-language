@@ -10,7 +10,7 @@
         <version>0.1.0</version>
     </parent>
 
-    <artifactId>cli</artifactId>
+    <artifactId>driver</artifactId>
 
     <build>
         <plugins>
@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.adacore.lkql_jit.cli.LKQLMain</mainClass>
+                            <mainClass>com.adacore.lkql_jit.driver.LKQLMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
         # Finally specify the main class name and the output file
         final_cmd = cmd + [
-            "com.adacore.lkql_jit.cli.LKQLMain",
+            "com.adacore.lkql_jit.driver.LKQLMain",
             str(Path("target", "lkql")),
         ]
 

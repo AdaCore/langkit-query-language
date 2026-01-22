@@ -135,7 +135,7 @@
     <dependencies>
         <dependency>
             <groupId>com.adacore.lkql_jit</groupId>
-            <artifactId>cli</artifactId>
+            <artifactId>driver</artifactId>
             <version>0.1.0</version>
         </dependency>
     </dependencies>

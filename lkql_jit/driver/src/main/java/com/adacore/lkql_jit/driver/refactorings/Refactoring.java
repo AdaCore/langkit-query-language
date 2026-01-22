@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.cli.refactorings;
+package com.adacore.lkql_jit.driver.refactorings;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import java.util.function.Consumer;
