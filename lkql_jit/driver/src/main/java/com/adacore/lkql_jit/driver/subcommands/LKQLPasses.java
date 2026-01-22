@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.driver;
+package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.options.LKQLOptions;
@@ -17,23 +17,14 @@ import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
-import org.graalvm.shadowed.org.jline.reader.EndOfFileException;
-import org.graalvm.shadowed.org.jline.reader.LineReader;
-import org.graalvm.shadowed.org.jline.reader.LineReaderBuilder;
-import org.graalvm.shadowed.org.jline.reader.UserInterruptException;
-import org.graalvm.shadowed.org.jline.terminal.TerminalBuilder;
 import picocli.CommandLine;
 
-/**
- * This class is the LKQL launcher, this will handle all execution request coming from the command
- * line.
- *
- * @author Hugo GUERRIER
- *     <p>TODO : Support all features of the original LKQL Ada implementation
- */
-public class LKQLLauncher extends AbstractLanguageLauncher {
+public class LKQLPasses extends AbstractLanguageLauncher {
 
-    @CommandLine.Command(name = "run", description = "Run the LKQL interpreter on a given script")
+    @CommandLine.Command(
+        name = "run-passes",
+        description = "Run the LKQL interpreter on a given script (nanopass mode)"
+    )
     public static class LKQLRun implements Callable<Integer> {
 
         @CommandLine.Spec
@@ -76,15 +67,6 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         )
         public String script = null;
 
-        @CommandLine.Option(names = { "-i", "--interactive" }, description = "Run a REPL")
-        public boolean interactive;
-
-        @CommandLine.Option(
-            names = "--keep-going-on-missing-file",
-            description = "Keep going on missing file"
-        )
-        public Boolean keepGoingOnMissingFile = false;
-
         @Override
         public Integer call() {
             String[] unmatchedArgs;
@@ -93,12 +75,12 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             } else {
                 unmatchedArgs = this.unmatched.toArray(new String[0]);
             }
-            new LKQLLauncher(this).launch(unmatchedArgs);
+            new LKQLPasses(this).launch(unmatchedArgs);
             return 0;
         }
     }
 
-    public LKQLLauncher(LKQLRun args) {
+    public LKQLPasses(LKQLRun args) {
         this.args = args;
     }
 
@@ -159,7 +141,6 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             .projectFile(this.args.project)
             .target(this.args.target)
             .runtime(this.args.RTS)
-            .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
             .files(this.args.files)
             .charset(this.args.charset);
 
@@ -175,30 +156,6 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                 ).build();
                 context.eval(source);
             }
-
-            if (this.args.interactive) {
-                LineReader reader = LineReaderBuilder.builder()
-                    .terminal(TerminalBuilder.builder().system(true).dumb(true).build())
-                    .build();
-                String prompt = "> ";
-                while (true) {
-                    String line = null;
-                    try {
-                        line = reader.readLine(prompt);
-                        final Source source = Source.newBuilder(Constants.LKQL_ID, line, "<input>")
-                            .interactive(true)
-                            .build();
-                        context.eval(source);
-                    } catch (UserInterruptException e) {
-                        // Ignore
-                    } catch (EndOfFileException e) {
-                        return 12;
-                    } catch (Exception e) {
-                        System.err.println(e.getMessage());
-                    }
-                }
-            }
-
             return 0;
         } catch (IOException e) {
             System.err.println("File not found : " + this.args.script);

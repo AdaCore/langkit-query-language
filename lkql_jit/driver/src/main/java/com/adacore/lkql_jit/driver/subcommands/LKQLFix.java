@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.driver;
+package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.util.Arrays;

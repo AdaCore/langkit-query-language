@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.driver;
 
 import com.adacore.langkit_support.NativeTools;
+import com.adacore.lkql_jit.driver.subcommands.*;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
