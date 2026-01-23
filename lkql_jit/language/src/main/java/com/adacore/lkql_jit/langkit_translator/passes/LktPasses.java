@@ -585,8 +585,8 @@ public final class LktPasses {
         }
 
         private Pattern buildPattern(Liblktlang.Pattern pattern) {
-            switch (pattern) {
-                case Liblktlang.ComplexPattern complexPattern -> {
+            return switch (pattern) {
+                case Liblktlang.ComplexPattern complexPattern:
                     Pattern result = null;
 
                     final Integer slot;
@@ -633,14 +633,12 @@ public final class LktPasses {
                         );
                     }
 
-                    return result;
-                }
-                case Liblktlang.NullPattern nullPattern -> {
-                    return new NullPattern(loc(nullPattern));
-                }
-                case Liblktlang.IntegerPattern integerPattern -> {
+                    yield result;
+                case Liblktlang.NullPattern nullPattern:
+                    yield new NullPattern(loc(nullPattern));
+                case Liblktlang.IntegerPattern integerPattern:
                     try {
-                        return IntegerPatternNodeGen.create(
+                        yield IntegerPatternNodeGen.create(
                             loc(integerPattern),
                             Integer.parseInt(integerPattern.getText())
                         );
@@ -650,48 +648,41 @@ public final class LktPasses {
                             "Invalid number literal for pattern"
                         );
                     }
-                }
-                case Liblktlang.TypePattern typePattern -> {
-                    return new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
-                }
-                case Liblktlang.AnyTypePattern univPattern -> {
-                    return new UniversalPattern(loc(univPattern));
-                }
-                case Liblktlang.RegexPattern regexPattern -> {
+                case Liblktlang.TypePattern typePattern:
+                    yield new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
+                case Liblktlang.AnyTypePattern univPattern:
+                    yield new UniversalPattern(loc(univPattern));
+                case Liblktlang.RegexPattern regexPattern:
                     var regex = regexPattern.getText();
                     regex = regex.substring(1, regex.length() - 1);
-                    return RegexPatternNodeGen.create(loc(regexPattern), regex);
-                }
-                case Liblktlang.ParenPattern parenPattern -> {
+                    yield RegexPatternNodeGen.create(loc(regexPattern), regex);
+                case Liblktlang.ParenPattern parenPattern:
                     final Pattern p = buildPattern(parenPattern.fSubPattern());
-                    return new ParenPattern(loc(parenPattern), p);
-                }
-                case Liblktlang.OrPattern orPattern -> {
-                    return new OrPattern(
+                    yield new ParenPattern(loc(parenPattern), p);
+                case Liblktlang.OrPattern orPattern:
+                    yield new OrPattern(
                         loc(orPattern),
                         buildPattern(orPattern.fLeftSubPattern()),
                         buildPattern(orPattern.fRightSubPattern())
                     );
-                }
-                default -> {
+                default:
                     throw LKQLRuntimeException.create(
                         "Translation for " + pattern.getKind() + " not implemented"
                     );
-                }
-            }
+            };
         }
 
         private NodePatternDetail buildPatternDetail(Liblktlang.PatternDetail patternDetail) {
-            switch (patternDetail) {
-                case Liblktlang.FieldPatternDetail fieldPatternDetail -> {
+            return switch (patternDetail) {
+                case Liblktlang.FieldPatternDetail fieldPatternDetail: {
                     // Translate the node pattern detail fields
                     final String name = fieldPatternDetail.fId().getText();
                     final Pattern expected = buildPattern(fieldPatternDetail.fExpectedValue());
 
                     // Return the new node pattern field detail
-                    return NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);
+                    yield NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);
                 }
-                case Liblktlang.PropertyPatternDetail propertyPatternDetail -> {
+                case Liblktlang.PropertyPatternDetail propertyPatternDetail: {
                     // Translate the node pattern detail fields
                     final var callExpr = propertyPatternDetail.fCall();
                     final String propertyName = callExpr.fName().getText();
@@ -699,17 +690,16 @@ public final class LktPasses {
                     final Pattern expected = buildPattern(propertyPatternDetail.fExpectedValue());
 
                     // Return the new node pattern property detail
-                    return NodePatternPropertyNodeGen.create(
+                    yield NodePatternPropertyNodeGen.create(
                         loc(propertyPatternDetail),
                         propertyName,
                         Arrays.stream(argList.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
                         expected
                     );
                 }
-                default -> {
+                default:
                     throw new AssertionError("Unreachable");
-                }
-            }
+            };
         }
     }
 
