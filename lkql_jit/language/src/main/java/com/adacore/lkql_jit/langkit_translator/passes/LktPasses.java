@@ -298,7 +298,7 @@ public final class LktPasses {
                 frames.getFrameDescriptor(),
                 topLevelNodes.toArray(new LKQLNode[0]),
                 source.isInteractive(),
-                "" // TODO: Add module level doc support (see eng/libadalang/langkit-query-language#436)
+                root.fDoc().isNone() ? "" : root.fDoc().pDenotedValue().value
             );
         }
 
