@@ -87,7 +87,7 @@ public final class LktPasses {
         /**
          * Whether "node" needs a frame to be introduced to contain inner bindings.
          * NB: this does not include the Query node (which needs a concrete frame)
-         * because its handled in its own separate function
+         * because it's handled in its own separate function
          */
         private static FrameKind needsFrame(LktNode node) {
             if (
