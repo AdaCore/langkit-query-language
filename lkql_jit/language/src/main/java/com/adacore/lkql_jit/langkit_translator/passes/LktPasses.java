@@ -45,11 +45,13 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.ExtendedNodePattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternFieldNodeGen;
+import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternPropertyNodeGen;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 /** Namespace class containing all passes to expand from Lkt syntax to the LKQL Truffle tree. */
 public final class LktPasses {
@@ -304,16 +306,18 @@ public final class LktPasses {
             }
         }
 
+        private ArgList buildArgs(Liblktlang.ArgumentList args) {
+            return buildArgs(
+                StreamSupport.stream(args.spliterator(), false).map(this::buildArg).toList(),
+                loc(args)
+            );
+        }
+
         private Annotation buildAnnotation(Liblktlang.DeclAnnotation annotation) {
             return new Annotation(
                 loc(annotation),
                 annotation.fName().getText(),
-                buildArgs(
-                    Arrays.stream(annotation.fArgs().fArgs().children())
-                        .map(a -> buildArg((Argument) a))
-                        .toList(),
-                    loc(annotation.fArgs())
-                )
+                buildArgs(annotation.fArgs().fArgs())
             );
         }
 
@@ -398,12 +402,7 @@ public final class LktPasses {
 
                 // In all other cases, translate the call expression to a function call
                 final Expr callee = buildExpr(callExpr.fName());
-                final ArgList arguments = buildArgs(
-                    Arrays.stream(callExpr.fArgs().children())
-                        .map(a -> buildArg((Argument) a))
-                        .toList(),
-                    loc(callExpr.fArgs())
-                );
+                final ArgList arguments = buildArgs(callExpr.fArgs());
                 return FunCallNodeGen.create(
                     loc(callExpr),
                     false,
@@ -683,19 +682,33 @@ public final class LktPasses {
         }
 
         private NodePatternDetail buildPatternDetail(Liblktlang.PatternDetail patternDetail) {
-            if (patternDetail instanceof Liblktlang.FieldPatternDetail fieldPatternDetail) {
-                // Translate the node pattern detail fields
-                final String name = fieldPatternDetail.fId().getText();
-                final Pattern expected = buildPattern(fieldPatternDetail.fExpectedValue());
+            switch (patternDetail) {
+                case Liblktlang.FieldPatternDetail fieldPatternDetail -> {
+                    // Translate the node pattern detail fields
+                    final String name = fieldPatternDetail.fId().getText();
+                    final Pattern expected = buildPattern(fieldPatternDetail.fExpectedValue());
 
-                // Return the new node pattern field detail
-                return NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);
-            } else if (patternDetail instanceof Liblktlang.PropertyPatternDetail) {
-                return null;
-            } else {
-                throw LKQLRuntimeException.create(
-                    "Translation for " + patternDetail.getKind() + " not implemented"
-                );
+                    // Return the new node pattern field detail
+                    return NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);
+                }
+                case Liblktlang.PropertyPatternDetail propertyPatternDetail -> {
+                    // Translate the node pattern detail fields
+                    final var callExpr = propertyPatternDetail.fCall();
+                    final String propertyName = callExpr.fName().getText();
+                    final ArgList argList = buildArgs(callExpr.fArgs());
+                    final Pattern expected = buildPattern(propertyPatternDetail.fExpectedValue());
+
+                    // Return the new node pattern property detail
+                    return NodePatternPropertyNodeGen.create(
+                        loc(propertyPatternDetail),
+                        propertyName,
+                        Arrays.stream(argList.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
+                        expected
+                    );
+                }
+                default -> {
+                    throw new AssertionError("Unreachable");
+                }
             }
         }
     }
