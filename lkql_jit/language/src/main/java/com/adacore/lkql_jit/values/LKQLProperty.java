@@ -9,6 +9,7 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.langkit_support.LangkitSupport.Reflection.Param;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
+import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.*;
@@ -46,7 +47,8 @@ public class LKQLProperty extends LKQLCallable {
                       .map(Param::getName)
                       .toArray(v -> new String[v]),
             description == null ? new Node[0] : new Node[description.getParams().size()],
-            ""
+            "",
+            new LKQLAnnotation[0]
         );
         this.description = description;
         this.node = node;

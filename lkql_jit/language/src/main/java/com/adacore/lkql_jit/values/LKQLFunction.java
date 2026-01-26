@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.values;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
+import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.dsl.Cached;
@@ -42,9 +43,10 @@ public class LKQLFunction extends LKQLCallable {
      *
      * @param rootNode The function root node.
      * @param closure The closure of the function.
-     * @param name The name of the function.
      * @param documentation The documentation of the function.
      * @param parameterNames The names of the parameters.
+     * @param parameterDefaultValues Truffle nodes representing parameter default values.
+     * @param body Expression representing the function semantics.
      */
     public LKQLFunction(
         final RootNode rootNode,
@@ -52,14 +54,16 @@ public class LKQLFunction extends LKQLCallable {
         final String documentation,
         final String[] parameterNames,
         final Node[] parameterDefaultValues,
-        final Node body
+        final Node body,
+        final LKQLAnnotation[] annotations
     ) {
         super(
             rootNode.getName(),
             LKQLCallable.CallableKind.FUNCTION,
             parameterNames,
             parameterDefaultValues,
-            documentation
+            documentation,
+            annotations
         );
         this.rootNode = rootNode;
         this.closure = closure;

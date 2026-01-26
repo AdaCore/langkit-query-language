@@ -41,6 +41,10 @@ public abstract class LKQLCallable extends LKQLValue {
     /** User documentation for the callable value. */
     public final String documentation;
 
+    /** Annotations associated to this callable value in the source. */
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
+    public LKQLAnnotation[] annotations;
+
     // ----- Constructors -----
 
     protected LKQLCallable(
@@ -48,13 +52,27 @@ public abstract class LKQLCallable extends LKQLValue {
         CallableKind kind,
         String[] parameterNames,
         Node[] parameterDefaultValues,
-        String documentation
+        String documentation,
+        LKQLAnnotation[] annotations
     ) {
         this.name = name;
         this.kind = kind;
         this.parameterNames = parameterNames;
         this.parameterDefaultValues = parameterDefaultValues;
         this.documentation = documentation;
+        this.annotations = annotations;
+    }
+
+    // ----- Getters -----
+
+    public LKQLAnnotation[] getAnnotations() {
+        return annotations;
+    }
+
+    // ----- Setters -----
+
+    public void setAnnotations(LKQLAnnotation[] annotations) {
+        this.annotations = annotations;
     }
 
     // ----- Instance methods -----
@@ -110,8 +128,8 @@ public abstract class LKQLCallable extends LKQLValue {
 
     // ----- Inner classes and enums -----
 
-    /** represents the kind of a callable value. */
-    public static enum CallableKind {
+    /** Represents the kind of callable value. */
+    public enum CallableKind {
         FUNCTION,
         SELECTOR,
         PROPERTY,

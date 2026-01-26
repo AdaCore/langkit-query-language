@@ -12,6 +12,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.values.LKQLFunction;
+import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 
@@ -38,7 +39,8 @@ public class BuiltInFunctionValue extends LKQLFunction {
             documentation,
             names,
             new Expr[names.length],
-            body
+            body,
+            null
         );
         stringDefaultVals = defaultValues;
     }
@@ -55,7 +57,8 @@ public class BuiltInFunctionValue extends LKQLFunction {
             documentation,
             names,
             new Expr[names.length],
-            functionRootNode.getBody()
+            functionRootNode.getBody(),
+            new LKQLAnnotation[0]
         );
         stringDefaultVals = defaultValues;
     }
