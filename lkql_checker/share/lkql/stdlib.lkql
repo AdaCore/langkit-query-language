@@ -223,18 +223,20 @@ fun is_standard_boolean(n) =
     when t.p_root_type() == n.p_bool_type()
 
 fun is_standard_true(node) =
-    |" Get whether the given node is a Name representing the standard True
-    |" literal.
-    node is Name
-    when node.p_referenced_defining_name()
-             ?.p_canonical_fully_qualified_name?() == "standard.boolean.true"
+    |" Get whether the given node is a Name representing the True literal
+    |" of the standard Boolean type, or of any type deriving from it.
+    node is Name(
+        p_referenced_decl(): EnumLiteralDecl(p_relative_name_text(): "true")
+    )
+    when is_standard_boolean(node)
 
 fun is_standard_false(node) =
-    |" Get whether the given node is a Name representing the standard False
-    |" value.
-    node is Name
-    when node.p_referenced_defining_name()
-             ?.p_canonical_fully_qualified_name?() == "standard.boolean.false"
+    |" Get whether the given node is a Name representing the False literal
+    |" of the standard Boolean type, or of any type deriving from it.
+    node is Name(
+        p_referenced_decl(): EnumLiteralDecl(p_relative_name_text(): "false")
+    )
+    when is_standard_boolean(node)
 
 fun is_negated_op(node) =
     |" Return whether ``node`` is a "not" unary operation, returning a standard
