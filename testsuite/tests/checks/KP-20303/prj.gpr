@@ -1,0 +1,5 @@
+project Prj is
+   package Compiler is
+      for Switches ("Ada") use ("-gnata");  -- KP 20303 only occurs when GNAT assertions are enabled
+   end Compiler;
+end Prj;

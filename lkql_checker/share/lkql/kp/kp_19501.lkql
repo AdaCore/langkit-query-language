@@ -6,40 +6,6 @@ fun is_int_attr(expr) =
     expr is AttributeRef
     when expr.p_expression_type() == expr.p_universal_int_type()
 
-
-fun is_subtype_indication_constrained(subtype_indication) =
-    |" Return whether the provided SubtypeIndication is constrained.
-    {
-
-        fun is_constrained_subtype(type_decl) =
-        |" Returns whether the provided BaseTypeDecl declares a constrained
-        |" subtype.
-        {
-            (type_decl.p_has_aspect("Predicate")
-                and not type_decl.p_is_statically_predicated())
-            or type_decl.p_has_aspect("Dynamic_Predicate")
-            or type_decl.p_full_view() is BaseTypeDecl when
-                match type_decl
-                | TypeDecl => (
-                    match type_decl.f_type_def
-                    | ArrayTypeDef(f_indices: ConstrainedArrayIndices) => true
-                    | d@DerivedTypeDef =>
-                        is_subtype_indication_constrained(
-                            d.f_subtype_indication
-                        )
-                    | * => false
-                )
-                | sd@SubtypeDecl =>
-                    is_subtype_indication_constrained(sd.f_subtype)
-        };
-
-        subtype_indication.f_constraint is not null
-        or is_constrained_subtype(
-            subtype_indication.f_name.p_referenced_decl()
-        )
-    }
-
-
 fun is_subject_to_constraint(name) =
     |" Returns whether the given name refers to a subtype subject to a
     |" constraint.
@@ -51,8 +17,8 @@ fun is_subject_to_constraint(name) =
         match decl
         | (ComponentDef | DiscriminantSpec | ObjectDecl | ParamSpec) =>
             decl.f_type_expr is SubtypeIndication
-            and is_subtype_indication_constrained(decl.f_type_expr)
-        | SubtypeDecl => is_subtype_indication_constrained(decl.f_subtype)
+            and stdlib.is_subtype_indication_constrained(decl.f_type_expr)
+        | SubtypeDecl => stdlib.is_subtype_indication_constrained(decl.f_subtype)
     }
 
 
