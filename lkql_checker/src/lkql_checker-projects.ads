@@ -89,12 +89,10 @@
 --  and 3 above. For step 2, see the procedure Process_Project_File
 --  that combines all the steps of loading and analyzing the project file.
 
-with Ada.Containers.Vectors;
-with Ada.Strings.Unbounded;
-
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GPR2.Containers;
+with GPR2.Options;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
 
@@ -116,49 +114,6 @@ package Lkql_Checker.Projects is
    --  Processes the provided name as the main unit name for '-U' project file
    --  option.
 
-   -----------------------------------------------------------
-   --  -Xvariable=value  : set values of external variables --
-   -----------------------------------------------------------
-
-   --  An external variable is the parameter of a '-X<par>' tool option, it
-   --  is guaranteed that it has a structure <variable_name>=<value>
-
-   procedure Store_External_Variable (Var : String);
-   --  Checks if the value for the given external variable is already stored
-   --  (the check is case-sensitive), and if it is not, stores the value
-   --  setting for the given variable. If it is, overrides the stored value.
-
-   procedure Append_Variables
-     (Args : in out Argument_List; Last : in out Natural);
-   --  Append a "-XVAR=value" string for each stored external variable
-
-   function Subdir_Name return String;
-   --  Return the subdir name to use, if one was set explicitly.
-
-   ----------------------------------------------------------------
-   -- --print-gpr-registry : print gnatcheck attributes and exit --
-   ----------------------------------------------------------------
-
-   Print_Gpr_Registry : Boolean := False;
-   --  If this flag is ON, gpr attributes registered by gnatcheck are printed
-   --  and gnatcheck exit returning 0.
-
-   ------------------
-   -- Rule options --
-   ------------------
-
-   type Option_Kind is (File, Legacy_Option, Single_Rule_Name);
-
-   type Option_Record is record
-      Kind  : Option_Kind;
-      Value : Ada.Strings.Unbounded.Unbounded_String;
-   end record;
-
-   package Vector_Options is new
-     Ada.Containers.Vectors (Positive, Option_Record);
-
-   Rule_Options : Vector_Options.Vector;
-
    ---------------------------------------------------------
    -- Type to represent a project passed as a tool option --
    ---------------------------------------------------------
@@ -178,25 +133,6 @@ package Lkql_Checker.Projects is
    procedure Error (My_Project : Arg_Project_Type; Message : String);
    --  Emit an error message about this ``My_Project`` project
 
-   procedure Store_Project_Source
-     (My_Project : in out Arg_Project_Type; Project_File_Name : String);
-   --  If Project_File_Name ends with ".gpr", it is taken to be the name of
-   --  the project file; otherwise Project_File_Name & ".gpr" is used.
-   --  Checks that:
-   --    - this is the first -P option provided as a tool parameter;
-   --    - the project file exists.
-   --  Raises Lkql_Checker.Common.Parameter_Error if any of these check fails,
-   --  stores the name of the project file My_Project otherwise.
-
-   procedure Store_CGPR_Source
-     (My_Project : in out Arg_Project_Type; CGPR_File_Name : String);
-   --  Stores configuration project file.
-   --  Checks that:
-   --    - this is the first --config option provided as a tool parameter;
-   --    - the configuration project file exists.???
-   --  Raises Lkql_Checker.Common.Parameter_Error if any of these check fails,
-   --  stores the name of the configuration project file otherwise.
-
    function Is_Specified (My_Project : Arg_Project_Type) return Boolean;
    --  Checks if the argument represents a project that corresponds to some
    --  project file specified as a tool parameter.
@@ -204,7 +140,7 @@ package Lkql_Checker.Projects is
    function Get_Project_Relative_File
      (My_Project : Arg_Project_Type; Filename : String) return String;
    --  From the given ``Filename``, get the absolute path leading to it
-   --  realtively to the current project file. If there is no specified
+   --  relatively to the current project file. If there is no specified
    --  project file, then get the file from the current directory.
 
    procedure Clean_Up (My_Project : Arg_Project_Type);
@@ -213,24 +149,41 @@ package Lkql_Checker.Projects is
 
    function Source_Prj (My_Project : Arg_Project_Type) return String;
    --  If My_Project.Is_Specified then returns the full normalized name of the
-   --  project file, otherwise returns a null string.
+   --  project file, otherwise returns an empty string.
 
    function Source_CGPR (My_Project : Arg_Project_Type) return String;
-   --  If My_Project.Source_CGPR is specified then returns its value,
-   --  otherwise returns a null string.
+   --  If a source CGPR has been specified then returns its value, otherwise
+   --  returns an empty string.
 
-   procedure Set_External_Values (My_Project : Arg_Project_Type);
+   function Target (My_Project : Arg_Project_Type) return String;
+   --  Target name as it is specified by the command-line ``--target=...``
+   --  option, or by the ``'Target`` attribute in the argument project file.
+
+   function Runtime (My_Project : Arg_Project_Type) return String;
+   --  Runtime as specified via ``--RTS=...`` in the command-line, or by the
+   --  ``Runtime`` attribute. If no runtime has been selected, this function
+   --  returns an empty string.
+
+   function Subdir_Name (My_Project : Arg_Project_Type) return String;
+   --  Return the subdir name to use, if one was set explicitly.
+
+   function Follow_Symbolic_Links
+     (My_Project : Arg_Project_Type) return Boolean;
+   --  Get whether the project as been loaded with the ``-eL`` switch that
+   --  enable the symbolic links following.
+
+   procedure Append_External_Variables
+     (My_Project : Arg_Project_Type;
+      Args       : in out Argument_List;
+      Last       : in out Natural);
+   --  Append a "-XVAR=value" string for each external variable stored in the
+   --  provided project options.
+
+   procedure Set_External_Values (My_Project : in out Arg_Project_Type);
    --  For each value of an external variable that has been stored as a result
    --  of the initial parameter processing, changes environment accordingly.
    --  Any inconsistencies coming from improper values of scenario variables
    --  etc. will be reported during project loading.
-
-   procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type);
-   --  Extracts and stores the list of sources of the project to process as
-   --  tool arguments.
-   --
-   --  Currently, main units are ignored pending libgpr2 support for computing
-   --  a closure on main units, so basically -U is implicit.
 
    procedure Set_Global_Result_Dirs (My_Project : in out Arg_Project_Type);
    --  Sets the directory to place the global tool results into.
@@ -239,34 +192,12 @@ package Lkql_Checker.Projects is
    --  Register tool specific attributes. In particular, gnatcheck needs
    --  to recognise Codepeer.File_Patterns.
 
-   procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type);
+   procedure Print_GPR_Registry (My_Project : Arg_Project_Type);
+   --  If it has been required in the provided project option, print the GPR
+   --  registry (formatted in JSON) and exit the program.
+
+   procedure Extract_Tool_Options (My_Project : Arg_Project_Type);
    --  Extracts gnatcheck options from the project file
-
-   procedure Process_Rule_Options;
-   --  Process all the rule options found as part of scanning arguments
-
-   procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False);
-   --  Add the given ``Opt`` to the list of rule options processed by
-   --  ``Process_Rule_Options`` as a command-line rule option (e.g. +R...).
-   --  If ``Prepend`` is set to True, add the rule option at the start of
-   --  the processing list.
-
-   procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False);
-   --  Create a new rule option to enable the rule designated by the provided
-   --  name without any additional configuration.
-
-   procedure Set_LKQL_Rule_File (File : String; Project_Relative : Boolean);
-   --  Set the given ``File`` as the LKQL rule file to process during the
-   --  execution of ``Process_Rule_Options``. If a rule file has already been
-   --  set, this function displays an error and set the
-   --  ``Rule_Option_Problem_Detected`` flag to True.
-   --  If the provided ``File`` isn't an absolute path, if ``Project_Relative``
-   --  is set to ``True``, resolve the provided file relatively to
-   --  the current project file (if any). Else, resolve ``File`` relatively to
-   --  the current working directory.
-
-   function Is_Rule_Options_Empty return Boolean;
-   --  Get whether the rule options are empty.
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type);
    --  Prints header in the summary report file created if the argument project
@@ -304,15 +235,18 @@ package Lkql_Checker.Projects is
    -- General project file processing --
    -------------------------------------
 
-   procedure Initialize_Environment;
-   --  Initializes the environment for extracting the information from the
-   --  project file. This includes setting the parameters specific for the
-   --  given tool version assuming that the tools for cross environment are
-   --  named in a standard way (that is, <cross-prefix>-<tool_name>.
+   procedure Load_Project
+     (My_Project : in out Arg_Project_Type; Options : GPR2.Options.Object);
+   --  From the provided GPR options, load a project file and fill the provided
+   --  project object with loaded information. This function also checks that
+   --  the project loading succeeded and raises error if not.
 
-   procedure Process_Project_File (My_Project : in out Arg_Project_Type'Class);
-   --  Combines all the actions needed to process the argument project file
-   --  except storing individual compilation options for argument files.
+   procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type);
+   --  Load sources to analyze with the tool from information stored in the
+   --  provided project and store them in the dedicated internal data
+   --  structure.
+   --  This function assumes that the provided project has been loaded and that
+   --  all command-line arguments have been processed.
 
    -------------------------------------
    -- General command line processing --
@@ -324,10 +258,9 @@ package Lkql_Checker.Projects is
 private
 
    type Arg_Project_Type is tagged record
-      Tree        : aliased GPR2.Project.Tree.Object;
-      View        : aliased GPR2.Project.View.Object;
-      Source_Prj  : String_Access;
-      Source_CGPR : String_Access;
+      Tree    : aliased GPR2.Project.Tree.Object;
+      View    : aliased GPR2.Project.View.Object;
+      Options : GPR2.Options.Object;
    end record;
 
    function Tree

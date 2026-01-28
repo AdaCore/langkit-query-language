@@ -1,10 +1,13 @@
-with GNAT.Command_Line; use GNAT.Command_Line;
 with Ada.Command_Line;  use Ada.Command_Line;
 with Ada.Directories;   use Ada.Directories;
+with Ada.Strings;       use Ada.Strings;
+with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 
-with Lkql_Checker.Output;       use Lkql_Checker.Output;
-with Lkql_Checker.Projects;     use Lkql_Checker.Projects;
-with Lkql_Checker.Source_Table; use Lkql_Checker.Source_Table;
+with GNAT.Command_Line; use GNAT.Command_Line;
+
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
 
 with System.Multiprocessors;
 
@@ -43,20 +46,6 @@ package body Lkql_Checker.Options is
       end;
    end Parse_Arg_As_Natural;
 
-   ------------------
-   -- Jobs_Convert --
-   ------------------
-
-   function Jobs_Convert (Arg : String) return Natural is
-      Value : constant Natural := Parse_Arg_As_Natural (Arg);
-   begin
-      if Value = 0 then
-         return Natural (System.Multiprocessors.Number_Of_CPUs);
-      else
-         return Value;
-      end if;
-   end Jobs_Convert;
-
    -------------------------------
    -- Project_Verbosity_Convert --
    -------------------------------
@@ -70,6 +59,20 @@ package body Lkql_Checker.Options is
          return Value;
       end if;
    end Project_Verbosity_Convert;
+
+   ------------------
+   -- Jobs_Convert --
+   ------------------
+
+   function Jobs_Convert (Arg : String) return Natural is
+      Value : constant Natural := Parse_Arg_As_Natural (Arg);
+   begin
+      if Value = 0 then
+         return Natural (System.Multiprocessors.Number_Of_CPUs);
+      else
+         return Value;
+      end if;
+   end Jobs_Convert;
 
    ---------------------------
    -- Max_Diagnoses_Convert --
@@ -100,26 +103,12 @@ package body Lkql_Checker.Options is
    -- Scan_Arguments --
    --------------------
 
-   procedure Scan_Arguments
-     (First_Pass : Boolean := False; Args : Argument_List_Access := null)
+   procedure Scan_Tool_Arguments
+     (Args : XString_Array; From_Project_File : Boolean)
    is
       Unknown_Opt_Parse_Args : XString_Vector;
       Exp_It                 : Expansion_Iterator;
       Explicit_Sources       : String_Vector;
-
-      function To_XString_Array
-        (Args : Argument_List_Access) return XString_Array;
-
-      function To_XString_Array
-        (Args : Argument_List_Access) return XString_Array
-      is
-         Ret : XString_Array (Args'Range);
-      begin
-         for I in Args'Range loop
-            Ret (I) := To_XString (Args (I).all);
-         end loop;
-         return Ret;
-      end To_XString_Array;
 
       Executable : GNAT.OS_Lib.String_Access :=
         Locate_Exec_On_Path (Command_Name);
@@ -127,8 +116,6 @@ package body Lkql_Checker.Options is
         Containing_Directory (Containing_Directory (Executable.all));
       Lkql       : constant String :=
         Compose (Compose (Prefix, "share"), "lkql");
-
-      Args_From_Project : constant Boolean := Args /= null;
 
       --  Start of processing for Scan_Arguments
 
@@ -148,56 +135,46 @@ package body Lkql_Checker.Options is
       --  files
       --  TODO: It might be possible to have a list of subparsers and do a for
       --  loop
-      if Args_From_Project then
+      if From_Project_File then
          declare
             In_Project_Msg : constant String :=
               " is forbidden in project file";
          begin
-            Disallow (Arg.Aggregate_Subproject.This, "-A" & In_Project_Msg);
-            Disallow (Arg.Project_File.This, "-P" & In_Project_Msg);
-            Disallow (Arg.Transitive_Closure.This, "-U" & In_Project_Msg);
-            Disallow (Arg.Scenario_Vars.This, "-Xname=val" & In_Project_Msg);
             Disallow
-              (Arg.No_Subprojects.This, "--no-subprojects" & In_Project_Msg);
-            Disallow (Arg.Project_Verbosity.This, "-vP" & In_Project_Msg);
-            Disallow (Arg.Follow_Symbolic_Links.This, "-eL" & In_Project_Msg);
-            Disallow (Arg.Lkql_Path.This, "--lkql-path" & In_Project_Msg);
-            Disallow (Arg.Rules.This, "-r" & In_Project_Msg);
-            Disallow (Arg.Rule_File.This, "--rule-file" & In_Project_Msg);
-            Disallow (Arg.Target.This, "--target" & In_Project_Msg);
-            Disallow (Arg.RTS.This, "--RTS" & In_Project_Msg);
-            Disallow (Arg.Version.This, "--version" & In_Project_Msg);
-            Disallow (Arg.Help.This, "-h, --help" & In_Project_Msg);
-            Disallow (Arg.List_Rules.This, "--list-rules" & In_Project_Msg);
+              (Tool_Args.Transitive_Closure.This, "-U" & In_Project_Msg);
+            Disallow
+              (Tool_Args.No_Subprojects.This,
+               "--no-subprojects" & In_Project_Msg);
+            Disallow
+              (Tool_Args.Lkql_Path.This, "--lkql-path" & In_Project_Msg);
+            Disallow (Tool_Args.Rules.This, "-r" & In_Project_Msg);
+            Disallow
+              (Tool_Args.Rule_File.This, "--rule-file" & In_Project_Msg);
+            Disallow (Tool_Args.Version.This, "--version" & In_Project_Msg);
+            Disallow (Tool_Args.Help.This, "-h, --help" & In_Project_Msg);
+            Disallow
+              (Tool_Args.List_Rules.This, "--list-rules" & In_Project_Msg);
          end;
       end if;
 
-      if not Arg.Parser.Parse
-               ((if Args /= null
-                 then To_XString_Array (Args)
-                 else No_Arguments),
-                Unknown_Arguments => Unknown_Opt_Parse_Args)
+      if not Tool_Args.Parser.Parse
+               (Args,
+                Unknown_Arguments        => Unknown_Opt_Parse_Args,
+                Fallback_On_Command_Line => False)
       then
          raise Parameter_Error;
       end if;
 
       --  Reallow arguments that were disallowed
-      if Args_From_Project then
-         Allow (Arg.Transitive_Closure.This);
-         Allow (Arg.Scenario_Vars.This);
-         Allow (Arg.Aggregate_Subproject.This);
-         Allow (Arg.Project_File.This);
-         Allow (Arg.No_Subprojects.This);
-         Allow (Arg.Project_Verbosity.This);
-         Allow (Arg.Follow_Symbolic_Links.This);
-         Allow (Arg.Lkql_Path.This);
-         Allow (Arg.Rules.This);
-         Allow (Arg.Rule_File.This);
-         Allow (Arg.Target.This);
-         Allow (Arg.RTS.This);
-         Allow (Arg.Version.This);
-         Allow (Arg.Help.This);
-         Allow (Arg.List_Rules.This);
+      if From_Project_File then
+         Allow (Tool_Args.Transitive_Closure.This);
+         Allow (Tool_Args.No_Subprojects.This);
+         Allow (Tool_Args.Lkql_Path.This);
+         Allow (Tool_Args.Rules.This);
+         Allow (Tool_Args.Rule_File.This);
+         Allow (Tool_Args.Version.This);
+         Allow (Tool_Args.Help.This);
+         Allow (Tool_Args.List_Rules.This);
       end if;
 
       --  Now that we processed all switches, remaining arguments should be
@@ -215,7 +192,8 @@ package body Lkql_Checker.Options is
          --  Ada source file name OR a glob pattern.
          --  We only handle explicit sources during the first pass to avoid
          --  duplication.
-         elsif Args_From_Project or First_Pass then
+
+         else
             declare
                Is_Glob : constant Boolean :=
                  Unknown_Arg.Find ('*') /= 0
@@ -241,23 +219,51 @@ package body Lkql_Checker.Options is
 
       --  We can now store sources to process
       for Arg of Explicit_Sources loop
-         if Options.Arg.Transitive_Closure.Get then
+         if Options.Tool_Args.Transitive_Closure.Get then
             Store_Main_Unit (Arg);
          else
             Store_Sources_To_Process (Arg);
-            if not Args_From_Project then
+            if not From_Project_File then
                Argument_File_Specified := True;
             end if;
          end if;
       end loop;
-   end Scan_Arguments;
+   end Scan_Tool_Arguments;
+
+   --------------------------
+   -- Process_Rule_Options --
+   --------------------------
+
+   procedure Process_Rule_Options is
+   begin
+      --  First of all, process the provided LKQL rule file
+      if LKQL_Rule_File_Name /= Null_Unbounded_String then
+         Process_LKQL_Rule_File (To_String (LKQL_Rule_File_Name));
+      end if;
+
+      --  Then process the legacy rule options
+      for O of Rule_Options loop
+         case O.Kind is
+            when File             =>
+               Process_Legacy_Rule_File (To_String (O.Value));
+
+            when Legacy_Option    =>
+               Process_Legacy_Rule_Option
+                 (To_String (O.Value), Defined_At => "");
+
+            when Single_Rule_Name =>
+               Process_Single_Rule_Name (To_String (O.Value));
+         end case;
+      end loop;
+      Process_Compiler_Instances;
+   end Process_Rule_Options;
 
    ---------------------------------
    -- Process_Legacy_Rule_Options --
    ---------------------------------
 
    procedure Process_Legacy_Rule_Options
-     (Args : Arg.Legacy_Rules_Section.Result_Array)
+     (Args : Tool_Args.Legacy_Rules_Section.Result_Array)
    is
       Remaining_Options : XString_Vector;
    begin
@@ -284,5 +290,69 @@ package body Lkql_Checker.Options is
          raise Fatal_Error with "cannot parse legacy rule options";
       end if;
    end Process_Legacy_Rule_Options;
+
+   ----------------------------
+   -- Add_Legacy_Rule_Option --
+   ----------------------------
+
+   procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False)
+   is
+      Opt_Rec : constant Option_Record :=
+        (Legacy_Option, To_Unbounded_String (Trim (Opt, Both)));
+   begin
+      if Prepend then
+         Rule_Options.Prepend (Opt_Rec);
+      else
+         Rule_Options.Append (Opt_Rec);
+      end if;
+   end Add_Legacy_Rule_Option;
+
+   ----------------------
+   -- Add_Rule_By_Name --
+   ----------------------
+
+   procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False)
+   is
+      Opt_Rec : constant Option_Record :=
+        (Single_Rule_Name, To_Unbounded_String (Trim (Rule_Name, Both)));
+   begin
+      if Prepend then
+         Rule_Options.Prepend (Opt_Rec);
+      else
+         Rule_Options.Append (Opt_Rec);
+      end if;
+   end Add_Rule_By_Name;
+
+   ------------------------
+   -- Set_LKQL_Rule_File --
+   ------------------------
+
+   procedure Set_LKQL_Rule_File (File : String; Project_Relative : Boolean) is
+      Resolved_File : constant String :=
+        (if Is_Absolute_Path (File)
+         then File
+         else
+           (if Project_Relative
+            then Checker_Prj.Get_Project_Relative_File (File)
+            else Normalize_Pathname (File)));
+   begin
+      if LKQL_Rule_File_Name = Null_Unbounded_String then
+         LKQL_Rule_File_Name := To_Unbounded_String (Resolved_File);
+      else
+         Error ("only one LKQL configuration file is allowed");
+         Rule_Option_Problem_Detected := True;
+      end if;
+   end Set_LKQL_Rule_File;
+
+   ---------------------------
+   -- Is_Rule_Options_Empty --
+   ---------------------------
+
+   function Is_Rule_Options_Empty return Boolean is
+   begin
+      return
+        Rule_Options.Is_Empty
+        and then LKQL_Rule_File_Name = Null_Unbounded_String;
+   end Is_Rule_Options_Empty;
 
 end Lkql_Checker.Options;

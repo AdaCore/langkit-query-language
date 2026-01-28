@@ -163,7 +163,7 @@ package body Lkql_Checker.Source_Table is
 
    procedure Add_Source_To_Process
      (Fname              : String;
-      Arg_Project        : Arg_Project_Type'Class;
+      Arg_Project        : Arg_Project_Type;
       Duplication_Report : Boolean := True;
       Status             : SF_Status := Waiting);
    --  Fname is treated as the name of the file to process by the tool. We try
@@ -216,7 +216,7 @@ package body Lkql_Checker.Source_Table is
 
    procedure Add_Source_To_Process
      (Fname              : String;
-      Arg_Project        : Arg_Project_Type'Class;
+      Arg_Project        : Arg_Project_Type;
       Duplication_Report : Boolean := True;
       Status             : SF_Status := Waiting)
    is
@@ -847,7 +847,7 @@ package body Lkql_Checker.Source_Table is
    procedure Output_Source (SF : SF_Id) is
       N : constant String := Natural'Image (Sources_Left);
    begin
-      if Arg.Progress_Indicator_Mode.Get then
+      if Tool_Args.Progress_Indicator_Mode.Get then
          declare
             Current : constant Integer := Total_Sources - Sources_Left + 1;
             Percent : String :=
@@ -865,10 +865,12 @@ package body Lkql_Checker.Source_Table is
          end;
       end if;
 
-      if Arg.Verbose.Get then
+      if Tool_Args.Verbose.Get then
          Info ("[" & N (2 .. N'Last) & "] " & Short_Source_Name (SF));
 
-      elsif not (Arg.Quiet_Mode or else Arg.Progress_Indicator_Mode.Get) then
+      elsif not (Tool_Args.Quiet_Mode
+                 or else Tool_Args.Progress_Indicator_Mode.Get)
+      then
          Print
            ("Units remaining:" & N & "     " & ASCII.CR,
             New_Line    => False,
@@ -1032,7 +1034,7 @@ package body Lkql_Checker.Source_Table is
 
    procedure Read_Args_From_Temp_Storage
      (Duplication_Report : Boolean;
-      Arg_Project        : Arg_Project_Type'Class;
+      Arg_Project        : Arg_Project_Type;
       Status             : SF_Status := Waiting)
    is
       procedure Action (File_Name : String);
@@ -1130,9 +1132,9 @@ package body Lkql_Checker.Source_Table is
 
       --  Only warn if no sources are specified explicitly
 
-      elsif not (Arg.Source_Files_Specified
+      elsif not (Tool_Args.Source_Files_Specified
                  or else (Argument_File_Specified
-                          and then not Arg.Transitive_Closure.Get))
+                          and then not Tool_Args.Transitive_Closure.Get))
       then
          Lkql_Checker.Output.Warning
            ("exemption: source " & Fname & " not found");
@@ -1202,12 +1204,9 @@ package body Lkql_Checker.Source_Table is
    -- Store_Sources_To_Process --
    ------------------------------
 
-   procedure Store_Sources_To_Process (Fname : String; Store : Boolean := True)
-   is
+   procedure Store_Sources_To_Process (Fname : String) is
    begin
-      if Store then
-         Include (Temporary_File_Storage, Fname);
-      end if;
+      Include (Temporary_File_Storage, Fname);
    end Store_Sources_To_Process;
 
    ---------------------
@@ -1427,7 +1426,7 @@ package body Lkql_Checker.Source_Table is
             Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
          exception
             when E : others =>
-               if Arg.Debug_Mode.Get then
+               if Tool_Args.Debug_Mode.Get then
                   Store_Diagnosis
                     (Full_File_Name => File_Name (Next_SF),
                      Sloc           => (1, 1),
@@ -1447,7 +1446,7 @@ package body Lkql_Checker.Source_Table is
 
    function Create_Ada_Context return Analysis_Context is
       Res              : Analysis_Context;
-      Charset          : constant String := To_String (Arg.Charset.Get);
+      Charset          : constant String := To_String (Tool_Args.Charset.Get);
       File_Reader      : File_Reader_Reference;
       Default_Config   : File_Config;
       File_Configs     : File_Config_Maps.Map;

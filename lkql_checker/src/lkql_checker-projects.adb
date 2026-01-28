@@ -9,6 +9,7 @@ with Ada.Environment_Variables;
 with Ada.Exceptions;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
 
 with GNAT.Directory_Operations;
 with GNAT.Regexp; use GNAT.Regexp;
@@ -35,7 +36,6 @@ with GPR2.Context;
 with GPR2.KB;
 with GPR2.Log;
 with GPR2.Message;
-with GPR2.Options;
 with GPR2.Path_Name;
 with GPR2.Project.Attribute;
 with GPR2.Project.Attribute_Index;
@@ -48,14 +48,10 @@ with GPR2.Reporter.Console;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
-with GNATCOLL.Traces;
 
 with Rule_Commands; use Rule_Commands;
 
 package body Lkql_Checker.Projects is
-
-   Project_File_Set : Boolean := False;
-   Project_Options  : GPR2.Options.Object;
 
    Rules_Attr            : constant GPR2.Q_Attribute_Id :=
      (GPR2."+" ("Check"), GPR2."+" ("Rules"));
@@ -70,12 +66,6 @@ package body Lkql_Checker.Projects is
    File_Patterns_Attr    : constant GPR2.Q_Attribute_Id :=
      (GPR2."+" ("CodePeer"), GPR2."+" ("File_Patterns"));
 
-   ------------------------------
-   -- External variables table --
-   ------------------------------
-
-   X_Vars : GPR2.Containers.Value_Set;
-
    ----------------------------
    -- GPR2 messages reporter --
    ----------------------------
@@ -89,7 +79,7 @@ package body Lkql_Checker.Projects is
    overriding
    function Verbosity
      (Self : Lkql_Checker_Reporter) return GPR2.Reporter.Verbosity_Level
-   is (case Arg.Project_Verbosity.Get is
+   is (case GPR_Args.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.No_Warnings,
          when 1      => GPR2.Reporter.Regular,
          when 2      => GPR2.Reporter.Verbose,
@@ -98,7 +88,7 @@ package body Lkql_Checker.Projects is
    overriding
    function User_Verbosity
      (Self : Lkql_Checker_Reporter) return GPR2.Reporter.User_Verbosity_Level
-   is (case Arg.Project_Verbosity.Get is
+   is (case GPR_Args.Project_Verbosity.Get is
          when 0      => GPR2.Reporter.Important_Only,
          when 1      => GPR2.Reporter.Regular,
          when 2      => GPR2.Reporter.Verbose,
@@ -139,7 +129,9 @@ package body Lkql_Checker.Projects is
    begin
       if My_Project.Is_Specified then
          Lkql_Checker.Output.Error
-           (Message, Location => Source_Prj (My_Project) & ":1:1");
+           (Message,
+            Location =>
+              String (My_Project.Options.Project_File.Simple_Name) & ":1:1");
       else
          Lkql_Checker.Output.Error (Message);
       end if;
@@ -156,7 +148,7 @@ package body Lkql_Checker.Projects is
 
    procedure Load_Aggregated_Project
      (My_Project : in out Arg_Project_Type'Class)
-   with Pre => Arg.Aggregated_Project;
+   with Pre => GPR_Args.Aggregated_Project;
    --  Loads My_Project (that is supposed to be an aggregate project), then
    --  unloads it and loads in the same environment the project passes as a
    --  parameter of '-A option' (which is supposed to be a (non-aggregate)
@@ -171,7 +163,7 @@ package body Lkql_Checker.Projects is
       Gprbuild : constant String := Global_Report_Dir.all & "gprbuild.err";
 
    begin
-      if not Arg.Debug_Mode.Get then
+      if not Tool_Args.Debug_Mode.Get then
          Delete_File (Gprbuild, Success);
          Delete_File (Gprbuild & ".out", Success);
       end if;
@@ -181,18 +173,17 @@ package body Lkql_Checker.Projects is
    -- Extract_Tool_Options --
    --------------------------
 
-   procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type) is
+   procedure Extract_Tool_Options (My_Project : Arg_Project_Type) is
       use GPR2;
 
-      Proj     : constant GPR2.Project.View.Object :=
+      Proj    : constant GPR2.Project.View.Object :=
         My_Project.Tree.Namespace_Root_Projects.First_Element;
-      Ada_Idx  : constant GPR2.Project.Attribute_Index.Object :=
+      Ada_Idx : constant GPR2.Project.Attribute_Index.Object :=
         GPR2.Project.Attribute_Index.Create (Ada_Language);
-      List_Val : GNAT.OS_Lib.Argument_List_Access;
 
       function Load_List_Attribute
         (Attr_Id : GPR2.Q_Attribute_Id; Indexed : Boolean := False)
-         return GNAT.OS_Lib.Argument_List_Access;
+         return String_Vector;
       --  Load the attribute designated by ``Attr_Id`` in the project ``Proj``
       --  as a list value, allocating and returning an ``Argument_List_Access``
       --  that the caller must free after usage.
@@ -200,6 +191,8 @@ package body Lkql_Checker.Projects is
       --  attribute, if ``True`` this procedure will look at the "ada" index of
       --  this attribute. See ``GPR2.Project.Attribute_Index`` package for more
       --  information about attribute indexes.
+
+      function To_XString_Array (Vec : String_Vector) return XString_Array;
 
       function Load_Single_Attribute
         (Attr_Id : GPR2.Q_Attribute_Id) return String
@@ -209,30 +202,35 @@ package body Lkql_Checker.Projects is
 
       function Load_List_Attribute
         (Attr_Id : GPR2.Q_Attribute_Id; Indexed : Boolean := False)
-         return GNAT.OS_Lib.Argument_List_Access
+         return String_Vector
       is
          Attr : constant GPR2.Project.Attribute.Object :=
            (if Indexed
             then Proj.Attribute (Attr_Id, Ada_Idx)
             else Proj.Attribute (Attr_Id));
-         Res  : GNAT.OS_Lib.Argument_List_Access;
+         Res  : String_Vector;
       begin
-         Res :=
-           new String_List (Attr.Values.First_Index .. Attr.Values.Last_Index);
          for J in Attr.Values.First_Index .. Attr.Values.Last_Index loop
-            Res (J) := new String'(Attr.Values.Element (J).Text);
+            Res.Append (String (Attr.Values.Element (J).Text));
          end loop;
          return Res;
       end Load_List_Attribute;
 
+      function To_XString_Array (Vec : String_Vector) return XString_Array is
+         Res : XString_Array (Vec.First_Index .. Vec.Last_Index);
+      begin
+         for I in Res'Range loop
+            Res (I) := To_XString (Vec (I));
+         end loop;
+         return Res;
+      end To_XString_Array;
+
    begin
       --  Process the rule list
       if Proj.Has_Attribute (Rules_Attr) then
-         List_Val := Load_List_Attribute (Rules_Attr);
-         for Rule of List_Val.all loop
-            Add_Rule_By_Name (Rule.all, Prepend => True);
+         for Rule of Load_List_Attribute (Rules_Attr) loop
+            Add_Rule_By_Name (Rule, Prepend => True);
          end loop;
-         Free (List_Val);
       end if;
 
       --  Process the LKQL rule file
@@ -247,20 +245,21 @@ package body Lkql_Checker.Projects is
 
       --  Process the LKQL path
       if Proj.Has_Attribute (Lkql_Path_Attr) then
-         List_Val := Load_List_Attribute (Lkql_Path_Attr);
-         for Path of List_Val.all loop
+         for Path of Load_List_Attribute (Lkql_Path_Attr) loop
             Additional_Lkql_Paths.Append
-              (if Is_Absolute_Path (Path.all)
-               then Path.all
-               else Checker_Prj.Get_Project_Relative_File (Path.all));
+              (if Is_Absolute_Path (Path)
+               then Path
+               else Checker_Prj.Get_Project_Relative_File (Path));
          end loop;
       end if;
 
       --  Process additional GNATcheck switches
       if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
-         List_Val := Load_List_Attribute (Switches_Attr, Indexed => True);
-         Scan_Arguments (Args => List_Val);
-         Free (List_Val);
+         Scan_Tool_Arguments
+           (Args              =>
+              To_XString_Array
+                (Load_List_Attribute (Switches_Attr, Indexed => True)),
+            From_Project_File => True);
       end if;
    end Extract_Tool_Options;
 
@@ -325,7 +324,7 @@ package body Lkql_Checker.Projects is
 
       --  Get the root project:
       --  * if the root project is a regular project then
-      --  Namespece_Root_Projects will have just one element, this root project
+      --  Namespace_Root_Projects will have just one element, this root project
       --  * if the root project is an aggregate project with just one element
       --  then Namespace_Root_Projects.First_Element will return it
       --  * if the root project is an aggregate with several subprojects then
@@ -335,13 +334,14 @@ package body Lkql_Checker.Projects is
         My_Project.Tree.Namespace_Root_Projects.First_Element;
 
    begin
-      if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
-        or else Arg.Source_Files_Specified
+      if (Argument_File_Specified
+          and then not Tool_Args.Transitive_Closure.Get)
+        or else Tool_Args.Source_Files_Specified
       then
          return;
       end if;
 
-      if Arg.Transitive_Closure.Get then
+      if Tool_Args.Transitive_Closure.Get then
          if Main_Unit.Is_Empty then
             --  No argument sources, -U specified. Process recursively
             --  all sources.
@@ -355,11 +355,11 @@ package body Lkql_Checker.Projects is
             My_Project.Tree.For_Each_Ada_Closure
               (Action            => Store_Source'Access,
                Mains             => Main_Unit,
-               Root_Project_Only => Arg.No_Subprojects.Get,
+               Root_Project_Only => Tool_Args.No_Subprojects.Get,
                Externally_Built  => False);
          end if;
       else
-         if not Arg.No_Subprojects.Get then
+         if not Tool_Args.No_Subprojects.Get then
             if Root.Has_Mains and then Only_Ada_Mains (Root) then
                --  No argument sources, no -U/--no-subprojects specified,
                --  root project has mains, all of mains are Ada.
@@ -394,22 +394,13 @@ package body Lkql_Checker.Projects is
            ("libgpr2 usage error: " & Ada.Exceptions.Exception_Message (E));
    end Get_Sources_From_Project;
 
-   ----------------------------
-   -- Initialize_Environment --
-   ----------------------------
-
-   procedure Initialize_Environment is
-   begin
-      GNATCOLL.Traces.Parse_Config_File;
-   end Initialize_Environment;
-
    ------------------
    -- Is_Specified --
    ------------------
 
    function Is_Specified (My_Project : Arg_Project_Type) return Boolean is
    begin
-      return My_Project.Source_Prj /= null;
+      return My_Project.Options.Project_File.Is_Defined;
    end Is_Specified;
 
    -------------------------------
@@ -441,14 +432,11 @@ package body Lkql_Checker.Projects is
    is
       use GPR2;
       use GPR2.Containers;
-      use Lkql_Checker.Projects.Aggregate;
 
-      Conf_Obj : GPR2.Project.Configuration.Object;
-
+      Conf_Obj    : GPR2.Project.Configuration.Object;
       Agg_Context : GPR2.Context.Object;
-
    begin
-      Load_Tool_Project (My_Project, Load_Sources => False);
+      My_Project.Load_Tool_Project (Load_Sources => False);
 
       pragma Assert (My_Project.Tree.Root_Project.Kind in Aggregate_Kind);
 
@@ -459,11 +447,13 @@ package body Lkql_Checker.Projects is
       My_Project.Tree.Unload;
 
       --  Amend the project options to load the aggregated project
-      Project_Options.Add_Switch
-        (GPR2.Options.P, Get_Aggregated_Project, Override => True);
+      My_Project.Options.Add_Switch
+        (GPR2.Options.P,
+         To_String (GPR_Args.Aggregate_Subproject.Get),
+         Override => True);
 
       for C in Agg_Context.Iterate loop
-         Project_Options.Add_Switch
+         My_Project.Options.Add_Switch
            (GPR2.Options.X,
             String (External_Name_Value_Map_Package.Key (C))
             & "="
@@ -471,7 +461,7 @@ package body Lkql_Checker.Projects is
       end loop;
 
       if not My_Project.Tree.Load
-               (Project_Options,
+               (My_Project.Options,
                 Reporter     => Gpr2_Reporter,
                 With_Runtime => True,
                 Config       => Conf_Obj)
@@ -480,7 +470,10 @@ package body Lkql_Checker.Projects is
             My_Project.Error ("no runtime information found");
          end if;
 
-         Error ("""" & Get_Aggregated_Project & """ processing failed");
+         Error
+           (""""
+            & To_String (GPR_Args.Aggregate_Subproject.Get)
+            & """ processing failed");
 
          raise Parameter_Error;
       end if;
@@ -506,39 +499,22 @@ package body Lkql_Checker.Projects is
    is
       use GPR2;
       use GPR2.Containers;
-      use Ada.Strings.Unbounded;
    begin
       --  In case of autoconf, restrict to the Ada language
-
       My_Project.Tree.Restrict_Autoconf_To_Languages
         (Language_Id_Set.To_Set (GPR2.Ada_Language));
 
-      --  Apply the options
-
-      if My_Project.Source_Prj /= null then
-         Project_Options.Add_Switch
-           (GPR2.Options.P, My_Project.Source_Prj.all);
-      end if;
-
-      if My_Project.Source_CGPR /= null then
-         Project_Options.Add_Switch
-           (GPR2.Options.Config, My_Project.Source_CGPR.all);
-      end if;
-
-      if Subdir_Name /= "" then
-         Project_Options.Add_Switch (GPR2.Options.Subdirs, Subdir_Name);
-      end if;
-
-      if RTS_Path /= Null_Unbounded_String then
-         Project_Options.Add_Switch (GPR2.Options.RTS, To_String (RTS_Path));
-      end if;
-
-      if Target /= Null_Unbounded_String then
-         Project_Options.Add_Switch (GPR2.Options.Target, To_String (Target));
-      end if;
-
-      if Arg.Follow_Symbolic_Links.Get then
-         Project_Options.Add_Switch (GPR2.Options.Resolve_Links);
+      --  Always suffix the subdirectories by "gnatcheck"
+      if My_Project.Options.Subdirs = Null_Unbounded_String then
+         My_Project.Options.Add_Switch
+           (GPR2.Options.Subdirs, "gnatcheck", Override => True);
+      else
+         My_Project.Options.Add_Switch
+           (GPR2.Options.Subdirs,
+            To_String (My_Project.Options.Subdirs)
+            & GNAT.OS_Lib.Directory_Separator
+            & "gnatcheck",
+            Override => True);
       end if;
 
       if Should_Use_Codepeer_Target then
@@ -546,7 +522,7 @@ package body Lkql_Checker.Projects is
       end if;
 
       if not My_Project.Tree.Load
-               (Project_Options,
+               (My_Project.Options,
                 Reporter         => Gpr2_Reporter,
                 Absent_Dir_Error => GPR2.No_Error,
                 With_Runtime     => True)
@@ -554,6 +530,7 @@ package body Lkql_Checker.Projects is
          raise Parameter_Error;
       end if;
 
+      --  Check that the project contains Ada sources
       if not My_Project.Tree.Languages.Contains (GPR2.Ada_Language) then
          My_Project.Error ("project has no Ada sources, processing failed");
          raise Parameter_Error;
@@ -562,20 +539,6 @@ package body Lkql_Checker.Projects is
       elsif not My_Project.Tree.Has_Runtime_Project then
          My_Project.Error ("cannot load the Ada runtime, processing failed");
          raise Parameter_Error;
-      end if;
-
-      --  Use the runtime path provided through the project file
-      if RTS_Path = Null_Unbounded_String
-        and then My_Project.Tree.Runtime (Ada_Language) /= ""
-      then
-         RTS_Path :=
-           To_Unbounded_String
-             (String (My_Project.Tree.Runtime (Ada_Language)));
-      end if;
-
-      --  Use the target specified through the project file or the config file
-      if Target = Null_Unbounded_String then
-         Target := To_Unbounded_String (String (My_Project.Tree.Target));
       end if;
 
       if Load_Sources then
@@ -602,39 +565,21 @@ package body Lkql_Checker.Projects is
          raise Parameter_Error;
    end Load_Tool_Project;
 
-   --------------------------
-   -- Process_Project_File --
-   --------------------------
+   ------------------
+   -- Load_Project --
+   ------------------
 
-   procedure Process_Project_File (My_Project : in out Arg_Project_Type'Class)
-   is
+   procedure Load_Project
+     (My_Project : in out Arg_Project_Type; Options : GPR2.Options.Object) is
    begin
+      My_Project.Options := Options;
       Set_External_Values (My_Project);
-
-      if Arg.Aggregated_Project then
+      if GPR_Args.Aggregated_Project then
          Load_Aggregated_Project (My_Project);
       else
          Load_Tool_Project (My_Project);
       end if;
-
-      if Aggregate.Num_Of_Aggregated_Projects > 1 then
-         if not Main_Unit.Is_Empty then
-            Error
-              ("'-U main' cannot be used if aggregate project "
-               & "aggregates more than one non-aggregate project");
-
-            raise Parameter_Error;
-         end if;
-
-         --  No information is extracted from the aggregate project
-         --  itself.
-
-         In_Aggregate_Project := True;
-         return;
-      else
-         Get_Sources_From_Project (My_Project);
-      end if;
-   end Process_Project_File;
+   end Load_Project;
 
    -------------------------------
    -- Report_Aggregated_Project --
@@ -649,13 +594,13 @@ package body Lkql_Checker.Projects is
       pragma Unreferenced (Aggregate_Prj);
    begin
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report ("");
          Report ("Processing aggregated project " & Aggregated_Prj_Name);
          Report ("Expected report file: " & Expected_Text_Out_File);
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("<aggregated-project>", Indent_Level => 2);
 
          XML_Report
@@ -763,17 +708,26 @@ package body Lkql_Checker.Projects is
       GPR2.Project.Registry.Pack.Check_Attributes (+"Check");
    end Register_Tool_Attributes;
 
+   ------------------------
+   -- Print_GPR_Registry --
+   ------------------------
+
+   procedure Print_GPR_Registry (My_Project : Arg_Project_Type) is
+   begin
+      My_Project.Options.Print_GPR_Registry;
+   end Print_GPR_Registry;
+
    -------------------------
    -- Set_External_Values --
    -------------------------
 
-   procedure Set_External_Values (My_Project : Arg_Project_Type) is
+   procedure Set_External_Values (My_Project : in out Arg_Project_Type) is
       GPR_TOOL_Set : Boolean := False;
       use GPR2;
    begin
       --  Set GPR_TOOL, if needed
 
-      for Cursor in Project_Options.Context.Iterate loop
+      for Cursor in My_Project.Options.Context.Iterate loop
          if Containers.External_Name_Value_Map_Package.Key (Cursor)
            = "GPR_TOOL"
          then
@@ -785,7 +739,7 @@ package body Lkql_Checker.Projects is
       if not Ada.Environment_Variables.Exists ("GPR_TOOL")
         and then not GPR_TOOL_Set
       then
-         Project_Options.Add_Switch (GPR2.Options.X, "GPR_TOOL=gnatcheck");
+         My_Project.Options.Add_Switch (GPR2.Options.X, "GPR_TOOL=gnatcheck");
       end if;
    end Set_External_Values;
 
@@ -802,7 +756,7 @@ package body Lkql_Checker.Projects is
 
       Dir : constant String :=
         String
-          (if not Arg.No_Object_Dir.Get and then Checker_Prj.Is_Specified
+          (if not Tool_Args.No_Object_Dir.Get and then Checker_Prj.Is_Specified
            then
              (if My_Project.Tree.Root_Project.Kind
                  not in GPR2.With_Object_Dir_Kind
@@ -814,31 +768,14 @@ package body Lkql_Checker.Projects is
       Global_Report_Dir := new String'(Dir);
    end Set_Global_Result_Dirs;
 
-   ---------------------
-   -- Set_Subdir_Name --
-   ---------------------
-
-   function Subdir_Name return String is
-      use Ada.Strings.Unbounded;
-   begin
-      if Arg.Subdirs.Get = Null_Unbounded_String then
-         return "gnatcheck";
-      else
-         return
-           To_String (Arg.Subdirs.Get)
-           & GNAT.OS_Lib.Directory_Separator
-           & "gnatcheck";
-      end if;
-   end Subdir_Name;
-
    ----------------
    -- Source_Prj --
    ----------------
 
    function Source_Prj (My_Project : Arg_Project_Type) return String is
    begin
-      if Is_Specified (My_Project) then
-         return My_Project.Source_Prj.all;
+      if My_Project.Is_Specified then
+         return String (My_Project.Options.Project_File.Name);
       else
          return "";
       end if;
@@ -850,44 +787,80 @@ package body Lkql_Checker.Projects is
 
    function Source_CGPR (My_Project : Arg_Project_Type) return String is
    begin
-      if not Is_Specified (My_Project) or else My_Project.Source_CGPR = null
-      then
-         return "";
-      elsif My_Project.Tree.Is_Defined then
-         return
-           My_Project
-             .Tree
-             .Configuration
-             .Corresponding_View
-             .Path_Name
-             .String_Value;
+      if My_Project.Options.Config_Project.Is_Defined then
+         return String (My_Project.Options.Config_Project.Name);
       else
-         return My_Project.Source_CGPR.all;
+         return "";
       end if;
    end Source_CGPR;
 
-   -----------------------------
-   -- Store_External_Variable --
-   -----------------------------
+   ------------
+   -- Target --
+   ------------
 
-   procedure Append_Variables
-     (Args : in out Argument_List; Last : in out Natural) is
+   function Target (My_Project : Arg_Project_Type) return String is
+      Specified_Target : constant String := String (My_Project.Options.Target);
    begin
-      for Var of X_Vars loop
+      if Specified_Target /= "all" then
+         return Specified_Target;
+      else
+         return String (My_Project.Tree.Target);
+      end if;
+   end Target;
+
+   -------------
+   -- Runtime --
+   -------------
+
+   function Runtime (My_Project : Arg_Project_Type) return String is
+   begin
+      if My_Project.Options.RTS_Map.Contains (GPR2.Ada_Language) then
+         return My_Project.Options.RTS_Map.Element (GPR2.Ada_Language);
+      else
+         return String (My_Project.Tree.Runtime (GPR2.Ada_Language));
+      end if;
+   end Runtime;
+
+   -----------------
+   -- Subdir_Name --
+   -----------------
+
+   function Subdir_Name (My_Project : Arg_Project_Type) return String is
+   begin
+      return To_String (My_Project.Options.Subdirs);
+   end Subdir_Name;
+
+   ---------------------------
+   -- Follow_Symbolic_Links --
+   ---------------------------
+
+   function Follow_Symbolic_Links
+     (My_Project : Arg_Project_Type) return Boolean is
+   begin
+      return My_Project.Options.Resolve_Links;
+   end Follow_Symbolic_Links;
+
+   -------------------------------
+   -- Append_External_Variables --
+   -------------------------------
+
+   procedure Append_External_Variables
+     (My_Project : Arg_Project_Type;
+      Args       : in out Argument_List;
+      Last       : in out Natural)
+   is
+      use GPR2.Context.Key_Value;
+
+      procedure Place_In_Args (C : Cursor);
+      procedure Place_In_Args (C : Cursor) is
+      begin
          Last := Last + 1;
-         Args (Last) := new String'("-X" & Var);
-      end loop;
-   end Append_Variables;
-
-   -----------------------------
-   -- Store_External_Variable --
-   -----------------------------
-
-   procedure Store_External_Variable (Var : String) is
+         Args (Last) :=
+           new String'("-X" & String (Key (C)) & '=' & Element (C));
+      end Place_In_Args;
    begin
-      X_Vars.Include (Var);
-      Project_Options.Add_Switch (GPR2.Options.X, Var);
-   end Store_External_Variable;
+      My_Project.Options.Context.Iterate (Place_In_Args'Access);
+   end Append_External_Variables;
 
    ---------------------
    -- Store_Main_Unit --
@@ -898,51 +871,18 @@ package body Lkql_Checker.Projects is
       Lkql_Checker.Projects.Main_Unit.Include (GPR2.Filename_Type (Unit_Name));
    end Store_Main_Unit;
 
-   --------------------------
-   -- Store_Project_Source --
-   --------------------------
-
-   procedure Store_Project_Source
-     (My_Project : in out Arg_Project_Type; Project_File_Name : String)
-   is
-      Ext : constant String :=
-        (if Has_Suffix (Project_File_Name, Suffix => ".gpr")
-         then ""
-         else ".gpr");
-
-   begin
-      if Project_File_Set then
-         Error ("cannot have several project files specified");
-         raise Parameter_Error;
-      else
-         Project_File_Set := True;
-      end if;
-
-      My_Project.Source_Prj := new String'(Project_File_Name & Ext);
-   end Store_Project_Source;
-
-   -----------------------
-   -- Store_CGPR_Source --
-   -----------------------
-
-   procedure Store_CGPR_Source
-     (My_Project : in out Arg_Project_Type; CGPR_File_Name : String) is
-   begin
-      Project_Options.Add_Switch (GPR2.Options.Config, CGPR_File_Name);
-   end Store_CGPR_Source;
-
    -------------------------------------
    -- Aggregate_Project_Report_Header --
    -------------------------------------
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type) is
    begin
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("<?xml version=""1.0""?>");
          XML_Report_No_EOL ("<gnatcheck-report");
 
          if Checker_Prj.Is_Specified then
-            XML_Report (" project=""" & Checker_Prj.Source_Prj.all & """>");
+            XML_Report (" project=""" & Checker_Prj.Source_Prj & """>");
          else
             XML_Report (">");
          end if;
@@ -950,13 +890,13 @@ package body Lkql_Checker.Projects is
 
       Lkql_Checker.Diagnoses.Print_Report_Header;
 
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report ("");
          Report ("Argument project is an aggregate project");
          Report ("Aggregated projects are processed separately");
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("<aggregated-project-reports>", Indent_Level => 1);
       end if;
    end Aggregate_Project_Report_Header;
@@ -967,7 +907,7 @@ package body Lkql_Checker.Projects is
 
    procedure Close_Aggregate_Project_Report (My_Project : Arg_Project_Type) is
    begin
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report ("</aggregated-project-reports>", Indent_Level => 1);
          XML_Report ("</gnatcheck-report>");
       end if;
@@ -982,7 +922,7 @@ package body Lkql_Checker.Projects is
    is
       pragma Unreferenced (Aggregate_Prj);
    begin
-      if Arg.Text_Report_Enabled then
+      if Tool_Args.Text_Report_Enabled then
          Report
            ("Exit code is"
             & Exit_Code'Img
@@ -996,7 +936,7 @@ package body Lkql_Checker.Projects is
             & ")");
       end if;
 
-      if Arg.XML_Report_Enabled then
+      if Tool_Args.XML_Report_Enabled then
          XML_Report
            ("<exit-code>" & Image (Exit_Code) & "</exit-code>",
             Indent_Level => 3);
@@ -1005,114 +945,13 @@ package body Lkql_Checker.Projects is
       end if;
    end Report_Aggregated_Project_Exit_Code;
 
-   --------------------------
-   -- Process_Rule_Options --
-   --------------------------
-
-   procedure Process_Rule_Options is
-      use Ada.Strings.Unbounded;
-   begin
-      --  First of all, process the provided LKQL rule file
-      if LKQL_Rule_File_Name /= Null_Unbounded_String then
-         Process_LKQL_Rule_File (To_String (LKQL_Rule_File_Name));
-      end if;
-
-      --  Then process the legacy rule options
-      for O of Rule_Options loop
-         case O.Kind is
-            when File             =>
-               Process_Legacy_Rule_File (To_String (O.Value));
-
-            when Legacy_Option    =>
-               Process_Legacy_Rule_Option
-                 (To_String (O.Value), Defined_At => "");
-
-            when Single_Rule_Name =>
-               Process_Single_Rule_Name (To_String (O.Value));
-         end case;
-      end loop;
-      Process_Compiler_Instances;
-   end Process_Rule_Options;
-
-   ----------------------------
-   -- Add_Legacy_Rule_Option --
-   ----------------------------
-
-   procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False)
-   is
-      use Ada.Strings.Unbounded;
-
-      Opt_Rec : constant Option_Record :=
-        (Legacy_Option, To_Unbounded_String (Trim (Opt, Both)));
-   begin
-      if Prepend then
-         Rule_Options.Prepend (Opt_Rec);
-      else
-         Rule_Options.Append (Opt_Rec);
-      end if;
-   end Add_Legacy_Rule_Option;
-
-   ----------------------
-   -- Add_Rule_By_Name --
-   ----------------------
-
-   procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False)
-   is
-      use Ada.Strings.Unbounded;
-
-      Opt_Rec : constant Option_Record :=
-        (Single_Rule_Name, To_Unbounded_String (Trim (Rule_Name, Both)));
-   begin
-      if Prepend then
-         Rule_Options.Prepend (Opt_Rec);
-      else
-         Rule_Options.Append (Opt_Rec);
-      end if;
-   end Add_Rule_By_Name;
-
-   ------------------------
-   -- Set_LKQL_Rule_File --
-   ------------------------
-
-   procedure Set_LKQL_Rule_File (File : String; Project_Relative : Boolean) is
-      use Ada.Strings.Unbounded;
-
-      Resolved_File : constant String :=
-        (if Is_Absolute_Path (File)
-         then File
-         else
-           (if Project_Relative
-            then Checker_Prj.Get_Project_Relative_File (File)
-            else Normalize_Pathname (File)));
-   begin
-      if LKQL_Rule_File_Name = Null_Unbounded_String then
-         LKQL_Rule_File_Name := To_Unbounded_String (Resolved_File);
-      else
-         Error ("only one LKQL configuration file is allowed");
-         Rule_Option_Problem_Detected := True;
-      end if;
-   end Set_LKQL_Rule_File;
-
-   ---------------------------
-   -- Is_Rule_Options_Empty --
-   ---------------------------
-
-   function Is_Rule_Options_Empty return Boolean is
-      use Ada.Strings.Unbounded;
-   begin
-      return
-        Rule_Options.Is_Empty
-        and then LKQL_Rule_File_Name = Null_Unbounded_String;
-   end Is_Rule_Options_Empty;
-
    ----------------------
    -- Check_Parameters --
    ----------------------
 
    procedure Check_Parameters is
-      use Ada.Strings.Unbounded;
    begin
-      if Arg.Verbose.Get and then not Arg.Aggregated_Project then
+      if Tool_Args.Verbose.Get and then not GPR_Args.Aggregated_Project then
          --  When processing aggregated projects one by one, we want
          --  Verbose_Mode to print this only in the outer invocation.
          Print_Version_Info;
@@ -1120,11 +959,12 @@ package body Lkql_Checker.Projects is
 
       --  We generate the rule help unconditionally
 
-      if Arg.List_Rules.Get and then not Arg.Aggregated_Project then
+      if Tool_Args.List_Rules.Get and then not GPR_Args.Aggregated_Project then
          Rules_Help;
       end if;
 
-      if Arg.List_Rules_XML.Get and then not Arg.Aggregated_Project then
+      if Tool_Args.List_Rules_XML.Get and then not GPR_Args.Aggregated_Project
+      then
          XML_Help;
       end if;
 
@@ -1139,7 +979,7 @@ package body Lkql_Checker.Projects is
       --  No need to perform similar checks for custom XML file because it can
       --  be set only with turning ON XML output
 
-      if Arg.List_Rules.Get or else Arg.List_Rules_XML.Get then
+      if Tool_Args.List_Rules.Get or else Tool_Args.List_Rules_XML.Get then
          Nothing_To_Do := True;
          return;
       end if;
@@ -1164,13 +1004,13 @@ package body Lkql_Checker.Projects is
         Use_gnaty_Option
         or Use_gnatw_Option
         or Check_Restrictions
-        or Arg.Check_Semantic.Get;
+        or Tool_Args.Check_Semantic.Get;
 
       --  If GNATcheck is in KP mode and there is a command line specified KP
       --  version, we have to iterate over all implemented rules to enable
       --  those which match the version.
       if Mode = Gnatkp_Mode
-        and then Arg.KP_Version.Get /= Null_Unbounded_String
+        and then Tool_Args.KP_Version.Get /= Null_Unbounded_String
       then
          for Rule_Cursor in All_Rules.Iterate loop
             declare
@@ -1180,19 +1020,20 @@ package body Lkql_Checker.Projects is
             begin
                if Rule.Impact /= null
                  and then Match
-                            (To_String (Arg.KP_Version.Get), Rule.Impact.all)
+                            (To_String (Tool_Args.KP_Version.Get),
+                             Rule.Impact.all)
                then
                   if Rule.Target /= null
-                    and then Target /= Null_Unbounded_String
-                    and then not Match (To_String (Target), Rule.Target.all)
+                    and then Checker_Prj.Target /= ""
+                    and then not Match (Checker_Prj.Target, Rule.Target.all)
                   then
-                     if not Arg.Quiet_Mode then
+                     if not Tool_Args.Quiet_Mode then
                         Info
                           (Ada.Strings.Unbounded.To_String (Rule.Name)
                            & " disabled, target does not match");
                      end if;
                   else
-                     if not Arg.Quiet_Mode then
+                     if not Tool_Args.Quiet_Mode then
                         Info
                           (Ada.Strings.Unbounded.To_String (Rule.Name)
                            & " enabled");
@@ -1212,7 +1053,7 @@ package body Lkql_Checker.Projects is
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
          if Mode = Gnatkp_Mode
-           and then Arg.KP_Version.Get /= Null_Unbounded_String
+           and then Tool_Args.KP_Version.Get /= Null_Unbounded_String
          then
             Error ("no rule for the given kp-version");
             No_Detectors_For_KP_Version := True;

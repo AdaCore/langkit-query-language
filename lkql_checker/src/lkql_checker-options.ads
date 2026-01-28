@@ -3,21 +3,23 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This package defines options that are supposed to be of a common interest
---  for all the tools.
+--  This package defines interfaces that provide support to process and store
+--  input for the GNATcheck tool.
 
+with Ada.Containers.Vectors;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Lkql_Checker.Projects;
-with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
-
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
+with GPR2.Options.Opt_Parse;
 with GPR2.Options;
+
+with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 package Lkql_Checker.Options is
 
@@ -43,13 +45,6 @@ package Lkql_Checker.Options is
       then Ada.Environment_Variables.Value (Custom_Worker_Var)
       else Default_Worker);
    --  The name of the worker to use.
-
-   RTS_Path : Unbounded_String := Null_Unbounded_String;
-   --  Runtime as specified via --RTS= or Runtime attribute
-
-   Target : Unbounded_String := Null_Unbounded_String;
-   --  Target as it is specified by the command-line '--target=...' option, or
-   --  by the 'Target attribute in the argument project file.
 
    Global_Report_Dir : GNAT.OS_Lib.String_Access := new String'("./");
    --  The name of the directory to place the global results into
@@ -105,15 +100,6 @@ package Lkql_Checker.Options is
    -- options related to program global state analysis --
    ------------------------------------------------------
 
-   Do_Transitive_Closure : Boolean := False;
-   --  Flag indicating if the transitive closure of the call graph is needed.
-
-   Main_Subprogram_Name : GNAT.OS_Lib.String_Access;
-   --  -main=<name of the main subprogram>
-   --  The name of the source file containing the main subprogram. The name
-   --  may or may not contain the suffix. This subprogram is called by the
-   --  environment task.
-
    Active_Rule_Present : Boolean := False;
    --  Flag indicating if the tool has an activated rule to check. It does not
    --  take into account compiler check, use
@@ -135,10 +121,6 @@ package Lkql_Checker.Options is
    --  Any other problem with rule files and/or rule options is detected (bad
    --  format of a rule file, rule redefinition etc.)
 
-   Compiler_Arg_List : Argument_List_Access;
-   --  This variable should contain a full list of compilation options to be
-   --  passed to gcc.
-
    Additional_Lkql_Paths : String_Vector;
    --  Additional paths to add to the ``LKQL_PATH`` environment variable when
    --  spawning the LKQL worker.
@@ -146,10 +128,6 @@ package Lkql_Checker.Options is
    Instance_Help_Emitted : Boolean := False;
    --  Whether the help message about the new instance system has already been
    --  emitted. This message should be removed in 26.0.
-
-   Rules_Depreciation_Emitted : Boolean := False;
-   --  Whether the message about the ``-rules`` section depreciation has been
-   --  emitted in the TTY.
 
    --------------------------------------
    -- Controlling the gnatcheck report --
@@ -173,29 +151,95 @@ package Lkql_Checker.Options is
    --  Name of the LKQL file to process as a rule file. We assume that the
    --  stored value is an absolute path to the LKQL rule file.
 
+   ------------------------------------
+   -- Option parsing error reporting --
+   ------------------------------------
+
+   type Lkql_Checker_Error_Handler is new Error_Handler with null record;
+
+   procedure Warning (Self : in out Lkql_Checker_Error_Handler; Msg : String);
+   procedure Error (Self : in out Lkql_Checker_Error_Handler; Msg : String);
+
    ---------------------
    -- Project support --
    ---------------------
 
    Checker_Prj : aliased Lkql_Checker.Projects.Arg_Project_Type;
 
-   ---------------------------
-   -- Opt_Parse integration --
-   ---------------------------
+   function Project_Verbosity_Convert (Arg : String) return Natural;
 
-   type Lkql_Checker_Error_Handler is new Error_Handler with null record;
+   package GPR_Args is
+      Parser : Argument_Parser :=
+        Create_Argument_Parser
+          (Help                 => "GNATcheck GPR specific options",
+           Incremental          => False,
+           Generate_Help_Flag   => False,
+           Custom_Error_Handler =>
+             Create (Lkql_Checker_Error_Handler'(null record)),
+           Print_Help_On_Error  => False);
+
+      package Aggregate_Subproject is new
+        Parse_Option
+          (Parser      => Parser,
+           Short       => "-A",
+           Name        => "Aggregate project",
+           Arg_Type    => Unbounded_String,
+           Default_Val => Null_Unbounded_String,
+           Hidden      => True,
+           Help        =>
+             "private flag - used when processing a subproject of "
+             & "a root aggregate project");
+
+      package Ignore_Project_Switches_Opt is new
+        Parse_Flag
+          (Parser => Parser,
+           Long   => "--ignore-project-switches",
+           Help   => "ignore switches specified in the project file");
+
+      package Project_Verbosity is new
+        Parse_Option
+          (Parser           => Parser,
+           Long             => "-vP",
+           Name             => "Project verbosity",
+           Legacy_Long_Form => True,
+           Arg_Type         => Natural,
+           Default_Val      => 0,
+           Convert          => Project_Verbosity_Convert,
+           Help             =>
+             "verbosity level when parsing a project file (from 0 to 2, "
+             & "default is 0)");
+
+      package Log is new
+        Parse_Flag
+          (Parser           => Parser,
+           Long             => "-log",
+           Name             => "Log mode",
+           Legacy_Long_Form => True,
+           Help             =>
+             "duplicate all messages sent to stderr in gnatcheck.log");
+
+      package GPR2_Parser is new
+        GPR2.Options.Opt_Parse.Args (Parser => Parser);
+
+      function Aggregated_Project return Boolean
+      is (Aggregate_Subproject.Get /= Null_Unbounded_String);
+
+      function Ignore_Project_Switches return Boolean
+      is (Ignore_Project_Switches_Opt.Get or Mode = Gnatkp_Mode);
+   end GPR_Args;
+
+   ----------------------------
+   -- Tool specific switches --
+   ----------------------------
+
    subtype Max_Diagnoses_Count is Natural range 0 .. 1000;
 
-   procedure Warning (Self : in out Lkql_Checker_Error_Handler; Msg : String);
-   procedure Error (Self : in out Lkql_Checker_Error_Handler; Msg : String);
-
    function Jobs_Convert (Arg : String) return Natural;
-   function Project_Verbosity_Convert (Arg : String) return Natural;
    function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count;
 
    function Is_New_Section (Arg : XString) return Boolean;
 
-   package Arg is
+   package Tool_Args is
       Parser : Argument_Parser :=
         Create_Argument_Parser
           (Help                 => "GNATcheck help",
@@ -298,66 +342,6 @@ package Lkql_Checker.Options is
            Help       =>
              "specify an alternate directory containing rule files");
 
-      package Project_File is new
-        Parse_Option
-          (Parser      => Parser,
-           Short       => "-P",
-           Long        => "--project",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        => "project file to use");
-
-      package Scenario_Vars is new
-        Parse_Option_List
-          (Parser     => Parser,
-           Short      => "-X",
-           Name       => "Scenario variable",
-           Arg_Type   => Unbounded_String,
-           Accumulate => True,
-           Help       => "scenario variables to pass to the project file");
-
-      package Project_Verbosity is new
-        Parse_Option
-          (Parser           => Parser,
-           Long             => "-vP",
-           Name             => "Project verbosity",
-           Legacy_Long_Form => True,
-           Arg_Type         => Natural,
-           Default_Val      => 0,
-           Convert          => Project_Verbosity_Convert,
-           Help             =>
-             "verbosity level when parsing a project file (from 0 to 2, "
-             & "default is 0)");
-
-      package Config_File is new
-        Parse_Option
-          (Parser      => Parser,
-           Long        => "--config",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "name of the configuration project file. If passed, "
-             & "this file must exist and neither --target nor --RTS "
-             & "must be passed.");
-
-      package Target is new
-        Parse_Option
-          (Parser      => Parser,
-           Long        => "--target",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "name of the target to use when loading the project");
-
-      package RTS is new
-        Parse_Option
-          (Parser      => Parser,
-           Long        => "--RTS",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "name of the runtime (RTS) to use when loading the project");
-
       package Full_Source_Locations is new
         Parse_Flag
           (Parser => Parser,
@@ -379,29 +363,6 @@ package Lkql_Checker.Options is
            Name   => "Progress indicator mode",
            Help   => "activate progress indicator mode");
 
-      --  TODO: This needs to be private (undocumented)
-      package Aggregate_Subproject is new
-        Parse_Option
-          (Parser      => Parser,
-           Short       => "-A",
-           Name        => "Aggregate project",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "private flag - used when processing a subproject of "
-             & "a root aggregate project");
-
-      package Follow_Symbolic_Links is new
-        Parse_Flag
-          (Parser => Parser,
-           Short  => "-eL",
-           Name   => "Follow symbolic links",
-           Help   =>
-             "follow all symbolic links when processing project files");
-
-      function Aggregated_Project return Boolean
-      is (Aggregate_Subproject.Get /= Null_Unbounded_String);
-
       package Quiet is new
         Parse_Flag
           (Parser => Parser,
@@ -416,15 +377,6 @@ package Lkql_Checker.Options is
            Long   => "--verbose",
            Name   => "Verbose mode",
            Help   => "enable the verbose mode");
-
-      package Log is new
-        Parse_Flag
-          (Parser           => Parser,
-           Long             => "-log",
-           Name             => "Log mode",
-           Legacy_Long_Form => True,
-           Help             =>
-             "duplicate all messages sent to stderr in gnatcheck.log");
 
       package Max_Diagnoses is new
         Parse_Option
@@ -524,18 +476,6 @@ package Lkql_Checker.Options is
            Long   => "--no_objects_dir",
            Help   => "issue warning if a rule parameter is redefined");
 
-      package Print_Gpr_Registry is new
-        Parse_Flag
-          (Parser => Parser,
-           Long   => GPR2.Options.Print_GPR_Registry_Option,
-           Help   => "TODO");
-
-      package Ignore_Project_Switches_Opt is new
-        Parse_Flag
-          (Parser => Parser,
-           Long   => "--ignore-project-switches",
-           Help   => "ignore switches specified in the project file");
-
       package Include_File is new
         Parse_Option
           (Parser      => Parser,
@@ -543,15 +483,6 @@ package Lkql_Checker.Options is
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
            Help        => "add the content of filename into generated report");
-
-      package Subdirs is new
-        Parse_Option
-          (Parser      => Parser,
-           Long        => "--subdirs",
-           Arg_Type    => Unbounded_String,
-           Default_Val => Null_Unbounded_String,
-           Help        =>
-             "specify subdirectory to place the result files into");
 
       package Source_Files is new
         Parse_Option
@@ -668,9 +599,6 @@ package Lkql_Checker.Options is
 
       function XML_Report_File_Path return String;
 
-      function Ignore_Project_Switches return Boolean
-      is (Ignore_Project_Switches_Opt.Get or Mode = Gnatkp_Mode);
-
       function Source_Files_Specified return Boolean
       is (Source_Files.Get /= Null_Unbounded_String);
 
@@ -702,11 +630,68 @@ package Lkql_Checker.Options is
       function XML_Report_File_Path return String
       is (Resolve_Report_File
             (XML_Output.Get, Lkql_Checker_Mode_Image & ".xml"));
-   end Arg;
+   end Tool_Args;
 
-   --------------------------
-   -- Legacy option parser --
-   --------------------------
+   -----------------------
+   -- Option processing --
+   -----------------------
+
+   procedure Scan_Tool_Arguments
+     (Args : XString_Array; From_Project_File : Boolean);
+   --  Process the provided string array as a set of tool specific command-line
+   --  argument.
+   --  The ``From_Project_File`` indicates whether provided arguments come from
+   --  ``Switches`` or ``Default_Switches`` attribute in a project file.
+
+   ------------------
+   -- Rule options --
+   ------------------
+
+   type Option_Kind is (File, Legacy_Option, Single_Rule_Name);
+
+   type Option_Record is record
+      Kind  : Option_Kind;
+      Value : Ada.Strings.Unbounded.Unbounded_String;
+   end record;
+
+   package Vector_Options is new
+     Ada.Containers.Vectors (Positive, Option_Record);
+
+   Rule_Options : Vector_Options.Vector;
+
+   procedure Process_Rule_Options;
+   --  Process all the rule options found as part of scanning arguments.
+
+   procedure Process_Legacy_Rule_Options
+     (Args : Tool_Args.Legacy_Rules_Section.Result_Array);
+   --  Process the options provided in ``Args`` as legacy rule options.
+
+   procedure Add_Legacy_Rule_Option (Opt : String; Prepend : Boolean := False);
+   --  Add the given ``Opt`` to the list of rule options processed by
+   --  ``Process_Rule_Options`` as a command-line rule option (e.g. +R...).
+   --  If ``Prepend`` is set to True, add the rule option at the start of
+   --  the processing list.
+
+   procedure Add_Rule_By_Name (Rule_Name : String; Prepend : Boolean := False);
+   --  Create a new rule option to enable the rule designated by the provided
+   --  name without any additional configuration.
+
+   procedure Set_LKQL_Rule_File (File : String; Project_Relative : Boolean);
+   --  Set the given ``File`` as the LKQL rule file to process during the
+   --  execution of ``Process_Rule_Options``. If a rule file has already been
+   --  set, this function displays an error and set the
+   --  ``Rule_Option_Problem_Detected`` flag to True.
+   --  If the provided ``File`` isn't an absolute path, if ``Project_Relative``
+   --  is set to ``True``, resolve the provided file relatively to
+   --  the current project file (if any). Else, resolve ``File`` relatively to
+   --  the current working directory.
+
+   function Is_Rule_Options_Empty return Boolean;
+   --  Get whether the rule options are empty.
+
+   --------------------------------
+   -- Legacy rule options parser --
+   --------------------------------
 
    package Legacy_Rule_Options is
       Parser : Argument_Parser :=
@@ -723,23 +708,5 @@ package Lkql_Checker.Options is
            Accumulate       => True,
            Legacy_Long_Form => True);
    end Legacy_Rule_Options;
-
-   -----------------------
-   -- Option processing --
-   -----------------------
-
-   procedure Scan_Arguments
-     (First_Pass : Boolean := False; Args : Argument_List_Access := null);
-   --  Process GNATcheck CLI arguments. If provided ``Args`` is not null, this
-   --  procedure assumes that arguments are coming from a project file
-   --  ``Switches`` or ``Default_Switches`` attribute. Otherwise, arguments are
-   --  fetched from the application's command-line.
-   --  The ``First_Pass`` parameter indicates whether this is the first time
-   --  arguments are processed. This is used to avoid processing same arguments
-   --  multiple times.
-
-   procedure Process_Legacy_Rule_Options
-     (Args : Arg.Legacy_Rules_Section.Result_Array);
-   --  Process the options provided in ``Args`` as legacy rule options.
 
 end Lkql_Checker.Options;

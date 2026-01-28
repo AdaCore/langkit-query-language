@@ -15,15 +15,14 @@ with GNAT.Regpat; use GNAT.Regpat;
 with GNAT.Strings;
 with GNAT.String_Split;
 
-with Lkql_Checker.Diagnoses;          use Lkql_Checker.Diagnoses;
-with Lkql_Checker.Ids;                use Lkql_Checker.Ids;
-with Lkql_Checker.Options;            use Lkql_Checker.Options;
-with Lkql_Checker.Output;             use Lkql_Checker.Output;
-with Lkql_Checker.Projects;           use Lkql_Checker.Projects;
-with Lkql_Checker.Projects.Aggregate; use Lkql_Checker.Projects.Aggregate;
-with Lkql_Checker.Rules.Rule_Table;   use Lkql_Checker.Rules.Rule_Table;
-with Lkql_Checker.Source_Table;       use Lkql_Checker.Source_Table;
-with Lkql_Checker.String_Utilities;   use Lkql_Checker.String_Utilities;
+with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
+with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
+with Lkql_Checker.Options;          use Lkql_Checker.Options;
+with Lkql_Checker.Output;           use Lkql_Checker.Output;
+with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
+with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 with GNATCOLL.VFS;  use GNATCOLL.VFS;
@@ -271,7 +270,7 @@ package body Lkql_Checker.Compiler is
          Last_Idx := Last_Idx - 5;
       end if;
 
-      if Arg.Show_Rule.Get then
+      if Tool_Args.Show_Rule.Get then
          if Message_Kind in Warning | Style then
             Diag_End :=
               Index
@@ -1256,7 +1255,7 @@ package body Lkql_Checker.Compiler is
                       (Trim (Param (Last_Idx .. Param'Last), Both));
 
                   if not Restriction_Setting (R_Id).Param.Is_Empty
-                    and then Arg.Check_Redefinition.Get
+                    and then Tool_Args.Check_Redefinition.Get
                   then
                      Restriction_Setting (R_Id).Param.Clear;
                      Last_Idx := Index (Param, "=", Backward) - 1;
@@ -1683,9 +1682,9 @@ package body Lkql_Checker.Compiler is
    -------------------
 
    function GPRbuild_Exec return String is
-      use Ada.Strings.Unbounded;
    begin
-      if Target = "gnatsas" or else Target = "codepeer" then
+      if Checker_Prj.Target = "gnatsas" or else Checker_Prj.Target = "codepeer"
+      then
          return "codepeer-gprbuild";
       else
          return "gprbuild";
@@ -1760,7 +1759,7 @@ package body Lkql_Checker.Compiler is
          raise Fatal_Error;
       end if;
 
-      if Arg.Show_Instantiation_Chain.Get then
+      if Tool_Args.Show_Instantiation_Chain.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--show-instantiation-chain");
       end if;
@@ -1769,7 +1768,7 @@ package body Lkql_Checker.Compiler is
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);
 
-         if Arg.Ignore_Project_Switches then
+         if GPR_Args.Ignore_Project_Switches then
             Num_Args := @ + 1;
             Args (Num_Args) := new String'("--ignore-project-switches");
          end if;
@@ -1784,22 +1783,23 @@ package body Lkql_Checker.Compiler is
              ("-P" & Checker_Prj.Tree.Root_Project.Path_Name.String_Value);
       end if;
 
-      if Arg.Aggregated_Project then
+      if GPR_Args.Aggregated_Project then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-A");
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'(Get_Aggregated_Project);
+         Args (Num_Args) :=
+           new String'(To_String (GPR_Args.Aggregate_Subproject.Get));
       end if;
 
       if CGPR = "" then
-         if RTS_Path /= Null_Unbounded_String then
+         if Checker_Prj.Runtime /= "" then
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--RTS=" & To_String (RTS_Path));
+            Args (Num_Args) := new String'("--RTS=" & Checker_Prj.Runtime);
          end if;
 
-         if Target /= Null_Unbounded_String then
+         if Checker_Prj.Target /= "" then
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--target=" & To_String (Target));
+            Args (Num_Args) := new String'("--target=" & Checker_Prj.Target);
          end if;
       else
          --  Target and runtime will be taken from config project anyway
@@ -1807,7 +1807,7 @@ package body Lkql_Checker.Compiler is
          Args (Num_Args) := new String'("--config=" & CGPR);
       end if;
 
-      if Arg.Debug_Mode.Get then
+      if Tool_Args.Debug_Mode.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-d");
       end if;
@@ -1815,12 +1815,12 @@ package body Lkql_Checker.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("--log-file=" & Log_File);
 
-      if Arg.Follow_Symbolic_Links.Get then
+      if Checker_Prj.Follow_Symbolic_Links then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-eL");
       end if;
 
-      for Dir of Arg.Rules_Dirs.Get loop
+      for Dir of Tool_Args.Rules_Dirs.Get loop
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--rules-dir=" & To_String (Dir));
       end loop;
@@ -1828,12 +1828,14 @@ package body Lkql_Checker.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("--files-from=" & Source_File);
 
-      Append_Variables (Args, Num_Args);
+      if Checker_Prj.Is_Specified then
+         Checker_Prj.Append_External_Variables (Args, Num_Args);
+      end if;
 
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("--rules-from=" & Rule_File);
 
-      if Arg.Debug_Mode.Get then
+      if Tool_Args.Debug_Mode.Get then
          --  For debug purposes, we don't want to put the full path to the
          --  worker command, if it is a full path. We just want the base name
          Put (Base_Name (Worker.all));
@@ -1894,13 +1896,13 @@ package body Lkql_Checker.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'(LKQL_RF_Name);
 
-      if Arg.Verbose.Get then
+      if Tool_Args.Verbose.Get then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--verbose");
       end if;
 
       --  Output the called command if in debug mode
-      if Arg.Debug_Mode.Get then
+      if Tool_Args.Debug_Mode.Get then
          Put (Base_Name (Worker.all));
          for J in 1 .. Num_Args loop
             Put (" " & Args (J).all);
@@ -1952,33 +1954,34 @@ package body Lkql_Checker.Compiler is
       Args (2) := new String'("-s");
       Args (3) := new String'("-k");
       Args (4) := new String'("-q");
-      Args (5) := new String'("--subdirs=" & Subdir_Name);
+      Args (5) := new String'("--subdirs=" & Checker_Prj.Subdir_Name);
 
       Args (6) := new String'("--no-object-check");
       Args (7) := new String'("--complete-output");
       Args (8) := new String'("--restricted-to-languages=ada");
       Num_Args := 8;
 
-      if Target /= Null_Unbounded_String then
-         Add_Arg ("--target=" & To_String (Target));
+      if Checker_Prj.Target /= "" then
+         Add_Arg ("--target=" & Checker_Prj.Target);
       end if;
 
-      if Arg.Jobs.Get > 1 then
-         Add_Arg ("-j" & Image (Arg.Jobs.Get));
+      if Tool_Args.Jobs.Get > 1 then
+         Add_Arg ("-j" & Image (Tool_Args.Jobs.Get));
       end if;
 
       if Prj /= "" then
          Add_Arg ("-P" & Prj);
       end if;
 
-      if Arg.Follow_Symbolic_Links.Get then
+      if Checker_Prj.Follow_Symbolic_Links then
          Add_Arg ("-eL");
       end if;
 
       --  If files are specified explicitly, only compile these files
 
-      if (Argument_File_Specified and then not Arg.Transitive_Closure.Get)
-        or else Arg.Source_Files_Specified
+      if (Argument_File_Specified
+          and then not Tool_Args.Transitive_Closure.Get)
+        or else Tool_Args.Source_Files_Specified
       then
          Add_Arg ("-u");
 
@@ -1986,7 +1989,7 @@ package body Lkql_Checker.Compiler is
             Add_Arg (Short_Source_Name (SF));
          end loop;
       else
-         if Arg.Transitive_Closure.Get then
+         if Tool_Args.Transitive_Closure.Get then
             Add_Arg ("-U");
          end if;
 
@@ -1998,7 +2001,7 @@ package body Lkql_Checker.Compiler is
       end if;
 
       --  Append options specified through the "-cargs" section
-      for Option of Arg.Cargs_Section.Get loop
+      for Option of Tool_Args.Cargs_Section.Get loop
          Add_Arg (To_String (Option));
       end loop;
 
@@ -2021,9 +2024,11 @@ package body Lkql_Checker.Compiler is
       end if;
 
       --  Add scenario variables to the compiler command
-      Append_Variables (Args, Num_Args);
+      if Checker_Prj.Is_Specified then
+         Checker_Prj.Append_External_Variables (Args, Num_Args);
+      end if;
 
-      if Arg.Debug_Mode.Get then
+      if Tool_Args.Debug_Mode.Get then
          Put (GPRbuild_Exec);
 
          for J in 1 .. Num_Args loop
@@ -2055,7 +2060,7 @@ package body Lkql_Checker.Compiler is
    function Style_Rule_Parameter (Diag : String) return String is
       First_Idx        : Natural;
       String_To_Search : constant String :=
-        (if Arg.Show_Rule.Get then "style_checks:" else "[-gnaty");
+        (if Tool_Args.Show_Rule.Get then "style_checks:" else "[-gnaty");
 
    begin
       --  This function returns non-empty result only if .d parameter is
@@ -2079,7 +2084,7 @@ package body Lkql_Checker.Compiler is
    function Warning_Rule_Parameter (Diag : String) return String is
       First_Idx, Last_Idx : Natural;
       String_To_Search    : constant String :=
-        (if Arg.Show_Rule.Get then "warnings:" else "[-gnatw");
+        (if Tool_Args.Show_Rule.Get then "warnings:" else "[-gnatw");
 
    begin
       --  This function returns non-empty result only if .d parameter is

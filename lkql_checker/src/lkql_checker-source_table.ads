@@ -90,15 +90,14 @@ package Lkql_Checker.Source_Table is
    --  always folds file names to lower case in Windows), but we are interested
    --  the original casing of the name.
 
-   procedure Store_Sources_To_Process
-     (Fname : String; Store : Boolean := True);
+   procedure Store_Sources_To_Process (Fname : String);
    --  Fname is stored in an internal database as the name of the file to be
    --  processed by the tool. No check is made if Fname denotes an existing
    --  file.
 
    procedure Read_Args_From_Temp_Storage
      (Duplication_Report : Boolean;
-      Arg_Project        : Arg_Project_Type'Class;
+      Arg_Project        : Arg_Project_Type;
       Status             : SF_Status := Waiting);
    --  Reads argument files from temporary storage (where they are placed by
    --  Store_Sources_To_Process/Store_Args_From_File routine(s)). Uses
@@ -197,7 +196,7 @@ package Lkql_Checker.Source_Table is
    --  Short file name with no directory information
 
    function File_Name (SF : SF_Id) return String
-   is (if Arg.Full_Source_Locations.Get
+   is (if Tool_Args.Full_Source_Locations.Get
        then Source_Name (SF)
        else Short_Source_Name (SF));
    --  Return a string corresponding to the file name of SF, taking

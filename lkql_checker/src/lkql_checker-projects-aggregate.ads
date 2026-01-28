@@ -24,11 +24,6 @@ with GPR2.Project.Tree;
 
 package Lkql_Checker.Projects.Aggregate is
 
-   procedure Store_Aggregated_Project (S : String);
-   function Get_Aggregated_Project return String;
-   --  Stores and returns the name of the aggregated project file passed as an
-   --  actual for '-A ' option.
-
    procedure Collect_Aggregated_Projects (Tree : GPR2.Project.Tree.Object);
    --  Stores (in internal data structures) the full paths to the
    --  (non-aggregate!) projects that have been aggregated by P
@@ -37,10 +32,6 @@ package Lkql_Checker.Projects.Aggregate is
    --  Returns the number of (non-aggregate) projects being aggregated. We
    --  need to know this because the case when an aggregate project aggregates
    --  only one project is a useful special case.
-
-   function Get_Aggregated_Prj_Src return GPR2.Path_Name.Object
-   with Pre => Num_Of_Aggregated_Projects = 1;
-   --  Returns the (single!) aggregate project source file
 
    -----------------------
    --  Project iterator --
