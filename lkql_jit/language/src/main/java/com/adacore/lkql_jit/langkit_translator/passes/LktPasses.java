@@ -322,62 +322,63 @@ public final class LktPasses {
         }
 
         private Declaration buildDecl(Liblktlang.Decl decl) {
-            if (decl instanceof Liblktlang.FunDecl funDecl) {
-                final String name = funDecl.fSynName().getText();
-                frames.declareBinding(name);
-                // Full decl
-                var fullDecl = (FullDecl) funDecl.parent();
+            return switch (decl) {
+                case Liblktlang.FunDecl funDecl -> {
+                    final var name = funDecl.fSynName().getText();
+                    frames.declareBinding(name);
+                    // Full decl
+                    final var fullDecl = (FullDecl) funDecl.parent();
 
-                // Annotation
-                Annotation annotation = null;
-                var annotations = fullDecl.fDeclAnnotations();
-                if (annotations.getChildrenCount() > 0) {
-                    annotation = buildAnnotation(
-                        (Liblktlang.DeclAnnotation) annotations.getChild(0)
+                    // Annotation
+                    final var annotations = fullDecl.fDeclAnnotations();
+                    final var annotation = annotations.getChildrenCount() > 0
+                        ? buildAnnotation((Liblktlang.DeclAnnotation) annotations.getChild(0))
+                        : null;
+
+                    final var ret = new FunctionDeclaration(
+                        loc(funDecl),
+                        annotation,
+                        frames.getBinding(name),
+                        createFunExpr(
+                            funDecl,
+                            name,
+                            fullDecl.fDoc(),
+                            funDecl.fBody(),
+                            funDecl.fParams()
+                        )
                     );
-                }
 
-                var ret = new FunctionDeclaration(
-                    loc(funDecl),
-                    annotation,
-                    frames.getBinding(name),
-                    createFunExpr(
-                        funDecl,
-                        name,
-                        fullDecl.fDoc(),
-                        funDecl.fBody(),
-                        funDecl.fParams()
-                    )
-                );
+                    if (annotation == null) yield ret;
 
-                if (annotation != null) {
-                    if (annotation.getName().equals(Constants.ANNOTATION_NODE_CHECK)) {
-                        return new CheckerExport(
+                    yield switch (annotation.getName()) {
+                        case Constants.ANNOTATION_NODE_CHECK -> new CheckerExport(
                             loc(funDecl),
                             annotation,
                             CheckerExport.CheckerMode.NODE,
                             ret
                         );
-                    } else if (annotation.getName().equals(Constants.ANNOTATION_UNIT_CHECK)) {
-                        return new CheckerExport(
+                        case Constants.ANNOTATION_UNIT_CHECK -> new CheckerExport(
                             loc(funDecl),
                             annotation,
                             CheckerExport.CheckerMode.UNIT,
                             ret
                         );
-                    }
+                        default -> ret;
+                    };
                 }
-                return ret;
-            } else if (decl instanceof ValDecl valDecl) {
-                var name = valDecl.fSynName().getText();
-                var value = buildExpr(valDecl.fExpr());
-                frames.declareBinding(name);
-                return new ValueDeclaration(loc(valDecl), frames.getBinding(name), value);
-            } else {
-                throw LKQLRuntimeException.create(
-                    "Translation for " + decl.getKind() + " not implemented"
-                );
-            }
+                case Liblktlang.ValDecl valDecl -> {
+                    final var name = valDecl.fSynName().getText();
+                    // Build expr BEFORE the name is bound
+                    final var value = buildExpr(valDecl.fExpr());
+                    frames.declareBinding(name);
+                    yield new ValueDeclaration(loc(valDecl), frames.getBinding(name), value);
+                }
+                default -> {
+                    throw LKQLRuntimeException.create(
+                        "Translation for " + decl.getKind() + " not implemented"
+                    );
+                }
+            };
         }
 
         private Expr buildExpr(Liblktlang.Expr expr) {
