@@ -33,6 +33,7 @@ import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
+import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.adacore.lkql_jit.nodes.patterns.BindingPattern;
 import com.adacore.lkql_jit.nodes.patterns.FilteredPattern;
 import com.adacore.lkql_jit.nodes.patterns.NullPattern;
@@ -94,7 +95,8 @@ public final class LktPasses {
                 node instanceof FunDecl ||
                 node instanceof Liblktlang.LambdaExpr ||
                 node instanceof Liblktlang.LangkitRoot ||
-                isStreamOpRhs(node)
+                isStreamOpRhs(node) ||
+                node instanceof StructDecl // lowered into function
             ) {
                 return FrameKind.Concrete;
             } else if (
@@ -139,6 +141,8 @@ public final class LktPasses {
                 builder.addParameter(funParamDecl.fSynName().getText());
             } else if (node instanceof LambdaParamDecl lambdaParamDecl) {
                 builder.addParameter(lambdaParamDecl.fSynName().getText());
+            } else if (node instanceof FieldDecl fieldDecl) {
+                builder.addParameter(fieldDecl.fSynName().getText());
             }
 
             var frameKind = needsFrame(node);
@@ -372,6 +376,74 @@ public final class LktPasses {
                     final var value = buildExpr(valDecl.fExpr());
                     frames.declareBinding(name);
                     yield new ValueDeclaration(loc(valDecl), frames.getBinding(name), value);
+                }
+                case Liblktlang.StructDecl structDecl -> {
+                    // Structs declarations are lowered to a constructor
+                    final var name = structDecl.fSynName().getText();
+                    frames.declareBinding(name);
+                    final var slot = frames.getBinding(name);
+
+                    final var fullDecl = (FullDecl) structDecl.parent();
+                    final var doc = fullDecl.fDoc();
+
+                    // Build constructor formal parameters
+                    final var params = new String[structDecl.fDecls().getChildrenCount()];
+                    final var defaultVals = new Expr[params.length];
+
+                    final var localDecls = structDecl.fDecls().iterator();
+                    for (int i = 0; i < params.length; i++) {
+                        final var localDecl = localDecls.next().fDecl();
+
+                        if (localDecl instanceof Liblktlang.FieldDecl fieldDecl) {
+                            params[i] = fieldDecl.fSynName().getText();
+                            if (!fieldDecl.fDefaultVal().isNone()) {
+                                defaultVals[i] = buildExpr(fieldDecl.fDefaultVal());
+                            }
+                        } else throw translationError(
+                            localDecl,
+                            "Unexpected declaration inside a struct"
+                        );
+                    }
+
+                    frames.enterFrame(structDecl);
+
+                    // Build body
+
+                    final var keys = new String[params.length + 1];
+                    final var vals = new Expr[params.length + 1];
+
+                    for (int i = 0; i < params.length; i++) {
+                        frames.declareBinding(params[i]);
+                        keys[i] = params[i];
+                        vals[i] = new ReadParameter(
+                            loc(structDecl.fDecls().getChild(i)),
+                            frames.getParameter(params[i])
+                        );
+                    }
+
+                    keys[keys.length - 1] = Constants.STRUCT_TYPE_TAG;
+                    vals[vals.length - 1] = new StringLiteral(loc(structDecl.fSynName()), name);
+
+                    final var body = new ObjectLiteral(loc(structDecl), keys, vals);
+
+                    final var res = new FunctionDeclaration(
+                        loc(structDecl),
+                        null, // no annotation supported for structs
+                        slot,
+                        new FunExpr(
+                            loc(structDecl),
+                            frames.getFrameDescriptor(),
+                            frames.getClosureDescriptor(),
+                            params,
+                            defaultVals,
+                            doc.isNone() ? "" : doc.pDenotedValue().value,
+                            body,
+                            name
+                        )
+                    );
+
+                    frames.exitFrame();
+                    yield res;
                 }
                 default -> {
                     throw LKQLRuntimeException.create(
