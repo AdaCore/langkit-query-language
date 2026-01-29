@@ -1,0 +1,20 @@
+Without 'Log' in project file and '-log' in the command-line
+============================================================
+
+main.adb:3:04: rule violation: goto statement
+Running "cat gnatcheck.log"...
+main.adb:3:04: rule violation: goto statement
+
+With 'Log' in project file
+==========================
+
+main.adb:3:04: rule violation: goto statement
+Running "cat gnatcheck.log"...
+main.adb:3:04: rule violation: goto statement
+
+With '-log' in GPR switches
+===========================
+
+gnatcheck: error: unrecognized switch: -log
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

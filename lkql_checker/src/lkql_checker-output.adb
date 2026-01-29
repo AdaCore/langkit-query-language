@@ -144,7 +144,8 @@ package body Lkql_Checker.Output is
       end if;
 
       --  If required, log the message
-      if Log_Message and then GPR_Args.Log.Get and then Is_Open (Log_File) then
+      if Log_Message and then GPR_Args.Log_Enabled and then Is_Open (Log_File)
+      then
          Put (Log_File, Final_Message);
          if New_Line then
             Ada.Text_IO.New_Line (Log_File);

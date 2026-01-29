@@ -603,7 +603,7 @@ package body Lkql_Checker is
       end if;
 
       --  Open the log file if required
-      if GPR_Args.Log.Get then
+      if GPR_Args.Log_Enabled then
          Open_Log_File;
       end if;
 
@@ -679,7 +679,7 @@ package body Lkql_Checker is
       Lkql_Checker.Rules.Rule_Table.Clean_Up;
 
       --  Close the log file if required
-      if GPR_Args.Log.Get then
+      if GPR_Args.Log_Enabled then
          Close_Log_File;
       end if;
 

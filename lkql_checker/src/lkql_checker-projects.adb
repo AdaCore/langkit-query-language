@@ -53,6 +53,8 @@ with Rule_Commands; use Rule_Commands;
 
 package body Lkql_Checker.Projects is
 
+   Log_Attr              : constant GPR2.Q_Attribute_Id :=
+     (GPR2."+" ("Check"), GPR2."+" ("Log"));
    Rules_Attr            : constant GPR2.Q_Attribute_Id :=
      (GPR2."+" ("Check"), GPR2."+" ("Rules"));
    Rule_File_Attr        : constant GPR2.Q_Attribute_Id :=
@@ -226,6 +228,11 @@ package body Lkql_Checker.Projects is
       end To_XString_Array;
 
    begin
+      if Proj.Has_Attribute (Log_Attr) then
+         Lkql_Checker.Options.GPR_Args.Log_From_GPR :=
+           Boolean'Value (Load_Single_Attribute (Log_Attr));
+      end if;
+
       --  Process the rule list
       if Proj.Has_Attribute (Rules_Attr) then
          for Rule of Load_List_Attribute (Rules_Attr) loop
@@ -656,6 +663,16 @@ package body Lkql_Checker.Projects is
          & "Builder. The first string should always be -rules to specify "
          & "that all the other options belong to the -rules section of "
          & "the parameters to 'gnatcheck'.");
+      Add
+        (Log_Attr,
+         Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
+         Value                => Single,
+         Value_Case_Sensitive => False,
+         Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
+        (Log_Attr,
+         "Value is whether to duplicate all GNATcheck outputs in a log "
+         & "file. Accepted values are ""True"" and ""False"".");
       Add
         (Rules_Attr,
          Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
