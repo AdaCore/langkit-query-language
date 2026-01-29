@@ -498,4 +498,14 @@ public class BuiltInFunctions {
             return new LKQLList(units);
         }
     }
+
+    @BuiltInFunction(name = "context", doc = "Return the analysis context used to parse units")
+    abstract static class ContextExpr extends BuiltInBody {
+
+        @Specialization
+        @CompilerDirectives.TruffleBoundary
+        protected LangkitSupport.AnalysisContextInterface alwaysTrue() {
+            return LKQLLanguage.getContext(this).getAnalysisContext();
+        }
+    }
 }

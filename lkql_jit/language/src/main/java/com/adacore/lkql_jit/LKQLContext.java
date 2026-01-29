@@ -201,6 +201,10 @@ public final class LKQLContext {
         return this.rewritingContext != null;
     }
 
+    public LangkitSupport.AnalysisContextInterface getAnalysisContext() {
+        return this.analysisContext;
+    }
+
     @CompilerDirectives.TruffleBoundary
     public LangkitSupport.RewritingContextInterface getRewritingContext() {
         if (this.rewritingContext == null) {
