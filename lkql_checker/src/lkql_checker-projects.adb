@@ -675,7 +675,7 @@ package body Lkql_Checker.Projects is
       GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
         (Rule_File_Attr,
          "Value is the name of an LKQL rule file to use when running "
-         & "GNATcheck in this project.");
+         & "GNATcheck on this project.");
       Add
         (Lkql_Path_Attr,
          Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
