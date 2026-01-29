@@ -77,6 +77,15 @@ public abstract class LKQLCallable extends LKQLValue {
 
     // ----- Instance methods -----
 
+    /** Whether this callable value takes a closure object as its first argument. */
+    public abstract boolean takesClosure();
+
+    /**
+     * Get the closure object to provide to the callable value as first argument. Returns a null
+     * value if "takesClosure" returns "false".
+     */
+    public abstract Object getClosure();
+
     /** Get a string representation of this callable profile. */
     @CompilerDirectives.TruffleBoundary
     public String profile() {

@@ -68,6 +68,16 @@ public class LKQLSelector extends LKQLCallable {
 
     // ----- Instance functions -----
 
+    @Override
+    public boolean takesClosure() {
+        return false;
+    }
+
+    @Override
+    public Object getClosure() {
+        return null;
+    }
+
     /** Execute the selector value. */
     public LKQLSelectorList getList(Object value) {
         return this.getList(value, -1, -1, -1);

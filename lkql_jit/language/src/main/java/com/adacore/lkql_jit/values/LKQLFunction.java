@@ -72,6 +72,16 @@ public class LKQLFunction extends LKQLCallable {
 
     // ----- Instance methods -----
 
+    @Override
+    public boolean takesClosure() {
+        return this.hasClosure();
+    }
+
+    @Override
+    public Object getClosure() {
+        return hasClosure() ? this.closure.getContent() : null;
+    }
+
     /** Shortcut function to get the function associated call target. */
     public CallTarget getCallTarget() {
         return this.rootNode.getCallTarget();

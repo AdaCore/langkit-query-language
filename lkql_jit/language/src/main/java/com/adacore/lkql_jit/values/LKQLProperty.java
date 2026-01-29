@@ -67,6 +67,16 @@ public class LKQLProperty extends LKQLCallable {
 
     // ----- Instance methods -----
 
+    @Override
+    public boolean takesClosure() {
+        return false;
+    }
+
+    @Override
+    public Object getClosure() {
+        return null;
+    }
+
     /** Get whether the property reference point to a node field. */
     public boolean isField() {
         return this.name.startsWith("f");
