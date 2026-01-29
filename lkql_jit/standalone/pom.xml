@@ -36,14 +36,14 @@
                 </executions>
             </plugin>
 
-            <!-- Copy the "lkql.py" script into the target directory -->
+            <!-- Copy the "lkql.py" script and stdlib into the target directory -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.2.0</version>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
+                        <id>copy-lkql-py</id>
                         <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -56,6 +56,26 @@
                                     <directory>${project.basedir}/</directory>
                                     <includes>
                                         <include>lkql.py</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-stdlib</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                         <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <filtering>true</filtering>
+                                    <directory>${project.basedir}/../../lkql/lib/</directory>
+                                    <includes>
+                                        <include>stdlib.lkql</include>
+                                        <include>stdlib_internal.lkql</include>
                                     </includes>
                                 </resource>
                             </resources>
