@@ -1791,20 +1791,19 @@ package body Lkql_Checker.Compiler is
            new String'(To_String (GPR_Args.Aggregate_Subproject.Get));
       end if;
 
-      if CGPR = "" then
-         if Checker_Prj.Runtime /= "" then
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--RTS=" & Checker_Prj.Runtime);
-         end if;
-
-         if Checker_Prj.Target /= "" then
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--target=" & Checker_Prj.Target);
-         end if;
-      else
-         --  Target and runtime will be taken from config project anyway
+      if CGPR /= "" then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--config=" & CGPR);
+      end if;
+
+      if Checker_Prj.Runtime /= "" then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--RTS=" & Checker_Prj.Runtime);
+      end if;
+
+      if Checker_Prj.Target /= "" then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--target=" & Checker_Prj.Target);
       end if;
 
       if Tool_Args.Debug_Mode.Get then
