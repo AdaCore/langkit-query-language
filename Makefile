@@ -1,14 +1,15 @@
 BUILD_MODE=dev
 PROCS=0
-PYTHON=python
+LANGKIT_PYTHON=python
+E3_PYTHON=python
 MAVEN=mvn
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
-LKM="$(PYTHON)" -m langkit.scripts.lkm
+LKM="$(LANGKIT_PYTHON)" -m langkit.scripts.lkm
 KP_JSON=lkql_checker/share/lkql/kp/kp.json
 ADDITIONAL_LKM_ARGS=
 LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) -j$(PROCS) $(ADDITIONAL_LKM_ARGS)
 ADDITIONAL_MAVEN_ARGS=
-MAVEN_ARGS=-Dconfig.python="$(PYTHON)" $(ADDITIONAL_MAVEN_ARGS)
+MAVEN_ARGS=-Dconfig.python="$(LANGKIT_PYTHON)" $(ADDITIONAL_MAVEN_ARGS)
 
 all: liblkqllang lkql_jit lkql_checker
 
@@ -32,7 +33,7 @@ doc:
 	cd lkql_checker/doc && make generate all
 
 impacts:
-	[ -f "$(KP_JSON)" ] || "$(PYTHON)" "./utils/impact-db_impacts_gen.py"
+	[ -f "$(KP_JSON)" ] || "$(E3_PYTHON)" "./utils/impact-db_impacts_gen.py"
 
 format:
 	gnatformat -P lkql_checker/lkql_checker.gpr --no-subprojects
