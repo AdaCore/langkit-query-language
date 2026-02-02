@@ -96,6 +96,8 @@ with GPR2.Options;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
 
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
+
 package Lkql_Checker.Projects is
 
    ------------------------------
@@ -196,8 +198,11 @@ package Lkql_Checker.Projects is
    --  If it has been required in the provided project option, print the GPR
    --  registry (formatted in JSON) and exit the program.
 
-   procedure Extract_Tool_Options (My_Project : Arg_Project_Type);
-   --  Extracts gnatcheck options from the project file
+   function Extract_Tool_Options
+     (My_Project : Arg_Project_Type) return String_Vector;
+   --  Process all tool specific attributes in the provided project and return
+   --  a vector containing all CLI switches for the tool extracted from the
+   --  project file.
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type);
    --  Prints header in the summary report file created if the argument project

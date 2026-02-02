@@ -439,16 +439,36 @@ package body Lkql_Checker is
    --  Main --
    -----------
    procedure Main (Mode : Lkql_Checker_Mode) is
-      Time_Start     : constant Ada.Calendar.Time := Ada.Calendar.Clock;
-      Remaining_Args : XString_Vector;
+      Time_Start        : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+      Project_File_Args : String_Vector;
+      Remaining_Args    : XString_Vector;
+
+      procedure Close_Log_File;
+
+      procedure Close_Log_File is
+      begin
+         if GPR_Args.Log_Enabled then
+            Lkql_Checker.Output.Close_Log_File;
+         end if;
+      end Close_Log_File;
 
       function To_XString_Array (Vec : XString_Vector) return XString_Array;
+      function To_XString_Array (Vec : String_Vector) return XString_Array;
 
       function To_XString_Array (Vec : XString_Vector) return XString_Array is
          Res : XString_Array (Vec.First_Index .. Vec.Last_Index);
       begin
          for I in Res'Range loop
             Res (I) := Vec (I);
+         end loop;
+         return Res;
+      end To_XString_Array;
+
+      function To_XString_Array (Vec : String_Vector) return XString_Array is
+         Res : XString_Array (Vec.First_Index .. Vec.Last_Index);
+      begin
+         for I in Res'Range loop
+            Res (I) := To_XString (Vec (I));
          end loop;
          return Res;
       end To_XString_Array;
@@ -481,17 +501,28 @@ package body Lkql_Checker is
       --  Process the project file
       Checker_Prj.Load_Project (GPR_Args.GPR2_Parser.Parsed_GPR2_Options);
 
-      --  If requested, print the GPR registry and exit
-      Checker_Prj.Print_GPR_Registry;
-
       --  Then we fetch tool specific switches from the project file if
       --  required.
       if Checker_Prj.Is_Specified
         and then not In_Aggregate_Project
         and then not GPR_Args.Ignore_Project_Switches
       then
-         Checker_Prj.Extract_Tool_Options;
+         Project_File_Args := Checker_Prj.Extract_Tool_Options;
       end if;
+
+      --  Open the log file if required
+      if GPR_Args.Log_Enabled then
+         Open_Log_File;
+      end if;
+
+      --  If requested, print the GPR registry and exit
+      Checker_Prj.Print_GPR_Registry;
+
+      --  Scan tool specific switches coming from the project file before
+      --  scanning the ones from the command-line to be able to override them.
+      Scan_Tool_Arguments
+        (Args              => To_XString_Array (Project_File_Args),
+         From_Project_File => True);
 
       --  Finally, we parse remaining switches from the command-line with the
       --  GNATcheck arguments parser.
@@ -602,11 +633,6 @@ package body Lkql_Checker is
          end if;
       end if;
 
-      --  Open the log file if required
-      if GPR_Args.Log_Enabled then
-         Open_Log_File;
-      end if;
-
       Lkql_Checker.Projects.Check_Parameters;  --  check that the rule exists
 
       if Analyze_Compiler_Output then
@@ -679,9 +705,7 @@ package body Lkql_Checker is
       Lkql_Checker.Rules.Rule_Table.Clean_Up;
 
       --  Close the log file if required
-      if GPR_Args.Log_Enabled then
-         Close_Log_File;
-      end if;
+      Close_Log_File;
 
       OS_Exit
         (if Tool_Failures /= 0
@@ -715,6 +739,10 @@ package body Lkql_Checker is
             & Lkql_Checker_Mode_Image
             & " --help"" for more information.",
             Log_Message => False);
+
+         --  Close the log file if required
+         Close_Log_File;
+
          OS_Exit (E_Error);
 
       when Fatal_Error =>
@@ -724,6 +752,10 @@ package body Lkql_Checker is
       when Ex : others =>
          Lkql_Checker.Output.Report_Unhandled_Exception (Ex);
          Lkql_Checker.Projects.Clean_Up (Checker_Prj);
+
+         --  Close the log file if required
+         Close_Log_File;
+
          OS_Exit (E_Error);
    end Main;
 end Lkql_Checker;

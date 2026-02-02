@@ -23,7 +23,6 @@ with Lkql_Checker.Projects.Aggregate;
 with Lkql_Checker.Rules;            use Lkql_Checker.Rules;
 with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
 with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
-with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GPR2;
 with GPR2.Build.Compilation_Unit;
@@ -175,7 +174,9 @@ package body Lkql_Checker.Projects is
    -- Extract_Tool_Options --
    --------------------------
 
-   procedure Extract_Tool_Options (My_Project : Arg_Project_Type) is
+   function Extract_Tool_Options
+     (My_Project : Arg_Project_Type) return String_Vector
+   is
       use GPR2;
 
       Proj    : constant GPR2.Project.View.Object :=
@@ -193,8 +194,6 @@ package body Lkql_Checker.Projects is
       --  attribute, if ``True`` this procedure will look at the "ada" index of
       --  this attribute. See ``GPR2.Project.Attribute_Index`` package for more
       --  information about attribute indexes.
-
-      function To_XString_Array (Vec : String_Vector) return XString_Array;
 
       function Load_Single_Attribute
         (Attr_Id : GPR2.Q_Attribute_Id) return String
@@ -217,15 +216,6 @@ package body Lkql_Checker.Projects is
          end loop;
          return Res;
       end Load_List_Attribute;
-
-      function To_XString_Array (Vec : String_Vector) return XString_Array is
-         Res : XString_Array (Vec.First_Index .. Vec.Last_Index);
-      begin
-         for I in Res'Range loop
-            Res (I) := To_XString (Vec (I));
-         end loop;
-         return Res;
-      end To_XString_Array;
 
    begin
       if Proj.Has_Attribute (Log_Attr) then
@@ -262,11 +252,9 @@ package body Lkql_Checker.Projects is
 
       --  Process additional GNATcheck switches
       if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
-         Scan_Tool_Arguments
-           (Args              =>
-              To_XString_Array
-                (Load_List_Attribute (Switches_Attr, Indexed => True)),
-            From_Project_File => True);
+         return Load_List_Attribute (Switches_Attr, Indexed => True);
+      else
+         return String_Vectors.Empty_Vector;
       end if;
    end Extract_Tool_Options;
 

@@ -18,3 +18,14 @@ With '-log' in GPR switches
 gnatcheck: error: unrecognized switch: -log
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
+Running "cat gnatcheck.log"...
+gnatcheck: error: unrecognized switch: -log
+
+With an error in tool switches
+==============================
+
+gnatcheck: error: unrecognized switch: --not-a-flag
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
+Running "cat gnatcheck.log"...
+gnatcheck: error: unrecognized switch: --not-a-flag

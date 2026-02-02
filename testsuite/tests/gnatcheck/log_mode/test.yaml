@@ -12,4 +12,7 @@ tests:
     project: with_log.gpr
   - label: With '-log' in GPR switches
     project: with_log_switch.gpr
-    post_python: null
+  - label: With an error in tool switches
+    project: with_log.gpr
+    extra_args:
+      - --not-a-flag

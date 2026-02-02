@@ -1,5 +1,6 @@
 project With_Log_Switch is
    package Check is
+      for Log use "True";
       for Switches ("ada") use ("-log");
    end Check;
 end With_Log_Switch;
