@@ -150,8 +150,6 @@ package body Lkql_Checker.Options is
             Disallow (Tool_Args.Rules.This, "-r" & In_Project_Msg);
             Disallow
               (Tool_Args.Rule_File.This, "--rule-file" & In_Project_Msg);
-            Disallow (Tool_Args.Version.This, "--version" & In_Project_Msg);
-            Disallow (Tool_Args.Help.This, "-h, --help" & In_Project_Msg);
             Disallow
               (Tool_Args.List_Rules.This, "--list-rules" & In_Project_Msg);
          end;
@@ -172,8 +170,6 @@ package body Lkql_Checker.Options is
          Allow (Tool_Args.Lkql_Path.This);
          Allow (Tool_Args.Rules.This);
          Allow (Tool_Args.Rule_File.This);
-         Allow (Tool_Args.Version.This);
-         Allow (Tool_Args.Help.This);
          Allow (Tool_Args.List_Rules.This);
       end if;
 

@@ -1,0 +1,221 @@
+Long format
+===========
+
+gnatcheck: the GNAT rule checking tool
+usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]
+options:
+ -V, --version  - Display version and exit
+ -h, --help - Display usage and exit
+
+ -Pproject        - Use project file project. Only one such switch can be used
+ -U               - check all sources of the argument project
+ -U main          - check the closure of units rooted at unit main
+ --no-subprojects - process only sources of root project
+ -Xname=value     - specify an external reference for argument project file
+ --subdirs=dir    - specify subdirectory to place the result files into
+ --no_objects_dir - place results into current dir instead of project dir
+ -eL              - follow all symbolic links when processing project files
+-vP               - verbosity level when parsing a project file (from 0 to 2, default is 0)
+
+ --ignore-project-switches - ignore switches specified in the project file
+ --target=targetname       - specify a target for cross platforms
+ --RTS=<runtime>           - use runtime <runtime>
+ --config=<cgpr>           - use configuration project <cgpr>
+
+ --list-rules             - print out the list of the currently implemented rules
+ -mn                      - n is the maximal number of diagnoses in Stderr
+                            (n in 0 .. 1000, 0 means no limit); default is 0
+ -jn                      - n is the maximal number of processes
+ -q                       - quiet mode (do not report detections in Stderr)
+ -t                       - report execution time in Stderr
+ -v, --verbose            - enable the verbose mode
+ -W, --warnings-as-errors - treat warning messages as errors
+ -l                       - full pathname for file locations
+ -log                     - duplicate all messages sent to stderr in gnatcheck.log
+ -s                       - short form of the report file
+ -xml                     - generate report in XML format
+ -nt                      - do not generate text report (enforces '-xml')
+
+ --show-rule                - append rule names to diagnoses generated
+ --show-instantiation-chain - show instantiation chain for reported generic construct
+
+ --brief              - brief mode, only report detections in Stderr
+ --check-redefinition - issue warning if a rule parameter is redefined
+ --check-semantic     - check semantic validity of the source files
+ --charset=<charset>  - specify the charset of the source files
+ --rules-dir=<dir>    - specify an alternate directory containing rule files
+
+ --include-file=filename - add the content of filename into generated report
+
+ -o filename   - specify the name of the text report file
+ -ox filename  - specify the name of the XML report file (enforces '-xml')
+
+ filename                 - the name of the Ada source file to be analyzed.
+                            Wildcards are allowed
+ -files=filename          - the name of the text file containing a list of Ada
+                            source files to analyze
+ --ignore=filename        - do not process sources listed in filename
+ --rule-file=filename     - read rule configuration from the given LKQL file
+ -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)
+ --emit-lkql-rule-file    - emit a 'rules.lkql' file containing the rules configuration
+
+rule_switches          - a list of the following switches
+   -from=filename      - read rule options from filename
+   +R<rule_id>[:param] - turn ON a given rule [with given parameter]
+   -R<rule_id>         - turn OFF a given rule
+   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,
+                         depending on the specified parameter
+where <rule_id> - ID of one of the currently implemented
+                  rules, use '--list-rules' for the full list
+      param     - string representing parameter(s) of a given rule, more than
+                  one parameter can be set separated by ','
+
+Report bugs to support@adacore.com
+
+Short format
+============
+
+gnatcheck: the GNAT rule checking tool
+usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]
+options:
+ -V, --version  - Display version and exit
+ -h, --help - Display usage and exit
+
+ -Pproject        - Use project file project. Only one such switch can be used
+ -U               - check all sources of the argument project
+ -U main          - check the closure of units rooted at unit main
+ --no-subprojects - process only sources of root project
+ -Xname=value     - specify an external reference for argument project file
+ --subdirs=dir    - specify subdirectory to place the result files into
+ --no_objects_dir - place results into current dir instead of project dir
+ -eL              - follow all symbolic links when processing project files
+-vP               - verbosity level when parsing a project file (from 0 to 2, default is 0)
+
+ --ignore-project-switches - ignore switches specified in the project file
+ --target=targetname       - specify a target for cross platforms
+ --RTS=<runtime>           - use runtime <runtime>
+ --config=<cgpr>           - use configuration project <cgpr>
+
+ --list-rules             - print out the list of the currently implemented rules
+ -mn                      - n is the maximal number of diagnoses in Stderr
+                            (n in 0 .. 1000, 0 means no limit); default is 0
+ -jn                      - n is the maximal number of processes
+ -q                       - quiet mode (do not report detections in Stderr)
+ -t                       - report execution time in Stderr
+ -v, --verbose            - enable the verbose mode
+ -W, --warnings-as-errors - treat warning messages as errors
+ -l                       - full pathname for file locations
+ -log                     - duplicate all messages sent to stderr in gnatcheck.log
+ -s                       - short form of the report file
+ -xml                     - generate report in XML format
+ -nt                      - do not generate text report (enforces '-xml')
+
+ --show-rule                - append rule names to diagnoses generated
+ --show-instantiation-chain - show instantiation chain for reported generic construct
+
+ --brief              - brief mode, only report detections in Stderr
+ --check-redefinition - issue warning if a rule parameter is redefined
+ --check-semantic     - check semantic validity of the source files
+ --charset=<charset>  - specify the charset of the source files
+ --rules-dir=<dir>    - specify an alternate directory containing rule files
+
+ --include-file=filename - add the content of filename into generated report
+
+ -o filename   - specify the name of the text report file
+ -ox filename  - specify the name of the XML report file (enforces '-xml')
+
+ filename                 - the name of the Ada source file to be analyzed.
+                            Wildcards are allowed
+ -files=filename          - the name of the text file containing a list of Ada
+                            source files to analyze
+ --ignore=filename        - do not process sources listed in filename
+ --rule-file=filename     - read rule configuration from the given LKQL file
+ -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)
+ --emit-lkql-rule-file    - emit a 'rules.lkql' file containing the rules configuration
+
+rule_switches          - a list of the following switches
+   -from=filename      - read rule options from filename
+   +R<rule_id>[:param] - turn ON a given rule [with given parameter]
+   -R<rule_id>         - turn OFF a given rule
+   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,
+                         depending on the specified parameter
+where <rule_id> - ID of one of the currently implemented
+                  rules, use '--list-rules' for the full list
+      param     - string representing parameter(s) of a given rule, more than
+                  one parameter can be set separated by ','
+
+Report bugs to support@adacore.com
+
+Ensure the provided project file isn't processed
+================================================
+
+gnatcheck: the GNAT rule checking tool
+usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]
+options:
+ -V, --version  - Display version and exit
+ -h, --help - Display usage and exit
+
+ -Pproject        - Use project file project. Only one such switch can be used
+ -U               - check all sources of the argument project
+ -U main          - check the closure of units rooted at unit main
+ --no-subprojects - process only sources of root project
+ -Xname=value     - specify an external reference for argument project file
+ --subdirs=dir    - specify subdirectory to place the result files into
+ --no_objects_dir - place results into current dir instead of project dir
+ -eL              - follow all symbolic links when processing project files
+-vP               - verbosity level when parsing a project file (from 0 to 2, default is 0)
+
+ --ignore-project-switches - ignore switches specified in the project file
+ --target=targetname       - specify a target for cross platforms
+ --RTS=<runtime>           - use runtime <runtime>
+ --config=<cgpr>           - use configuration project <cgpr>
+
+ --list-rules             - print out the list of the currently implemented rules
+ -mn                      - n is the maximal number of diagnoses in Stderr
+                            (n in 0 .. 1000, 0 means no limit); default is 0
+ -jn                      - n is the maximal number of processes
+ -q                       - quiet mode (do not report detections in Stderr)
+ -t                       - report execution time in Stderr
+ -v, --verbose            - enable the verbose mode
+ -W, --warnings-as-errors - treat warning messages as errors
+ -l                       - full pathname for file locations
+ -log                     - duplicate all messages sent to stderr in gnatcheck.log
+ -s                       - short form of the report file
+ -xml                     - generate report in XML format
+ -nt                      - do not generate text report (enforces '-xml')
+
+ --show-rule                - append rule names to diagnoses generated
+ --show-instantiation-chain - show instantiation chain for reported generic construct
+
+ --brief              - brief mode, only report detections in Stderr
+ --check-redefinition - issue warning if a rule parameter is redefined
+ --check-semantic     - check semantic validity of the source files
+ --charset=<charset>  - specify the charset of the source files
+ --rules-dir=<dir>    - specify an alternate directory containing rule files
+
+ --include-file=filename - add the content of filename into generated report
+
+ -o filename   - specify the name of the text report file
+ -ox filename  - specify the name of the XML report file (enforces '-xml')
+
+ filename                 - the name of the Ada source file to be analyzed.
+                            Wildcards are allowed
+ -files=filename          - the name of the text file containing a list of Ada
+                            source files to analyze
+ --ignore=filename        - do not process sources listed in filename
+ --rule-file=filename     - read rule configuration from the given LKQL file
+ -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)
+ --emit-lkql-rule-file    - emit a 'rules.lkql' file containing the rules configuration
+
+rule_switches          - a list of the following switches
+   -from=filename      - read rule options from filename
+   +R<rule_id>[:param] - turn ON a given rule [with given parameter]
+   -R<rule_id>         - turn OFF a given rule
+   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,
+                         depending on the specified parameter
+where <rule_id> - ID of one of the currently implemented
+                  rules, use '--list-rules' for the full list
+      param     - string representing parameter(s) of a given rule, more than
+                  one parameter can be set separated by ','
+
+Report bugs to support@adacore.com

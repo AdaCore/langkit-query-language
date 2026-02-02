@@ -9,3 +9,9 @@ Short format
 
 gnatcheck <version> (<date>)
 Copyright (C) <date>, AdaCore.
+
+Ensure the provided project file isn't processed
+================================================
+
+gnatcheck <version> (<date>)
+Copyright (C) <date>, AdaCore.

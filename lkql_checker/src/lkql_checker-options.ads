@@ -218,6 +218,26 @@ package Lkql_Checker.Options is
            Help             =>
              "duplicate all messages sent to stderr in gnatcheck.log");
 
+      package Version is new
+        Parse_Flag
+          (Parser => Parser,
+           Name   => "Version",
+           Long   => "--version",
+           Short  => "-V",
+           Help   => "show the tool version and exit");
+      --  This parser is in ``GPR_Args`` to avoid process a project file if
+      --  only the version number is required by the user.
+
+      package Help is new
+        Parse_Flag
+          (Parser => Parser,
+           Name   => "Help",
+           Long   => "--help",
+           Short  => "-h",
+           Help   => "show the help message and exit");
+      --  This parser is in ``GPR_Args`` to avoid process a project file if
+      --  only the help message is required by the user.
+
       package GPR2_Parser is new
         GPR2.Options.Opt_Parse.Args (Parser => Parser);
 
@@ -248,22 +268,6 @@ package Lkql_Checker.Options is
            Custom_Error_Handler =>
              Create (Lkql_Checker_Error_Handler'(null record)),
            Print_Help_On_Error  => False);
-
-      package Version is new
-        Parse_Flag
-          (Parser => Parser,
-           Name   => "Version",
-           Long   => "--version",
-           Short  => "-V",
-           Help   => "show the tool version and exit");
-
-      package Help is new
-        Parse_Flag
-          (Parser => Parser,
-           Name   => "Help",
-           Long   => "--help",
-           Short  => "-h",
-           Help   => "show the help message and exit");
 
       package List_Rules is new
         Parse_Flag
