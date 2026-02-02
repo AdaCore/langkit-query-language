@@ -618,7 +618,7 @@ package body Lkql_Checker.Output is
       Put_Line
         ("                  rules, use '--list-rules' for the full list");
       Put_Line
-        ("      param     - string representing parameter(s) of a given rule, more than ");
+        ("      param     - string representing parameter(s) of a given rule, more than");
       Put_Line ("                  one parameter can be set separated by ','");
 
       pragma Style_Checks ("M79");
