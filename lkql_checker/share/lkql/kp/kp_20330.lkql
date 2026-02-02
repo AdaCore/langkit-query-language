@@ -1,0 +1,47 @@
+fun record_components(node) =
+    |" Return the components list of `node`.
+    match node
+    | brd@BaseRecordDef  => brd.f_components.f_components.children
+    | rtd@RecordTypeDef  => record_components(rtd.f_record_def)
+    | dtd@DerivedTypeDef => (
+        if dtd.f_record_extension
+        then record_components(dtd.f_record_extension)
+        else []
+    ) & record_components(
+        dtd.f_subtype_indication.p_designated_type_decl().f_type_def
+    )
+
+fun record_wraps_scalar(node) =
+    |" Return whether the record designated by `node` wraps a single scalar
+    |" component. `node` should be a `BaseTypeDecl`.
+    {
+        fun get_type(node) =
+            |" Return the type of `node` if it is a subtype, `node` otherwise.
+            |" `node` should be a `BaseTypeDecl`.
+            match node
+            | s@BaseSubtypeDecl => s.p_get_type()
+            | _ => node;
+
+        val comps = record_components(get_type(node).f_type_def);
+
+        # Record should wrap only one component of a scalar type
+        comps.length == 1
+        and comps[1] is cd@ComponentDecl
+        when cd.f_ids.children_count == 1
+            and cd.f_component_def.f_type_expr.p_designated_type_decl()
+            .p_is_scalar_type()
+    }
+
+@check(help="possible occurrence of KP 20330",
+       message="possible occurrence of KP 20330 if compiled with optimization")
+fun kp_20330(node) =
+    |" Look for constants whose type is a scalar wrapped in a record type
+    |" subject to an `Alignment` and a `Scalar_Storage_Order` aspect/clause.
+    node is ObjectDecl(f_has_constant: ConstantPresent) when {
+         val td = node.f_type_expr.p_designated_type_decl();
+
+         td.p_is_record_type()
+         and td.p_has_aspect("Scalar_Storage_Order")
+         and td.p_has_aspect("Alignment")
+         and record_wraps_scalar(td)
+    }
