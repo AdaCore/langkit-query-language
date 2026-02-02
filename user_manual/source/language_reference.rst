@@ -958,7 +958,7 @@ keyword:
 Pattern
 -------
 
-.. lkql_doc_class:: ValuePattern
+.. lkql_doc_class:: BasePattern
 
 .. raw:: html
   :file: ../../lkql/build/railroad-diagrams/pattern.svg
@@ -1265,8 +1265,7 @@ value matching one of those:
 Filtered Patterns and Binding Patterns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. lkql_doc_class:: FilteredPattern
-.. lkql_doc_class:: BindingPattern
+.. lkql_doc_class:: ComplexPattern
 
 While you can express a lot of things via the regular pattern syntax mentioned
 above, sometimes it is necessary to be able to express an arbitrary boolean
