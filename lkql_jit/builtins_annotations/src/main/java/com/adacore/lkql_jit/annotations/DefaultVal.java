@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 public @interface DefaultVal {
+    /** Default value of the parameter as a Java expression. */
     String value();
 }

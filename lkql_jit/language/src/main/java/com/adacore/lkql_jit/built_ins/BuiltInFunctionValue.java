@@ -6,22 +6,14 @@
 package com.adacore.lkql_jit.built_ins;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.values.LKQLFunction;
 import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
-import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.nodes.Node;
 
 /** This class represents the LKQL value of a built-in function. */
 public class BuiltInFunctionValue extends LKQLFunction {
-
-    public String[] stringDefaultVals;
-
-    private boolean defaultValsEvald = false;
 
     // ----- Constructor -----
 
@@ -30,58 +22,33 @@ public class BuiltInFunctionValue extends LKQLFunction {
         String name,
         String documentation,
         String[] names,
-        String[] defaultValues,
+        Expr[] defaultValues,
         BuiltInBody body
     ) {
-        super(
-            new FunctionRootNode(null, null, false, body, name),
-            Closure.EMPTY,
+        this(
             documentation,
-            names,
-            new Expr[names.length],
-            body,
-            null
+            new FunctionRootNode(
+                LKQLLanguage.getLanguage(body),
+                null,
+                false,
+                false,
+                names,
+                defaultValues,
+                body,
+                name
+            )
         );
-        stringDefaultVals = defaultValues;
     }
 
-    public BuiltInFunctionValue(
-        String documentation,
-        String[] names,
-        String[] defaultValues,
-        FunctionRootNode functionRootNode
-    ) {
+    public BuiltInFunctionValue(String documentation, FunctionRootNode functionRootNode) {
         super(
             functionRootNode,
             Closure.EMPTY,
             documentation,
-            names,
-            new Expr[names.length],
+            functionRootNode.getParameterNames(),
+            functionRootNode.getDefaultParameters(),
             functionRootNode.getBody(),
             new LKQLAnnotation[0]
         );
-        stringDefaultVals = defaultValues;
-    }
-
-    @Override
-    public Node[] getParameterDefaultValues() {
-        if (stringDefaultVals != null && !defaultValsEvald) {
-            for (int i = 0; i < parameterDefaultValues.length; i++) {
-                if (stringDefaultVals[i] != null) {
-                    parameterDefaultValues[i] = getDefaultValAt(i);
-                }
-            }
-            defaultValsEvald = true;
-        }
-        return parameterDefaultValues;
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private Node getDefaultValAt(int i) {
-        var prg = ((TopLevelList) LKQLLanguage.getLanguage((LKQLNode) body).translate(
-                stringDefaultVals[i],
-                "<defaultval>"
-            )).program;
-        return prg[0];
     }
 }

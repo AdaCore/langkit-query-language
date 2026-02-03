@@ -73,6 +73,9 @@ public final class FunExpr extends Expr {
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
             false,
+            true,
+            parameterNames,
+            parameterDefaultValues,
             body,
             name
         );

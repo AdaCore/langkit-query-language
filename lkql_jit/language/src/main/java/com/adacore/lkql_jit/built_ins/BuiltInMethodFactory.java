@@ -5,6 +5,8 @@
 
 package com.adacore.lkql_jit.built_ins;
 
+import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 
@@ -16,17 +18,9 @@ public final class BuiltInMethodFactory {
 
     // ----- Attributes -----
 
-    public final String name;
-
     public final String documentation;
 
-    public final String[] paramNames;
-
-    private final FunctionRootNode functionRootNode;
-
-    public String[] defaultValues;
-
-    public final BuiltInBody methodBody;
+    public final FunctionRootNode rootNode;
 
     /**
      * Whether the factory should produce "attribute" value. See the {@link BuiltInPropertyValue}
@@ -41,17 +35,22 @@ public final class BuiltInMethodFactory {
         String name,
         String documentation,
         String[] names,
-        String[] defaultValues,
+        Expr[] defaultValues,
         BuiltInBody methodBody,
         boolean isProperty
     ) {
-        this.name = name;
         this.documentation = documentation;
-        this.paramNames = names;
-        this.defaultValues = defaultValues;
-        this.methodBody = methodBody;
+        this.rootNode = new FunctionRootNode(
+            LKQLLanguage.getLanguage(methodBody),
+            null,
+            false,
+            false,
+            names,
+            defaultValues,
+            methodBody,
+            name
+        );
         this.isProperty = isProperty;
-        this.functionRootNode = new FunctionRootNode(null, null, false, methodBody, name);
     }
 
     // ----- Instance methods -----
@@ -59,36 +58,25 @@ public final class BuiltInMethodFactory {
     /** Instantiate the method with the given "thisValue" and return the LKQL value. */
     public BuiltInMethodValue instantiate(Object thisValue) {
         return this.isProperty
-            ? new BuiltInPropertyValue(documentation, functionRootNode, thisValue)
-            : new BuiltInMethodValue(
-                  documentation,
-                  paramNames,
-                  defaultValues,
-                  functionRootNode,
-                  thisValue
-              );
+            ? new BuiltInPropertyValue(documentation, rootNode, thisValue)
+            : new BuiltInMethodValue(documentation, rootNode, thisValue);
     }
 
     // ----- Class methods -----
 
-    /**
-     * Util function to create a map entry associating the method name with its value.
-     *
-     * @param parameters Specs for parameters. This array SHOULDN'T contain the "this" parameter
-     *     since it is automatically added by this method.
-     */
+    /** Util function to create a map entry associating the method name with its value. */
     public static BuiltInMethodFactory createMethod(
         String name,
         String doc,
         String[] names,
-        String[] defaultValues,
+        Expr[] defaultValues,
         BuiltInBody body
     ) {
         return new BuiltInMethodFactory(
             name,
             doc,
             ArrayUtils.concat(new String[] { "this" }, names),
-            ArrayUtils.concat(new String[] { null }, defaultValues),
+            ArrayUtils.concat(new Expr[] { null }, defaultValues),
             body,
             false
         );
@@ -100,7 +88,7 @@ public final class BuiltInMethodFactory {
             name,
             doc,
             new String[] { "this" },
-            new String[] { null },
+            new Expr[] { null },
             body,
             true
         );

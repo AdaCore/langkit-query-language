@@ -205,7 +205,7 @@ public class BuiltInFunctions {
 
         @CompilerDirectives.TruffleBoundary
         @Specialization
-        public static String exec() {
+        public String exec() {
             var sw = new StringWriter();
             try (TextWriter writer = new TextWriter(sw)) {
                 writer.write("Standard library\n");
@@ -269,9 +269,9 @@ public class BuiltInFunctions {
                             "(" +
                                 String.join(
                                     ", ",
-                                    Arrays.stream(method.getValue().paramNames).toArray(
-                                        String[]::new
-                                    )
+                                    Arrays.stream(
+                                        method.getValue().rootNode.getParameterNames()
+                                    ).toArray(String[]::new)
                                 ) +
                                 ")"
                         );

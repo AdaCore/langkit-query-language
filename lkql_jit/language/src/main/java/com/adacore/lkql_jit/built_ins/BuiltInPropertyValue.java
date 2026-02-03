@@ -19,12 +19,6 @@ public class BuiltInPropertyValue extends BuiltInMethodValue {
         FunctionRootNode functionRootNode,
         Object thisValue
     ) {
-        super(
-            documentation,
-            new String[] { "this" },
-            new String[] { null },
-            functionRootNode,
-            thisValue
-        );
+        super(documentation, functionRootNode, thisValue);
     }
 }

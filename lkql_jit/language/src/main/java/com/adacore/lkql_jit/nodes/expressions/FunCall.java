@@ -33,7 +33,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
@@ -73,16 +72,6 @@ public abstract class FunCall extends Expr {
 
     public abstract Expr getCallee();
 
-    public Expr[] orderThisArgList(LKQLFunction function) {
-        return orderArgList(
-            function.parameterNames,
-            argNames,
-            args,
-            function.getParameterDefaultValues(),
-            this
-        );
-    }
-
     /**
      * Execute the function call node when the callee is a built-in method value.
      *
@@ -100,7 +89,6 @@ public abstract class FunCall extends Expr {
             Arrays.copyOfRange(method.parameterNames, 1, method.parameterNames.length),
             argNames,
             args,
-            Arrays.copyOfRange(defaultVals, 1, defaultVals.length),
             this
         );
 
@@ -144,12 +132,12 @@ public abstract class FunCall extends Expr {
             argVals = new Object[argExprs.length + 1];
             argVals[0] = function.closure.getContent();
             for (int i = 1; i < argVals.length; i++) {
-                argVals[i] = argExprs[i - 1].executeGeneric(frame);
+                argVals[i] = argExprs[i - 1] == null ? null : argExprs[i - 1].executeGeneric(frame);
             }
         } else {
             argVals = new Object[argExprs.length];
             for (int i = 0; i < argVals.length; i++) {
-                argVals[i] = argExprs[i].executeGeneric(frame);
+                argVals[i] = argExprs[i] == null ? null : argExprs[i].executeGeneric(frame);
             }
         }
 
@@ -243,13 +231,16 @@ public abstract class FunCall extends Expr {
         );
     }
 
+    public Expr[] orderThisArgList(LKQLFunction function) {
+        return orderArgList(function.parameterNames, argNames, args, this);
+    }
+
     @CompilerDirectives.TruffleBoundary
     public static Expr[] orderArgList(String[] paramNames, ArgList argList) {
-        return FunCall.orderArgList(
+        return orderArgList(
             paramNames,
             Arrays.stream(argList.getArgs()).map(Arg::getArgStringName).toArray(String[]::new),
             Arrays.stream(argList.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
-            null,
             argList
         );
     }
@@ -258,7 +249,6 @@ public abstract class FunCall extends Expr {
         String[] paramNames,
         String[] argNames,
         Expr[] args,
-        Node[] defaultValues,
         LKQLNode caller
     ) {
         // Verify the arity
@@ -287,21 +277,6 @@ public abstract class FunCall extends Expr {
                 res[index] = arg;
             } else {
                 throw LKQLRuntimeException.unknownArgument(argName, arg);
-            }
-        }
-
-        // Verify that all arguments are present
-        for (int i = 0; i < res.length; i++) {
-            if (res[i] == null) {
-                // If no defaultValues array is passed, we don't try to fill it,
-                // and we don't raise exceptions on missing arguments.
-                if (defaultValues != null) {
-                    if (defaultValues[i] != null) {
-                        res[i] = (Expr) defaultValues[i];
-                    } else {
-                        throw LKQLRuntimeException.missingArgument(i + 1, caller);
-                    }
-                }
             }
         }
 
