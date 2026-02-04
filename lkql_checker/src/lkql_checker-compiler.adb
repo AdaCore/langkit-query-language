@@ -138,7 +138,7 @@ package body Lkql_Checker.Compiler is
 
          --  Skip the first header line of the result since it doesn't contain
          --  relevant information.
-         Set_Line (Output_File, 2);
+         Skip_Line (Output_File);
 
          while not End_Of_File (Output_File) loop
             Res.Include (Get_Line (Output_File));
