@@ -1,0 +1,4 @@
+script.lkql:10:15: error: Struct `Pair` has no field `bad`
+  10 |     case Pair(bad: _) => print("should raise error")
+     |               ^^^^^^
+error: Errors during analysis

@@ -659,6 +659,16 @@ public final class LktPasses {
 
         private Pattern buildPattern(Liblktlang.Pattern pattern) {
             return switch (pattern) {
+                case Liblktlang.ComplexPattern structPattern when (
+                    structPattern.fPattern() instanceof Liblktlang.TypePattern typePattern &&
+                    typePattern.fTypeName().pReferencedDecl() instanceof
+                        Liblktlang.StructDecl structDecl
+                ):
+                    yield buildStructPattern(
+                        loc(structPattern),
+                        structDecl,
+                        structPattern.fDetails()
+                    );
                 case Liblktlang.ComplexPattern complexPattern:
                     Pattern result = null;
 
@@ -743,6 +753,54 @@ public final class LktPasses {
                         "Translation for " + pattern.getKind() + " not implemented"
                     );
             };
+        }
+
+        private Pattern buildStructPattern(
+            SourceSection location,
+            Liblktlang.StructDecl structDecl,
+            Liblktlang.PatternDetailList patternDetails
+        ) {
+            final var name = structDecl.fSynName().getText();
+
+            final var keys = new String[patternDetails.getChildrenCount() + 1];
+            final var patterns = new Pattern[keys.length];
+
+            keys[0] = Constants.STRUCT_TYPE_TAG;
+            patterns[0] = RegexPatternNodeGen.create(loc(structDecl.fSynName()), name);
+
+            final var detailsIterator = patternDetails.iterator();
+            for (int i = 1; i < patterns.length; i++) {
+                final var patternDetail = detailsIterator.next();
+                if (patternDetail instanceof Liblktlang.FieldPatternDetail fieldPatternDetail) {
+                    keys[i] = fieldPatternDetail.fId().getText();
+                    patterns[i] = buildPattern(fieldPatternDetail.fExpectedValue());
+                } else throw translationError(
+                    patternDetail,
+                    "Unexpected pattern detail inside a struct pattern"
+                );
+            }
+
+            // Check statically that matched fields exists in the StructDecl
+
+            final var fields = new HashSet<String>();
+            for (final var d : structDecl.fDecls()) {
+                if (d.fDecl() instanceof Liblktlang.FieldDecl field) {
+                    fields.add(field.fSynName().getText());
+                }
+                // no else clause because an exception should be raised only
+                // when lowering the StructDecl itself
+            }
+
+            for (int i = 1; i < keys.length; i++) {
+                if (!fields.contains(keys[i])) {
+                    throw translationError(
+                        patternDetails.getChild(i - 1),
+                        "Struct `" + name + "` has no field `" + keys[i] + "`"
+                    );
+                }
+            }
+
+            return ObjectPatternNodeGen.create(location, patterns, keys, null);
         }
 
         private NodePatternDetail buildPatternDetail(Liblktlang.PatternDetail patternDetail) {
