@@ -1,0 +1,24 @@
+test.adb:48:4: rule violation: possible occurrence of KP 20330 if compiled with optimization
+48 |    O1  : constant R1 := (C => 1);  -- FLAG
+   |    ^^
+
+test.adb:51:4: rule violation: possible occurrence of KP 20330 if compiled with optimization
+51 |    O4  : constant R5 := (C => 1);  -- FLAG
+   |    ^^
+
+test.adb:53:4: rule violation: possible occurrence of KP 20330 if compiled with optimization
+53 |    O6  : constant R7 := (others => 1);  -- FLAG
+   |    ^^
+
+test.adb:55:4: rule violation: possible occurrence of KP 20330 if compiled with optimization
+55 |    O8  : constant R9 := (others => 1);  -- FLAG
+   |    ^^
+
+test.adb:58:4: rule violation: possible occurrence of KP 20330 if compiled with optimization
+58 |    O11 : constant R4 := (D => 1);  -- FLAG
+   |    ^^^
+
+test.adb:61:4: rule violation: possible occurrence of KP 20330 if compiled with optimization
+61 |    O14 : constant R13 := (others => 1);  -- FLAG
+   |    ^^^
+
