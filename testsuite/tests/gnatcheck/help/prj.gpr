@@ -1,0 +1,5 @@
+project Prj is
+   package Check is
+      for Switches ("Ada") use ("--not-a-flag");
+   end Check;
+end Prj;

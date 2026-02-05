@@ -3,11 +3,11 @@ format: brief
 tests:
   - label: Long format
     extra_args:
-      - '--version'
+      - '--help'
   - label: Short format
     extra_args:
-      - '-V'
+      - '-h'
   - label: Ensure the provided project file isn't processed
     extra_args:
-      - --version
+      - --help
     project: prj.gpr

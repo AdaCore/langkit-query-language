@@ -468,6 +468,17 @@ package body Lkql_Checker is
       if not GPR_Args.Parser.Parse (No_Arguments, Remaining_Args) then
          raise Parameter_Error;
       end if;
+
+      --  Print help or version if required
+      if GPR_Args.Version.Get then
+         Print_Version_Info;
+         OS_Exit (E_Success);
+      elsif GPR_Args.Help.Get then
+         Print_Usage;
+         OS_Exit (E_Success);
+      end if;
+
+      --  Process the project file
       Checker_Prj.Load_Project (GPR_Args.GPR2_Parser.Parsed_GPR2_Options);
 
       --  If requested, print the GPR registry and exit
@@ -503,16 +514,6 @@ package body Lkql_Checker is
          In_Aggregate_Project := True;
       else
          Checker_Prj.Get_Sources_From_Project;
-      end if;
-
-      --  Print help or version if required
-      if Tool_Args.Version.Get then
-         Print_Version_Info;
-         OS_Exit (E_Success);
-
-      elsif Tool_Args.Help.Get then
-         Print_Usage;
-         OS_Exit (E_Success);
       end if;
 
       --  Add the command-line rules to the rule options. Do this before the
