@@ -369,6 +369,7 @@ package body Lkql_Checker.Compiler is
          begin
             Error ("unparsable worker output: """ & Msg & """");
             Errors := True;
+            Detected_Internal_Error := @ + 1;
          end Format_Error;
 
       begin
@@ -585,6 +586,7 @@ package body Lkql_Checker.Compiler is
             Error ("wrong parameter specified for compiler-related rule:");
             Print (Line (1 .. Line_Len));
             Errors := True;
+            Detected_Internal_Error := @ + 1;
 
          elsif Index (Line (1 .. Line_Len), "BUG DETECTED") /= 0 then
             --  If there is a bug box, we should skip the rest of
@@ -616,8 +618,8 @@ package body Lkql_Checker.Compiler is
                        (Full_File_Name => Source_Table.File_Name (SF),
                         Sloc           => (1, 1),
                         Message        =>
-                          Adjust_Message ("fatal compiler error", Error),
-                        Diagnosis_Kind => Compiler_Error,
+                          Adjust_Message ("fatal gprbuild error", Error),
+                        Diagnosis_Kind => Internal_Error,
                         SF             => SF);
                   end if;
                end;
