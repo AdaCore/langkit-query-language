@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.driver.subcommands;
 
-import com.adacore.lkql_jit.options.LKQLOptions;
+import com.adacore.lkql_jit.driver.checker.CheckerRun;
 import picocli.CommandLine;
 
 /**
@@ -43,10 +43,7 @@ public class LKQLChecker extends BaseLKQLChecker {
     // ----- Instance methods -----
 
     @Override
-    protected LKQLOptions getOptions() {
-        return getBaseOptionsBuilder()
-            .engineMode(LKQLOptions.EngineMode.CHECKER)
-            .checkerDebug(true)
-            .build();
+    protected CheckerRun.AutoFixMode getAutoFixMode() {
+        return CheckerRun.AutoFixMode.NONE;
     }
 }

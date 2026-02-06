@@ -1,3 +1,4 @@
 custom.lkql:3:14: error: Type error: expected Function but got Str
   3 |     auto_fix="WHAT?"
     |              ^^^^^^^
+error: Unknown rule name "custom"

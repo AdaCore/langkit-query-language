@@ -5,16 +5,27 @@
 
 package com.adacore.lkql_jit.driver.subcommands;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.driver.checker.CheckerRun;
+import com.adacore.lkql_jit.driver.checker.RuleInstance;
+import com.adacore.lkql_jit.driver.checker.RuleRepository;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
+import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import com.adacore.lkql_jit.options.LKQLOptions;
-import com.adacore.lkql_jit.options.RuleInstance;
+import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
+import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.PolyglotException;
-import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.io.IOAccess;
 import picocli.CommandLine;
 
 /**
@@ -29,24 +40,29 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
     /** Parsed arguments from the command-line. */
     protected Args args;
 
-    /** Common source to perform checker like process. */
-    public static final String checkerSource = """
-        val analysis_units = specified_units()
-        analysis_units.map((unit) => node_checker(unit.root)).to_list
-        analysis_units.map((unit) => unit_checker(unit)).to_list
-        """;
+    /** Whether the current output support ANSI colors */
+    private final boolean supportAnsi;
 
     // ----- Constructors -----
 
     /** Simply initialized arguments. */
     protected BaseLKQLChecker(Args args) {
         this.args = args;
+        this.supportAnsi = System.getenv("TERM") != null && System.console() != null;
     }
 
     // ----- Abstract methods -----
 
-    /** Get options to run the checker source with. */
-    protected abstract LKQLOptions getOptions();
+    /** Perform a custom post-processing on rule instances that are going to be executed. */
+    protected List<RuleInstance> postProcessInstances(
+        List<RuleInstance> ruleInstances,
+        DiagnosticCollector diagnostics
+    ) {
+        return ruleInstances;
+    }
+
+    /** Get the mode to apply auto-fixes in. */
+    protected abstract CheckerRun.AutoFixMode getAutoFixMode();
 
     // ----- Instance methods -----
 
@@ -67,63 +83,15 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
         List<String> arguments,
         @SuppressWarnings("unused") Map<String, String> polyglotOptions
     ) {
-        return arguments;
+        return this.args.unmatched != null ? this.args.unmatched : List.of();
     }
 
     /** Perform the checking logic and check its exit code. */
     @Override
     protected void launch(Context.Builder contextBuilder) {
-        // Configure the execution context
-        contextBuilder
-            .allowIO(true)
-            // This is needed to make sure that calls to `exitContext` done from within an
-            // isolate thread (e.g. executing a Java callback from Ada code) directly stop
-            // the program instead of going it the normal way by raising a special exception,
-            // as such exceptions won't be handled by the caller when thrown from inside the
-            // isolate thread.
-            .useSystemExit(true);
-
-        // Get options defined by the subcommand and pass them to the engine
-        final var options = getOptions();
-        contextBuilder.option("lkql.options", options.toJson().toString());
-
-        // Create the context and run the checker source in it
-        int exitCode;
-        try (Context context = contextBuilder.build()) {
-            final Source source = Source.newBuilder(
-                Constants.LKQL_ID,
-                checkerSource,
-                "checker.lkql"
-            ).build();
-            context.eval(source);
-            exitCode = 0;
-        } catch (Exception e) {
-            if (e instanceof PolyglotException pe && pe.isExit()) {
-                exitCode = pe.getExitStatus();
-            } else {
-                if (this.args.verbose) {
-                    e.printStackTrace();
-                } else {
-                    System.err.println(e.getMessage());
-                }
-                exitCode = 0;
-            }
-        } catch (Error e) {
-            System.err.println(e.getMessage());
-            exitCode = 1;
-        }
-
-        // According to the exit code, forward it to the caller
-        if (exitCode != 0) {
-            this.abort((String) null, exitCode);
-        }
-    }
-
-    // ----- Options creation helpers -----
-
-    /** Get an LKQL options builder pre-filled with the known options. */
-    protected LKQLOptions.Builder getBaseOptionsBuilder() {
-        return new LKQLOptions.Builder()
+        // Create the option object for the context builder
+        LKQLOptions options = new LKQLOptions.Builder()
+            .engineMode(LKQLOptions.EngineMode.INTERPRETER)
             .verbose(this.args.verbose)
             .files(this.args.files)
             .ignores(this.args.ignores)
@@ -131,53 +99,142 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
             .runtime(this.args.rts)
             .target(this.args.target)
             .projectFile(this.args.project)
-            .rulesDir(this.args.rulesDirs)
-            .ruleInstances(getRuleInstances())
-            .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile);
+            .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
+            .build();
+
+        // Configure the execution context
+        contextBuilder
+            .allowIO(IOAccess.ALL)
+            .useSystemExit(true)
+            .option("lkql.options", options.toJson().toString());
+
+        // Create a new diagnostic collector to gathers all execution diagnostics
+        DiagnosticCollector diagnostics = new DiagnosticCollector();
+
+        // Then build the context and perform the checking process
+        try (Context context = contextBuilder.build()) {
+            RuleRepository repository = new RuleRepository(context, searchingDirs(), diagnostics);
+            List<RuleInstance> ruleInstances = postProcessInstances(
+                this.getRuleInstances(context, repository, diagnostics),
+                diagnostics
+            );
+
+            // Get analysis context and specified unit from the LKQL engine
+            LKQLBaseNamespace namespace = context
+                .eval(Constants.LKQL_ID, "val unts = specified_units()\nval ctx = context()")
+                .as(LKQLBaseNamespace.class);
+            LKQLCollection units = (LKQLCollection) namespace.getUncached("unts");
+            LangkitSupport.AnalysisContextInterface analysisContext =
+                (LangkitSupport.AnalysisContextInterface) namespace.getUncached("ctx");
+
+            // Create the specified units list
+            List<LangkitSupport.AnalysisUnit> specifiedUnits = Arrays.stream(units.getContent())
+                .map(o -> (LangkitSupport.AnalysisUnit) o)
+                .toList();
+
+            // Create a new cache for analyzed source lines
+            SourceLinesCache linesCache = new SourceLinesCache();
+
+            // Create a new checker run with the gathered configuration
+            CheckerRun checkerRun = new CheckerRun(
+                args.debug,
+                linesCache,
+                ruleInstances,
+                context,
+                analysisContext,
+                specifiedUnits,
+                getAutoFixMode()
+            );
+            checkerRun.start(diagnostics);
+
+            // Display all diagnostics
+            diagnostics.createReport(new TextReportCreator(System.out, supportAnsi));
+        }
     }
 
-    /** Get the rule instances defined be the user through the LKQL checker command-line. */
-    protected Map<String, RuleInstance> getRuleInstances() {
+    /** Helping function to get the list of directories to look in for LKQL rules. */
+    private List<Path> searchingDirs() {
+        List<Path> res = new ArrayList<>();
+
+        // Add all CLI provided rules directories
+        for (var rulesDir : this.args.rulesDirs) {
+            res.add(Paths.get(rulesDir));
+        }
+
+        // Then look in the "LKQL_PATH" environment variable
+        final var lkqlPath = System.getenv(Constants.LKQL_PATH);
+        if (lkqlPath != null) {
+            res.addAll(Arrays.stream(lkqlPath.split(File.pathSeparator)).map(Paths::get).toList());
+        }
+
+        return res;
+    }
+
+    /** Get all rule instances to run for the current run. */
+    private List<com.adacore.lkql_jit.driver.checker.RuleInstance> getRuleInstances(
+        Context context,
+        RuleRepository repository,
+        DiagnosticCollector diagnostics
+    ) {
         // First, parse the rule arguments in a map
-        Map<String, Map<String, String>> instanceArgs = new HashMap<>();
-        for (String arg : this.args.rulesArgs) {
+        Map<String, Map<String, Object>> instanceArgs = new HashMap<>();
+        for (var arg : this.args.rulesArgs) {
             // Verify that the rule argument is not empty
-            if (arg.isEmpty() || arg.isBlank()) continue;
+            if (arg.isBlank()) continue;
 
             // Split the get the names and the value
-            final String[] valueSplit = arg.split("=");
-            final String[] nameSplit = valueSplit[0].split("\\.");
+            var valueSplit = arg.split("=");
+            var nameSplit = valueSplit[0].split("\\.");
 
             // Verify the rule argument syntax
             if (valueSplit.length != 2 || nameSplit.length != 2) {
-                System.err.println("Rule argument syntax error: '" + arg + "'");
+                diagnostics.add(
+                    new com.adacore.lkql_jit.driver.diagnostics.variants.Error(
+                        "Rule argument syntax error: \"" + arg + '"'
+                    )
+                );
                 continue;
             }
 
             // Get the information from the rule argument source
-            final String instanceId = nameSplit[0].toLowerCase().trim();
-            final String argName = nameSplit[1].toLowerCase().trim();
-            final String argValue = valueSplit[1].trim();
+            var ruleLowerName = nameSplit[0].toLowerCase().trim();
+            var argName = nameSplit[1].toLowerCase().trim();
+            var argValueSource = valueSplit[1].trim();
 
-            Map<String, String> ruleArgs = instanceArgs.getOrDefault(instanceId, new HashMap<>());
+            // Evaluate the argument value
+            LKQLBaseNamespace namespace = context
+                .eval(Constants.LKQL_ID, "val arg = " + argValueSource)
+                .as(LKQLBaseNamespace.class);
+            Object argValue = namespace.getUncached("arg");
+
+            // Then place the result in the map collection all arguments
+            Map<String, Object> ruleArgs = instanceArgs.getOrDefault(
+                ruleLowerName,
+                new HashMap<>()
+            );
             ruleArgs.put(argName, argValue);
-            instanceArgs.put(instanceId, ruleArgs);
+            instanceArgs.put(ruleLowerName, ruleArgs);
         }
 
         // Then, parse the provided instances, filling them with the previously parsed arguments
-        HashMap<String, RuleInstance> res = new HashMap<>();
+        List<com.adacore.lkql_jit.driver.checker.RuleInstance> res = new ArrayList<>();
         for (String ruleName : this.args.rules) {
-            final String instanceId = ruleName.toLowerCase();
-            res.put(
-                instanceId,
-                new RuleInstance(
-                    ruleName,
-                    Optional.empty(),
-                    RuleInstance.SourceMode.GENERAL,
-                    instanceArgs.get(instanceId),
-                    null
-                )
-            );
+            var ruleNameLower = ruleName.toLowerCase();
+            var instantiatedRule = repository.getRuleByName(ruleNameLower);
+            if (instantiatedRule.isPresent()) {
+                res.add(
+                    new com.adacore.lkql_jit.driver.checker.RuleInstance(
+                        context,
+                        instantiatedRule.get(),
+                        Optional.empty(),
+                        com.adacore.lkql_jit.driver.checker.RuleInstance.SourceMode.GENERAL,
+                        instanceArgs.getOrDefault(ruleNameLower, new HashMap<>()),
+                        Optional.empty()
+                    )
+                );
+            } else {
+                diagnostics.add(new Error("Unknown rule name \"" + ruleName + '"'));
+            }
         }
         return res;
     }
@@ -192,6 +249,9 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
 
         @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
         public boolean verbose;
+
+        @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
+        public boolean debug;
 
         @CommandLine.Parameters(description = "Files to analyze")
         public List<String> files = new ArrayList<>();

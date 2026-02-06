@@ -5,9 +5,14 @@
 
 package com.adacore.lkql_jit.driver.subcommands;
 
+import com.adacore.lkql_jit.driver.checker.CheckerRun;
+import com.adacore.lkql_jit.driver.checker.RuleInstance;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import picocli.CommandLine;
 
 /**
@@ -32,7 +37,7 @@ public class LKQLFix extends BaseLKQLChecker {
                 "%nPossible values: ${COMPLETION-CANDIDATES}",
             completionCandidates = AutoFixModeCompletion.class
         )
-        public LKQLOptions.AutoFixMode autoFixMode = LKQLOptions.AutoFixMode.DISPLAY;
+        public CheckerRun.AutoFixMode autoFixMode = CheckerRun.AutoFixMode.DISPLAY;
 
         @Override
         public Integer call() {
@@ -59,11 +64,29 @@ public class LKQLFix extends BaseLKQLChecker {
     // ----- Instance methods -----
 
     @Override
-    protected LKQLOptions getOptions() {
-        return getBaseOptionsBuilder()
-            .engineMode(LKQLOptions.EngineMode.FIXER)
-            .checkerDebug(true)
-            .autoFixMode(((Args) args).autoFixMode)
-            .build();
+    protected List<RuleInstance> postProcessInstances(
+        List<RuleInstance> ruleInstances,
+        DiagnosticCollector diagnostics
+    ) {
+        return ruleInstances
+            .stream()
+            .filter(i -> {
+                if (i.instantiatedRule.autoFix().isEmpty()) {
+                    diagnostics.add(
+                        new Error(
+                            "Rule \"" +
+                                i.instantiatedRule.name() +
+                                "\" is not defining any auto-fixing function"
+                        )
+                    );
+                }
+                return i.instantiatedRule.autoFix().isPresent();
+            })
+            .toList();
+    }
+
+    @Override
+    protected CheckerRun.AutoFixMode getAutoFixMode() {
+        return ((Args) args).autoFixMode;
     }
 }
