@@ -14,16 +14,13 @@ import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLSelector;
-import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
-import com.adacore.lkql_jit.values.interop.LKQLList;
 import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * This node represents a query in the LKQL language
@@ -93,137 +90,89 @@ public final class Query extends Expr {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Prepare the working variable
-        LKQLSelector through = null;
-        LangkitSupport.NodeInterface[] fromNodes;
-
-        // Get the through expression
-        if (this.throughExpr != null) {
-            try {
-                through = this.throughExpr.executeSelector(frame);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeError.wrongType(
-                    LKQLTypesHelper.LKQL_SELECTOR,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.throughExpr
-                );
-            }
-        }
-
-        // If there is a "from" expression
-        if (this.fromExpr != null) {
-            Object fromObject = this.fromExpr.executeGeneric(frame);
-
-            // If the "from" is a sole node
-            if (LKQLTypeSystemGen.isNodeInterface(fromObject)) {
-                fromNodes = new LangkitSupport.NodeInterface[1];
-                fromNodes[0] = LKQLTypeSystemGen.asNodeInterface(fromObject);
-            }
-            // Else, if the "from" is a list of node
-            else if (LKQLTypeSystemGen.isLKQLList(fromObject)) {
-                // Verify the content of the list
-                LKQLList fromList = LKQLTypeSystemGen.asLKQLList(fromObject);
-                fromNodes = new LangkitSupport.NodeInterface[(int) fromList.size()];
-                for (int i = 0; i < fromList.size(); i++) {
-                    try {
-                        fromNodes[i] = LKQLTypeSystemGen.expectNodeInterface(fromList.get(i));
-                    } catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeError.wrongFromList(this.fromExpr);
-                    }
-                }
-            }
-            // Else, throw an exception on the "from" expression type
-            else {
-                throw LKQLRuntimeError.wrongFrom(this.fromExpr);
-            }
-        }
-        // Else, there is no "from" expression, we get the default roots
-        else {
-            fromNodes = LKQLLanguage.getContext(this.pattern).allUnitsRoots();
-        }
+        final var through = this.throughExpr != null ? executeThrough(frame) : null;
+        final var fromNodes = executeFromNodes(frame);
 
         // If the query mode is all
-        if (this.kind == Kind.ALL) {
-            // Prepare the result
-            List<LangkitSupport.NodeInterface> resNodes = new ArrayList<>();
+        return switch (this.kind) {
+            case Kind.ALL -> {
+                final var resNodes = new ArrayList<LangkitSupport.NodeInterface>();
 
-            // For each root node, explore it and return the result
-            for (int i = fromNodes.length - 1; i >= 0; i--) {
-                Iterable nodes = this.createNodeIterable(fromNodes[i], through);
-                List<LangkitSupport.NodeInterface> result = this.exploreAll(
-                    frame,
-                    nodes.iterator()
-                );
-                for (int j = 0; j < result.size(); j++) resNodes.add(result.get(j));
+                // Core search loop
+                for (int i = fromNodes.length - 1; i >= 0; i--) {
+                    final var nodeIterator = createNodeIterator(fromNodes[i], through);
+                    while (nodeIterator.hasNext()) {
+                        final var node = (LangkitSupport.NodeInterface) nodeIterator.next();
+                        if (this.pattern.executeValue(frame, node)) {
+                            resNodes.add(node); // add to accumulator
+                        }
+                    }
+                }
+                // Return accumulated results
+                yield new LKQLArrayList(resNodes.toArray(new LangkitSupport.NodeInterface[0]));
             }
-
-            // Return the result list value
-            return new LKQLArrayList(resNodes.toArray(new LangkitSupport.NodeInterface[0]));
-        }
-        // If the query mode is first
-        else {
-            for (int i = fromNodes.length - 1; i >= 0; i--) {
-                Iterable nodes = this.createNodeIterable(fromNodes[i], through);
-                LangkitSupport.NodeInterface res = this.exploreFirst(frame, nodes.iterator());
-                if (!res.isNone()) return res;
+            case Kind.FIRST -> {
+                // Core search loop
+                for (int i = fromNodes.length - 1; i >= 0; i--) {
+                    final var nodeIterator = createNodeIterator(fromNodes[i], through);
+                    while (nodeIterator.hasNext()) {
+                        final var node = (LangkitSupport.NodeInterface) nodeIterator.next();
+                        if (this.pattern.executeValue(frame, node)) {
+                            yield node; // early return
+                        }
+                    }
+                }
+                // Return the null value if there is none
+                yield LKQLNull.INSTANCE;
             }
+        };
+    }
 
-            // Return the null value if there is none
-            return LKQLNull.INSTANCE;
+    private LKQLSelector executeThrough(VirtualFrame frame) {
+        try {
+            return this.throughExpr.executeSelector(frame);
+        } catch (UnexpectedResultException e) {
+            throw LKQLRuntimeError.wrongType(
+                LKQLTypesHelper.LKQL_SELECTOR,
+                LKQLTypesHelper.fromJava(e.getResult()),
+                this.throughExpr
+            );
         }
+    }
+
+    private LangkitSupport.NodeInterface[] executeFromNodes(VirtualFrame frame) {
+        // If there is no "from" expression, we get the default roots
+        if (fromExpr == null) return LKQLLanguage.getContext(pattern).allUnitsRoots();
+
+        // If there is a "from" expression
+        Object fromObject = fromExpr.executeGeneric(frame);
+
+        // from is a single node
+        if (LKQLTypeSystemGen.isNodeInterface(fromObject)) {
+            final var fromNode = LKQLTypeSystemGen.asNodeInterface(fromObject);
+            return new LangkitSupport.NodeInterface[] { fromNode };
+        }
+
+        // from is a list
+        if (LKQLTypeSystemGen.isLKQLList(fromObject)) {
+            final var fromList = LKQLTypeSystemGen.asLKQLList(fromObject);
+            try {
+                final var fromNodes = new LangkitSupport.NodeInterface[(int) fromList.size()];
+                // Verify the content of the list
+                for (int i = 0; i < fromList.size(); i++) {
+                    fromNodes[i] = LKQLTypeSystemGen.expectNodeInterface(fromList.get(i));
+                }
+                return fromNodes;
+            } catch (UnexpectedResultException e) {
+                throw LKQLRuntimeError.wrongFromList(fromExpr);
+            }
+        }
+
+        // from type is invalid
+        throw LKQLRuntimeError.wrongFrom(fromExpr);
     }
 
     // ----- Class methods -----
-
-    /**
-     * Explore a node iterator and get all the matching nodes
-     *
-     * @param frame The frame to execute in
-     * @param nodeIterator The node iterator to explore
-     * @return The list of the nodes that matches the pattern
-     */
-    private List<LangkitSupport.NodeInterface> exploreAll(
-        VirtualFrame frame,
-        Iterator nodeIterator
-    ) {
-        // Create the result list
-        List<LangkitSupport.NodeInterface> resList = new ArrayList<>();
-
-        // Iterate on all node in the iterator
-        while (nodeIterator.hasNext()) {
-            // Get the current node
-            LangkitSupport.NodeInterface node = (LangkitSupport.NodeInterface) nodeIterator.next();
-
-            if (this.pattern.executeValue(frame, node)) {
-                resList.add(node);
-            }
-        }
-
-        // Return the result list
-        return resList;
-    }
-
-    /**
-     * Explore a node iterator and get the first matching node
-     *
-     * @param frame The frame to execute in
-     * @param nodeIterator The node iterator to explore
-     * @return The first matching node, null if none
-     */
-    private LangkitSupport.NodeInterface exploreFirst(VirtualFrame frame, Iterator nodeIterator) {
-        // Iterate on all node in the iterator
-        while (nodeIterator.hasNext()) {
-            // Get the current node
-            LangkitSupport.NodeInterface node = (LangkitSupport.NodeInterface) nodeIterator.next();
-
-            if (this.pattern.executeValue(frame, node)) {
-                return node;
-            }
-        }
-
-        // Return the null value
-        return LKQLNull.INSTANCE;
-    }
 
     /**
      * Create a node iterator with the given root and the given through method
@@ -233,12 +182,10 @@ public final class Query extends Expr {
      *     exploration
      * @return The iterator for the node exploration
      */
-    private Iterable createNodeIterable(LangkitSupport.NodeInterface root, LKQLSelector through) {
-        if (through == null) {
-            return new ChildIterable(root, this.followGenerics);
-        } else {
-            return through.getList(root);
-        }
+    private Iterator createNodeIterator(LangkitSupport.NodeInterface root, LKQLSelector through) {
+        return (through == null)
+            ? new ChildIterator(root, this.followGenerics)
+            : through.getList(root).iterator();
     }
 
     // ----- Override methods -----
@@ -264,41 +211,6 @@ public final class Query extends Expr {
 
         /** Select only the first node matching the query pattern. */
         FIRST,
-    }
-
-    /** This class is a tool to represent the tree exploration for a default query */
-    private static final class ChildIterable implements Iterable {
-
-        // ----- Attributes -----
-
-        /** The root of the iterable */
-        private final LangkitSupport.NodeInterface root;
-
-        /** Whether the traversal should follow the generic instantiations */
-        private final boolean followGenerics;
-
-        // ----- Constructors -----
-
-        /**
-         * Create a new child iterable
-         *
-         * @param root The root node
-         * @param followGenerics Whether the traversal should follow the ada generic instantiations
-         */
-        public ChildIterable(LangkitSupport.NodeInterface root, boolean followGenerics) {
-            this.root = root;
-            this.followGenerics = followGenerics;
-        }
-
-        // ----- Override methods -----
-
-        /**
-         * @see Iterable#iterator()
-         */
-        @Override
-        public Iterator iterator() {
-            return new ChildIterator(this.root, this.followGenerics);
-        }
     }
 
     /** This class is the iterator for a query without through */
