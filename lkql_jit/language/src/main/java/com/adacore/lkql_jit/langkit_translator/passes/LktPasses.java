@@ -732,6 +732,10 @@ public final class LktPasses {
                             "Invalid number literal for pattern"
                         );
                     }
+                case Liblktlang.BoolPatternTrue truePattern:
+                    yield BoolPatternNodeGen.create(loc(truePattern), true);
+                case Liblktlang.BoolPatternFalse falsePattern:
+                    yield BoolPatternNodeGen.create(loc(falsePattern), false);
                 case Liblktlang.TypePattern typePattern:
                     yield new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
                 case Liblktlang.AnyTypePattern univPattern:
