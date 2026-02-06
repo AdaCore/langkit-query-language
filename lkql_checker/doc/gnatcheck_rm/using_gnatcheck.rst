@@ -356,6 +356,10 @@ the ``Check`` package in the GPR file you're providing to GNATcheck through the
 Inside this package you can define the following attributes to configure
 GNATcheck:
 
+``Log``
+  Value is whether to duplicate all GNATcheck outputs in a log file. Accepted
+  values are ``True`` and ``False``.
+
 ``Rules``
   Value is a list of rules to enable when invoking ``gnatcheck`` on this
   project. Values provided in this attribute behave as the ones provided with
@@ -404,6 +408,7 @@ GNATcheck:
     * ``--no-subprojects``
     * ``-vP``
     * ``-eL``
+    * ``-log`` (use ``Log`` attribute instead)
     * ``-r, --rule [rule_name]`` (use ``Rules`` attribute instead)
     * ``--rule-file=filename`` (use ``Rule_File`` attribute instead)
     * ``--lkql-path=dir`` (use ``Lkql_Path`` attributes instead)

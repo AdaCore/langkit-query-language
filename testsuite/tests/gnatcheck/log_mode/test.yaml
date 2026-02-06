@@ -1,0 +1,18 @@
+driver: gnatcheck
+format: brief
+lkql_rule_file: rules.lkql
+post_python: cat("gnatcheck.log")
+
+tests:
+  - label: Without 'Log' in project file and '-log' in the command-line
+    project: without_log.gpr
+    extra_args:
+      - -log
+  - label: With 'Log' in project file
+    project: with_log.gpr
+  - label: With '-log' in GPR switches
+    project: with_log_switch.gpr
+  - label: With an error in tool switches
+    project: with_log.gpr
+    extra_args:
+      - --not-a-flag

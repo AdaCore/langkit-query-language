@@ -238,6 +238,10 @@ package Lkql_Checker.Options is
       --  This parser is in ``GPR_Args`` to avoid process a project file if
       --  only the help message is required by the user.
 
+      Log_From_GPR : Boolean := False;
+      --  Store whether the ``Log`` attribute has been set in the loaded GPR
+      --  file.
+
       package GPR2_Parser is new
         GPR2.Options.Opt_Parse.Args (Parser => Parser);
 
@@ -246,6 +250,9 @@ package Lkql_Checker.Options is
 
       function Ignore_Project_Switches return Boolean
       is (Ignore_Project_Switches_Opt.Get or Mode = Gnatkp_Mode);
+
+      function Log_Enabled return Boolean
+      is (Log.Get or else Log_From_GPR);
    end GPR_Args;
 
    ----------------------------

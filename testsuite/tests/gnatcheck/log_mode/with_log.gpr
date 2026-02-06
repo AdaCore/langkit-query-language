@@ -1,0 +1,5 @@
+project With_Log is
+   package Check is
+      for Log use "True";
+   end Check;
+end With_Log;

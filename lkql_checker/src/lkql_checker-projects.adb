@@ -23,7 +23,6 @@ with Lkql_Checker.Projects.Aggregate;
 with Lkql_Checker.Rules;            use Lkql_Checker.Rules;
 with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
 with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
-with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GPR2;
 with GPR2.Build.Compilation_Unit;
@@ -53,6 +52,8 @@ with Rule_Commands; use Rule_Commands;
 
 package body Lkql_Checker.Projects is
 
+   Log_Attr              : constant GPR2.Q_Attribute_Id :=
+     (GPR2."+" ("Check"), GPR2."+" ("Log"));
    Rules_Attr            : constant GPR2.Q_Attribute_Id :=
      (GPR2."+" ("Check"), GPR2."+" ("Rules"));
    Rule_File_Attr        : constant GPR2.Q_Attribute_Id :=
@@ -173,7 +174,9 @@ package body Lkql_Checker.Projects is
    -- Extract_Tool_Options --
    --------------------------
 
-   procedure Extract_Tool_Options (My_Project : Arg_Project_Type) is
+   function Extract_Tool_Options
+     (My_Project : Arg_Project_Type) return String_Vector
+   is
       use GPR2;
 
       Proj    : constant GPR2.Project.View.Object :=
@@ -191,8 +194,6 @@ package body Lkql_Checker.Projects is
       --  attribute, if ``True`` this procedure will look at the "ada" index of
       --  this attribute. See ``GPR2.Project.Attribute_Index`` package for more
       --  information about attribute indexes.
-
-      function To_XString_Array (Vec : String_Vector) return XString_Array;
 
       function Load_Single_Attribute
         (Attr_Id : GPR2.Q_Attribute_Id) return String
@@ -216,16 +217,12 @@ package body Lkql_Checker.Projects is
          return Res;
       end Load_List_Attribute;
 
-      function To_XString_Array (Vec : String_Vector) return XString_Array is
-         Res : XString_Array (Vec.First_Index .. Vec.Last_Index);
-      begin
-         for I in Res'Range loop
-            Res (I) := To_XString (Vec (I));
-         end loop;
-         return Res;
-      end To_XString_Array;
-
    begin
+      if Proj.Has_Attribute (Log_Attr) then
+         Lkql_Checker.Options.GPR_Args.Log_From_GPR :=
+           Boolean'Value (Load_Single_Attribute (Log_Attr));
+      end if;
+
       --  Process the rule list
       if Proj.Has_Attribute (Rules_Attr) then
          for Rule of Load_List_Attribute (Rules_Attr) loop
@@ -255,11 +252,9 @@ package body Lkql_Checker.Projects is
 
       --  Process additional GNATcheck switches
       if Proj.Has_Attribute (Switches_Attr, Ada_Idx) then
-         Scan_Tool_Arguments
-           (Args              =>
-              To_XString_Array
-                (Load_List_Attribute (Switches_Attr, Indexed => True)),
-            From_Project_File => True);
+         return Load_List_Attribute (Switches_Attr, Indexed => True);
+      else
+         return String_Vectors.Empty_Vector;
       end if;
    end Extract_Tool_Options;
 
@@ -657,6 +652,16 @@ package body Lkql_Checker.Projects is
          & "that all the other options belong to the -rules section of "
          & "the parameters to 'gnatcheck'.");
       Add
+        (Log_Attr,
+         Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
+         Value                => Single,
+         Value_Case_Sensitive => False,
+         Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
+        (Log_Attr,
+         "Value is whether to duplicate all GNATcheck outputs in a log "
+         & "file. Accepted values are ""True"" and ""False"".");
+      Add
         (Rules_Attr,
          Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
          Value                => List,
@@ -675,7 +680,7 @@ package body Lkql_Checker.Projects is
       GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
         (Rule_File_Attr,
          "Value is the name of an LKQL rule file to use when running "
-         & "GNATcheck in this project.");
+         & "GNATcheck on this project.");
       Add
         (Lkql_Path_Attr,
          Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
