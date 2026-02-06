@@ -49,7 +49,7 @@ public final class LKQLQueryComprehension extends BaseLKQLLazyList {
         super(new ListStorage<>(1));
         this.callNode = DirectCallNode.create(rootNode.getCallTarget());
         this.iterator = source.iterator();
-        this.arguments[0] = closure.getContent();
+        this.arguments[0] = closure;
     }
 
     // ----- Lazy list required methods -----

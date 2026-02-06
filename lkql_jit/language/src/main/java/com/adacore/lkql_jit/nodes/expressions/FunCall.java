@@ -130,7 +130,7 @@ public abstract class FunCall extends Expr {
         Object[] argVals;
         if (hasClosure) {
             argVals = new Object[argExprs.length + 1];
-            argVals[0] = function.closure.getContent();
+            argVals[0] = function.closure;
             for (int i = 1; i < argVals.length; i++) {
                 argVals[i] = argExprs[i - 1] == null ? null : argExprs[i - 1].executeGeneric(frame);
             }

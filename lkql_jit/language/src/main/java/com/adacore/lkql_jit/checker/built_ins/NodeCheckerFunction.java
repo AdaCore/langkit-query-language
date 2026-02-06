@@ -349,7 +349,7 @@ public final class NodeCheckerFunction {
             LKQLContext context
         ) {
             // Place the closure in the arguments
-            checker.arguments[0] = checker.function.closure.getContent();
+            checker.arguments[0] = checker.function.closure;
             checker.arguments[1] = node;
 
             // Call the checker
@@ -425,7 +425,7 @@ public final class NodeCheckerFunction {
             try {
                 interopLibrary.execute(
                     checker.autoFix,
-                    checker.autoFix.closure.getContent(),
+                    checker.autoFix.closure,
                     node,
                     rewritingContext
                 );

@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.runtime;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.interop.TruffleObject;
 import java.util.Arrays;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Arrays;
  *
  * @author Hugo GUERRIER
  */
-public final class Closure {
+public final class Closure implements TruffleObject {
 
     // ----- Class attributes -----
 
@@ -23,7 +24,7 @@ public final class Closure {
     // ----- Instance attributes -----
 
     /** The content of the closure. */
-    private final Cell[] content;
+    public final Cell[] content;
 
     // ----- Constructors -----
 
@@ -34,12 +35,6 @@ public final class Closure {
      */
     public Closure(final Cell[] content) {
         this.content = content;
-    }
-
-    // ----- Getters -----
-
-    public Cell[] getContent() {
-        return content;
     }
 
     // ----- Override methods -----

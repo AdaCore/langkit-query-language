@@ -42,7 +42,7 @@ public class CreateClosureNode extends Node {
                 case LOCAL -> content[i] = (Cell) frame.getObject(destinationSlots[i]);
                 case PARAM -> content[i] = new Cell(frame.getArguments()[destinationSlots[i]]);
                 case CLOSURE -> content[i] =
-                    ((Cell[]) frame.getArguments()[0])[destinationSlots[i]];
+                    ((Closure) frame.getArguments()[0]).content[destinationSlots[i]];
             }
         }
 

@@ -36,15 +36,4 @@ public final class FrameUtils {
     public static void writeLocal(final VirtualFrame frame, final int slot, final Object value) {
         ((Cell) frame.getObject(slot)).setRef(value);
     }
-
-    /**
-     * Read the closure value stored in the frame at the given slot.
-     *
-     * @param frame The frame to read the closure value in.
-     * @param slot The slot to read the closure at.
-     * @return The closure value at the slot.
-     */
-    public static Object readClosure(final VirtualFrame frame, final int slot) {
-        return (((Cell[]) frame.getArguments()[0])[slot]).getRef();
-    }
 }

@@ -49,7 +49,7 @@ public final class LKQLListComprehension extends BaseLKQLLazyList {
         this.arguments = this.argumentsList.length > 0
             ? new Object[this.argumentsList[0].length + 1]
             : new Object[1];
-        this.arguments[0] = closure.getContent();
+        this.arguments[0] = closure;
         this.pointer = 0;
     }
 

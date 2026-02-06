@@ -61,7 +61,7 @@ public class LKQLSelectorList extends BaseLKQLLazyList {
     ) {
         super(new ListStorage<>(16));
         this.arguments = new Object[3];
-        this.arguments[0] = closure.getContent();
+        this.arguments[0] = closure;
         this.callNode = DirectCallNode.create(rootNode.getCallTarget());
         this.toVisitList = new ArrayDeque<>();
         this.maxDepth = maxDepth;

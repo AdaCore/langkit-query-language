@@ -79,7 +79,7 @@ public class LKQLFunction extends LKQLCallable {
 
     @Override
     public Object getClosure() {
-        return hasClosure() ? this.closure.getContent() : null;
+        return hasClosure() ? this.closure : null;
     }
 
     /** Shortcut function to get the function associated call target. */

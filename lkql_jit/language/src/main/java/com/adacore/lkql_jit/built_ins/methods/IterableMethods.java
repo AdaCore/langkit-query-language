@@ -173,11 +173,7 @@ public class IterableMethods {
                 try {
                     if (
                         toBoolean.execute(
-                            functionLibrary.execute(
-                                predicate,
-                                predicate.closure.getContent(),
-                                iterator.next()
-                            )
+                            functionLibrary.execute(predicate, predicate.closure, iterator.next())
                         )
                     ) return true;
                 } catch (
@@ -215,11 +211,7 @@ public class IterableMethods {
                 try {
                     if (
                         !toBoolean.execute(
-                            functionLibrary.execute(
-                                predicate,
-                                predicate.closure.getContent(),
-                                iterator.next()
-                            )
+                            functionLibrary.execute(predicate, predicate.closure, iterator.next())
                         )
                     ) return false;
                 } catch (

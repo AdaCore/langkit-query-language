@@ -181,7 +181,7 @@ public class BuiltInFunctions {
                 try {
                     initValue = functionLibrary.execute(
                         function,
-                        function.closure.getContent(),
+                        function.closure,
                         initValue,
                         iterator.next()
                     );
@@ -423,7 +423,7 @@ public class BuiltInFunctions {
             public boolean executeRepeating(VirtualFrame frame) {
                 if (done < times) {
                     try {
-                        functionLibrary.execute(function, (Object) function.closure.getContent());
+                        functionLibrary.execute(function, (Object) function.closure);
                     } catch (
                         ArityException
                         | UnsupportedTypeException
