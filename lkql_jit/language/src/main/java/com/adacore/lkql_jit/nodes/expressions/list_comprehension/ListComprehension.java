@@ -92,18 +92,17 @@ public final class ListComprehension extends Expr {
 
         // Get the result size and prepare the result
         int resultSize = 1;
-        for (Iterable iterable : iterables) {
-            resultSize *= (int) iterable.size();
+        for (int i = 0; i < iterables.length; i++) {
+            resultSize *= (int) iterables[i].size();
         }
 
-        // Verify that the result size is strictly positive
-        assert resultSize >= 0;
+        // Check if the result is empty
         if (resultSize == 0) {
             return new LKQLListComprehension(this.rootNode, Closure.EMPTY, new Object[0][]);
         }
 
         // Prepare the array of arguments for each iteration in the list comprehension
-        Object[][] argsList = new Object[resultSize][];
+        Object[][] argsList = new Object[resultSize][iterables.length];
 
         // Initialize the working variables
         Iterator[] iterators = new Iterator[iterables.length];
@@ -113,17 +112,26 @@ public final class ListComprehension extends Expr {
             valueBuffer[i] = iterators[i].next();
         }
 
-        // While collections are not fully
-        int i = 0;
-        do {
-            argsList[i++] = valueBuffer.clone();
-        } while (this.increaseIndexes(iterators, valueBuffer));
+        // Consume input collections to prepare call arguments
+        prepareArgumentsLists(iterators, valueBuffer, argsList);
 
         // Return the result of the list comprehension as a lazy list
         return new LKQLListComprehension(this.rootNode, createClosureNode.execute(frame), argsList);
     }
 
     // ----- Class methods -----
+
+    /** Helper function to fill arguments lists. */
+    private static void prepareArgumentsLists(
+        Iterator[] iterators,
+        Object[] valueBuffer,
+        Object[][] argsList
+    ) {
+        int i = 0;
+        do {
+            System.arraycopy(valueBuffer, 0, argsList[i++], 0, iterators.length);
+        } while (increaseIndexes(iterators, valueBuffer));
+    }
 
     /**
      * Increase the iteration indexes.
@@ -132,7 +140,7 @@ public final class ListComprehension extends Expr {
      * @param valueBuffer The buffer to put the values in.
      * @return True if the indexes have been increased.
      */
-    private boolean increaseIndexes(Iterator[] iterators, Object[] valueBuffer) {
+    private static boolean increaseIndexes(Iterator[] iterators, Object[] valueBuffer) {
         for (int i = iterators.length - 1; i >= 0; i--) {
             // If the iterator has a next value
             if (iterators[i].hasNext()) {
