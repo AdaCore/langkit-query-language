@@ -1,0 +1,16 @@
+# lkql version: 2
+
+|" Foo doc
+fun foo() : Any =
+    
+    1669
+
+fun bar(arg : Any) : Any = 42 + arg
+
+|" Baz doc
+fun baz(x : Any, y : Any, z : Any) : Any =
+    # bla
+    # bla
+    
+    # bla
+    (x*y) + (y*z)

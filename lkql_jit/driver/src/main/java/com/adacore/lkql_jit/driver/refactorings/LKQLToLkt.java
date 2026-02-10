@@ -162,24 +162,42 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      */
     private String refactorNamedFunction(Liblkqllang.NamedFunction namedFunction) {
-        var s =
+        var sb = new StringBuilder();
+        sb.append(
             textRange(
                 namedFunction.tokenStart(),
                 namedFunction.fParameters().tokenStart().previous()
-            ) +
-            refactorNode(namedFunction.fParameters());
+            )
+        );
+
+        sb.append(refactorNode(namedFunction.fParameters()));
+
+        sb.append(") : Any");
 
         var cursor = namedFunction.fParameters().tokenEnd().next();
+        if (cursor.getText().equals(")")) cursor = cursor.next();
+
         while (!cursor.getText().equals("=")) {
-            s += cursor.getText();
+            sb.append(cursor.getText());
             cursor = cursor.next();
         }
 
-        s +=
-            ": Any " +
-            textRange(cursor, namedFunction.fBodyExpr().tokenStart().previous()) +
-            refactorNode(namedFunction.fBodyExpr());
-        return s;
+        sb.append("=");
+
+        if (!namedFunction.fDocNode().isNone()) {
+            sb.append(textRange(cursor.next(), namedFunction.fDocNode().tokenStart().previous()));
+            sb.append(
+                textRange(
+                    namedFunction.fDocNode().tokenEnd().next(),
+                    namedFunction.fBodyExpr().tokenStart().previous()
+                )
+            );
+        } else {
+            sb.append(textRange(cursor.next(), namedFunction.fBodyExpr().tokenStart().previous()));
+        }
+
+        sb.append(refactorNode(namedFunction.fBodyExpr()));
+        return sb.toString();
     }
 
     /*
