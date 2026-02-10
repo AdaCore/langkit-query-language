@@ -52,6 +52,8 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.ListComprehension comprehension -> refactorListComprehension(
                 comprehension
             );
+            case Liblkqllang.CondExpr condExpr -> refactorGeneric(condExpr) +
+            (condExpr.fElseExpr().isNone() ? " else true" : "");
             case Liblkqllang.BlockBodyExpr bbe -> "val _ = " + refactorGeneric(bbe);
             case Liblkqllang.UnitLiteral _ -> "Unit()";
             case Liblkqllang.TopLevelList topLevel -> refactorTopLevelList(topLevel);

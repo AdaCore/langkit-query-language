@@ -590,6 +590,26 @@ public final class LktPasses {
                 };
             } else if (expr instanceof NotExpr notExpr) {
                 return UnNotNodeGen.create(loc(notExpr), buildExpr(notExpr.fExpr()));
+            } else if (expr instanceof Liblktlang.IfExpr ifExpr) {
+                final var condExpr = buildExpr(ifExpr.fCondExpr());
+                final var consExpr = buildExpr(ifExpr.fThenExpr());
+
+                // final else branch
+                var elseExpr = buildExpr(ifExpr.fElseExpr());
+
+                // Collect elif branches
+                final var alts = new ArrayDeque<ElsifBranch>();
+                ifExpr.fAlternatives().forEach(alts::add);
+
+                // Iterate from the last elif
+                for (var alt : alts.reversed()) {
+                    final var altCond = buildExpr(alt.fCondExpr());
+                    final var altCons = buildExpr(alt.fThenExpr());
+                    // last elif becomes the "else" part of the previous branch
+                    elseExpr = CondExprNodeGen.create(loc(alt), altCond, altCons, elseExpr);
+                }
+                // now elseExpr contains all elif branches
+                return CondExprNodeGen.create(loc(ifExpr), condExpr, consExpr, elseExpr);
             } else if (expr instanceof SubscriptExpr subscriptExpr) {
                 return IndexingNodeGen.create(
                     loc(subscriptExpr),
