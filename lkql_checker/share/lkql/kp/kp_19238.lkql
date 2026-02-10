@@ -1,0 +1,18 @@
+@check(help="possible occurrence of KP 19238",
+       message="possible occurrence of KP 19238")
+fun kp_19238(node) =
+    |" Flag any type DT, derived from a record type T with convention
+    |" C_Pass_By_Copy, when convention C is specified for type DT. In those
+    |" cases, type DT is improperly treated as a type with convention
+    |" C_Pass_By_Copy.
+    node is TypeDecl(f_type_def: DerivedTypeDef)
+    when {
+        val base_aspect = node.f_type_def.f_subtype_indication
+            .p_designated_type_decl().p_get_aspect("Convention");
+        val derived_aspect = node.p_get_aspect("Convention");
+
+        base_aspect.exists
+        and derived_aspect.exists
+        and base_aspect.value.p_name_is("C_Pass_By_Copy")
+        and derived_aspect.value.p_name_is("C")
+    }
