@@ -89,11 +89,15 @@ class InterpreterDriver(BaseDriver):
 
         script = self.test_env.get("script", "script.lkql")
 
-        # If lkt_refactor flag is set, then before we run the interpreter,
-        # we refactor the "script.lkql" file and run the interpreter on it.
-        # This way we can compare the results of the rewritten script
-        # with the original
-        if self.test_env.get("lkt_refactor") is True:
+        # The default behavior is to try to refactor the "script.lkql" file
+        # into the Lkt syntax and run the interpreter on it.
+        #
+        # We do this refactor unless the test is *explicitly* set to False.
+        #
+        # This way we can compare the results of the rewritten script with the
+        # original and in the case where the flag is set to True throw an error
+        # if the result is different
+        if self.test_env.get("lkt_refactor", True):
             # Translate "script.lkql" to "refactored.lkql"
             refactored_file_path = self.working_dir("refactored.lkql")
             with open(refactored_file_path, "w") as file:
