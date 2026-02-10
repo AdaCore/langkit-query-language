@@ -36,6 +36,7 @@ import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.adacore.lkql_jit.nodes.patterns.BindingPattern;
 import com.adacore.lkql_jit.nodes.patterns.FilteredPattern;
+import com.adacore.lkql_jit.nodes.patterns.NotPattern;
 import com.adacore.lkql_jit.nodes.patterns.NullPattern;
 import com.adacore.lkql_jit.nodes.patterns.OrPattern;
 import com.adacore.lkql_jit.nodes.patterns.ParenPattern;
@@ -736,6 +737,8 @@ public final class LktPasses {
                     yield BoolPatternNodeGen.create(loc(truePattern), true);
                 case Liblktlang.BoolPatternFalse falsePattern:
                     yield BoolPatternNodeGen.create(loc(falsePattern), false);
+                case Liblktlang.NotPattern notPattern:
+                    yield new NotPattern(loc(notPattern), buildPattern(notPattern.fSubPattern()));
                 case Liblktlang.TypePattern typePattern:
                     yield new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
                 case Liblktlang.AnyTypePattern univPattern:
