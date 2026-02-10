@@ -1,2 +1,2 @@
 val decls = select b@(ObjectDecl | BaseTypeDecl) when b.f_aspects != null
-print(decls)
+print(decls.to_list)

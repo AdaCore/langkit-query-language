@@ -1,2 +1,3 @@
 driver: 'interpreter'
 project: 'access_decls/access_decls.gpr'
+lkt_refactor: True
