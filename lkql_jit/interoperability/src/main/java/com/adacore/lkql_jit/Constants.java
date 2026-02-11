@@ -94,4 +94,9 @@ public class Constants {
         null,
         null,
     };
+
+    // ----- Reserved names -----
+
+    /** A dynamic object field name containing the represented struct type. */
+    public static String STRUCT_TYPE_TAG = "@typeid";
 }

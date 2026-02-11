@@ -1,0 +1,19 @@
+# lkql version: 2
+
+struct Pair {
+    x: Any
+    y: Any
+}
+
+val p = Pair(1, 2)
+val sum = match p {
+    case Pair(x: a, y: b) => a + b
+}
+
+val _ = print(sum)
+
+val q = Pair(y="bar", x="foo")
+val concat = match q {
+    case Pair(x: left, y: right) => left & right
+}
+val _ = print(concat)

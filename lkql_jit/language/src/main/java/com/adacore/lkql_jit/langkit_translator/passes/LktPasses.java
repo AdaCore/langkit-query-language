@@ -33,6 +33,7 @@ import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
+import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.adacore.lkql_jit.nodes.patterns.BindingPattern;
 import com.adacore.lkql_jit.nodes.patterns.FilteredPattern;
 import com.adacore.lkql_jit.nodes.patterns.NullPattern;
@@ -45,11 +46,13 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.ExtendedNodePattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternFieldNodeGen;
+import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternPropertyNodeGen;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 /** Namespace class containing all passes to expand from Lkt syntax to the LKQL Truffle tree. */
 public final class LktPasses {
@@ -85,14 +88,15 @@ public final class LktPasses {
         /**
          * Whether "node" needs a frame to be introduced to contain inner bindings.
          * NB: this does not include the Query node (which needs a concrete frame)
-         * because its handled in its own separate function
+         * because it's handled in its own separate function
          */
         private static FrameKind needsFrame(LktNode node) {
             if (
                 node instanceof FunDecl ||
                 node instanceof Liblktlang.LambdaExpr ||
                 node instanceof Liblktlang.LangkitRoot ||
-                isStreamOpRhs(node)
+                isStreamOpRhs(node) ||
+                node instanceof StructDecl // lowered into function
             ) {
                 return FrameKind.Concrete;
             } else if (
@@ -137,6 +141,8 @@ public final class LktPasses {
                 builder.addParameter(funParamDecl.fSynName().getText());
             } else if (node instanceof LambdaParamDecl lambdaParamDecl) {
                 builder.addParameter(lambdaParamDecl.fSynName().getText());
+            } else if (node instanceof FieldDecl fieldDecl) {
+                builder.addParameter(fieldDecl.fSynName().getText());
             }
 
             var frameKind = needsFrame(node);
@@ -304,76 +310,147 @@ public final class LktPasses {
             }
         }
 
+        private ArgList buildArgs(Liblktlang.ArgumentList args) {
+            return buildArgs(
+                StreamSupport.stream(args.spliterator(), false).map(this::buildArg).toList(),
+                loc(args)
+            );
+        }
+
         private Annotation buildAnnotation(Liblktlang.DeclAnnotation annotation) {
             return new Annotation(
                 loc(annotation),
                 annotation.fName().getText(),
-                buildArgs(
-                    Arrays.stream(annotation.fArgs().fArgs().children())
-                        .map(a -> buildArg((Argument) a))
-                        .toList(),
-                    loc(annotation.fArgs())
-                )
+                buildArgs(annotation.fArgs().fArgs())
             );
         }
 
         private Declaration buildDecl(Liblktlang.Decl decl) {
-            if (decl instanceof Liblktlang.FunDecl funDecl) {
-                final String name = funDecl.fSynName().getText();
-                frames.declareBinding(name);
-                // Full decl
-                var fullDecl = (FullDecl) funDecl.parent();
+            return switch (decl) {
+                case Liblktlang.FunDecl funDecl -> {
+                    final var name = funDecl.fSynName().getText();
+                    frames.declareBinding(name);
+                    // Full decl
+                    final var fullDecl = (FullDecl) funDecl.parent();
 
-                // Annotation
-                Annotation annotation = null;
-                var annotations = fullDecl.fDeclAnnotations();
-                if (annotations.getChildrenCount() > 0) {
-                    annotation = buildAnnotation(
-                        (Liblktlang.DeclAnnotation) annotations.getChild(0)
+                    // Annotation
+                    final var annotations = fullDecl.fDeclAnnotations();
+                    final var annotation = annotations.getChildrenCount() > 0
+                        ? buildAnnotation((Liblktlang.DeclAnnotation) annotations.getChild(0))
+                        : null;
+
+                    final var ret = new FunctionDeclaration(
+                        loc(funDecl),
+                        annotation,
+                        frames.getBinding(name),
+                        createFunExpr(
+                            funDecl,
+                            name,
+                            fullDecl.fDoc(),
+                            funDecl.fBody(),
+                            funDecl.fParams()
+                        )
                     );
-                }
 
-                var ret = new FunctionDeclaration(
-                    loc(funDecl),
-                    annotation,
-                    frames.getBinding(name),
-                    createFunExpr(
-                        funDecl,
-                        name,
-                        fullDecl.fDoc(),
-                        funDecl.fBody(),
-                        funDecl.fParams()
-                    )
-                );
+                    if (annotation == null) yield ret;
 
-                if (annotation != null) {
-                    if (annotation.getName().equals(Constants.ANNOTATION_NODE_CHECK)) {
-                        return new CheckerExport(
+                    yield switch (annotation.getName()) {
+                        case Constants.ANNOTATION_NODE_CHECK -> new CheckerExport(
                             loc(funDecl),
                             annotation,
                             CheckerExport.CheckerMode.NODE,
                             ret
                         );
-                    } else if (annotation.getName().equals(Constants.ANNOTATION_UNIT_CHECK)) {
-                        return new CheckerExport(
+                        case Constants.ANNOTATION_UNIT_CHECK -> new CheckerExport(
                             loc(funDecl),
                             annotation,
                             CheckerExport.CheckerMode.UNIT,
                             ret
                         );
-                    }
+                        default -> ret;
+                    };
                 }
-                return ret;
-            } else if (decl instanceof ValDecl valDecl) {
-                var name = valDecl.fSynName().getText();
-                var value = buildExpr(valDecl.fExpr());
-                frames.declareBinding(name);
-                return new ValueDeclaration(loc(valDecl), frames.getBinding(name), value);
-            } else {
-                throw LKQLRuntimeException.create(
-                    "Translation for " + decl.getKind() + " not implemented"
-                );
-            }
+                case Liblktlang.ValDecl valDecl -> {
+                    final var name = valDecl.fSynName().getText();
+                    // Build expr BEFORE the name is bound
+                    final var value = buildExpr(valDecl.fExpr());
+                    frames.declareBinding(name);
+                    yield new ValueDeclaration(loc(valDecl), frames.getBinding(name), value);
+                }
+                case Liblktlang.StructDecl structDecl -> {
+                    // Structs declarations are lowered to a constructor
+                    final var name = structDecl.fSynName().getText();
+                    frames.declareBinding(name);
+                    final var slot = frames.getBinding(name);
+
+                    final var fullDecl = (FullDecl) structDecl.parent();
+                    final var doc = fullDecl.fDoc();
+
+                    // Build constructor formal parameters
+                    final var params = new String[structDecl.fDecls().getChildrenCount()];
+                    final var defaultVals = new Expr[params.length];
+
+                    final var localDecls = structDecl.fDecls().iterator();
+                    for (int i = 0; i < params.length; i++) {
+                        final var localDecl = localDecls.next().fDecl();
+
+                        if (localDecl instanceof Liblktlang.FieldDecl fieldDecl) {
+                            params[i] = fieldDecl.fSynName().getText();
+                            if (!fieldDecl.fDefaultVal().isNone()) {
+                                defaultVals[i] = buildExpr(fieldDecl.fDefaultVal());
+                            }
+                        } else throw translationError(
+                            localDecl,
+                            "Unexpected declaration inside a struct"
+                        );
+                    }
+
+                    frames.enterFrame(structDecl);
+
+                    // Build body
+
+                    final var keys = new String[params.length + 1];
+                    final var vals = new Expr[params.length + 1];
+
+                    for (int i = 0; i < params.length; i++) {
+                        frames.declareBinding(params[i]);
+                        keys[i] = params[i];
+                        vals[i] = new ReadParameter(
+                            loc(structDecl.fDecls().getChild(i)),
+                            frames.getParameter(params[i])
+                        );
+                    }
+
+                    keys[keys.length - 1] = Constants.STRUCT_TYPE_TAG;
+                    vals[vals.length - 1] = new StringLiteral(loc(structDecl.fSynName()), name);
+
+                    final var body = new ObjectLiteral(loc(structDecl), keys, vals);
+
+                    final var res = new FunctionDeclaration(
+                        loc(structDecl),
+                        null, // no annotation supported for structs
+                        slot,
+                        new FunExpr(
+                            loc(structDecl),
+                            frames.getFrameDescriptor(),
+                            frames.getClosureDescriptor(),
+                            params,
+                            defaultVals,
+                            doc.isNone() ? "" : doc.pDenotedValue().value,
+                            body,
+                            name
+                        )
+                    );
+
+                    frames.exitFrame();
+                    yield res;
+                }
+                default -> {
+                    throw LKQLRuntimeException.create(
+                        "Translation for " + decl.getKind() + " not implemented"
+                    );
+                }
+            };
         }
 
         private Expr buildExpr(Liblktlang.Expr expr) {
@@ -398,12 +475,7 @@ public final class LktPasses {
 
                 // In all other cases, translate the call expression to a function call
                 final Expr callee = buildExpr(callExpr.fName());
-                final ArgList arguments = buildArgs(
-                    Arrays.stream(callExpr.fArgs().children())
-                        .map(a -> buildArg((Argument) a))
-                        .toList(),
-                    loc(callExpr.fArgs())
-                );
+                final ArgList arguments = buildArgs(callExpr.fArgs());
                 return FunCallNodeGen.create(
                     loc(callExpr),
                     false,
@@ -586,8 +658,18 @@ public final class LktPasses {
         }
 
         private Pattern buildPattern(Liblktlang.Pattern pattern) {
-            switch (pattern) {
-                case Liblktlang.ComplexPattern complexPattern -> {
+            return switch (pattern) {
+                case Liblktlang.ComplexPattern structPattern when (
+                    structPattern.fPattern() instanceof Liblktlang.TypePattern typePattern &&
+                    typePattern.fTypeName().pReferencedDecl() instanceof
+                        Liblktlang.StructDecl structDecl
+                ):
+                    yield buildStructPattern(
+                        loc(structPattern),
+                        structDecl,
+                        structPattern.fDetails()
+                    );
+                case Liblktlang.ComplexPattern complexPattern:
                     Pattern result = null;
 
                     final Integer slot;
@@ -634,14 +716,12 @@ public final class LktPasses {
                         );
                     }
 
-                    return result;
-                }
-                case Liblktlang.NullPattern nullPattern -> {
-                    return new NullPattern(loc(nullPattern));
-                }
-                case Liblktlang.IntegerPattern integerPattern -> {
+                    yield result;
+                case Liblktlang.NullPattern nullPattern:
+                    yield new NullPattern(loc(nullPattern));
+                case Liblktlang.IntegerPattern integerPattern:
                     try {
-                        return IntegerPatternNodeGen.create(
+                        yield IntegerPatternNodeGen.create(
                             loc(integerPattern),
                             Integer.parseInt(integerPattern.getText())
                         );
@@ -651,52 +731,106 @@ public final class LktPasses {
                             "Invalid number literal for pattern"
                         );
                     }
-                }
-                case Liblktlang.TypePattern typePattern -> {
-                    return new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
-                }
-                case Liblktlang.AnyTypePattern univPattern -> {
-                    return new UniversalPattern(loc(univPattern));
-                }
-                case Liblktlang.RegexPattern regexPattern -> {
+                case Liblktlang.TypePattern typePattern:
+                    yield new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
+                case Liblktlang.AnyTypePattern univPattern:
+                    yield new UniversalPattern(loc(univPattern));
+                case Liblktlang.RegexPattern regexPattern:
                     var regex = regexPattern.getText();
                     regex = regex.substring(1, regex.length() - 1);
-                    return RegexPatternNodeGen.create(loc(regexPattern), regex);
-                }
-                case Liblktlang.ParenPattern parenPattern -> {
+                    yield RegexPatternNodeGen.create(loc(regexPattern), regex);
+                case Liblktlang.ParenPattern parenPattern:
                     final Pattern p = buildPattern(parenPattern.fSubPattern());
-                    return new ParenPattern(loc(parenPattern), p);
-                }
-                case Liblktlang.OrPattern orPattern -> {
-                    return new OrPattern(
+                    yield new ParenPattern(loc(parenPattern), p);
+                case Liblktlang.OrPattern orPattern:
+                    yield new OrPattern(
                         loc(orPattern),
                         buildPattern(orPattern.fLeftSubPattern()),
                         buildPattern(orPattern.fRightSubPattern())
                     );
-                }
-                default -> {
+                default:
                     throw LKQLRuntimeException.create(
                         "Translation for " + pattern.getKind() + " not implemented"
                     );
+            };
+        }
+
+        private Pattern buildStructPattern(
+            SourceSection location,
+            Liblktlang.StructDecl structDecl,
+            Liblktlang.PatternDetailList patternDetails
+        ) {
+            final var name = structDecl.fSynName().getText();
+
+            final var keys = new String[patternDetails.getChildrenCount() + 1];
+            final var patterns = new Pattern[keys.length];
+
+            keys[0] = Constants.STRUCT_TYPE_TAG;
+            patterns[0] = RegexPatternNodeGen.create(loc(structDecl.fSynName()), name);
+
+            final var detailsIterator = patternDetails.iterator();
+            for (int i = 1; i < patterns.length; i++) {
+                final var patternDetail = detailsIterator.next();
+                if (patternDetail instanceof Liblktlang.FieldPatternDetail fieldPatternDetail) {
+                    keys[i] = fieldPatternDetail.fId().getText();
+                    patterns[i] = buildPattern(fieldPatternDetail.fExpectedValue());
+                } else throw translationError(
+                    patternDetail,
+                    "Unexpected pattern detail inside a struct pattern"
+                );
+            }
+
+            // Check statically that matched fields exists in the StructDecl
+
+            final var fields = new HashSet<String>();
+            for (final var d : structDecl.fDecls()) {
+                if (d.fDecl() instanceof Liblktlang.FieldDecl field) {
+                    fields.add(field.fSynName().getText());
+                }
+                // no else clause because an exception should be raised only
+                // when lowering the StructDecl itself
+            }
+
+            for (int i = 1; i < keys.length; i++) {
+                if (!fields.contains(keys[i])) {
+                    throw translationError(
+                        patternDetails.getChild(i - 1),
+                        "Struct `" + name + "` has no field `" + keys[i] + "`"
+                    );
                 }
             }
+
+            return ObjectPatternNodeGen.create(location, patterns, keys, null);
         }
 
         private NodePatternDetail buildPatternDetail(Liblktlang.PatternDetail patternDetail) {
-            if (patternDetail instanceof Liblktlang.FieldPatternDetail fieldPatternDetail) {
-                // Translate the node pattern detail fields
-                final String name = fieldPatternDetail.fId().getText();
-                final Pattern expected = buildPattern(fieldPatternDetail.fExpectedValue());
+            return switch (patternDetail) {
+                case Liblktlang.FieldPatternDetail fieldPatternDetail: {
+                    // Translate the node pattern detail fields
+                    final String name = fieldPatternDetail.fId().getText();
+                    final Pattern expected = buildPattern(fieldPatternDetail.fExpectedValue());
 
-                // Return the new node pattern field detail
-                return NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);
-            } else if (patternDetail instanceof Liblktlang.PropertyPatternDetail) {
-                return null;
-            } else {
-                throw LKQLRuntimeException.create(
-                    "Translation for " + patternDetail.getKind() + " not implemented"
-                );
-            }
+                    // Return the new node pattern field detail
+                    yield NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);
+                }
+                case Liblktlang.PropertyPatternDetail propertyPatternDetail: {
+                    // Translate the node pattern detail fields
+                    final var callExpr = propertyPatternDetail.fCall();
+                    final String propertyName = callExpr.fName().getText();
+                    final ArgList argList = buildArgs(callExpr.fArgs());
+                    final Pattern expected = buildPattern(propertyPatternDetail.fExpectedValue());
+
+                    // Return the new node pattern property detail
+                    yield NodePatternPropertyNodeGen.create(
+                        loc(propertyPatternDetail),
+                        propertyName,
+                        Arrays.stream(argList.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
+                        expected
+                    );
+                }
+                default:
+                    throw new AssertionError("Unreachable");
+            };
         }
     }
 
