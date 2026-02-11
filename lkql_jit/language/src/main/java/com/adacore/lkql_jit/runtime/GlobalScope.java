@@ -79,12 +79,13 @@ public final class GlobalScope {
      *
      * @param name The name of the checker.
      * @param checker The object representing the checker.
+     * @param checkDuplicate Whether to check if a checker with the same name already exists.
      */
     @CompilerDirectives.TruffleBoundary
-    public void addChecker(String name, BaseChecker checker) {
+    public void addChecker(String name, BaseChecker checker, boolean checkDuplicate) {
         BaseChecker previousValue = this.checkers.put(name, checker);
 
-        if (previousValue != null) {
+        if (previousValue != null && checkDuplicate) {
             System.err.println(
                 "Warning: a checker named \"" +
                     name +

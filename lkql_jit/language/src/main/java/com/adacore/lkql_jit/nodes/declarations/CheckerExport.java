@@ -15,6 +15,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.functions.OptionalUtils;
@@ -160,9 +161,14 @@ public class CheckerExport extends Declaration {
               );
 
         // Put the object in the context
-        LKQLLanguage.getContext(this)
+        var context = LKQLLanguage.getContext(this);
+        context
             .getGlobal()
-            .addChecker(StringUtils.toLowerCase(functionValue.getExecutableName()), checker);
+            .addChecker(
+                StringUtils.toLowerCase(functionValue.getExecutableName()),
+                checker,
+                context.getEngineMode() != LKQLOptions.EngineMode.INTERPRETER
+            );
     }
 
     // ----- Override methods -----
