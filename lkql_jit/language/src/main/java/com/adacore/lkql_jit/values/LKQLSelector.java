@@ -16,6 +16,8 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.source.SourceSection;
+import java.util.Optional;
 
 /** This class represents the selector values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -67,6 +69,11 @@ public class LKQLSelector extends LKQLCallable {
     }
 
     // ----- Instance functions -----
+
+    @Override
+    public Optional<SourceSection> getDeclarationLocation() {
+        return Optional.ofNullable(rootNode.getEncapsulatingSourceSection());
+    }
 
     @Override
     public boolean takesClosure() {

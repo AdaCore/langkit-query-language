@@ -20,6 +20,8 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.source.SourceSection;
+import java.util.Optional;
 
 /** This class represents the function values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -71,6 +73,11 @@ public class LKQLFunction extends LKQLCallable {
     }
 
     // ----- Instance methods -----
+
+    @Override
+    public Optional<SourceSection> getDeclarationLocation() {
+        return Optional.ofNullable(rootNode.getEncapsulatingSourceSection());
+    }
 
     @Override
     public boolean takesClosure() {

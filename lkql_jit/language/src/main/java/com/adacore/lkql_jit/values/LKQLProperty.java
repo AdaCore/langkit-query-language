@@ -16,6 +16,8 @@ import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.source.SourceSection;
+import java.util.Optional;
 
 /** This class represents a Libadalang property access in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -66,6 +68,11 @@ public class LKQLProperty extends LKQLCallable {
     }
 
     // ----- Instance methods -----
+
+    @Override
+    public Optional<SourceSection> getDeclarationLocation() {
+        return Optional.empty();
+    }
 
     @Override
     public boolean takesClosure() {

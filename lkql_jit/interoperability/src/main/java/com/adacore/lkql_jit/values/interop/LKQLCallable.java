@@ -13,6 +13,8 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.source.SourceSection;
+import java.util.Optional;
 
 /**
  * This class represents an abstraction over all LKQL callable values. To call such values, you
@@ -76,6 +78,9 @@ public abstract class LKQLCallable extends LKQLValue {
     }
 
     // ----- Instance methods -----
+
+    /** Get a location where this callable value has been declared, if applicable to it. */
+    public abstract Optional<SourceSection> getDeclarationLocation();
 
     /** Whether this callable value takes a closure object as its first argument. */
     public abstract boolean takesClosure();
