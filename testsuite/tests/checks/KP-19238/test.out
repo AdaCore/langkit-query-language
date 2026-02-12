@@ -1,0 +1,16 @@
+main.adb:7:9: rule violation: possible occurrence of KP 19238
+7 |    type D1_T2 is new T1 with Convention => C;  -- FLAG
+  |         ^^^^^
+
+main.adb:19:9: rule violation: possible occurrence of KP 19238
+19 |    type D5 is new D4 with Convention => C;  -- FLAG
+   |         ^^
+
+main.adb:22:9: rule violation: possible occurrence of KP 19238
+22 |    type D6 is new S1 with Convention => C;  -- FLAG
+   |         ^^
+
+main.adb:25:9: rule violation: possible occurrence of KP 19238
+25 |    type D5 is new D4 with Convention => C;  -- FLAG
+   |         ^^
+
