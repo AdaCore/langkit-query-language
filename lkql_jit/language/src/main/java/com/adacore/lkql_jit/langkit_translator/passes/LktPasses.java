@@ -115,7 +115,11 @@ public final class LktPasses {
          * if it should not be bound.
          */
         private static String getBindingName(LktNode node) {
-            if (node instanceof Decl d && !(node instanceof FunParamDecl)) {
+            if (
+                node instanceof Decl d &&
+                !(node instanceof FunParamDecl) &&
+                !(node instanceof LangkitRoot)
+            ) {
                 return d.fSynName().getText();
             }
             return null;
