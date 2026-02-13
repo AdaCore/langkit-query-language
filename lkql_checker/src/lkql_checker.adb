@@ -164,6 +164,7 @@ package body Lkql_Checker is
       begin
          Add_Path ("LKQL_PATH", Lkql);
          Add_Path ("LKQL_PATH", Kp);
+         Add_Path ("LKQL_PATH", Lib);
 
          Add_Path ("PATH", Lib);
          Add_Path ("PATH", Lib_LAL);
