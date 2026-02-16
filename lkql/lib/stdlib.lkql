@@ -475,11 +475,12 @@ fun get_subp_body(node) =
     | *                => null
 
 fun is_limited_type(type) =
-    |" Return `true` if type is a limited type
-    type.f_type_def is
-        ((def@(DerivedTypeDef | PrivateTypeDef | RecordTypeDef)
-         when def.f_has_limited.p_as_bool()) |
-    InterfaceTypeDef(f_interface_kind: InterfaceKindLimited))
+    |" Return `true` if type is a limited type. This function expects `type` to
+    |" be a BaseTypeDecl.
+    |"
+    |" .. WARNING::
+    |"   This function is deprecated. Call `type.p_is_limited_type()` instead.
+    type.p_is_limited_type()
 
 @memoized
 fun list_of_units() =

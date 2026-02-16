@@ -8,7 +8,7 @@ fun kp_v302_021(node) =
     node is BaseSubpSpec(p_return_type(): ret@TypeDecl,
                          p_primitive_subp_tagged_type(): type@BaseTypeDecl,
                          parent: decl@BasicDecl(p_previous_part_for_decl(): null))
-    when stdlib.is_limited_type(ret)
+    when ret.p_is_limited_type()
      and {
         val num_types = type.p_find_all_derived_types(stdlib.list_of_units()).length;
         num_types != 0 and
