@@ -1,0 +1,24 @@
+main.adb:4:37: rule violation: possible occurrence of KP 20359
+4 |       T_Class_Obj      : T'Class := T'Class (D_T'(others => 42));  -- FLAG
+  |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:6:9: rule violation: possible occurrence of KP 20359
+6 |         D_T'Class (D_D_T'(D_T'(I => 10) with J => 20));  -- FLAG
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:9:16: rule violation: possible occurrence of KP 20359
+9 |       T_Obj := T (D_T'(others => 42));    -- FLAG
+  |                ^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:10:16: rule violation: possible occurrence of KP 20359
+10 |       T_Obj := T (D_T'((others => 42)));  -- FLAG
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:11:16: rule violation: possible occurrence of KP 20359
+11 |       T_Obj := T (S_D_T'(others => 42));  -- FLAG
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:12:16: rule violation: possible occurrence of KP 20359
+12 |       T_Obj := T (P_D_T'(others => 42));  -- FLAG
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^
+

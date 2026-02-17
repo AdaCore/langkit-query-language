@@ -1,0 +1,13 @@
+import stdlib
+
+@check(help="possible occurrence of KP 20359",
+       message="possible occurrence of KP 20359")
+fun kp_20359(node) =
+    |" Flag type conversions of a qualified expressions of aggregates of a type
+    |" derived from a tagged type.
+    node is CallExpr(p_kind(): "type_conversion") when
+        node.f_suffix?[1] is ParamAssoc(
+            f_r_expr: q@QualExpr when
+                stdlib.strip_parenthesis(q.f_suffix) is BaseAggregate
+                and stdlib.complete_super_types(q.p_expression_type()).any((t) => t.p_is_tagged_type())
+        )

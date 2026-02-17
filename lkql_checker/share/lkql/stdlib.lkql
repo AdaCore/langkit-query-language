@@ -657,6 +657,12 @@ fun get_formals(subp_spec) =
         for param_spec in subp_spec.p_params()
     ].to_list)
 
+fun strip_parenthesis(node) =
+    |" Strip ``ParenExpr`` from the provided node.
+    match node
+    | ParenExpr => strip_parenthesis(node.f_expr)
+    | * => node
+
 @memoized
 fun strip_conversions(node) =
     |" Strip ``ParenExpr``, ``QualExpr`` and type conversions
