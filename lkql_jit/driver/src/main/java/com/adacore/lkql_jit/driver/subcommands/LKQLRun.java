@@ -17,6 +17,7 @@ import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.io.IOAccess;
 import org.graalvm.shadowed.org.jline.reader.EndOfFileException;
 import org.graalvm.shadowed.org.jline.reader.LineReader;
 import org.graalvm.shadowed.org.jline.reader.LineReaderBuilder;
@@ -150,7 +151,7 @@ public class LKQLRun extends AbstractLanguageLauncher {
         final var optionsBuilder = new LKQLOptions.Builder();
 
         // Set the common configuration
-        contextBuilder.allowIO(true);
+        contextBuilder.allowIO(IOAccess.ALL);
 
         // Forward the command line options to the options object builder
         optionsBuilder

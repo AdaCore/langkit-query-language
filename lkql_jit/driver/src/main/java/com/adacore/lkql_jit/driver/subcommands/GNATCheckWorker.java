@@ -25,6 +25,7 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.io.IOAccess;
 import org.json.JSONObject;
 import picocli.CommandLine;
 
@@ -182,7 +183,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         final var optionsBuilder = new LKQLOptions.Builder();
 
         // Set the common configuration
-        contextBuilder.allowIO(true);
+        contextBuilder.allowIO(IOAccess.ALL);
         contextBuilder.engine(
             Engine.newBuilder()
                 .allowExperimentalOptions(true)
@@ -347,7 +348,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                         .toJson()
                         .toString()
                 )
-                .allowIO(true)
+                .allowIO(IOAccess.ALL)
                 .build()
         ) {
             // Parse the LKQL rule configuration file with a polyglot context
