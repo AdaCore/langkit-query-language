@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Wraps a Langkit's source location range into the SourceSection interface. */
-public final class LangkitSlocRangeWrapper implements SourceSection {
+public final class LangkitSlocRangeWrapper extends SourceSection {
 
     //  ----- Attributes ------
 

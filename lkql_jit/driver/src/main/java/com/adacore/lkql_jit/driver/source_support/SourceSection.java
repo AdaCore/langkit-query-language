@@ -13,11 +13,15 @@ import java.util.Optional;
 /**
  * This interface materialize the abstract concept of "a source section" under a unified interface.
  */
-public interface SourceSection {
+public abstract class SourceSection {
+
     // ----- Constructors -----
 
     /** Wrap a Langkit token is a SourceSection object. */
-    static SourceSection wrap(LangkitSupport.TokenInterface token, SourceLinesCache linesCache) {
+    public static SourceSection wrap(
+        LangkitSupport.TokenInterface token,
+        SourceLinesCache linesCache
+    ) {
         return new LangkitSlocRangeWrapper(
             token.getSourceLocationRange(),
             token.getUnit(),
@@ -26,7 +30,10 @@ public interface SourceSection {
     }
 
     /** Wrap a Langkit node in a SourceSection object. */
-    static SourceSection wrap(LangkitSupport.NodeInterface node, SourceLinesCache linesCache) {
+    public static SourceSection wrap(
+        LangkitSupport.NodeInterface node,
+        SourceLinesCache linesCache
+    ) {
         return new LangkitSlocRangeWrapper(
             node.getSourceLocationRange(),
             node.getUnit(),
@@ -35,32 +42,51 @@ public interface SourceSection {
     }
 
     /** Wrap a Truffle source section in a SourceSection object. */
-    static SourceSection wrap(com.oracle.truffle.api.source.SourceSection sourceSection) {
+    public static SourceSection wrap(com.oracle.truffle.api.source.SourceSection sourceSection) {
         return new TruffleSourceSectionWrapper(sourceSection);
     }
 
-    // ----- Interface methods -----
+    // ----- Instance methods -----
 
     /** Get the name of the source. */
-    String getSourceName();
+    public abstract String getSourceName();
 
     /** Return the path to the file this source section refers to, if applicable. */
-    Optional<Path> getSourceFile();
+    public abstract Optional<Path> getSourceFile();
 
-    int startLine();
+    /** Return the 1-indexed start line for this location. */
+    public abstract int startLine();
 
-    /** Return the 1-indexed end line for this location */
-    int endLine();
+    /** Return the 1-indexed end line for this location. */
+    public abstract int endLine();
 
-    /** Return the 1-indexed start column for this location */
-    int startColumn();
+    /** Return the 1-indexed start column for this location. */
+    public abstract int startColumn();
 
-    /** Return the 1-indexed end column for this location */
-    int endColumn();
+    /** Return the 1-indexed end column for this location. */
+    public abstract int endColumn();
 
     /**
      * Return the lines of the source that this location spans, including the text outside the
      * strict span of this location, column-wise.
      */
-    List<String> getLines();
+    public abstract List<String> getLines();
+
+    // ----- Override methods -----
+
+    @Override
+    public String toString() {
+        return (
+            getSourceName() +
+            '(' +
+            startLine() +
+            ':' +
+            startColumn() +
+            " - " +
+            endLine() +
+            ':' +
+            endColumn() +
+            ')'
+        );
+    }
 }
