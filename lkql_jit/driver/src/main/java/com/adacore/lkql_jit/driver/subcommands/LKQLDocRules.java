@@ -279,9 +279,9 @@ public class LKQLDocRules implements Callable<Integer> {
 
         // Create rules objects, only keep check/unit_check FunDecls. We need to
         // use Collectors.toList() here instead of a direct call to toList()
-        // because we rely on the fact that the list is muttable for the
+        // because we rely on the fact that the list is mutable for the
         // subsequent calls to printCategory/printSubcategory (mostly for
-        // performace).
+        // performance).
         List<Rule> rules = new ArrayList<>();
         rules = units
             .stream()
