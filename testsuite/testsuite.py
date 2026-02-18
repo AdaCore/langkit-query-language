@@ -121,11 +121,6 @@ class LKQLTestsuite(Testsuite):
             help="Run the testsuite with the codepeer target and runtime",
         )
         parser.add_argument(
-            "--no-auto-path",
-            action="store_true",
-            help="Do not add test programs to the PATH. Useful to test" " packages.",
-        )
-        parser.add_argument(
             "--no-flag-checking",
             action="store_true",
             help="Disable the checking phase for the FLAG/NOFLAG annotations.",
@@ -146,7 +141,6 @@ class LKQLTestsuite(Testsuite):
             help="Compute code coverage. Argument is the output directory for"
             " the coverage report.",
         )
-
         parser.add_argument(
             "--perf-mode",
             help="Run the testsuite in performance mode: only run tests with"
@@ -161,7 +155,6 @@ class LKQLTestsuite(Testsuite):
             " the default perf measurements (no profile). This is useful"
             " to get feedback quickly during development.",
         )
-
         parser.add_argument(
             "--only-with-auto-fix",
             action="store_true",
@@ -228,29 +221,20 @@ class LKQLTestsuite(Testsuite):
                         ]
                     )
 
-        # Unless specifically told not to, add test programs to the environment
+        # Add test programs/rules to the environment
         repo_root = P.dirname(self.root_dir)
         self.env.root_dir = repo_root
-        if not self.env.options.no_auto_path:
 
-            def in_repo(*args):
-                return P.join(repo_root, *args)
+        def in_repo(*args):
+            return P.join(repo_root, *args)
 
-            os.environ["PATH"] = P.pathsep.join(
-                [
-                    in_repo("lkql", "build", "obj-mains"),
-                    in_repo("lkql_checker", "bin"),
-                    os.environ["PATH"],
-                ]
-            )
-
-            os.environ["LKQL_PATH"] = P.pathsep.join(
-                [
-                    in_repo("lkql_checker/share/lkql"),
-                    in_repo("lkql_checker/share/lkql/kp"),
-                    os.environ.get("LKQL_PATH", ""),
-                ]
-            )
+        os.environ["PATH"] = P.pathsep.join(
+            [
+                in_repo("lkql", "build", "obj-mains"),
+                in_repo("lkql_checker", "bin"),
+                os.environ["PATH"],
+            ]
+        )
 
         # Ensure the testsuite starts with an empty directory to store source
         # trace files.
