@@ -41,9 +41,7 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
         }
 
         // Create variant part from the diagnostic information
-        var locationName = diagnostic.location.map(
-            l -> l.getSourceName() + ":" + l.startLine() + ":" + l.startColumn() + ": "
-        );
+        var locationName = diagnostic.location.map(l -> l.shortImage() + ": ");
         StylingFunction kindStyle = switch (diagnostic) {
             case Error _ -> this::red;
             case Warning _, RuleViolation _ -> this::yellow;
@@ -60,6 +58,16 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
         output.print(bold(locationName.orElse("") + kindStyle.apply(kindName + ": ")));
         output.println(diagnostic.message);
         diagnostic.location.ifPresent(l -> printSourceSnippet(l, this::yellow, 0));
+
+        // In the case of an error, show the call stack if there is one
+        if (diagnostic instanceof Error error) {
+            for (var call : error.callStack) {
+                output.print(bold(call.callLocation().shortImage() + ": "));
+                output.print("in ");
+                output.println(bold(red(call.callContext())));
+                printSourceSnippet(call.callLocation(), this::yellow, 2);
+            }
+        }
 
         // Display a final newline
         output.println();

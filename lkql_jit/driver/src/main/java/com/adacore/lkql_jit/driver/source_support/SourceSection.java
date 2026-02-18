@@ -77,6 +77,14 @@ public abstract class SourceSection {
      */
     public abstract List<String> getLines();
 
+    /**
+     * Get a string representation of this source section with the format
+     * [source-name]:[start-line]:[start-column].
+     */
+    public String shortImage() {
+        return getSourceName() + ":" + startLine() + ":" + startColumn();
+    }
+
     // ----- Override methods -----
 
     @Override
