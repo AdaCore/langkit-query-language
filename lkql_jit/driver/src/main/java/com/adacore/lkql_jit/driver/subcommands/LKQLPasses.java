@@ -6,6 +6,8 @@
 package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.File;
 import java.io.IOException;
@@ -13,14 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.io.IOAccess;
 import picocli.CommandLine;
 
-public class LKQLPasses extends AbstractLanguageLauncher {
+public class LKQLPasses extends BaseSubcommand {
 
     // ----- Attributes -----
 
@@ -69,6 +71,9 @@ public class LKQLPasses extends AbstractLanguageLauncher {
 
     /** Execute the LKQL script and return the exit code. */
     protected int executeScript(Context.Builder contextBuilder) {
+        // Create a diagnostic collector
+        var diagnostics = new DiagnosticCollector();
+
         // Set the common configuration
         contextBuilder.allowIO(IOAccess.ALL);
 
@@ -87,23 +92,22 @@ public class LKQLPasses extends AbstractLanguageLauncher {
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            if (this.args.script != null) {
-                Source source = Source.newBuilder(
-                    Constants.LKQL_ID,
-                    new File(this.args.script)
-                ).build();
-                context.eval(source);
+            try {
+                if (this.args.script != null) {
+                    Source source = Source.newBuilder(
+                        Constants.LKQL_ID,
+                        new File(this.args.script)
+                    ).build();
+                    context.eval(source);
+                }
+            } catch (PolyglotException e) {
+                diagnostics.handleException(e);
+                diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
             }
             return 0;
         } catch (IOException e) {
             System.err.println("File not found : " + this.args.script);
             return 2;
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            if (this.args.verbose) {
-                e.printStackTrace();
-            }
-            return 0;
         }
     }
 

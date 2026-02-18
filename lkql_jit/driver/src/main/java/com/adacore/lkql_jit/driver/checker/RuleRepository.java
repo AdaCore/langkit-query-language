@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.driver.checker;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
-import com.adacore.lkql_jit.driver.diagnostics.variants.RawMessage;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
@@ -65,7 +64,7 @@ public final class RuleRepository {
                 throw new RuntimeException(e);
             } catch (PolyglotException e) {
                 // When an error occurs in the execution of the LKQL file, store it in diagnostics
-                diagnostics.add(new RawMessage(e.getMessage()));
+                diagnostics.handleException(e);
             }
         }
     }

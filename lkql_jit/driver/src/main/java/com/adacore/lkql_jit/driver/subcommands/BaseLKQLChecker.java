@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
-import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.io.IOAccess;
@@ -33,22 +32,18 @@ import picocli.CommandLine;
  * that need to be aware of a sources fetching method and a set of rules to run should extend this
  * class.
  */
-public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
+public abstract class BaseLKQLChecker extends BaseSubcommand {
 
     // ----- Properties -----
 
     /** Parsed arguments from the command-line. */
     protected Args args;
 
-    /** Whether the current output support ANSI colors */
-    private final boolean supportAnsi;
-
     // ----- Constructors -----
 
     /** Simply initialized arguments. */
     protected BaseLKQLChecker(Args args) {
         this.args = args;
-        this.supportAnsi = System.getenv("TERM") != null && System.console() != null;
     }
 
     // ----- Abstract methods -----

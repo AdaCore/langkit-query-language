@@ -34,24 +34,16 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
 
     @Override
     public void accept(BaseDiagnostic diagnostic) {
-        // If the diagnostic is a raw message, just display its content and do nothing else
-        if (diagnostic instanceof RawMessage rawMessage) {
-            output.println(rawMessage.message);
-            return;
-        }
-
         // Create variant part from the diagnostic information
         var locationName = diagnostic.location.map(l -> l.shortImage() + ": ");
         StylingFunction kindStyle = switch (diagnostic) {
             case Error _ -> this::red;
             case Warning _, RuleViolation _ -> this::yellow;
-            case RawMessage _ -> throw new RuntimeException("Shouldn't reach here");
         };
         var kindName = switch (diagnostic) {
             case Warning _ -> "warning";
             case Error _ -> "error";
             case RuleViolation _ -> "rule violation";
-            case RawMessage _ -> throw new RuntimeException("Shouldn't reach here");
         };
         var leftPadding = switch (diagnostic) {
             case RuleViolation _ -> 0;

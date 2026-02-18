@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.driver.source_support;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.oracle.truffle.api.nodes.Node;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +50,19 @@ public abstract class SourceSection {
     /** Wrap a Polyglot source section in a SourceSection object. */
     public static SourceSection wrap(org.graalvm.polyglot.SourceSection sourceSection) {
         return new PolyglotSourceSectionWrapper(sourceSection);
+    }
+
+    /**
+     * Get the source section the provided node is contained in and wrap it into a SourceSection
+     * object. This function may be recursive on node's parents, meaning that if the provided node
+     * isn't related to Truffle source section, the function will recurse on its parent.
+     */
+    public static SourceSection wrap(Node node) {
+        if (node.getSourceSection() == null) {
+            var parent = node.getParent();
+            return parent == null ? null : wrap(parent);
+        }
+        return wrap(node.getSourceSection());
     }
 
     // ----- Instance methods -----

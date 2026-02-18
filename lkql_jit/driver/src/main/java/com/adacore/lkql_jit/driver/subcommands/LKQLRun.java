@@ -6,6 +6,8 @@
 package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.File;
 import java.io.IOException;
@@ -13,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.io.IOAccess;
 import org.graalvm.shadowed.org.jline.reader.EndOfFileException;
@@ -29,7 +31,7 @@ import picocli.CommandLine;
  * This class is the LKQL launcher, this will handle all execution request coming from the command
  * line.
  */
-public class LKQLRun extends AbstractLanguageLauncher {
+public class LKQLRun extends BaseSubcommand {
 
     // ----- Attributes -----
 
@@ -78,6 +80,9 @@ public class LKQLRun extends AbstractLanguageLauncher {
 
     /** Execute the LKQL script and return the exit code. */
     protected int executeScript(Context.Builder contextBuilder) {
+        // Create a new diagnostic collector
+        var diagnostics = new DiagnosticCollector();
+
         // Set the common configuration
         contextBuilder.allowIO(IOAccess.ALL);
 
@@ -97,21 +102,33 @@ public class LKQLRun extends AbstractLanguageLauncher {
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            if (this.args.script != null) {
-                Source source = Source.newBuilder(
-                    Constants.LKQL_ID,
-                    new File(this.args.script)
-                ).build();
-                context.eval(source);
+            // If a script has been provided, run it and handle possible exceptions
+            try {
+                if (this.args.script != null) {
+                    Source source = Source.newBuilder(
+                        Constants.LKQL_ID,
+                        new File(this.args.script)
+                    ).build();
+                    context.eval(source);
+                }
+            } catch (PolyglotException e) {
+                diagnostics.handleException(e);
             }
 
+            // If an error occurred, display it and exit
+            if (diagnostics.hasError()) {
+                diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+                return 0;
+            }
+
+            // Then, if the user required an interactive session, start it
             if (this.args.interactive) {
                 LineReader reader = LineReaderBuilder.builder()
                     .terminal(TerminalBuilder.builder().system(true).dumb(true).build())
                     .build();
                 String prompt = "> ";
                 while (true) {
-                    String line = null;
+                    String line;
                     try {
                         line = reader.readLine(prompt);
                         final Source source = Source.newBuilder(Constants.LKQL_ID, line, "<input>")
@@ -122,22 +139,19 @@ public class LKQLRun extends AbstractLanguageLauncher {
                         // Ignore
                     } catch (EndOfFileException e) {
                         return 12;
-                    } catch (Exception e) {
-                        System.err.println(e.getMessage());
+                    } catch (PolyglotException e) {
+                        diagnostics.handleException(e);
+                        diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+                        diagnostics.clear();
                     }
                 }
             }
 
+            // Finally return the success exit code
             return 0;
         } catch (IOException e) {
             System.err.println("File not found : " + this.args.script);
             return 2;
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            if (this.args.verbose) {
-                e.printStackTrace();
-            }
-            return 0;
         }
     }
 
