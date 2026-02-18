@@ -46,6 +46,11 @@ public abstract class SourceSection {
         return new TruffleSourceSectionWrapper(sourceSection);
     }
 
+    /** Wrap a Polyglot source section in a SourceSection object. */
+    public static SourceSection wrap(org.graalvm.polyglot.SourceSection sourceSection) {
+        return new PolyglotSourceSectionWrapper(sourceSection);
+    }
+
     // ----- Instance methods -----
 
     /** Get the name of the source. */
