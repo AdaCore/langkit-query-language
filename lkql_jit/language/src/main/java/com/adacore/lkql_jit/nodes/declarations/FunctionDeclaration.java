@@ -116,7 +116,8 @@ public final class FunctionDeclaration extends Declaration {
                     new LKQLAnnotation(
                         this.annotation.getName(),
                         positionalArguments,
-                        namedArguments
+                        namedArguments,
+                        this.annotation.getSourceSection()
                     ),
                 }
             );
