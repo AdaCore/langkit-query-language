@@ -70,7 +70,7 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             var hintLocationImage = hint.location.map(l -> l.shortImage() + ": ");
             output.print(bold(hintLocationImage.orElse("") + blue("hint: ")));
             output.println(hint.message);
-            hint.location.ifPresent(l -> printSourceSnippet(l, this::blue, 0));
+            hint.location.ifPresent(l -> printSourceSnippet(l, this::blue, 2));
         }
 
         // Display a final newline

@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.driver.checker;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.Hint;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.RuleViolation;
 import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
@@ -321,7 +322,13 @@ public final class CheckerRun {
                         }
                     }
                 } catch (PolyglotException e) {
-                    diagnostics.handleException(e);
+                    diagnostics.handleException(
+                        e,
+                        new Hint(
+                            "Error occurred when analyzing " + step.node.toString(),
+                            SourceSection.wrap(step.node, linesCache)
+                        )
+                    );
                 }
             }
         }
@@ -402,7 +409,13 @@ public final class CheckerRun {
                 );
             }
         } catch (PolyglotException e) {
-            diagnostics.handleException(e);
+            diagnostics.handleException(
+                e,
+                new Hint(
+                    "Error occurred when analyzing " + unit.getFileName(false),
+                    SourceSection.wrap(unit.getRoot(), linesCache)
+                )
+            );
         }
     }
 

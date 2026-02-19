@@ -15,6 +15,7 @@ import com.oracle.truffle.api.TruffleStackTrace;
 import com.oracle.truffle.api.TruffleStackTraceElement;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -45,8 +46,9 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
      * Helper function that provide support to handle an exception from the execution of a source
      * in a polyglot context. This function tries to extract an LKQL specific exception from the
      * origin one and dispatch its handling accordingly.
+     * Provided hints are associated to all created diagnostics.
      */
-    public void handleException(PolyglotException exception) {
+    public void handleException(PolyglotException exception, Hint... hints) {
         // Check if the exception is from an LKQL execution
         if (exception.isGuestException()) {
             var guestException = exception.getGuestObject();
@@ -56,13 +58,13 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
                     .as(AbstractTruffleException.class);
                 switch (truffleException) {
                     case LKQLEngineException e:
-                        handleException(e);
+                        handleException(e, hints);
                         return;
                     case LKQLRuntimeError e:
-                        handleException(e);
+                        handleException(e, hints);
                         return;
                     case LKQLStaticErrors e:
-                        handleException(e);
+                        handleException(e, hints);
                         return;
                     default:
                 }
@@ -75,6 +77,7 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
             exception.getMessage(),
             location == null ? null : SourceSection.wrap(location)
         );
+        Arrays.stream(hints).forEach(diagnostic::addHint);
 
         // Try to get the LKQL call stack
         var lkqlStackTrace = StreamSupport.stream(
@@ -97,24 +100,25 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
     }
 
     /** Handle an LKQL engine exception and fill the diagnostic collector accordingly. */
-    public void handleException(LKQLEngineException exception) {
+    public void handleException(LKQLEngineException exception, Hint... hints) {
         var location = exception.getEncapsulatingSourceSection();
-        add(
-            new Error(
-                exception.getMessage(),
-                location == null ? null : SourceSection.wrap(location)
-            )
+        var diagnostic = new Error(
+            exception.getMessage(),
+            location == null ? null : SourceSection.wrap(location)
         );
+        Arrays.stream(hints).forEach(diagnostic::addHint);
+        add(diagnostic);
     }
 
     /** Handle an LKQL runtime error and fill the diagnostic collector accordingly. */
-    public void handleException(LKQLRuntimeError error) {
+    public void handleException(LKQLRuntimeError error, Hint... hints) {
         // Create the base error diagnostic
         var errorNode = error.getLocation();
         var diagnostic = new Error(
             error.getMessage(),
             errorNode == null ? null : SourceSection.wrap(errorNode)
         );
+        Arrays.stream(hints).forEach(diagnostic::addHint);
 
         // Get the LKQL stack trace
         List<TruffleStackTraceElement> stackTrace = TruffleStackTrace.getStackTrace(error);
@@ -139,9 +143,14 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
     }
 
     /** Handle LKQL static errors and fill the diagnostic collector accordingly. */
-    public void handleException(LKQLStaticErrors errors) {
-        for (var diagnostic : errors.diagnostics) {
-            add(new Error(diagnostic.message(), SourceSection.wrap(diagnostic.location())));
+    public void handleException(LKQLStaticErrors errors, Hint... hints) {
+        for (var staticError : errors.diagnostics) {
+            var diagnostic = new Error(
+                staticError.message(),
+                SourceSection.wrap(staticError.location())
+            );
+            Arrays.stream(hints).forEach(diagnostic::addHint);
+            add(diagnostic);
         }
     }
 
