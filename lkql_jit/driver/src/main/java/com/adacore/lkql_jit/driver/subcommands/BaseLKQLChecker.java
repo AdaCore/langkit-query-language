@@ -171,7 +171,7 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
     }
 
     /** Get all rule instances to run for the current run. */
-    private List<com.adacore.lkql_jit.driver.checker.RuleInstance> getRuleInstances(
+    private List<RuleInstance> getRuleInstances(
         Context context,
         RuleRepository repository,
         DiagnosticCollector diagnostics
@@ -188,11 +188,7 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
 
             // Verify the rule argument syntax
             if (valueSplit.length != 2 || nameSplit.length != 2) {
-                diagnostics.add(
-                    new com.adacore.lkql_jit.driver.diagnostics.variants.Error(
-                        "Rule argument syntax error: \"" + arg + '"'
-                    )
-                );
+                diagnostics.add(new Error("Rule argument syntax error: \"" + arg + '"'));
                 continue;
             }
 
@@ -217,17 +213,17 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
         }
 
         // Then, parse the provided instances, filling them with the previously parsed arguments
-        List<com.adacore.lkql_jit.driver.checker.RuleInstance> res = new ArrayList<>();
+        List<RuleInstance> res = new ArrayList<>();
         for (String ruleName : this.args.rules) {
             var ruleNameLower = ruleName.toLowerCase();
             var instantiatedRule = repository.getRuleByName(ruleNameLower);
             if (instantiatedRule.isPresent()) {
                 res.add(
-                    new com.adacore.lkql_jit.driver.checker.RuleInstance(
+                    new RuleInstance(
                         context,
                         instantiatedRule.get(),
                         Optional.empty(),
-                        com.adacore.lkql_jit.driver.checker.RuleInstance.SourceMode.GENERAL,
+                        RuleInstance.SourceMode.GENERAL,
                         instanceArgs.getOrDefault(ruleNameLower, new HashMap<>()),
                         Optional.empty()
                     )
