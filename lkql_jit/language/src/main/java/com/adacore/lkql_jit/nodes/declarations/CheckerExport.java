@@ -104,7 +104,6 @@ public class CheckerExport extends Declaration {
             ? new NodeChecker(
                   functionValue.getExecutableName(),
                   functionValue,
-                  null,
                   (String) checkerArguments[0],
                   (String) checkerArguments[1],
                   (boolean) checkerArguments[2],

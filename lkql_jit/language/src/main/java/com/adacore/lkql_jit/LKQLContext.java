@@ -59,9 +59,6 @@ public final class LKQLContext {
     /** The analysis context for the ada files. */
     private LangkitSupport.AnalysisContextInterface analysisContext;
 
-    /** The rewriting context, opened from the Ada analysis context. */
-    private LangkitSupport.RewritingContextInterface rewritingContext;
-
     /** The project manager for the ada project. */
     private Libadalang.ProjectManager projectManager;
 
@@ -158,9 +155,6 @@ public final class LKQLContext {
 
     /** Finalize the LKQL context to close libadalang context. */
     public void finalizeContext() {
-        if (this.rewritingContext != null && !this.rewritingContext.isClosed()) {
-            this.rewritingContext.close();
-        }
         this.eventHandler.close();
         this.analysisContext.close();
         if (this.projectManager != null) this.projectManager.close();
@@ -197,10 +191,6 @@ public final class LKQLContext {
             .toArray(LangkitSupport.NodeInterface[]::new);
     }
 
-    public boolean hasRewritingContext() {
-        return this.rewritingContext != null;
-    }
-
     public LangkitSupport.AnalysisContextInterface getAnalysisContext() {
         return this.analysisContext;
     }
@@ -211,20 +201,6 @@ public final class LKQLContext {
             return this.analysisContext.startRewriting();
         }
         return ctx;
-    }
-
-    /**
-     * Try applying the current rewriting context, reparsing the rewrote analysis unit. If this
-     * operation is a success then discard the current rewriting context. Otherwise, close it. This
-     * method assumes that the current rewriting context is not null.
-     */
-    public LangkitSupport.RewritingApplyResult applyOrCloseRewritingContext() {
-        final var res = this.rewritingContext.apply();
-        if (!res.success) {
-            this.rewritingContext.close();
-        }
-        this.rewritingContext = null;
-        return res;
     }
 
     public Hierarchy getTypingContext() {
@@ -341,11 +317,6 @@ public final class LKQLContext {
     @CompilerDirectives.TruffleBoundary
     public boolean isCheckerDebug() {
         return this.getOptions().checkerDebug();
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    public LKQLOptions.AutoFixMode getAutoFixMode() {
-        return this.getOptions().autoFixMode();
     }
 
     /**
@@ -690,15 +661,6 @@ public final class LKQLContext {
                 if (checker == null) {
                     throw LKQLRuntimeException.create(
                         "Could not find any rule named " + instance.ruleName()
-                    );
-                }
-
-                // If the engine is in "fixer" mode, check that the rule has an auto-fixing function
-                if (getEngineMode() == LKQLOptions.EngineMode.FIXER && checker.autoFix == null) {
-                    throw LKQLRuntimeException.create(
-                        "Rule \"" +
-                            instance.ruleName() +
-                            "\" is not defining any auto-fixing function"
                     );
                 }
 

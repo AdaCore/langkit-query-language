@@ -24,9 +24,6 @@ public abstract class BaseChecker {
     /** Function to execute as checker. */
     protected final LKQLFunction function;
 
-    /** Function to call to auto-fix an entity violating the check. */
-    public final LKQLFunction autoFix;
-
     /** Message to display when the rule violated. */
     protected final String message;
 
@@ -60,7 +57,6 @@ public abstract class BaseChecker {
     public BaseChecker(
         final String name,
         final LKQLFunction function,
-        final LKQLFunction autoFix,
         final String message,
         final String help,
         final boolean followGenericInstantiations,
@@ -73,7 +69,6 @@ public abstract class BaseChecker {
     ) {
         this.name = name;
         this.function = function;
-        this.autoFix = autoFix;
         this.message = message;
         this.help = help;
         this.followGenericInstantiations = followGenericInstantiations;

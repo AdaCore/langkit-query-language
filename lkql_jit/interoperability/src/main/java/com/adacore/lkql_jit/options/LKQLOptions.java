@@ -32,8 +32,7 @@ public record LKQLOptions(
     boolean fallbackToAllRules,
     boolean keepGoingOnMissingFile,
     boolean showInstantiationChain,
-    DiagnosticOutputMode diagnosticOutputMode,
-    AutoFixMode autoFixMode
+    DiagnosticOutputMode diagnosticOutputMode
 ) {
     // ----- Constructors -----
 
@@ -76,10 +75,6 @@ public record LKQLOptions(
 
         if (diagnosticOutputMode == null) {
             diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
-        }
-
-        if (autoFixMode == null) {
-            autoFixMode = AutoFixMode.DISPLAY;
         }
     }
 
@@ -128,8 +123,7 @@ public record LKQLOptions(
             jsonLKQLOptions.getBoolean("fallbackToAllRules"),
             jsonLKQLOptions.getBoolean("keepGoingOnMissingFile"),
             jsonLKQLOptions.getBoolean("showInstantiationChain"),
-            DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")),
-            AutoFixMode.valueOf(jsonLKQLOptions.getString("autoFixMode"))
+            DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode"))
         );
     }
 
@@ -166,8 +160,7 @@ public record LKQLOptions(
             .put("fallbackToAllRules", fallbackToAllRules)
             .put("keepGoingOnMissingFile", keepGoingOnMissingFile)
             .put("showInstantiationChain", showInstantiationChain)
-            .put("diagnosticOutputMode", diagnosticOutputMode.toString())
-            .put("autoFixMode", autoFixMode.toString());
+            .put("diagnosticOutputMode", diagnosticOutputMode.toString());
     }
 
     // ----- Inner classes -----
@@ -184,18 +177,6 @@ public record LKQLOptions(
         GNATCHECK,
     }
 
-    /** This enum represents the mode for the auto fixes application. */
-    public enum AutoFixMode {
-        /** Display the patched analysis unit to stdout. */
-        DISPLAY,
-
-        /** Create a new file alongside the original one, containing the patched analysis unit. */
-        NEW_FILE,
-
-        /** Replace the content of the original file with the patched analysis unit. */
-        PATCH_FILE,
-    }
-
     /** Represents the mode the LKQL engine runs on. */
     public enum EngineMode {
         /** LKQL engine is just going to run the provided LKQL script, without doing more. */
@@ -203,11 +184,6 @@ public record LKQLOptions(
 
         /** LKQL engine will seek for defined rules and make them accessible. */
         CHECKER,
-
-        /**
-         * LKQL engine will seek for rules and check that they all define an auto-fixing function.
-         */
-        FIXER,
     }
 
     /** Util class to build a new LKQL options object. */
@@ -233,7 +209,6 @@ public record LKQLOptions(
         private boolean keepGoingOnMissingFile = false;
         private boolean showInstantiationChain = false;
         private DiagnosticOutputMode diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
-        private AutoFixMode autoFixMode = AutoFixMode.DISPLAY;
 
         // ----- Setters -----
 
@@ -332,11 +307,6 @@ public record LKQLOptions(
             return this;
         }
 
-        public Builder autoFixMode(AutoFixMode afm) {
-            autoFixMode = afm;
-            return this;
-        }
-
         // ----- Instance methods -----
 
         public LKQLOptions build() {
@@ -358,8 +328,7 @@ public record LKQLOptions(
                 fallbackToAllRules,
                 keepGoingOnMissingFile,
                 showInstantiationChain,
-                diagnosticOutputMode,
-                autoFixMode
+                diagnosticOutputMode
             );
         }
     }

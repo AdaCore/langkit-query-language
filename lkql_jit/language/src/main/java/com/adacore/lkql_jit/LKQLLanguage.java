@@ -222,10 +222,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
             // And add rule imports to the TopLevelList if we're in a mode that requires it
             var engineMode = getContext(null).getEngineMode();
-            if (
-                engineMode == LKQLOptions.EngineMode.CHECKER ||
-                engineMode == LKQLOptions.EngineMode.FIXER
-            ) {
+            if (engineMode == LKQLOptions.EngineMode.CHECKER) {
                 result.addRuleImports();
             }
         }
