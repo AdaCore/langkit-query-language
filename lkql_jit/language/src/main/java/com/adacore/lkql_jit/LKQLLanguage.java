@@ -330,35 +330,36 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * @return The translated LKQL Truffle AST.
      */
     public LKQLNode translate(final Source source, String sourceName) {
+        // Start by reading the first source line
         var firstLine = new Scanner(source.getReader()).nextLine();
-        LangkitSupport.AnalysisContextInterface langkitCtx = null;
-        Source src;
+        final LangkitSupport.AnalysisContextInterface langkitCtx;
 
+        // If the first source line specify an LKQL version to use, initialize the analysis
+        // context accordingly.
         if (firstLine.startsWith("# lkql version:")) {
             if (firstLine.equals("# lkql version: 1")) {
                 // lkql V1 uses lkql syntax
                 langkitCtx = lkqlAnalysisContext;
-                src = source;
             } else if (firstLine.equals("# lkql version: 2")) {
                 // lkql V2 uses Lkt syntax
                 langkitCtx = lktAnalysisContext;
-                src = source;
             } else {
                 throw LKQLRuntimeException.create("Invalid lkql version");
             }
         } else {
             // By default, use lkql syntax
             langkitCtx = lkqlAnalysisContext;
-            src = source;
         }
 
-        LangkitSupport.AnalysisUnit unit;
-        if (src.getPath() == null) {
-            unit = langkitCtx.getUnitFromBuffer(src.getCharacters().toString(), sourceName);
+        // Then get the analysis unit from the provided source
+        final LangkitSupport.AnalysisUnit unit;
+        if (source.getPath() == null) {
+            unit = langkitCtx.getUnitFromBuffer(source.getCharacters().toString(), sourceName);
         } else {
-            unit = langkitCtx.getUnitFromFile(src.getPath());
+            unit = langkitCtx.getUnitFromFile(source.getPath());
         }
 
+        // Check if parsing errors occurred
         final var diagnostics = unit.getDiagnostics();
         if (diagnostics.length > 0) {
             var ctx = LKQLLanguage.getContext(null);
@@ -371,7 +372,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                         CheckerUtils.MessageKind.ERROR,
                         diagnostic.getMessage().toString(),
                         null,
-                        SourceSectionWrapper.create(diagnostic.getSourceLocationRange(), src)
+                        SourceSectionWrapper.create(diagnostic.getSourceLocationRange(), source)
                     );
             }
             throw LKQLRuntimeException.create(
@@ -379,7 +380,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             );
         }
 
-        return translate(unit.getRoot(), src, false);
+        // Finally call the translation helper with the parsed Langkit source
+        return translate(unit.getRoot(), source, false);
     }
 
     /**
