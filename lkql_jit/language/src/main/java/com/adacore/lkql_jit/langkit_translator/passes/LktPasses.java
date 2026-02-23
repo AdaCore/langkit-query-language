@@ -277,8 +277,8 @@ public final class LktPasses {
             frames.enterFrame(root);
             final List<LKQLNode> topLevelNodes = new ArrayList<>();
 
-            for (var child : root.fDecls().children()) {
-                topLevelNodes.add(buildDecl(((FullDecl) child).fDecl()));
+            for (var fullDecl : root.fDecls()) {
+                topLevelNodes.add(buildDecl(fullDecl.fDecl()));
             }
 
             frames.exitFrame();
