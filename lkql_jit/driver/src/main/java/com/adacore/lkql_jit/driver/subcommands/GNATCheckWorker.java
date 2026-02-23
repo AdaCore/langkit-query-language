@@ -6,6 +6,10 @@
 package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
+import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
 import java.io.File;
@@ -21,10 +25,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.Engine;
-import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.*;
 import org.graalvm.polyglot.io.IOAccess;
 import org.json.JSONObject;
 import picocli.CommandLine;
@@ -184,7 +185,13 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 checkerSource,
                 "checker.lkql"
             ).build();
-            context.eval(source);
+            try {
+                context.eval(source);
+            } catch (PolyglotException e) {
+                var diagnostics = new DiagnosticCollector();
+                diagnostics.handleException(e);
+                displayDiagnostics(diagnostics);
+            }
             return 0;
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -194,20 +201,20 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     // ----- Option parsing helpers -----
 
-    /** Throws an exception with the given message, related ot the provided LKQL file name. */
-    private static void errorInLKQLRuleFile(final String lkqlRuleFile, final String message)
-        throws LKQLRuleFileError {
-        errorInLKQLRuleFile(lkqlRuleFile, message, true);
+    private static String escape(String s) {
+        return s
+            .replace("\\", "\\\\")
+            .replace("\t", "\\t")
+            .replace("\b", "\\b")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\f", "\\f")
+            .replace("\"", "\\\"");
     }
 
-    private static void errorInLKQLRuleFile(
-        final String lkqlRuleFile,
-        final String message,
-        final boolean addTag
-    ) throws LKQLRuleFileError {
-        throw new LKQLRuleFileError(
-            (addTag ? "WORKER_ERROR: " : "") + message + " (" + lkqlRuleFile + ")"
-        );
+    private static void errorInLKQLRuleFile(final String lkqlRuleFile, final String message)
+        throws LKQLRuleFileError {
+        throw new LKQLRuleFileError("WORKER_ERROR: " + message + " (" + lkqlRuleFile + ")");
     }
 
     private static void emitMessageForTheDriver(
@@ -216,8 +223,20 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         final String message
     ) {
         System.err.println(
-            tag + ": {\"location\": \"" + location + "\", \"message\": \"" + message + "\"}"
+            tag + ": {\"location\": \"" + location + "\", \"message\": \"" + escape(message) + "\"}"
         );
+    }
+
+    private static void displayDiagnostics(DiagnosticCollector diagnostics) {
+        for (var diagnostic : diagnostics) {
+            var messageTag = switch (diagnostic) {
+                case Warning _ -> "WORKER_WARNING";
+                case Error _ -> "WORKER_ERROR";
+                default -> "WORKER_INFO";
+            };
+            var locationImage = diagnostic.location.map(SourceSection::shortImage);
+            emitMessageForTheDriver(messageTag, locationImage.orElse(""), diagnostic.message);
+        }
     }
 
     /**
@@ -248,9 +267,26 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 .build()
         ) {
             // Parse the LKQL rule configuration file with a polyglot context
-            final Source source = Source.newBuilder(Constants.LKQL_ID, lkqlFile).build();
-            final Value executable = context.parse(source);
-            final Value topLevel = executable.execute(false);
+            Value topLevel = null;
+            try {
+                final Source source = Source.newBuilder(Constants.LKQL_ID, lkqlFile).build();
+                final Value executable = context.parse(source);
+                topLevel = executable.execute(false);
+            } catch (PolyglotException e) {
+                // Collect diagnostics from the polyglot exception
+                var diagnostics = new DiagnosticCollector();
+                diagnostics.handleException(e);
+
+                // Display diagnostics if there are some
+                displayDiagnostics(diagnostics);
+
+                // Throw an exception
+                errorInLKQLRuleFile(lkqlFileBasename, "Error(s) in the LKQL rule file");
+            } catch (IOException e) {
+                errorInLKQLRuleFile(lkqlFileBasename, "Could not read file");
+            } catch (Exception e) {
+                errorInLKQLRuleFile(lkqlFileBasename, e.getMessage());
+            }
 
             // Get the mandatory general instances object and populate the result with it
             if (topLevel.hasMember("rules")) {
@@ -290,13 +326,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                     "LKQL config file must define a 'rules' top level object value"
                 );
             }
-        } catch (IOException e) {
-            errorInLKQLRuleFile(lkqlFileBasename, "Could not read file");
-        } catch (LKQLRuleFileError e) {
-            throw e;
-        } catch (Exception e) {
-            errorInLKQLRuleFile(lkqlFileBasename, e.getMessage(), false);
         }
+
+        // Return the result of the LKQL rule file parsing
         return res;
     }
 
