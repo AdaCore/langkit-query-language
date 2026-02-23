@@ -112,19 +112,6 @@ public final class LktPasses {
         }
 
         /**
-         * Return the binding name for "node", if it needs to be bound in the current scope, or null
-         * if it should not be bound.
-         */
-        private static String getBindingName(LktNode node) {
-            return switch (node) {
-                case LangkitRoot _ -> null;
-                case FunParamDecl _, LambdaParamDecl _ -> null;
-                case Decl d -> d.fSynName().getText();
-                default -> null;
-            };
-        }
-
-        /**
          * Internal helper for the public "buildFrames" pass, doing all the work of recursing on the
          * nodes and building the frame tree.
          */
@@ -135,12 +122,8 @@ public final class LktPasses {
                 return;
             }
 
-            var bindingName = getBindingName(node);
-            if (bindingName != null) {
-                builder.addBinding(bindingName);
-            }
-
             switch (node) {
+                case LangkitRoot _ -> {}
                 case FunParamDecl funParamDecl -> {
                     builder.addParameter(funParamDecl.fSynName().getText());
                 }
@@ -149,6 +132,9 @@ public final class LktPasses {
                 }
                 case FieldDecl fieldDecl -> {
                     builder.addParameter(fieldDecl.fSynName().getText());
+                }
+                case Decl decl -> {
+                    builder.addBinding(decl.fSynName().getText());
                 }
                 default -> {}
             }
@@ -421,7 +407,6 @@ public final class LktPasses {
                     final var vals = new Expr[params.length + 1];
 
                     for (int i = 0; i < params.length; i++) {
-                        frames.declareBinding(params[i]);
                         keys[i] = params[i];
                         vals[i] = new ReadParameter(
                             loc(structDecl.fDecls().getChild(i)),
