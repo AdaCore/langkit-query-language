@@ -1,0 +1,5 @@
+fun invalid_symbol() = i_dont_exist
+
+fun multiple_param_same_name(x, x) = false
+
+fun positional_after_named() = multiple_param_same_name(x=1, 2)

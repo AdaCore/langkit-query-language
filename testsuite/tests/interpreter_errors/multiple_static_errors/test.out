@@ -1,0 +1,12 @@
+script.lkql:3:33: error: Already existing parameter: x
+  3 | fun multiple_param_same_name(x, x) = false
+    |                                 ^
+
+script.lkql:1:24: error: Unknown symbol: i_dont_exist
+  1 | fun invalid_symbol() = i_dont_exist
+    |                        ^^^^^^^^^^^^
+
+script.lkql:5:62: error: Positional argument after a named one
+  5 | fun positional_after_named() = multiple_param_same_name(x=1, 2)
+    |                                                              ^
+
