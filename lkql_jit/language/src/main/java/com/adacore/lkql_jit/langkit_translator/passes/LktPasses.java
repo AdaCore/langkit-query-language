@@ -19,6 +19,7 @@ import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
+import com.adacore.lkql_jit.nodes.declarations.Import;
 import com.adacore.lkql_jit.nodes.declarations.*;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.*;
@@ -123,6 +124,15 @@ public final class LktPasses {
             }
 
             switch (node) {
+                case Liblktlang.Import importStmt -> {
+                    for (var importedName : importStmt.fImportedNames()) {
+                        if (!importedName.fRenaming().isNone()) {
+                            builder.addBinding(importedName.fRenaming().getText());
+                        } else {
+                            builder.addBinding(importedName.fOriginalName().getText());
+                        }
+                    }
+                }
                 case LangkitRoot _ -> {}
                 case FunParamDecl funParamDecl -> {
                     builder.addParameter(funParamDecl.fSynName().getText());
@@ -276,6 +286,33 @@ public final class LktPasses {
         private TopLevelList buildRoot(Liblktlang.LangkitRoot root) {
             frames.enterFrame(root);
             final List<LKQLNode> topLevelNodes = new ArrayList<>();
+
+            for (var importClause : root.fImports()) {
+                switch (importClause) {
+                    case Liblktlang.Import importStmt:
+                        for (var importedName : importStmt.fImportedNames()) {
+                            final var bindingName = !importedName.fRenaming().isNone()
+                                ? importedName.fRenaming().getText()
+                                : importedName.fOriginalName().getText();
+
+                            final var fileName = importedName.fOriginalName().getText() + ".lkt";
+                            frames.declareBinding(bindingName);
+                            topLevelNodes.add(
+                                new Import(
+                                    loc(importStmt),
+                                    fileName,
+                                    frames.getBinding(bindingName)
+                                )
+                            );
+                        }
+                        break;
+                    default:
+                        throw translationError(
+                            importClause,
+                            "Only simple imports statements are supported"
+                        );
+                }
+            }
 
             for (var fullDecl : root.fDecls()) {
                 topLevelNodes.add(buildDecl(fullDecl.fDecl()));
