@@ -140,12 +140,17 @@ public final class LktPasses {
                 builder.addBinding(bindingName);
             }
 
-            if (node instanceof FunParamDecl funParamDecl) {
-                builder.addParameter(funParamDecl.fSynName().getText());
-            } else if (node instanceof LambdaParamDecl lambdaParamDecl) {
-                builder.addParameter(lambdaParamDecl.fSynName().getText());
-            } else if (node instanceof FieldDecl fieldDecl) {
-                builder.addParameter(fieldDecl.fSynName().getText());
+            switch (node) {
+                case FunParamDecl funParamDecl -> {
+                    builder.addParameter(funParamDecl.fSynName().getText());
+                }
+                case LambdaParamDecl lambdaParamDecl -> {
+                    builder.addParameter(lambdaParamDecl.fSynName().getText());
+                }
+                case FieldDecl fieldDecl -> {
+                    builder.addParameter(fieldDecl.fSynName().getText());
+                }
+                default -> {}
             }
 
             var frameKind = needsFrame(node);
