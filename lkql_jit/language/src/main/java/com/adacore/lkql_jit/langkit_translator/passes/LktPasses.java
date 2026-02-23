@@ -295,12 +295,13 @@ public final class LktPasses {
                                 ? importedName.fRenaming().getText()
                                 : importedName.fOriginalName().getText();
 
-                            final var fileName = importedName.fOriginalName().getText() + ".lkt";
+                            final var moduleName = importedName.fOriginalName().getText();
                             frames.declareBinding(bindingName);
                             topLevelNodes.add(
                                 new Import(
                                     loc(importStmt),
-                                    fileName,
+                                    moduleName,
+                                    ".lkt",
                                     frames.getBinding(bindingName)
                                 )
                             );

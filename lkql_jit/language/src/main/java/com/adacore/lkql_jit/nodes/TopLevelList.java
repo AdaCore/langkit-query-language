@@ -152,6 +152,7 @@ public final class TopLevelList extends LKQLNode {
                                 new Import(
                                     this.getSourceSection(),
                                     f.getName().replace(Constants.LKQL_EXTENSION, ""),
+                                    Constants.LKQL_EXTENSION,
                                     -1
                                 )
                             )

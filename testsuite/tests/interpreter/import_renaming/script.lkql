@@ -1,0 +1,4 @@
+# lkql version: 2
+import module as md
+
+val _ = print(md.test)

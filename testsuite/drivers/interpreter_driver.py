@@ -2,6 +2,7 @@ import os
 from e3.testsuite.result import FailureReason
 from e3.testsuite.driver.classic import TestAbortWithFailure
 from drivers.base_driver import BaseDriver
+from e3.fs import find
 
 
 class InterpreterDriver(BaseDriver):
@@ -80,6 +81,25 @@ class InterpreterDriver(BaseDriver):
 
         return result
 
+    def refactor(self) -> None:
+        for source_filepath in find(self.test_env["working_dir"], "*.lkql"):
+            # Translate "foo/bar.lkql" to "foo/bar.lkt"
+            refactored_filepath = source_filepath.removesuffix(".lkql") + ".lkt"
+
+            refactor_result = self.shell(
+                [
+                    *self.command_base,
+                    "refactor",
+                    "-r",
+                    "TO_LKQL_V2",
+                    source_filepath,
+                ],
+                analyze_output=False,
+            )
+
+            with open(refactored_filepath, "w") as file:
+                file.write(refactor_result.out)
+
     def run(self) -> None:
 
         lkql_path = os.pathsep.join(
@@ -89,34 +109,24 @@ class InterpreterDriver(BaseDriver):
 
         script = self.test_env.get("script", "script.lkql")
 
-        # The default behavior is to try to refactor the "script.lkql" file
+        # The default behavior is to try to refactor the *.lkql script files
         # into the Lkt syntax and run the interpreter on it.
         #
         # We do this refactor unless the test is *explicitly* set to False.
         #
-        # This way we can compare the results of the rewritten script with the
+        # This way we can compare the results of the rewritten scripts with the
         # original and in the case where the flag is set to True throw an error
         # if the result is different
         if self.test_env.get("lkt_refactor", True):
-            # Translate "script.lkql" to "refactored.lkql"
-            refactored_file_path = self.working_dir("refactored.lkql")
-            with open(refactored_file_path, "w") as file:
-                file.write(
-                    self.shell(
-                        [
-                            *self.command_base,
-                            "refactor",
-                            "-r",
-                            "TO_LKQL_V2",
-                            script,
-                        ],
-                        analyze_output=False,
-                    ).out
-                )
+
+            # Run refactor step
+            self.refactor()
+
+            script_lkt = script.removesuffix(".lkql") + ".lkt"
 
             # Run test on refactored script
             lkt_result = self.check_run(
-                self.build_args(refactored_file_path),
+                self.build_args(script_lkt),
                 lkql_path=lkql_path,
                 analyze_output=False,
             )
