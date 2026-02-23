@@ -12,7 +12,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverter;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverterNodeGen;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -54,7 +54,7 @@ public final class RewritingContextMethods {
                     toReplace.replace(byNode);
                 }
             } catch (Libadalang.LangkitException e) {
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLRuntimeError.langkitError(e, this);
             }
             return ctx;
         }
@@ -101,7 +101,7 @@ public final class RewritingContextMethods {
             try {
                 convert(frame, node, false).insertBefore(convert(frame, newNode, false));
             } catch (Libadalang.LangkitException e) {
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLRuntimeError.langkitError(e, this);
             }
             return ctx;
         }
@@ -123,7 +123,7 @@ public final class RewritingContextMethods {
             try {
                 convert(frame, node, false).insertAfter(convert(frame, newNode, false));
             } catch (Libadalang.LangkitException e) {
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLRuntimeError.langkitError(e, this);
             }
             return ctx;
         }
@@ -142,7 +142,7 @@ public final class RewritingContextMethods {
             try {
                 convert(frame, node, false).insertFirst(convert(frame, newNode, false));
             } catch (Libadalang.LangkitException e) {
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLRuntimeError.langkitError(e, this);
             }
             return ctx;
         }
@@ -161,7 +161,7 @@ public final class RewritingContextMethods {
             try {
                 convert(frame, node, false).insertLast(convert(frame, newNode, false));
             } catch (Libadalang.LangkitException e) {
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLRuntimeError.langkitError(e, this);
             }
             return ctx;
         }
@@ -183,7 +183,7 @@ public final class RewritingContextMethods {
             try {
                 convert(frame, objToRemove, false).removeFromParent();
             } catch (Libadalang.LangkitException e) {
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLRuntimeError.langkitError(e, this);
             }
             return ctx;
         }
@@ -226,7 +226,7 @@ public final class RewritingContextMethods {
             try {
                 return ctx.createFromTemplate(template, grammarRule, args);
             } catch (Exception e) {
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLRuntimeError.langkitError(e, this);
             }
         }
     }

@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.pass;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.adacore.lkql_jit.values.DynamicAdaNode;
@@ -75,7 +75,7 @@ public abstract class PassExpr extends Expr {
 
     @Fallback
     public Object onOther(VirtualFrame frame, @SuppressWarnings("unused") Object obj) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     @Override

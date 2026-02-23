@@ -9,7 +9,6 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.BaseChecker;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -91,14 +90,6 @@ public class CheckerUtils {
             SourceLocation lkqlErrorLocation,
             String ruleName
         );
-
-        /** Given a call stack, returns a formatted representation of this stack. */
-        default String callStack(Throwable e) {
-            if (e instanceof LKQLRuntimeException lkqlRuntimeException) {
-                return lkqlRuntimeException.formatCallStack(true, true);
-            }
-            return "";
-        }
 
         /**
          * Emit a diagnostic. Location parameters can be null. If both are null, then a non located

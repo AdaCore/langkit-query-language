@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.pass;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
@@ -77,7 +77,7 @@ public class RunPass extends LKQLNode {
                     | ArityException
                     | UnsupportedMessageException e
                 ) {
-                    LKQLRuntimeException.fromJavaException(e, this);
+                    throw LKQLEngineException.create(e, this);
                 }
 
                 debugAST(i, units[i]);

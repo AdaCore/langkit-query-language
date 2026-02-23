@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.langkit_translator.passes;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.nodes.declarations.FunctionDeclaration;
 import com.adacore.lkql_jit.nodes.expressions.DynamicConstructorCall;
 import com.adacore.lkql_jit.nodes.pass.PassExpr;
@@ -25,6 +25,12 @@ import java.util.stream.Stream;
 public final class ResolutionPass {
 
     private Map<Integer, PassExpr> slotMap;
+
+    private final LKQLStaticErrors errors;
+
+    public ResolutionPass(LKQLStaticErrors errors) {
+        this.errors = errors;
+    }
 
     /**
      * This is the main entry point of the pass and the only
@@ -76,19 +82,19 @@ public final class ResolutionPass {
 
         for (var constructor : collectOfType(DynamicConstructorCall.class, passExpr.getRewrite())) {
             final var clazz = ctx.env.get(constructor.nodeKind);
-            if (clazz == null) throw LKQLRuntimeException.create(
+            if (clazz == null) errors.addDiag(
                 "class does not exist, expected one of " + ctx.env.keySet(),
-                constructor
+                constructor.getSourceSection()
             );
             if (
                 clazz.fields().size() != constructor.arity() ||
                 !clazz.fields().containsAll(List.of(constructor.getArgNames()))
-            ) throw LKQLRuntimeException.create(
+            ) errors.addDiag(
                 "wrong arguments, expected " +
                     clazz.fields() +
                     " instead of " +
                     List.of(constructor.getArgNames()),
-                constructor
+                constructor.getSourceSection()
             );
         }
     }

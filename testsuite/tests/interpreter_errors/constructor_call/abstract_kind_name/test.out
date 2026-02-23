@@ -1,3 +1,4 @@
 script.lkql:1:22: error: Expect a concrete kind
   1 | val impossible = new BasicDecl(null)
     |                      ^^^^^^^^^
+

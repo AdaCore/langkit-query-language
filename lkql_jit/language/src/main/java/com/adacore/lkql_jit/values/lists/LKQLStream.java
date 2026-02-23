@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.values.lists;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -74,7 +74,7 @@ public class LKQLStream extends BaseLKQLLazyList {
             switch (tailValue) {
                 case LKQLStream lazyList -> this.tailCache = lazyList;
                 case LKQLUnit _ -> this.tailCache = NIL;
-                default -> throw LKQLRuntimeException.wrongType(
+                default -> throw LKQLRuntimeError.wrongType(
                     LKQLTypesHelper.LKQL_LAZY_LIST,
                     LKQLTypesHelper.fromJava(tailValue),
                     null

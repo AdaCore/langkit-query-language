@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.values.lists;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
@@ -59,7 +59,7 @@ public final class LKQLFlattenResult extends BaseLKQLLazyList {
             if (nextInner instanceof Iterable nextInnerIterable) {
                 this.innerIterator = nextInnerIterable.iterator();
             } else {
-                throw LKQLRuntimeException.wrongType(
+                throw LKQLRuntimeError.wrongType(
                     LKQLTypesHelper.LKQL_ITERABLE,
                     LKQLTypesHelper.fromJava(nextInner),
                     null

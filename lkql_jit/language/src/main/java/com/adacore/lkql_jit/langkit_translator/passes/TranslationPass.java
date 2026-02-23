@@ -9,8 +9,8 @@ import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.exception.TranslatorException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -72,15 +72,12 @@ public final class TranslationPass
      * @param source The source of the AST to translate.
      * @param frames The descriptions of the script frames.
      */
-    public TranslationPass(final Source source, final ScriptFrames frames) {
-        super(source, frames);
-    }
-
-    private RuntimeException multipleSameNameKeys(Liblkqllang.LkqlNode node, String key) {
-        throw translationError(
-            node,
-            "Multiple keys with the same name in the object: \"" + key + "\""
-        );
+    public TranslationPass(
+        final Source source,
+        final ScriptFrames frames,
+        LKQLStaticErrors errors
+    ) {
+        super(source, frames, errors);
     }
 
     /**
@@ -104,16 +101,14 @@ public final class TranslationPass
             for (Liblkqllang.LkqlNode subBlock : ((Liblkqllang.BlockStringLiteral) stringLiteral).fDocs().children()) {
                 var str = StringUtils.translateEscapes(subBlock.getText().substring(2));
 
-                if (str.length() > 0) {
+                if (!str.isEmpty()) {
                     // First character should be a whitespace, as specified in
                     // the user manual.
                     if (str.charAt(0) != ' ') {
-                        throw translationError(
-                            stringLiteral,
-                            "Invalid blockstring: first character should be whitespace"
-                        );
+                        errors.invalidBlockStringFirstChar(loc(subBlock));
+                    } else {
+                        builder.append(str.substring(1)).append("\n");
                     }
-                    builder.append(str.substring(1)).append("\n");
                 }
             }
             res = builder.toString().trim();
@@ -139,7 +134,7 @@ public final class TranslationPass
      */
     @Override
     public LKQLNode visit(Liblkqllang.LkqlNode lkqlNode) {
-        throw new TranslatorException("Cannot visit a raw LKQL node during the translation pass");
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     /**
@@ -694,11 +689,18 @@ public final class TranslationPass
     public LKQLNode visit(Liblkqllang.UpperDotAccess upperDotAccess) {
         final var receiver = upperDotAccess.fReceiver();
         final var member = upperDotAccess.fMember();
-        return new MemberRefAccess(
-            loc(upperDotAccess),
-            new Identifier(loc(receiver), receiver.getText()),
-            new Identifier(loc(member), member.getText())
-        );
+
+        // Get the member reference in the node description
+        final var nodeDescription = getNodeDescription(receiver);
+        if (nodeDescription != null) {
+            var fieldDescription = nodeDescription.fieldDescriptions.get(member.getText());
+            if (fieldDescription != null) {
+                return new MemberRefAccess(loc(upperDotAccess), fieldDescription.memberRef);
+            } else {
+                errors.noSuchField(loc(member));
+            }
+        }
+        return null;
     }
 
     // --- In clause
@@ -820,10 +822,11 @@ public final class TranslationPass
         try {
             return IntegerPatternNodeGen.create(
                 loc(integerPattern),
-                Integer.parseInt(integerPattern.getText())
+                Long.parseLong(integerPattern.getText())
             );
         } catch (NumberFormatException e) {
-            throw translationError(integerPattern, "Invalid number literal for pattern");
+            errors.invalidIntegerPattern(loc(integerPattern));
+            return null;
         }
     }
 
@@ -904,7 +907,8 @@ public final class TranslationPass
             } else if (assoc instanceof Liblkqllang.SplatPattern splatPattern) {
                 splat = (SplatPattern) this.visit(splatPattern);
             } else {
-                throw translationError(objectPattern, "Invalid assoc in object pattern");
+                // According to the LKQL parser, this is not possible
+                throw LKQLEngineException.shouldNotReachHere();
             }
         }
 
@@ -1200,7 +1204,7 @@ public final class TranslationPass
             final Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
             final String key = assoc.fName().getText().toLowerCase();
             if (keys.contains(key)) {
-                throw multipleSameNameKeys(objectLiteral, key);
+                errors.multipleSameNameKeys(key, loc(objectLiteral));
             }
             keys.add(key);
             values[i] = (Expr) assoc.fExpr().accept(this);
@@ -1246,7 +1250,7 @@ public final class TranslationPass
             );
             final String key = assoc.fName().getText().toLowerCase();
             if (keys.contains(key)) {
-                throw multipleSameNameKeys(atObjectLiteral, key);
+                errors.multipleSameNameKeys(key, loc(atObjectLiteral));
             }
             keys.add(key);
             final Liblkqllang.Expr exprBase = assoc.fExpr();
@@ -1495,18 +1499,37 @@ public final class TranslationPass
      */
     @Override
     public LKQLNode visit(Liblkqllang.ConstructorCall constructorCall) {
+        // Get the constructor argument list
+        var argumentList = (ArgList) constructorCall.fArguments().accept(this);
+
+        // Constructors aren't the same in passes and standard mode
         if (inPass) {
+            // Check that all argument are named
+            for (var arg : argumentList.getArgs()) {
+                if (!(arg instanceof NamedArg)) errors.addDiag(
+                    "constructors in passes only accept named args",
+                    arg.getSourceSection()
+                );
+            }
             return new DynamicConstructorCall(
                 loc(constructorCall),
                 constructorCall.fName().getText(),
-                (ArgList) constructorCall.fArguments().accept(this)
+                argumentList
             );
         } else {
-            return new ConstructorCall(
-                loc(constructorCall),
-                new Identifier(loc(constructorCall.fName()), constructorCall.fName().getText()),
-                (ArgList) constructorCall.fArguments().accept(this)
-            );
+            // Get the node kind
+            var nodeDescription = getNodeDescription(constructorCall.fName());
+            if (nodeDescription != null) {
+                return new ConstructorCall(
+                    loc(constructorCall),
+                    new Identifier(loc(constructorCall.fName()), constructorCall.fName().getText()),
+                    nodeDescription,
+                    argumentList,
+                    errors
+                );
+            } else {
+                return null;
+            }
         }
     }
 
@@ -1638,7 +1661,10 @@ public final class TranslationPass
                 nodeKindPattern.fKindName().getText()
             );
         } else {
-            return new NodeKindPattern(loc(nodeKindPattern), nodeKindPattern.fKindName().getText());
+            return new NodeKindPattern(
+                loc(nodeKindPattern),
+                getNodeClass(nodeKindPattern.fKindName())
+            );
         }
     }
 
@@ -1783,7 +1809,7 @@ public final class TranslationPass
         final int slot = this.frames.getBinding(name);
 
         // Return the import node
-        return new Import(loc(anImport), name, Constants.LKQL_EXTENSION, slot);
+        return new Import(loc(anImport), name, Constants.LKQL_EXTENSION, slot, errors);
     }
 
     // --- Tuples
@@ -1828,18 +1854,26 @@ public final class TranslationPass
                 default:
             }
         }
-        if (addCollector.size() != 1) throw translationError(
-            passDecl,
-            "pass declaration should contain exactly one `add' block"
+
+        // Check pass validity
+        var previousSize = errors.diagnostics.size();
+        if (addCollector.size() != 1) errors.addDiag(
+            "pass declaration should contain exactly one `add' block",
+            loc(passDecl)
         );
-        if (delCollector.size() != 1) throw translationError(
-            passDecl,
-            "pass declaration should contain exactly one `del' block"
+        if (delCollector.size() != 1) errors.addDiag(
+            "pass declaration should contain exactly one `del' block",
+            loc(passDecl)
         );
-        if (rewriteCollector.size() != 1) throw translationError(
-            passDecl,
-            "pass declaration should contain exactly one `rewrite' block"
+        if (rewriteCollector.size() != 1) errors.addDiag(
+            "pass declaration should contain exactly one `rewrite' block",
+            loc(passDecl)
         );
+
+        // If the pass isn't valid, return a null node
+        if (errors.diagnostics.size() != previousSize) {
+            return null;
+        }
 
         // Register pass as fake function
         final String name = passDecl.fPassName().getText();
@@ -1919,9 +1953,7 @@ public final class TranslationPass
                     classDecls.add(classDecl);
                     break;
                 default:
-                    throw LKQLRuntimeException.shouldNotHappen(
-                        "found node of type " + translated.getClass().getCanonicalName()
-                    );
+                    throw LKQLEngineException.shouldNotReachHere();
             }
         }
         return new AddBlock(loc(addBlock), classDecls, prefixFields);
@@ -1947,9 +1979,7 @@ public final class TranslationPass
                     classes.add(ident.getText());
                     break;
                 default:
-                    throw LKQLRuntimeException.shouldNotHappen(
-                        "found node of type " + clause.getClass().getCanonicalName()
-                    );
+                    throw LKQLEngineException.shouldNotReachHere();
             }
         }
 

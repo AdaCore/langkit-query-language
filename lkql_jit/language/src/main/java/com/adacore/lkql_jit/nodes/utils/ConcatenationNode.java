@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.utils;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -42,7 +42,7 @@ public abstract class ConcatenationNode extends Node {
 
     @Fallback
     protected void nonConcatenable(Object left, Object right, LKQLNode caller) {
-        throw LKQLRuntimeException.unsupportedOperation(
+        throw LKQLRuntimeError.unsupportedOperation(
             LKQLTypesHelper.fromJava(left),
             "&",
             LKQLTypesHelper.fromJava(right),

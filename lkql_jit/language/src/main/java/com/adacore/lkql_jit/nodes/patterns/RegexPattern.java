@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLPattern;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -43,7 +43,7 @@ public abstract class RegexPattern extends Pattern {
         try {
             this.pattern = LKQLPattern.create(regex, true, LKQLLanguage.getContext(this).getEnv());
         } catch (AbstractTruffleException e) {
-            throw LKQLRuntimeException.regexSyntaxError(regex, this);
+            throw LKQLRuntimeError.regexSyntaxError(regex, this);
         }
     }
 

@@ -5,9 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
-import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.values.DynamicAdaNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -37,12 +35,6 @@ public final class DynamicConstructorCall extends Expr {
         // Get the node kind and if this is a token node
         this.nodeKind = nodeKind;
         this.args = argList;
-        for (var arg : argList.getArgs()) {
-            if (!(arg instanceof NamedArg)) throw LKQLRuntimeException.create(
-                "constructors in passes only accept named args",
-                arg
-            );
-        }
     }
 
     public int arity() {

@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.values.DynamicAdaNode;
 import com.adacore.lkql_jit.values.LKQLProperty;
@@ -90,7 +90,7 @@ public abstract class NodePatternField extends NodePatternDetail {
 
         // Verify if the field method is null
         if (property.description == null) {
-            throw LKQLRuntimeException.noSuchField(this);
+            throw LKQLRuntimeError.noSuchField(this);
         }
 
         // Execute the field detail

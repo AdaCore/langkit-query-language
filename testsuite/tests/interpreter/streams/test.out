@@ -39,3 +39,4 @@ e
 script.lkql:62:15: error: Invalid index: 6
   62 | val _ = print(err_s[6])
      |               ^^^^^^^^
+

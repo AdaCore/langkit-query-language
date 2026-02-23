@@ -11,7 +11,7 @@ import com.adacore.lkql_jit.checker.BaseChecker;
 import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -489,7 +489,7 @@ public final class LKQLContext {
                 // We should not get any scenario variable if we are being run
                 // without a project file.
                 if (vars.length != 0) {
-                    throw LKQLRuntimeException.create(
+                    throw LKQLEngineException.create(
                         "Scenario variable specifications require a project file"
                     );
                 }
@@ -659,7 +659,7 @@ public final class LKQLContext {
 
                 // Verify that the instantiated rule exists
                 if (checker == null) {
-                    throw LKQLRuntimeException.create(
+                    throw LKQLEngineException.create(
                         "Could not find any rule named " + instance.ruleName()
                     );
                 }

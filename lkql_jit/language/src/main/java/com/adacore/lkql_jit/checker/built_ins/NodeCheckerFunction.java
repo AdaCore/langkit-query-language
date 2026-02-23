@@ -13,8 +13,8 @@ import com.adacore.lkql_jit.annotations.BuiltInFunction;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.exception.LangkitException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
 import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
@@ -32,6 +32,7 @@ import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
+import com.oracle.truffle.api.nodes.Node;
 import java.util.LinkedList;
 
 public final class NodeCheckerFunction {
@@ -158,9 +159,7 @@ public final class NodeCheckerFunction {
                     // Get the stack frame below this one to get a location for the error
                     var stackTrace = TruffleStackTrace.getStackTrace(e);
                     var stackFrame = stackTrace.get(1);
-                    var callerLocation = LKQLRuntimeException.getClosestNodeWithSourceInfo(
-                        stackFrame.getLocation()
-                    );
+                    var callerLocation = getClosestNodeWithSourceInfo(stackFrame.getLocation());
 
                     context
                         .getDiagnosticEmitter()
@@ -240,29 +239,34 @@ public final class NodeCheckerFunction {
                 ) {
                     try {
                         this.applyNodeRule(frame, checker, currentNode, context);
-                    } catch (LangkitException e) {
-                        // Report LAL exception only in debug mode
-                        if (context.isCheckerDebug()) {
+                    } catch (LKQLRuntimeError e) {
+                        if (e.getCause() != null) {
+                            if (context.isCheckerDebug()) {
+                                context
+                                    .getDiagnosticEmitter()
+                                    .emitDiagnostic(
+                                        CheckerUtils.MessageKind.ERROR,
+                                        e.getMessage(),
+                                        new LangkitLocationWrapper(currentNode, context.linesCache),
+                                        e.getLocation() == null
+                                            ? null
+                                            : new SourceSectionWrapper(
+                                                  e.getLocation().getSourceSection()
+                                              ),
+                                        checker.checker.getName()
+                                    );
+                            }
+                        } else {
                             context
                                 .getDiagnosticEmitter()
                                 .emitDiagnostic(
                                     CheckerUtils.MessageKind.ERROR,
-                                    e.getMsg(),
+                                    e.getMessage(),
                                     new LangkitLocationWrapper(currentNode, context.linesCache),
-                                    new SourceSectionWrapper(e.getLoc()),
+                                    new SourceSectionWrapper(e.getLocation().getSourceSection()),
                                     checker.checker.getName()
                                 );
                         }
-                    } catch (LKQLRuntimeException e) {
-                        context
-                            .getDiagnosticEmitter()
-                            .emitDiagnostic(
-                                CheckerUtils.MessageKind.ERROR,
-                                e.getErrorMessage(),
-                                new LangkitLocationWrapper(currentNode, context.linesCache),
-                                e.getSourceLoc(),
-                                checker.checker.getName()
-                            );
                     }
                 }
             }
@@ -289,7 +293,7 @@ public final class NodeCheckerFunction {
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLEngineException.create(e);
             }
 
             if (ruleResult) {
@@ -324,6 +328,14 @@ public final class NodeCheckerFunction {
                     ((Libadalang.AdaNode) node).pGenericInstantiations(),
                     context
                 );
+        }
+
+        /** Get the closest parent node with a location from the provided node. */
+        private static Node getClosestNodeWithSourceInfo(Node node) {
+            while (node != null && node.getSourceSection() == null) {
+                node = node.getParent();
+            }
+            return node;
         }
 
         // ----- Inner classes -----

@@ -9,7 +9,8 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.annotations.*;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.utils.ConcatenationNode;
 import com.adacore.lkql_jit.nodes.utils.ValueCombiner;
 import com.adacore.lkql_jit.tools.TextWriter;
@@ -80,7 +81,7 @@ public class BuiltInFunctions {
                     LKQLLanguage.getContext(this).getEnv()
                 );
             } catch (AbstractTruffleException e) {
-                throw LKQLRuntimeException.regexSyntaxError(regex, this);
+                throw LKQLRuntimeError.regexSyntaxError(regex, this);
             }
         }
     }
@@ -190,7 +191,7 @@ public class BuiltInFunctions {
                     | UnsupportedTypeException
                     | UnsupportedMessageException e
                 ) {
-                    throw LKQLRuntimeException.fromJavaException(e, this);
+                    throw LKQLEngineException.create(e);
                 }
             }
             return initValue;
@@ -429,7 +430,7 @@ public class BuiltInFunctions {
                         | UnsupportedTypeException
                         | UnsupportedMessageException e
                     ) {
-                        throw LKQLRuntimeException.fromJavaException(e, this);
+                        throw LKQLEngineException.create(e);
                     }
                     done++;
                     return true;

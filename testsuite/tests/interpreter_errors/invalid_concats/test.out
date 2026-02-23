@@ -1,3 +1,4 @@
 script.lkql:1:7: error: Unsupported operation: List & Int
   1 | print([] & 2)
     |       ^^^^^^
+

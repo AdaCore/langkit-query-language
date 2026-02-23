@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.pass;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.langkit_translator.passes.ResolutionPass;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -29,7 +29,7 @@ public class PrefixField extends LKQLNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     @Override

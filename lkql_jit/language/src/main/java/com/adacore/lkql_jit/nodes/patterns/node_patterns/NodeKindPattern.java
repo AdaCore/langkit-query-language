@@ -6,8 +6,6 @@
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -31,15 +29,14 @@ public final class NodeKindPattern extends Pattern {
      * Create a new node kind pattern node.
      *
      * @param location The location of the node in the source.
-     * @param kindName The node kind name.
+     * @param nodeClazz The node class to match.
      */
-    public NodeKindPattern(SourceSection location, String kindName) {
+    public NodeKindPattern(
+        SourceSection location,
+        Class<? extends LangkitSupport.NodeInterface> nodeClazz
+    ) {
         super(location);
-        final var description = Libadalang.NODE_DESCRIPTION_MAP.get(kindName);
-        if (description == null) {
-            throw LKQLRuntimeException.invalidKindName(this);
-        }
-        this.nodeClazz = description.clazz;
+        this.nodeClazz = nodeClazz;
     }
 
     // ----- Execution methods -----

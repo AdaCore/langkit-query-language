@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescriptor;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.nodes.root_nodes.QueryComprehensionRootNode;
@@ -65,7 +65,7 @@ public abstract class QueryComprehension extends Expr {
 
     @Fallback
     protected void fallback(VirtualFrame frame, Object notIterable) {
-        throw LKQLRuntimeException.wrongType(
+        throw LKQLRuntimeError.wrongType(
             LKQLTypesHelper.LKQL_ITERABLE,
             LKQLTypesHelper.fromJava(notIterable),
             this.getSource()

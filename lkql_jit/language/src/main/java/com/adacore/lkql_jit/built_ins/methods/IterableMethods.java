@@ -9,7 +9,7 @@ import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
 import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -181,7 +181,7 @@ public class IterableMethods {
                     | UnsupportedTypeException
                     | UnsupportedMessageException e
                 ) {
-                    throw LKQLRuntimeException.fromJavaException(e, this);
+                    throw LKQLEngineException.create(e);
                 }
             }
             return false;
@@ -219,7 +219,7 @@ public class IterableMethods {
                     | UnsupportedTypeException
                     | UnsupportedMessageException e
                 ) {
-                    throw LKQLRuntimeException.fromJavaException(e, this);
+                    throw LKQLEngineException.create(e);
                 }
             }
             return true;

@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.block_expression;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -52,7 +52,7 @@ public final class BlockBodyExpr extends BlockBody {
         if (LKQLTypeSystemGen.isNullish(result)) {
             return result;
         } else {
-            throw LKQLRuntimeException.ignoredExpressionReturn(this);
+            throw LKQLRuntimeError.ignoredExpressionReturn(this);
         }
     }
 

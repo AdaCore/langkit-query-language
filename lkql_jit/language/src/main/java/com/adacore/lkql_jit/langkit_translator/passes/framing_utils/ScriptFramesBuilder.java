@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
 import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.lkql_jit.built_ins.AllBuiltIns;
-import com.adacore.lkql_jit.exception.TranslatorException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public final class ScriptFramesBuilder {
         // If the frame is the first to be opened set it as the root
         if (this.root == null) {
             if (isVirtual) {
-                throw new TranslatorException("Cannot open a virtual frame as a root frame");
+                throw LKQLEngineException.create("Cannot open a virtual frame as a root frame");
             }
             this.root = newFrame;
         }
@@ -148,7 +148,7 @@ public final class ScriptFramesBuilder {
      */
     public ScriptFrames build(GlobalScope globalScope) {
         if (this.current != this.root) {
-            throw new TranslatorException("Framing pass didn't close all opened frames");
+            throw LKQLEngineException.create("Framing pass didn't close all opened frames");
         }
 
         // If no frame has been opened return an empty frame

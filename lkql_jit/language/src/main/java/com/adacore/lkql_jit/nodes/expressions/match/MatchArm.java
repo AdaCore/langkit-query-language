@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.match;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
@@ -54,7 +54,7 @@ public class MatchArm extends LKQLNode {
      */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     /**

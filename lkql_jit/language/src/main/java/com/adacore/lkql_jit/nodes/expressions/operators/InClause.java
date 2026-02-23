@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
@@ -58,7 +58,7 @@ public abstract class InClause extends BinOp {
      */
     @Fallback
     protected void notIterable(@SuppressWarnings("unused") Object elem, Object notIterable) {
-        throw LKQLRuntimeException.wrongType(
+        throw LKQLRuntimeError.wrongType(
             LKQLTypesHelper.LKQL_LIST,
             LKQLTypesHelper.fromJava(notIterable),
             getRight()

@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.values.lists;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.values.LKQLFunction;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
@@ -57,7 +57,7 @@ public class LKQLMapResult extends BaseLKQLLazyList {
                 );
             }
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
-            throw LKQLRuntimeException.fromJavaException(e, null);
+            throw LKQLEngineException.create(e);
         }
     }
 }
