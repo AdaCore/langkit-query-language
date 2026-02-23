@@ -1,11 +1,12 @@
 BUILD_MODE=dev
+LIBRARY_TYPES=static,relocatable
 PROCS=0
 LANGKIT_PYTHON=python
 MAVEN=mvn
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
 LKM="$(LANGKIT_PYTHON)" -m langkit.scripts.lkm
 ADDITIONAL_LKM_ARGS=
-LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=relocatable --maven-executable $(MAVEN) -j$(PROCS) $(ADDITIONAL_LKM_ARGS)
+LKM_ARGS=--build-mode=$(BUILD_MODE) --library-types=$(LIBRARY_TYPES) --maven-executable $(MAVEN) -j$(PROCS) $(ADDITIONAL_LKM_ARGS)
 ADDITIONAL_MAVEN_ARGS=
 MAVEN_ARGS=-Dconfig.python="$(LANGKIT_PYTHON)" $(ADDITIONAL_MAVEN_ARGS)
 
