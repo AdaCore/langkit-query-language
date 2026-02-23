@@ -53,11 +53,15 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             case RuleViolation _ -> "rule violation";
             case RawMessage _ -> throw new RuntimeException("Shouldn't reach here");
         };
+        var leftPadding = switch (diagnostic) {
+            case RuleViolation _ -> 0;
+            default -> 2;
+        };
 
         // Then output the diagnostic
         output.print(bold(locationName.orElse("") + kindStyle.apply(kindName + ": ")));
         output.println(diagnostic.message);
-        diagnostic.location.ifPresent(l -> printSourceSnippet(l, this::yellow, 0));
+        diagnostic.location.ifPresent(l -> printSourceSnippet(l, this::yellow, leftPadding));
 
         // In the case of an error, show the call stack if there is one
         if (diagnostic instanceof Error error) {
