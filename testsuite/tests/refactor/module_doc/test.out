@@ -1,0 +1,18 @@
+# lkql version: 2
+
+# A comment at the top
+
+|"" This is some module doc
+|"" that spans multiple lines
+# a comment may be in here
+|"" but this is still module doc
+
+|"" Oops I'm late to the party :p
+
+
+# A comment after
+
+val _ = print(1+1)
+
+|" Other docstrings are OK
+val i = 1 + 1

@@ -113,10 +113,17 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             s.append(textRange(cursor, child.tokenStart().previous()));
             // copy child
 
-            if (child instanceof Liblkqllang.Expr) {
-                s.append("val _ = ");
+            if (i == 0 && child instanceof Liblkqllang.BlockStringLiteral doc) {
+                // module doc
+                s.append("|\"\"");
+                s.append(doc.getText().replace("\n|\"", "\n|\"\"").substring(2));
+            } else {
+                if (child instanceof Liblkqllang.Expr) {
+                    s.append("val _ = ");
+                }
+                s.append(refactorNode(child));
             }
-            s.append(refactorNode(child));
+
             // fast forward token cursor after child
             cursor = child.tokenEnd().next();
         }

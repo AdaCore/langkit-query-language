@@ -1,6 +1,7 @@
-## Add function
-## Returns the sum of ``a`` and ``b``
-fun add(a, b) = a + b
+fun add(a, b) =
+|" Add function
+|" Returns the sum of ``a`` and ``b``
+a + b
 
-## Sum of 1 and 2
+|" Sum of 1 and 2
 val c = add (1, 2)
