@@ -494,9 +494,8 @@ public final class LktPasses {
                     final var clause = (Liblktlang.BlockExprClause) blockExpr
                         .fClauses()
                         .getChild(i);
-                    final var valDecl =
-                        (Liblktlang.ValDecl) ((Liblktlang.FullDecl) clause.fClause()).fDecl();
-                    blockBody[i] = new BlockBodyDecl(loc(valDecl), buildDecl(valDecl));
+                    final var decl = ((Liblktlang.FullDecl) clause.fClause()).fDecl();
+                    blockBody[i] = new BlockBodyDecl(loc(decl), buildDecl(decl));
                 }
                 final var subExpr = buildExpr(
                     (Liblktlang.Expr) blockExpr
