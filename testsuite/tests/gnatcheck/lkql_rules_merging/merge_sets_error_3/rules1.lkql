@@ -1,3 +1,0 @@
-val rules = @{
-    Style_Checks: [{Arg: "a"}]
-}

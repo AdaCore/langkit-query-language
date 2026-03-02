@@ -1,4 +1,0 @@
-driver: 'checker'
-rule_name: Use_If_Expressions
-input_sources: ['stmt.adb']
-auto_fix: True

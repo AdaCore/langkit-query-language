@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Generic_IN_OUT_Objects
-input_sources: ['gen.ads']

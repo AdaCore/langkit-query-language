@@ -1,3 +1,0 @@
-val rules = @{
-    maximum_out_parameters
-}

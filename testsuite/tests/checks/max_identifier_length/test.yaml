@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'Max_Identifier_Length'
-input_sources: ['test.adb']

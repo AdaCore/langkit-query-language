@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'Metrics_Cyclomatic_Complexity'
-input_sources: ['proc.adb']

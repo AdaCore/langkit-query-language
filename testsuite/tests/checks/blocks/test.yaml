@@ -1,3 +1,0 @@
-driver: 'checker'
-project: 'checks_blocks.gpr'
-rule_name: Blocks

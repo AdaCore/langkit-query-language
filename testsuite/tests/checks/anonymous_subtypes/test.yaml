@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Anonymous_Subtypes
-input_sources: ['anonymous_subtypes.ads']

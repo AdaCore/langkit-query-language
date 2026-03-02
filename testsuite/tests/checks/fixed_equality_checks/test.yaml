@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Fixed_Equality_Checks
-input_sources: ['fixed_equality_checks.adb']

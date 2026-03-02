@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Misnamed_Controlling_Parameters
-input_sources: ['param.ads']

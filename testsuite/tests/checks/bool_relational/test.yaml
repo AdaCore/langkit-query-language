@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Boolean_Relational_Operators
-input_sources: ['proc.adb']

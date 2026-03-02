@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'Raising_Predefined_Exceptions'
-project: 'prj.gpr'

@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: KP_U923_018
-input_sources: ['p.ads']

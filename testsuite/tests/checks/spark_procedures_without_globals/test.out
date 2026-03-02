@@ -1,4 +1,0 @@
-test.ads:3:14: rule violation: SPARK procedure doesn't have a Global aspect
-3 |    procedure P with SPARK_Mode => On; -- FLAG
-  |              ^
-

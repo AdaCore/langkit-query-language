@@ -1,7 +1,0 @@
-@check(help="possible occurrence of KP 19447",
-       message="possible occurrence of KP 19447")
-fun kp_19447(node) =
-    |" To be safe, this KP detector flags all references to the Finalization_Size
-    |" attribute.
-    node is AttributeRef
-    when node.f_attribute.p_name_is("Finalization_Size")

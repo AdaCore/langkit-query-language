@@ -1,8 +1,0 @@
-p.adb:29:14: rule violation: possible occurrence of KP U812-034
-29 |    Register (Thelwx.Field1'Access);   --  FLAG
-   |              ^^^^^^^^^^^^^^^^^^^^
-
-p.adb:30:13: rule violation: possible occurrence of KP U812-034
-30 |    Mylwx := Thelwx'Access;            --  FLAG
-   |             ^^^^^^^^^^^^^
-

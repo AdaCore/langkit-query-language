@@ -1,3 +1,0 @@
-val rules = @{
-    numeric_literals: {n: 3, statements_only: true}
-}

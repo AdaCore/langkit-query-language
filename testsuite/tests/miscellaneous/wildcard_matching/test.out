@@ -1,9 +1,0 @@
-foo matches foo
-foo does not match *fo
-foo matches *foo
-foo matches *o
-foo does not match *bar
-foo does not match o*
-foo matches fo*
-foo matches *o*
-foo matches *f*

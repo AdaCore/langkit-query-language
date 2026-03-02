@@ -1,5 +1,0 @@
-@unit_check(
-    message="Custom rule violation",
-    auto_fix=(n, ctx) => ()
-)
-fun custom(node) = node is IfStmt

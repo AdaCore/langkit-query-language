@@ -1,3 +1,0 @@
-val rules = @{
-    identifier_casing: {exclude: "exclude.txt", type: "Mixed", constant: "UPPER"}
-}

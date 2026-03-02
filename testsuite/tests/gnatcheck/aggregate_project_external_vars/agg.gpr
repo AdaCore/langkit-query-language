@@ -1,5 +1,0 @@
-aggregate project Agg is
-   for External ("SRC_DIR") use "src_2";
-
-   for Project_Files use ("a.gpr", "b.gpr");
-end Agg;

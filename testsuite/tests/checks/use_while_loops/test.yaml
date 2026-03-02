@@ -1,4 +1,0 @@
-driver: 'checker'
-rule_name: use_while_loops
-project: 'prj.gpr'
-auto_fix: True

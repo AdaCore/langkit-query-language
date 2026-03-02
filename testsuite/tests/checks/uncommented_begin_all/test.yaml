@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Uncommented_BEGIN
-project: 'prj.gpr'

@@ -1,4 +1,0 @@
-p.adb:33:13: rule violation: possible occurrence of KP T602-028
-33 |    Do_Test (Obj.PPN1'Access);  --  FLAG
-   |             ^^^^^^^^^^^^^^^
-

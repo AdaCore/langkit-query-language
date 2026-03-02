@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Suspicious_Equalities
-input_sources: ['suspicious_equalities.adb']

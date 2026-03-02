@@ -1,5 +1,0 @@
-import part_one
-
-val rules = part_one.rules.combine(
-    @{ Blocks }
-)

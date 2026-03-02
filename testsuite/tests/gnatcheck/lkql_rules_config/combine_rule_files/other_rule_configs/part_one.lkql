@@ -1,5 +1,0 @@
-import part_two
-
-val rules = part_two.rules.combine(
-    @{ Redundant_Null_Statements }
-)

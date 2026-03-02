@@ -1,4 +1,0 @@
-driver: 'checker'
-rule_name: Positional_Actuals_For_Defaulted_Parameters
-input_sources: ['pos.adb']
-auto_fix: True

@@ -1,4 +1,0 @@
-other.adb:7:9: rule violation: OTHERS choice in exception handler
-7 |    when others =>                   --  FLAG
-  |         ^^^^^^
-

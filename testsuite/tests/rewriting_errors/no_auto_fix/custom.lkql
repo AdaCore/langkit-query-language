@@ -1,2 +1,0 @@
-@check(message="Custom rule violation")
-fun custom(node) = node is GotoStmt

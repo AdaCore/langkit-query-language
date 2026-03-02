@@ -1,5 +1,0 @@
-driver: 'checker'
-rule_name: Conditional_Expressions
-input_sources: ['cond.adb']
-rule_arguments:
-    conditional_expressions.except_assertions: "true"

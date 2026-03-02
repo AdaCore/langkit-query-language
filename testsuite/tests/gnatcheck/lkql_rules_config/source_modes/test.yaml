@@ -1,5 +1,0 @@
-driver: gnatcheck
-project: prj.gpr
-lkql_rule_file: config.lkql
-format: brief
-show_rule: True

@@ -1,3 +1,0 @@
-val rules = @{
-    others_in_case_statements
-}

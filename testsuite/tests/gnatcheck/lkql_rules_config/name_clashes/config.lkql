@@ -1,3 +1,0 @@
-val rules = @{
-    name_clashes: {dictionary_file: "names.txt"}
-}

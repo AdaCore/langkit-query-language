@@ -1,4 +1,0 @@
-
-driver: 'checker'
-rule_name: global_variables
-input_sources: ['foo.ads']

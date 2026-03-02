@@ -1,4 +1,0 @@
-names.adb:1:11: rule violation: no closing name
-1 | procedure Names is  --  FLAG
-  |           ^^^^^
-

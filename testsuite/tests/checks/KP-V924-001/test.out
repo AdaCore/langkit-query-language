@@ -1,4 +1,0 @@
-p.ads:3:14: rule violation: possible occurrence of KP V924-001 if -gnatVo is used
-3 |    protected Imp with Lock_Free is   --  FLAG
-  |              ^^^
-

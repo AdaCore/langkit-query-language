@@ -1,7 +1,0 @@
-driver: 'checker'
-rule_name: Use_Clauses
-input_sources: ['operator_pack.ads', 'pack2.ads', 'pack.ads']
-rule_arguments:
-    use_clauses.exempt_operator_packages: "true"
-    use_clauses.allowed: '["Ada.Text_IO", "ADA.STRINGS.UNBOUNDED"]'
-

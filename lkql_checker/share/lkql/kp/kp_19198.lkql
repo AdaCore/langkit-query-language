@@ -1,9 +1,0 @@
-@check(help="possible occurrence of KP 19198", message="possible occurrence of KP 19198")
-fun kp_19198(node) =
-    |" Flag object declaration which specify the "address" aspect and have a
-    |" aggregate default value.
-    node is ObjectDecl(
-        f_type_expr: *(p_is_definite_subtype(): true),
-        f_default_expr: Aggregate,
-        p_has_aspect("address"): true
-    )

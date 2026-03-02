@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'Expression_Functions'
-input_sources: ['foo.ads']

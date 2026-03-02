@@ -1,6 +1,0 @@
-driver: 'checker'
-rule_name: no_others_in_exception_handlers
-input_sources: ['exc.adb']
-rule_arguments:
-    no_others_in_exception_handlers.task: 'true'
-    no_others_in_exception_handlers.subprogram: 'true'

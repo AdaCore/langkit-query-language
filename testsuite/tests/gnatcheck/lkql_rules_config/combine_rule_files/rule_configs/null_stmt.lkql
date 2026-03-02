@@ -1,3 +1,0 @@
-val rules = @{
-    Redundant_Null_Statements
-}

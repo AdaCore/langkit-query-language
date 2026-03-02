@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Overloaded_Operators
-input_sources: ['overloaded_operators.ads', 'overloaded_operators.adb']

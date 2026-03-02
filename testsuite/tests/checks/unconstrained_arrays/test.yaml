@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Unconstrained_Arrays
-input_sources: ['arrays.ads']

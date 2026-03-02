@@ -1,8 +1,0 @@
-p.ads:1:6: rule violation: too many generic dependencies
-1 | with A;  --  FLAG
-  |      ^
-
-q-proc.adb:1:6: rule violation: too many generic dependencies
-1 | with A;   --  FLAG
-  |      ^
-

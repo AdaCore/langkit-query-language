@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'Potential_Parameters_Aliasing'
-project: 'prj.gpr'

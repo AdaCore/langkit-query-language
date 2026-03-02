@@ -1,3 +1,0 @@
-val rules = @{
-    silent_exception_handlers: {subprograms: ["main.raiser", "|.*Exempted"]}
-}

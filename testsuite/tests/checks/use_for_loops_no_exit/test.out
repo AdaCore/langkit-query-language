@@ -1,9 +1,0 @@
-loop1.adb:27:4: rule violation: WHILE loop may be replaced by a FOR loop
-27 |     while L <= Str'Last loop   --  FLAG
-   | ____^
-   ||
-   || ~~~ 5 other lines ~~~
-   ||
-33 ||    end loop Loop2;
-   ||__________________^
-
