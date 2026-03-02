@@ -1,3 +1,0 @@
-val rules = @{
-    my_rule: {value: 50}
-}

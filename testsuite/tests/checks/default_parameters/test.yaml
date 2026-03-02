@@ -1,5 +1,0 @@
-driver: 'checker'
-rule_name: 'Default_Parameters'
-project: 'prj.gpr'
-rule_arguments:
-    default_parameters.n: 2

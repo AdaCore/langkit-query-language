@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'No_Explicit_Real_Range'
-project: 'prj.gpr'

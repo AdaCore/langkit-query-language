@@ -1,4 +1,0 @@
-exits.adb:8:7: rule violation: unnamed exit statement
-8 |       exit;       --  FLAG
-  |       ^^^^^
-

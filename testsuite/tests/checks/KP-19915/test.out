@@ -1,4 +1,0 @@
-main.adb:8:27: rule violation: possible occurrence of KP 19915
-8 |    Size : Long_Integer := T'Class'Max_Size_In_Storage_Elements;  --  FLAG
-  |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-

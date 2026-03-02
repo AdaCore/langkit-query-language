@@ -1,6 +1,0 @@
-driver: gnatcheck
-format: brief
-input_sources:
-  - "main.adb"
-rules:
-  - "+aLl"

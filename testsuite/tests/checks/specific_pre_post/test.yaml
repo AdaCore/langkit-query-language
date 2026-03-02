@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'Specific_Pre_Post'
-input_sources: ['test_specific_pre_post.ads']

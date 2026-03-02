@@ -1,3 +1,0 @@
-@check(message="blah")
-fun test(node) =
-    blah

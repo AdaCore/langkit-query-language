@@ -1,1 +1,0 @@
-<gnatcheck_worker_exe> -P<working-dir>/p.gpr --target=<target> -d --log-file=<working-dir>/gnatcheck-log1.TMP --files-from=<working-dir>/gnatcheck-files1.TMP --rules-from=<working-dir>/gnatcheck-rules0.TMP

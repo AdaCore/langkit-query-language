@@ -1,3 +1,0 @@
-val rules = @{
-    actual_parameters: {forbidden: [("main.f1", "x", "main.test.v1"), ("main.f2", "x", "|main\.test\.v.")]}
-}

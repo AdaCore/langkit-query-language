@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Int_Obj_Decl
-input_sources: [test.adb]

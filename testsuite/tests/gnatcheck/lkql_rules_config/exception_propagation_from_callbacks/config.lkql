@@ -1,3 +1,0 @@
-val rules = @{
-    exception_propagation_from_callbacks: {callbacks: [("main.invalid", "X"), ("main.invalid", "y")]}
-}

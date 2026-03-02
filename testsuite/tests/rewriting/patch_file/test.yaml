@@ -1,6 +1,0 @@
-driver: checker
-input_sources:
-  - main.adb
-rule_name: custom
-auto_fix: True
-auto_fix_mode: PATCH_FILE

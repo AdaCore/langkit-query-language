@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'Relative_Delay_Statements'
-project: 'prj.gpr'

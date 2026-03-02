@@ -1,2 +1,0 @@
-gnatcheck: error: multiple rules with the same name: use_array_slices
->>>program returned status code 2

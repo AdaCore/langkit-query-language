@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Non_Qualified_Aggregates
-input_sources: ['aggr.ads']

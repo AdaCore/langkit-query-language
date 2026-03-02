@@ -1,3 +1,0 @@
-project Prj is
-   for main use ("test.adb");
-end Prj;

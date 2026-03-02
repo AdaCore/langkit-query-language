@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'Discriminated_Records'
-project: 'prj.gpr'

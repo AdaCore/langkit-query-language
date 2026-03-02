@@ -1,6 +1,0 @@
-driver: gnatcheck
-format: brief
-lkql_rule_file: rules.lkql
-input_sources:
-  - main.adb
-show_instantiation_chain: True

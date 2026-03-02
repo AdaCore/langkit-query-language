@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Predefined_Numeric_Types
-input_sources: ['num.ads']

@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: 'test_config_pragmas'
-input_sources: [test.adb]

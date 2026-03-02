@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: lowercase_keywords
-input_sources: ['test.adb']

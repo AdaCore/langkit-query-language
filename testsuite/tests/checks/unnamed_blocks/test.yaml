@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Unnamed_Blocks_And_Loops
-input_sources: ['blocks.adb']

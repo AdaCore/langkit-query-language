@@ -1,3 +1,0 @@
-@check(message="Rule3")
-fun my_rule(node) =
-    node is DefiningName

@@ -1,3 +1,0 @@
-val rules = @{
-    headers: {instance_name: "custom_instance"}
-}

@@ -1,3 +1,0 @@
-val rules = @{
-    forbidden_pragmas: {all: true, allowed: ["annotate", "CUSTOM"]}
-}

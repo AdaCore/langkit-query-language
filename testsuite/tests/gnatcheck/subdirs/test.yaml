@@ -1,8 +1,0 @@
-driver: gnatcheck
-format: short
-subdirs: custom_subdirs
-project: prj.gpr
-rules:
-  - +RGOTO_Statements
-  - +RWarnings:a
-post_python: ls("custom_subdirs/gnatcheck")

@@ -1,3 +1,0 @@
-val rules = @{
-    parameters_out_of_order: {order: ["in", "defaulted_in", "in_out", "out", "what"]}
-}

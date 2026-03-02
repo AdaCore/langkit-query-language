@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: one_tagged_type_per_package
-project: 'prj.gpr'

@@ -1,2 +1,0 @@
-@check
-fun custom_rule(node) = false

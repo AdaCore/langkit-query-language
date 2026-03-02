@@ -1,4 +1,0 @@
-format: full
-driver: gnatcheck
-project: prj.gpr
-rule_file: rules.txt

@@ -1,7 +1,0 @@
-driver: gnatcheck
-format: brief
-worker: "python bogus_lkql.py"
-input_sources:
-  - main.adb
-rules:
-  - +RGOTO_Statements

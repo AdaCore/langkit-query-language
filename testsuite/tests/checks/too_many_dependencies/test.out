@@ -1,9 +1,0 @@
-pack1-flag.ads:9:1: rule violation: unit has too many dependencies (6)
-9  |  package Pack1.Flag is  --  FLAG
-   | _^
-   ||
-   || ~~~ 1 other lines ~~~
-   ||
-11 || end Pack1.Flag;
-   ||_______________^
-

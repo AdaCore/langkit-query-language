@@ -1,8 +1,0 @@
-# Flag library subprograms with no parameters
-
-@check(help="possible occurrence of KP U727-033",
-       message="possible occurrence of KP U727-033 if float operation performed before first context switch on leon targets",
-       target="leon*")
-fun kp_u727_033(node) =
-    node is LibraryItem(f_item: b@BaseSubpBody)
-    when b.f_subp_spec.f_subp_params == null

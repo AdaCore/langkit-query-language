@@ -1,7 +1,0 @@
-driver: gnatcheck
-rules_dirs:
-  - rules
-input_sources:
-  - main.adb
-rules:
-  - +RTest

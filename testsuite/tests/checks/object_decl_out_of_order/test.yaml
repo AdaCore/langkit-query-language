@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: Object_Declarations_Out_Of_Order
-input_sources: ['pack.ads', 'pack.adb']

@@ -1,8 +1,0 @@
-# Flag protected types and objects with an Interrupt_Priority aspect
-
-@check(help="possible occurrence of KP V114-047",
-       message="possible occurrence of KP V114-047 if runtime is ravenscar*zynq*",
-       target="arm-elf")
-fun kp_v114_047(node) =
-    node is (ProtectedTypeDecl | SingleProtectedDecl
-    when node.p_has_aspect("Interrupt_Priority"))

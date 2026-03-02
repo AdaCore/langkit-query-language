@@ -1,3 +1,0 @@
-@check()
-fun rule2(node) =
-    node is AdaNode

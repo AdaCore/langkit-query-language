@@ -1,8 +1,0 @@
-driver: gnatcheck
-format: brief
-input_sources: [src/main.adb]
-rules:
-  - +Rsame_instantiations
-extra_args:
-  - -d
-canonicalize_target: true

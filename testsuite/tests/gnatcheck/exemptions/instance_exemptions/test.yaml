@@ -1,5 +1,0 @@
-driver: gnatcheck
-show_rule: True
-input_sources:
-  - main.adb
-lkql_rule_file: rules.lkql

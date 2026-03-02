@@ -1,9 +1,0 @@
-blocks.adb:6:7: rule violation: block statement
-6 |        declare  --  FLAG
-  | _______^
-  ||
-  || ~~~ 2 other lines ~~~
-  ||
-9 ||       end;
-  ||__________^
-
