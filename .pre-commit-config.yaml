@@ -1,14 +1,6 @@
 repos:
   - repo: local
     hooks:
-      - id: gnatformat
-        name: Format GNATcheck sources
-        entry: gnatformat
-        language: system
-        files: "^lkql_checker/src/.*\\.ad(b|s)$"
-
-  - repo: local
-    hooks:
       - id: maven-spotless
         name: Format LKQL JIT sources
         entry: python
