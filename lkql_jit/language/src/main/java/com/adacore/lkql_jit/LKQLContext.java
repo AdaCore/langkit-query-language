@@ -201,13 +201,16 @@ public final class LKQLContext {
         return this.rewritingContext != null;
     }
 
-    @CompilerDirectives.TruffleBoundary
+    public LangkitSupport.AnalysisContextInterface getAnalysisContext() {
+        return this.analysisContext;
+    }
+
     public LangkitSupport.RewritingContextInterface getRewritingContext() {
-        if (this.rewritingContext == null) {
-            var ignore = getAllUnits().toArray(LangkitSupport.AnalysisUnit[]::new);
-            this.rewritingContext = this.analysisContext.startRewriting();
+        var ctx = this.analysisContext.getRewritingContext();
+        if (ctx == null) {
+            return this.analysisContext.startRewriting();
         }
-        return this.rewritingContext;
+        return ctx;
     }
 
     /**

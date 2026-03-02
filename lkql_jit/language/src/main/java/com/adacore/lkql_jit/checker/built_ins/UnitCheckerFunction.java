@@ -127,7 +127,7 @@ public final class UnitCheckerFunction {
             }
 
             // Put the closure in the arguments
-            arguments[0] = functionValue.closure.getContent();
+            arguments[0] = functionValue.closure;
 
             // Get the message list from the checker function
             final Iterable violationList;

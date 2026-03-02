@@ -6,9 +6,11 @@
 package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.runtime.Cell;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.RootNode;
 
 /**
@@ -17,6 +19,10 @@ import com.oracle.truffle.api.nodes.RootNode;
  * @author Hugo GUERRIER
  */
 public abstract class BaseRootNode extends RootNode {
+
+    /** Number of slot of the frame that this node is going to be called with. */
+    @CompilerDirectives.CompilationFinal
+    public final int frameSize;
 
     // ----- Constructors -----
 
@@ -31,6 +37,7 @@ public abstract class BaseRootNode extends RootNode {
         final FrameDescriptor frameDescriptor
     ) {
         super(language, frameDescriptor);
+        this.frameSize = frameDescriptor == null ? 0 : frameDescriptor.getNumberOfSlots();
     }
 
     // ----- Instance methods -----
@@ -40,9 +47,9 @@ public abstract class BaseRootNode extends RootNode {
      *
      * @param frame The frame to initialize.
      */
+    @ExplodeLoop
     protected void initFrame(VirtualFrame frame) {
-        final int slotNumber = frame.getFrameDescriptor().getNumberOfSlots();
-        for (int i = 0; i < slotNumber; i++) {
+        for (int i = 0; i < frameSize; i++) {
             frame.setObject(i, new Cell());
         }
     }

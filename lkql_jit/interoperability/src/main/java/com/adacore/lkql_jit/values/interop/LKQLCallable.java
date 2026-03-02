@@ -13,6 +13,8 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.source.SourceSection;
+import java.util.Optional;
 
 /**
  * This class represents an abstraction over all LKQL callable values. To call such values, you
@@ -41,6 +43,10 @@ public abstract class LKQLCallable extends LKQLValue {
     /** User documentation for the callable value. */
     public final String documentation;
 
+    /** Annotations associated to this callable value in the source. */
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
+    public LKQLAnnotation[] annotations;
+
     // ----- Constructors -----
 
     protected LKQLCallable(
@@ -48,16 +54,42 @@ public abstract class LKQLCallable extends LKQLValue {
         CallableKind kind,
         String[] parameterNames,
         Node[] parameterDefaultValues,
-        String documentation
+        String documentation,
+        LKQLAnnotation[] annotations
     ) {
         this.name = name;
         this.kind = kind;
         this.parameterNames = parameterNames;
         this.parameterDefaultValues = parameterDefaultValues;
         this.documentation = documentation;
+        this.annotations = annotations;
+    }
+
+    // ----- Getters -----
+
+    public LKQLAnnotation[] getAnnotations() {
+        return annotations;
+    }
+
+    // ----- Setters -----
+
+    public void setAnnotations(LKQLAnnotation[] annotations) {
+        this.annotations = annotations;
     }
 
     // ----- Instance methods -----
+
+    /** Get a location where this callable value has been declared, if applicable to it. */
+    public abstract Optional<SourceSection> getDeclarationLocation();
+
+    /** Whether this callable value takes a closure object as its first argument. */
+    public abstract boolean takesClosure();
+
+    /**
+     * Get the closure object to provide to the callable value as first argument. Returns a null
+     * value if "takesClosure" returns "false".
+     */
+    public abstract Object getClosure();
 
     /** Get a string representation of this callable profile. */
     @CompilerDirectives.TruffleBoundary
@@ -110,8 +142,8 @@ public abstract class LKQLCallable extends LKQLValue {
 
     // ----- Inner classes and enums -----
 
-    /** represents the kind of a callable value. */
-    public static enum CallableKind {
+    /** Represents the kind of callable value. */
+    public enum CallableKind {
         FUNCTION,
         SELECTOR,
         PROPERTY,

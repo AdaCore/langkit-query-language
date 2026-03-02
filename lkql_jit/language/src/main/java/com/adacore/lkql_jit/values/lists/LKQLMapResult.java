@@ -51,7 +51,7 @@ public class LKQLMapResult extends BaseLKQLLazyList {
                 this.cache.append(
                     this.functionLibrary.execute(
                         this.mappingFunction,
-                        this.mappingFunction.closure.getContent(),
+                        this.mappingFunction.closure,
                         this.generatorIterator.next()
                     )
                 );

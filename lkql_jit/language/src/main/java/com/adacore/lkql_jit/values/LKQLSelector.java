@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.values;
 
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
+import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.adacore.lkql_jit.values.lists.LKQLSelectorList;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -15,6 +16,8 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.source.SourceSection;
+import java.util.Optional;
 
 /** This class represents the selector values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -43,13 +46,12 @@ public class LKQLSelector extends LKQLCallable {
      *
      * @param rootNode The root node of the selector.
      * @param closure The closure of the selector.
-     * @param name The name of the selector.
      * @param documentation The documentation of the selector.
+     * @param checkCycles Whether to check cycles in the result returned by the selector.
      */
     public LKQLSelector(
         RootNode rootNode,
         Closure closure,
-        String name,
         String documentation,
         boolean checkCycles
     ) {
@@ -58,7 +60,8 @@ public class LKQLSelector extends LKQLCallable {
             LKQLCallable.CallableKind.SELECTOR,
             SELECTOR_PARAMETERS,
             SELECTOR_DEFAULT_PARAMETERS,
-            documentation
+            documentation,
+            new LKQLAnnotation[0]
         );
         this.rootNode = rootNode;
         this.closure = closure;
@@ -66,6 +69,21 @@ public class LKQLSelector extends LKQLCallable {
     }
 
     // ----- Instance functions -----
+
+    @Override
+    public Optional<SourceSection> getDeclarationLocation() {
+        return Optional.ofNullable(rootNode.getEncapsulatingSourceSection());
+    }
+
+    @Override
+    public boolean takesClosure() {
+        return false;
+    }
+
+    @Override
+    public Object getClosure() {
+        return null;
+    }
 
     /** Execute the selector value. */
     public LKQLSelectorList getList(Object value) {

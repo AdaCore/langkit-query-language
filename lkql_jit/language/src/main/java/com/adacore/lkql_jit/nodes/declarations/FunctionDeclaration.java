@@ -6,13 +6,21 @@
 package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.nodes.arguments.ExprArg;
+import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.values.LKQLFunction;
 import com.adacore.lkql_jit.values.LKQLUnit;
+import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This node represents a function declaration in the LKQL language.
@@ -68,6 +76,18 @@ public final class FunctionDeclaration extends Declaration {
         }
     }
 
+    // ----- Class methods -----
+
+    @CompilerDirectives.TruffleBoundary
+    private static Map<String, Object> newMap() {
+        return new HashMap<>();
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private static void put(Map<String, Object> map, String key, Object value) {
+        map.put(key, value);
+    }
+
     // ----- Execution methods -----
 
     @Override
@@ -75,7 +95,32 @@ public final class FunctionDeclaration extends Declaration {
         // Execute the function expression to get the functional value
         final LKQLFunction functionValue = this.functionExpression.executeFunction(frame);
 
+        // Set whether the function root node should be memoized
         ((FunctionRootNode) functionValue.rootNode).setMemoized(this.isMemoized);
+
+        // Set the function annotation
+        if (this.annotation != null) {
+            var annotationArgs = this.annotation.getArguments().getArgs();
+            List<Object> positionalArguments = new ArrayList<>();
+            Map<String, Object> namedArguments = newMap();
+            for (int i = 0; i < annotationArgs.length; i++) {
+                var arg = annotationArgs[i];
+                var argValue = arg.executeGeneric(frame);
+                switch (arg) {
+                    case ExprArg _ -> positionalArguments.add(argValue);
+                    case NamedArg n -> put(namedArguments, n.getArgStringName(), argValue);
+                }
+            }
+            functionValue.setAnnotations(
+                new LKQLAnnotation[] {
+                    new LKQLAnnotation(
+                        this.annotation.getName(),
+                        positionalArguments,
+                        namedArguments
+                    ),
+                }
+            );
+        }
 
         // Write the slot in the frame
         FrameUtils.writeLocal(frame, this.slot, functionValue);

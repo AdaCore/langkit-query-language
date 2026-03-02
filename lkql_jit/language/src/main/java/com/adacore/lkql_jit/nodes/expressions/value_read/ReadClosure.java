@@ -6,8 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.runtime.Cell;
-import com.adacore.lkql_jit.utils.functions.FrameUtils;
+import com.adacore.lkql_jit.runtime.Closure;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -41,37 +40,35 @@ public abstract class ReadClosure extends BaseRead {
     @Specialization(guards = "isPackageGlobal == true")
     public Object onGlobal(
         VirtualFrame frame,
-        @Cached(value = "getValue(frame)", neverDefault = true) Object result
+        @Cached(value = "getValue(getClosure(frame))", neverDefault = true) Object result
     ) {
         return result;
     }
 
     @Specialization(
-        guards = "cachedClosure == getClosure(frame)",
+        guards = "closure == getClosure(frame)",
         limit = Constants.SPECIALIZED_LIB_LIMIT
     )
     public Object onCachedClosure(
         VirtualFrame frame,
-        @SuppressWarnings("unused") @Cached(
-            value = "getClosure(frame)",
-            dimensions = 1
-        ) Cell[] cachedClosure,
-        @Cached("getValue(frame)") Object result
+        @SuppressWarnings("unused") @Cached(value = "getClosure(frame)") Closure closure,
+        @Cached("getValue(closure)") Object result
     ) {
         return result;
     }
 
     @Specialization(replaces = "onCachedClosure")
     public Object OnUncachedClosure(VirtualFrame frame) {
-        return onCachedClosure(frame, getClosure(frame), getValue(frame));
+        var closure = getClosure(frame);
+        return onCachedClosure(frame, closure, getValue(closure));
     }
 
-    public Object getValue(VirtualFrame frame) {
-        return FrameUtils.readClosure(frame, this.slot);
+    public Object getValue(Closure closure) {
+        return closure.content[this.slot].getRef();
     }
 
-    protected Cell[] getClosure(VirtualFrame frame) {
-        return (Cell[]) frame.getArguments()[0];
+    protected Closure getClosure(VirtualFrame frame) {
+        return (Closure) frame.getArguments()[0];
     }
 
     @Override

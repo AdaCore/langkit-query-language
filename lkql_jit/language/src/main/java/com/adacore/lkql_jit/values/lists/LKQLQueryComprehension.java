@@ -9,8 +9,9 @@ import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
 
 /**
@@ -28,7 +29,9 @@ public final class LKQLQueryComprehension extends BaseLKQLLazyList {
 
     // ----- Attributes -----
 
-    private final DirectCallNode callNode;
+    private final IndirectCallNode callNode;
+
+    private final CallTarget callTarget;
 
     private final Iterator iterator;
 
@@ -47,9 +50,10 @@ public final class LKQLQueryComprehension extends BaseLKQLLazyList {
         final Iterable source
     ) {
         super(new ListStorage<>(1));
-        this.callNode = DirectCallNode.create(rootNode.getCallTarget());
+        this.callNode = IndirectCallNode.create();
+        this.callTarget = rootNode.getCallTarget();
         this.iterator = source.iterator();
-        this.arguments[0] = closure.getContent();
+        this.arguments[0] = closure;
     }
 
     // ----- Lazy list required methods -----
@@ -58,7 +62,7 @@ public final class LKQLQueryComprehension extends BaseLKQLLazyList {
     protected void initCacheTo(long n) {
         while ((n < 0 || this.cache.size() <= n) && iterator.hasNext()) {
             this.arguments[1] = iterator.next();
-            Object value = this.callNode.call(this.arguments);
+            Object value = this.callNode.call(callTarget, this.arguments);
             if (value != null) this.cache.append(value);
         }
     }

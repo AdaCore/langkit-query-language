@@ -9,12 +9,15 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.langkit_support.LangkitSupport.Reflection.Param;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
+import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.source.SourceSection;
+import java.util.Optional;
 
 /** This class represents a Libadalang property access in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -46,7 +49,8 @@ public class LKQLProperty extends LKQLCallable {
                       .map(Param::getName)
                       .toArray(v -> new String[v]),
             description == null ? new Node[0] : new Node[description.getParams().size()],
-            ""
+            "",
+            new LKQLAnnotation[0]
         );
         this.description = description;
         this.node = node;
@@ -64,6 +68,21 @@ public class LKQLProperty extends LKQLCallable {
     }
 
     // ----- Instance methods -----
+
+    @Override
+    public Optional<SourceSection> getDeclarationLocation() {
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean takesClosure() {
+        return false;
+    }
+
+    @Override
+    public Object getClosure() {
+        return null;
+    }
 
     /** Get whether the property reference point to a node field. */
     public boolean isField() {

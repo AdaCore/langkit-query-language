@@ -7,8 +7,9 @@ package com.adacore.lkql_jit.values.lists;
 
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
 
 /** This class represents a list comprehension value in the LKQL language. */
@@ -17,7 +18,10 @@ public final class LKQLListComprehension extends BaseLKQLLazyList {
     // ----- Attributes -----
 
     /** Direct call node used to execute the list comprehension logic. */
-    private final DirectCallNode callNode;
+    private final IndirectCallNode callNode;
+
+    /** Call target representing the list comprehension execution logic. */
+    private final CallTarget callTarget;
 
     /** List of arguments to pass to the list comprehension root node. */
     private final Object[][] argumentsList;
@@ -44,12 +48,13 @@ public final class LKQLListComprehension extends BaseLKQLLazyList {
         final Object[][] argumentsList
     ) {
         super(new ListStorage<>(argumentsList.length > 0 ? 16 : 0));
-        this.callNode = DirectCallNode.create(rootNode.getCallTarget());
+        this.callNode = IndirectCallNode.create();
+        this.callTarget = rootNode.getCallTarget();
         this.argumentsList = argumentsList;
         this.arguments = this.argumentsList.length > 0
             ? new Object[this.argumentsList[0].length + 1]
             : new Object[1];
-        this.arguments[0] = closure.getContent();
+        this.arguments[0] = closure;
         this.pointer = 0;
     }
 
@@ -61,7 +66,7 @@ public final class LKQLListComprehension extends BaseLKQLLazyList {
         while (this.pointer < this.argumentsList.length && (n >= this.cache.size() || n < 0)) {
             final Object[] currentArguments = this.argumentsList[this.pointer++];
             System.arraycopy(currentArguments, 0, this.arguments, 1, currentArguments.length);
-            Object value = this.callNode.call(this.arguments);
+            Object value = this.callNode.call(callTarget, arguments);
             if (value != null) {
                 this.cache.append(value);
             }

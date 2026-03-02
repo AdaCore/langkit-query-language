@@ -171,7 +171,7 @@ public class BuiltInProcessor extends AbstractProcessor {
                         " new HashMap<>());"
                 );
                 stream.println(
-                    "                 typeMap.put(pair.getRight().name, pair.getRight());"
+                    "                 typeMap.put(pair.getRight().rootNode.name, pair.getRight());"
                 );
                 stream.println("            }");
                 stream.println("        }");
@@ -270,14 +270,14 @@ public class BuiltInProcessor extends AbstractProcessor {
 
                 names.add("\"" + escapeString(nameSB.toString()) + "\"");
                 defaultVals.add(
-                    (defaultVal != null ? "\"" + escapeString(defaultVal) + "\"" : "null")
+                    (defaultVal != null ? "new BuiltInDefaultParam(" + defaultVal + ")" : "null")
                 );
             }
 
             return (
                 "new String[] {" +
                 String.join(", ", names) +
-                "}, new String[] {" +
+                "}, new Expr[] {" +
                 String.join(", ", defaultVals) +
                 "}"
             );
@@ -338,9 +338,11 @@ public class BuiltInProcessor extends AbstractProcessor {
 
             // Emit imports
             stream.println("import java.util.List;");
+            stream.println("import com.adacore.lkql_jit.built_ins.BuiltInDefaultParam;");
             stream.println("import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;");
             stream.println("import com.adacore.lkql_jit.built_ins.BuiltInBody;");
             stream.println("import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;");
+            stream.println("import com.adacore.lkql_jit.nodes.expressions.Expr;");
             stream.println("import org.graalvm.collections.Pair;");
             stream.println("public class " + className + " { ");
 

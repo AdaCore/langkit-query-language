@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescr
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
 import com.adacore.lkql_jit.values.LKQLFunction;
+import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -72,6 +73,9 @@ public final class FunExpr extends Expr {
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
             false,
+            true,
+            parameterNames,
+            parameterDefaultValues,
             body,
             name
         );
@@ -97,7 +101,8 @@ public final class FunExpr extends Expr {
             this.documentation,
             this.parameterNames,
             this.parameterValues,
-            this.functionRootNode.getBody()
+            this.functionRootNode.getBody(),
+            new LKQLAnnotation[0]
         );
     }
 

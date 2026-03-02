@@ -1,0 +1,646 @@
+//
+//  Copyright (C) 2005-2026, AdaCore
+//  SPDX-License-Identifier: GPL-3.0-or-later
+//
+
+package com.adacore.lkql_jit.driver.subcommands;
+
+import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.options.LKQLOptions;
+import com.adacore.lkql_jit.options.RuleInstance;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import org.graalvm.launcher.AbstractLanguageLauncher;
+import org.graalvm.options.OptionCategory;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
+import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Value;
+import org.json.JSONObject;
+import picocli.CommandLine;
+
+/**
+ * Implement a worker process for the GNATcheck driver.
+ *
+ * @author Romain BEGUET
+ */
+public class GNATCheckWorker extends AbstractLanguageLauncher {
+
+    Args args = null;
+
+    @CommandLine.Command(
+        name = "gnatcheck_worker",
+        description = "Internal driver meant to be called by GNATcheck. Not for public use"
+    )
+    public static class Args implements Callable<Integer> {
+
+        @CommandLine.Unmatched
+        public List<String> unmatched;
+
+        @CommandLine.Option(
+            names = { "--parse-lkql-config" },
+            description = "Parse the given LKQL file as a rule configuration file and return its" +
+                " result as a JSON encoded string. If this option is provided, all" +
+                " other features are disabled."
+        )
+        public String lkqlConfigFile = null;
+
+        @CommandLine.Option(
+            names = { "-C", "--charset" },
+            description = "Charset to use for the source decoding"
+        )
+        public String charset = null;
+
+        @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
+        public String RTS = null;
+
+        @CommandLine.Option(names = "--target", description = "Target to pass to GPR")
+        public String target = null;
+
+        @CommandLine.Option(names = "--config", description = "Config file for GPR loading")
+        public String configFile = null;
+
+        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
+        public boolean verbose;
+
+        @CommandLine.Option(names = { "-P", "--project" }, description = "Project file to use")
+        public String project = null;
+
+        @CommandLine.Option(
+            names = "-A",
+            description = "The name of the subproject to analyse, if any. This implies that" +
+                " `projectFile` designates an aggregate project."
+        )
+        public String subProject = null;
+
+        @CommandLine.Option(names = "-d", description = "Enable the debug mode")
+        public boolean debug;
+
+        @CommandLine.Option(names = "-X", description = "Scenario variable")
+        public Map<String, String> scenarioVariables = new HashMap<>();
+
+        @CommandLine.Option(
+            names = "--rules-dir",
+            description = "Additional directory in which to check for rules"
+        )
+        public List<String> rulesDirs = new ArrayList<>();
+
+        @CommandLine.Option(names = "--rules-from", description = "The file containing the rules")
+        public List<String> rulesFroms = null;
+
+        @CommandLine.Option(names = "--files-from", description = "The file containing the files")
+        public String filesFrom = null;
+
+        @CommandLine.Option(
+            names = "--log-file",
+            description = "The file used by the worker to output logs"
+        )
+        public String gnatcheckLogFile = null;
+
+        @CommandLine.Option(
+            names = "--ignore-project-switches",
+            description = "Process all units in the project tree, excluding externally built" +
+                " projects"
+        )
+        public boolean ignoreProjectSwitches;
+
+        @CommandLine.Option(
+            names = "--show-instantiation-chain",
+            description = "Show instantiation chain in reported generic construct"
+        )
+        public boolean showInstantiationChain;
+
+        @Override
+        public Integer call() {
+            String[] unmatchedArgs;
+            if (this.unmatched == null) {
+                unmatchedArgs = new String[0];
+            } else {
+                unmatchedArgs = this.unmatched.toArray(new String[0]);
+            }
+            new GNATCheckWorker(this).launch(unmatchedArgs);
+            return 0;
+        }
+    }
+
+    public GNATCheckWorker(GNATCheckWorker.Args args) {
+        this.args = args;
+    }
+
+    // ----- Checker methods -----
+
+    /**
+     * Display the help message for the LKQL language.
+     *
+     * @param maxCategory The option category.
+     */
+    @Override
+    protected void printHelp(OptionCategory maxCategory) {
+        System.out.println("No help!");
+    }
+
+    /**
+     * Simply return the language id.
+     *
+     * @return The language id.
+     */
+    @Override
+    protected String getLanguageId() {
+        return Constants.LKQL_ID;
+    }
+
+    /**
+     * Start the GNATcheck worker.
+     *
+     * @param contextBuilder The context builder to build LKQL context.
+     */
+    @Override
+    protected void launch(Context.Builder contextBuilder) {
+        int exitCode = this.executeScript(contextBuilder);
+        if (exitCode != 0) {
+            throw this.abort((String) null, exitCode);
+        }
+    }
+
+    /**
+     * Execute the GNATcheck worker script and return the exit code.
+     *
+     * @param contextBuilder The context builder.
+     * @return The exit code of the script.
+     */
+    protected int executeScript(Context.Builder contextBuilder) {
+        // Create the LKQL options object builder
+        final var optionsBuilder = new LKQLOptions.Builder();
+
+        // Set the common configuration
+        contextBuilder.allowIO(true);
+        contextBuilder.engine(
+            Engine.newBuilder()
+                .allowExperimentalOptions(true)
+                .option("engine.Compilation", "false")
+                .build()
+        );
+        optionsBuilder
+            .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
+            .fallbackToAllRules(false)
+            .keepGoingOnMissingFile(true);
+
+        // If a LKQL rule config file has been provided, parse it and display the result
+        if (this.args.lkqlConfigFile != null) {
+            try {
+                final var instances = parseLKQLRuleFile(
+                    this.args.lkqlConfigFile,
+                    this.args.verbose
+                );
+                final var jsonInstances = new JSONObject(
+                    instances
+                        .entrySet()
+                        .stream()
+                        .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                );
+                System.out.println("WORKER_JSON_INSTANCES: " + jsonInstances);
+            } catch (LKQLRuleFileError e) {
+                System.out.println(e.getMessage());
+            }
+            return 0;
+        }
+
+        // Forward the command line options to the options object builder
+        optionsBuilder
+            .engineMode(LKQLOptions.EngineMode.CHECKER)
+            .verbose(this.args.verbose)
+            .projectFile(this.args.project)
+            .subprojectFile(this.args.subProject)
+            .scenarioVariables(this.args.scenarioVariables)
+            .target(this.args.target)
+            .runtime(this.args.RTS)
+            .configFile(this.args.configFile)
+            .charset(this.args.charset)
+            .rulesDir(this.args.rulesDirs)
+            .showInstantiationChain(this.args.showInstantiationChain)
+            .checkerDebug(this.args.debug);
+
+        // Read the list of sources to analyze provided by GNATcheck driver
+        if (this.args.filesFrom != null) {
+            try {
+                optionsBuilder.files(Files.readAllLines(Paths.get(this.args.filesFrom)));
+            } catch (IOException e) {
+                System.err.println("WORKER_ERROR: Could not read file: " + this.args.filesFrom);
+            }
+        }
+
+        // Parse the rule instances provided by the GNATcheck driver
+        final Map<String, RuleInstance> instances = new HashMap<>();
+        for (var rulesFrom : this.args.rulesFroms) {
+            if (!rulesFrom.isEmpty()) {
+                try {
+                    instances.putAll(parseLKQLRuleFile(rulesFrom, this.args.verbose));
+                } catch (LKQLRuleFileError e) {
+                    System.out.println(e.getMessage());
+                    return 0;
+                }
+            }
+        }
+        optionsBuilder.ruleInstances(instances);
+
+        // Finally, pass the options to the LKQL engine
+        contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
+
+        try {
+            // Install a log handler only if gnatcheckLogFile is set
+            if (this.args.gnatcheckLogFile != null) {
+                var logFile = FileSystems.getDefault().getPath(this.args.gnatcheckLogFile);
+                OutputStream outputStream = new FileOutputStream(logFile.toFile());
+                contextBuilder.logHandler(outputStream);
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println(
+                "WORKER_ERROR: Could not create log file: " + this.args.gnatcheckLogFile
+            );
+        }
+
+        // Create the context and run the script in it
+        try (Context context = contextBuilder.build()) {
+            final Source source = Source.newBuilder(
+                Constants.LKQL_ID,
+                checkerSource,
+                "checker.lkql"
+            ).build();
+            context.eval(source);
+            return 0;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+
+    protected List<String> preprocessArguments(
+        List<String> arguments,
+        Map<String, String> polyglotOptions
+    ) {
+        if (this.args.unmatched != null) {
+            return this.args.unmatched;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    // ----- Option parsing helpers -----
+
+    /** Throws an exception with the given message, related ot the provided LKQL file name. */
+    private static void errorInLKQLRuleFile(final String lkqlRuleFile, final String message)
+        throws LKQLRuleFileError {
+        errorInLKQLRuleFile(lkqlRuleFile, message, true);
+    }
+
+    private static void errorInLKQLRuleFile(
+        final String lkqlRuleFile,
+        final String message,
+        final boolean addTag
+    ) throws LKQLRuleFileError {
+        throw new LKQLRuleFileError(
+            (addTag ? "WORKER_ERROR: " : "") + message + " (" + lkqlRuleFile + ")"
+        );
+    }
+
+    private static void emitMessageForTheDriver(
+        final String tag,
+        final String location,
+        final String message
+    ) {
+        System.err.println(
+            tag + ": {\"location\": \"" + location + "\", \"message\": \"" + message + "\"}"
+        );
+    }
+
+    /**
+     * Read the given LKQL file and parse it as a rule configuration file to return the list of
+     * instances defined in it.
+     *
+     * @throws LKQLRuleFileError If there is any error in the provided LKQL rule file, preventing
+     *     the analysis to go further.
+     */
+    private static Map<String, RuleInstance> parseLKQLRuleFile(
+        final String lkqlRuleFileName,
+        final boolean verbose
+    ) throws LKQLRuleFileError {
+        final File lkqlFile = new File(lkqlRuleFileName);
+        final String lkqlFileBasename = lkqlFile.getName();
+        final Map<String, RuleInstance> res = new HashMap<>();
+        try (
+            Context context = Context.newBuilder()
+                .option(
+                    "lkql.options",
+                    new LKQLOptions.Builder()
+                        .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
+                        .build()
+                        .toJson()
+                        .toString()
+                )
+                .allowIO(true)
+                .build()
+        ) {
+            // Parse the LKQL rule configuration file with a polyglot context
+            final Source source = Source.newBuilder(Constants.LKQL_ID, lkqlFile).build();
+            final Value executable = context.parse(source);
+            final Value topLevel = executable.execute(false);
+
+            // Get the mandatory general instances object and populate the result with it
+            if (topLevel.hasMember("rules")) {
+                processInstancesObject(
+                    lkqlFileBasename,
+                    "rules",
+                    topLevel.getMember("rules"),
+                    RuleInstance.SourceMode.GENERAL,
+                    res,
+                    verbose
+                );
+
+                // Then get the optional Ada and SPARK instances
+                if (topLevel.hasMember("ada_rules")) {
+                    processInstancesObject(
+                        lkqlFileBasename,
+                        "ada_rules",
+                        topLevel.getMember("ada_rules"),
+                        RuleInstance.SourceMode.ADA,
+                        res,
+                        verbose
+                    );
+                }
+                if (topLevel.hasMember("spark_rules")) {
+                    processInstancesObject(
+                        lkqlFileBasename,
+                        "spark_rules",
+                        topLevel.getMember("spark_rules"),
+                        RuleInstance.SourceMode.SPARK,
+                        res,
+                        verbose
+                    );
+                }
+            } else {
+                errorInLKQLRuleFile(
+                    lkqlFileBasename,
+                    "LKQL config file must define a 'rules' top level object value"
+                );
+            }
+        } catch (IOException e) {
+            errorInLKQLRuleFile(lkqlFileBasename, "Could not read file");
+        } catch (LKQLRuleFileError e) {
+            throw e;
+        } catch (Exception e) {
+            errorInLKQLRuleFile(lkqlFileBasename, e.getMessage(), false);
+        }
+        return res;
+    }
+
+    /**
+     * Internal method to process an instance object, extracted from the LKQL rule config file
+     * top-level.
+     */
+    private static void processInstancesObject(
+        final String lkqlRuleFile,
+        final String instancesObjectSymbol,
+        final Value instancesObject,
+        final RuleInstance.SourceMode sourceMode,
+        final Map<String, RuleInstance> toPopulate,
+        final boolean verbose
+    ) throws LKQLRuleFileError {
+        if (!instancesObject.hasMembers()) {
+            errorInLKQLRuleFile(
+                lkqlRuleFile,
+                "The value associated to the '" +
+                    instancesObjectSymbol +
+                    "' symbol must be an LKQL object, got " +
+                    instancesObject
+            );
+        }
+
+        // Iterate on all instance object keys
+        for (String ruleName : instancesObject.getMemberKeys()) {
+            final String lowerRuleName = ruleName.toLowerCase();
+            final Value args = instancesObject.getMember(ruleName);
+
+            // Check that the value associated to the rule name is an array like value
+            if (args.hasArrayElements()) {
+                // Then iterate over each argument object and create one instance for each
+                for (long i = 0; i < args.getArraySize(); i++) {
+                    var arg = args.getArrayElement(i);
+                    if (arg.hasMembers()) {
+                        processArgsObject(
+                            lkqlRuleFile,
+                            arg,
+                            sourceMode,
+                            lowerRuleName,
+                            toPopulate,
+                            verbose
+                        );
+                    } else if (acceptSoleArgs(ruleName) && arg.isString()) {
+                        processSoleArg(
+                            lkqlRuleFile,
+                            instancesObject,
+                            arg,
+                            sourceMode,
+                            ruleName,
+                            toPopulate,
+                            verbose
+                        );
+                    } else {
+                        errorInLKQLRuleFile(lkqlRuleFile, "Arguments should be in an object value");
+                    }
+                }
+            } else {
+                errorInLKQLRuleFile(lkqlRuleFile, "The value associated to a rule must be a list");
+            }
+        }
+
+        // Post-process instances map and look for instances that are identical
+        // but have different aliases.
+
+        // Build a new map to group all instances of the same rule into a list
+        Map<String, List<RuleInstance>> rules = new HashMap();
+        for (var instance : toPopulate.entrySet()) {
+            var ruleName = instance.getValue().ruleName();
+            var instancesList = rules.getOrDefault(ruleName, new ArrayList<>());
+            instancesList.add(instance.getValue());
+            rules.put(ruleName, instancesList);
+        }
+
+        // Look for duplicates to warn the user about duplicate checks
+        for (var rule : rules.entrySet()) {
+            for (int i = 0; i < rule.getValue().size(); i++) {
+                for (var instance : rule.getValue().subList(i + 1, rule.getValue().size())) {
+                    RuleInstance current = rule.getValue().get(i);
+                    if (current.isEquivalent(instance)) {
+                        emitMessageForTheDriver(
+                            "WORKER_WARNING",
+                            current.locationToGNATDiagnosisFormatString(),
+                            "instance " +
+                                current.instanceId() +
+                                " runs the same check than instance " +
+                                instance.instanceId() +
+                                " declared at " +
+                                instance.locationToGNATDiagnosisFormatString()
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    /** Internal method to process an object value containing arguments for the given rule name. */
+    private static void processArgsObject(
+        final String lkqlRuleFile,
+        final Value argsObject,
+        final RuleInstance.SourceMode sourceMode,
+        final String ruleName,
+        final Map<String, RuleInstance> toPopulate,
+        final boolean verbose
+    ) throws LKQLRuleFileError {
+        // Compute the instance arguments and optional instance name
+        String instanceId = ruleName;
+        Optional<String> instanceName = Optional.empty();
+        Map<String, String> arguments = new HashMap<>();
+        for (String argName : argsObject.getMemberKeys()) {
+            if (argName.equals("instance_name")) {
+                String aliasName = argsObject.getMember("instance_name").asString();
+                instanceId = aliasName.toLowerCase();
+                instanceName = Optional.of(aliasName);
+            } else {
+                Value argValue = argsObject.getMember(argName);
+                arguments.put(
+                    argName,
+                    argValue.isString() ? "\"" + argValue + "\"" : argValue.toString()
+                );
+            }
+        }
+
+        RuleInstance newInstance = new RuleInstance(
+            ruleName,
+            instanceName,
+            sourceMode,
+            arguments,
+            argsObject.getSourceLocation()
+        );
+
+        // Add an instance in the instance map
+        if (toPopulate.containsKey(instanceId)) {
+            RuleInstance oldInstance = toPopulate.get(instanceId);
+            // If the instance is already present, compare parameters, if they
+            // are identical, skip the current instance and emit a warning.
+            if (oldInstance.arguments().equals(newInstance.arguments())) {
+                emitMessageForTheDriver(
+                    "WORKER_WARNING",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "ignore duplicate instance " +
+                        instanceId +
+                        ", previous declaration at " +
+                        oldInstance.locationToGNATDiagnosisFormatString()
+                );
+            } else {
+                // On the contrary, emit an error.
+                emitMessageForTheDriver(
+                    "WORKER_ERROR",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "instance " +
+                        instanceId +
+                        " has a different configuration than the one previously declared at " +
+                        oldInstance.locationToGNATDiagnosisFormatString() +
+                        " (instances should have unique names)"
+                );
+            }
+        } else {
+            if (verbose) {
+                emitMessageForTheDriver(
+                    "WORKER_INFO",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "register new instance " + instanceId
+                );
+            }
+            toPopulate.put(instanceId, newInstance);
+        }
+    }
+
+    /** Internal function to process a sole string argument for a compiler-based rule. */
+    private static void processSoleArg(
+        final String lkqlRuleFile,
+        final Value instancesObject,
+        final Value arg,
+        final RuleInstance.SourceMode sourceMode,
+        final String ruleName,
+        final Map<String, RuleInstance> toPopulate,
+        final boolean verbose
+    ) throws LKQLRuleFileError {
+        // Create the new rule instance and add it to the "global" map
+        Map<String, String> args = new HashMap<>();
+        args.put("arg", "\"" + arg + "\"");
+        RuleInstance newInstance = new RuleInstance(
+            ruleName,
+            Optional.empty(),
+            sourceMode,
+            args,
+            // Since arg is a string literal, it doesn't have SourceSection
+            // information yet, use the parent instancesObject's location
+            // instead.
+            instancesObject.getSourceLocation()
+        );
+
+        if (!toPopulate.containsKey(ruleName)) {
+            toPopulate.put(ruleName, newInstance);
+            if (verbose) {
+                emitMessageForTheDriver(
+                    "WORKER_INFO",
+                    newInstance.locationToGNATDiagnosisFormatString(),
+                    "register new instance " + ruleName
+                );
+            }
+        } else {
+            emitMessageForTheDriver(
+                "WORKER_ERROR",
+                newInstance.locationToGNATDiagnosisFormatString(),
+                "cannot add instance " +
+                    ruleName +
+                    " twice using the shortcut argument format. Previous instance has been declared in" +
+                    ((newInstance
+                                    .instanceLocation()
+                                    .equals(toPopulate.get(ruleName).instanceLocation()))
+                            ? " the same set"
+                            : ": " + toPopulate.get(ruleName).locationToGNATDiagnosisFormatString())
+            );
+        }
+    }
+
+    /** Util function which returns whether a rule accepts sole argument. */
+    private static boolean acceptSoleArgs(final String ruleName) {
+        return List.of("style_checks", "warnings").contains(ruleName);
+    }
+
+    // ----- Inner classes -----
+
+    /** An exception to throw while analysing an LKQL rule file. */
+    static final class LKQLRuleFileError extends Exception {
+
+        public LKQLRuleFileError(String message) {
+            super(message);
+        }
+    }
+
+    // ----- The LKQL checker -----
+
+    public static final String checkerSource = """
+        val analysis_units = specified_units()
+        val roots = [unit.root for unit in analysis_units]
+
+        roots.map((root) => node_checker(root)).to_list
+        analysis_units.map((unit) => unit_checker(unit)).to_list
+        """;
+}

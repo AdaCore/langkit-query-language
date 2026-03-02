@@ -429,14 +429,14 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * Create an exception for a missing argument in a function call.
      *
      * @param missingIndex The missing argument index.
-     * @param location The node that did the wrong call.
+     * @param missingName The name of the parameter that is missing.
      * @return The exception.
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException missingArgument(int missingIndex, Node location) {
+    public static LKQLRuntimeException missingArgument(int missingIndex, String missingName) {
         return LKQLRuntimeException.create(
-            "Missing value for param # " + missingIndex + " in call",
-            location
+            "Missing value for param #" + missingIndex + " (named \"" + missingName + "\") in call",
+            null
         );
     }
 

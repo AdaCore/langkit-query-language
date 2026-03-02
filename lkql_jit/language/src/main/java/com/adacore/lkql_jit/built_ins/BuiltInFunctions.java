@@ -181,7 +181,7 @@ public class BuiltInFunctions {
                 try {
                     initValue = functionLibrary.execute(
                         function,
-                        function.closure.getContent(),
+                        function.closure,
                         initValue,
                         iterator.next()
                     );
@@ -205,7 +205,7 @@ public class BuiltInFunctions {
 
         @CompilerDirectives.TruffleBoundary
         @Specialization
-        public static String exec() {
+        public String exec() {
             var sw = new StringWriter();
             try (TextWriter writer = new TextWriter(sw)) {
                 writer.write("Standard library\n");
@@ -269,9 +269,9 @@ public class BuiltInFunctions {
                             "(" +
                                 String.join(
                                     ", ",
-                                    Arrays.stream(method.getValue().paramNames).toArray(
-                                        String[]::new
-                                    )
+                                    Arrays.stream(
+                                        method.getValue().rootNode.getParameterNames()
+                                    ).toArray(String[]::new)
                                 ) +
                                 ")"
                         );
@@ -423,7 +423,7 @@ public class BuiltInFunctions {
             public boolean executeRepeating(VirtualFrame frame) {
                 if (done < times) {
                     try {
-                        functionLibrary.execute(function, (Object) function.closure.getContent());
+                        functionLibrary.execute(function, (Object) function.closure);
                     } catch (
                         ArityException
                         | UnsupportedTypeException
@@ -496,6 +496,16 @@ public class BuiltInFunctions {
                 .getSpecifiedUnits()
                 .toArray(LangkitSupport.AnalysisUnit[]::new);
             return new LKQLList(units);
+        }
+    }
+
+    @BuiltInFunction(name = "context", doc = "Return the analysis context used to parse units")
+    abstract static class ContextExpr extends BuiltInBody {
+
+        @Specialization
+        @CompilerDirectives.TruffleBoundary
+        protected LangkitSupport.AnalysisContextInterface alwaysTrue() {
+            return LKQLLanguage.getContext(this).getAnalysisContext();
         }
     }
 }

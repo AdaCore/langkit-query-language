@@ -70,7 +70,7 @@ public class LKQLStream extends BaseLKQLLazyList {
 
     protected LKQLStream getTail() {
         if (this.tailCache == null) {
-            var tailValue = this.tailExecutionUnit.call((Object) this.tailClosure.getContent());
+            var tailValue = this.tailExecutionUnit.call(this.tailClosure);
             switch (tailValue) {
                 case LKQLStream lazyList -> this.tailCache = lazyList;
                 case LKQLUnit _ -> this.tailCache = NIL;

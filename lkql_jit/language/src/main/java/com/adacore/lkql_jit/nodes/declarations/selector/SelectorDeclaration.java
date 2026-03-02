@@ -91,7 +91,6 @@ public final class SelectorDeclaration extends Declaration {
             new LKQLSelector(
                 this.selectorRootNode,
                 createClosureNode.execute(frame),
-                this.name,
                 this.documentation,
                 // We only check cycles on memoized selectors for now
                 annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED)
