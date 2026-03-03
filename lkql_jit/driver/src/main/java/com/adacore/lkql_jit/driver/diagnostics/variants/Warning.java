@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.driver.diagnostics.variants;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import java.util.Optional;
 
-/** This class represents a warning diagnostics. */
+/** This class represents a warning diagnostic. */
 public final class Warning extends BaseDiagnostic {
 
     // ----- Constructors -----

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** This class represents an error diagnostics. */
+/** This class represents an error diagnostic. */
 public final class Error extends BaseDiagnostic {
 
     /** Call stack of the error diagnostic, most recent call first. */
