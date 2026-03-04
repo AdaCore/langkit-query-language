@@ -93,7 +93,7 @@ public class LKQLRun extends BaseSubcommand {
             .projectFile(this.args.project)
             .target(this.args.target)
             .runtime(this.args.RTS)
-            .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
+            .missingFileIsError(this.args.missingFileIsError)
             .files(this.args.files)
             .charset(this.args.charset);
 
@@ -201,10 +201,10 @@ public class LKQLRun extends BaseSubcommand {
         public boolean interactive;
 
         @CommandLine.Option(
-            names = "--keep-going-on-missing-file",
-            description = "Keep going on missing file"
+            names = "--missing-file-is-error",
+            description = "Consider and log missing files as errors"
         )
-        public Boolean keepGoingOnMissingFile = false;
+        public Boolean missingFileIsError = false;
 
         @CommandLine.Unmatched
         public List<String> unmatched = new ArrayList<>();

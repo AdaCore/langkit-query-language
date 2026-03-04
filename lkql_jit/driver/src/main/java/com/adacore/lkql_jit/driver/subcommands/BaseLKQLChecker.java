@@ -94,7 +94,7 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
             .runtime(this.args.rts)
             .target(this.args.target)
             .projectFile(this.args.project)
-            .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
+            .missingFileIsError(this.args.missingFileIsError)
             .build();
 
         // Configure the execution context
@@ -289,10 +289,10 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
         public List<String> rulesArgs = new ArrayList<>();
 
         @CommandLine.Option(
-            names = "--keep-going-on-missing-file",
-            description = "Keep going on missing file"
+            names = "--missing-file-is-error",
+            description = "Consider and log missing files as errors"
         )
-        public Boolean keepGoingOnMissingFile = false;
+        public Boolean missingFileIsError = false;
 
         @CommandLine.Unmatched
         public List<String> unmatched = new ArrayList<>();

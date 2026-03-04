@@ -66,15 +66,11 @@ public final class LKQLContext {
     private final Libadalang.EventHandler eventHandler = Libadalang.EventHandler.create(
         (ctx, name, from, found, notFoundIsError) -> {
             if (!found && notFoundIsError) {
-                boolean isFatal = !this.keepGoingOnMissingFile();
                 this.getDiagnosticEmitter().emitFileNotFound(
                     new LangkitLocationWrapper(from.getRoot(), this.linesCache),
                     name,
-                    isFatal
+                    this.missingFileIsError()
                 );
-                if (isFatal) {
-                    this.env.getContext().closeExited(null, 1);
-                }
             }
         },
         null
@@ -253,8 +249,8 @@ public final class LKQLContext {
     }
 
     /** Return true if the engine should keep running when a required file is not found. */
-    public boolean keepGoingOnMissingFile() {
-        return this.getOptions().keepGoingOnMissingFile();
+    public boolean missingFileIsError() {
+        return this.getOptions().missingFileIsError();
     }
 
     /** Get whether to display instantiation chain in diagnostics. */
@@ -405,7 +401,7 @@ public final class LKQLContext {
                     this.getDiagnosticEmitter().emitFileNotFound(
                         null,
                         file,
-                        !this.keepGoingOnMissingFile()
+                        this.missingFileIsError()
                     );
                 }
             }

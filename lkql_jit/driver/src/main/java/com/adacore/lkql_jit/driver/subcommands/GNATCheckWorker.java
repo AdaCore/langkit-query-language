@@ -101,7 +101,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         optionsBuilder
             .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
             .fallbackToAllRules(false)
-            .keepGoingOnMissingFile(true);
+            .missingFileIsError(false);
 
         // If a LKQL rule config file has been provided, parse it and display the result
         if (this.args.lkqlConfigFile != null) {
