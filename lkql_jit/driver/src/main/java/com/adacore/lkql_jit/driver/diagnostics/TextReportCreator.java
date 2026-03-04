@@ -39,8 +39,10 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
         StylingFunction kindStyle = switch (diagnostic) {
             case Error _ -> this::red;
             case Warning _, RuleViolation _ -> this::yellow;
+            case Info _ -> this::brightBlue;
         };
         var kindName = switch (diagnostic) {
+            case Info _ -> "info";
             case Warning _ -> "warning";
             case Error _ -> "error";
             case RuleViolation _ -> "rule violation";
@@ -168,6 +170,10 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
 
     private String blue(String s) {
         return styled(s, "\u001B[34m");
+    }
+
+    private String brightBlue(String s) {
+        return styled(s, "\u001B[94m");
     }
 
     private String yellow(String s) {
