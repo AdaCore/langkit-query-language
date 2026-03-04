@@ -5,8 +5,10 @@
 
 package com.adacore.lkql_jit.driver.source_support;
 
-import com.adacore.langkit_support.LangkitSupport;
 import com.oracle.truffle.api.CompilerDirectives;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.graalvm.collections.EconomicMap;
@@ -19,25 +21,32 @@ public final class SourceLinesCache {
 
     // ----- Attributes -----
 
-    private final EconomicMap<LangkitSupport.NodeInterface, List<String>> sourcesLines =
-        EconomicMap.create();
+    private final EconomicMap<Path, List<String>> sourcesLines = EconomicMap.create();
 
     // ----- Instance methods -----
 
+    /** Initialize lines associated to the provided path. */
+    void initLines(Path sourcePath, String buffer) {
+        sourcesLines.put(sourcePath, splitLines(buffer));
+    }
+
     /**
-     * Return the lines of code composing the given analysis unit as an array of Strings. This
-     * either fetches them from the cache if they were already computed previously, or computes
-     * them and stores them in the cache for later reuse.
+     * Return the lines of code composing the given file as a list of Strings. This either fetches
+     * them from the cache if they were already computed previously, or computes them and stores
+     * them in the cache for later reuse.
      *
-     * @param unit The unit from which to extract source lines
+     * @param sourcePath Path to the file to get the lines of.
      */
     @CompilerDirectives.TruffleBoundary
-    public List<String> getLines(LangkitSupport.AnalysisUnit unit) {
-        var root = unit.getRoot();
-        var result = sourcesLines.get(root, null);
+    public List<String> getLines(Path sourcePath) {
+        var result = sourcesLines.get(sourcePath, null);
         if (result == null) {
-            result = splitLines(unit.getText());
-            sourcesLines.put(root, result);
+            try {
+                result = splitLines(Files.readString(sourcePath));
+                sourcesLines.put(sourcePath, result);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         return result;
     }
