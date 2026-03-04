@@ -15,7 +15,7 @@ import java.io.Serial;
  * {@link LKQLRuntimeError}, LKQL static errors are reported using the {@link LKQLStaticErrors}
  * class.
  */
-public class LKQLEngineException extends AbstractTruffleException {
+public final class LKQLEngineException extends AbstractTruffleException {
 
     // ----- Attributes -----
 

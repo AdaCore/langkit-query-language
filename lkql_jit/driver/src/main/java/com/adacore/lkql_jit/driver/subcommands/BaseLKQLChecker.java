@@ -34,7 +34,7 @@ import picocli.CommandLine;
  */
 public abstract class BaseLKQLChecker extends BaseSubcommand {
 
-    // ----- Properties -----
+    // ----- Attributes -----
 
     /** Parsed arguments from the command-line. */
     protected Args args;

@@ -397,7 +397,7 @@ public final class LKQLContext {
 
         // Add all the user-specified files to process after verifying they exist
         for (String file : this.getFiles()) {
-            if (!file.isEmpty() && !file.isBlank()) {
+            if (!file.isBlank()) {
                 File sourceFile = new File(file);
                 if (sourceFile.isFile()) {
                     this.specifiedSourceFiles.add(sourceFile.getAbsolutePath());
@@ -522,6 +522,8 @@ public final class LKQLContext {
                     8
                 );
             }
+        } catch (Libadalang.ProjectManagerException e) {
+            throw LKQLEngineException.create(e);
         }
     }
 
