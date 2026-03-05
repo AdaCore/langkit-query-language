@@ -10,16 +10,12 @@ import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
 
 /** This class represents a list comprehension value in the LKQL language. */
 public final class LKQLListComprehension extends BaseLKQLLazyList {
 
     // ----- Attributes -----
-
-    /** Direct call node used to execute the list comprehension logic. */
-    private final IndirectCallNode callNode;
 
     /** Call target representing the list comprehension execution logic. */
     private final CallTarget callTarget;
@@ -49,7 +45,6 @@ public final class LKQLListComprehension extends BaseLKQLLazyList {
         final Iterator[] sources
     ) {
         super(new ListStorage<>(sources.length > 0 ? 16 : 0));
-        this.callNode = IndirectCallNode.create();
         this.callTarget = rootNode.getCallTarget();
         this.sources = sources;
         this.pullCount = sources.length; // first pull from all sources
@@ -63,7 +58,7 @@ public final class LKQLListComprehension extends BaseLKQLLazyList {
     protected void initCacheTo(long n) {
         while (n >= this.cache.size() || n < 0) {
             if (!updateArgs()) return;
-            Object value = this.callNode.call(callTarget, arguments);
+            Object value = callTarget.call(arguments);
             if (value != null) {
                 this.cache.append(value);
             }

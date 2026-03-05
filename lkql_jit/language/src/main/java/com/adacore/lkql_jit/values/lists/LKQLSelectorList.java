@@ -11,7 +11,6 @@ import com.adacore.lkql_jit.values.LKQLDepthValue;
 import com.adacore.lkql_jit.values.LKQLRecValue;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -20,9 +19,6 @@ import java.util.HashSet;
 public class LKQLSelectorList extends BaseLKQLLazyList {
 
     // ----- Attributes -----
-
-    /** Direct call node used to execute the selector logic. */
-    private final IndirectCallNode callNode;
 
     /** Call target representing the selector execution. */
     private final CallTarget callTarget;
@@ -66,7 +62,6 @@ public class LKQLSelectorList extends BaseLKQLLazyList {
         super(new ListStorage<>(16));
         this.arguments = new Object[3];
         this.arguments[0] = closure;
-        this.callNode = IndirectCallNode.create();
         this.callTarget = rootNode.getCallTarget();
         this.toVisitList = new ArrayDeque<>();
         this.maxDepth = maxDepth;
@@ -90,7 +85,7 @@ public class LKQLSelectorList extends BaseLKQLLazyList {
             LKQLDepthValue nextNode = this.toVisitList.poll();
             arguments[1] = nextNode.value;
             arguments[2] = (long) nextNode.depth;
-            LKQLRecValue result = (LKQLRecValue) this.callNode.call(callTarget, arguments);
+            LKQLRecValue result = (LKQLRecValue) callTarget.call(arguments);
 
             // Add the call result to the result and recurse list
             addToRecurse(result.recurseVal, result.depth);
