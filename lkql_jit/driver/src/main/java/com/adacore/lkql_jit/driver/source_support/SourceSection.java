@@ -23,11 +23,7 @@ public abstract class SourceSection {
         LangkitSupport.TokenInterface token,
         SourceLinesCache linesCache
     ) {
-        return new LangkitSlocRangeWrapper(
-            token.getSourceLocationRange(),
-            token.getUnit(),
-            linesCache
-        );
+        return wrap(token.getSourceLocationRange(), token.getUnit(), linesCache);
     }
 
     /** Wrap a Langkit node in a SourceSection object. */
@@ -35,11 +31,16 @@ public abstract class SourceSection {
         LangkitSupport.NodeInterface node,
         SourceLinesCache linesCache
     ) {
-        return new LangkitSlocRangeWrapper(
-            node.getSourceLocationRange(),
-            node.getUnit(),
-            linesCache
-        );
+        return wrap(node.getSourceLocationRange(), node.getUnit(), linesCache);
+    }
+
+    /** Wrap a langkit source location with its related analysis unit in a SourceSection object. */
+    public static SourceSection wrap(
+        LangkitSupport.SourceLocationRange locationRange,
+        LangkitSupport.AnalysisUnit unit,
+        SourceLinesCache linesCache
+    ) {
+        return new LangkitSlocRangeWrapper(locationRange, unit, linesCache);
     }
 
     /** Wrap a Truffle source section in a SourceSection object. */

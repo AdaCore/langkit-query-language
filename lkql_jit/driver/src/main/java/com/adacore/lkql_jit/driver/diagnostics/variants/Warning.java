@@ -15,11 +15,11 @@ public final class Warning extends BaseDiagnostic {
 
     /** Create a new warning diagnostic with a related location. */
     public Warning(String message, SourceSection location) {
-        super(message, Optional.of(location));
+        super(message, Optional.ofNullable(location));
     }
 
     /** Create a new warning diagnostic without location. */
     public Warning(String message) {
-        super(message, Optional.empty());
+        this(message, null);
     }
 }
