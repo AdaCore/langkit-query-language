@@ -10,10 +10,8 @@ import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.driver.checker.CheckerRun;
 import com.adacore.lkql_jit.driver.checker.RuleInstance;
 import com.adacore.lkql_jit.driver.checker.RuleRepository;
-import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
-import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
 import com.adacore.lkql_jit.values.interop.LKQLList;
@@ -49,10 +47,7 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
     // ----- Abstract methods -----
 
     /** Perform a custom post-processing on rule instances that are going to be executed. */
-    protected List<RuleInstance> postProcessInstances(
-        List<RuleInstance> ruleInstances,
-        DiagnosticCollector diagnostics
-    ) {
+    protected List<RuleInstance> postProcessInstances(List<RuleInstance> ruleInstances) {
         return ruleInstances;
     }
 
@@ -101,17 +96,14 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
         contextBuilder
             .allowIO(IOAccess.ALL)
             .useSystemExit(true)
+            .logHandler(logHandler)
             .option("lkql.options", options.toJson().toString());
-
-        // Create a new diagnostic collector to gathers all execution diagnostics
-        DiagnosticCollector diagnostics = new DiagnosticCollector();
 
         // Then build the context and perform the checking process
         try (Context context = contextBuilder.build()) {
             RuleRepository repository = new RuleRepository(context, searchingDirs(), diagnostics);
             List<RuleInstance> ruleInstances = postProcessInstances(
-                this.getRuleInstances(context, repository, diagnostics),
-                diagnostics
+                this.getRuleInstances(context, repository)
             );
 
             // Get analysis context and specified unit from the LKQL engine
@@ -126,9 +118,6 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
             List<LangkitSupport.AnalysisUnit> specifiedUnits = Arrays.stream(units.getContent())
                 .map(o -> (LangkitSupport.AnalysisUnit) o)
                 .toList();
-
-            // Create a new cache for analyzed source lines
-            SourceLinesCache linesCache = new SourceLinesCache();
 
             // Create a new checker run with the gathered configuration
             CheckerRun checkerRun = new CheckerRun(
@@ -166,11 +155,7 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
     }
 
     /** Get all rule instances to run for the current run. */
-    private List<RuleInstance> getRuleInstances(
-        Context context,
-        RuleRepository repository,
-        DiagnosticCollector diagnostics
-    ) {
+    private List<RuleInstance> getRuleInstances(Context context, RuleRepository repository) {
         // First, parse the rule arguments in a map
         Map<String, Map<String, Object>> instanceArgs = new HashMap<>();
         for (var arg : this.args.rulesArgs) {

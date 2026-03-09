@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.File;
@@ -71,11 +70,8 @@ public class LKQLPasses extends BaseSubcommand {
 
     /** Execute the LKQL script and return the exit code. */
     protected int executeScript(Context.Builder contextBuilder) {
-        // Create a diagnostic collector
-        var diagnostics = new DiagnosticCollector();
-
         // Set the common configuration
-        contextBuilder.allowIO(IOAccess.ALL);
+        contextBuilder.allowIO(IOAccess.ALL).logHandler(logHandler);
 
         // Forward the command line options to the options builder
         final var optionsBuilder = new LKQLOptions.Builder()

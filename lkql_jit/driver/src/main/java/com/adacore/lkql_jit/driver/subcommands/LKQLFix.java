@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.driver.checker.CheckerRun;
 import com.adacore.lkql_jit.driver.checker.RuleInstance;
-import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -63,10 +62,7 @@ public class LKQLFix extends BaseLKQLChecker {
     // ----- Instance methods -----
 
     @Override
-    protected List<RuleInstance> postProcessInstances(
-        List<RuleInstance> ruleInstances,
-        DiagnosticCollector diagnostics
-    ) {
+    protected List<RuleInstance> postProcessInstances(List<RuleInstance> ruleInstances) {
         return ruleInstances
             .stream()
             .filter(i -> {
