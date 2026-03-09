@@ -195,9 +195,9 @@ public final class LKQLContext {
 
     /** Finalize the LKQL context to close libadalang context. */
     public void finalizeContext() {
-        this.eventHandler.close();
-        this.analysisContext.close();
-        if (this.projectManager != null) this.projectManager.close();
+        eventHandler.close();
+        if (analysisContext != null) analysisContext.close();
+        if (projectManager != null) projectManager.close();
     }
 
     // ----- Getters -----
