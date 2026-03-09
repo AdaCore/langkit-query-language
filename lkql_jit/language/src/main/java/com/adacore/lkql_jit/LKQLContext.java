@@ -12,6 +12,7 @@ import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LogLocation;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -25,8 +26,10 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLogger;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -66,11 +69,52 @@ public final class LKQLContext {
     private final Libadalang.EventHandler eventHandler = Libadalang.EventHandler.create(
         (ctx, name, from, found, notFoundIsError) -> {
             if (!found && notFoundIsError) {
-                this.getDiagnosticEmitter().emitFileNotFound(
-                    new LangkitLocationWrapper(from.getRoot(), this.linesCache),
-                    name,
-                    this.missingFileIsError()
-                );
+                // Get the base name of the requested Ada file and extract the unit name from it
+                var adaFileName = Paths.get(name).getFileName().toString();
+                var split = adaFileName.split("\\.");
+                var requestedUnitName = Libadalang.Symbol.create(split[0]);
+
+                // Try to get the "with" statement that caused this event
+                var reportLocationNode = from
+                    .getRoot()
+                    .walk()
+                    .filter(
+                        n ->
+                            n instanceof Libadalang.WithClause wc &&
+                            wc
+                                .fPackages()
+                                .walk()
+                                .anyMatch(
+                                    p ->
+                                        p instanceof Libadalang.Name pn &&
+                                        pn.pNameIs(requestedUnitName)
+                                )
+                    )
+                    .findFirst()
+                    .map(n -> (Libadalang.AdaNode) n)
+                    .orElse(from.getRoot());
+
+                // Now report the error
+                var level = missingFileIsError() ? Level.SEVERE : Level.WARNING;
+                var message = "File " + adaFileName + " not found";
+                if (this.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
+                    this.getDiagnosticEmitter().emitFileNotFound(
+                        new LangkitLocationWrapper(reportLocationNode, this.linesCache),
+                        name,
+                        missingFileIsError()
+                    );
+                } else {
+                    this.getLogger().log(
+                        level,
+                        message,
+                        new LogLocation(
+                            new LogLocation.LangkitLocation(
+                                from,
+                                reportLocationNode.getSourceLocationRange()
+                            )
+                        )
+                    );
+                }
             }
         },
         null
@@ -398,11 +442,9 @@ public final class LKQLContext {
                 if (sourceFile.isFile()) {
                     this.specifiedSourceFiles.add(sourceFile.getAbsolutePath());
                 } else {
-                    this.getDiagnosticEmitter().emitFileNotFound(
-                        null,
-                        file,
-                        this.missingFileIsError()
-                    );
+                    var level = missingFileIsError() ? Level.SEVERE : Level.WARNING;
+                    var message = "File " + sourceFile.getName() + " not found";
+                    this.getLogger().log(level, message);
                 }
             }
         }
@@ -432,11 +474,11 @@ public final class LKQLContext {
                 this.projectManager = new Libadalang.ProjectManager(opts, true);
 
                 // Forward the project diagnostics if there are some
-                if (!this.projectManager.getDiagnostics().isEmpty()) {
-                    this.getDiagnosticEmitter().emitProjectErrors(
-                        new File(projectFileName).getName(),
-                        this.projectManager.getDiagnostics()
-                    );
+                var diagnostics = this.projectManager.getDiagnostics();
+                if (!diagnostics.isEmpty()) {
+                    for (var diagnostic : diagnostics) {
+                        getLogger().severe(diagnostic);
+                    }
                 }
 
                 // Get the subproject provided by the user
