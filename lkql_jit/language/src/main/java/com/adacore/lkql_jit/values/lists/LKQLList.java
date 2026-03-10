@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.values.lists;
 import com.adacore.lkql_jit.values.interop.LKQLCollection;
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
 import com.adacore.lkql_jit.values.iterators.LKQLListIterator;
-import java.util.Arrays;
 
 /** This class represents an array list in the LKQL language. */
 public final class LKQLList extends LKQLCollection {
@@ -35,10 +34,6 @@ public final class LKQLList extends LKQLCollection {
     @Override
     public Object get(long i) throws IndexOutOfBoundsException {
         return this.content[(int) i];
-    }
-
-    public Object[] getSlice(long first, long last) throws IndexOutOfBoundsException {
-        return Arrays.copyOfRange(this.content, (int) first, (int) last);
     }
 
     @Override

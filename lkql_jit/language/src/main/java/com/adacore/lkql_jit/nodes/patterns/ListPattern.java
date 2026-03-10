@@ -11,6 +11,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
+import java.util.Arrays;
 
 public abstract class ListPattern extends Pattern {
 
@@ -26,14 +27,14 @@ public abstract class ListPattern extends Pattern {
     @Specialization
     public boolean onList(VirtualFrame frame, LKQLList list) {
         var lastMatch = 0;
-        for (int i = 0; i < list.getArraySize(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             var pattern = patterns[i];
             lastMatch = i;
             // SplatPattern matches the rest of the list
             if (pattern instanceof SplatPattern) {
                 return pattern.executeValue(
                     frame,
-                    new LKQLList(list.getSlice(i, list.getArraySize()))
+                    new LKQLList(Arrays.copyOfRange(list.content, i, (int) list.size()))
                 );
             }
             // Else, fail on the first pattern that fails
