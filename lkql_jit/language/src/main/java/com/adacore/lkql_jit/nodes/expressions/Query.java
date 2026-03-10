@@ -298,13 +298,6 @@ public final class Query extends Expr {
         public Iterator iterator() {
             return new ChildIterator(this.root, this.followGenerics);
         }
-
-        // ----- Un-needed methods -----
-
-        @Override
-        public long size() {
-            return -1;
-        }
     }
 
     /** This class is the iterator for a query without through */

@@ -19,6 +19,9 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(InteropLibrary.class)
 public abstract class LKQLCollection extends LKQLValue implements Iterable, Indexable {
 
+    /** Get the size of the collection. */
+    public abstract long size();
+
     // ----- Value methods -----
 
     /** Get the displayable string for the interop library. */
