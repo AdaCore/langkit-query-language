@@ -14,10 +14,10 @@ import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
 import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLFunction;
-import com.adacore.lkql_jit.values.LKQLTuple;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
+import com.adacore.lkql_jit.values.lists.LKQLEnumerateResult;
 import com.adacore.lkql_jit.values.lists.LKQLFlattenResult;
 import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.adacore.lkql_jit.values.lists.LKQLMapResult;
@@ -49,20 +49,8 @@ public class IterableMethods {
     abstract static class EnumerateExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList doGeneric(LKQLList receiver) {
-            // Create the result array and fill it
-            final var resContent = new Object[(int) receiver.size()];
-            long index = 1;
-            final var iterator = receiver.iterator();
-            while (iterator.hasNext()) {
-                resContent[(int) index - 1] = new LKQLTuple(
-                    new Object[] { index, iterator.next() }
-                );
-                index++;
-            }
-
-            // Return the result
-            return new LKQLList(resContent);
+        public Iterable doGeneric(Iterable self) {
+            return new LKQLEnumerateResult(self);
         }
     }
 
