@@ -27,6 +27,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import java.util.ArrayList;
 
 /** This class contains all built-in methods for the iterable type in the LKQL language. */
 @BuiltinMethodContainer(
@@ -69,25 +70,21 @@ public class IterableMethods {
     abstract static class ToListExpr extends BuiltInBody {
 
         @Specialization
+        public LKQLList doList(LKQLList self) {
+            return self;
+        }
+
+        @Specialization
         public LKQLList doGeneric(Iterable self) {
             // Create a new list from the iterable
-            var res = new Object[(int) self.size()];
+            var tmp = new ArrayList<Object>();
             Iterator iterator = self.iterator();
-            for (int i = 0; i < res.length; i++) {
-                res[i] = iterator.next();
+            while (iterator.hasNext()) {
+                tmp.add(iterator.next());
             }
 
             // Return the new list value
-            return new LKQLList(res);
-        }
-    }
-
-    @BuiltInMethod(name = "length", doc = "Return the length of the iterable", isProperty = true)
-    abstract static class LengthExpr extends BuiltInBody {
-
-        @Specialization
-        public long doGeneric(Iterable self) {
-            return self.size();
+            return new LKQLList(tmp.toArray());
         }
     }
 

@@ -6,7 +6,7 @@ val _ = print("=== Simple stream")
 val s_1 = 1 :: 2 :: 3 :: 4 :: 5 :: Unit()
 val _ = print(s_1[1])
 val _ = print(s_1[3])
-val _ = print(s_1.length)
+val _ = print(s_1.to_list.length)
 val _ = print("")
 
 # Ensure the laziness of streams
@@ -23,7 +23,7 @@ val _ = print(s_3[1])
 val _ = print(s_3[2])
 val _ = print(s_3[5])
 val _ = print(s_3[6])
-val _ = print(s_3.length)
+val _ = print(s_3.to_list.length)
 val _ = print("")
 
 # Test concatenating a list with a stream
@@ -33,7 +33,7 @@ val _ = print(s_4[1])
 val _ = print(s_4[2])
 val _ = print(s_4[5])
 val _ = print(s_4[6])
-val _ = print(s_4.length)
+val _ = print(s_4.to_list.length)
 val _ = print("")
 
 # Test a stream from a recursive function

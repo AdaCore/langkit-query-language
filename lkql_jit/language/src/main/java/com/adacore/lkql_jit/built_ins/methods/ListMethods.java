@@ -40,4 +40,13 @@ public class ListMethods {
             return new LKQLList(Arrays.copyOfRange(list.getContent(), (int) low, (int) high));
         }
     }
+
+    @BuiltInMethod(name = "length", doc = "Return the length of the list", isProperty = true)
+    abstract static class LengthExpr extends BuiltInBody {
+
+        @Specialization
+        public long doGeneric(LKQLList self) {
+            return self.size();
+        }
+    }
 }
