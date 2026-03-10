@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.driver.diagnostics;
 
 import com.adacore.lkql_jit.driver.diagnostics.variants.BaseDiagnostic;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Exception;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
@@ -19,7 +20,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.StreamSupport;
 import org.graalvm.polyglot.PolyglotException;
 
 /** A collector used to gather diagnostics during any LKQL execution. */
@@ -49,7 +49,7 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
      * Provided hints are associated to all created diagnostics.
      */
     public void handleException(PolyglotException exception, Hint... hints) {
-        // Check if the exception is from an LKQL execution
+        // Check if the exception is coming from the LKQL engine
         if (exception.isGuestException()) {
             var guestException = exception.getGuestObject();
             if (guestException != null) {
@@ -72,28 +72,24 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
         }
 
         // Handle the polyglot exception the generic way
+        var kind = Exception.Kind.fromThrowable(
+            exception.isHostException() ? exception.asHostException() : exception
+        );
+        var message = exception.isHostException()
+            ? exception.asHostException().getMessage()
+            : exception.getMessage();
         var location = exception.getSourceLocation();
-        var diagnostic = new Error(
-            exception.getMessage(),
+        var diagnostic = new Exception(
+            kind,
+            message,
             location == null ? null : SourceSection.wrap(location)
         );
+
+        // Add all hints to the diagnostic
         Arrays.stream(hints).forEach(diagnostic::addHint);
 
-        // Try to get the LKQL call stack
-        var lkqlStackTrace = StreamSupport.stream(
-            exception.getPolyglotStackTrace().spliterator(),
-            false
-        )
-            .filter(PolyglotException.StackFrame::isGuestFrame)
-            .toList();
-        if (!lkqlStackTrace.isEmpty()) {
-            for (var frame : lkqlStackTrace) {
-                diagnostic.addCallToStack(
-                    frame.getRootName(),
-                    SourceSection.wrap(frame.getSourceLocation())
-                );
-            }
-        }
+        // Fill the call stack with Java stack frames
+        Arrays.stream(exception.getStackTrace()).forEach(diagnostic::addFrame);
 
         // Finally add the diagnostic to the collector
         add(diagnostic);
@@ -101,12 +97,29 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
 
     /** Handle an LKQL engine exception and fill the diagnostic collector accordingly. */
     public void handleException(LKQLEngineException exception, Hint... hints) {
+        // Get the origin exception from the LKQL engine exception
+        var cause = exception.getCause();
+
+        // Create the exception diagnostic
+        var exceptionKind = exception.getCause() == null
+            ? Exception.Kind.LKQL_ENGINE
+            : Exception.Kind.fromThrowable(exception.getCause());
         var location = exception.getEncapsulatingSourceSection();
-        var diagnostic = new Error(
+        var diagnostic = new Exception(
+            exceptionKind,
             exception.getMessage(),
             location == null ? null : SourceSection.wrap(location)
         );
+
+        // Add all hints to the diagnostic
         Arrays.stream(hints).forEach(diagnostic::addHint);
+
+        // If there is an origin exception, fill the stack trace
+        if (cause != null) {
+            Arrays.stream(cause.getStackTrace()).forEach(diagnostic::addFrame);
+        }
+
+        // Finally, add the diagnostic to the collector
         add(diagnostic);
     }
 
@@ -114,7 +127,8 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
     public void handleException(LKQLRuntimeError error, Hint... hints) {
         // Create the base error diagnostic
         var errorNode = error.getLocation();
-        var diagnostic = new Error(
+        var diagnostic = new Exception(
+            Exception.Kind.LKQL_EXECUTION,
             error.getMessage(),
             errorNode == null ? null : SourceSection.wrap(errorNode)
         );
@@ -133,7 +147,7 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
                 var callLocation = SourceSection.wrap(frameNode);
                 var callContext = frame.getTarget().getRootNode().getName();
                 if (callLocation != null) {
-                    diagnostic.addCallToStack(callContext, callLocation);
+                    diagnostic.addFrame(callContext, callLocation);
                 }
             }
         }
@@ -145,7 +159,8 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
     /** Handle LKQL static errors and fill the diagnostic collector accordingly. */
     public void handleException(LKQLStaticErrors errors, Hint... hints) {
         for (var staticError : errors.diagnostics) {
-            var diagnostic = new Error(
+            var diagnostic = new Exception(
+                Exception.Kind.LKQL_EXECUTION,
                 staticError.message(),
                 SourceSection.wrap(staticError.location())
             );
@@ -156,7 +171,9 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
 
     /** Get whether an error has been inserted in this diagnostic collector. */
     public boolean hasError() {
-        return this.diagnostics.stream().anyMatch(d -> d instanceof Error);
+        return this.diagnostics.stream().anyMatch(
+            d -> d instanceof Error || d instanceof Exception
+        );
     }
 
     /**

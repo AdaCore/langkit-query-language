@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** This class is the base of all diagnostics. */
-public abstract sealed class BaseDiagnostic permits Info, Warning, Error, RuleViolation {
+public abstract sealed class BaseDiagnostic permits Info, Warning, Error, Exception, RuleViolation {
 
     // ----- Attribbutes -----
 
