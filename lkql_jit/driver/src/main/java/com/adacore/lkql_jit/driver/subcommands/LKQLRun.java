@@ -112,10 +112,11 @@ public class LKQLRun extends BaseSubcommand {
             }
 
             // If an error occurred, display it and exit
+            diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
             if (diagnostics.hasError()) {
-                diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
                 return 0;
             }
+            diagnostics.clear();
 
             // Then, if the user required an interactive session, start it
             if (this.args.interactive) {
