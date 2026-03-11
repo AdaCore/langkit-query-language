@@ -15,17 +15,17 @@ import com.adacore.lkql_jit.nodes.utils.ConcatenationNode;
 import com.adacore.lkql_jit.nodes.utils.ValueCombiner;
 import com.adacore.lkql_jit.tools.TextWriter;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.*;
-import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
 import com.adacore.lkql_jit.values.lists.LKQLLazyListStreamWrapper;
 import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLUniqueResult;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
@@ -56,12 +56,15 @@ public class BuiltInFunctions {
         name = "unique",
         doc = "Given a collection, create a list with all duplicates removed"
     )
-    @BuiltInMethod(targetTypes = LKQLTypesHelper.LKQL_LIST, isProperty = true)
+    @BuiltInMethod(
+        targetTypes = { LKQLTypesHelper.LKQL_LAZY_LIST, LKQLTypesHelper.LKQL_LIST },
+        isProperty = true
+    )
     abstract static class UniqueExpr extends BuiltInBody {
 
         @Specialization
-        protected LKQLList onIndexable(Indexable indexable) {
-            return new LKQLList(ArrayUtils.unique(indexable.getContent()).toArray(new Object[0]));
+        protected BaseLKQLLazyList onIterable(Iterable iterable) {
+            return new LKQLUniqueResult(iterable);
         }
     }
 

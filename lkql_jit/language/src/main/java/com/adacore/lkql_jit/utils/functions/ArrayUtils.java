@@ -60,24 +60,6 @@ public final class ArrayUtils {
         return res;
     }
 
-    /**
-     * Create an array where duplicate entries of input are deleted.
-     *
-     * @param array The input array.
-     * @param <T> Type of the array.
-     * @return The unique array.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static <T> List<T> unique(T[] array) {
-        ArrayList<T> resList = new ArrayList<>();
-        for (T elem : array) {
-            if (!resList.contains(elem)) {
-                resList.add(elem);
-            }
-        }
-        return resList;
-    }
-
     @CompilerDirectives.TruffleBoundary
     public static <T> String toString(T[] array) {
         return Arrays.toString(array);
