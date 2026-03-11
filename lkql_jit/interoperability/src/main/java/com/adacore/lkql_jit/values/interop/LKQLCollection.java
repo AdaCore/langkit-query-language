@@ -22,6 +22,9 @@ public abstract class LKQLCollection extends LKQLValue implements Iterable, Inde
     /** Get the size of the collection. */
     public abstract long size();
 
+    /** Get the content of the list as an array. */
+    public abstract Object[] getContent();
+
     // ----- Value methods -----
 
     /** Get the displayable string for the interop library. */
@@ -115,17 +118,6 @@ public abstract class LKQLCollection extends LKQLValue implements Iterable, Inde
     @ExportMessage
     public Object getIterator() {
         return this.iterator();
-    }
-
-    // ----- Indexable required methods -----
-
-    @Override
-    public Object[] getContent() {
-        Object[] res = new Object[(int) this.size()];
-        for (int i = 0; i < this.size(); i++) {
-            res[i] = this.get(i);
-        }
-        return res;
     }
 
     // ----- Override methods -----

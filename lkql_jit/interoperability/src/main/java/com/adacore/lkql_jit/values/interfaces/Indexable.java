@@ -19,11 +19,4 @@ public interface Indexable {
      * @throws IndexOutOfBoundsException If the index is not valid.
      */
     Object get(long index) throws IndexOutOfBoundsException;
-
-    /**
-     * Get the content of the indexable value in an array.
-     *
-     * @return The content of the indexable value.
-     */
-    Object[] getContent();
 }
