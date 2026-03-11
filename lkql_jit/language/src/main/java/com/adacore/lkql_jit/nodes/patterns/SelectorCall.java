@@ -188,8 +188,9 @@ public final class SelectorCall extends LKQLNode {
      */
     private boolean isAll(VirtualFrame frame, LKQLSelectorList selectorListValue, Pattern pattern) {
         // Iterate on nodes
-        for (int i = 0; i < selectorListValue.size(); i++) {
-            if (!pattern.executeValue(frame, selectorListValue.get(i))) return false;
+        var it = selectorListValue.iterator();
+        while (it.hasNext()) {
+            if (!pattern.executeValue(frame, it.next())) return false;
         }
 
         // Return true if all nodes verify the pattern
