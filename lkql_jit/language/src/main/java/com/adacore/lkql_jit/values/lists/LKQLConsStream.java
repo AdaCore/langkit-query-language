@@ -17,12 +17,12 @@ import com.oracle.truffle.api.CallTarget;
  * This class represents a stream, with a known head and an execution unit to get its tail in a
  * lazy way.
  */
-public class LKQLStream extends BaseLKQLLazyList {
+public class LKQLConsStream extends BaseLKQLLazyList {
 
     // ----- Attributes -----
 
     /** Instance of "Nil", used to flag the end of a streams. */
-    private static final LKQLStream NIL = new LKQLStream(null, null, null);
+    private static final LKQLConsStream NIL = new LKQLConsStream(null, null, null);
 
     /** Known value of the stream's head. */
     protected final Object head;
@@ -34,14 +34,14 @@ public class LKQLStream extends BaseLKQLLazyList {
     private final Closure tailClosure;
 
     /** Store the value of the tail after its computation. */
-    private LKQLStream tailCache;
+    private LKQLConsStream tailCache;
 
     /** Next stream to get the head from when computing the content of this stream. */
-    private LKQLStream next;
+    private LKQLConsStream next;
 
     // ----- Constructors -----
 
-    public LKQLStream(Object head, CallTarget tailExecutionUnit, Closure tailClosure) {
+    public LKQLConsStream(Object head, CallTarget tailExecutionUnit, Closure tailClosure) {
         super(null);
         this.head = head;
         this.tailExecutionUnit = tailExecutionUnit;
@@ -62,20 +62,20 @@ public class LKQLStream extends BaseLKQLLazyList {
         // Then compute all required values
         while (this.next.head != null && (n >= this.cache.size() || n < 0)) {
             this.cache.append(this.next.head);
-            this.next = this.next.getTail();
+            this.next = this.next.computeTail();
         }
     }
 
     // ----- Instance methods -----
 
-    protected LKQLStream getTail() {
+    protected LKQLConsStream computeTail() {
         if (this.tailCache == null) {
             var tailValue = this.tailExecutionUnit.call(this.tailClosure);
             switch (tailValue) {
-                case LKQLStream lazyList -> this.tailCache = lazyList;
+                case LKQLConsStream lazyList -> this.tailCache = lazyList;
                 case LKQLUnit _ -> this.tailCache = NIL;
                 default -> throw LKQLRuntimeError.wrongType(
-                    LKQLTypesHelper.LKQL_LAZY_LIST,
+                    LKQLTypesHelper.LKQL_STREAM,
                     LKQLTypesHelper.fromJava(tailValue),
                     null
                 );
@@ -87,7 +87,7 @@ public class LKQLStream extends BaseLKQLLazyList {
     // ----- Inner classes -----
 
     /** This is a special stream that is the result of the concatenation of a list and a stream. */
-    public static class LKQLComposedStream extends LKQLStream {
+    public static class LKQLComposedStream extends LKQLConsStream {
 
         public LKQLComposedStream(
             LKQLCollection head,
@@ -103,13 +103,8 @@ public class LKQLStream extends BaseLKQLLazyList {
             try {
                 return headList.get(i);
             } catch (IndexOutOfBoundsException e) {
-                return this.getTail().get(i - headList.size());
+                return this.computeTail().get(i - headList.size());
             }
-        }
-
-        @Override
-        public long size() {
-            return ((LKQLCollection) this.head).size() + this.getTail().size();
         }
     }
 }

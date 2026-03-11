@@ -60,8 +60,8 @@ public final class LKQLTypesHelper {
     /** The string representing the LKQL list type. */
     public static final String LKQL_LIST = "List";
 
-    /** The string representing the LKQL lazy list type. */
-    public static final String LKQL_LAZY_LIST = "LazyList";
+    /** The string representing the LKQL stream type. */
+    public static final String LKQL_STREAM = "Stream";
 
     /** The string representing the LKQL selector list type. */
     public static final String LKQL_SELECTOR_LIST = "SelectorList";
@@ -107,7 +107,7 @@ public final class LKQLTypesHelper {
         LKQL_SELECTOR,
         LKQL_TUPLE,
         LKQL_LIST,
-        LKQL_LAZY_LIST,
+        LKQL_STREAM,
         LKQL_SELECTOR_LIST,
         LKQL_OBJECT,
         LKQL_NAMESPACE,
@@ -179,8 +179,8 @@ public final class LKQLTypesHelper {
             return LKQL_TUPLE;
         } else if (LKQLTypeSystemGen.isLKQLList(obj)) {
             return LKQL_LIST;
-        } else if (LKQLTypeSystemGen.isBaseLKQLLazyList(obj)) {
-            return LKQL_LAZY_LIST;
+        } else if (LKQLTypeSystemGen.isLKQLStream(obj)) {
+            return LKQL_STREAM;
         } else if (LKQLTypeSystemGen.isNodeInterface(obj)) {
             return NODE_INTERFACE;
         } else if (LKQLTypeSystemGen.isTokenInterface(obj)) {

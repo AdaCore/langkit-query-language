@@ -79,7 +79,6 @@ public final class ListComprehension extends Expr {
         return this.executeLazyList(frame);
     }
 
-    @Override
     @ExplodeLoop
     public BaseLKQLLazyList executeLazyList(VirtualFrame frame) {
         // Get the iterables for the list comprehension

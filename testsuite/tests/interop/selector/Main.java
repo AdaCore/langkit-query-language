@@ -36,11 +36,12 @@ public class Main {
         print("toString()", selector.toString());
         print("canExecute()", selector.canExecute());
         Value callRes = selector.execute(node);
-        long callResSize = callRes.getArraySize();
         print("execute(node)", callRes);
-        print("callRes.getArraySize()", callResSize);
-        for (long i = 0; i < callResSize; i++) {
-            print("callRes.getArrayElement(" + i + ")", callRes.getArrayElement(i));
+        print("callRes.hasIterator()", callRes.hasIterator());
+        var iterator = callRes.getIterator();
+        while (iterator.hasIteratorNextElement()) {
+            Value elem = iterator.getIteratorNextElement();
+            System.out.println("    - " + elem.toString());
         }
     }
 }

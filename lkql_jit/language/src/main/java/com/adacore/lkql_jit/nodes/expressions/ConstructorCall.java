@@ -175,7 +175,9 @@ public final class ConstructorCall extends Expr {
                 );
             } else {
                 try {
-                    final var objectArgs = this.args[0].getArgExpr().executeList(frame).content;
+                    final var objectArgs = this.args[0].getArgExpr()
+                        .executeList(frame)
+                        .getContent();
                     final var args = new LangkitSupport.RewritingNodeInterface[objectArgs.length];
                     for (int i = 0; i < objectArgs.length; i++) {
                         args[i] = this.rewritingNodeConverter.execute(

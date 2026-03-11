@@ -13,9 +13,8 @@ import com.adacore.lkql_jit.values.*;
 import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Nullish;
-import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.lists.LKQLList;
-import com.adacore.lkql_jit.values.lists.LKQLStream;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
@@ -164,18 +163,6 @@ public abstract class Expr extends LKQLNode {
     /** Execute the expression and expect a stream. */
     public LKQLStream executeStream(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLStream(executeGeneric(frame));
-    }
-
-    /**
-     * Execute the expression as a lazy list value.
-     *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a lazy list value.
-     * @throws UnexpectedResultException If the node cannot be evaluated as a lazy list.
-     */
-    @SuppressWarnings("unused")
-    public BaseLKQLLazyList executeLazyList(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectBaseLKQLLazyList(executeGeneric(frame));
     }
 
     /**

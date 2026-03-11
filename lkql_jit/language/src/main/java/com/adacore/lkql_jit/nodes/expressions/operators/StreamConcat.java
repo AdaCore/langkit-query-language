@@ -10,12 +10,15 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescr
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.interop.LKQLCollection;
-import com.adacore.lkql_jit.values.lists.LKQLStream;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
+import com.adacore.lkql_jit.values.lists.LKQLConsStream;
+import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
+import java.util.ArrayList;
 
 /** This class represents a node to concatenate any list value to a stream. */
 public abstract class StreamConcat extends BaseStreamOp {
@@ -33,9 +36,24 @@ public abstract class StreamConcat extends BaseStreamOp {
     // ----- Execution methods -----
 
     @Specialization
-    protected LKQLStream onList(VirtualFrame frame, LKQLCollection list) {
-        return new LKQLStream.LKQLComposedStream(
+    protected LKQLConsStream onList(VirtualFrame frame, LKQLCollection list) {
+        return new LKQLConsStream.LKQLComposedStream(
             list,
+            this.tailLazyValue.getCallTarget(),
+            this.createTailClosure.execute(frame)
+        );
+    }
+
+    @Specialization
+    protected LKQLConsStream onStream(VirtualFrame frame, LKQLStream stream) {
+        // Create a new list from the iterable
+        var tmp = new ArrayList<Object>();
+        var iterator = stream.iterator();
+        while (iterator.hasNext()) {
+            tmp.add(iterator.next());
+        }
+        return new LKQLConsStream.LKQLComposedStream(
+            new LKQLList(tmp.toArray()),
             this.tailLazyValue.getCallTarget(),
             this.createTailClosure.execute(frame)
         );

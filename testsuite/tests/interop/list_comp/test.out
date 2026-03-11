@@ -1,12 +1,11 @@
 === Lazy list interop messages:
-  toString(): <LazyList>
-  hasArrayElements(): true
-  getArraySize(): 3
+  toString(): <Stream>
+  hasArrayElements(): false
   isBoolean(): true
   isBoolean() (empty lazy list): true
   asBoolean(): true
   asBoolean() (empty lazy list): false
-  getArrayElement(0): 1
-  getArrayElement(1): Coucou
-  getArrayElement(2): [4, 5]
   hasIterator(): true
+    - 1
+    - Coucou
+    - [4, 5]

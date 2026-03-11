@@ -6,17 +6,13 @@
 package com.adacore.lkql_jit.values.lists;
 
 import com.adacore.lkql_jit.runtime.ListStorage;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.iterators.BaseLKQLListIterator;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents the base of all LKQL lazy lists. */
-@ExportLibrary(InteropLibrary.class)
-public abstract class BaseLKQLLazyList extends LKQLCollection {
+public abstract class BaseLKQLLazyList extends LKQLStream {
 
     // ----- Attributes -----
 
@@ -37,6 +33,15 @@ public abstract class BaseLKQLLazyList extends LKQLCollection {
      */
     protected abstract void initCacheTo(long n);
 
+    public Object getHead() {
+        return this.get(0);
+    }
+
+    @Override
+    public LKQLStream getTail() {
+        return new OffsetStream(this, 1);
+    }
+
     // ----- List required methods -----
 
     @Override
@@ -46,20 +51,40 @@ public abstract class BaseLKQLLazyList extends LKQLCollection {
     }
 
     @Override
-    public long size() {
-        this.initCacheTo(-1);
-        return this.cache.size();
-    }
-
-    @Override
     public LKQLIterator iterator() {
         return new BaseLKQLListIterator(this);
     }
 
     // ----- Value methods -----
 
-    @ExportMessage
-    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffect) {
-        return "<" + LKQLTypesHelper.LKQL_LAZY_LIST + ">";
+    private static class OffsetStream extends LKQLStream {
+
+        private final LKQLStream base;
+        private final long offset;
+
+        private OffsetStream(LKQLStream base, long offset) {
+            this.base = base;
+            this.offset = offset;
+        }
+
+        @Override
+        public Iterator iterator() {
+            return new BaseLKQLListIterator(this);
+        }
+
+        @Override
+        public Object get(long index) throws IndexOutOfBoundsException {
+            return base.get(index + offset);
+        }
+
+        @Override
+        public Object getHead() {
+            return base.get(offset);
+        }
+
+        @Override
+        public LKQLStream getTail() {
+            return new OffsetStream(base, offset + 1);
+        }
     }
 }

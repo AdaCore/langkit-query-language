@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLUnit;
 import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.GenerateInline;
@@ -38,6 +39,11 @@ public abstract class LKQLToBoolean extends Node {
     @Specialization
     protected boolean onBaseLKQLList(LKQLCollection list) {
         return list.asBoolean();
+    }
+
+    @Specialization
+    protected boolean onLKQLStream(LKQLStream stream) {
+        return stream.asBoolean();
     }
 
     @Specialization

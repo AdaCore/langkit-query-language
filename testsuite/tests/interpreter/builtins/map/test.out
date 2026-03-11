@@ -1,6 +1,6 @@
-<LazyList>
+<Stream>
 [2, 4, 6]
-<LazyList>
+<Stream>
 Processing 1
 Processing 2
 4

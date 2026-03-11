@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescriptor;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.values.lists.LKQLStream;
+import com.adacore.lkql_jit.values.lists.LKQLConsStream;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -35,8 +35,8 @@ public abstract class StreamCons extends BaseStreamOp {
     // ----- Execution methods -----
 
     @Specialization
-    protected LKQLStream onAny(VirtualFrame frame, Object head) {
-        return new LKQLStream(
+    protected LKQLConsStream onAny(VirtualFrame frame, Object head) {
+        return new LKQLConsStream(
             head,
             this.tailLazyValue.getCallTarget(),
             createTailClosure.execute(frame)

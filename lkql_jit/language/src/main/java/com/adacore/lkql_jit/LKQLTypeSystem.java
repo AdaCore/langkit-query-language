@@ -12,9 +12,8 @@ import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Nullish;
 import com.adacore.lkql_jit.values.interop.LKQLCollection;
-import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.lists.LKQLList;
-import com.adacore.lkql_jit.values.lists.LKQLStream;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
@@ -41,7 +40,6 @@ import java.math.BigInteger;
         LKQLTuple.class,
         LKQLList.class,
         LKQLStream.class,
-        BaseLKQLLazyList.class,
         LKQLCollection.class,
         Indexable.class,
         Iterable.class,

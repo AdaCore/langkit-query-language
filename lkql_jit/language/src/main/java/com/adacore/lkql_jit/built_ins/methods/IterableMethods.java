@@ -32,9 +32,7 @@ import java.util.ArrayList;
 /** This class contains all built-in methods for the iterable type in the LKQL language. */
 @BuiltinMethodContainer(
     targetTypes = {
-        LKQLTypesHelper.LKQL_LAZY_LIST,
-        LKQLTypesHelper.LKQL_SELECTOR_LIST,
-        LKQLTypesHelper.LKQL_LIST,
+        LKQLTypesHelper.LKQL_STREAM, LKQLTypesHelper.LKQL_SELECTOR_LIST, LKQLTypesHelper.LKQL_LIST,
     }
 )
 public class IterableMethods {

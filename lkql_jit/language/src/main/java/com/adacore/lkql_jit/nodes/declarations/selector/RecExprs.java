@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLRecValue;
 import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Idempotent;
@@ -19,6 +20,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
+import java.util.ArrayList;
 
 /**
  * Container class: contains every node class for rec expressions in selectors.
@@ -46,8 +48,20 @@ public class RecExprs {
         }
 
         @Specialization(guards = "hasUnpack()")
-        public Object unpack(LKQLCollection val) {
+        public Object unpackList(LKQLCollection val) {
             return new LKQLRecValue(val.getContent(), val.getContent());
+        }
+
+        @Specialization(guards = "hasUnpack()")
+        @CompilerDirectives.TruffleBoundary
+        public Object unpackStream(LKQLStream val) {
+            var tmp = new ArrayList<Object>();
+            var it = val.iterator();
+            while (it.hasNext()) {
+                tmp.add(it.next());
+            }
+            var valArray = tmp.toArray();
+            return new LKQLRecValue(valArray, valArray);
         }
 
         @Specialization(guards = "!hasUnpack()")
@@ -108,8 +122,18 @@ public class RecExprs {
         }
 
         @Specialization(guards = "hasUnpack()")
-        public Object[] unpack(LKQLCollection val) {
+        public Object[] unpackList(LKQLCollection val) {
             return val.getContent();
+        }
+
+        @Specialization(guards = "hasUnpack()")
+        public Object[] unpackStream(LKQLStream val) {
+            var tmp = new ArrayList<Object>();
+            var it = val.iterator();
+            while (it.hasNext()) {
+                tmp.add(it.next());
+            }
+            return tmp.toArray();
         }
 
         @Specialization(guards = "!hasUnpack()")
