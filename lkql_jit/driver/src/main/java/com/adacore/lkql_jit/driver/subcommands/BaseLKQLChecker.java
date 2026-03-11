@@ -11,13 +11,17 @@ import com.adacore.lkql_jit.driver.checker.CheckerRun;
 import com.adacore.lkql_jit.driver.checker.Rule;
 import com.adacore.lkql_jit.driver.checker.RuleInstance;
 import com.adacore.lkql_jit.driver.checker.RuleRepository;
+import com.adacore.lkql_jit.driver.diagnostics.SarifReportCreator;
 import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.adacore.lkql_jit.values.interop.LKQLList;
+import de.jcup.sarif_2_1_0.SarifSchema210ImportExportSupport;
+import de.jcup.sarif_2_1_0.model.SarifSchema210;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -135,8 +139,29 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
             );
             checkerRun.start(diagnostics);
 
-            // Display all diagnostics
-            diagnostics.createReport(new TextReportCreator(System.out, supportAnsi));
+            // Display all diagnostics in the required format
+            switch (args.reportFormat) {
+                case TEXT -> diagnostics.createReport(
+                    new TextReportCreator(System.out, supportAnsi)
+                );
+                case SARIF -> {
+                    var sarifReport = new SarifSchema210();
+                    var sarifReportCreator = new SarifReportCreator(
+                        sarifReport,
+                        args.spec.parent().version()[0],
+                        ruleInstances,
+                        !diagnostics.hasError()
+                    );
+                    diagnostics.createReport(sarifReportCreator);
+
+                    var sarifExporter = new SarifSchema210ImportExportSupport();
+                    try {
+                        System.out.println(sarifExporter.toJSON(sarifReport));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
         }
     }
 
@@ -449,6 +474,14 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
         @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
         public boolean debug;
 
+        @CommandLine.Option(
+            names = { "-f", "--format" },
+            description = "Select the output format (default is TEXT)" +
+                "%nPossible values: ${COMPLETION-CANDIDATES}",
+            completionCandidates = ReportFormat.Completion.class
+        )
+        public ReportFormat reportFormat = ReportFormat.TEXT;
+
         @CommandLine.Parameters(description = "Files to analyze")
         public List<String> files = new ArrayList<>();
 
@@ -507,5 +540,19 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
 
         @CommandLine.Unmatched
         public List<String> unmatched = new ArrayList<>();
+    }
+
+    /** Enum used to select the checker output format. */
+    public enum ReportFormat {
+        TEXT,
+        SARIF;
+
+        public static class Completion implements Iterable<String> {
+
+            @Override
+            public Iterator<String> iterator() {
+                return Arrays.stream(ReportFormat.values()).map(Object::toString).iterator();
+            }
+        }
     }
 }
