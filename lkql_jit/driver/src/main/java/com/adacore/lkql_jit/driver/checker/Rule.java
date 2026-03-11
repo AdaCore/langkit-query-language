@@ -13,6 +13,7 @@ import java.util.Optional;
  *
  * @param kind Which is the kind of this rule, what is its calling convention.
  * @param name The unique name of the rule, used as its identifier.
+ * @param displayName Customizable name for display purpose.
  * @param checker LKQL callable object representing the rule logic.
  * @param autoFix Optional LKQL callable to fix node flagged by the rule.
  * @param message Message to display to the used when this rule flags a node.
@@ -29,6 +30,7 @@ import java.util.Optional;
 public record Rule(
     Kind kind,
     String name,
+    String displayName,
     LKQLCallable checker,
     Optional<LKQLCallable> autoFix,
     String message,
