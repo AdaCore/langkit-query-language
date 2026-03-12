@@ -1783,7 +1783,7 @@ public final class TranslationPass
         final int slot = this.frames.getBinding(name);
 
         // Return the import node
-        return new Import(loc(anImport), name, slot);
+        return new Import(loc(anImport), name, Constants.LKQL_EXTENSION, slot);
     }
 
     // --- Tuples

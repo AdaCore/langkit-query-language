@@ -19,6 +19,7 @@ import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
+import com.adacore.lkql_jit.nodes.declarations.Import;
 import com.adacore.lkql_jit.nodes.declarations.*;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.*;
@@ -112,19 +113,6 @@ public final class LktPasses {
         }
 
         /**
-         * Return the binding name for "node", if it needs to be bound in the current scope, or null
-         * if it should not be bound.
-         */
-        private static String getBindingName(LktNode node) {
-            return switch (node) {
-                case LangkitRoot _ -> null;
-                case FunParamDecl _, LambdaParamDecl _ -> null;
-                case Decl d -> d.fSynName().getText();
-                default -> null;
-            };
-        }
-
-        /**
          * Internal helper for the public "buildFrames" pass, doing all the work of recursing on the
          * nodes and building the frame tree.
          */
@@ -135,17 +123,30 @@ public final class LktPasses {
                 return;
             }
 
-            var bindingName = getBindingName(node);
-            if (bindingName != null) {
-                builder.addBinding(bindingName);
-            }
-
-            if (node instanceof FunParamDecl funParamDecl) {
-                builder.addParameter(funParamDecl.fSynName().getText());
-            } else if (node instanceof LambdaParamDecl lambdaParamDecl) {
-                builder.addParameter(lambdaParamDecl.fSynName().getText());
-            } else if (node instanceof FieldDecl fieldDecl) {
-                builder.addParameter(fieldDecl.fSynName().getText());
+            switch (node) {
+                case Liblktlang.Import importStmt -> {
+                    for (var importedName : importStmt.fImportedNames()) {
+                        if (!importedName.fRenaming().isNone()) {
+                            builder.addBinding(importedName.fRenaming().getText());
+                        } else {
+                            builder.addBinding(importedName.fOriginalName().getText());
+                        }
+                    }
+                }
+                case LangkitRoot _ -> {}
+                case FunParamDecl funParamDecl -> {
+                    builder.addParameter(funParamDecl.fSynName().getText());
+                }
+                case LambdaParamDecl lambdaParamDecl -> {
+                    builder.addParameter(lambdaParamDecl.fSynName().getText());
+                }
+                case FieldDecl fieldDecl -> {
+                    builder.addParameter(fieldDecl.fSynName().getText());
+                }
+                case Decl decl -> {
+                    builder.addBinding(decl.fSynName().getText());
+                }
+                default -> {}
             }
 
             var frameKind = needsFrame(node);
@@ -286,8 +287,36 @@ public final class LktPasses {
             frames.enterFrame(root);
             final List<LKQLNode> topLevelNodes = new ArrayList<>();
 
-            for (var child : root.fDecls().children()) {
-                topLevelNodes.add(buildDecl(((FullDecl) child).fDecl()));
+            for (var importClause : root.fImports()) {
+                switch (importClause) {
+                    case Liblktlang.Import importStmt:
+                        for (var importedName : importStmt.fImportedNames()) {
+                            final var bindingName = !importedName.fRenaming().isNone()
+                                ? importedName.fRenaming().getText()
+                                : importedName.fOriginalName().getText();
+
+                            final var moduleName = importedName.fOriginalName().getText();
+                            frames.declareBinding(bindingName);
+                            topLevelNodes.add(
+                                new Import(
+                                    loc(importStmt),
+                                    moduleName,
+                                    ".lkt",
+                                    frames.getBinding(bindingName)
+                                )
+                            );
+                        }
+                        break;
+                    default:
+                        throw translationError(
+                            importClause,
+                            "Only simple imports statements are supported"
+                        );
+                }
+            }
+
+            for (var fullDecl : root.fDecls()) {
+                topLevelNodes.add(buildDecl(fullDecl.fDecl()));
             }
 
             frames.exitFrame();
@@ -416,7 +445,6 @@ public final class LktPasses {
                     final var vals = new Expr[params.length + 1];
 
                     for (int i = 0; i < params.length; i++) {
-                        frames.declareBinding(params[i]);
                         keys[i] = params[i];
                         vals[i] = new ReadParameter(
                             loc(structDecl.fDecls().getChild(i)),

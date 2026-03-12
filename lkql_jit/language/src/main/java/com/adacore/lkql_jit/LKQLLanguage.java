@@ -212,11 +212,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     @Override
     protected CallTarget parse(ParsingRequest request) {
-        final Liblkqllang.AnalysisUnit unit;
-        TopLevelList result;
-
         // Translate the LKQL AST from Langkit to a Truffle AST
-        result = (TopLevelList) translate(request.getSource());
+        final var result = (TopLevelList) translate(request.getSource());
 
         // If the current parsing request is the root request
         if (!request.getSource().isInternal()) {
