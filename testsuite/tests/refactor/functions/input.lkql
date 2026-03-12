@@ -1,0 +1,12 @@
+fun foo() =
+    |" Foo doc
+    1669
+
+fun bar(arg) = 42 + arg
+
+fun baz(x, y, z) =
+    # bla
+    # bla
+    |" Baz doc
+    # bla
+    (x*y) + (y*z)

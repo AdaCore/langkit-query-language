@@ -6,3 +6,4 @@ project: 'prj.gpr'
 lkql_path:
   - rules
 script: 'rules/my_rule.lkql'
+lkt_refactor: True

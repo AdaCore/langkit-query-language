@@ -1,2 +1,2 @@
 val x = select n@HandledStmts when n.f_stmts.children_count > 1
-print(x)
+print(x.to_list)

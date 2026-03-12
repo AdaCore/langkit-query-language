@@ -36,6 +36,7 @@ import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.adacore.lkql_jit.nodes.patterns.BindingPattern;
 import com.adacore.lkql_jit.nodes.patterns.FilteredPattern;
+import com.adacore.lkql_jit.nodes.patterns.NotPattern;
 import com.adacore.lkql_jit.nodes.patterns.NullPattern;
 import com.adacore.lkql_jit.nodes.patterns.OrPattern;
 import com.adacore.lkql_jit.nodes.patterns.ParenPattern;
@@ -115,14 +116,12 @@ public final class LktPasses {
          * if it should not be bound.
          */
         private static String getBindingName(LktNode node) {
-            if (
-                node instanceof Decl d &&
-                !(node instanceof FunParamDecl) &&
-                !(node instanceof LangkitRoot)
-            ) {
-                return d.fSynName().getText();
-            }
-            return null;
+            return switch (node) {
+                case LangkitRoot _ -> null;
+                case FunParamDecl _, LambdaParamDecl _ -> null;
+                case Decl d -> d.fSynName().getText();
+                default -> null;
+            };
         }
 
         /**
@@ -496,9 +495,8 @@ public final class LktPasses {
                     final var clause = (Liblktlang.BlockExprClause) blockExpr
                         .fClauses()
                         .getChild(i);
-                    final var valDecl =
-                        (Liblktlang.ValDecl) ((Liblktlang.FullDecl) clause.fClause()).fDecl();
-                    blockBody[i] = new BlockBodyDecl(loc(valDecl), buildDecl(valDecl));
+                    final var decl = ((Liblktlang.FullDecl) clause.fClause()).fDecl();
+                    blockBody[i] = new BlockBodyDecl(loc(decl), buildDecl(decl));
                 }
                 final var subExpr = buildExpr(
                     (Liblktlang.Expr) blockExpr
@@ -592,6 +590,26 @@ public final class LktPasses {
                 };
             } else if (expr instanceof NotExpr notExpr) {
                 return UnNotNodeGen.create(loc(notExpr), buildExpr(notExpr.fExpr()));
+            } else if (expr instanceof Liblktlang.IfExpr ifExpr) {
+                final var condExpr = buildExpr(ifExpr.fCondExpr());
+                final var consExpr = buildExpr(ifExpr.fThenExpr());
+
+                // final else branch
+                var elseExpr = buildExpr(ifExpr.fElseExpr());
+
+                // Collect elif branches
+                final var alts = new ArrayDeque<ElsifBranch>();
+                ifExpr.fAlternatives().forEach(alts::add);
+
+                // Iterate from the last elif
+                for (var alt : alts.reversed()) {
+                    final var altCond = buildExpr(alt.fCondExpr());
+                    final var altCons = buildExpr(alt.fThenExpr());
+                    // last elif becomes the "else" part of the previous branch
+                    elseExpr = CondExprNodeGen.create(loc(alt), altCond, altCons, elseExpr);
+                }
+                // now elseExpr contains all elif branches
+                return CondExprNodeGen.create(loc(ifExpr), condExpr, consExpr, elseExpr);
             } else if (expr instanceof SubscriptExpr subscriptExpr) {
                 return IndexingNodeGen.create(
                     loc(subscriptExpr),
@@ -735,6 +753,12 @@ public final class LktPasses {
                             "Invalid number literal for pattern"
                         );
                     }
+                case Liblktlang.BoolPatternTrue truePattern:
+                    yield BoolPatternNodeGen.create(loc(truePattern), true);
+                case Liblktlang.BoolPatternFalse falsePattern:
+                    yield BoolPatternNodeGen.create(loc(falsePattern), false);
+                case Liblktlang.NotPattern notPattern:
+                    yield new NotPattern(loc(notPattern), buildPattern(notPattern.fSubPattern()));
                 case Liblktlang.TypePattern typePattern:
                     yield new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
                 case Liblktlang.AnyTypePattern univPattern:
