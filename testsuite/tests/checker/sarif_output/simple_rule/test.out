@@ -1,0 +1,44 @@
+{
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LKQL",
+        "version" : "lkql <version>",
+        "rules" : [ {
+          "id" : "custom",
+          "name" : "My custom rule name",
+          "shortDescription" : {
+            "text" : "This is the rule message"
+          },
+          "defaultConfiguration" : { },
+          "help" : {
+            "text" : "Maybe some help"
+          }
+        } ]
+      }
+    },
+    "invocations" : [ {
+      "executionSuccessful" : true
+    } ],
+    "results" : [ {
+      "ruleId" : "custom",
+      "message" : {
+        "text" : "This is the rule message"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "file://<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 3,
+            "startColumn" : 4,
+            "endLine" : 3,
+            "endColumn" : 11
+          }
+        }
+      } ]
+    } ]
+  } ]
+}

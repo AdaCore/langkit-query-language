@@ -1,0 +1,6 @@
+fun f_2() = 1 + ""
+
+fun f_1() = f_2()
+
+@check
+fun custom(node) = node is GotoStmt and f_1()

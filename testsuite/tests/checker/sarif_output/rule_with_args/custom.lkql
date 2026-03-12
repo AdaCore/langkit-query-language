@@ -1,0 +1,2 @@
+@check
+fun custom(node, bool=false, int=23, str="my_arg", list=[true, 23, "other_arg"]) = node is GotoStmt
