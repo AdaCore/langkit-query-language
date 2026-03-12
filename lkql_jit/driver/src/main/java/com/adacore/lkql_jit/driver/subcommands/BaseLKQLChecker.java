@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.io.IOAccess;
 import picocli.CommandLine;
 
@@ -178,18 +179,25 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
             var argValueSource = valueSplit[1].trim();
 
             // Evaluate the argument value
-            LKQLBaseNamespace namespace = context
-                .eval(Constants.LKQL_ID, "val arg = " + argValueSource)
-                .as(LKQLBaseNamespace.class);
-            Object argValue = namespace.getUncached("arg");
+            try {
+                LKQLBaseNamespace namespace = context
+                    .eval(Constants.LKQL_ID, "val arg = " + argValueSource)
+                    .as(LKQLBaseNamespace.class);
+                Object argValue = namespace.getUncached("arg");
 
-            // Then place the result in the map collection all arguments
-            Map<String, Object> ruleArgs = instanceArgs.getOrDefault(
-                ruleLowerName,
-                new HashMap<>()
-            );
-            ruleArgs.put(argName, argValue);
-            instanceArgs.put(ruleLowerName, ruleArgs);
+                // Then place the result in the map collection all arguments
+                Map<String, Object> ruleArgs = instanceArgs.getOrDefault(
+                    ruleLowerName,
+                    new HashMap<>()
+                );
+                ruleArgs.put(argName, argValue);
+                instanceArgs.put(ruleLowerName, ruleArgs);
+            } catch (PolyglotException e) {
+                diagnostics.add(
+                    new Error("Invalid rule argument value: \"" + argValueSource + '"')
+                );
+                diagnostics.handleException(e);
+            }
         }
 
         // Then, parse the provided instances, filling them with the previously parsed arguments
