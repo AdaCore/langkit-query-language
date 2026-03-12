@@ -93,6 +93,24 @@ public final class RuleInstance {
         }
     }
 
+    // ----- Instance methods -----
+
+    @Override
+    public String toString() {
+        return (
+            "RuleInstance(" +
+            "instantiatedRule=" +
+            instantiatedRule +
+            ", instanceName=" +
+            instanceName +
+            ", sourceMode=" +
+            sourceMode +
+            ", arguments=" +
+            arguments +
+            ")"
+        );
+    }
+
     // ----- Inner enums -----
 
     /** This enum represents the mode of an instance about the Ada sources. */
