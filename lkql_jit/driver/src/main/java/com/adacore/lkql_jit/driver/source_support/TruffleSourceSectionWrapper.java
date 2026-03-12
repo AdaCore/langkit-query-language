@@ -58,7 +58,7 @@ public final class TruffleSourceSectionWrapper extends SourceSection {
 
     @Override
     public int endColumn() {
-        return this.wrappedSourceSection.getEndColumn();
+        return this.wrappedSourceSection.getEndColumn() + 1;
     }
 
     @Override

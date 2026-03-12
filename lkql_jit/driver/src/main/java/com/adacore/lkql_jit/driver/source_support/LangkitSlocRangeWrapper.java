@@ -71,7 +71,7 @@ public final class LangkitSlocRangeWrapper extends SourceSection {
 
     @Override
     public int endColumn() {
-        return this.wrappedSlocRange.end.column - 1;
+        return this.wrappedSlocRange.end.column;
     }
 
     @Override

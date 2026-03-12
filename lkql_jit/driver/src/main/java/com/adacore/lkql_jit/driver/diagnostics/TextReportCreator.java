@@ -129,7 +129,7 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             output.print(" ".repeat(location.startColumn()));
             output.println(
                 underlineStyle.apply(
-                    "^".repeat(Math.max(0, location.endColumn() - location.startColumn() + 1))
+                    "^".repeat(Math.max(0, location.endColumn() - location.startColumn()))
                 )
             );
         }
@@ -155,7 +155,7 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             output.println(underlineStyle.apply("| ") + lines.getLast());
             startLine.accept(null);
             output.println(
-                underlineStyle.apply('|' + "_".repeat(Math.max(1, location.endColumn())) + '^')
+                underlineStyle.apply('|' + "_".repeat(Math.max(1, location.endColumn() - 1)) + '^')
             );
         }
     }
