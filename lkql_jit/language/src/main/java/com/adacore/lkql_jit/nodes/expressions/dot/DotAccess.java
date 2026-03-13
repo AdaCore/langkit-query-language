@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.nodes.expressions.dot;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.*;
@@ -50,7 +50,7 @@ public abstract class DotAccess extends BaseDotAccess {
         }
 
         // Throw an exception if the member was not found
-        throw LKQLRuntimeException.noSuchMember(this);
+        throw LKQLRuntimeError.noSuchMember(this);
     }
 
     /** Execute the dot access on a namespace value. */
@@ -72,7 +72,7 @@ public abstract class DotAccess extends BaseDotAccess {
         }
 
         // Throw an exception if the member was n<w>t found
-        throw LKQLRuntimeException.noSuchMember(this);
+        throw LKQLRuntimeError.noSuchMember(this);
     }
 
     /**
@@ -115,13 +115,13 @@ public abstract class DotAccess extends BaseDotAccess {
 
         // Test if the node is null
         if (receiver == LKQLNull.INSTANCE) {
-            throw LKQLRuntimeException.nullReceiver(this);
+            throw LKQLRuntimeError.nullReceiver(this);
         }
 
         // Create the property reference
         LKQLProperty property = new LKQLProperty(this.member.getName(), receiver);
         if (property.description == null) {
-            throw LKQLRuntimeException.noSuchField(this.member);
+            throw LKQLRuntimeError.noSuchField(this.member);
         }
 
         // Return the result
@@ -149,7 +149,7 @@ public abstract class DotAccess extends BaseDotAccess {
             return builtIn;
         }
 
-        throw LKQLRuntimeException.wrongMember(
+        throw LKQLRuntimeError.wrongMember(
             this.member.getName(),
             LKQLTypesHelper.fromJava(receiver),
             this.member

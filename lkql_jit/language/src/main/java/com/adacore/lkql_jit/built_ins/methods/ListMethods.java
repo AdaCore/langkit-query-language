@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.built_ins.methods;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -31,9 +31,9 @@ public class ListMethods {
 
             // Check bounds validity
             if (low < 0) {
-                throw LKQLRuntimeException.invalidIndex((int) low + 1, this);
+                throw LKQLRuntimeError.invalidIndex((int) low + 1, this);
             } else if (high > list.getContent().length) {
-                throw LKQLRuntimeException.invalidIndex((int) high, this);
+                throw LKQLRuntimeError.invalidIndex((int) high, this);
             }
 
             // Return the sublist

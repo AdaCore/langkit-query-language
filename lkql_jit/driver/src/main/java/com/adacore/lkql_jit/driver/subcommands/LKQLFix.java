@@ -9,7 +9,6 @@ import com.adacore.lkql_jit.driver.checker.CheckerRun;
 import com.adacore.lkql_jit.driver.checker.RuleInstance;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
-import com.adacore.lkql_jit.options.LKQLOptions;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -51,7 +50,7 @@ public class LKQLFix extends BaseLKQLChecker {
 
         @Override
         public Iterator<String> iterator() {
-            return Arrays.stream(LKQLOptions.AutoFixMode.values()).map(Object::toString).iterator();
+            return Arrays.stream(CheckerRun.AutoFixMode.values()).map(Object::toString).iterator();
         }
     }
 

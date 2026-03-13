@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -44,7 +44,7 @@ public abstract class BinDiv extends BinOp {
     @Specialization
     protected long divLongs(long left, long right) {
         if (right == 0L) {
-            throw LKQLRuntimeException.divByZero(this);
+            throw LKQLRuntimeError.divByZero(this);
         }
         return Math.floorDiv(left, right);
     }
@@ -59,7 +59,7 @@ public abstract class BinDiv extends BinOp {
     @Specialization
     protected BigInteger divBigIntegers(BigInteger left, BigInteger right) {
         if (BigIntegerUtils.equals(right, BigInteger.ZERO)) {
-            throw LKQLRuntimeException.divByZero(this);
+            throw LKQLRuntimeError.divByZero(this);
         }
         return BigIntegerUtils.divide(left, right);
     }
@@ -73,13 +73,13 @@ public abstract class BinDiv extends BinOp {
     @Fallback
     protected void notNumbers(Object left, Object right) {
         if (!LKQLTypeSystemGen.isLong(left) && !LKQLTypeSystemGen.isBigInteger(left)) {
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 LKQLTypesHelper.LKQL_INTEGER,
                 LKQLTypesHelper.fromJava(left),
                 this
             );
         } else {
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 LKQLTypesHelper.LKQL_INTEGER,
                 LKQLTypesHelper.fromJava(right),
                 this

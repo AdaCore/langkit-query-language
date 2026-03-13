@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -62,7 +62,7 @@ public abstract class UnMinus extends UnOp {
      */
     @Fallback
     protected void notNumber(Object arg) {
-        throw LKQLRuntimeException.wrongType(
+        throw LKQLRuntimeError.wrongType(
             LKQLTypesHelper.LKQL_INTEGER,
             LKQLTypesHelper.fromJava(arg),
             this.getArg()

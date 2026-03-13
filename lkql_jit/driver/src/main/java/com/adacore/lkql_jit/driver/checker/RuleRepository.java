@@ -7,8 +7,9 @@ package com.adacore.lkql_jit.driver.checker;
 
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
-import com.adacore.lkql_jit.driver.diagnostics.variants.RawMessage;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
+import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import java.io.IOException;
@@ -53,7 +54,9 @@ public final class RuleRepository {
                 LKQLBaseNamespace namespace = context.eval(source).as(LKQLBaseNamespace.class);
                 for (var lkqlValue : namespace.asMap().values()) {
                     if (lkqlValue instanceof LKQLCallable lkqlCallable) {
-                        ruleFromCallable(lkqlCallable).ifPresent(r -> this.addRule(r, diagnostics));
+                        ruleFromCallable(lkqlCallable, diagnostics).ifPresent(r ->
+                            this.addRule(r, diagnostics)
+                        );
                     }
                 }
             } catch (IOException e) {
@@ -61,7 +64,7 @@ public final class RuleRepository {
                 throw new RuntimeException(e);
             } catch (PolyglotException e) {
                 // When an error occurs in the execution of the LKQL file, store it in diagnostics
-                diagnostics.add(new RawMessage(e.getMessage()));
+                diagnostics.handleException(e);
             }
         }
     }
@@ -95,7 +98,10 @@ public final class RuleRepository {
     /**
      * Create a rule object from a callable LKQL value if the latter represents a checking function.
      */
-    private static Optional<Rule> ruleFromCallable(LKQLCallable callable) {
+    private static Optional<Rule> ruleFromCallable(
+        LKQLCallable callable,
+        DiagnosticCollector diagnostics
+    ) {
         // Search for a "check" annotation on the callable
         var maybeCheckAnnotation = Arrays.stream(callable.annotations)
             .filter(
@@ -119,6 +125,11 @@ public final class RuleRepository {
                 );
             }
 
+            // Get the rule mode
+            var ruleKind = annotation.name().equals(Constants.ANNOTATION_NODE_CHECK)
+                ? Rule.Kind.NODE
+                : Rule.Kind.UNIT;
+
             // Set manual default value for some arguments
             allArguments.putIfAbsent("message", callable.name);
             allArguments.putIfAbsent("help", callable.name);
@@ -138,15 +149,44 @@ public final class RuleRepository {
                 default -> Rule.Remediation.MEDIUM;
             };
 
+            // Get the auto fix function
+            final Optional<LKQLCallable> autoFix;
+            var autoFixObject = allArguments.get("auto_fix");
+
+            // If an auto fix have been provided, perform some checks
+            if (autoFixObject != null) {
+                if (autoFixObject instanceof LKQLCallable autoFixCallable) {
+                    if (ruleKind != Rule.Kind.UNIT) {
+                        autoFix = Optional.of(autoFixCallable);
+                    } else {
+                        diagnostics.add(
+                            new Error(
+                                "Auto fixes not available for unit checks",
+                                SourceSection.wrap(annotation.location())
+                            )
+                        );
+                        return Optional.empty();
+                    }
+                } else {
+                    diagnostics.add(
+                        new Error(
+                            "Auto fix value must be callable",
+                            SourceSection.wrap(annotation.location())
+                        )
+                    );
+                    return Optional.empty();
+                }
+            } else {
+                autoFix = Optional.empty();
+            }
+
             // Finally return the new rule object
             return Optional.of(
                 new Rule(
-                    annotation.name().equals(Constants.ANNOTATION_NODE_CHECK)
-                        ? Rule.Kind.NODE
-                        : Rule.Kind.UNIT,
+                    ruleKind,
                     callable.name,
                     callable,
-                    Optional.ofNullable((LKQLCallable) allArguments.get("auto_fix")),
+                    autoFix,
                     (String) allArguments.get("message"),
                     (String) allArguments.get("help"),
                     (boolean) allArguments.get("follow_generic_instantiations"),

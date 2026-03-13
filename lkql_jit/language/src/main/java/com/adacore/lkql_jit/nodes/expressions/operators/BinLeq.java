@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -77,7 +77,7 @@ public abstract class BinLeq extends BinOp {
      */
     @Fallback
     protected void notComparable(Object left, Object right) {
-        throw LKQLRuntimeException.unsupportedOperation(
+        throw LKQLRuntimeError.unsupportedOperation(
             LKQLTypesHelper.fromJava(left),
             "<=",
             LKQLTypesHelper.fromJava(right),

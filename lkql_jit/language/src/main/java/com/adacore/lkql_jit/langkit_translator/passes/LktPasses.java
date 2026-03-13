@@ -9,7 +9,8 @@ import static com.adacore.liblktlang.Liblktlang.*;
 
 import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
 import com.adacore.lkql_jit.nodes.Identifier;
@@ -191,8 +192,8 @@ public final class LktPasses {
 
     private static class TranslationPass extends BaseTranslationPass {
 
-        public TranslationPass(Source source, ScriptFrames frames) {
-            super(source, frames);
+        public TranslationPass(Source source, ScriptFrames frames, LKQLStaticErrors errors) {
+            super(source, frames, errors);
         }
 
         private String parseStringLiteral(final StringLit stringLit) {
@@ -211,16 +212,14 @@ public final class LktPasses {
                 for (var line : ((BlockStringLit) stringLit).fLines().children()) {
                     var str = StringUtils.translateEscapes(line.getText().substring(2));
 
-                    if (str.length() > 0) {
+                    if (!str.isEmpty()) {
                         // First character should be a whitespace, as specified in
                         // the user manual.
                         if (str.charAt(0) != ' ') {
-                            throw translationError(
-                                stringLit,
-                                "Invalid blockstring: first character should be whitespace"
-                            );
+                            errors.invalidBlockStringFirstChar(loc(line));
+                        } else {
+                            builder.append(str.substring(1)).append("\n");
                         }
-                        builder.append(str.substring(1)).append("\n");
                     }
                 }
                 res = builder.toString().trim();
@@ -258,9 +257,7 @@ public final class LktPasses {
                         paramName = lambdaParamDecl.fSynName().getText();
                         defaultValue = lambdaParamDecl.fDefaultVal();
                     }
-                    default -> throw LKQLRuntimeException.create(
-                        "Cannot handle " + params.getChild(i) + " parameter declaration"
-                    );
+                    default -> throw LKQLEngineException.shouldNotReachHere();
                 }
                 paramNames[i] = paramName;
                 defaultVals[i] = defaultValue.isNone() ? null : buildExpr(defaultValue);
@@ -302,16 +299,14 @@ public final class LktPasses {
                                     loc(importStmt),
                                     moduleName,
                                     ".lkt",
-                                    frames.getBinding(bindingName)
+                                    frames.getBinding(bindingName),
+                                    errors
                                 )
                             );
                         }
                         break;
                     default:
-                        throw translationError(
-                            importClause,
-                            "Only simple imports statements are supported"
-                        );
+                        errors.complexImportNotSupported(loc(importClause));
                 }
             }
 
@@ -431,10 +426,7 @@ public final class LktPasses {
                             if (!fieldDecl.fDefaultVal().isNone()) {
                                 defaultVals[i] = buildExpr(fieldDecl.fDefaultVal());
                             }
-                        } else throw translationError(
-                            localDecl,
-                            "Unexpected declaration inside a struct"
-                        );
+                        } else throw LKQLEngineException.shouldNotReachHere();
                     }
 
                     frames.enterFrame(structDecl);
@@ -476,11 +468,9 @@ public final class LktPasses {
                     frames.exitFrame();
                     yield res;
                 }
-                default -> {
-                    throw LKQLRuntimeException.create(
-                        "Translation for " + decl.getKind() + " not implemented"
-                    );
-                }
+                default -> throw LKQLEngineException.create(
+                    "Translation for " + decl.getKind() + " not implemented"
+                );
             };
         }
 
@@ -701,8 +691,8 @@ public final class LktPasses {
                     source
                 );
             } else {
-                throw LKQLRuntimeException.create(
-                    "Translation for " + expr.getKind() + " not implemented"
+                throw LKQLEngineException.create(
+                    "Translation for " + expr.getKind() + " not " + "implemented"
                 );
             }
         }
@@ -776,10 +766,8 @@ public final class LktPasses {
                             Integer.parseInt(integerPattern.getText())
                         );
                     } catch (NumberFormatException e) {
-                        throw translationError(
-                            integerPattern,
-                            "Invalid number literal for pattern"
-                        );
+                        errors.invalidIntegerPattern(loc(integerPattern));
+                        yield null;
                     }
                 case Liblktlang.BoolPatternTrue truePattern:
                     yield BoolPatternNodeGen.create(loc(truePattern), true);
@@ -788,7 +776,10 @@ public final class LktPasses {
                 case Liblktlang.NotPattern notPattern:
                     yield new NotPattern(loc(notPattern), buildPattern(notPattern.fSubPattern()));
                 case Liblktlang.TypePattern typePattern:
-                    yield new NodeKindPattern(loc(typePattern), typePattern.fTypeName().getText());
+                    yield new NodeKindPattern(
+                        loc(typePattern),
+                        getNodeClass(typePattern.fTypeName())
+                    );
                 case Liblktlang.AnyTypePattern univPattern:
                     yield new UniversalPattern(loc(univPattern));
                 case Liblktlang.RegexPattern regexPattern:
@@ -805,8 +796,8 @@ public final class LktPasses {
                         buildPattern(orPattern.fRightSubPattern())
                     );
                 default:
-                    throw LKQLRuntimeException.create(
-                        "Translation for " + pattern.getKind() + " not implemented"
+                    throw LKQLEngineException.create(
+                        "Translation for " + pattern.getKind() + " " + "not implemented"
                     );
             };
         }
@@ -830,10 +821,7 @@ public final class LktPasses {
                 if (patternDetail instanceof Liblktlang.FieldPatternDetail fieldPatternDetail) {
                     keys[i] = fieldPatternDetail.fId().getText();
                     patterns[i] = buildPattern(fieldPatternDetail.fExpectedValue());
-                } else throw translationError(
-                    patternDetail,
-                    "Unexpected pattern detail inside a struct pattern"
-                );
+                } else throw LKQLEngineException.shouldNotReachHere();
             }
 
             // Check statically that matched fields exists in the StructDecl
@@ -849,10 +837,7 @@ public final class LktPasses {
 
             for (int i = 1; i < keys.length; i++) {
                 if (!fields.contains(keys[i])) {
-                    throw translationError(
-                        patternDetails.getChild(i - 1),
-                        "Struct `" + name + "` has no field `" + keys[i] + "`"
-                    );
+                    errors.noSuchFieldInStruct(name, keys[i], loc(patternDetails.getChild(i - 1)));
                 }
             }
 
@@ -890,7 +875,12 @@ public final class LktPasses {
         }
     }
 
-    public static LKQLNode buildLKQLNode(Source source, LangkitRoot root, ScriptFrames frames) {
-        return new TranslationPass(source, frames).buildRoot(root);
+    public static LKQLNode buildLKQLNode(
+        Source source,
+        LangkitRoot root,
+        ScriptFrames frames,
+        LKQLStaticErrors errors
+    ) {
+        return new TranslationPass(source, frames, errors).buildRoot(root);
     }
 }

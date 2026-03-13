@@ -6,6 +6,10 @@
 package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
+import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
 import java.io.File;
@@ -21,10 +25,8 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.Engine;
-import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.*;
+import org.graalvm.polyglot.io.IOAccess;
 import org.json.JSONObject;
 import picocli.CommandLine;
 
@@ -35,102 +37,19 @@ import picocli.CommandLine;
  */
 public class GNATCheckWorker extends AbstractLanguageLauncher {
 
-    Args args = null;
+    // ----- Attributes -----
 
-    @CommandLine.Command(
-        name = "gnatcheck_worker",
-        description = "Internal driver meant to be called by GNATcheck. Not for public use"
-    )
-    public static class Args implements Callable<Integer> {
+    public static final String checkerSource = """
+        val analysis_units = specified_units()
+        val roots = [unit.root for unit in analysis_units]
 
-        @CommandLine.Unmatched
-        public List<String> unmatched;
+        roots.map((root) => node_checker(root)).to_list
+        analysis_units.map((unit) => unit_checker(unit)).to_list
+        """;
 
-        @CommandLine.Option(
-            names = { "--parse-lkql-config" },
-            description = "Parse the given LKQL file as a rule configuration file and return its" +
-                " result as a JSON encoded string. If this option is provided, all" +
-                " other features are disabled."
-        )
-        public String lkqlConfigFile = null;
+    private final Args args;
 
-        @CommandLine.Option(
-            names = { "-C", "--charset" },
-            description = "Charset to use for the source decoding"
-        )
-        public String charset = null;
-
-        @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
-        public String RTS = null;
-
-        @CommandLine.Option(names = "--target", description = "Target to pass to GPR")
-        public String target = null;
-
-        @CommandLine.Option(names = "--config", description = "Config file for GPR loading")
-        public String configFile = null;
-
-        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-        public boolean verbose;
-
-        @CommandLine.Option(names = { "-P", "--project" }, description = "Project file to use")
-        public String project = null;
-
-        @CommandLine.Option(
-            names = "-A",
-            description = "The name of the subproject to analyse, if any. This implies that" +
-                " `projectFile` designates an aggregate project."
-        )
-        public String subProject = null;
-
-        @CommandLine.Option(names = "-d", description = "Enable the debug mode")
-        public boolean debug;
-
-        @CommandLine.Option(names = "-X", description = "Scenario variable")
-        public Map<String, String> scenarioVariables = new HashMap<>();
-
-        @CommandLine.Option(
-            names = "--rules-dir",
-            description = "Additional directory in which to check for rules"
-        )
-        public List<String> rulesDirs = new ArrayList<>();
-
-        @CommandLine.Option(names = "--rules-from", description = "The file containing the rules")
-        public List<String> rulesFroms = null;
-
-        @CommandLine.Option(names = "--files-from", description = "The file containing the files")
-        public String filesFrom = null;
-
-        @CommandLine.Option(
-            names = "--log-file",
-            description = "The file used by the worker to output logs"
-        )
-        public String gnatcheckLogFile = null;
-
-        @CommandLine.Option(
-            names = "--ignore-project-switches",
-            description = "Process all units in the project tree, excluding externally built" +
-                " projects"
-        )
-        public boolean ignoreProjectSwitches;
-
-        @CommandLine.Option(
-            names = "--show-instantiation-chain",
-            description = "Show instantiation chain in reported generic construct"
-        )
-        public boolean showInstantiationChain;
-
-        @Override
-        public Integer call() {
-            String[] unmatchedArgs;
-            if (this.unmatched == null) {
-                unmatchedArgs = new String[0];
-            } else {
-                unmatchedArgs = this.unmatched.toArray(new String[0]);
-            }
-            new GNATCheckWorker(this).launch(unmatchedArgs);
-            return 0;
-        }
-    }
+    // ----- Constructors -----
 
     public GNATCheckWorker(GNATCheckWorker.Args args) {
         this.args = args;
@@ -138,31 +57,26 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     // ----- Checker methods -----
 
-    /**
-     * Display the help message for the LKQL language.
-     *
-     * @param maxCategory The option category.
-     */
+    /** Display the help message for the LKQL language. */
     @Override
     protected void printHelp(OptionCategory maxCategory) {
         System.out.println("No help!");
     }
 
-    /**
-     * Simply return the language id.
-     *
-     * @return The language id.
-     */
+    /** Simply return the language id. */
     @Override
     protected String getLanguageId() {
         return Constants.LKQL_ID;
     }
 
-    /**
-     * Start the GNATcheck worker.
-     *
-     * @param contextBuilder The context builder to build LKQL context.
-     */
+    protected List<String> preprocessArguments(
+        List<String> arguments,
+        Map<String, String> polyglotOptions
+    ) {
+        return args.unmatched;
+    }
+
+    /** Start the GNATcheck worker. */
     @Override
     protected void launch(Context.Builder contextBuilder) {
         int exitCode = this.executeScript(contextBuilder);
@@ -171,18 +85,13 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         }
     }
 
-    /**
-     * Execute the GNATcheck worker script and return the exit code.
-     *
-     * @param contextBuilder The context builder.
-     * @return The exit code of the script.
-     */
+    /** Execute the GNATcheck worker script and return the exit code. */
     protected int executeScript(Context.Builder contextBuilder) {
         // Create the LKQL options object builder
         final var optionsBuilder = new LKQLOptions.Builder();
 
         // Set the common configuration
-        contextBuilder.allowIO(true);
+        contextBuilder.allowIO(IOAccess.ALL);
         contextBuilder.engine(
             Engine.newBuilder()
                 .allowExperimentalOptions(true)
@@ -276,7 +185,13 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 checkerSource,
                 "checker.lkql"
             ).build();
-            context.eval(source);
+            try {
+                context.eval(source);
+            } catch (PolyglotException e) {
+                var diagnostics = new DiagnosticCollector();
+                diagnostics.handleException(e);
+                displayDiagnostics(diagnostics);
+            }
             return 0;
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -284,33 +199,22 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         }
     }
 
-    protected List<String> preprocessArguments(
-        List<String> arguments,
-        Map<String, String> polyglotOptions
-    ) {
-        if (this.args.unmatched != null) {
-            return this.args.unmatched;
-        } else {
-            return new ArrayList<>();
-        }
-    }
-
     // ----- Option parsing helpers -----
 
-    /** Throws an exception with the given message, related ot the provided LKQL file name. */
-    private static void errorInLKQLRuleFile(final String lkqlRuleFile, final String message)
-        throws LKQLRuleFileError {
-        errorInLKQLRuleFile(lkqlRuleFile, message, true);
+    private static String escape(String s) {
+        return s
+            .replace("\\", "\\\\")
+            .replace("\t", "\\t")
+            .replace("\b", "\\b")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\f", "\\f")
+            .replace("\"", "\\\"");
     }
 
-    private static void errorInLKQLRuleFile(
-        final String lkqlRuleFile,
-        final String message,
-        final boolean addTag
-    ) throws LKQLRuleFileError {
-        throw new LKQLRuleFileError(
-            (addTag ? "WORKER_ERROR: " : "") + message + " (" + lkqlRuleFile + ")"
-        );
+    private static void errorInLKQLRuleFile(final String lkqlRuleFile, final String message)
+        throws LKQLRuleFileError {
+        throw new LKQLRuleFileError("WORKER_ERROR: " + message + " (" + lkqlRuleFile + ")");
     }
 
     private static void emitMessageForTheDriver(
@@ -319,8 +223,20 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         final String message
     ) {
         System.err.println(
-            tag + ": {\"location\": \"" + location + "\", \"message\": \"" + message + "\"}"
+            tag + ": {\"location\": \"" + location + "\", \"message\": \"" + escape(message) + "\"}"
         );
+    }
+
+    private static void displayDiagnostics(DiagnosticCollector diagnostics) {
+        for (var diagnostic : diagnostics) {
+            var messageTag = switch (diagnostic) {
+                case Warning _ -> "WORKER_WARNING";
+                case Error _ -> "WORKER_ERROR";
+                default -> "WORKER_INFO";
+            };
+            var locationImage = diagnostic.location.map(SourceSection::shortImage);
+            emitMessageForTheDriver(messageTag, locationImage.orElse(""), diagnostic.message);
+        }
     }
 
     /**
@@ -347,13 +263,30 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                         .toJson()
                         .toString()
                 )
-                .allowIO(true)
+                .allowIO(IOAccess.ALL)
                 .build()
         ) {
             // Parse the LKQL rule configuration file with a polyglot context
-            final Source source = Source.newBuilder(Constants.LKQL_ID, lkqlFile).build();
-            final Value executable = context.parse(source);
-            final Value topLevel = executable.execute(false);
+            Value topLevel = null;
+            try {
+                final Source source = Source.newBuilder(Constants.LKQL_ID, lkqlFile).build();
+                final Value executable = context.parse(source);
+                topLevel = executable.execute(false);
+            } catch (PolyglotException e) {
+                // Collect diagnostics from the polyglot exception
+                var diagnostics = new DiagnosticCollector();
+                diagnostics.handleException(e);
+
+                // Display diagnostics if there are some
+                displayDiagnostics(diagnostics);
+
+                // Throw an exception
+                errorInLKQLRuleFile(lkqlFileBasename, "Error(s) in the LKQL rule file");
+            } catch (IOException e) {
+                errorInLKQLRuleFile(lkqlFileBasename, "Could not read file");
+            } catch (Exception e) {
+                errorInLKQLRuleFile(lkqlFileBasename, e.getMessage());
+            }
 
             // Get the mandatory general instances object and populate the result with it
             if (topLevel.hasMember("rules")) {
@@ -393,13 +326,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                     "LKQL config file must define a 'rules' top level object value"
                 );
             }
-        } catch (IOException e) {
-            errorInLKQLRuleFile(lkqlFileBasename, "Could not read file");
-        } catch (LKQLRuleFileError e) {
-            throw e;
-        } catch (Exception e) {
-            errorInLKQLRuleFile(lkqlFileBasename, e.getMessage(), false);
         }
+
+        // Return the result of the LKQL rule file parsing
         return res;
     }
 
@@ -634,13 +563,92 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         }
     }
 
-    // ----- The LKQL checker -----
+    @CommandLine.Command(
+        name = "gnatcheck_worker",
+        description = "Internal driver meant to be called by GNATcheck. Not for public use"
+    )
+    public static class Args implements Callable<Integer> {
 
-    public static final String checkerSource = """
-        val analysis_units = specified_units()
-        val roots = [unit.root for unit in analysis_units]
+        @CommandLine.Unmatched
+        public List<String> unmatched = new ArrayList<>();
 
-        roots.map((root) => node_checker(root)).to_list
-        analysis_units.map((unit) => unit_checker(unit)).to_list
-        """;
+        @CommandLine.Option(
+            names = { "--parse-lkql-config" },
+            description = "Parse the given LKQL file as a rule configuration file and return its" +
+                " result as a JSON encoded string. If this option is provided, all" +
+                " other features are disabled."
+        )
+        public String lkqlConfigFile = null;
+
+        @CommandLine.Option(
+            names = { "-C", "--charset" },
+            description = "Charset to use for the source decoding"
+        )
+        public String charset = null;
+
+        @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
+        public String RTS = null;
+
+        @CommandLine.Option(names = "--target", description = "Target to pass to GPR")
+        public String target = null;
+
+        @CommandLine.Option(names = "--config", description = "Config file for GPR loading")
+        public String configFile = null;
+
+        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
+        public boolean verbose;
+
+        @CommandLine.Option(names = { "-P", "--project" }, description = "Project file to use")
+        public String project = null;
+
+        @CommandLine.Option(
+            names = "-A",
+            description = "The name of the subproject to analyse, if any. This implies that" +
+                " `projectFile` designates an aggregate project."
+        )
+        public String subProject = null;
+
+        @CommandLine.Option(names = "-d", description = "Enable the debug mode")
+        public boolean debug;
+
+        @CommandLine.Option(names = "-X", description = "Scenario variable")
+        public Map<String, String> scenarioVariables = new HashMap<>();
+
+        @CommandLine.Option(
+            names = "--rules-dir",
+            description = "Additional directory in which to check for rules"
+        )
+        public List<String> rulesDirs = new ArrayList<>();
+
+        @CommandLine.Option(names = "--rules-from", description = "The file containing the rules")
+        public List<String> rulesFroms = null;
+
+        @CommandLine.Option(names = "--files-from", description = "The file containing the files")
+        public String filesFrom = null;
+
+        @CommandLine.Option(
+            names = "--log-file",
+            description = "The file used by the worker to output logs"
+        )
+        public String gnatcheckLogFile = null;
+
+        @CommandLine.Option(
+            names = "--ignore-project-switches",
+            description = "Process all units in the project tree, excluding externally built" +
+                " projects"
+        )
+        public boolean ignoreProjectSwitches;
+
+        @CommandLine.Option(
+            names = "--show-instantiation-chain",
+            description = "Show instantiation chain in reported generic construct"
+        )
+        public boolean showInstantiationChain;
+
+        @Override
+        public Integer call() {
+            new GNATCheckWorker(this).launch(unmatched.toArray(new String[0]));
+            return 0;
+        }
+    }
 }

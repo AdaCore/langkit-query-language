@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.built_ins.methods;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.LKQLPattern;
@@ -137,10 +137,10 @@ public class StrMethods {
 
             // Verify start and end bounds
             if (start < 0) {
-                throw LKQLRuntimeException.invalidIndex((int) start + 1, this);
+                throw LKQLRuntimeError.invalidIndex((int) start + 1, this);
             }
             if (end > source.length()) {
-                throw LKQLRuntimeException.invalidIndex((int) end, this);
+                throw LKQLRuntimeError.invalidIndex((int) end, this);
             }
 
             // Return the substring

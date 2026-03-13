@@ -7,7 +7,8 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodValue;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
@@ -104,7 +105,7 @@ public abstract class FunCall extends Expr {
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
             // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
             // (#138)
-            throw LKQLRuntimeException.fromJavaException(e, this.getCallee());
+            throw LKQLEngineException.create(e, getCallee());
         }
     }
 
@@ -144,7 +145,7 @@ public abstract class FunCall extends Expr {
         try {
             return functionLibrary.execute(function, argVals);
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
-            throw LKQLRuntimeException.fromJavaException(e, this.getCallee());
+            throw LKQLEngineException.create(e, getCallee());
         }
     }
 
@@ -199,7 +200,7 @@ public abstract class FunCall extends Expr {
     protected LKQLSelectorList onSelector(VirtualFrame frame, LKQLSelector selectorValue) {
         // Verify the argument number
         if (args.length < 1) {
-            throw LKQLRuntimeException.selectorWithoutNode(this);
+            throw LKQLRuntimeError.selectorWithoutNode(this);
         }
 
         // Return the selector list value
@@ -224,7 +225,7 @@ public abstract class FunCall extends Expr {
      */
     @Fallback
     protected void nonExecutable(Object nonExec) {
-        throw LKQLRuntimeException.wrongType(
+        throw LKQLRuntimeError.wrongType(
             LKQLTypesHelper.LKQL_FUNCTION,
             LKQLTypesHelper.fromJava(nonExec),
             this
@@ -253,7 +254,7 @@ public abstract class FunCall extends Expr {
     ) {
         // Verify the arity
         if (paramNames.length < args.length) {
-            throw LKQLRuntimeException.wrongArity(paramNames.length, args.length, caller);
+            throw LKQLRuntimeError.wrongArity(paramNames.length, args.length, caller);
         }
 
         // Prepare the result
@@ -276,7 +277,7 @@ public abstract class FunCall extends Expr {
             if (index > -1) {
                 res[index] = arg;
             } else {
-                throw LKQLRuntimeException.unknownArgument(argName, arg);
+                throw LKQLRuntimeError.unknownArgument(argName, arg);
             }
         }
 

@@ -1,3 +1,4 @@
 script.lkql:1:17: error: No such field
   1 | val ref = BinOp.f_not_a_field
     |                 ^^^^^^^^^^^^^
+

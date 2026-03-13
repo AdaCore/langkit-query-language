@@ -8,7 +8,8 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLTuple;
@@ -72,10 +73,10 @@ public abstract class Indexing extends Expr {
             if (this.isSafe) {
                 return LKQLUnit.INSTANCE;
             } else {
-                throw LKQLRuntimeException.invalidIndex((int) index, this);
+                throw LKQLRuntimeError.invalidIndex((int) index, this);
             }
         } catch (UnsupportedMessageException e) {
-            throw LKQLRuntimeException.fromJavaException(e, this);
+            throw LKQLEngineException.create(e, this);
         }
     }
 
@@ -94,7 +95,7 @@ public abstract class Indexing extends Expr {
             if (this.isSafe) {
                 return LKQLUnit.INSTANCE;
             } else {
-                throw LKQLRuntimeException.invalidIndex((int) index, this);
+                throw LKQLRuntimeError.invalidIndex((int) index, this);
             }
         }
     }
@@ -111,7 +112,7 @@ public abstract class Indexing extends Expr {
         if (index > node.getChildrenCount()) {
             return LKQLNull.INSTANCE;
         } else if (index < 1) {
-            throw LKQLRuntimeException.invalidIndex((int) index, this);
+            throw LKQLRuntimeError.invalidIndex((int) index, this);
         }
         LangkitSupport.NodeInterface res = node.getChild((int) index - 1);
         return res.isNone() ? LKQLNull.INSTANCE : res;
@@ -126,13 +127,13 @@ public abstract class Indexing extends Expr {
     @Fallback
     protected void indexError(Object collection, Object index) {
         if (!LKQLTypeSystemGen.isIndexable(collection)) {
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 "list, tuple, node or iterator",
                 LKQLTypesHelper.fromJava(collection),
                 this
             );
         } else {
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 LKQLTypesHelper.LKQL_INTEGER,
                 LKQLTypesHelper.fromJava(index),
                 this

@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -46,7 +46,7 @@ public final class ReadClosureUnsafe extends BaseRead {
     public Object executeGeneric(VirtualFrame frame) {
         var res = (((Closure) frame.getArguments()[0]).content[slot]).getRef();
         if (res == null) {
-            throw LKQLRuntimeException.unknownSymbol(name, this);
+            throw LKQLRuntimeError.unknownSymbol(name, this);
         } else {
             return res;
         }

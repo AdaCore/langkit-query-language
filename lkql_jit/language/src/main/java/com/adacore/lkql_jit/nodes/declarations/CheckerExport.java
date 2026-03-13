@@ -7,18 +7,13 @@ package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.checker.BaseChecker;
 import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.UnitChecker;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.options.LKQLOptions;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
-import com.adacore.lkql_jit.utils.functions.OptionalUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.LKQLFunction;
 import com.adacore.lkql_jit.values.LKQLUnit;
@@ -104,38 +99,11 @@ public class CheckerExport extends Declaration {
             default -> BaseChecker.Remediation.MEDIUM;
         };
 
-        // Get the auto fix function
-        final var autoFixObject = checkerArguments[10];
-        final var autoFixArg = this.annotation.getArguments().getArgWithName("auto_fix");
-
-        // If there is an auto fix, the checker must be a node checker
-        if (autoFixObject != null && this.mode == CheckerMode.UNIT) {
-            throw LKQLRuntimeException.create(
-                "Auto fixes not available for unit checks",
-                autoFixArg.orElseGet(() -> this.annotation.getArguments().getArgs()[10])
-            );
-        }
-
-        // Check that the auto fix object is a function
-        if (autoFixObject != null && !LKQLTypeSystemGen.isLKQLFunction(autoFixObject)) {
-            throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_FUNCTION,
-                LKQLTypesHelper.fromJava(autoFixObject),
-                OptionalUtils.map(autoFixArg, a -> (LKQLNode) a.getArgExpr()).orElseGet(() ->
-                    this.annotation.getArguments().getArgs()[10]
-                )
-            );
-        }
-        final var autoFix = autoFixObject == null
-            ? null
-            : LKQLTypeSystemGen.asLKQLFunction(autoFixObject);
-
         // Create the object value representing the checker
         final BaseChecker checker = this.mode == CheckerMode.NODE
             ? new NodeChecker(
                   functionValue.getExecutableName(),
                   functionValue,
-                  autoFix,
                   (String) checkerArguments[0],
                   (String) checkerArguments[1],
                   (boolean) checkerArguments[2],

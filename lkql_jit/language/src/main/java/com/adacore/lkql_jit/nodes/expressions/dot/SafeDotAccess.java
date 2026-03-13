@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
@@ -80,7 +80,7 @@ public abstract class SafeDotAccess extends BaseDotAccess {
         // Create the property reference
         LKQLProperty propertyRef = new LKQLProperty(this.member.getName(), receiver);
         if (propertyRef.description == null) {
-            throw LKQLRuntimeException.noSuchField(this.getReceiver());
+            throw LKQLRuntimeError.noSuchField(this.getReceiver());
         }
 
         // Return the result
@@ -90,7 +90,7 @@ public abstract class SafeDotAccess extends BaseDotAccess {
     /** Fallback when the receiver is a generic object. */
     @Fallback
     protected void onGeneric(Object receiver) {
-        throw LKQLRuntimeException.wrongType(
+        throw LKQLRuntimeError.wrongType(
             LKQLTypesHelper.NODE_INTERFACE,
             LKQLTypesHelper.fromJava(receiver),
             this

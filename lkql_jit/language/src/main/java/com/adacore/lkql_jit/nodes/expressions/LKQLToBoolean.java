@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLUnit;
@@ -62,7 +62,7 @@ public abstract class LKQLToBoolean extends Node {
 
     @Fallback
     protected boolean onOther(Object other) {
-        throw LKQLRuntimeException.wrongType(
+        throw LKQLRuntimeError.wrongType(
             LKQLTypesHelper.LKQL_BOOLEAN,
             LKQLTypesHelper.fromJava(other),
             this

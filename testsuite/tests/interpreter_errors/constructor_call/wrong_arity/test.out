@@ -6,3 +6,4 @@ script.lkql:1:18: error: Expected 3 arguments but got 2
     ||
   4 || )
     ||_^
+

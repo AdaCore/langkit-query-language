@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -49,7 +49,7 @@ public final class Unwrap extends Expr {
         // Evaluate the node value and test it
         Object nodeValue = this.expr.executeGeneric(frame);
         if (!LKQLTypeSystemGen.isNodeInterface(nodeValue)) {
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 LKQLTypesHelper.NODE_INTERFACE,
                 LKQLTypesHelper.fromJava(nodeValue),
                 this.expr

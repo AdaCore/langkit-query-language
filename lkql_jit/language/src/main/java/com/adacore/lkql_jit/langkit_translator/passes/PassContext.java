@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.nodes.pass.AddBlock;
 import com.adacore.lkql_jit.nodes.pass.DelBlock;
 import java.util.Collection;
@@ -64,10 +64,9 @@ public class PassContext {
 
     /**
      * Add a new class to the context
-     * @throws LKQLRuntimeException if the class already exists
      */
     private void addClass(String className, Collection<String> fields) {
-        if (env.containsKey(className)) throw LKQLRuntimeException.shouldNotHappen(
+        if (env.containsKey(className)) throw LKQLEngineException.create(
             "invalid add class: " + className
         );
         env.put(className, new ClassDescriptor(new HashSet<>(fields)));
@@ -78,7 +77,7 @@ public class PassContext {
      * @throws if context does not contains className
      */
     private void deleteClass(String className) {
-        if (env.remove(className) == null) throw LKQLRuntimeException.shouldNotHappen(
+        if (env.remove(className) == null) throw LKQLEngineException.create(
             "invalid del class: " + className
         );
     }
@@ -90,9 +89,7 @@ public class PassContext {
      */
     private void addField(String className, String fieldName) {
         final ClassDescriptor existing = env.get(className);
-        if (
-            existing == null || !existing.fields.add(fieldName)
-        ) throw LKQLRuntimeException.shouldNotHappen(
+        if (existing == null || !existing.fields.add(fieldName)) throw LKQLEngineException.create(
             "invalid add field: " + className + "." + fieldName
         );
     }
@@ -106,9 +103,7 @@ public class PassContext {
         final var existing = env.get(className);
         if (
             existing == null || !existing.fields.remove(fieldName)
-        ) throw LKQLRuntimeException.shouldNotHappen(
-            "invalid del field: " + className + "." + fieldName
-        );
+        ) throw LKQLEngineException.create("invalid del field: " + className + "." + fieldName);
     }
 
     public record ClassDescriptor(HashSet<String> fields) {}

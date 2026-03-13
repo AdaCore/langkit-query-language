@@ -13,14 +13,11 @@ import com.adacore.lkql_jit.annotations.BuiltInFunction;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.checker.NodeChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.exception.LangkitException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
 import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
-import com.adacore.lkql_jit.options.LKQLOptions;
-import com.adacore.lkql_jit.utils.functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
@@ -35,9 +32,7 @@ import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import com.oracle.truffle.api.nodes.Node;
 import java.util.LinkedList;
 
 public final class NodeCheckerFunction {
@@ -164,9 +159,7 @@ public final class NodeCheckerFunction {
                     // Get the stack frame below this one to get a location for the error
                     var stackTrace = TruffleStackTrace.getStackTrace(e);
                     var stackFrame = stackTrace.get(1);
-                    var callerLocation = LKQLRuntimeException.getClosestNodeWithSourceInfo(
-                        stackFrame.getLocation()
-                    );
+                    var callerLocation = getClosestNodeWithSourceInfo(stackFrame.getLocation());
 
                     context
                         .getDiagnosticEmitter()
@@ -224,71 +217,6 @@ public final class NodeCheckerFunction {
                 }
             }
 
-            // If the engine is in fixing mode and the current unit has some modification
-            if (
-                context.getEngineMode() == LKQLOptions.EngineMode.FIXER &&
-                context.hasRewritingContext()
-            ) {
-                // Apply the current rewriting context
-                final var applyRes = context.applyOrCloseRewritingContext();
-                if (!applyRes.success) {
-                    final var message = StringUtils.concat(
-                        "Error(s) while applying a rewriting context: ",
-                        ArrayUtils.toString(applyRes.getDiagnostics())
-                    );
-                    throw LKQLRuntimeException.create(message);
-                }
-
-                // Then output the rewrote unit as required
-                final var patchedSource = rootUnit.getText();
-                final var basePatchedFileName = rootUnit.getFileName(false);
-                final var fullPatchedFileName = rootUnit.getFileName(true);
-                switch (context.getAutoFixMode()) {
-                    case DISPLAY:
-                        // If the required action is the display, just print the patched unit
-                        var header = StringUtils.concat(
-                            "Patched \"",
-                            rootUnit.getFileName(false),
-                            "\":\n"
-                        );
-                        header = StringUtils.concat(header, "=".repeat(header.length() - 1), "\n");
-                        context.println(header);
-                        context.println(patchedSource);
-                        break;
-                    case NEW_FILE:
-                        // If the required action is create a new file, create a new file alongside
-                        // the original file and dump the patched unit inside it.
-                        // The new file name is formed as this: <original_file_name>.patched.
-                        final var newFile = FileUtils.create(
-                            StringUtils.concat(fullPatchedFileName, ".patched")
-                        );
-                        writeInFile(newFile, patchedSource);
-                        context.println(
-                            StringUtils.concat(
-                                "File \"",
-                                basePatchedFileName,
-                                "\" has been patched (result in \"",
-                                basePatchedFileName,
-                                ".patched\")"
-                            )
-                        );
-                        break;
-                    case PATCH_FILE:
-                        // If the required action is to patch the existing file, just replace the
-                        // content of the original file with the patched unit.
-                        final var originalFile = FileUtils.create(fullPatchedFileName);
-                        writeInFile(originalFile, patchedSource);
-                        context.println(
-                            StringUtils.concat(
-                                "File \"",
-                                basePatchedFileName,
-                                "\" has been patched"
-                            )
-                        );
-                        break;
-                }
-            }
-
             // Return the unit instance
             return LKQLUnit.INSTANCE;
         }
@@ -311,29 +239,34 @@ public final class NodeCheckerFunction {
                 ) {
                     try {
                         this.applyNodeRule(frame, checker, currentNode, context);
-                    } catch (LangkitException e) {
-                        // Report LAL exception only in debug mode
-                        if (context.isCheckerDebug()) {
+                    } catch (LKQLRuntimeError e) {
+                        if (e.getCause() != null) {
+                            if (context.isCheckerDebug()) {
+                                context
+                                    .getDiagnosticEmitter()
+                                    .emitDiagnostic(
+                                        CheckerUtils.MessageKind.ERROR,
+                                        e.getMessage(),
+                                        new LangkitLocationWrapper(currentNode, context.linesCache),
+                                        e.getLocation() == null
+                                            ? null
+                                            : new SourceSectionWrapper(
+                                                  e.getLocation().getSourceSection()
+                                              ),
+                                        checker.checker.getName()
+                                    );
+                            }
+                        } else {
                             context
                                 .getDiagnosticEmitter()
                                 .emitDiagnostic(
                                     CheckerUtils.MessageKind.ERROR,
-                                    e.getMsg(),
+                                    e.getMessage(),
                                     new LangkitLocationWrapper(currentNode, context.linesCache),
-                                    new SourceSectionWrapper(e.getLoc()),
+                                    new SourceSectionWrapper(e.getLocation().getSourceSection()),
                                     checker.checker.getName()
                                 );
                         }
-                    } catch (LKQLRuntimeException e) {
-                        context
-                            .getDiagnosticEmitter()
-                            .emitDiagnostic(
-                                CheckerUtils.MessageKind.ERROR,
-                                e.getErrorMessage(),
-                                new LangkitLocationWrapper(currentNode, context.linesCache),
-                                e.getSourceLoc(),
-                                checker.checker.getName()
-                            );
                     }
                 }
             }
@@ -360,24 +293,11 @@ public final class NodeCheckerFunction {
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLEngineException.create(e);
             }
 
             if (ruleResult) {
-                if (context.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
-                    reportViolation(context, checker.checker, node);
-                } else if (
-                    context.getEngineMode() == LKQLOptions.EngineMode.FIXER &&
-                    checker.checker.autoFix != null
-                ) {
-                    callAutoFix(
-                        context,
-                        context.getRewritingContext(),
-                        interopLibrary,
-                        checker.checker,
-                        node
-                    );
-                }
+                reportViolation(context, checker.checker, node);
             }
         }
 
@@ -410,40 +330,12 @@ public final class NodeCheckerFunction {
                 );
         }
 
-        /**
-         * If the provided checker's auto fix is requested by the user, call it with the given node
-         * and the current rewriting context.
-         */
-        @CompilerDirectives.TruffleBoundary
-        private static void callAutoFix(
-            LKQLContext context,
-            LangkitSupport.RewritingContextInterface rewritingContext,
-            InteropLibrary interopLibrary,
-            NodeChecker checker,
-            LangkitSupport.NodeInterface node
-        ) {
-            try {
-                interopLibrary.execute(
-                    checker.autoFix,
-                    checker.autoFix.closure,
-                    node,
-                    rewritingContext
-                );
-            } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
-                // TODO: Move function runtime verification to the LKQLFunction class (#138)
-                throw LKQLRuntimeException.fromJavaException(e, checker.autoFix.body);
+        /** Get the closest parent node with a location from the provided node. */
+        private static Node getClosestNodeWithSourceInfo(Node node) {
+            while (node != null && node.getSourceSection() == null) {
+                node = node.getParent();
             }
-        }
-
-        /** Util internal function to write in a file out of the Truffle bounds. */
-        @CompilerDirectives.TruffleBoundary
-        private void writeInFile(File file, String content) {
-            try (final var writer = new FileWriter(file)) {
-                file.createNewFile();
-                writer.write(content);
-            } catch (IOException e) {
-                throw LKQLRuntimeException.fromJavaException(e, this);
-            }
+            return node;
         }
 
         // ----- Inner classes -----

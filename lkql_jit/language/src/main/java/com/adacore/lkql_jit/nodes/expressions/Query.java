@@ -9,7 +9,7 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
@@ -101,7 +101,7 @@ public final class Query extends Expr {
             try {
                 through = this.throughExpr.executeSelector(frame);
             } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
+                throw LKQLRuntimeError.wrongType(
                     LKQLTypesHelper.LKQL_SELECTOR,
                     LKQLTypesHelper.fromJava(e.getResult()),
                     this.throughExpr
@@ -127,13 +127,13 @@ public final class Query extends Expr {
                     try {
                         fromNodes[i] = LKQLTypeSystemGen.expectNodeInterface(fromList.get(i));
                     } catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeException.wrongFromList(this.fromExpr);
+                        throw LKQLRuntimeError.wrongFromList(this.fromExpr);
                     }
                 }
             }
             // Else, throw an exception on the "from" expression type
             else {
-                throw LKQLRuntimeException.wrongFrom(this.fromExpr);
+                throw LKQLRuntimeError.wrongFrom(this.fromExpr);
             }
         }
         // Else, there is no "from" expression, we get the default roots

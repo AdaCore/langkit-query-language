@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.values.interop;
 
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.List;
 import java.util.Map;
 
@@ -12,5 +13,6 @@ import java.util.Map;
 public record LKQLAnnotation(
     String name,
     List<Object> positionalArguments,
-    Map<String, Object> namedArguments
+    Map<String, Object> namedArguments,
+    SourceSection location
 ) {}

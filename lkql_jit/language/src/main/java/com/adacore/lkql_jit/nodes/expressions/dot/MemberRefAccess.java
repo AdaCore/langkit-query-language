@@ -6,9 +6,6 @@
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -26,16 +23,12 @@ public class MemberRefAccess extends Expr {
 
     // ----- Constructors -----
 
-    public MemberRefAccess(SourceSection location, Identifier receiver, Identifier member) {
+    public MemberRefAccess(
+        SourceSection location,
+        LangkitSupport.MemberReferenceInterface memberRef
+    ) {
         super(location);
-        // Get the Ada node description and check that the member exists
-        final var description = Libadalang.NODE_DESCRIPTION_MAP.get(receiver.getName());
-        if (description == null) {
-            throw LKQLRuntimeException.invalidKindName(receiver);
-        } else if (!description.fieldDescriptions.containsKey(member.getName())) {
-            throw LKQLRuntimeException.noSuchField(member);
-        }
-        this.memberRef = description.fieldDescriptions.get(member.getName()).memberRef;
+        this.memberRef = memberRef;
     }
 
     // ----- Execution methods -----

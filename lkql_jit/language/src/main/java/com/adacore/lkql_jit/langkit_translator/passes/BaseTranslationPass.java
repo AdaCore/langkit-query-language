@@ -6,10 +6,9 @@
 package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.AllBuiltIns;
-import com.adacore.lkql_jit.checker.utils.CheckerUtils;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
@@ -27,40 +26,26 @@ import java.util.Set;
 /** This is a class to share common code between the LKQL and Lkt lowering passes. */
 public class BaseTranslationPass {
 
+    // ----- Attributes -----
+
     /** Source currently being translated. */
     final Source source;
 
     /** Frames in the currently translated source. */
     final ScriptFrames frames;
 
-    protected RuntimeException translationError(SourceSection location, String message) {
-        LKQLLanguage.getContext(null)
-            .getDiagnosticEmitter()
-            .emitDiagnostic(
-                CheckerUtils.MessageKind.ERROR,
-                message,
-                null,
-                new SourceSectionWrapper(location)
-            );
-        return LKQLRuntimeException.create("Errors during analysis");
-    }
+    /** Collector used to register all errors that occur during the translation phase. */
+    protected final LKQLStaticErrors errors;
 
-    protected RuntimeException translationError(LangkitSupport.NodeInterface node, String message) {
-        LKQLLanguage.getContext(null)
-            .getDiagnosticEmitter()
-            .emitDiagnostic(
-                CheckerUtils.MessageKind.ERROR,
-                message,
-                null,
-                SourceSectionWrapper.create(node.getSourceLocationRange(), source)
-            );
-        return LKQLRuntimeException.create("Errors during analysis");
-    }
+    // ----- Constructors -----
 
-    public BaseTranslationPass(Source source, ScriptFrames frames) {
+    public BaseTranslationPass(Source source, ScriptFrames frames, LKQLStaticErrors errors) {
         this.source = source;
         this.frames = frames;
+        this.errors = errors;
     }
+
+    // ----- Instance methods -----
 
     /**
      * Create the source location for the given node.
@@ -86,15 +71,18 @@ public class BaseTranslationPass {
         final Set<String> seenNames = new HashSet<>();
         for (var curArg : args) {
             if (curArg instanceof ExprArg exprArg && !seenNames.isEmpty()) {
-                throw LKQLRuntimeException.positionAfterNamedArgument(exprArg); // Found positional argument after named argument
+                errors.positionalAfterNamedArgument(exprArg.getSourceSection());
             } else if (curArg instanceof NamedArg namedArg) {
                 if (seenNames.contains(namedArg.getArgStringName())) {
-                    throw LKQLRuntimeException.multipleSameNameArgument(namedArg); // Found duplicate of named argument
+                    errors.multipleSameNameArguments(
+                        namedArg.getArgStringName(),
+                        namedArg.getSourceSection()
+                    );
                 }
-
                 seenNames.add(namedArg.getArgStringName());
             }
         }
+
         // Return the new argument list node
         return new ArgList(loc, args.toArray(new Arg[0]));
     }
@@ -130,6 +118,29 @@ public class BaseTranslationPass {
             return new ReadDynamic(loc, symbol);
         }
 
-        throw translationError(loc, "Unknown symbol: " + symbol);
+        // If we get here, it means that the symbol isn't in the lexical environment
+        errors.unknownSymbol(symbol, loc);
+        return null;
+    }
+
+    /** Get the reflection description for the node corresponding to the provided name. */
+    protected Libadalang.Reflection.Node getNodeDescription(
+        LangkitSupport.NodeInterface nodeKindId
+    ) {
+        final var description = Libadalang.NODE_DESCRIPTION_MAP.get(nodeKindId.getText());
+        if (description == null) {
+            errors.invalidKindName(loc(nodeKindId));
+            return null;
+        } else {
+            return description;
+        }
+    }
+
+    /** Get the node class corresponding to the provided name. */
+    protected Class<? extends LangkitSupport.NodeInterface> getNodeClass(
+        LangkitSupport.NodeInterface nodeKindId
+    ) {
+        var description = getNodeDescription(nodeKindId);
+        return description == null ? null : description.clazz;
     }
 }

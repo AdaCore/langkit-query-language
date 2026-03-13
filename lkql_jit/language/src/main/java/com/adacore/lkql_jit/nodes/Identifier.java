@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -45,7 +45,7 @@ public final class Identifier extends Expr {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     @Override

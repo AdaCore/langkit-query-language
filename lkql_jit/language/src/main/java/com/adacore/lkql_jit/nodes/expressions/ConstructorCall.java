@@ -8,7 +8,8 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
+import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.ExprArg;
@@ -60,27 +61,32 @@ public final class ConstructorCall extends Expr {
      * @param kindName Kind of the node to create.
      * @param argList List of arguments for the constructor call.
      */
-    public ConstructorCall(SourceSection location, Identifier kindName, ArgList argList) {
+    public ConstructorCall(
+        SourceSection location,
+        Identifier kindName,
+        Libadalang.Reflection.Node nodeDescription,
+        ArgList argList,
+        LKQLStaticErrors errors
+    ) {
         super(location);
-        // Get the node kind and if this is a token node
-        final var description = Libadalang.NODE_DESCRIPTION_MAP.get(kindName.getName());
-        if (description == null) {
-            throw LKQLRuntimeException.invalidKindName(kindName);
-        } else if (description.kind == null) {
-            throw LKQLRuntimeException.invalidAbstractKind(kindName);
+        this.nodeKind = nodeDescription.kind;
+        this.isTokenNode = nodeDescription.isTokenNode;
+        this.isListNode = nodeDescription.isListNode;
+
+        // Check if the kind is concrete
+        if (nodeKind == null) {
+            errors.expectConcreteKind(kindName.getSourceSection());
+            return;
         }
-        this.nodeKind = description.kind;
-        this.isTokenNode = description.isTokenNode;
-        this.isListNode = description.isListNode;
 
         // Create the argument expression array regarding the constructed node kind
-        final var fieldIndexes = ArrayUtils.indexMap(description.fields);
+        final var fieldIndexes = ArrayUtils.indexMap(nodeDescription.fields);
         if (this.isTokenNode) {
             this.args = new ExprArg[1];
         } else if (this.isListNode) {
             this.args = new ExprArg[Math.min(1, argList.getArgs().length)];
         } else {
-            this.args = new ExprArg[description.fields.length];
+            this.args = new ExprArg[nodeDescription.fields.length];
         }
 
         // Check the argument arity
@@ -88,7 +94,8 @@ public final class ConstructorCall extends Expr {
             (this.args.length != argList.getArgs().length) &&
             (!this.isListNode || argList.getArgs().length > 1)
         ) {
-            throw LKQLRuntimeException.wrongArity(this.args.length, argList.getArgs().length, this);
+            errors.wrongArity(this.args.length, argList.getArgs().length, location);
+            return;
         }
 
         for (int i = 0; i < argList.getArgs().length; i++) {
@@ -105,16 +112,21 @@ public final class ConstructorCall extends Expr {
                 final var name = namedArg.getArgStringName();
 
                 // Check that the argument name is a valid field and get its index
-                if (!fieldIndexes.containsKey(name)) {
-                    throw LKQLRuntimeException.unknownArgument(name, namedArg);
+                var fieldIndex = fieldIndexes.get(name);
+                if (fieldIndex == null) {
+                    errors.unknownArg(name, namedArg.getSourceSection());
+                } else {
+                    // Check that the child argument s empty and set it
+                    var index = fieldIndex.getFirst();
+                    if (this.args[index] != null) {
+                        errors.namedOverlapPositional(namedArg.getSourceSection());
+                    } else {
+                        this.args[index] = new ExprArg(
+                            namedArg.getSourceSection(),
+                            namedArg.getArgExpr()
+                        );
+                    }
                 }
-                final int index = fieldIndexes.get(name).get(0);
-
-                // Check that the child argument is empty and set it
-                if (this.args[index] != null) {
-                    throw LKQLRuntimeException.namedOverlapPositional(namedArg);
-                }
-                this.args[index] = new ExprArg(namedArg.getSourceSection(), namedArg.getArgExpr());
             }
         }
     }
@@ -147,7 +159,7 @@ public final class ConstructorCall extends Expr {
                     this.args[0].getArgExpr().executeString(frame)
                 );
             } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
+                throw LKQLRuntimeError.wrongType(
                     LKQLTypesHelper.LKQL_STRING,
                     LKQLTypesHelper.fromJava(e.getResult()),
                     this.args[0]
@@ -174,7 +186,7 @@ public final class ConstructorCall extends Expr {
                     }
                     return rewritingContext.createNode(this.nodeKind, args);
                 } catch (UnexpectedResultException e) {
-                    throw LKQLRuntimeException.wrongType(
+                    throw LKQLRuntimeError.wrongType(
                         LKQLTypesHelper.LKQL_LIST,
                         LKQLTypesHelper.fromJava(e.getResult()),
                         this.args[0].getArgExpr()

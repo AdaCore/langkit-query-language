@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLRecValue;
@@ -94,7 +94,7 @@ public final class SelectorRootNode extends MemoizedRootNode<Object, LKQLRecValu
         } else if (LKQLTypeSystemGen.isNullish(val)) {
             res = new LKQLRecValue(new Object[0], new Object[0]);
         } else {
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 LKQLTypesHelper.LKQL_REC_VALUE,
                 LKQLTypesHelper.fromJava(val),
                 body

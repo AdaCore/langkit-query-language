@@ -3,3 +3,4 @@ script.lkql:1:1: error: Type error: expected RecValue but got Bool
     | _^
   2 ||     | * => true
     ||_______________^
+

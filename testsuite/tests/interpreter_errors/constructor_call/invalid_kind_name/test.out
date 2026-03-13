@@ -1,3 +1,4 @@
 script.lkql:1:22: error: Invalid kind name
   1 | val impossible = new IntegerLit("56")
     |                      ^^^^^^^^^^
+

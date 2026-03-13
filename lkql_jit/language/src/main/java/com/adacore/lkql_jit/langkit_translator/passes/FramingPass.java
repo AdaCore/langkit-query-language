@@ -5,18 +5,18 @@
 
 package com.adacore.lkql_jit.langkit_translator.passes;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.liblkqllang.Liblkqllang.ClassField;
 import com.adacore.liblkqllang.Liblkqllang.ClassFieldList;
 import com.adacore.liblkqllang.Liblkqllang.PrefixField;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.checker.utils.CheckerUtils;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.exception.TranslatorException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 /** This class represents the framing pass for the Langkit AST translation process. */
 public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
@@ -29,6 +29,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     /** Script frames builder object. */
     private final ScriptFramesBuilder scriptFramesBuilder;
 
+    /** Collector used to register all errors that occur during the framing phase. */
+    private final LKQLStaticErrors errors;
+
     // ----- Attributes -----
 
     /**
@@ -36,9 +39,10 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      *
      * @param source The Truffle source.
      */
-    public FramingPass(final Source source) {
+    public FramingPass(Source source, LKQLStaticErrors errors) {
         this.source = source;
         this.scriptFramesBuilder = new ScriptFramesBuilder();
+        this.errors = errors;
     }
 
     // ----- Getters -----
@@ -49,47 +53,35 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     // ----- Instance methods -----
 
-    private RuntimeException framingError(Liblkqllang.LkqlNode node, String message) {
-        var ctx = LKQLLanguage.getContext(null);
-        ctx
-            .getDiagnosticEmitter()
-            .emitDiagnostic(
-                CheckerUtils.MessageKind.ERROR,
-                message,
-                null,
-                SourceSectionWrapper.create(node.getSourceLocationRange(), source)
-            );
-        return LKQLRuntimeException.create("Errors during framing pass");
+    /** Create a Truffle source section from a parsing node. */
+    private SourceSection loc(LangkitSupport.NodeInterface node) {
+        return SourceSectionWrapper.createSection(node.getSourceLocationRange(), source);
     }
 
     /**
-     * Check that the given symbol doesn't exist in the current bindings. Throw an exception if it
-     * does.
-     *
-     * @param symbol The symbol to check.
-     * @param node The node where the symbol was introduced.
-     * @throws LKQLRuntimeException If the symbol is already in the current bindings.
+     * Check that the given symbol doesn't exist in the current bindings. Fill the errors collector
+     * if it does.
+     * Returns whether the check succeeded.
      */
-    private void checkDuplicateBindings(final String symbol, final Liblkqllang.LkqlNode node)
-        throws LKQLRuntimeException {
+    private boolean checkDuplicateBindings(final String symbol, final Liblkqllang.LkqlNode node) {
         if (!symbol.equals("_") && this.scriptFramesBuilder.bindingExists(symbol)) {
-            throw framingError(node, "Already existing symbol: " + symbol);
+            errors.alreadyExistingSymbol(symbol, loc(node));
+            return false;
         }
+        return true;
     }
 
     /**
-     * Check that the given symbol doesn't exist in the current parameters. Throw an exception if it
-     * does.
-     *
-     * @param symbol The symbol to check.
-     * @param node The node where the symbol was introduced.
-     * @throws LKQLRuntimeException If the symbol is already in the current parameters.
+     * Check that the given parameter doesn't exist in the current function parameters. Fill the
+     * errors collector if it does.
+     * Returns whether the check succeeded.
      */
-    private void checkDuplicateParameters(final String symbol, final Liblkqllang.LkqlNode node)
-        throws LKQLRuntimeException {
+    private boolean checkDuplicateParameters(final String symbol, final Liblkqllang.LkqlNode node) {
         if (this.scriptFramesBuilder.parameterExists(symbol)) {
-            throw framingError(node, "Already existing parameter: " + symbol);
+            errors.alreadyExistingParameter(symbol, loc(node));
+            return false;
         }
+        return true;
     }
 
     /**
@@ -118,7 +110,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      */
     @Override
     public Void visit(Liblkqllang.LkqlNode lkqlNode) {
-        throw new TranslatorException("Cannot visit a raw LKQL node during the framing pass");
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     /**
@@ -147,8 +139,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.ValDecl valDecl) {
         final String symbol = valDecl.fIdentifier().getText();
-        checkDuplicateBindings(symbol, valDecl.fIdentifier());
-        this.scriptFramesBuilder.addBinding(symbol);
+        if (checkDuplicateBindings(symbol, valDecl.fIdentifier())) {
+            this.scriptFramesBuilder.addBinding(symbol);
+        }
         final var annotation = valDecl.fAnnotation();
         if (!annotation.isNone()) {
             annotation.accept(this);
@@ -166,8 +159,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.FunDecl funDecl) {
         final String symbol = funDecl.fName().getText();
-        checkDuplicateBindings(symbol, funDecl.fName());
-        this.scriptFramesBuilder.addBinding(symbol);
+        if (checkDuplicateBindings(symbol, funDecl.fName())) {
+            this.scriptFramesBuilder.addBinding(symbol);
+        }
         final var annotation = funDecl.fAnnotation();
         if (!annotation.isNone()) {
             annotation.accept(this);
@@ -201,8 +195,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     public Void visit(Liblkqllang.SelectorDecl selectorDecl) {
         // Add the symbol to the current bindings
         final String symbol = selectorDecl.fName().getText();
-        checkDuplicateBindings(symbol, selectorDecl.fName());
-        this.scriptFramesBuilder.addBinding(symbol);
+        if (checkDuplicateBindings(symbol, selectorDecl.fName())) {
+            this.scriptFramesBuilder.addBinding(symbol);
+        }
         final var annotation = selectorDecl.fAnnotation();
         if (!annotation.isNone()) {
             annotation.accept(this);
@@ -226,8 +221,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.Import anImport) {
         final String symbol = anImport.fName().getText();
-        checkDuplicateBindings(symbol, anImport.fName());
-        this.scriptFramesBuilder.addBinding(symbol);
+        if (checkDuplicateBindings(symbol, anImport.fName())) {
+            this.scriptFramesBuilder.addBinding(symbol);
+        }
         return null;
     }
 
@@ -244,8 +240,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
             defaultExpr.accept(this);
         }
         final String symbol = parameterDecl.fParamIdentifier().getText();
-        checkDuplicateParameters(symbol, parameterDecl);
-        this.scriptFramesBuilder.addParameter(symbol);
+        if (checkDuplicateParameters(symbol, parameterDecl)) {
+            this.scriptFramesBuilder.addParameter(symbol);
+        }
         return null;
     }
 
@@ -334,8 +331,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         this.scriptFramesBuilder.openFrame(listComprehension);
         for (var assoc : listComprehension.fGenerators()) {
             final String symbol = assoc.fBindingName().getText();
-            checkDuplicateParameters(symbol, assoc.fBindingName());
-            this.scriptFramesBuilder.addParameter(symbol);
+            if (checkDuplicateParameters(symbol, assoc.fBindingName())) {
+                this.scriptFramesBuilder.addParameter(symbol);
+            }
         }
         listComprehension.fExpr().accept(this);
         final Liblkqllang.Expr guard = listComprehension.fGuard();
@@ -969,8 +967,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.PassDecl pass) {
         final String symbol = pass.fPassName().getText();
-        checkDuplicateBindings(symbol, pass.fPassName());
-        scriptFramesBuilder.addBinding(symbol);
+        if (checkDuplicateBindings(symbol, pass.fPassName())) {
+            scriptFramesBuilder.addBinding(symbol);
+        }
         scriptFramesBuilder.openFrame(pass);
         for (var arg : Constants.PASS_FAKE_ARGS) {
             scriptFramesBuilder.addParameter(arg);
@@ -1016,7 +1015,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     public Void visit(Liblkqllang.RunPass passRunner) {
         final String symbol = passRunner.fStart().getText();
         if (!scriptFramesBuilder.bindingExists(symbol)) {
-            throw framingError(passRunner, symbol + " does not exist");
+            errors.unknownSymbol(symbol, loc(passRunner.fStart()));
         }
         return null;
     }

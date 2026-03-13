@@ -8,19 +8,18 @@ package com.adacore.lkql_jit.driver.checker;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.Hint;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
-import com.adacore.lkql_jit.driver.diagnostics.variants.RawMessage;
 import com.adacore.lkql_jit.driver.diagnostics.variants.RuleViolation;
 import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.PolyglotException;
 
 /**
  * The main checking class, it contains all the traversal and checking logic. An instance of this
@@ -176,7 +175,7 @@ public final class CheckerRun {
                             }
                         }
                     } catch (IOException e) {
-                        handleException(e, diagnostics);
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -322,8 +321,14 @@ public final class CheckerRun {
                             executionContext.asValue(autoFix).execute(autoFixArguments);
                         }
                     }
-                } catch (Exception e) {
-                    handleException(e, diagnostics);
+                } catch (PolyglotException e) {
+                    diagnostics.handleException(
+                        e,
+                        new Hint(
+                            "Error occurred when analyzing " + step.node.toString(),
+                            SourceSection.wrap(step.node, linesCache)
+                        )
+                    );
                 }
             }
         }
@@ -403,18 +408,14 @@ public final class CheckerRun {
                     )
                 );
             }
-        } catch (Exception e) {
-            handleException(e, diagnostics);
-        }
-    }
-
-    private void handleException(Exception e, DiagnosticCollector diagnostics) {
-        if (debugMode) {
-            var byteStream = new ByteArrayOutputStream();
-            e.printStackTrace(new PrintStream(byteStream));
-            diagnostics.add(new RawMessage(byteStream.toString()));
-        } else {
-            diagnostics.add(new RawMessage(e.getMessage()));
+        } catch (PolyglotException e) {
+            diagnostics.handleException(
+                e,
+                new Hint(
+                    "Error occurred when analyzing " + unit.getFileName(false),
+                    SourceSection.wrap(unit.getRoot(), linesCache)
+                )
+            );
         }
     }
 

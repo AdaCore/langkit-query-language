@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLRecValue;
@@ -65,7 +65,7 @@ public class RecExprs {
         @Fallback
         public Object error(Object val) {
             assert unpack;
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 LKQLTypesHelper.LKQL_ITERABLE,
                 LKQLTypesHelper.fromJava(val),
                 this
@@ -124,7 +124,7 @@ public class RecExprs {
         @Fallback
         public Object[] error(Object val) {
             assert unpack;
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 LKQLTypesHelper.LKQL_ITERABLE,
                 LKQLTypesHelper.fromJava(val),
                 this

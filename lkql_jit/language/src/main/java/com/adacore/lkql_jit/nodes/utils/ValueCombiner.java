@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.utils;
 
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.values.LKQLObject;
 import com.oracle.truffle.api.dsl.Cached;
@@ -67,7 +67,7 @@ public abstract class ValueCombiner extends Node {
                     )
                 );
             } else {
-                throw LKQLRuntimeException.objectCombiningCollision((String) key, caller);
+                throw LKQLRuntimeError.objectCombiningCollision((String) key, caller);
             }
         }
 

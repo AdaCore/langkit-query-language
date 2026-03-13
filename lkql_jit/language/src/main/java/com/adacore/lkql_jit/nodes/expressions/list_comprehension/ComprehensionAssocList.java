@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.oracle.truffle.api.CompilerAsserts;
@@ -53,7 +53,7 @@ public final class ComprehensionAssocList extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     /**

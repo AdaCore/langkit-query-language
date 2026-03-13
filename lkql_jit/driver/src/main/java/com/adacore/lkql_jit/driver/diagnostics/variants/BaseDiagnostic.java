@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** This class is the base of all diagnostics. */
-public abstract sealed class BaseDiagnostic permits Warning, Error, RuleViolation, RawMessage {
+public abstract sealed class BaseDiagnostic permits Warning, Error, RuleViolation {
 
     // ----- Attribbutes -----
 
@@ -35,14 +35,8 @@ public abstract sealed class BaseDiagnostic permits Warning, Error, RuleViolatio
 
     // ----- Instance methods -----
 
-    public BaseDiagnostic withHint(String message) {
-        this.hints.add(new Hint(message));
-        return this;
-    }
-
-    public BaseDiagnostic withHint(String message, SourceSection location) {
-        this.hints.add(new Hint(message, location));
-        return this;
+    public void addHint(Hint hint) {
+        this.hints.add(hint);
     }
 
     @Override

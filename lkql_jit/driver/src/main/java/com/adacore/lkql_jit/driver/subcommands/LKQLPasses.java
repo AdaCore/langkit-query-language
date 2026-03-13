@@ -6,6 +6,8 @@
 package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.File;
 import java.io.IOException;
@@ -13,13 +15,103 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.io.IOAccess;
 import picocli.CommandLine;
 
-public class LKQLPasses extends AbstractLanguageLauncher {
+public class LKQLPasses extends BaseSubcommand {
+
+    // ----- Attributes -----
+
+    private final Args args;
+
+    // ----- Constructors -----
+
+    public LKQLPasses(Args args) {
+        this.args = args;
+    }
+
+    // ----- Launcher methods -----
+
+    /** Display the help message for the LKQL language. */
+    @Override
+    protected void printHelp(OptionCategory maxCategory) {
+        this.args.spec.commandLine().usage(this.args.spec.commandLine().getOut());
+    }
+
+    /** Simply return the language id. */
+    @Override
+    protected String getLanguageId() {
+        return Constants.LKQL_ID;
+    }
+
+    /**
+     * Parse the command line arguments and return the unrecognized options to parse it with the
+     * default parser.
+     */
+    @Override
+    protected List<String> preprocessArguments(
+        List<String> arguments,
+        Map<String, String> polyglotOptions
+    ) {
+        return args.unmatched;
+    }
+
+    /** The entry point of the launcher with the context builder. */
+    @Override
+    protected void launch(Context.Builder contextBuilder) {
+        int exitCode = this.executeScript(contextBuilder);
+        if (exitCode != 0) {
+            throw this.abort((String) null, exitCode);
+        }
+    }
+
+    /** Execute the LKQL script and return the exit code. */
+    protected int executeScript(Context.Builder contextBuilder) {
+        // Create a diagnostic collector
+        var diagnostics = new DiagnosticCollector();
+
+        // Set the common configuration
+        contextBuilder.allowIO(IOAccess.ALL);
+
+        // Forward the command line options to the options builder
+        final var optionsBuilder = new LKQLOptions.Builder()
+            .engineMode(LKQLOptions.EngineMode.INTERPRETER)
+            .verbose(this.args.verbose)
+            .projectFile(this.args.project)
+            .target(this.args.target)
+            .runtime(this.args.RTS)
+            .files(this.args.files)
+            .charset(this.args.charset);
+
+        // Finally, pass the options to the LKQL engine
+        contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
+
+        // Create the context and run the script in it
+        try (Context context = contextBuilder.build()) {
+            try {
+                if (this.args.script != null) {
+                    Source source = Source.newBuilder(
+                        Constants.LKQL_ID,
+                        new File(this.args.script)
+                    ).build();
+                    context.eval(source);
+                }
+            } catch (PolyglotException e) {
+                diagnostics.handleException(e);
+                diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+            }
+            return 0;
+        } catch (IOException e) {
+            System.err.println("File not found : " + this.args.script);
+            return 2;
+        }
+    }
+
+    // ----- Inner classes -----
 
     @CommandLine.Command(
         name = "run-passes",
@@ -58,136 +150,19 @@ public class LKQLPasses extends AbstractLanguageLauncher {
         @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
         public boolean verbose;
 
-        @CommandLine.Unmatched
-        public List<String> unmatched;
-
         @CommandLine.Option(
             names = { "-S", "--script-path" },
             description = "The LKQL script to execute"
         )
         public String script = null;
 
+        @CommandLine.Unmatched
+        public List<String> unmatched = new ArrayList<>();
+
         @Override
         public Integer call() {
-            String[] unmatchedArgs;
-            if (this.unmatched == null) {
-                unmatchedArgs = new String[0];
-            } else {
-                unmatchedArgs = this.unmatched.toArray(new String[0]);
-            }
-            new LKQLPasses(this).launch(unmatchedArgs);
+            new LKQLPasses(this).launch(unmatched.toArray(new String[0]));
             return 0;
-        }
-    }
-
-    public LKQLPasses(Args args) {
-        this.args = args;
-    }
-
-    private Args args = null;
-
-    // ----- Launcher methods -----
-
-    /**
-     * Display the help message for the LKQL language.
-     *
-     * @param maxCategory The option category.
-     */
-    @Override
-    protected void printHelp(OptionCategory maxCategory) {
-        this.args.spec.commandLine().usage(this.args.spec.commandLine().getOut());
-    }
-
-    /**
-     * Simply return the language id.
-     *
-     * @return The language id.
-     */
-    @Override
-    protected String getLanguageId() {
-        return Constants.LKQL_ID;
-    }
-
-    /**
-     * The entry point of the launcher with the context builder.
-     *
-     * @param contextBuilder The context builder.
-     */
-    @Override
-    protected void launch(Context.Builder contextBuilder) {
-        int exitCode = this.executeScript(contextBuilder);
-        if (exitCode != 0) {
-            throw this.abort((String) null, exitCode);
-        }
-    }
-
-    /**
-     * Execute the LKQL script and return the exit code.
-     *
-     * @param contextBuilder The context builder.
-     * @return The exit code of the script.
-     */
-    protected int executeScript(Context.Builder contextBuilder) {
-        // Create the LKQL options object builder
-        final var optionsBuilder = new LKQLOptions.Builder();
-
-        // Set the common configuration
-        contextBuilder.allowIO(true);
-
-        // Forward the command line options to the options object builder
-        optionsBuilder
-            .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .verbose(this.args.verbose)
-            .projectFile(this.args.project)
-            .target(this.args.target)
-            .runtime(this.args.RTS)
-            .files(this.args.files)
-            .charset(this.args.charset);
-
-        // Finally, pass the options to the LKQL engine
-        contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
-
-        // Create the context and run the script in it
-        try (Context context = contextBuilder.build()) {
-            if (this.args.script != null) {
-                Source source = Source.newBuilder(
-                    Constants.LKQL_ID,
-                    new File(this.args.script)
-                ).build();
-                context.eval(source);
-            }
-            return 0;
-        } catch (IOException e) {
-            System.err.println("File not found : " + this.args.script);
-            return 2;
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            if (this.args.verbose) {
-                e.printStackTrace();
-            }
-            return 0;
-        }
-    }
-
-    // ----- Argument parsing methods -----
-
-    /**
-     * Parse the command line arguments and return the unrecognized options to parse it with the
-     * default parser.
-     *
-     * @param arguments The arguments to parse.
-     * @param polyglotOptions The polyglot options.
-     * @return The unrecognized options.
-     */
-    @Override
-    protected List<String> preprocessArguments(
-        List<String> arguments,
-        Map<String, String> polyglotOptions
-    ) {
-        if (this.args.unmatched != null) {
-            return this.args.unmatched;
-        } else {
-            return new ArrayList<>();
         }
     }
 }

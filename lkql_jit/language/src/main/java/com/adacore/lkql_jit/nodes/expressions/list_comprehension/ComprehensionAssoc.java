@@ -5,7 +5,8 @@
 
 package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -67,7 +68,7 @@ public final class ComprehensionAssoc extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     /**
@@ -80,7 +81,7 @@ public final class ComprehensionAssoc extends LKQLNode {
         try {
             return this.collection.executeIterable(frame);
         } catch (UnexpectedResultException e) {
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 LKQLTypesHelper.LKQL_ITERABLE,
                 LKQLTypesHelper.fromJava(e.getResult()),
                 this.collection

@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.liblktlang.Liblktlang;
-import com.adacore.lkql_jit.exception.TranslatorException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
@@ -63,14 +63,14 @@ public final class ScriptFrames {
     public void enterFrame(final NodeInterface node) {
         if (this.current == null) {
             if (!this.root.node.equals(node)) {
-                throw new TranslatorException(
+                throw LKQLEngineException.create(
                     "Cannot enter the root frame because of node inequality"
                 );
             }
             this.current = this.root;
         } else {
             if (!this.current.children.containsKey(node)) {
-                throw new TranslatorException(
+                throw LKQLEngineException.create(
                     "Cannot enter the frame, " +
                         node +
                         " isn't in the children" +
@@ -97,7 +97,7 @@ public final class ScriptFrames {
      */
     public FrameDescriptor getFrameDescriptor() {
         if (this.current instanceof VirtualNodeFrame) {
-            throw new TranslatorException("Cannot get frame descriptor for a virtual frame");
+            throw LKQLEngineException.create("Cannot get frame descriptor for a virtual frame");
         }
         return ((NodeFrame) this.current).frameDescriptorBuilder.build();
     }
@@ -109,7 +109,7 @@ public final class ScriptFrames {
      */
     public ClosureDescriptor getClosureDescriptor() {
         if (this.current instanceof VirtualNodeFrame) {
-            throw new TranslatorException("Cannot get closure descriptor for a virtual frame");
+            throw LKQLEngineException.create("Cannot get closure descriptor for a virtual frame");
         }
         return ((NodeFrame) this.current).getClosureDescriptor();
     }
@@ -301,7 +301,7 @@ public final class ScriptFrames {
          */
         public void declareBinding(final String symbol) {
             if (!this.bindings.containsKey(symbol)) {
-                throw new TranslatorException(
+                throw LKQLEngineException.create(
                     "Cannot declare the binding '" + symbol + "' if it doesn't exist"
                 );
             }
@@ -478,7 +478,7 @@ public final class ScriptFrames {
         public boolean isClosureDeclared(String symbol) {
             // Ensure the symbol exists in the closure
             if (!this.closure.containsKey(symbol)) {
-                throw new TranslatorException(
+                throw LKQLEngineException.create(
                     "Cannot verify declaration of a non-existing closure symbol: '" + symbol + "'"
                 );
             }
@@ -641,7 +641,7 @@ public final class ScriptFrames {
 
         @Override
         public void addParameter(final String symbol) {
-            throw new TranslatorException("Cannot add a parameter in a virtual frame");
+            throw LKQLEngineException.create("Cannot add a parameter in a virtual frame");
         }
 
         @Override

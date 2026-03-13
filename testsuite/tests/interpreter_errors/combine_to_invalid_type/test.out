@@ -1,4 +1,5 @@
 error: Unsupported operation: Str & Int
-script.lkql:2:7 in script.lkql
+script.lkql:2:7: in script.lkql
   2 | print("a".combine(2))
     |       ^^^^^^^^^^^^^^
+

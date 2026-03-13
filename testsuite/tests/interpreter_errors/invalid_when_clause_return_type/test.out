@@ -1,3 +1,4 @@
 script.lkql:1:16: error: Type error: expected Bool but got Str
   1 | val p = select p when "Hello"
     |                ^^^^^^^^^^^^^^
+

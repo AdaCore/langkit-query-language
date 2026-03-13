@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** This class wraps Truffle's source section in the SourceSection interface. */
-public final class TruffleSourceSectionWrapper implements SourceSection {
+public final class TruffleSourceSectionWrapper extends SourceSection {
 
     // ----- Attribubtes -----
 

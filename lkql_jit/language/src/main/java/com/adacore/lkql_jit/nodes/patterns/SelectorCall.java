@@ -7,7 +7,8 @@ package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
@@ -74,7 +75,7 @@ public final class SelectorCall extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     /**
@@ -115,7 +116,7 @@ public final class SelectorCall extends LKQLNode {
         // Get the selector and verify its type
         Object selectorObject = this.selectorExpr.executeGeneric(frame);
         if (!LKQLTypeSystemGen.isLKQLSelector(selectorObject)) {
-            throw LKQLRuntimeException.wrongType(
+            throw LKQLRuntimeError.wrongType(
                 LKQLTypesHelper.LKQL_SELECTOR,
                 LKQLTypesHelper.fromJava(selectorObject),
                 this.selectorExpr
@@ -137,7 +138,7 @@ public final class SelectorCall extends LKQLNode {
                         try {
                             depth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
-                            throw LKQLRuntimeException.wrongType(
+                            throw LKQLRuntimeError.wrongType(
                                 LKQLTypesHelper.LKQL_INTEGER,
                                 LKQLTypesHelper.fromJava(e.getResult()),
                                 arg.getArgExpr()
@@ -149,7 +150,7 @@ public final class SelectorCall extends LKQLNode {
                         try {
                             maxDepth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
-                            throw LKQLRuntimeException.wrongType(
+                            throw LKQLRuntimeError.wrongType(
                                 LKQLTypesHelper.LKQL_INTEGER,
                                 LKQLTypesHelper.fromJava(e.getResult()),
                                 arg.getArgExpr()
@@ -161,7 +162,7 @@ public final class SelectorCall extends LKQLNode {
                         try {
                             minDepth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
-                            throw LKQLRuntimeException.wrongType(
+                            throw LKQLRuntimeError.wrongType(
                                 LKQLTypesHelper.LKQL_INTEGER,
                                 LKQLTypesHelper.fromJava(e.getResult()),
                                 arg.getArgExpr()

@@ -7,7 +7,9 @@ package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
+import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -54,15 +56,22 @@ public final class Import extends LKQLNode {
      * @param location The location of the node in the source.
      * @param name The name of the module to import.
      * @param slot The slot to put the namespace in.
+     * @param errors Static error collector to handle possible construction errors.
      */
-    public Import(SourceSection location, String name, String ext, int slot) {
+    public Import(
+        SourceSection location,
+        String name,
+        String ext,
+        int slot,
+        LKQLStaticErrors errors
+    ) {
         super(location);
         this.name = name;
         this.ext = ext;
         this.slot = slot;
 
         // Get the module file
-        this.moduleFile = this.getModuleFile();
+        this.moduleFile = this.getModuleFile(errors);
     }
 
     // ----- Execution methods -----
@@ -81,7 +90,7 @@ public final class Import extends LKQLNode {
                 FrameUtils.writeLocal(frame, this.slot, module);
             }
         } catch (IOException e) {
-            throw LKQLRuntimeException.moduleNotFound(this.name, this);
+            throw LKQLEngineException.shouldNotReachHere();
         }
 
         // Return the unit value
@@ -110,7 +119,7 @@ public final class Import extends LKQLNode {
         // Check that the file isn't already in the source chain, if so, it means that there
         // is a circular dependency.
         if (context.fromStack.contains(source)) {
-            throw LKQLRuntimeException.circularDependency(context.fromStack, source, this);
+            throw LKQLRuntimeError.circularDependency(context.fromStack, source, this);
         }
 
         // If the file is already in the cache
@@ -142,7 +151,7 @@ public final class Import extends LKQLNode {
      *
      * @return The file representing the module or null.
      */
-    private File getModuleFile() {
+    private File getModuleFile(LKQLStaticErrors errors) {
         // Create the module file name
         final String moduleFileName = this.name + this.ext;
         final String lkqlPath = System.getenv().getOrDefault(Constants.LKQL_PATH, "");
@@ -177,7 +186,7 @@ public final class Import extends LKQLNode {
                     try {
                         matchingFiles.add(moduleTry.getCanonicalFile());
                     } catch (IOException e) {
-                        throw LKQLRuntimeException.fromJavaException(e, this);
+                        throw LKQLEngineException.create(e);
                     }
                 }
             }
@@ -186,14 +195,15 @@ public final class Import extends LKQLNode {
         // If there is only one result, the importation is valid
         if (matchingFiles.size() == 1) {
             return matchingFiles.first();
-        }
-        // Raise an exception if multiple matching files has been found
-        else if (matchingFiles.size() > 1) {
-            throw LKQLRuntimeException.ambiguousImport(this.name, matchingFiles, this);
-        }
-        // Raise an exception if the module file is not found
-        else {
-            throw LKQLRuntimeException.moduleNotFound(this.name, this);
+        } else {
+            if (matchingFiles.isEmpty()) {
+                errors.moduleNotFound(this.name, this.getSourceSection());
+            } else {
+                errors.ambiguousImport(this.name, matchingFiles, this.getSourceSection());
+            }
+
+            // Return the null string
+            return null;
         }
     }
 

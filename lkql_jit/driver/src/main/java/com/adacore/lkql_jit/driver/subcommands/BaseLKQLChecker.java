@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
-import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.io.IOAccess;
@@ -33,22 +32,18 @@ import picocli.CommandLine;
  * that need to be aware of a sources fetching method and a set of rules to run should extend this
  * class.
  */
-public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
+public abstract class BaseLKQLChecker extends BaseSubcommand {
 
     // ----- Properties -----
 
     /** Parsed arguments from the command-line. */
     protected Args args;
 
-    /** Whether the current output support ANSI colors */
-    private final boolean supportAnsi;
-
     // ----- Constructors -----
 
     /** Simply initialized arguments. */
     protected BaseLKQLChecker(Args args) {
         this.args = args;
-        this.supportAnsi = System.getenv("TERM") != null && System.console() != null;
     }
 
     // ----- Abstract methods -----
@@ -171,7 +166,7 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
     }
 
     /** Get all rule instances to run for the current run. */
-    private List<com.adacore.lkql_jit.driver.checker.RuleInstance> getRuleInstances(
+    private List<RuleInstance> getRuleInstances(
         Context context,
         RuleRepository repository,
         DiagnosticCollector diagnostics
@@ -188,11 +183,7 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
 
             // Verify the rule argument syntax
             if (valueSplit.length != 2 || nameSplit.length != 2) {
-                diagnostics.add(
-                    new com.adacore.lkql_jit.driver.diagnostics.variants.Error(
-                        "Rule argument syntax error: \"" + arg + '"'
-                    )
-                );
+                diagnostics.add(new Error("Rule argument syntax error: \"" + arg + '"'));
                 continue;
             }
 
@@ -217,17 +208,17 @@ public abstract class BaseLKQLChecker extends AbstractLanguageLauncher {
         }
 
         // Then, parse the provided instances, filling them with the previously parsed arguments
-        List<com.adacore.lkql_jit.driver.checker.RuleInstance> res = new ArrayList<>();
+        List<RuleInstance> res = new ArrayList<>();
         for (String ruleName : this.args.rules) {
             var ruleNameLower = ruleName.toLowerCase();
             var instantiatedRule = repository.getRuleByName(ruleNameLower);
             if (instantiatedRule.isPresent()) {
                 res.add(
-                    new com.adacore.lkql_jit.driver.checker.RuleInstance(
+                    new RuleInstance(
                         context,
                         instantiatedRule.get(),
                         Optional.empty(),
-                        com.adacore.lkql_jit.driver.checker.RuleInstance.SourceMode.GENERAL,
+                        RuleInstance.SourceMode.GENERAL,
                         instanceArgs.getOrDefault(ruleNameLower, new HashMap<>()),
                         Optional.empty()
                     )

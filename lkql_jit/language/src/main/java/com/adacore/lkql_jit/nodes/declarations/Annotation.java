@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.declarations;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -63,7 +63,7 @@ public final class Annotation extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLEngineException.shouldNotReachHere();
     }
 
     // ----- Override methods -----

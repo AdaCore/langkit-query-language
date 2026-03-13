@@ -1,3 +1,4 @@
 script.lkql:3:3: error: Cannot get member `what` for Str value
   3 | a.what()
     |   ^^^^
+

@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.values.interop.LKQLNoValue;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -141,7 +141,7 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
             var arg = frame.getArguments()[i + closureOffset];
             if (arg == null || arg == LKQLNoValue.INSTANCE) {
                 if (defaultParameters[i] == null) {
-                    throw LKQLRuntimeException.missingArgument(i, parameterNames[i]);
+                    throw LKQLRuntimeError.missingArgument(i, parameterNames[i]);
                 } else {
                     frame.getArguments()[i + closureOffset] = defaultParameters[i].executeGeneric(
                         frame

@@ -14,8 +14,8 @@ import com.adacore.lkql_jit.annotations.BuiltInFunction;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.exception.LangkitException;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -59,31 +59,34 @@ public final class UnitCheckerFunction {
             for (UnitChecker checker : checkers) {
                 try {
                     this.applyUnitRule(frame, checker, unit, context);
-                } catch (LangkitException e) {
-                    // Report LAL exception only in debug mode
-                    if (context.isCheckerDebug()) {
+                } catch (LKQLRuntimeError e) {
+                    if (e.getCause() != null) {
+                        if (context.isCheckerDebug()) {
+                            context
+                                .getDiagnosticEmitter()
+                                .emitDiagnostic(
+                                    CheckerUtils.MessageKind.ERROR,
+                                    e.getMessage(),
+                                    new LangkitLocationWrapper(unit.getRoot(), context.linesCache),
+                                    e.getLocation() == null
+                                        ? null
+                                        : new SourceSectionWrapper(
+                                              e.getLocation().getSourceSection()
+                                          ),
+                                    checker.getName()
+                                );
+                        }
+                    } else {
                         context
                             .getDiagnosticEmitter()
                             .emitDiagnostic(
                                 CheckerUtils.MessageKind.ERROR,
-                                e.getMsg(),
+                                e.getMessage(),
                                 new LangkitLocationWrapper(unit.getRoot(), context.linesCache),
-                                e.getLocation() == null
-                                    ? null
-                                    : new SourceSectionWrapper(e.getLocation().getSourceSection()),
+                                new SourceSectionWrapper(e.getLocation().getSourceSection()),
                                 checker.getName()
                             );
                     }
-                } catch (LKQLRuntimeException e) {
-                    context
-                        .getDiagnosticEmitter()
-                        .emitDiagnostic(
-                            CheckerUtils.MessageKind.ERROR,
-                            e.getErrorMessage(),
-                            new LangkitLocationWrapper(unit.getRoot(), context.linesCache),
-                            new SourceSectionWrapper(e.getLocation().getSourceSection()),
-                            checker.getName()
-                        );
                 }
             }
 
@@ -136,14 +139,14 @@ public final class UnitCheckerFunction {
                     this.interopLibrary.execute(functionValue, arguments)
                 );
             } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
+                throw LKQLRuntimeError.wrongType(
                     LKQLTypesHelper.LKQL_LIST,
                     LKQLTypesHelper.fromJava(e.getResult()),
                     functionValue.body
                 );
             } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
                 // TODO: Move function runtime verification to the LKQLFunction class (#138)
-                throw LKQLRuntimeException.fromJavaException(e, this);
+                throw LKQLEngineException.create(e);
             }
 
             // Display all the violation message
@@ -156,7 +159,7 @@ public final class UnitCheckerFunction {
                 try {
                     message = LKQLTypeSystemGen.expectString(violation.getUncached("message"));
                 } catch (UnexpectedResultException e) {
-                    throw LKQLRuntimeException.wrongType(
+                    throw LKQLRuntimeError.wrongType(
                         LKQLTypesHelper.LKQL_STRING,
                         LKQLTypesHelper.fromJava(e.getResult()),
                         functionValue.body
@@ -185,7 +188,7 @@ public final class UnitCheckerFunction {
                     // TODO: Genericize LKQL issue #500. Cannot interface Ada specific calls.
                     genericInstantiations = ((Libadalang.AdaNode) node).pGenericInstantiations();
                 } else {
-                    throw LKQLRuntimeException.wrongType(
+                    throw LKQLRuntimeError.wrongType(
                         LKQLTypesHelper.NODE_INTERFACE,
                         LKQLTypesHelper.fromJava(loc),
                         functionValue.body

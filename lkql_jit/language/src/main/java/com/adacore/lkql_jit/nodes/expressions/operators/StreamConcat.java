@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescriptor;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -43,7 +43,7 @@ public abstract class StreamConcat extends BaseStreamOp {
 
     @Fallback
     protected void invalidType(Object o) {
-        throw LKQLRuntimeException.wrongType(
+        throw LKQLRuntimeError.wrongType(
             LKQLTypesHelper.LKQL_LIST,
             LKQLTypesHelper.fromJava(o),
             this.getHead()

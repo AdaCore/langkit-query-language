@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.utils;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -76,7 +76,7 @@ public abstract class RewritingNodeConverter extends Node {
         boolean ensureUntied,
         Node usageLocation
     ) {
-        throw LKQLRuntimeException.wrongType(
+        throw LKQLRuntimeError.wrongType(
             LKQLTypesHelper.typeUnion(
                 LKQLTypesHelper.NODE_INTERFACE,
                 LKQLTypesHelper.REWRITING_NODE
