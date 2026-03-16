@@ -26,8 +26,9 @@ pre-commit:
     # Create a sandbox and install needed dependencies
     - generic_anod_ci
     - . /tmp/ci_env.sh
+
     # Define working variables
-    - maven_local_repo=$(anod info maven-repo-pull -Qclient=lkql --show working_dir)/install
+    - maven_local_repo=$(anod info maven-repo-pull -Qclient=spotless-prettier --show working_dir)/install
 
     # Echo vars to log information about the run
     - echo $maven_local_repo
@@ -36,7 +37,7 @@ pre-commit:
     - anod build   java            -Q version=$JAVA_VERSION,vendor=$JAVA_VENDOR
     - anod build   maven           -Q version=$MAVEN_VERSION
     - anod build   nodejs          -Q version=$NODEJS_VERSION
-    - anod build   maven-repo-pull -Q client=lkql
+    - anod build   maven-repo-pull -Q client=spotless-prettier
     - eval $(anod printenv java       -Q version=$JAVA_VERSION,vendor=$JAVA_VENDOR)
     - eval $(anod printenv maven      -Q version=$MAVEN_VERSION)
     - eval $(anod printenv nodejs     -Q version=$NODEJS_VERSION)
