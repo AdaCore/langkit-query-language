@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
@@ -11,8 +11,8 @@ import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.Objects;
 
-/** This class represents the result of a unique operation on a lazy list. */
-public class LKQLUniqueResult extends BaseLKQLLazyList {
+/** This class represents the result of a unique operation on a stream. */
+public class LKQLUniqueResult extends BaseCachedStream {
 
     // ----- Attributes -----
 
@@ -26,7 +26,7 @@ public class LKQLUniqueResult extends BaseLKQLLazyList {
         this.iterator = generator.iterator();
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     @CompilerDirectives.TruffleBoundary
     protected void initCacheTo(long n) {

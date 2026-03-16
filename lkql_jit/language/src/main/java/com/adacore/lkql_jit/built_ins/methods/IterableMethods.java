@@ -16,11 +16,11 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLFunction;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
-import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
-import com.adacore.lkql_jit.values.lists.LKQLEnumerateResult;
-import com.adacore.lkql_jit.values.lists.LKQLFlattenResult;
 import com.adacore.lkql_jit.values.lists.LKQLList;
-import com.adacore.lkql_jit.values.lists.LKQLMapResult;
+import com.adacore.lkql_jit.values.streams.BaseCachedStream;
+import com.adacore.lkql_jit.values.streams.LKQLEnumerateResult;
+import com.adacore.lkql_jit.values.streams.LKQLFlattenResult;
+import com.adacore.lkql_jit.values.streams.LKQLMapResult;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -83,7 +83,7 @@ public class IterableMethods {
             limit = Constants.SPECIALIZED_LIB_LIMIT,
             guards = "function.parameterNames.length == 1"
         )
-        protected BaseLKQLLazyList onIterable(
+        protected BaseCachedStream onIterable(
             Iterable iterable,
             LKQLFunction function,
             @CachedLibrary("function") InteropLibrary functionLibrary
@@ -102,7 +102,7 @@ public class IterableMethods {
     abstract static class FlattenExpr extends BuiltInBody {
 
         @Specialization
-        protected BaseLKQLLazyList onIterable(Iterable iterable) {
+        protected BaseCachedStream onIterable(Iterable iterable) {
             return new LKQLFlattenResult(iterable);
         }
     }
@@ -120,7 +120,7 @@ public class IterableMethods {
             limit = Constants.SPECIALIZED_LIB_LIMIT,
             guards = "function.parameterNames.length == 1"
         )
-        protected BaseLKQLLazyList onIterable(
+        protected BaseCachedStream onIterable(
             Iterable iterable,
             LKQLFunction function,
             @CachedLibrary("function") InteropLibrary functionLibrary

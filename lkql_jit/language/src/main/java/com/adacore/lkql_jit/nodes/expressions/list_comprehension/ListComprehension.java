@@ -12,8 +12,8 @@ import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
 import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
-import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
-import com.adacore.lkql_jit.values.lists.LKQLListComprehension;
+import com.adacore.lkql_jit.values.streams.BaseCachedStream;
+import com.adacore.lkql_jit.values.streams.LKQLListComprehension;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -76,11 +76,11 @@ public final class ListComprehension extends Expr {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return this.executeLazyList(frame);
+        return this.executeStream(frame);
     }
 
     @ExplodeLoop
-    public BaseLKQLLazyList executeLazyList(VirtualFrame frame) {
+    public BaseCachedStream executeStream(VirtualFrame frame) {
         // Get the iterables for the list comprehension
         Iterable[] iterables = this.generators.executeCollections(frame);
 
@@ -92,7 +92,7 @@ public final class ListComprehension extends Expr {
             iterators[i] = iterables[i].iterator();
         }
 
-        // Return the result of the list comprehension as a lazy list
+        // Return the result of the list comprehension as a stream
         return new LKQLListComprehension(
             this.rootNode,
             createClosureNode.execute(frame),

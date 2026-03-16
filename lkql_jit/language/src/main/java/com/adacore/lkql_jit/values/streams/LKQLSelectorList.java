@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
@@ -15,8 +15,8 @@ import com.oracle.truffle.api.nodes.RootNode;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 
-/** This class represents the list returned by a selector call in the LKQL language. */
-public class LKQLSelectorList extends BaseLKQLLazyList {
+/** This class represents the stream returned by a selector call in the LKQL language. */
+public class LKQLSelectorList extends BaseCachedStream {
 
     // ----- Attributes -----
 
@@ -76,7 +76,7 @@ public class LKQLSelectorList extends BaseLKQLLazyList {
         }
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     @Override
     protected void initCacheTo(long n) {
@@ -92,8 +92,6 @@ public class LKQLSelectorList extends BaseLKQLLazyList {
             addToResult(result.resultVal, result.depth);
         }
     }
-
-    // ----- Instance methods -----
 
     /** Add the object to the result cache of the selector list. */
     @CompilerDirectives.TruffleBoundary

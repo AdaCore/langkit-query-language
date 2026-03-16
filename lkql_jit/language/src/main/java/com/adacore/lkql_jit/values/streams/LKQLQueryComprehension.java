@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
@@ -22,9 +22,9 @@ import com.oracle.truffle.api.nodes.RootNode;
  * - pattern matching values from it
  * - checking against a boolean guard
  * - mapping to another value
- * and returns the result as a LazyList.
+ * and returns the result as a stream.
  */
-public final class LKQLQueryComprehension extends BaseLKQLLazyList {
+public final class LKQLQueryComprehension extends BaseCachedStream {
 
     // ----- Attributes -----
 
@@ -52,7 +52,7 @@ public final class LKQLQueryComprehension extends BaseLKQLLazyList {
         this.arguments[0] = closure;
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     @Override
     protected void initCacheTo(long n) {

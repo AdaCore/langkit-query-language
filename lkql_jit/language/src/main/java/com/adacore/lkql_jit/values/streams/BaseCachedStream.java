@@ -3,25 +3,25 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
-import com.adacore.lkql_jit.values.iterators.BaseLKQLListIterator;
+import com.adacore.lkql_jit.values.iterators.LKQLStreamIterator;
 
-/** This class represents the base of all LKQL lazy lists. */
-public abstract class BaseLKQLLazyList extends LKQLStream {
+/** This class represents the base of all LKQL cached streams. */
+public abstract class BaseCachedStream extends LKQLStream {
 
     // ----- Attributes -----
 
-    /** Cache to store elements of the lazy list */
+    /** Cache to store elements of the stream. */
     protected ListStorage<Object> cache;
 
     // ----- Constructors -----
 
-    protected BaseLKQLLazyList(ListStorage<Object> cache) {
+    protected BaseCachedStream(ListStorage<Object> cache) {
         this.cache = cache;
     }
 
@@ -42,8 +42,6 @@ public abstract class BaseLKQLLazyList extends LKQLStream {
         return new OffsetStream(this, 1);
     }
 
-    // ----- List required methods -----
-
     @Override
     public Object get(long n) {
         this.initCacheTo(n);
@@ -52,10 +50,10 @@ public abstract class BaseLKQLLazyList extends LKQLStream {
 
     @Override
     public LKQLIterator iterator() {
-        return new BaseLKQLListIterator(this);
+        return new LKQLStreamIterator(this);
     }
 
-    // ----- Value methods -----
+    // ----- Inner classes -----
 
     private static class OffsetStream extends LKQLStream {
 
@@ -69,7 +67,7 @@ public abstract class BaseLKQLLazyList extends LKQLStream {
 
         @Override
         public Iterator iterator() {
-            return new BaseLKQLListIterator(this);
+            return new LKQLStreamIterator(this);
         }
 
         @Override

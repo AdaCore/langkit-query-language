@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.runtime.ListStorage;
@@ -15,8 +15,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 
-/** This class represents the result of a mapping operation on a lazy list. */
-public class LKQLMapResult extends BaseLKQLLazyList {
+/** This class represents the result of a mapping operation on a stream. */
+public class LKQLMapResult extends BaseCachedStream {
 
     // ----- Attributes -----
 
@@ -42,7 +42,7 @@ public class LKQLMapResult extends BaseLKQLLazyList {
         this.functionLibrary = functionLibrary;
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     @Override
     protected void initCacheTo(long n) {

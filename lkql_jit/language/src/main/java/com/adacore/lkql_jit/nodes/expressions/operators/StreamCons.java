@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescriptor;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.values.lists.LKQLConsStream;
+import com.adacore.lkql_jit.values.streams.LKQLConsStream;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;

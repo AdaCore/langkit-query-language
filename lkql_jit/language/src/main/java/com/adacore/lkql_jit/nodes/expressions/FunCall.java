@@ -20,7 +20,7 @@ import com.adacore.lkql_jit.values.LKQLProperty;
 import com.adacore.lkql_jit.values.LKQLSelector;
 import com.adacore.lkql_jit.values.LKQLUnit;
 import com.adacore.lkql_jit.values.interfaces.Nullish;
-import com.adacore.lkql_jit.values.lists.LKQLSelectorList;
+import com.adacore.lkql_jit.values.streams.LKQLSelectorList;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;

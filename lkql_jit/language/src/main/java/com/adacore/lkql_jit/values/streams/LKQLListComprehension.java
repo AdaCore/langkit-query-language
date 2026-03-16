@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
@@ -13,7 +13,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.RootNode;
 
 /** This class represents a list comprehension value in the LKQL language. */
-public final class LKQLListComprehension extends BaseLKQLLazyList {
+public final class LKQLListComprehension extends BaseCachedStream {
 
     // ----- Attributes -----
 
@@ -52,7 +52,7 @@ public final class LKQLListComprehension extends BaseLKQLLazyList {
         this.arguments[0] = closure;
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     @Override
     protected void initCacheTo(long n) {

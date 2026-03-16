@@ -3,15 +3,15 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.values.LKQLTuple;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 
-/** This class represents the result of a mapping operation on a lazy list. */
-public class LKQLEnumerateResult extends BaseLKQLLazyList {
+/** This class represents the result of a mapping operation on a stream. */
+public class LKQLEnumerateResult extends BaseCachedStream {
 
     // ----- Attributes -----
 
@@ -29,7 +29,7 @@ public class LKQLEnumerateResult extends BaseLKQLLazyList {
         this.index = 1;
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     @Override
     protected void initCacheTo(long n) {

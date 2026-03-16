@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.runtime.Closure;
@@ -13,14 +13,14 @@ import com.adacore.lkql_jit.values.LKQLUnit;
 import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
-import com.adacore.lkql_jit.values.iterators.BaseLKQLListIterator;
+import com.adacore.lkql_jit.values.iterators.LKQLStreamIterator;
 import com.oracle.truffle.api.CallTarget;
 
 /**
  * This class represents a stream, with a known head and an execution unit to get its tail in a
  * lazy way.
  */
-public class LKQLConsStream extends BaseLKQLLazyList {
+public class LKQLConsStream extends BaseCachedStream {
 
     // ----- Attributes -----
 
@@ -53,7 +53,7 @@ public class LKQLConsStream extends BaseLKQLLazyList {
         return new LKQLConsStream(new RawConsStream(head, tailExecutionUnit, tailClosure));
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     @Override
     protected void initCacheTo(long n) {
@@ -84,7 +84,7 @@ public class LKQLConsStream extends BaseLKQLLazyList {
 
         /** Very inefficient, should not be used. */
         public Iterator iterator() {
-            return new BaseLKQLListIterator(this);
+            return new LKQLStreamIterator(this);
         }
 
         /** Very inefficient, should not be used. */
@@ -154,7 +154,7 @@ public class LKQLConsStream extends BaseLKQLLazyList {
 
         /** Very inefficient, should not be used. */
         public Iterator iterator() {
-            return new BaseLKQLListIterator(this);
+            return new LKQLStreamIterator(this);
         }
 
         /** Very inefficient, should not be used. */

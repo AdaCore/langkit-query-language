@@ -16,7 +16,7 @@ import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLSelector;
-import com.adacore.lkql_jit.values.lists.LKQLSelectorList;
+import com.adacore.lkql_jit.values.streams.LKQLSelectorList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;

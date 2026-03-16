@@ -10,7 +10,7 @@ import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.values.*;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
-import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -163,9 +163,9 @@ public abstract class BinEq extends BinOp {
         return left.equals(right);
     }
 
-    /** Do the equality verification in lazy lists. */
+    /** Do the equality verification on streams. */
     @Specialization
-    protected boolean onLazyLists(final BaseLKQLLazyList left, final BaseLKQLLazyList right) {
+    protected boolean eqStreams(final LKQLStream left, final LKQLStream right) {
         return left == right;
     }
 

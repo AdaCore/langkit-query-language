@@ -22,10 +22,10 @@ import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
-import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
-import com.adacore.lkql_jit.values.lists.LKQLLazyListStreamWrapper;
 import com.adacore.lkql_jit.values.lists.LKQLList;
-import com.adacore.lkql_jit.values.lists.LKQLUniqueResult;
+import com.adacore.lkql_jit.values.streams.BaseCachedStream;
+import com.adacore.lkql_jit.values.streams.LKQLStdlibStreamWrapper;
+import com.adacore.lkql_jit.values.streams.LKQLUniqueResult;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
@@ -63,7 +63,7 @@ public class BuiltInFunctions {
     abstract static class UniqueExpr extends BuiltInBody {
 
         @Specialization
-        protected BaseLKQLLazyList onIterable(Iterable iterable) {
+        protected BaseCachedStream onIterable(Iterable iterable) {
             return new LKQLUniqueResult(iterable);
         }
     }
@@ -480,7 +480,7 @@ public class BuiltInFunctions {
         @Specialization
         @CompilerDirectives.TruffleBoundary
         protected LKQLStream alwaysTrue() {
-            return new LKQLLazyListStreamWrapper(LKQLLanguage.getContext(this).getAllUnits());
+            return new LKQLStdlibStreamWrapper(LKQLLanguage.getContext(this).getAllUnits());
         }
     }
 
