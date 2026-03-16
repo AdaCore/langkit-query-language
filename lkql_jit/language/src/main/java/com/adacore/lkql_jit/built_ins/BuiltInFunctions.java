@@ -161,13 +161,7 @@ public class BuiltInFunctions {
         doc = "Given a collection, a reduction function, and an initial value reduce the" +
             " result"
     )
-    @BuiltInMethod(
-        targetTypes = {
-            LKQLTypesHelper.LKQL_SELECTOR_LIST,
-            LKQLTypesHelper.LKQL_STREAM,
-            LKQLTypesHelper.LKQL_LIST,
-        }
-    )
+    @BuiltInMethod(targetTypes = { LKQLTypesHelper.LKQL_STREAM, LKQLTypesHelper.LKQL_LIST })
     abstract static class ReduceExpr extends BuiltInBody {
 
         @Specialization(

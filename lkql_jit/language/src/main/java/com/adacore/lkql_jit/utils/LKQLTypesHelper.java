@@ -63,9 +63,6 @@ public final class LKQLTypesHelper {
     /** The string representing the LKQL stream type. */
     public static final String LKQL_STREAM = "Stream";
 
-    /** The string representing the LKQL selector list type. */
-    public static final String LKQL_SELECTOR_LIST = "SelectorList";
-
     /** The string representing the LKQL object type. */
     public static final String LKQL_OBJECT = "Object";
 
@@ -108,7 +105,6 @@ public final class LKQLTypesHelper {
         LKQL_TUPLE,
         LKQL_LIST,
         LKQL_STREAM,
-        LKQL_SELECTOR_LIST,
         LKQL_OBJECT,
         LKQL_NAMESPACE,
         LKQL_REC_VALUE,
