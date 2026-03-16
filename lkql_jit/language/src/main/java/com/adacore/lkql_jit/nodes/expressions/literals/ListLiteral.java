@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
@@ -54,7 +54,7 @@ public final class ListLiteral extends Expr {
      */
     @Override
     @ExplodeLoop
-    public LKQLList executeList(VirtualFrame frame) {
+    public LKQLArrayList executeList(VirtualFrame frame) {
         // Evaluate the list content
         Object[] values = new Object[this.exprs.length];
         for (int i = 0; i < this.exprs.length; i++) {
@@ -62,7 +62,7 @@ public final class ListLiteral extends Expr {
         }
 
         // Return the list value
-        return new LKQLList(values);
+        return new LKQLArrayList(values);
     }
 
     // ----- Override methods -----

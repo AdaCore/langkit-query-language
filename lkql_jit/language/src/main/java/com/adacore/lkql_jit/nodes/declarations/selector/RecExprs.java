@@ -10,7 +10,7 @@ import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLRecValue;
-import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.interop.LKQLList;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -48,7 +48,7 @@ public class RecExprs {
         }
 
         @Specialization(guards = "hasUnpack()")
-        public Object unpackList(LKQLCollection val) {
+        public Object unpackList(LKQLList val) {
             return new LKQLRecValue(val.getContent(), val.getContent());
         }
 
@@ -122,7 +122,7 @@ public class RecExprs {
         }
 
         @Specialization(guards = "hasUnpack()")
-        public Object[] unpackList(LKQLCollection val) {
+        public Object[] unpackList(LKQLList val) {
             return val.getContent();
         }
 

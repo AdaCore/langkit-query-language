@@ -19,7 +19,7 @@ import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLUnit;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import java.util.ArrayList;
@@ -37,14 +37,14 @@ public final class NodeMethods {
 
         @Specialization
         @CompilerDirectives.TruffleBoundary
-        public LKQLList onNode(NodeInterface self) {
+        public LKQLArrayList onNode(NodeInterface self) {
             int childrenCount = self.getChildrenCount();
             NodeInterface[] res = new NodeInterface[childrenCount];
             for (int i = 0; i < childrenCount; i++) {
                 NodeInterface child = self.getChild(i);
                 res[i] = (child.isNone() ? LKQLNull.INSTANCE : child);
             }
-            return new LKQLList(res);
+            return new LKQLArrayList(res);
         }
     }
 
@@ -125,7 +125,7 @@ public final class NodeMethods {
     abstract static class TokensExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList onNode(NodeInterface self) {
+        public LKQLArrayList onNode(NodeInterface self) {
             // Prepare the result
             ArrayList<LangkitSupport.TokenInterface> resList = new ArrayList<>();
             LangkitSupport.TokenInterface startToken = self.tokenStart();
@@ -137,7 +137,7 @@ public final class NodeMethods {
             }
 
             // Return the result
-            return new LKQLList(resList.toArray(new LangkitSupport.TokenInterface[0]));
+            return new LKQLArrayList(resList.toArray(new LangkitSupport.TokenInterface[0]));
         }
     }
 

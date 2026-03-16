@@ -16,7 +16,8 @@ import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLSelector;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.interop.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
@@ -157,7 +158,7 @@ public final class Query extends Expr {
             }
 
             // Return the result list value
-            return new LKQLList(resNodes.toArray(new LangkitSupport.NodeInterface[0]));
+            return new LKQLArrayList(resNodes.toArray(new LangkitSupport.NodeInterface[0]));
         }
         // If the query mode is first
         else {

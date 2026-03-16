@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.values.iterators;
 
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 
 /**
  * This class represents an iterator on a list in the LKQL language.
@@ -18,7 +18,7 @@ public final class LKQLListIterator extends LKQLIterator {
     // ----- Instance attributes -----
 
     /** The list to iterate on. */
-    private final LKQLList list;
+    private final LKQLArrayList list;
 
     /** The cursor to the next element to return. */
     private int cursor;
@@ -26,7 +26,7 @@ public final class LKQLListIterator extends LKQLIterator {
     // ----- Constructors -----
 
     /** Create a new list iterator for the given list. */
-    public LKQLListIterator(final LKQLList list) {
+    public LKQLListIterator(final LKQLArrayList list) {
         this.list = list;
         this.cursor = 0;
     }

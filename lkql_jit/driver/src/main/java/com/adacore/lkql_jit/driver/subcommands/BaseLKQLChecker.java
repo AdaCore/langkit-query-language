@@ -16,7 +16,7 @@ import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
-import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.interop.LKQLList;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -118,7 +118,7 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
             LKQLBaseNamespace namespace = context
                 .eval(Constants.LKQL_ID, "val unts = specified_units()\nval ctx = context()")
                 .as(LKQLBaseNamespace.class);
-            LKQLCollection units = (LKQLCollection) namespace.getUncached("unts");
+            LKQLList units = (LKQLList) namespace.getUncached("unts");
             LangkitSupport.AnalysisContextInterface analysisContext =
                 (LangkitSupport.AnalysisContextInterface) namespace.getUncached("ctx");
 

@@ -10,7 +10,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLObject;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.math.BigInteger;
 
@@ -268,7 +268,7 @@ public final class LKQLTypesHelper {
                 res[i] = toLKQLValue(obj);
                 i++;
             }
-            return new LKQLList(res);
+            return new LKQLArrayList(res);
         }
         // If the source is an enum
         else if (javaValue instanceof Enum<?>) {

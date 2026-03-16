@@ -16,7 +16,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLFunction;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.values.streams.BaseCachedStream;
 import com.adacore.lkql_jit.values.streams.LKQLEnumerateResult;
 import com.adacore.lkql_jit.values.streams.LKQLFlattenResult;
@@ -52,12 +52,12 @@ public class IterableMethods {
     abstract static class ToListExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList doList(LKQLList self) {
+        public LKQLArrayList doList(LKQLArrayList self) {
             return self;
         }
 
         @Specialization
-        public LKQLList doGeneric(Iterable self) {
+        public LKQLArrayList doGeneric(Iterable self) {
             // Create a new list from the iterable
             var tmp = new ArrayList<Object>();
             Iterator iterator = self.iterator();
@@ -66,7 +66,7 @@ public class IterableMethods {
             }
 
             // Return the new list value
-            return new LKQLList(tmp.toArray());
+            return new LKQLArrayList(tmp.toArray());
         }
     }
 

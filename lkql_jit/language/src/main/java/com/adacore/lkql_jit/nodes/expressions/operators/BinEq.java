@@ -11,7 +11,7 @@ import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.values.*;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -159,7 +159,7 @@ public abstract class BinEq extends BinOp {
      * @return The result of the equality verification.
      */
     @Specialization
-    protected boolean eqLists(LKQLList left, LKQLList right) {
+    protected boolean eqLists(LKQLArrayList left, LKQLArrayList right) {
         return left.equals(right);
     }
 

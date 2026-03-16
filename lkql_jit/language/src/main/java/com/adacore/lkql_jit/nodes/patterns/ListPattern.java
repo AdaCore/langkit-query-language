@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -25,7 +25,7 @@ public abstract class ListPattern extends Pattern {
     }
 
     @Specialization
-    public boolean onList(VirtualFrame frame, LKQLList list) {
+    public boolean onList(VirtualFrame frame, LKQLArrayList list) {
         var lastMatch = 0;
         for (int i = 0; i < list.size(); i++) {
             var pattern = patterns[i];
@@ -34,7 +34,7 @@ public abstract class ListPattern extends Pattern {
             if (pattern instanceof SplatPattern) {
                 return pattern.executeValue(
                     frame,
-                    new LKQLList(Arrays.copyOfRange(list.content, i, (int) list.size()))
+                    new LKQLArrayList(Arrays.copyOfRange(list.content, i, (int) list.size()))
                 );
             }
             // Else, fail on the first pattern that fails

@@ -12,7 +12,7 @@ import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public final class AnalysisUnitMethods {
     abstract static class TokensExpr extends BuiltInBody {
 
         @Specialization
-        public LKQLList onUnit(AnalysisUnit self) {
+        public LKQLArrayList onUnit(AnalysisUnit self) {
             LangkitSupport.TokenInterface current = self.getFirstToken();
             LangkitSupport.TokenInterface last = self.getLastToken();
             ArrayList<LangkitSupport.TokenInterface> resList = new ArrayList<>();
@@ -53,7 +53,7 @@ public final class AnalysisUnitMethods {
                 resList.add(current);
                 current = current.next();
             }
-            return new LKQLList(resList.toArray(new LangkitSupport.TokenInterface[0]));
+            return new LKQLArrayList(resList.toArray(new LangkitSupport.TokenInterface[0]));
         }
     }
 

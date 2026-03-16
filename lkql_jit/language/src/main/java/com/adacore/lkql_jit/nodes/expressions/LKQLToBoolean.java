@@ -10,7 +10,7 @@ import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLUnit;
-import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.interop.LKQLList;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -37,7 +37,7 @@ public abstract class LKQLToBoolean extends Node {
     }
 
     @Specialization
-    protected boolean onBaseLKQLList(LKQLCollection list) {
+    protected boolean onBaseLKQLList(LKQLList list) {
         return list.asBoolean();
     }
 
