@@ -10,7 +10,10 @@ import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLUnit;
-import com.adacore.lkql_jit.values.interop.LKQLCollection;
+import com.adacore.lkql_jit.values.interfaces.Indexable;
+import com.adacore.lkql_jit.values.interfaces.Iterator;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
+import com.adacore.lkql_jit.values.iterators.BaseLKQLListIterator;
 import com.oracle.truffle.api.CallTarget;
 
 /**
@@ -22,88 +25,175 @@ public class LKQLConsStream extends BaseLKQLLazyList {
     // ----- Attributes -----
 
     /** Instance of "Nil", used to flag the end of a streams. */
-    private static final LKQLConsStream NIL = new LKQLConsStream(null, null, null);
-
-    /** Known value of the stream's head. */
-    protected final Object head;
-
-    /** Execution unit to get the tail of the stream. */
-    private final CallTarget tailExecutionUnit;
-
-    /** Closure for the tail execution unit. */
-    private final Closure tailClosure;
-
-    /** Store the value of the tail after its computation. */
-    private LKQLConsStream tailCache;
+    private static final LKQLConsStream NIL = new LKQLConsStream(null);
 
     /** Next stream to get the head from when computing the content of this stream. */
-    private LKQLConsStream next;
+    private LKQLStream next;
 
     // ----- Constructors -----
 
-    public LKQLConsStream(Object head, CallTarget tailExecutionUnit, Closure tailClosure) {
-        super(null);
-        this.head = head;
-        this.tailExecutionUnit = tailExecutionUnit;
-        this.tailClosure = tailClosure;
-        this.tailCache = null;
-        this.next = this;
+    private LKQLConsStream(LKQLStream wrapped) {
+        super(new ListStorage<>(16));
+        this.next = wrapped;
+    }
+
+    public static LKQLConsStream concatStream(
+        Indexable prefix,
+        CallTarget tailExecutionUnit,
+        Closure tailClosure
+    ) {
+        return new LKQLConsStream(new RawConcatStream(prefix, tailExecutionUnit, tailClosure));
+    }
+
+    public static LKQLConsStream consStream(
+        Object head,
+        CallTarget tailExecutionUnit,
+        Closure tailClosure
+    ) {
+        return new LKQLConsStream(new RawConsStream(head, tailExecutionUnit, tailClosure));
     }
 
     // ----- Lazy list required methods -----
 
     @Override
     protected void initCacheTo(long n) {
-        // Ensure the cache is initialized
-        if (this.cache == null) {
-            this.cache = new ListStorage<>(16);
+        while (this.next != null && (n >= this.cache.size() || n < 0)) {
+            this.cache.append(this.next.getHead());
+            this.next = this.next.getTail();
         }
-
-        // Then compute all required values
-        while (this.next.head != null && (n >= this.cache.size() || n < 0)) {
-            this.cache.append(this.next.head);
-            this.next = this.next.computeTail();
-        }
-    }
-
-    // ----- Instance methods -----
-
-    protected LKQLConsStream computeTail() {
-        if (this.tailCache == null) {
-            var tailValue = this.tailExecutionUnit.call(this.tailClosure);
-            switch (tailValue) {
-                case LKQLConsStream lazyList -> this.tailCache = lazyList;
-                case LKQLUnit _ -> this.tailCache = NIL;
-                default -> throw LKQLRuntimeError.wrongType(
-                    LKQLTypesHelper.LKQL_STREAM,
-                    LKQLTypesHelper.fromJava(tailValue),
-                    null
-                );
-            }
-        }
-        return this.tailCache;
     }
 
     // ----- Inner classes -----
 
-    /** This is a special stream that is the result of the concatenation of a list and a stream. */
-    public static class LKQLComposedStream extends LKQLConsStream {
+    /** Uncached stream, should be wrapped by LKQLConsStream. */
+    private static class RawConsStream extends LKQLStream {
 
-        public LKQLComposedStream(
-            LKQLCollection head,
+        /** Known value of the stream's head. */
+        private final Object head;
+
+        /** Execution unit to get the tail of the stream. */
+        private final CallTarget tailExecutionUnit;
+        /** Closure for the tail execution unit. */
+        private final Closure tailClosure;
+
+        RawConsStream(Object head, CallTarget tailExecutionUnit, Closure tailClosure) {
+            this.head = head;
+            this.tailExecutionUnit = tailExecutionUnit;
+            this.tailClosure = tailClosure;
+        }
+
+        /** Very inefficient, should not be used. */
+        public Iterator iterator() {
+            return new BaseLKQLListIterator(this);
+        }
+
+        /** Very inefficient, should not be used. */
+        public Object get(long index) throws IndexOutOfBoundsException {
+            if (index == 0) return getHead();
+            else return getTail().get(index - 1);
+        }
+
+        /** Should be called once and cached by wrapper. */
+        public Object getHead() {
+            return this.head;
+        }
+
+        /** Should be called once and cached by wrapper. */
+        public LKQLStream getTail() {
+            var executionResult = this.tailExecutionUnit.call(this.tailClosure);
+            return switch (executionResult) {
+                case LKQLStream tail -> tail;
+                case LKQLUnit _ -> NIL;
+                default -> throw LKQLRuntimeError.wrongType(
+                    LKQLTypesHelper.LKQL_STREAM,
+                    LKQLTypesHelper.fromJava(executionResult),
+                    null
+                );
+            };
+        }
+    }
+
+    /** Uncached stream, should be wrapped by LKQLConsStream. */
+    private static class RawConcatStream extends LKQLStream {
+
+        /** Prefix of the stream. */
+        private final Indexable prefix;
+        /** Where the stream is with respect to the prefix. */
+        private final long index;
+
+        /** Execution unit to get the tail of the stream. */
+        private final CallTarget tailExecutionUnit;
+        /** Closure for the tail execution unit. */
+        private final Closure tailClosure;
+
+        /** Prevent tail from being computed multiple times. */
+        private Object executionResult = null;
+
+        public RawConcatStream(
+            Indexable prefix,
             CallTarget tailExecutionUnit,
             Closure tailClosure
         ) {
-            super(head, tailExecutionUnit, tailClosure);
+            this.prefix = prefix;
+            this.index = 0;
+            this.tailExecutionUnit = tailExecutionUnit;
+            this.tailClosure = tailClosure;
         }
 
-        @Override
-        public Object get(long i) throws IndexOutOfBoundsException {
-            LKQLCollection headList = (LKQLCollection) this.head;
+        private RawConcatStream(
+            Indexable prefix,
+            long index,
+            CallTarget tailExecutionUnit,
+            Closure tailClosure
+        ) {
+            this.index = index;
+            this.prefix = prefix;
+            this.tailExecutionUnit = tailExecutionUnit;
+            this.tailClosure = tailClosure;
+        }
+
+        /** Very inefficient, should not be used. */
+        public Iterator iterator() {
+            return new BaseLKQLListIterator(this);
+        }
+
+        /** Very inefficient, should not be used. */
+        public Object get(long index) throws IndexOutOfBoundsException {
+            if (index == 0) return getHead();
+            else return getTail().get(index - 1);
+        }
+
+        /** Should be called once and cached by wrapper. */
+        public Object getHead() {
             try {
-                return headList.get(i);
-            } catch (IndexOutOfBoundsException e) {
-                return this.computeTail().get(i - headList.size());
+                // try to access element in prefix first
+                return this.prefix.get(index);
+            } catch (Exception _) {
+                // end of prefix, continue with tail
+                return this.getTail().getHead();
+            }
+        }
+
+        /** Should be called once and cached by wrapper. */
+        public LKQLStream getTail() {
+            try {
+                // try to access element in prefix first
+                this.prefix.get(index + 1);
+                return new RawConcatStream(prefix, index + 1, tailExecutionUnit, tailClosure);
+            } catch (Exception _) {
+                // end of prefix, continue with tail
+                if (executionResult == null) executionResult = this.tailExecutionUnit.call(
+                    this.tailClosure
+                );
+                return switch (executionResult) {
+                    case LKQLStream tail -> tail;
+                    case LKQLUnit _ -> NIL;
+                    default -> throw LKQLRuntimeError.wrongType(
+                        LKQLTypesHelper.LKQL_STREAM,
+                        LKQLTypesHelper.fromJava(executionResult),
+                        null
+                    );
+                };
             }
         }
     }

@@ -36,7 +36,7 @@ public abstract class StreamCons extends BaseStreamOp {
 
     @Specialization
     protected LKQLConsStream onAny(VirtualFrame frame, Object head) {
-        return new LKQLConsStream(
+        return LKQLConsStream.consStream(
             head,
             this.tailLazyValue.getCallTarget(),
             createTailClosure.execute(frame)
