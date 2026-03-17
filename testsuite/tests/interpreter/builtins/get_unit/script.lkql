@@ -1,0 +1,15 @@
+val system_spec = get_unit("system", "unit_specification")
+val system_body = get_unit("system", "unit_body")
+val unknown_unit = get_unit("not_a_unit", "unit_specification")
+print("System spec unit = " & img(system_spec))
+print("System spec unit root = " & img(system_spec.root))
+print("System body unit = " & img(system_body))
+print("System body unit root = " & img(system_body.root))
+print("Unknown spec unit = " & img(unknown_unit))
+print("Unknown spec unit root = " & img(unknown_unit.root))
+print(
+    "system_body == get_unit(\"system\", \"unit_body\") = "
+    & img(system_body == get_unit("system", "unit_body"))
+)
+
+get_unit("system", "not_a_kind")
