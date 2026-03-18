@@ -1,3 +1,4 @@
-val o = (select o @ ObjectDecl).to_list
+val o = (select o @ ObjectDecl)
 print(o.length)
+print(o.to_list.length)
 print("Hello".length)

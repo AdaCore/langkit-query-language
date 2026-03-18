@@ -48,7 +48,11 @@ public class IterableMethods {
         }
     }
 
-    @BuiltInMethod(name = "to_list", doc = "Transform into a list", isProperty = true)
+    @BuiltInMethod(
+        name = "to_list",
+        doc = "Transform into a list. WARNING: This may never return in case of an infinite stream.",
+        isProperty = true
+    )
     abstract static class ToListExpr extends BuiltInBody {
 
         @Specialization
