@@ -1,0 +1,5 @@
+error: Can't get tail from an empty stream
+script.lkql:4:15: in script.lkql
+  4 | val _ = print(nil().tail)
+    |               ^^^^^^^^^^
+
