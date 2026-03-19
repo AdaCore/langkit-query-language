@@ -1,0 +1,12 @@
+System spec unit = <AnalysisUnit "system.ads">
+System spec unit root = <CompilationUnit system.ads:37:1-155:12>
+System body unit = <AnalysisUnit "system.adb">
+System body unit root = null
+Unknown spec unit = <AnalysisUnit "not_a_unit.ads">
+Unknown spec unit root = null
+system_body == get_unit("system", "unit_body") = true
+error: Cannot get AnalysisUnitKind from "not_a_kind"
+script.lkql:15:1: in script.lkql
+  15 | get_unit("system", "not_a_kind")
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

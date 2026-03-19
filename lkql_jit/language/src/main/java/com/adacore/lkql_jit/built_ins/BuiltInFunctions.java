@@ -487,6 +487,28 @@ public class BuiltInFunctions {
         }
     }
 
+    @BuiltInFunction(
+        name = "get_unit",
+        doc = "Use the context unit provider to get the analysis unit matching the provided name and " +
+            "kind"
+    )
+    abstract static class GetUnitExpr extends BuiltInBody {
+
+        @Specialization
+        protected Object onStrings(String name, String kind) {
+            try {
+                var res = LKQLLanguage.getContext(this)
+                    .getAnalysisContext()
+                    .getUnitFromProvider(name, kind);
+                return res == null ? LKQLNull.INSTANCE : res;
+            } catch (LangkitSupport.NotImplementedException e) {
+                return LKQLNull.INSTANCE;
+            } catch (Exception e) {
+                throw LKQLRuntimeError.langkitError(e, this);
+            }
+        }
+    }
+
     @BuiltInFunction(name = "specified_units", doc = "Return a list of units specified by the user")
     abstract static class SpecifiedUnitsExpr extends BuiltInBody {
 
