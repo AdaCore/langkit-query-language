@@ -686,22 +686,16 @@ fun ultimate_prefix(n) =
 
 @memoized
 fun default_bit_order() =
-    |" Return the value of ``System.Default_Bit_Order`` if any ``with System``
-    |" clause is found, null otherwise.
+    |" Return the value of ``System.Default_Bit_Order``.
 {
-    val w = (select first w@WithClause
-             when from w select first Name(p_name_is("System"): true));
-
-    if w == null then null
-    else {
-        val system = from w select first Name(p_name_is("System"): true);
-
-        (from system.p_referenced_decl()
-         select first decl@ObjectDecl(f_has_constant: ConstantPresent,
-                                      f_default_expr: not null)
-         when decl.p_canonical_fully_qualified_name()
-              == "system.default_bit_order").f_default_expr
-    }
+    val system = get_unit("system", "unit_specification");
+    (
+        from system.root
+        select first decl@ObjectDecl(
+            f_has_constant: ConstantPresent,
+            f_default_expr: not null
+        ) when decl.p_canonical_fully_qualified_name() == "system.default_bit_order"
+    ).f_default_expr
 }
 
 fun has_non_default_sso(decl) =
