@@ -17,7 +17,7 @@ import picocli.CommandLine;
  * This class represents the LKQL fixer entry point. The subcommand "fix" of the LKQL driver is
  * mainly used to test auto-fixing functions defined on GNATcheck rules.
  */
-public class LKQLFix extends BaseLKQLChecker {
+public class LKQLFix extends BaseCheckerSubcommand {
 
     // ---- Subcommand spec -----
 
@@ -27,7 +27,7 @@ public class LKQLFix extends BaseLKQLChecker {
         description = "Fixer driver, to apply LKQL defined auto-fixes to sources. In this mode, you" +
             " can only enable rules that defines an auto-fixing function."
     )
-    public static class Args extends BaseLKQLChecker.Args {
+    public static class Args extends BaseCheckerSubcommand.Args {
 
         @CommandLine.Option(
             names = { "--auto-fix-mode" },

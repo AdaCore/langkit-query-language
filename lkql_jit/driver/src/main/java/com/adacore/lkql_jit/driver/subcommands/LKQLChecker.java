@@ -15,7 +15,7 @@ import picocli.CommandLine;
  *
  * @author Hugo GUERRIER
  */
-public class LKQLChecker extends BaseLKQLChecker {
+public class LKQLChecker extends BaseCheckerSubcommand {
 
     // ---- Subcommand spec -----
 
@@ -25,7 +25,7 @@ public class LKQLChecker extends BaseLKQLChecker {
         description = "Alternative checker driver. Like GNATcheck but with less options " +
             "& a more modern command line interface"
     )
-    public static class Args extends BaseLKQLChecker.Args {
+    public static class Args extends BaseCheckerSubcommand.Args {
 
         @Override
         public Integer call() {

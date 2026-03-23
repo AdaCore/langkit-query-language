@@ -38,7 +38,7 @@ import picocli.CommandLine;
  * that need to be aware of a sources fetching method and a set of rules to run should extend this
  * class.
  */
-public abstract class BaseLKQLChecker extends BaseSubcommand {
+public abstract class BaseCheckerSubcommand extends BaseSubcommand {
 
     // ----- Attributes -----
 
@@ -48,7 +48,7 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
     // ----- Constructors -----
 
     /** Simply initialized arguments. */
-    protected BaseLKQLChecker(Args args) {
+    protected BaseCheckerSubcommand(Args args) {
         this.args = args;
     }
 
