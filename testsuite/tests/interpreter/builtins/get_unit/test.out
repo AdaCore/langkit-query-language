@@ -1,12 +1,59 @@
 System spec unit = <AnalysisUnit "system.ads">
-System spec unit root = <CompilationUnit system.ads:37:1-155:12>
+System spec unit root kind = "CompilationUnit"
 System body unit = <AnalysisUnit "system.adb">
 System body unit root = null
 Unknown spec unit = <AnalysisUnit "not_a_unit.ads">
 Unknown spec unit root = null
-system_body == get_unit("system", "unit_body") = true
+Other body unit = <AnalysisUnit "other.adb">
+Other body unit tree:
+CompilationUnit other.adb:1:1-4:11>
+|f_prelude:
+|  AdaNodeList other.adb:1:1-1:1>
+|f_body:
+|  LibraryItem other.adb:1:1-4:11>
+|  |f_has_private:
+|  |  PrivateAbsent other.adb:1:1-1:1>
+|  |f_item:
+|  |  SubpBody ["Other"] other.adb:1:1-4:11>
+|  |  |f_overriding:
+|  |  |  OverridingUnspecified other.adb:1:1-1:1>
+|  |  |f_subp_spec:
+|  |  |  SubpSpec other.adb:1:1-1:16>
+|  |  |  |f_subp_kind:
+|  |  |  |  SubpKindProcedure other.adb:1:1-1:10>
+|  |  |  |f_subp_name:
+|  |  |  |  DefiningName "Other" other.adb:1:11-1:16>
+|  |  |  |  |f_name:
+|  |  |  |  |  Id "Other" other.adb:1:11-1:16>: Other
+|  |  |  |f_subp_params:
+|  |  |  |  one
+|  |  |  |f_subp_returns:
+|  |  |  |  one
+|  |  |f_aspects:
+|  |  |  one
+|  |  |f_decls:
+|  |  |  DeclarativePart other.adb:1:19-2:1>
+|  |  |  |f_decls:
+|  |  |  |  AdaNodeList other.adb:1:19-1:19>
+|  |  |f_stmts:
+|  |  |  HandledStmts other.adb:2:6-4:1>
+|  |  |  |f_stmts:
+|  |  |  |  StmtList other.adb:3:4-3:9>
+|  |  |  |  |item_0:
+|  |  |  |  |  NullStmt other.adb:3:4-3:9>
+|  |  |  |f_exceptions:
+|  |  |  |  AdaNodeList other.adb:3:9-3:9>
+|  |  |  |f_finally_part:
+|  |  |  |  one
+|  |  |f_end_name:
+|  |  |  EndName other.adb:4:5-4:10>
+|  |  |  |f_name:
+|  |  |  |  Id "Other" other.adb:4:5-4:10>: Other
+|f_pragmas:
+|  PragmaNodeList other.adb:4:11-4:11>
+system_spec == get_unit("system", "unit_specification") = true
 error: Cannot get AnalysisUnitKind from "not_a_kind"
-script.lkql:15:1: in script.lkql
-  15 | get_unit("system", "not_a_kind")
+script.lkql:20:1: in script.lkql
+  20 | get_unit("system", "not_a_kind")
      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
