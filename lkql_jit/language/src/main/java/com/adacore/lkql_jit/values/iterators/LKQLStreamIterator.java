@@ -5,25 +5,25 @@
 
 package com.adacore.lkql_jit.values.iterators;
 
-import com.adacore.lkql_jit.values.interop.LKQLCollection;
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 
-/** This class represents an iterator for an LKQL lazy list. */
-public class BaseLKQLListIterator extends LKQLIterator {
+/** This class represents an iterator for an LKQL stream. */
+public class LKQLStreamIterator extends LKQLIterator {
 
     // ----- Attributes -----
 
-    /** The lazy list to iterate on. */
-    private final LKQLCollection lkqlList;
+    /** The stream to iterate on. */
+    private final LKQLStream stream;
 
     /** The cursor for the iteration. */
     private long cursor;
 
     // ----- Constructors -----
 
-    /** Create a new lazy list iterator for the given lazy list. */
-    public BaseLKQLListIterator(LKQLCollection lkqlList) {
-        this.lkqlList = lkqlList;
+    /** Create a new stream iterator for the given stream. */
+    public LKQLStreamIterator(LKQLStream stream) {
+        this.stream = stream;
         this.cursor = 0;
     }
 
@@ -32,7 +32,7 @@ public class BaseLKQLListIterator extends LKQLIterator {
     @Override
     public boolean hasNext() {
         try {
-            this.lkqlList.get(cursor);
+            this.stream.get(cursor);
             return true;
         } catch (IndexOutOfBoundsException e) {
             return false;
@@ -41,7 +41,7 @@ public class BaseLKQLListIterator extends LKQLIterator {
 
     @Override
     public Object next() {
-        return this.lkqlList.get(this.cursor++);
+        return this.stream.get(this.cursor++);
     }
 
     @Override

@@ -10,7 +10,7 @@ import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.dsl.Specialization;
 import java.util.Arrays;
 
@@ -25,7 +25,7 @@ public class ListMethods {
     public abstract static class SublistExpr extends BuiltInBody {
 
         @Specialization
-        protected LKQLList onValid(LKQLList list, long low, long high) {
+        protected LKQLArrayList onValid(LKQLArrayList list, long low, long high) {
             // Offset the low bound by 1 since LKQL is 1-indexed
             low = low - 1;
 
@@ -37,7 +37,16 @@ public class ListMethods {
             }
 
             // Return the sublist
-            return new LKQLList(Arrays.copyOfRange(list.getContent(), (int) low, (int) high));
+            return new LKQLArrayList(Arrays.copyOfRange(list.getContent(), (int) low, (int) high));
+        }
+    }
+
+    @BuiltInMethod(name = "length", doc = "Return the length of the list", isProperty = true)
+    abstract static class LengthExpr extends BuiltInBody {
+
+        @Specialization
+        public long doGeneric(LKQLArrayList self) {
+            return self.size();
         }
     }
 }

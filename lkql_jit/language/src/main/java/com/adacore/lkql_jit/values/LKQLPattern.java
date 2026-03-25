@@ -8,7 +8,7 @@ package com.adacore.lkql_jit.values;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.interop.LKQLValue;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.*;
@@ -27,7 +27,9 @@ public final class LKQLPattern extends LKQLValue {
     // ----- Attributes -----
 
     /** Members of the pattern LKQL value. */
-    private static final LKQLList MEMBERS = new LKQLList(new String[] { "contains", "find" });
+    private static final LKQLArrayList MEMBERS = new LKQLArrayList(
+        new String[] { "contains", "find" }
+    );
 
     /** The interop regex object from the TRegex language. */
     private final Object regexObject;

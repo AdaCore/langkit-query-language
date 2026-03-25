@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.runtime.ListStorage;
@@ -11,7 +11,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 
-public final class LKQLFlattenResult extends BaseLKQLLazyList {
+public final class LKQLFlattenResult extends BaseCachedStream {
 
     /** Collection that is flatten. */
     private final Iterator generatorIterator;
@@ -26,7 +26,7 @@ public final class LKQLFlattenResult extends BaseLKQLLazyList {
         this.generatorIterator = generator.iterator();
     }
 
-    // ----- Lazy list required methods -----
+    // ----- Instance methods -----
 
     @Override
     protected void initCacheTo(long n) {

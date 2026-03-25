@@ -5,13 +5,12 @@
 
 package com.adacore.lkql_jit.values.lists;
 
-import com.adacore.lkql_jit.values.interop.LKQLCollection;
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
+import com.adacore.lkql_jit.values.interop.LKQLList;
 import com.adacore.lkql_jit.values.iterators.LKQLListIterator;
-import java.util.Arrays;
 
 /** This class represents an array list in the LKQL language. */
-public final class LKQLList extends LKQLCollection {
+public final class LKQLArrayList extends LKQLList {
 
     // ----- Attributes -----
 
@@ -21,7 +20,7 @@ public final class LKQLList extends LKQLCollection {
     // ----- Constructors -----
 
     /** Create a new array list with its content. */
-    public LKQLList(final Object[] content) {
+    public LKQLArrayList(final Object[] content) {
         this.content = content;
     }
 
@@ -35,10 +34,6 @@ public final class LKQLList extends LKQLCollection {
     @Override
     public Object get(long i) throws IndexOutOfBoundsException {
         return this.content[(int) i];
-    }
-
-    public Object[] getSlice(long first, long last) throws IndexOutOfBoundsException {
-        return Arrays.copyOfRange(this.content, (int) first, (int) last);
     }
 
     @Override

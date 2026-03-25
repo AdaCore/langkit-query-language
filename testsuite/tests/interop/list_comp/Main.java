@@ -20,17 +20,18 @@ public class Main {
         Value namespace = executable.execute(false);
         Value lazyList = namespace.getMember("lazy_list");
         Value emptyList = namespace.getMember("empty_list");
+        Value iterator = lazyList.getIterator();
         System.out.println("=== Lazy list interop messages:");
         print("toString()", lazyList.toString());
         print("hasArrayElements()", lazyList.hasArrayElements());
-        print("getArraySize()", lazyList.getArraySize());
         print("isBoolean()", lazyList.isBoolean());
         print("isBoolean() (empty lazy list)", emptyList.isBoolean());
         print("asBoolean()", lazyList.asBoolean());
         print("asBoolean() (empty lazy list)", emptyList.asBoolean());
-        print("getArrayElement(0)", lazyList.getArrayElement(0));
-        print("getArrayElement(1)", lazyList.getArrayElement(1));
-        print("getArrayElement(2)", lazyList.getArrayElement(2));
         print("hasIterator()", lazyList.hasIterator());
+        while (iterator.hasIteratorNextElement()) {
+            Value elem = iterator.getIteratorNextElement();
+            System.out.println("    - " + elem.toString());
+        }
     }
 }

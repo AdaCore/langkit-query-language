@@ -5,12 +5,13 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
+import java.util.Arrays;
 
 public abstract class ListPattern extends Pattern {
 
@@ -24,16 +25,16 @@ public abstract class ListPattern extends Pattern {
     }
 
     @Specialization
-    public boolean onList(VirtualFrame frame, LKQLList list) {
+    public boolean onList(VirtualFrame frame, LKQLArrayList list) {
         var lastMatch = 0;
-        for (int i = 0; i < list.getArraySize(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             var pattern = patterns[i];
             lastMatch = i;
             // SplatPattern matches the rest of the list
             if (pattern instanceof SplatPattern) {
                 return pattern.executeValue(
                     frame,
-                    new LKQLList(list.getSlice(i, list.getArraySize()))
+                    new LKQLArrayList(Arrays.copyOfRange(list.content, i, (int) list.size()))
                 );
             }
             // Else, fail on the first pattern that fails

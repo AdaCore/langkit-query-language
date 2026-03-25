@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.values.LKQLObject;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -114,13 +114,13 @@ public final class ObjectLiteral extends Expr {
         // ----- Specializations -----
 
         @Specialization
-        protected LKQLList onList(LKQLList list) {
+        protected LKQLArrayList onList(LKQLArrayList list) {
             return list;
         }
 
         @Fallback
-        protected LKQLList onOthers(Object obj) {
-            return new LKQLList(new Object[] { obj });
+        protected LKQLArrayList onOthers(Object obj) {
+            return new LKQLArrayList(new Object[] { obj });
         }
 
         // ----- Override methods -----

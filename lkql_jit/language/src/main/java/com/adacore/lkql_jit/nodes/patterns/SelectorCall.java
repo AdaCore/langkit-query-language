@@ -16,7 +16,7 @@ import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLSelector;
-import com.adacore.lkql_jit.values.lists.LKQLSelectorList;
+import com.adacore.lkql_jit.values.streams.LKQLSelectorList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
@@ -188,8 +188,9 @@ public final class SelectorCall extends LKQLNode {
      */
     private boolean isAll(VirtualFrame frame, LKQLSelectorList selectorListValue, Pattern pattern) {
         // Iterate on nodes
-        for (int i = 0; i < selectorListValue.size(); i++) {
-            if (!pattern.executeValue(frame, selectorListValue.get(i))) return false;
+        var it = selectorListValue.iterator();
+        while (it.hasNext()) {
+            if (!pattern.executeValue(frame, it.next())) return false;
         }
 
         // Return true if all nodes verify the pattern

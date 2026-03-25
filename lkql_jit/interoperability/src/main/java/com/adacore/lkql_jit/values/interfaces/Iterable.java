@@ -12,13 +12,6 @@ package com.adacore.lkql_jit.values.interfaces;
  */
 public interface Iterable {
     /**
-     * Get the size of the iterable collection.
-     *
-     * @return The size of the iterable.
-     */
-    long size();
-
-    /**
      * Get the iterator for the iterable object.
      *
      * @return The iterator.

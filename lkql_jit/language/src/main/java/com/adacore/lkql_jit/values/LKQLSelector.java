@@ -9,7 +9,7 @@ import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
-import com.adacore.lkql_jit.values.lists.LKQLSelectorList;
+import com.adacore.lkql_jit.values.streams.LKQLSelectorList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;

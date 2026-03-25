@@ -15,17 +15,17 @@ import com.adacore.lkql_jit.nodes.utils.ConcatenationNode;
 import com.adacore.lkql_jit.nodes.utils.ValueCombiner;
 import com.adacore.lkql_jit.tools.TextWriter;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.*;
-import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLCallable;
-import com.adacore.lkql_jit.values.interop.LKQLCollection;
-import com.adacore.lkql_jit.values.lists.LKQLLazyListStreamWrapper;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.values.streams.BaseCachedStream;
+import com.adacore.lkql_jit.values.streams.LKQLStdlibStreamWrapper;
+import com.adacore.lkql_jit.values.streams.LKQLUniqueResult;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
@@ -56,12 +56,15 @@ public class BuiltInFunctions {
         name = "unique",
         doc = "Given a collection, create a list with all duplicates removed"
     )
-    @BuiltInMethod(targetTypes = LKQLTypesHelper.LKQL_LIST, isProperty = true)
+    @BuiltInMethod(
+        targetTypes = { LKQLTypesHelper.LKQL_STREAM, LKQLTypesHelper.LKQL_LIST },
+        isProperty = true
+    )
     abstract static class UniqueExpr extends BuiltInBody {
 
         @Specialization
-        protected LKQLList onIndexable(Indexable indexable) {
-            return new LKQLList(ArrayUtils.unique(indexable.getContent()).toArray(new Object[0]));
+        protected BaseCachedStream onIterable(Iterable iterable) {
+            return new LKQLUniqueResult(iterable);
         }
     }
 
@@ -158,13 +161,7 @@ public class BuiltInFunctions {
         doc = "Given a collection, a reduction function, and an initial value reduce the" +
             " result"
     )
-    @BuiltInMethod(
-        targetTypes = {
-            LKQLTypesHelper.LKQL_SELECTOR_LIST,
-            LKQLTypesHelper.LKQL_LAZY_LIST,
-            LKQLTypesHelper.LKQL_LIST,
-        }
-    )
+    @BuiltInMethod(targetTypes = { LKQLTypesHelper.LKQL_STREAM, LKQLTypesHelper.LKQL_LIST })
     abstract static class ReduceExpr extends BuiltInBody {
 
         @Specialization(
@@ -312,7 +309,7 @@ public class BuiltInFunctions {
     abstract static class ConcatExpr extends BuiltInBody {
 
         @Specialization(guards = "list.size() > 1")
-        protected Object onMultipleElems(LKQLList list, @Cached ConcatenationNode concat) {
+        protected Object onMultipleElems(LKQLArrayList list, @Cached ConcatenationNode concat) {
             Object res = concat.execute(list.get(0), list.get(1), this);
             for (int i = 2; i < list.size(); i++) {
                 res = concat.execute(res, list.get(i), this);
@@ -321,13 +318,13 @@ public class BuiltInFunctions {
         }
 
         @Specialization(guards = "list.size() == 1")
-        protected Object onSingleElem(LKQLList list) {
+        protected Object onSingleElem(LKQLArrayList list) {
             return list.get(0);
         }
 
         @Specialization(guards = "list.size() == 0")
-        protected LKQLList onEmptyList(@SuppressWarnings("unused") LKQLList list) {
-            return new LKQLList(new Object[0]);
+        protected LKQLArrayList onEmptyList(@SuppressWarnings("unused") LKQLArrayList list) {
+            return new LKQLArrayList(new Object[0]);
         }
     }
 
@@ -482,8 +479,8 @@ public class BuiltInFunctions {
 
         @Specialization
         @CompilerDirectives.TruffleBoundary
-        protected LKQLCollection alwaysTrue() {
-            return new LKQLLazyListStreamWrapper(LKQLLanguage.getContext(this).getAllUnits());
+        protected LKQLStream alwaysTrue() {
+            return new LKQLStdlibStreamWrapper(LKQLLanguage.getContext(this).getAllUnits());
         }
     }
 
@@ -514,11 +511,11 @@ public class BuiltInFunctions {
 
         @Specialization
         @CompilerDirectives.TruffleBoundary
-        protected LKQLList alwaysTrue() {
+        protected LKQLArrayList alwaysTrue() {
             var units = LKQLLanguage.getContext(this)
                 .getSpecifiedUnits()
                 .toArray(LangkitSupport.AnalysisUnit[]::new);
-            return new LKQLList(units);
+            return new LKQLArrayList(units);
         }
     }
 

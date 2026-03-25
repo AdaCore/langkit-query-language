@@ -4,7 +4,8 @@ fun debug_id(i) = {
 }
 
 # When created, the iterator should be unevaluated completely
-val itt = [debug_id(i) for i in [1, 2, 3, 4, 5]]
+val lazy = [debug_id(i) for i in [1, 2, 3, 4, 5]]
+val itt = [x for x in lazy]
 
 print("Evaluating itt up to index 2")
 print(itt[2])

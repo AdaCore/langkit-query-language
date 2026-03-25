@@ -91,7 +91,7 @@ public abstract class LKQLDynamicObject extends DynamicObject {
     // ----- Instance methods -----
 
     /** This methods should return an LKQL collection containing all keys of the object value. */
-    protected abstract LKQLCollection getKeys(DynamicObjectLibrary lib);
+    protected abstract LKQLList getKeys(DynamicObjectLibrary lib);
 
     // ----- Value methods -----
 

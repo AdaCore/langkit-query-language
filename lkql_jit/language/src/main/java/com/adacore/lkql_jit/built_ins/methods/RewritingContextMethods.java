@@ -16,7 +16,7 @@ import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverter;
 import com.adacore.lkql_jit.nodes.utils.RewritingNodeConverterNodeGen;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -214,7 +214,7 @@ public final class RewritingContextMethods {
             RewritingContextInterface ctx,
             String template,
             String grammarRule,
-            LKQLList arguments
+            LKQLArrayList arguments
         ) {
             // Translate the provided LKQL list into a rewriting node list
             final var args = new RewritingNodeInterface[(int) arguments.size()];

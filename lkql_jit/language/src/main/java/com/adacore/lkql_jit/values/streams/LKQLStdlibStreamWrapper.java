@@ -3,7 +3,7 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-package com.adacore.lkql_jit.values.lists;
+package com.adacore.lkql_jit.values.streams;
 
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -11,10 +11,10 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 
 /**
- * This class is a wrapper from a Java Stream to an LKQLLazyList.
+ * This class is a wrapper from a Java Stream to an LKQLStream.
  * It is currently only used to wrap the units() builtin.
  */
-public class LKQLLazyListStreamWrapper extends BaseLKQLLazyList {
+public class LKQLStdlibStreamWrapper extends BaseCachedStream {
 
     // ----- Attributes -----
 
@@ -22,7 +22,7 @@ public class LKQLLazyListStreamWrapper extends BaseLKQLLazyList {
 
     // ----- Constructors -----
 
-    public LKQLLazyListStreamWrapper(Stream<? extends Object> source) {
+    public LKQLStdlibStreamWrapper(Stream<? extends Object> source) {
         super(new ListStorage<>(0));
         iterator = source.iterator();
     }

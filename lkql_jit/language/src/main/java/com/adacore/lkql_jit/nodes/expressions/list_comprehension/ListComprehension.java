@@ -10,11 +10,10 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescr
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
 import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
-import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
-import com.adacore.lkql_jit.values.lists.BaseLKQLLazyList;
-import com.adacore.lkql_jit.values.lists.LKQLListComprehension;
+import com.adacore.lkql_jit.values.streams.BaseCachedStream;
+import com.adacore.lkql_jit.values.streams.LKQLListComprehension;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -27,8 +26,6 @@ import com.oracle.truffle.api.source.SourceSection;
  * @author Hugo GUERRIER
  */
 public final class ListComprehension extends Expr {
-
-    // ----- Attributes -----
 
     // ----- Children -----
 
@@ -79,81 +76,28 @@ public final class ListComprehension extends Expr {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return this.executeLazyList(frame);
+        return this.executeStream(frame);
     }
 
-    @Override
     @ExplodeLoop
-    public BaseLKQLLazyList executeLazyList(VirtualFrame frame) {
+    public BaseCachedStream executeStream(VirtualFrame frame) {
         // Get the iterables for the list comprehension
         Iterable[] iterables = this.generators.executeCollections(frame);
 
         CompilerAsserts.compilationConstant(iterables.length);
 
-        // Get the result size and prepare the result
-        int resultSize = 1;
-        for (int i = 0; i < iterables.length; i++) {
-            resultSize *= (int) iterables[i].size();
-        }
-
-        // Check if the result is empty
-        if (resultSize == 0) {
-            return new LKQLListComprehension(this.rootNode, Closure.EMPTY, new Object[0][]);
-        }
-
-        // Prepare the array of arguments for each iteration in the list comprehension
-        Object[][] argsList = new Object[resultSize][iterables.length];
-
         // Initialize the working variables
         Iterator[] iterators = new Iterator[iterables.length];
-        Object[] valueBuffer = new Object[iterables.length];
         for (int i = 0; i < iterables.length; i++) {
             iterators[i] = iterables[i].iterator();
-            valueBuffer[i] = iterators[i].next();
         }
 
-        // Consume input collections to prepare call arguments
-        prepareArgumentsLists(iterators, valueBuffer, argsList);
-
-        // Return the result of the list comprehension as a lazy list
-        return new LKQLListComprehension(this.rootNode, createClosureNode.execute(frame), argsList);
-    }
-
-    // ----- Class methods -----
-
-    /** Helper function to fill arguments lists. */
-    private static void prepareArgumentsLists(
-        Iterator[] iterators,
-        Object[] valueBuffer,
-        Object[][] argsList
-    ) {
-        int i = 0;
-        do {
-            System.arraycopy(valueBuffer, 0, argsList[i++], 0, iterators.length);
-        } while (increaseIndexes(iterators, valueBuffer));
-    }
-
-    /**
-     * Increase the iteration indexes.
-     *
-     * @param iterators The iterators containing the current iteration information.
-     * @param valueBuffer The buffer to put the values in.
-     * @return True if the indexes have been increased.
-     */
-    private static boolean increaseIndexes(Iterator[] iterators, Object[] valueBuffer) {
-        for (int i = iterators.length - 1; i >= 0; i--) {
-            // If the iterator has a next value
-            if (iterators[i].hasNext()) {
-                valueBuffer[i] = iterators[i].next();
-                return true;
-            }
-            // Else reset the iterator and go to the next one
-            else {
-                iterators[i].reset();
-                valueBuffer[i] = iterators[i].next();
-            }
-        }
-        return false;
+        // Return the result of the list comprehension as a stream
+        return new LKQLListComprehension(
+            this.rootNode,
+            createClosureNode.execute(frame),
+            iterators
+        );
     }
 
     // ----- Override methods -----

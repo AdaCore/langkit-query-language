@@ -9,7 +9,7 @@ import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -31,13 +31,13 @@ public abstract class ConcatenationNode extends Node {
     }
 
     @Specialization
-    protected LKQLList doLists(LKQLList left, LKQLList right, LKQLNode caller) {
+    protected LKQLArrayList doLists(LKQLArrayList left, LKQLArrayList right, LKQLNode caller) {
         final int leftSize = (int) left.size();
         final int rightSize = (int) right.size();
         final Object[] resContent = new Object[leftSize + rightSize];
         System.arraycopy(left.content, 0, resContent, 0, leftSize);
         System.arraycopy(right.content, 0, resContent, leftSize, rightSize);
-        return new LKQLList(resContent);
+        return new LKQLArrayList(resContent);
     }
 
     @Fallback

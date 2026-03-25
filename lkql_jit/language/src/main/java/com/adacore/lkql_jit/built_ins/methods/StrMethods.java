@@ -12,7 +12,7 @@ import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.LKQLPattern;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.dsl.Specialization;
 
 /**
@@ -156,8 +156,8 @@ public class StrMethods {
     abstract static class SplitExpr extends BuiltInBody {
 
         @Specialization
-        protected LKQLList onGeneric(String source, String sep) {
-            return new LKQLList(StringUtils.split(source, sep));
+        protected LKQLArrayList onGeneric(String source, String sep) {
+            return new LKQLArrayList(StringUtils.split(source, sep));
         }
     }
 

@@ -1,6 +1,10 @@
 val x = [1, 2, 3, 4]
 val y = [4, 3, 2, 1]
 val z = []
-print(x.enumerate)
-print(y.enumerate)
-print(z.enumerate)
+print(x.enumerate.to_list)
+print(y.enumerate.to_list)
+print(z.enumerate.to_list)
+
+# also works on streams
+val lazy = [i & j for i in ["a", "b", "c"], j in ["!", "?"]]
+print(lazy.enumerate.to_list)

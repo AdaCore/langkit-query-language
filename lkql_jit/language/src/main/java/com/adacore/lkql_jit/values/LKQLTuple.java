@@ -105,11 +105,6 @@ public class LKQLTuple extends LKQLValue implements Indexable {
         return this.content[(int) index];
     }
 
-    @Override
-    public Object[] getContent() {
-        return this.content;
-    }
-
     // ----- Override methods -----
 
     @Override

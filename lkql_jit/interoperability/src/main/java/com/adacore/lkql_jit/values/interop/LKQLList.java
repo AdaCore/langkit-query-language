@@ -17,7 +17,13 @@ import com.oracle.truffle.api.library.ExportMessage;
 
 /** This class represents the base of collection like values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class LKQLCollection extends LKQLValue implements Iterable, Indexable {
+public abstract class LKQLList extends LKQLValue implements Iterable, Indexable {
+
+    /** Get the size of the collection. */
+    public abstract long size();
+
+    /** Get the content of the list as an array. */
+    public abstract Object[] getContent();
 
     // ----- Value methods -----
 
@@ -114,23 +120,12 @@ public abstract class LKQLCollection extends LKQLValue implements Iterable, Inde
         return this.iterator();
     }
 
-    // ----- Indexable required methods -----
-
-    @Override
-    public Object[] getContent() {
-        Object[] res = new Object[(int) this.size()];
-        for (int i = 0; i < this.size(); i++) {
-            res[i] = this.get(i);
-        }
-        return res;
-    }
-
     // ----- Override methods -----
 
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof LKQLCollection other)) return false;
+        if (!(o instanceof LKQLList other)) return false;
         var size = this.size();
         if (size != other.size()) return false;
         for (int i = 0; i < size; i++) {

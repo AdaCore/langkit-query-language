@@ -370,10 +370,13 @@ public final class CheckerRun {
             ).execute(arguments);
 
             // Ensure the checker result is an iterable value
-            if (checkRes.hasArrayElements()) {
+            if (checkRes.hasIterator()) {
+                var iterator = checkRes.getIterator();
+                assert iterator.isIterator();
+
                 // For each element consider it as a violation report
-                for (int i = 0; i < checkRes.getArraySize(); i++) {
-                    var resObj = checkRes.getArrayElement(i).as(LKQLDynamicObject.class);
+                while (iterator.hasIteratorNextElement()) {
+                    var resObj = iterator.getIteratorNextElement().as(LKQLDynamicObject.class);
                     var message = (String) resObj.getUncached("message");
                     var location = switch (resObj.getUncached("loc")) {
                         case LangkitSupport.NodeInterface ni -> SourceSection.wrap(ni, linesCache);

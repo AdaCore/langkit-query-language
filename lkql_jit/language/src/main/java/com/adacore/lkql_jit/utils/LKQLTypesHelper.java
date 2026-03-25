@@ -10,7 +10,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLObject;
-import com.adacore.lkql_jit.values.lists.LKQLList;
+import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.math.BigInteger;
 
@@ -60,11 +60,8 @@ public final class LKQLTypesHelper {
     /** The string representing the LKQL list type. */
     public static final String LKQL_LIST = "List";
 
-    /** The string representing the LKQL lazy list type. */
-    public static final String LKQL_LAZY_LIST = "LazyList";
-
-    /** The string representing the LKQL selector list type. */
-    public static final String LKQL_SELECTOR_LIST = "SelectorList";
+    /** The string representing the LKQL stream type. */
+    public static final String LKQL_STREAM = "Stream";
 
     /** The string representing the LKQL object type. */
     public static final String LKQL_OBJECT = "Object";
@@ -107,8 +104,7 @@ public final class LKQLTypesHelper {
         LKQL_SELECTOR,
         LKQL_TUPLE,
         LKQL_LIST,
-        LKQL_LAZY_LIST,
-        LKQL_SELECTOR_LIST,
+        LKQL_STREAM,
         LKQL_OBJECT,
         LKQL_NAMESPACE,
         LKQL_REC_VALUE,
@@ -179,8 +175,8 @@ public final class LKQLTypesHelper {
             return LKQL_TUPLE;
         } else if (LKQLTypeSystemGen.isLKQLList(obj)) {
             return LKQL_LIST;
-        } else if (LKQLTypeSystemGen.isBaseLKQLLazyList(obj)) {
-            return LKQL_LAZY_LIST;
+        } else if (LKQLTypeSystemGen.isLKQLStream(obj)) {
+            return LKQL_STREAM;
         } else if (LKQLTypeSystemGen.isNodeInterface(obj)) {
             return NODE_INTERFACE;
         } else if (LKQLTypeSystemGen.isTokenInterface(obj)) {
@@ -272,7 +268,7 @@ public final class LKQLTypesHelper {
                 res[i] = toLKQLValue(obj);
                 i++;
             }
-            return new LKQLList(res);
+            return new LKQLArrayList(res);
         }
         // If the source is an enum
         else if (javaValue instanceof Enum<?>) {
