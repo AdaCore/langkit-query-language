@@ -1,15 +1,20 @@
 val system_spec = get_unit("system", "unit_specification")
 val system_body = get_unit("system", "unit_body")
-val unknown_unit = get_unit("not_a_unit", "unit_specification")
+val unknown_spec = get_unit("not_a_unit", "unit_specification")
+val other_body = get_unit("other", "unit_body")
 print("System spec unit = " & img(system_spec))
-print("System spec unit root = " & img(system_spec.root))
+print("System spec unit root kind = " & img(system_spec.root.kind))
 print("System body unit = " & img(system_body))
 print("System body unit root = " & img(system_body.root))
-print("Unknown spec unit = " & img(unknown_unit))
-print("Unknown spec unit root = " & img(unknown_unit.root))
+print("Unknown spec unit = " & img(unknown_spec))
+print("Unknown spec unit root = " & img(unknown_spec.root))
+print("Other body unit = " & img(other_body))
+print("Other body unit tree:")
+other_body.root.dump
+
 print(
-    "system_body == get_unit(\"system\", \"unit_body\") = "
-    & img(system_body == get_unit("system", "unit_body"))
+    "system_spec == get_unit(\"system\", \"unit_specification\") = "
+    & img(system_spec == get_unit("system", "unit_specification"))
 )
 
 get_unit("system", "not_a_kind")
