@@ -36,6 +36,14 @@ val _ = print(s_4[6])
 val _ = print(s_4.to_list.length)
 val _ = print("")
 
+# Test head and tail primitives
+val _ = print("=== Accessing head and tail")
+val s_5 = [1, 2, 3].to_stream
+val _ = print(s_5.head)
+val _ = print(s_5.tail.to_list)
+val _ = print(s_5.tail.tail.to_list)
+val _ = print(s_5.tail.tail.tail.to_list)
+
 # Test a stream from a recursive function
 val _ = print("=== Stream from a recursive function")
 fun all_ints(x: Any = 0): Any = x :: all_ints(x + 1)

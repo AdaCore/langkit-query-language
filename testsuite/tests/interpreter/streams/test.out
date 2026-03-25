@@ -24,6 +24,11 @@ d
 e
 7
 
+=== Accessing head and tail
+1
+[2, 3]
+[3]
+[]
 === Stream from a recursive function
 49
 
@@ -36,7 +41,7 @@ e
 "1"
 
 === Try to access an invalid index in the stream
-script.lkql:62:15: error: Invalid index: 6
-  62 | val _ = print(err_s[6])
+script.lkql:70:15: error: Invalid index: 6
+  70 | val _ = print(err_s[6])
      |               ^^^^^^^^
 
