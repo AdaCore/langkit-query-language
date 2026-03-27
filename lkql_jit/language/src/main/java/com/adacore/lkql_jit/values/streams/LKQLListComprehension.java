@@ -55,14 +55,14 @@ public final class LKQLListComprehension extends BaseCachedStream {
     // ----- Instance methods -----
 
     @Override
-    protected void initCacheTo(long n) {
-        while (n >= this.cache.size() || n < 0) {
-            if (!updateArgs()) return;
+    protected Object computeNext() {
+        while (updateArgs()) {
             Object value = callTarget.call(arguments);
             if (value != null) {
-                this.cache.append(value);
+                return value;
             }
         }
+        return null;
     }
 
     // ----- Internal methods -----

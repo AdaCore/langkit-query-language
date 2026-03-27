@@ -29,10 +29,20 @@ public abstract class BaseCachedStream extends LKQLStream {
     // ----- Instance methods -----
 
     /**
-     * This method should initialize the element cache from the next lazy element to the provided
-     * index.
+     * Computes the next element of the stream and returns it.
+     * Returns null if nothing left to compute.
      */
-    protected abstract void initCacheTo(long n);
+    protected abstract Object computeNext();
+
+    /** Initialize cache until the given index and returns the result. */
+    public Object get(long n) {
+        while (n >= this.cache.size()) {
+            var next = computeNext();
+            if (next == null) break;
+            cache.append(next);
+        }
+        return this.cache.get((int) n);
+    }
 
     public Object getHead() {
         try {
@@ -50,12 +60,6 @@ public abstract class BaseCachedStream extends LKQLStream {
         } catch (IndexOutOfBoundsException _) {
             throw LKQLRuntimeError.emptyStreamTail(null);
         }
-    }
-
-    @Override
-    public Object get(long n) {
-        this.initCacheTo(n);
-        return this.cache.get((int) n);
     }
 
     @Override

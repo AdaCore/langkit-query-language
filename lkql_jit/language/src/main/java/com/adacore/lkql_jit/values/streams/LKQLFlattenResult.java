@@ -28,28 +28,13 @@ public final class LKQLFlattenResult extends BaseCachedStream {
 
     // ----- Instance methods -----
 
-    @Override
-    protected void initCacheTo(long n) {
-        if (n >= this.cache.size() || n < 0) {
-            Object next;
-            do {
-                next = this.nextElem();
-                if (next != null) {
-                    this.cache.append(next);
-                }
-            } while (next != null && (n >= this.cache.size() || n < 0));
-        }
-    }
-
-    // ----- Instance methods -----
-
     /**
      * Util function to get the next element in the current inner collection.
      * If there is no more elements in the current inner collection, this
      * function fetch the next one.
      * If there is no more inner collection, this function returns null.
      */
-    private Object nextElem() {
+    protected Object computeNext() {
         // Ensure the inner iterator is initialized and has a next element
         while (this.innerIterator == null || !this.innerIterator.hasNext()) {
             if (!this.generatorIterator.hasNext()) {

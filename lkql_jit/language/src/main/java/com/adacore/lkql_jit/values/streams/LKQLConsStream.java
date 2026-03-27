@@ -51,11 +51,13 @@ public class LKQLConsStream extends BaseCachedStream {
 
     // ----- Instance methods -----
 
-    @Override
-    protected void initCacheTo(long n) {
-        while (this.next != null && (n >= this.cache.size() || n < 0)) {
-            this.cache.append(this.next.getHead());
+    protected Object computeNext() {
+        try {
+            var res = next.getHead();
             this.next = this.next.getTail();
+            return res;
+        } catch (Exception _) {
+            return null;
         }
     }
 

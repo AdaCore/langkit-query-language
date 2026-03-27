@@ -54,12 +54,12 @@ public final class LKQLQueryComprehension extends BaseCachedStream {
 
     // ----- Instance methods -----
 
-    @Override
-    protected void initCacheTo(long n) {
-        while ((n < 0 || this.cache.size() <= n) && iterator.hasNext()) {
-            this.arguments[1] = iterator.next();
-            Object value = this.callTarget.call(this.arguments);
-            if (value != null) this.cache.append(value);
+    protected Object computeNext() {
+        while (iterator.hasNext()) {
+            arguments[1] = iterator.next();
+            var value = callTarget.call(arguments);
+            if (value != null) return value;
         }
+        return null;
     }
 }

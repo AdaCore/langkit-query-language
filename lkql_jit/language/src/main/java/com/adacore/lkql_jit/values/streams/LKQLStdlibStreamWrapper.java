@@ -30,9 +30,7 @@ public class LKQLStdlibStreamWrapper extends BaseCachedStream {
     // ----- Instance methods -----
 
     @TruffleBoundary
-    protected void initCacheTo(long n) {
-        while ((n < 0 || cache.size() <= n) && iterator.hasNext()) {
-            cache.append(iterator.next());
-        }
+    protected Object computeNext() {
+        return iterator.hasNext() ? iterator.next() : null;
     }
 }
