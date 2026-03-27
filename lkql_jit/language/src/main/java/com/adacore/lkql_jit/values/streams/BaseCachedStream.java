@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.values.streams;
 
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
@@ -34,12 +35,21 @@ public abstract class BaseCachedStream extends LKQLStream {
     protected abstract void initCacheTo(long n);
 
     public Object getHead() {
-        return this.get(0);
+        try {
+            return this.get(0);
+        } catch (IndexOutOfBoundsException _) {
+            throw LKQLRuntimeError.emptyStreamHead(null);
+        }
     }
 
     @Override
     public LKQLStream getTail() {
-        return new OffsetStream(this, 1);
+        try {
+            this.get(0);
+            return new OffsetStream(this, 1);
+        } catch (IndexOutOfBoundsException _) {
+            throw LKQLRuntimeError.emptyStreamTail(null);
+        }
     }
 
     @Override
@@ -77,12 +87,21 @@ public abstract class BaseCachedStream extends LKQLStream {
 
         @Override
         public Object getHead() {
-            return base.get(offset);
+            try {
+                return base.get(offset);
+            } catch (IndexOutOfBoundsException _) {
+                throw LKQLRuntimeError.emptyStreamHead(null);
+            }
         }
 
         @Override
         public LKQLStream getTail() {
-            return new OffsetStream(base, offset + 1);
+            try {
+                base.get(offset);
+                return new OffsetStream(base, offset + 1);
+            } catch (IndexOutOfBoundsException _) {
+                throw LKQLRuntimeError.emptyStreamTail(null);
+            }
         }
     }
 }
