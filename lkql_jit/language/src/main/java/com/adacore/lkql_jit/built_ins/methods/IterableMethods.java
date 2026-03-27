@@ -16,8 +16,10 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLFunction;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.values.streams.BaseCachedStream;
+import com.adacore.lkql_jit.values.streams.LKQLArrayStream;
 import com.adacore.lkql_jit.values.streams.LKQLEnumerateResult;
 import com.adacore.lkql_jit.values.streams.LKQLFlattenResult;
 import com.adacore.lkql_jit.values.streams.LKQLMapResult;
@@ -71,6 +73,20 @@ public class IterableMethods {
 
             // Return the new list value
             return new LKQLArrayList(tmp.toArray());
+        }
+    }
+
+    @BuiltInMethod(name = "to_stream", doc = "Transform into a stream", isProperty = true)
+    abstract static class ToStreamExpr extends BuiltInBody {
+
+        @Specialization
+        public LKQLStream doStream(LKQLStream self) {
+            return self;
+        }
+
+        @Specialization
+        public LKQLStream doGeneric(LKQLArrayList self) {
+            return new LKQLArrayStream(self.content);
         }
     }
 
