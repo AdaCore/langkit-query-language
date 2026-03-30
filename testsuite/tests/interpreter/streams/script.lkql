@@ -28,7 +28,7 @@ val _ = print("")
 
 # Test concatenating a list with a stream
 val _ = print("=== Concatenating a list with a stream")
-val s_4 = [1, 2, 3, 4] ::: ("d" :: "e" :: "f" :: nil())
+val s_4 = [1, 2, 3, 4].to_stream ::: ("d" :: "e" :: "f" :: nil())
 val _ = print(s_4[1])
 val _ = print(s_4[2])
 val _ = print(s_4[5])

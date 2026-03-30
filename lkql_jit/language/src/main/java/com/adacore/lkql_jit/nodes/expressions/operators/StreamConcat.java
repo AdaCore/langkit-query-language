@@ -9,7 +9,6 @@ import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescriptor;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.values.interop.LKQLList;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.streams.LKQLConsStream;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -32,15 +31,6 @@ public abstract class StreamConcat extends BaseStreamOp {
     }
 
     // ----- Execution methods -----
-
-    @Specialization
-    protected LKQLConsStream onList(VirtualFrame frame, LKQLList list) {
-        return LKQLConsStream.concatStream(
-            list,
-            this.tailLazyValue.getCallTarget(),
-            this.createTailClosure.execute(frame)
-        );
-    }
 
     @Specialization
     protected LKQLConsStream onStream(VirtualFrame frame, LKQLStream stream) {
