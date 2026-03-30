@@ -411,7 +411,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             for (int i = 0; i < rule.getValue().size(); i++) {
                 for (var instance : rule.getValue().subList(i + 1, rule.getValue().size())) {
                     RuleInstance current = rule.getValue().get(i);
-                    if (current.isEquivalent(instance)) {
+                    if (verbose && current.isEquivalent(instance)) {
                         emitMessageForTheDriver(
                             "WORKER_WARNING",
                             current.locationToGNATDiagnosisFormatString(),
