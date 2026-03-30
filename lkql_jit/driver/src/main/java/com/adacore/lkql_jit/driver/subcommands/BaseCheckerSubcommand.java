@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.Callable;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
@@ -88,24 +87,21 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
     @Override
     protected void launch(Context.Builder contextBuilder) {
         // Create the option object for the context builder
-        LKQLOptions options = new LKQLOptions.Builder()
+        var optionsBuilder = new LKQLOptions.Builder()
             .engineMode(LKQLOptions.EngineMode.INTERPRETER)
             .verbose(this.args.verbose)
             .files(this.args.files)
             .ignores(this.args.ignores)
             .charset(this.args.charset)
-            .runtime(this.args.rts)
-            .target(this.args.target)
-            .projectFile(this.args.project)
-            .missingFileIsError(this.args.missingFileIsError)
-            .build();
+            .missingFileIsError(this.args.missingFileIsError);
+        this.args.fillGPROptions(optionsBuilder);
 
         // Configure the execution context
         contextBuilder
             .allowIO(IOAccess.ALL)
             .useSystemExit(true)
             .logHandler(logHandler)
-            .option("lkql.options", options.toJson().toString());
+            .option("lkql.options", optionsBuilder.build().toJson().toString());
 
         // Then build the context and perform the checking process
         try (Context context = contextBuilder.build()) {
@@ -463,7 +459,7 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
     // ----- Inner classes -----
 
     /** This class defines all common CLI arguments for checker-like subcommands. */
-    public abstract static class Args implements Callable<Integer> {
+    public abstract static class Args extends GPRArgs {
 
         @CommandLine.Spec
         public picocli.CommandLine.Model.CommandSpec spec;
@@ -496,15 +492,6 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
             description = "Charset to use for the source decoding"
         )
         public String charset = null;
-
-        @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
-        public String rts = null;
-
-        @CommandLine.Option(names = "--target", description = "Hardware target to pass to GPR")
-        public String target = null;
-
-        @CommandLine.Option(names = { "-P", "--project" }, description = "Project file to use")
-        public String project = null;
 
         @CommandLine.Option(
             names = "--rules-dir",

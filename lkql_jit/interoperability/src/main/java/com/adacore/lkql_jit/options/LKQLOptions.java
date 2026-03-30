@@ -15,24 +15,39 @@ import org.json.JSONObject;
  * using the JSON format.
  */
 public record LKQLOptions(
+    // LKQL specific options
     EngineMode engineMode,
     boolean verbose,
+    boolean checkerDebug,
+    DiagnosticOutputMode diagnosticOutputMode,
     Optional<String> charset,
-    Optional<String> projectFile,
-    Optional<String> subprojectFile,
-    Optional<String> runtime,
-    Optional<String> target,
-    Optional<String> configFile,
-    Map<String, String> scenarioVariables,
     List<String> files,
     List<String> ignores,
     List<String> rulesDirs,
     Map<String, RuleInstance> ruleInstances,
-    boolean checkerDebug,
     boolean fallbackToAllRules,
     boolean missingFileIsError,
     boolean showInstantiationChain,
-    DiagnosticOutputMode diagnosticOutputMode
+
+    // GPR options
+    List<String> additionalProjectPaths,
+    Optional<String> autoconf,
+    Optional<String> configFile,
+    List<String> additionalKnowledgeBases,
+    boolean skipStandardKnowledgeBase,
+    List<String> implicitWiths,
+    boolean followSymlinks,
+    boolean noProject,
+    Optional<String> projectFile,
+    Optional<String> subprojectFile,
+    Optional<String> rootDir,
+    Optional<String> relocateBuildTree,
+    Optional<String> adaRuntime,
+    Map<String, String> runtimes,
+    Optional<String> srcSubdirs,
+    Optional<String> subdirs,
+    Optional<String> target,
+    Map<String, String> scenarioVariables
 ) {
     // ----- Constructors -----
 
@@ -43,10 +58,8 @@ public record LKQLOptions(
             engineMode = EngineMode.INTERPRETER;
         }
 
-        if (scenarioVariables == null) {
-            scenarioVariables = Map.of();
-        } else {
-            scenarioVariables = Collections.unmodifiableMap(scenarioVariables);
+        if (diagnosticOutputMode == null) {
+            diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
         }
 
         if (files == null) {
@@ -73,8 +86,34 @@ public record LKQLOptions(
             ruleInstances = Collections.unmodifiableMap(ruleInstances);
         }
 
-        if (diagnosticOutputMode == null) {
-            diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
+        if (additionalProjectPaths == null) {
+            additionalProjectPaths = List.of();
+        } else {
+            additionalProjectPaths = Collections.unmodifiableList(additionalProjectPaths);
+        }
+
+        if (additionalKnowledgeBases == null) {
+            additionalKnowledgeBases = List.of();
+        } else {
+            additionalKnowledgeBases = Collections.unmodifiableList(additionalKnowledgeBases);
+        }
+
+        if (implicitWiths == null) {
+            implicitWiths = List.of();
+        } else {
+            implicitWiths = Collections.unmodifiableList(implicitWiths);
+        }
+
+        if (runtimes == null) {
+            runtimes = Map.of();
+        } else {
+            runtimes = Collections.unmodifiableMap(runtimes);
+        }
+
+        if (scenarioVariables == null) {
+            scenarioVariables = Map.of();
+        } else {
+            scenarioVariables = Collections.unmodifiableMap(scenarioVariables);
         }
     }
 
@@ -91,15 +130,12 @@ public record LKQLOptions(
             );
         }
         return new LKQLOptions(
+            // LKQL specific options
             EngineMode.valueOf(jsonLKQLOptions.getString("engineMode")),
             jsonLKQLOptions.getBoolean("verbose"),
+            jsonLKQLOptions.getBoolean("checkerDebug"),
+            DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")),
             Optional.ofNullable(jsonLKQLOptions.optString("charset", null)),
-            Optional.ofNullable(jsonLKQLOptions.optString("projectFile", null)),
-            Optional.ofNullable(jsonLKQLOptions.optString("subprojectFile", null)),
-            Optional.ofNullable(jsonLKQLOptions.optString("runtime", null)),
-            Optional.ofNullable(jsonLKQLOptions.optString("target", null)),
-            Optional.ofNullable(jsonLKQLOptions.optString("configFile", null)),
-            JSONUtils.parseStringMap(jsonLKQLOptions.getJSONObject("scenarioVariables")),
             jsonLKQLOptions
                 .getJSONArray("files")
                 .toList()
@@ -119,11 +155,43 @@ public record LKQLOptions(
                 .map(e -> (String) e)
                 .toList(),
             ruleInstances,
-            jsonLKQLOptions.getBoolean("checkerDebug"),
             jsonLKQLOptions.getBoolean("fallbackToAllRules"),
             jsonLKQLOptions.getBoolean("missingFileIsError"),
             jsonLKQLOptions.getBoolean("showInstantiationChain"),
-            DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode"))
+            // GPR options
+            jsonLKQLOptions
+                .getJSONArray("additionalProjectPaths")
+                .toList()
+                .stream()
+                .map(e -> (String) e)
+                .toList(),
+            Optional.ofNullable(jsonLKQLOptions.optString("autoconf", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("configFile", null)),
+            jsonLKQLOptions
+                .getJSONArray("additionalKnowledgeBases")
+                .toList()
+                .stream()
+                .map(e -> (String) e)
+                .toList(),
+            jsonLKQLOptions.getBoolean("skipStandardKnowledgeBase"),
+            jsonLKQLOptions
+                .getJSONArray("implicitWiths")
+                .toList()
+                .stream()
+                .map(e -> (String) e)
+                .toList(),
+            jsonLKQLOptions.getBoolean("followSymlinks"),
+            jsonLKQLOptions.getBoolean("noProject"),
+            Optional.ofNullable(jsonLKQLOptions.optString("projectFile", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("subprojectFile", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("rootDir", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("relocateBuildTree", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("adaRuntime", null)),
+            JSONUtils.parseStringMap(jsonLKQLOptions.getJSONObject("runtimes")),
+            Optional.ofNullable(jsonLKQLOptions.optString("srcSubdirs", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("subdirs", null)),
+            Optional.ofNullable(jsonLKQLOptions.optString("target", null)),
+            JSONUtils.parseStringMap(jsonLKQLOptions.getJSONObject("scenarioVariables"))
         );
     }
 
@@ -142,25 +210,38 @@ public record LKQLOptions(
                 .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
         );
+
         return new JSONObject()
             .put("engineMode", engineMode.toString())
             .put("verbose", verbose)
+            .put("checkerDebug", checkerDebug)
+            .put("diagnosticOutputMode", diagnosticOutputMode.toString())
             .put("charset", charset.orElse(null))
-            .put("projectFile", projectFile.orElse(null))
-            .put("subprojectFile", subprojectFile.orElse(null))
-            .put("runtime", runtime.orElse(null))
-            .put("target", target.orElse(null))
-            .put("configFile", configFile.orElse(null))
-            .put("scenarioVariables", new JSONObject(scenarioVariables))
             .put("files", new JSONArray(files))
             .put("ignores", new JSONArray(ignores))
             .put("rulesDirs", new JSONArray(rulesDirs))
             .put("ruleInstances", ruleInstancesJson)
-            .put("checkerDebug", checkerDebug)
             .put("fallbackToAllRules", fallbackToAllRules)
             .put("missingFileIsError", missingFileIsError)
             .put("showInstantiationChain", showInstantiationChain)
-            .put("diagnosticOutputMode", diagnosticOutputMode.toString());
+            .put("additionalProjectPaths", new JSONArray(additionalProjectPaths))
+            .put("autoconf", autoconf.orElse(null))
+            .put("configFile", configFile.orElse(null))
+            .put("additionalKnowledgeBases", new JSONArray(additionalKnowledgeBases))
+            .put("skipStandardKnowledgeBase", skipStandardKnowledgeBase)
+            .put("implicitWiths", new JSONArray(implicitWiths))
+            .put("followSymlinks", followSymlinks)
+            .put("noProject", noProject)
+            .put("projectFile", projectFile.orElse(null))
+            .put("subprojectFile", subprojectFile.orElse(null))
+            .put("rootDir", rootDir.orElse(null))
+            .put("relocateBuildTree", relocateBuildTree.orElse(null))
+            .put("adaRuntime", adaRuntime.orElse(null))
+            .put("runtimes", new JSONObject(runtimes))
+            .put("srcSubdirs", srcSubdirs.orElse(null))
+            .put("subdirs", subdirs.orElse(null))
+            .put("target", target.orElse(null))
+            .put("scenarioVariables", new JSONObject(scenarioVariables));
     }
 
     // ----- Inner classes -----
@@ -191,26 +272,43 @@ public record LKQLOptions(
 
         // ----- Options -----
 
+        // LKQL specific options
         private EngineMode engineMode = EngineMode.INTERPRETER;
         private boolean verbose = false;
+        private boolean checkerDebug = false;
+        private DiagnosticOutputMode diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
         private Optional<String> charset = Optional.empty();
-        private Optional<String> projectFile = Optional.empty();
-        private Optional<String> subprojectFile = Optional.empty();
-        private Optional<String> runtime = Optional.empty();
-        private Optional<String> target = Optional.empty();
-        private Optional<String> configFile = Optional.empty();
-        private Map<String, String> scenarioVariables = new HashMap<>();
         private List<String> files = new ArrayList<>();
         private List<String> ignores = new ArrayList<>();
         private List<String> rulesDirs = new ArrayList<>();
         private Map<String, RuleInstance> ruleInstances = new HashMap<>();
-        private boolean checkerDebug = false;
         private boolean fallbackToAllRules = false;
         private boolean missingFileIsError = false;
         private boolean showInstantiationChain = false;
-        private DiagnosticOutputMode diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
+
+        // GPR options
+        private List<String> additionalProjectPaths = new ArrayList<>();
+        private Optional<String> autoconf = Optional.empty();
+        private Optional<String> configFile = Optional.empty();
+        private List<String> additionalKnowledgeBases = new ArrayList<>();
+        private boolean skipStandardKnowledgeBase = false;
+        private List<String> implicitWiths = new ArrayList<>();
+        private boolean followSymlinks = false;
+        private boolean noProject = false;
+        private Optional<String> projectFile = Optional.empty();
+        private Optional<String> subprojectFile = Optional.empty();
+        private Optional<String> rootDir = Optional.empty();
+        private Optional<String> relocateBuildTree = Optional.empty();
+        private Optional<String> adaRuntime = Optional.empty();
+        private Map<String, String> runtimes = new HashMap<>();
+        private Optional<String> srcSubdirs = Optional.empty();
+        private Optional<String> subdirs = Optional.empty();
+        private Optional<String> target = Optional.empty();
+        private Map<String, String> scenarioVariables = new HashMap<>();
 
         // ----- Setters -----
+
+        // --- LKQL specific options
 
         public Builder engineMode(EngineMode em) {
             engineMode = em;
@@ -222,38 +320,18 @@ public record LKQLOptions(
             return this;
         }
 
+        public Builder checkerDebug(boolean cd) {
+            checkerDebug = cd;
+            return this;
+        }
+
+        public Builder diagnosticOutputMode(DiagnosticOutputMode dom) {
+            diagnosticOutputMode = dom;
+            return this;
+        }
+
         public Builder charset(String c) {
             charset = Optional.ofNullable(c);
-            return this;
-        }
-
-        public Builder projectFile(String pf) {
-            projectFile = Optional.ofNullable(pf);
-            return this;
-        }
-
-        public Builder subprojectFile(String spf) {
-            subprojectFile = Optional.ofNullable((spf));
-            return this;
-        }
-
-        public Builder runtime(String r) {
-            runtime = Optional.ofNullable(r);
-            return this;
-        }
-
-        public Builder target(String t) {
-            target = Optional.ofNullable(t);
-            return this;
-        }
-
-        public Builder configFile(String cf) {
-            configFile = Optional.ofNullable(cf);
-            return this;
-        }
-
-        public Builder scenarioVariables(Map<String, String> sv) {
-            scenarioVariables = sv;
             return this;
         }
 
@@ -282,11 +360,6 @@ public record LKQLOptions(
             return this;
         }
 
-        public Builder checkerDebug(boolean cd) {
-            checkerDebug = cd;
-            return this;
-        }
-
         public Builder fallbackToAllRules(boolean fbtar) {
             fallbackToAllRules = fbtar;
             return this;
@@ -302,8 +375,95 @@ public record LKQLOptions(
             return this;
         }
 
-        public Builder diagnosticOutputMode(DiagnosticOutputMode dom) {
-            diagnosticOutputMode = dom;
+        // --- GPR options
+
+        public Builder additionalProjectPaths(List<String> app) {
+            additionalProjectPaths = app;
+            return this;
+        }
+
+        public Builder autoconf(String ac) {
+            autoconf = Optional.ofNullable(ac);
+            return this;
+        }
+
+        public Builder configFile(String cf) {
+            configFile = Optional.ofNullable(cf);
+            return this;
+        }
+
+        public Builder additionalKnowledgeBases(List<String> akb) {
+            additionalKnowledgeBases = akb;
+            return this;
+        }
+
+        public Builder skipStandardKnowledgeBase(boolean sskb) {
+            skipStandardKnowledgeBase = sskb;
+            return this;
+        }
+
+        public Builder implicitWiths(List<String> iw) {
+            implicitWiths = iw;
+            return this;
+        }
+
+        public Builder followSymlinks(boolean fs) {
+            followSymlinks = fs;
+            return this;
+        }
+
+        public Builder noProject(boolean np) {
+            noProject = np;
+            return this;
+        }
+
+        public Builder projectFile(String pf) {
+            projectFile = Optional.ofNullable(pf);
+            return this;
+        }
+
+        public Builder subprojectFile(String spf) {
+            subprojectFile = Optional.ofNullable((spf));
+            return this;
+        }
+
+        public Builder rootDir(String rd) {
+            rootDir = Optional.ofNullable(rd);
+            return this;
+        }
+
+        public Builder relocateBuildTree(String rbt) {
+            relocateBuildTree = Optional.ofNullable(rbt);
+            return this;
+        }
+
+        public Builder adaRuntime(String ar) {
+            adaRuntime = Optional.ofNullable(ar);
+            return this;
+        }
+
+        public Builder runtimes(Map<String, String> r) {
+            runtimes = r;
+            return this;
+        }
+
+        public Builder srcSubdirs(String ss) {
+            srcSubdirs = Optional.ofNullable(ss);
+            return this;
+        }
+
+        public Builder subdirs(String s) {
+            subdirs = Optional.ofNullable(s);
+            return this;
+        }
+
+        public Builder target(String t) {
+            target = Optional.ofNullable(t);
+            return this;
+        }
+
+        public Builder scenarioVariables(Map<String, String> sv) {
+            scenarioVariables = sv;
             return this;
         }
 
@@ -313,22 +473,34 @@ public record LKQLOptions(
             return new LKQLOptions(
                 engineMode,
                 verbose,
+                checkerDebug,
+                diagnosticOutputMode,
                 charset,
-                projectFile,
-                subprojectFile,
-                runtime,
-                target,
-                configFile,
-                scenarioVariables,
                 files,
                 ignores,
                 rulesDirs,
                 ruleInstances,
-                checkerDebug,
                 fallbackToAllRules,
                 missingFileIsError,
                 showInstantiationChain,
-                diagnosticOutputMode
+                additionalProjectPaths,
+                autoconf,
+                configFile,
+                additionalKnowledgeBases,
+                skipStandardKnowledgeBase,
+                implicitWiths,
+                followSymlinks,
+                noProject,
+                projectFile,
+                subprojectFile,
+                rootDir,
+                relocateBuildTree,
+                adaRuntime,
+                runtimes,
+                srcSubdirs,
+                subdirs,
+                target,
+                scenarioVariables
             );
         }
     }

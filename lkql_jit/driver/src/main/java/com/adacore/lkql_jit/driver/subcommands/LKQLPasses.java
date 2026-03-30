@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
@@ -74,14 +73,12 @@ public class LKQLPasses extends BaseSubcommand {
         contextBuilder.allowIO(IOAccess.ALL).logHandler(logHandler);
 
         // Forward the command line options to the options builder
-        final var optionsBuilder = new LKQLOptions.Builder()
+        var optionsBuilder = new LKQLOptions.Builder()
             .engineMode(LKQLOptions.EngineMode.INTERPRETER)
             .verbose(this.args.verbose)
-            .projectFile(this.args.project)
-            .target(this.args.target)
-            .runtime(this.args.RTS)
             .files(this.args.files)
             .charset(this.args.charset);
+        this.args.fillGPROptions(optionsBuilder);
 
         // Finally, pass the options to the LKQL engine
         contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
@@ -113,7 +110,7 @@ public class LKQLPasses extends BaseSubcommand {
         name = "run-passes",
         description = "Run the LKQL interpreter on a given script (nanopass mode)"
     )
-    public static class Args implements Callable<Integer> {
+    public static class Args extends GPRArgs {
 
         @CommandLine.Spec
         public CommandLine.Model.CommandSpec spec;
@@ -126,22 +123,6 @@ public class LKQLPasses extends BaseSubcommand {
             description = "Charset to use for the source decoding"
         )
         public String charset = null;
-
-        @CommandLine.Option(names = { "-P", "--project" }, description = "Project file to use")
-        public String project = null;
-
-        @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
-        public String RTS = null;
-
-        @CommandLine.Option(names = "--target", description = "Hardware target to pass to GPR")
-        public String target = null;
-
-        @CommandLine.Option(
-            names = { "-U", "--recursive" },
-            description = "Process all units in the project tree, excluding externally built" +
-                " projects"
-        )
-        public boolean recursive;
 
         @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
         public boolean verbose;
