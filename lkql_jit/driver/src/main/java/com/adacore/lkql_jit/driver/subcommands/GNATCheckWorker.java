@@ -23,7 +23,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
-import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.*;
 import org.graalvm.polyglot.io.IOAccess;
@@ -35,7 +34,7 @@ import picocli.CommandLine;
  *
  * @author Romain BEGUET
  */
-public class GNATCheckWorker extends AbstractLanguageLauncher {
+public class GNATCheckWorker extends BaseSubcommand {
 
     // ----- Attributes -----
 
