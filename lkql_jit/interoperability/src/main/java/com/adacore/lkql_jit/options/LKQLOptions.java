@@ -13,6 +13,41 @@ import org.json.JSONObject;
 /**
  * This record contains all options to tune the LKQL engine. It is serializable and deserializable
  * using the JSON format.
+ * If you want to create an instance of this class, please use the {@link Builder} builder class.
+ *
+ * @param engineMode In which mode the engine should run.
+ * @param verbose Whether the engine should display additional information about the execution
+ *                process.
+ * @param checkerDebug Whether the debug mode should be enabled for the checker process.
+ * @param diagnosticOutputMode The format diagnostics should be output in.
+ * @param charset Charset to use to decode sources.
+ * @param files Explicit list of files to analyze.
+ * @param ignores Explicit list of files to exclude from the analysis.
+ * @param rulesDirs Directories to fetch LKQL rules from.
+ * @param ruleInstances All rule instances to execute during the checking process.
+ * @param fallbackToAllRules If no instance have been provided, whether to execute all known rules.
+ * @param missingFileIsError If a file is missing from the analysis, whether to consider this event
+ *                           as an error.
+ * @param showInstantiationChain Show instantiation chains when a rule violation is raised inside an
+ *                               Ada generic instantiation.
+ * @param additionalProjectPaths Directories to search GPR projects in.
+ * @param autoconf Autoconf option to forward to GPR2.
+ * @param configFile Config file to forward to GPR2.
+ * @param additionalKnowledgeBases Additional Ada knowledge bases.
+ * @param skipStandardKnowledgeBase Do not process the standard Ada knowledge base.
+ * @param implicitWiths Projects to consider as "withed" by analyzed sources.
+ * @param followSymlinks Whether to follow symbolic links when loading the GPR project.
+ * @param noProject If true, do not try to load a GPR project.
+ * @param projectFile The GPR project file to load.
+ * @param subprojectFile Name of the subproject to analyze.
+ * @param rootDir Root directory to forward to GPR2.
+ * @param relocateBuildTree Relocate build tree to forward to GPR2.
+ * @param adaRuntime Runtime to use to analyze Ada sources.
+ * @param runtimes Additional runtimes.
+ * @param srcSubdirs Source subdirs to forward to GPR2.
+ * @param subdirs Subdirs to forward to GPR2.
+ * @param target Target to use when loading a GPR project.
+ * @param scenarioVariables Scenario variables to forward to GPR2 when loading a project.
  */
 public record LKQLOptions(
     // LKQL specific options
