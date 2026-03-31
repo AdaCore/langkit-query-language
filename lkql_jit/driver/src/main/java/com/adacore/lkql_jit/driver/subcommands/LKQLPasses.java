@@ -29,6 +29,9 @@ public class LKQLPasses extends BaseSubcommand {
     // ----- Attributes -----
 
     @CommandLine.Mixin
+    EngineArgs engineArgs;
+
+    @CommandLine.Mixin
     GPRArgs gprArgs;
 
     @CommandLine.Spec
@@ -36,15 +39,6 @@ public class LKQLPasses extends BaseSubcommand {
 
     @CommandLine.Parameters(description = "Files to analyze")
     public List<String> files = new ArrayList<>();
-
-    @CommandLine.Option(
-        names = { "-C", "--charset" },
-        description = "Charset to use for the source decoding"
-    )
-    public String charset;
-
-    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-    public boolean verbose;
 
     @CommandLine.Option(
         names = { "-S", "--script-path" },
@@ -108,9 +102,8 @@ public class LKQLPasses extends BaseSubcommand {
         // Forward the command line options to the options builder
         var optionsBuilder = new LKQLOptions.Builder()
             .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .verbose(verbose)
-            .files(files)
-            .charset(charset);
+            .files(files);
+        engineArgs.fillEngineOptions(optionsBuilder);
         gprArgs.fillGPROptions(optionsBuilder);
 
         // Finally, pass the options to the LKQL engine

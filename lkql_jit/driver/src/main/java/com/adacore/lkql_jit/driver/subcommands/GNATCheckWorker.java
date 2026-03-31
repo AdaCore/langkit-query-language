@@ -38,6 +38,9 @@ public class GNATCheckWorker extends BaseSubcommand {
     // ----- Attributes -----
 
     @CommandLine.Mixin
+    EngineArgs engineArgs;
+
+    @CommandLine.Mixin
     GPRArgs gprArgs;
 
     @CommandLine.Option(
@@ -47,15 +50,6 @@ public class GNATCheckWorker extends BaseSubcommand {
             " other features are disabled."
     )
     public String lkqlConfigFile;
-
-    @CommandLine.Option(
-        names = { "-C", "--charset" },
-        description = "Charset to use for the source decoding"
-    )
-    public String charset;
-
-    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-    public boolean verbose;
 
     @CommandLine.Option(
         names = "-A",
@@ -147,7 +141,7 @@ public class GNATCheckWorker extends BaseSubcommand {
         // If a LKQL rule config file has been provided, parse it and display the result
         if (lkqlConfigFile != null) {
             try {
-                final var instances = parseLKQLRuleFile(lkqlConfigFile, verbose);
+                final var instances = parseLKQLRuleFile(lkqlConfigFile, engineArgs.verbose);
                 final var jsonInstances = new JSONObject(
                     instances
                         .entrySet()
@@ -166,15 +160,15 @@ public class GNATCheckWorker extends BaseSubcommand {
         final var optionsBuilder = new LKQLOptions.Builder()
             .engineMode(LKQLOptions.EngineMode.CHECKER)
             .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
-            .fallbackToAllRules(false)
-            .missingFileIsError(false)
-            .verbose(verbose)
             .subprojectFile(subProject)
-            .charset(charset)
             .rulesDir(rulesDirs)
             .showInstantiationChain(showInstantiationChain)
             .checkerDebug(debug);
+        engineArgs.fillEngineOptions(optionsBuilder);
         gprArgs.fillGPROptions(optionsBuilder);
+
+        // Force some configuration
+        optionsBuilder.missingFileIsError(false).fallbackToAllRules(false);
 
         // Set the common configuration
         contextBuilder.allowIO(IOAccess.ALL);
@@ -199,7 +193,7 @@ public class GNATCheckWorker extends BaseSubcommand {
         for (var rulesFrom : rulesFroms) {
             if (!rulesFrom.isEmpty()) {
                 try {
-                    instances.putAll(parseLKQLRuleFile(rulesFrom, verbose));
+                    instances.putAll(parseLKQLRuleFile(rulesFrom, engineArgs.verbose));
                 } catch (LKQLRuleFileError e) {
                     System.out.println(e.getMessage());
                     return 0;

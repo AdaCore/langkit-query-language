@@ -42,13 +42,13 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
     // ----- Attributes -----
 
     @CommandLine.Mixin
+    EngineArgs engineArgs;
+
+    @CommandLine.Mixin
     GPRArgs gprArgs;
 
     @CommandLine.Spec
     public picocli.CommandLine.Model.CommandSpec spec;
-
-    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-    public boolean verbose;
 
     @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
     public boolean debug;
@@ -69,12 +69,6 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
         description = "Files to ignore during analysis"
     )
     public List<String> ignores = new ArrayList<>();
-
-    @CommandLine.Option(
-        names = { "-C", "--charset" },
-        description = "Charset to use for the source decoding"
-    )
-    public String charset;
 
     @CommandLine.Option(
         names = "--rules-dir",
@@ -101,12 +95,6 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
         description = "Provide an LKQL rule file to configure rule instances"
     )
     public Path ruleFile;
-
-    @CommandLine.Option(
-        names = "--missing-file-is-error",
-        description = "Consider and log missing files as errors"
-    )
-    public Boolean missingFileIsError = false;
 
     @CommandLine.Unmatched
     public List<String> unmatched = new ArrayList<>();
@@ -160,11 +148,9 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
         // Create the option object for the context builder
         var optionsBuilder = new LKQLOptions.Builder()
             .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .verbose(verbose)
             .files(files)
-            .ignores(ignores)
-            .charset(charset)
-            .missingFileIsError(missingFileIsError);
+            .ignores(ignores);
+        engineArgs.fillEngineOptions(optionsBuilder);
         gprArgs.fillGPROptions(optionsBuilder);
 
         // Configure the execution context

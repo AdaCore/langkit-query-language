@@ -42,6 +42,32 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
 
     // ----- Inner classes -----
 
+    /**
+     * This class defines all "common" CLI arguments that all LKQL subcommands which wraps the LKQL
+     * engine should accept.
+     */
+    public static class EngineArgs {
+
+        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
+        public boolean verbose;
+
+        @CommandLine.Option(
+            names = { "-C", "--charset" },
+            description = "Charset to use for the source decoding"
+        )
+        public String charset;
+
+        @CommandLine.Option(
+            names = "--missing-file-is-error",
+            description = "Consider and log missing files as errors"
+        )
+        public Boolean missingFileIsError = false;
+
+        public void fillEngineOptions(LKQLOptions.Builder optionsBuilder) {
+            optionsBuilder.verbose(verbose).charset(charset).missingFileIsError(missingFileIsError);
+        }
+    }
+
     /** This class defines all CLI arguments dedicated to GPR related argument parsing. */
     public static class GPRArgs {
 
