@@ -208,7 +208,6 @@ public abstract class BaseLKQLChecker extends BaseSubcommand {
             if (instantiatedRule.isPresent()) {
                 res.add(
                     new RuleInstance(
-                        context,
                         instantiatedRule.get(),
                         Optional.empty(),
                         RuleInstance.SourceMode.GENERAL,
