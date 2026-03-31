@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import picocli.CommandLine;
 
-public abstract class BaseSubcommand extends AbstractLanguageLauncher {
+public abstract class BaseSubcommand extends AbstractLanguageLauncher implements Callable<Integer> {
 
     // ----- Attributes -----
 
@@ -43,7 +43,7 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher {
     // ----- Inner classes -----
 
     /** This class defines all CLI arguments dedicated to GPR related argument parsing. */
-    public abstract static class GPRArgs implements Callable<Integer> {
+    public static class GPRArgs {
 
         @CommandLine.Option(
             names = { "-aP" },

@@ -29,24 +29,63 @@ import picocli.CommandLine;
  * This class is the LKQL launcher, this will handle all execution request coming from the command
  * line.
  */
+@CommandLine.Command(name = "run", description = "Run the LKQL interpreter on a given script")
 public class LKQLRun extends BaseSubcommand {
 
     // ----- Attributes -----
 
-    private final Args args;
+    @CommandLine.Mixin
+    GPRArgs gprArgs;
+
+    @CommandLine.Spec
+    public CommandLine.Model.CommandSpec spec;
+
+    @CommandLine.Parameters(description = "Files to analyze")
+    public List<String> files = new ArrayList<>();
+
+    @CommandLine.Option(
+        names = { "-C", "--charset" },
+        description = "Charset to use for the source decoding"
+    )
+    public String charset;
+
+    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
+    public boolean verbose;
+
+    @CommandLine.Option(
+        names = { "-S", "--script-path" },
+        description = "The LKQL script to execute"
+    )
+    public String script;
+
+    @CommandLine.Option(names = { "-i", "--interactive" }, description = "Run a REPL")
+    public boolean interactive;
+
+    @CommandLine.Option(
+        names = "--missing-file-is-error",
+        description = "Consider and log missing files as errors"
+    )
+    public Boolean missingFileIsError = false;
+
+    @CommandLine.Unmatched
+    public List<String> unmatched = new ArrayList<>();
 
     // ----- Constructors -----
 
-    public LKQLRun(Args args) {
-        this.args = args;
-    }
+    public LKQLRun() {}
 
-    // ----- Launcher methods -----
+    // ----- Instance methods -----
+
+    @Override
+    public Integer call() {
+        launch(unmatched.toArray(new String[0]));
+        return 0;
+    }
 
     /** Display the help message for the LKQL language. */
     @Override
     protected void printHelp(OptionCategory maxCategory) {
-        this.args.spec.commandLine().usage(this.args.spec.commandLine().getOut());
+        spec.commandLine().usage(spec.commandLine().getOut());
     }
 
     /** Simply return the language id. */
@@ -64,7 +103,7 @@ public class LKQLRun extends BaseSubcommand {
         List<String> arguments,
         Map<String, String> polyglotOptions
     ) {
-        return args.unmatched;
+        return unmatched;
     }
 
     /** The entry point of the launcher with the context builder. */
@@ -84,11 +123,11 @@ public class LKQLRun extends BaseSubcommand {
         // Forward the command line options to the options builder
         var optionsBuilder = new LKQLOptions.Builder()
             .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .verbose(this.args.verbose)
-            .missingFileIsError(this.args.missingFileIsError)
-            .files(this.args.files)
-            .charset(this.args.charset);
-        this.args.fillGPROptions(optionsBuilder);
+            .verbose(verbose)
+            .missingFileIsError(missingFileIsError)
+            .files(files)
+            .charset(charset);
+        gprArgs.fillGPROptions(optionsBuilder);
 
         // Finally, pass the options to the LKQL engine
         contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
@@ -97,11 +136,8 @@ public class LKQLRun extends BaseSubcommand {
         try (Context context = contextBuilder.build()) {
             // If a script has been provided, run it and handle possible exceptions
             try {
-                if (this.args.script != null) {
-                    Source source = Source.newBuilder(
-                        Constants.LKQL_ID,
-                        new File(this.args.script)
-                    ).build();
+                if (script != null) {
+                    Source source = Source.newBuilder(Constants.LKQL_ID, new File(script)).build();
                     context.eval(source);
                 }
             } catch (PolyglotException e) {
@@ -116,7 +152,7 @@ public class LKQLRun extends BaseSubcommand {
             diagnostics.clear();
 
             // Then, if the user required an interactive session, start it
-            if (this.args.interactive) {
+            if (interactive) {
                 LineReader reader = LineReaderBuilder.builder()
                     .terminal(TerminalBuilder.builder().system(true).dumb(true).build())
                     .build();
@@ -144,53 +180,8 @@ public class LKQLRun extends BaseSubcommand {
             // Finally return the success exit code
             return 0;
         } catch (IOException e) {
-            System.err.println("File not found : " + this.args.script);
+            System.err.println("File not found : " + script);
             return 2;
-        }
-    }
-
-    // ----- Inner classes -----
-
-    @CommandLine.Command(name = "run", description = "Run the LKQL interpreter on a given script")
-    public static class Args extends GPRArgs {
-
-        @CommandLine.Spec
-        public CommandLine.Model.CommandSpec spec;
-
-        @CommandLine.Parameters(description = "Files to analyze")
-        public List<String> files = new ArrayList<>();
-
-        @CommandLine.Option(
-            names = { "-C", "--charset" },
-            description = "Charset to use for the source decoding"
-        )
-        public String charset = null;
-
-        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-        public boolean verbose;
-
-        @CommandLine.Option(
-            names = { "-S", "--script-path" },
-            description = "The LKQL script to execute"
-        )
-        public String script = null;
-
-        @CommandLine.Option(names = { "-i", "--interactive" }, description = "Run a REPL")
-        public boolean interactive;
-
-        @CommandLine.Option(
-            names = "--missing-file-is-error",
-            description = "Consider and log missing files as errors"
-        )
-        public Boolean missingFileIsError = false;
-
-        @CommandLine.Unmatched
-        public List<String> unmatched = new ArrayList<>();
-
-        @Override
-        public Integer call() {
-            new LKQLRun(this).launch(unmatched.toArray(new String[0]));
-            return 0;
         }
     }
 }

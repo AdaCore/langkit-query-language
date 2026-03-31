@@ -20,24 +20,57 @@ import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.io.IOAccess;
 import picocli.CommandLine;
 
+@CommandLine.Command(
+    name = "run-passes",
+    description = "Run the LKQL interpreter on a given script (nanopass mode)"
+)
 public class LKQLPasses extends BaseSubcommand {
 
     // ----- Attributes -----
 
-    private final Args args;
+    @CommandLine.Mixin
+    GPRArgs gprArgs;
+
+    @CommandLine.Spec
+    public CommandLine.Model.CommandSpec spec;
+
+    @CommandLine.Parameters(description = "Files to analyze")
+    public List<String> files = new ArrayList<>();
+
+    @CommandLine.Option(
+        names = { "-C", "--charset" },
+        description = "Charset to use for the source decoding"
+    )
+    public String charset;
+
+    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
+    public boolean verbose;
+
+    @CommandLine.Option(
+        names = { "-S", "--script-path" },
+        description = "The LKQL script to execute"
+    )
+    public String script;
+
+    @CommandLine.Unmatched
+    public List<String> unmatched = new ArrayList<>();
 
     // ----- Constructors -----
 
-    public LKQLPasses(Args args) {
-        this.args = args;
-    }
+    public LKQLPasses() {}
 
     // ----- Launcher methods -----
+
+    @Override
+    public Integer call() {
+        launch(unmatched.toArray(new String[0]));
+        return 0;
+    }
 
     /** Display the help message for the LKQL language. */
     @Override
     protected void printHelp(OptionCategory maxCategory) {
-        this.args.spec.commandLine().usage(this.args.spec.commandLine().getOut());
+        spec.commandLine().usage(spec.commandLine().getOut());
     }
 
     /** Simply return the language id. */
@@ -55,7 +88,7 @@ public class LKQLPasses extends BaseSubcommand {
         List<String> arguments,
         Map<String, String> polyglotOptions
     ) {
-        return args.unmatched;
+        return unmatched;
     }
 
     /** The entry point of the launcher with the context builder. */
@@ -75,10 +108,10 @@ public class LKQLPasses extends BaseSubcommand {
         // Forward the command line options to the options builder
         var optionsBuilder = new LKQLOptions.Builder()
             .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .verbose(this.args.verbose)
-            .files(this.args.files)
-            .charset(this.args.charset);
-        this.args.fillGPROptions(optionsBuilder);
+            .verbose(verbose)
+            .files(files)
+            .charset(charset);
+        gprArgs.fillGPROptions(optionsBuilder);
 
         // Finally, pass the options to the LKQL engine
         contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
@@ -86,11 +119,8 @@ public class LKQLPasses extends BaseSubcommand {
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
             try {
-                if (this.args.script != null) {
-                    Source source = Source.newBuilder(
-                        Constants.LKQL_ID,
-                        new File(this.args.script)
-                    ).build();
+                if (script != null) {
+                    Source source = Source.newBuilder(Constants.LKQL_ID, new File(script)).build();
                     context.eval(source);
                 }
             } catch (PolyglotException e) {
@@ -99,47 +129,8 @@ public class LKQLPasses extends BaseSubcommand {
             }
             return 0;
         } catch (IOException e) {
-            System.err.println("File not found : " + this.args.script);
+            System.err.println("File not found : " + script);
             return 2;
-        }
-    }
-
-    // ----- Inner classes -----
-
-    @CommandLine.Command(
-        name = "run-passes",
-        description = "Run the LKQL interpreter on a given script (nanopass mode)"
-    )
-    public static class Args extends GPRArgs {
-
-        @CommandLine.Spec
-        public CommandLine.Model.CommandSpec spec;
-
-        @CommandLine.Parameters(description = "Files to analyze")
-        public List<String> files = new ArrayList<>();
-
-        @CommandLine.Option(
-            names = { "-C", "--charset" },
-            description = "Charset to use for the source decoding"
-        )
-        public String charset = null;
-
-        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-        public boolean verbose;
-
-        @CommandLine.Option(
-            names = { "-S", "--script-path" },
-            description = "The LKQL script to execute"
-        )
-        public String script = null;
-
-        @CommandLine.Unmatched
-        public List<String> unmatched = new ArrayList<>();
-
-        @Override
-        public Integer call() {
-            new LKQLPasses(this).launch(unmatched.toArray(new String[0]));
-            return 0;
         }
     }
 }

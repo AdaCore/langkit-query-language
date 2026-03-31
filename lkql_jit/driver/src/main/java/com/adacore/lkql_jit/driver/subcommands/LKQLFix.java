@@ -17,47 +17,26 @@ import picocli.CommandLine;
  * This class represents the LKQL fixer entry point. The subcommand "fix" of the LKQL driver is
  * mainly used to test auto-fixing functions defined on GNATcheck rules.
  */
+@CommandLine.Command(
+    name = "fix",
+    description = "Fixer driver, to apply LKQL defined auto-fixes to sources. In this mode, you" +
+        " can only enable rules that defines an auto-fixing function."
+)
 public class LKQLFix extends BaseCheckerSubcommand {
 
-    // ---- Subcommand spec -----
+    // ---- Attributes -----
 
-    /** This class defines the "fix" LKQL subcommand. */
-    @CommandLine.Command(
-        name = "fix",
-        description = "Fixer driver, to apply LKQL defined auto-fixes to sources. In this mode, you" +
-            " can only enable rules that defines an auto-fixing function."
+    @CommandLine.Option(
+        names = { "--auto-fix-mode" },
+        description = "Mode to apply auto fixes (default is DISPLAY)" +
+            "%nPossible values: ${COMPLETION-CANDIDATES}",
+        completionCandidates = AutoFixModeCompletion.class
     )
-    public static class Args extends BaseCheckerSubcommand.Args {
-
-        @CommandLine.Option(
-            names = { "--auto-fix-mode" },
-            description = "Mode to apply auto fixes (default is DISPLAY)" +
-                "%nPossible values: ${COMPLETION-CANDIDATES}",
-            completionCandidates = AutoFixModeCompletion.class
-        )
-        public CheckerRun.AutoFixMode autoFixMode = CheckerRun.AutoFixMode.DISPLAY;
-
-        @Override
-        public Integer call() {
-            new LKQLFix(this).launch(this.unmatched.toArray(new String[0]));
-            return 0;
-        }
-    }
-
-    /** Utility class to provide auto-complete for the auto-fix mode. */
-    public static class AutoFixModeCompletion implements Iterable<String> {
-
-        @Override
-        public Iterator<String> iterator() {
-            return Arrays.stream(CheckerRun.AutoFixMode.values()).map(Object::toString).iterator();
-        }
-    }
+    public CheckerRun.AutoFixMode autoFixMode = CheckerRun.AutoFixMode.DISPLAY;
 
     // ----- Constructors -----
 
-    public LKQLFix(LKQLFix.Args args) {
-        super(args);
-    }
+    public LKQLFix() {}
 
     // ----- Instance methods -----
 
@@ -82,6 +61,17 @@ public class LKQLFix extends BaseCheckerSubcommand {
 
     @Override
     protected CheckerRun.AutoFixMode getAutoFixMode() {
-        return ((Args) args).autoFixMode;
+        return autoFixMode;
+    }
+
+    // ----- Inner classes -----
+
+    /** Utility class to provide auto-complete for the auto-fix mode. */
+    public static class AutoFixModeCompletion implements Iterable<String> {
+
+        @Override
+        public Iterator<String> iterator() {
+            return Arrays.stream(CheckerRun.AutoFixMode.values()).map(Object::toString).iterator();
+        }
     }
 }

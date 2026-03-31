@@ -41,15 +41,80 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
 
     // ----- Attributes -----
 
-    /** Parsed arguments from the command-line. */
-    protected Args args;
+    @CommandLine.Mixin
+    GPRArgs gprArgs;
+
+    @CommandLine.Spec
+    public picocli.CommandLine.Model.CommandSpec spec;
+
+    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
+    public boolean verbose;
+
+    @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
+    public boolean debug;
+
+    @CommandLine.Option(
+        names = { "-f", "--format" },
+        description = "Select the output format (default is TEXT)" +
+            "%nPossible values: ${COMPLETION-CANDIDATES}",
+        completionCandidates = ReportFormat.Completion.class
+    )
+    public ReportFormat reportFormat = ReportFormat.TEXT;
+
+    @CommandLine.Parameters(description = "Files to analyze")
+    public List<String> files = new ArrayList<>();
+
+    @CommandLine.Option(
+        names = { "-I", "--ignores" },
+        description = "Files to ignore during analysis"
+    )
+    public List<String> ignores = new ArrayList<>();
+
+    @CommandLine.Option(
+        names = { "-C", "--charset" },
+        description = "Charset to use for the source decoding"
+    )
+    public String charset;
+
+    @CommandLine.Option(
+        names = "--rules-dir",
+        description = "Additional directories where rules will be sought"
+    )
+    public List<String> rulesDirs = new ArrayList<>();
+
+    @CommandLine.Option(
+        names = { "-r", "--rule" },
+        description = "Rules to run on the provided code base (run all rules if none is " +
+            "provided)"
+    )
+    public List<String> rules = new ArrayList<>();
+
+    @CommandLine.Option(
+        names = { "-a", "--rule-arg" },
+        description = "Argument to pass to a rule, with the syntax" +
+            " <rule_name>.<arg_name>=<arg_value>"
+    )
+    public List<String> rulesArgs = new ArrayList<>();
+
+    @CommandLine.Option(
+        names = { "--rule-file" },
+        description = "Provide an LKQL rule file to configure rule instances"
+    )
+    public Path ruleFile;
+
+    @CommandLine.Option(
+        names = "--missing-file-is-error",
+        description = "Consider and log missing files as errors"
+    )
+    public Boolean missingFileIsError = false;
+
+    @CommandLine.Unmatched
+    public List<String> unmatched = new ArrayList<>();
 
     // ----- Constructors -----
 
     /** Simply initialized arguments. */
-    protected BaseCheckerSubcommand(Args args) {
-        this.args = args;
-    }
+    protected BaseCheckerSubcommand() {}
 
     // ----- Abstract methods -----
 
@@ -63,10 +128,16 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
 
     // ----- Instance methods -----
 
+    @Override
+    public Integer call() throws Exception {
+        launch(unmatched.toArray(new String[0]));
+        return 0;
+    }
+
     /** The help message comes from the defined arguments. */
     @Override
     protected void printHelp(@SuppressWarnings("unused") OptionCategory maxCategory) {
-        args.spec.commandLine().usage(args.spec.commandLine().getOut());
+        spec.commandLine().usage(spec.commandLine().getOut());
     }
 
     @Override
@@ -80,7 +151,7 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
         List<String> arguments,
         @SuppressWarnings("unused") Map<String, String> polyglotOptions
     ) {
-        return this.args.unmatched != null ? this.args.unmatched : List.of();
+        return unmatched != null ? unmatched : List.of();
     }
 
     /** Perform the checking logic and check its exit code. */
@@ -89,12 +160,12 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
         // Create the option object for the context builder
         var optionsBuilder = new LKQLOptions.Builder()
             .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .verbose(this.args.verbose)
-            .files(this.args.files)
-            .ignores(this.args.ignores)
-            .charset(this.args.charset)
-            .missingFileIsError(this.args.missingFileIsError);
-        this.args.fillGPROptions(optionsBuilder);
+            .verbose(verbose)
+            .files(files)
+            .ignores(ignores)
+            .charset(charset)
+            .missingFileIsError(missingFileIsError);
+        gprArgs.fillGPROptions(optionsBuilder);
 
         // Configure the execution context
         contextBuilder
@@ -125,7 +196,7 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
 
             // Create a new checker run with the gathered configuration
             CheckerRun checkerRun = new CheckerRun(
-                args.debug,
+                debug,
                 linesCache,
                 ruleInstances,
                 context,
@@ -136,7 +207,7 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
             checkerRun.start(diagnostics);
 
             // Display all diagnostics in the required format
-            switch (args.reportFormat) {
+            switch (reportFormat) {
                 case TEXT -> diagnostics.createReport(
                     new TextReportCreator(System.out, supportAnsi)
                 );
@@ -144,7 +215,7 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
                     var sarifReport = new SarifSchema210();
                     var sarifReportCreator = new SarifReportCreator(
                         sarifReport,
-                        args.spec.parent().version()[0],
+                        spec.parent().version()[0],
                         ruleInstances,
                         !diagnostics.hasError()
                     );
@@ -166,7 +237,7 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
         List<Path> res = new ArrayList<>();
 
         // Add all CLI provided rules directories
-        for (var rulesDir : this.args.rulesDirs) {
+        for (var rulesDir : rulesDirs) {
             res.add(Paths.get(rulesDir));
         }
 
@@ -182,9 +253,7 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
     /** Get all rule instances to run for the current run. */
     private List<RuleInstance> getRuleInstances(Context context, RuleRepository repository) {
         var res = new ArrayList<>(processCommandLineInstances(context, repository));
-        if (args.ruleFile != null) res.addAll(
-            processLkqlRuleFile(context, repository, args.ruleFile)
-        );
+        if (ruleFile != null) res.addAll(processLkqlRuleFile(context, repository, ruleFile));
         return res;
     }
 
@@ -195,7 +264,7 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
     ) {
         // First, parse the rule arguments in a map
         Map<String, Map<String, Object>> instanceArgs = new HashMap<>();
-        for (var arg : this.args.rulesArgs) {
+        for (var arg : rulesArgs) {
             // Verify that the rule argument is not empty
             if (arg.isBlank()) continue;
 
@@ -238,7 +307,7 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
 
         // Then, parse the provided instances, filling them with the previously parsed arguments
         List<RuleInstance> res = new ArrayList<>();
-        for (String ruleName : this.args.rules) {
+        for (String ruleName : rules) {
             var ruleNameLower = ruleName.toLowerCase();
             var instantiatedRule = repository.getRuleByName(ruleNameLower);
             if (instantiatedRule.isPresent()) {
@@ -454,79 +523,6 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
     /** Internal helper to signal an error in an LKQL rule file. */
     private void errorInRuleFile(Path lkqlRuleFile, String message) {
         diagnostics.add(new Error(lkqlRuleFile.getFileName().toString() + ": " + message));
-    }
-
-    // ----- Inner classes -----
-
-    /** This class defines all common CLI arguments for checker-like subcommands. */
-    public abstract static class Args extends GPRArgs {
-
-        @CommandLine.Spec
-        public picocli.CommandLine.Model.CommandSpec spec;
-
-        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-        public boolean verbose;
-
-        @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
-        public boolean debug;
-
-        @CommandLine.Option(
-            names = { "-f", "--format" },
-            description = "Select the output format (default is TEXT)" +
-                "%nPossible values: ${COMPLETION-CANDIDATES}",
-            completionCandidates = ReportFormat.Completion.class
-        )
-        public ReportFormat reportFormat = ReportFormat.TEXT;
-
-        @CommandLine.Parameters(description = "Files to analyze")
-        public List<String> files = new ArrayList<>();
-
-        @CommandLine.Option(
-            names = { "-I", "--ignores" },
-            description = "Files to ignore during analysis"
-        )
-        public List<String> ignores = new ArrayList<>();
-
-        @CommandLine.Option(
-            names = { "-C", "--charset" },
-            description = "Charset to use for the source decoding"
-        )
-        public String charset = null;
-
-        @CommandLine.Option(
-            names = "--rules-dir",
-            description = "Additional directories where rules will be sought"
-        )
-        public List<String> rulesDirs = new ArrayList<>();
-
-        @CommandLine.Option(
-            names = { "-r", "--rule" },
-            description = "Rules to run on the provided code base (run all rules if none is " +
-                "provided)"
-        )
-        public List<String> rules = new ArrayList<>();
-
-        @CommandLine.Option(
-            names = { "-a", "--rule-arg" },
-            description = "Argument to pass to a rule, with the syntax" +
-                " <rule_name>.<arg_name>=<arg_value>"
-        )
-        public List<String> rulesArgs = new ArrayList<>();
-
-        @CommandLine.Option(
-            names = { "--rule-file" },
-            description = "Provide an LKQL rule file to configure rule instances"
-        )
-        public Path ruleFile;
-
-        @CommandLine.Option(
-            names = "--missing-file-is-error",
-            description = "Consider and log missing files as errors"
-        )
-        public Boolean missingFileIsError = false;
-
-        @CommandLine.Unmatched
-        public List<String> unmatched = new ArrayList<>();
     }
 
     /** Enum used to select the checker output format. */
