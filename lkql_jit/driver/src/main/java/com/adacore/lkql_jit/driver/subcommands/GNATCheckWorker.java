@@ -448,7 +448,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 Value argValue = argsObject.getMember(argName);
                 arguments.put(
                     argName,
-                    argValue.isString() ? "\"" + argValue + "\"" : argValue.toString()
+                    argValue.isString()
+                        ? "\"" + escape(argValue.asString()) + "\""
+                        : argValue.toString()
                 );
             }
         }
