@@ -41,14 +41,14 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
 
     // ----- Attributes -----
 
+    @CommandLine.Spec
+    protected CommandLine.Model.CommandSpec spec;
+
     @CommandLine.Mixin
     EngineArgs engineArgs;
 
     @CommandLine.Mixin
     GPRArgs gprArgs;
-
-    @CommandLine.Spec
-    public picocli.CommandLine.Model.CommandSpec spec;
 
     @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
     public boolean debug;

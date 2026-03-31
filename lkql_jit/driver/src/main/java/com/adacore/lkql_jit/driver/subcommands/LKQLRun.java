@@ -34,14 +34,14 @@ public class LKQLRun extends BaseSubcommand {
 
     // ----- Attributes -----
 
+    @CommandLine.Spec
+    protected CommandLine.Model.CommandSpec spec;
+
     @CommandLine.Mixin
     EngineArgs engineArgs;
 
     @CommandLine.Mixin
     GPRArgs gprArgs;
-
-    @CommandLine.Spec
-    public CommandLine.Model.CommandSpec spec;
 
     @CommandLine.Parameters(description = "Files to analyze")
     public List<String> files = new ArrayList<>();
