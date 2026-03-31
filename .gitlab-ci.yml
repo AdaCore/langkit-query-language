@@ -46,6 +46,11 @@ pre-commit:
 # Common part for all testing CIs
 .common-test-part: &common-test-part
   stage: test
+  services:
+    - image:e3
+    - cpu:16
+    - mem:32
+    - disk:100
   interruptible: true
   script:
     - generic_anod_ci
@@ -67,13 +72,20 @@ pre-commit:
 # CIs that are run automatically on each merge request event
 test:
   <<: *common-test-part
-  services:
-    - image:e3
-    - cpu:8
-    - mem:32
-    - disk:100
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   parallel:
     matrix:
       - PLAN_ENTRY: [lkql_jit, lkql_native_jit]
+
+# CIs that are triggered manually
+optional:
+  <<: *common-test-part
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+      allow_failure: true
+  timeout: 2 hours
+  parallel:
+    matrix:
+      - PLAN_ENTRY: [gnatcheck_internal_testsuite]
