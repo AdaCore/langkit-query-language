@@ -426,7 +426,7 @@ public final class LktPasses {
                             if (!fieldDecl.fDefaultVal().isNone()) {
                                 defaultVals[i] = buildExpr(fieldDecl.fDefaultVal());
                             }
-                        } else throw LKQLEngineException.shouldNotReachHere();
+                        } else errors.unsupportedConstruction(loc(localDecl));
                     }
 
                     frames.enterFrame(structDecl);
@@ -704,11 +704,7 @@ public final class LktPasses {
                     typePattern.fTypeName().pReferencedDecl() instanceof
                         Liblktlang.StructDecl structDecl
                 ):
-                    yield buildStructPattern(
-                        loc(structPattern),
-                        structDecl,
-                        structPattern.fDetails()
-                    );
+                    yield buildStructPattern(structPattern, structDecl);
                 case Liblktlang.ComplexPattern complexPattern:
                     Pattern result = null;
 
@@ -732,7 +728,11 @@ public final class LktPasses {
                         // Get the pattern details
                         final List<NodePatternDetail> details = new ArrayList<>();
                         for (var detail : complexPattern.fDetails()) {
-                            details.add(buildPatternDetail(detail));
+                            if (detail instanceof Liblktlang.DestructuringPatternDetail) {
+                                errors.destructuringNonStruct(loc(detail));
+                            } else {
+                                details.add(buildPatternDetail(detail));
+                            }
                         }
 
                         result = new ExtendedNodePattern(
@@ -803,30 +803,19 @@ public final class LktPasses {
         }
 
         private Pattern buildStructPattern(
-            SourceSection location,
-            Liblktlang.StructDecl structDecl,
-            Liblktlang.PatternDetailList patternDetails
+            Liblktlang.ComplexPattern structPattern,
+            Liblktlang.StructDecl structDecl
         ) {
-            final var name = structDecl.fSynName().getText();
+            final var patternDetails = structPattern.fDetails();
+            final var structName = structDecl.fSynName().getText();
 
             final var keys = new String[patternDetails.getChildrenCount() + 1];
             final var patterns = new Pattern[keys.length];
 
             keys[0] = Constants.STRUCT_TYPE_TAG;
-            patterns[0] = RegexPatternNodeGen.create(loc(structDecl.fSynName()), name);
+            patterns[0] = RegexPatternNodeGen.create(loc(structPattern.fPattern()), structName);
 
-            final var detailsIterator = patternDetails.iterator();
-            for (int i = 1; i < patterns.length; i++) {
-                final var patternDetail = detailsIterator.next();
-                if (patternDetail instanceof Liblktlang.FieldPatternDetail fieldPatternDetail) {
-                    keys[i] = fieldPatternDetail.fId().getText();
-                    patterns[i] = buildPattern(fieldPatternDetail.fExpectedValue());
-                } else throw LKQLEngineException.shouldNotReachHere();
-            }
-
-            // Check statically that matched fields exists in the StructDecl
-
-            final var fields = new HashSet<String>();
+            final var fields = new ArrayList<String>(structDecl.fDecls().getChildrenCount());
             for (final var d : structDecl.fDecls()) {
                 if (d.fDecl() instanceof Liblktlang.FieldDecl field) {
                     fields.add(field.fSynName().getText());
@@ -835,18 +824,73 @@ public final class LktPasses {
                 // when lowering the StructDecl itself
             }
 
-            for (int i = 1; i < keys.length; i++) {
-                if (!fields.contains(keys[i])) {
-                    errors.noSuchFieldInStruct(name, keys[i], loc(patternDetails.getChild(i - 1)));
+            int fieldPatternCount = 0,
+                destructuringPatternCount = 0;
+
+            final var detailsIterator = patternDetails.iterator();
+            for (int i = 1; i < patterns.length; i++) {
+                final var patternDetail = detailsIterator.next();
+                switch (patternDetail) {
+                    case Liblktlang.FieldPatternDetail fieldPatternDetail -> {
+                        final var name = fieldPatternDetail.fId().getText();
+                        keys[i] = name;
+                        patterns[i] = buildPattern(fieldPatternDetail.fExpectedValue());
+                        fieldPatternCount++;
+
+                        if (!fields.contains(name)) {
+                            errors.noSuchFieldInStruct(structName, name, loc(fieldPatternDetail));
+                        }
+                    }
+                    case Liblktlang.DestructuringPatternDetail destructuringPatternDetail -> {
+                        final var aliasedField = destructuringPatternDetail
+                            .fDecl()
+                            .fSynName()
+                            .getText();
+                        frames.declareBinding(aliasedField);
+                        patterns[i] = new BindingPattern(
+                            loc(destructuringPatternDetail),
+                            frames.getBinding(aliasedField),
+                            null
+                        );
+                        destructuringPatternCount++;
+                    }
+                    case Liblktlang.PropertyPatternDetail propertyPatternDetail -> {
+                        errors.unsupportedConstruction(loc(propertyPatternDetail.fCall()));
+                    }
+                    default -> {
+                        throw LKQLEngineException.shouldNotReachHere();
+                    }
                 }
             }
 
-            return ObjectPatternNodeGen.create(location, patterns, keys, null);
+            if (destructuringPatternCount > 0) {
+                if (fieldPatternCount > 0) {
+                    // can't have both destructuring and field patterns
+                    errors.bothDestructuringAndFieldDetails(loc(patternDetails));
+                    return null;
+                }
+
+                if (destructuringPatternCount != fields.size()) {
+                    // must destructure exactly all fields
+                    errors.wrongDestructuringArity(
+                        structName,
+                        fields.size(),
+                        destructuringPatternCount,
+                        loc(patternDetails)
+                    );
+                    return null;
+                }
+
+                // destructuring is ok, set keys
+                for (int i = 1; i < keys.length; i++) keys[i] = fields.get(i - 1);
+            }
+
+            return ObjectPatternNodeGen.create(loc(structPattern), patterns, keys, null);
         }
 
         private NodePatternDetail buildPatternDetail(Liblktlang.PatternDetail patternDetail) {
             return switch (patternDetail) {
-                case Liblktlang.FieldPatternDetail fieldPatternDetail: {
+                case Liblktlang.FieldPatternDetail fieldPatternDetail -> {
                     // Translate the node pattern detail fields
                     final String name = fieldPatternDetail.fId().getText();
                     final Pattern expected = buildPattern(fieldPatternDetail.fExpectedValue());
@@ -854,7 +898,7 @@ public final class LktPasses {
                     // Return the new node pattern field detail
                     yield NodePatternFieldNodeGen.create(loc(patternDetail), name, expected);
                 }
-                case Liblktlang.PropertyPatternDetail propertyPatternDetail: {
+                case Liblktlang.PropertyPatternDetail propertyPatternDetail -> {
                     // Translate the node pattern detail fields
                     final var callExpr = propertyPatternDetail.fCall();
                     final String propertyName = callExpr.fName().getText();
@@ -869,8 +913,9 @@ public final class LktPasses {
                         expected
                     );
                 }
-                default:
-                    throw new AssertionError("Unreachable");
+                default -> {
+                    throw LKQLEngineException.shouldNotReachHere();
+                }
             };
         }
     }

@@ -66,6 +66,11 @@ public final class LKQLStaticErrors extends AbstractTruffleException {
         addDiag(unknownSymbolMessage(symbol), location);
     }
 
+    /** Add a diagnostic when an unsupported construction is encountered. */
+    public void unsupportedConstruction(SourceSection location) {
+        addDiag("Unsupported construction", location);
+    }
+
     /** Add a diagnostic when a symbol is already existing in a lexical environment. */
     public void alreadyExistingSymbol(String symbol, SourceSection location) {
         addDiag("Already existing symbol: " + symbol, location);
@@ -156,6 +161,36 @@ public final class LKQLStaticErrors extends AbstractTruffleException {
     /** Add a diagnostic when the name of a named argument is unknown. */
     public void unknownArg(String unknown, SourceSection location) {
         addDiag(unknownArgumentMessage(unknown), location);
+    }
+
+    // --- Destructuring errors
+
+    /** Add a diagnostic when a pattern contains both destructuring and field pattern details. */
+    public void destructuringNonStruct(SourceSection location) {
+        addDiag("Destructuring is only applicable to structs", location);
+    }
+
+    /** Add a diagnostic when a pattern contains both destructuring and field pattern details. */
+    public void bothDestructuringAndFieldDetails(SourceSection location) {
+        addDiag("Destructuring is incompatible with named field access", location);
+    }
+
+    /** Add a diagnostic when a destructuring pattern has the wrong field arity. */
+    public void wrongDestructuringArity(
+        String structName,
+        int expected,
+        int actual,
+        SourceSection location
+    ) {
+        addDiag(
+            "Expected " +
+                expected +
+                " fields when destructuring \"" +
+                structName +
+                "\" but got " +
+                actual,
+            location
+        );
     }
 
     // ----- Inner classes -----

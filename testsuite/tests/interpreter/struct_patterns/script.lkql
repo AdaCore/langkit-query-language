@@ -7,9 +7,8 @@ struct Pair {
 
 val p = Pair(1, 2)
 val sum = match p {
-    case Pair(x: a, y: b) => a + b
+    case Pair(x, y) => x + y
 }
-
 val _ = print(sum)
 
 val q = Pair(y="bar", x="foo")

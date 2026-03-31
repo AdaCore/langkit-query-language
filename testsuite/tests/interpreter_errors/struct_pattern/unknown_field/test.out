@@ -1,0 +1,4 @@
+script.lkql:10:15: error: Struct "Pair" has no field "unknown"
+  10 |     case Pair(unknown: _) => print("should raise error")
+     |               ^^^^^^^^^^
+

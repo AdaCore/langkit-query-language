@@ -7,5 +7,5 @@ struct Pair {
 
 val p = Pair(1, 2)
 val _ = match p {
-    case Pair(bad: _) => print("should raise error")
+    case Pair(x, y: _) => print("should raise error")
 }

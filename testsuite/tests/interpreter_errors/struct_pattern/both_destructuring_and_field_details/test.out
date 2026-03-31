@@ -1,0 +1,4 @@
+script.lkql:10:15: error: Destructuring is incompatible with named field access
+  10 |     case Pair(x, y: _) => print("should raise error")
+     |               ^^^^^^^
+

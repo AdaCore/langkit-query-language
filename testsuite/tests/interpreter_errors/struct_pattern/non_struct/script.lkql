@@ -1,0 +1,5 @@
+# lkql version: 2
+
+val _ = match 0 {
+    case AdaNode(bad) => print("should raise error")
+}
