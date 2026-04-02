@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.values.*;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -126,6 +127,33 @@ public abstract class DotAccess extends BaseDotAccess {
 
         // Return the result
         return this.onNodeCached(receiver, property, property.isField());
+    }
+
+    /** Execute the dot access on a rewriting node. */
+    @Specialization
+    protected Object onRewritingNode(LangkitSupport.RewritingNodeInterface receiver) {
+        // Try to get the built in
+        var builtIn = this.getBuiltIn(receiver);
+        if (builtIn != null) {
+            return builtIn;
+        }
+
+        // Test if the rewriting node is null
+        if (receiver.isNone()) {
+            throw LKQLRuntimeError.nullReceiver(this);
+        }
+
+        // Then look in rewriting node children
+        var maybeField = ReflectionUtils.getField(
+            receiver.getKind().getDescription(),
+            member.getName()
+        );
+        if (member.getName().startsWith("f_") && maybeField != null) {
+            return receiver.getChild(maybeField.memberRef());
+        }
+
+        // Raise an error if we get here
+        throw LKQLRuntimeError.noSuchField(member);
     }
 
     @Specialization

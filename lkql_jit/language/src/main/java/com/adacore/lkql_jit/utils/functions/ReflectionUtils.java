@@ -170,6 +170,18 @@ public final class ReflectionUtils {
     }
 
     /**
+     * Get the field description corresponding to the provided name in the given node
+     * description.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static LangkitSupport.Reflection.Field getField(
+        LangkitSupport.Reflection.Node description,
+        String fieldName
+    ) {
+        return description.fieldDescriptions().get(fieldName);
+    }
+
+    /**
      * Get the class simple name of an object.
      *
      * @param obj The object to get the simple name from.
