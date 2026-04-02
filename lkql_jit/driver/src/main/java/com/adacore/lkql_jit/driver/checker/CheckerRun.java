@@ -124,7 +124,7 @@ public final class CheckerRun {
                 // Apply the current rewriting context
                 var applyRes = rewritingContext.apply();
 
-                // If there is an error in the rewriting application report them in diagnositcs
+                // If there is an error in the rewriting application report them in diagnostics
                 if (!applyRes.success) {
                     rewritingContext.close();
                     diagnostics.add(
