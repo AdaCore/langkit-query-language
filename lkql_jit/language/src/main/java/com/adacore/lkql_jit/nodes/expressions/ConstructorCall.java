@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
@@ -64,14 +63,14 @@ public final class ConstructorCall extends Expr {
     public ConstructorCall(
         SourceSection location,
         Identifier kindName,
-        Libadalang.Reflection.Node nodeDescription,
+        LangkitSupport.Reflection.Node nodeDescription,
         ArgList argList,
         LKQLStaticErrors errors
     ) {
         super(location);
-        this.nodeKind = nodeDescription.kind;
-        this.isTokenNode = nodeDescription.isTokenNode;
-        this.isListNode = nodeDescription.isListNode;
+        this.nodeKind = nodeDescription.kind();
+        this.isTokenNode = nodeDescription.isTokenNode();
+        this.isListNode = nodeDescription.isListNode();
 
         // Check if the kind is concrete
         if (nodeKind == null) {
@@ -80,13 +79,13 @@ public final class ConstructorCall extends Expr {
         }
 
         // Create the argument expression array regarding the constructed node kind
-        final var fieldIndexes = ArrayUtils.indexMap(nodeDescription.fields);
+        final var fieldIndexes = ArrayUtils.indexMap(nodeDescription.fields());
         if (this.isTokenNode) {
             this.args = new ExprArg[1];
         } else if (this.isListNode) {
             this.args = new ExprArg[Math.min(1, argList.getArgs().length)];
         } else {
-            this.args = new ExprArg[nodeDescription.fields.length];
+            this.args = new ExprArg[nodeDescription.fields().length];
         }
 
         // Check the argument arity

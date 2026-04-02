@@ -30,7 +30,7 @@ public class PassContext {
 
     public static PassContext initial() {
         PassContext ctx = new PassContext();
-        Libadalang.NODE_DESCRIPTION_MAP.forEach((k, v) -> ctx.addClass(k, List.of(v.fields)));
+        Libadalang.NODE_DESCRIPTION_MAP.forEach((k, v) -> ctx.addClass(k, List.of(v.fields())));
         return ctx;
     }
 

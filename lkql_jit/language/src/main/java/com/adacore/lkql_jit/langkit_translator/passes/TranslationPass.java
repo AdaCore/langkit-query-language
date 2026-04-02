@@ -693,9 +693,9 @@ public final class TranslationPass
         // Get the member reference in the node description
         final var nodeDescription = getNodeDescription(receiver);
         if (nodeDescription != null) {
-            var fieldDescription = nodeDescription.fieldDescriptions.get(member.getText());
+            var fieldDescription = nodeDescription.fieldDescriptions().get(member.getText());
             if (fieldDescription != null) {
-                return new MemberRefAccess(loc(upperDotAccess), fieldDescription.memberRef);
+                return new MemberRefAccess(loc(upperDotAccess), fieldDescription.memberRef());
             } else {
                 errors.noSuchField(loc(member));
             }
