@@ -24,6 +24,7 @@ import com.adacore.lkql_jit.values.interop.LKQLCallable;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.values.streams.BaseCachedStream;
+import com.adacore.lkql_jit.values.streams.LKQLEmptyStream;
 import com.adacore.lkql_jit.values.streams.LKQLStdlibStreamWrapper;
 import com.adacore.lkql_jit.values.streams.LKQLUniqueResult;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -526,6 +527,15 @@ public class BuiltInFunctions {
         @CompilerDirectives.TruffleBoundary
         protected LangkitSupport.AnalysisContextInterface alwaysTrue() {
             return LKQLLanguage.getContext(this).getAnalysisContext();
+        }
+    }
+
+    @BuiltInFunction(name = "nil", doc = "Return an empty stream")
+    abstract static class NilExpr extends BuiltInBody {
+
+        @Specialization
+        protected LKQLStream alwaysTrue() {
+            return LKQLEmptyStream.INSTANCE;
         }
     }
 }

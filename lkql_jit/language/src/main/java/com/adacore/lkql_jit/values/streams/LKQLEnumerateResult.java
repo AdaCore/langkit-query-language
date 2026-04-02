@@ -31,10 +31,8 @@ public class LKQLEnumerateResult extends BaseCachedStream {
 
     // ----- Instance methods -----
 
-    @Override
-    protected void initCacheTo(long n) {
-        while (this.iterator.hasNext() && (n >= this.cache.size() || n < 0)) {
-            this.cache.append(new LKQLTuple(new Object[] { index++, iterator.next() }));
-        }
+    protected Object computeNext() {
+        if (!iterator.hasNext()) return null;
+        return new LKQLTuple(new Object[] { index++, iterator.next() });
     }
 }

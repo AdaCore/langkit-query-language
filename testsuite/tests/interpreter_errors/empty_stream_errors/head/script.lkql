@@ -1,0 +1,4 @@
+# lkql version: 2
+# Streams are only available through the LKQL V2 syntax
+
+val _ = print(nil().head)

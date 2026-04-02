@@ -62,6 +62,18 @@ public final class LKQLRuntimeError extends AbstractTruffleException {
         );
     }
 
+    /** Create an exception when an empty stream's head is accessed. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeError emptyStreamHead(Node location) {
+        return LKQLRuntimeError.create("Can't get head from an empty stream", location);
+    }
+
+    /** Create an exception when an empty stream's tail is accessed. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeError emptyStreamTail(Node location) {
+        return LKQLRuntimeError.create("Can't get tail from an empty stream", location);
+    }
+
     // --- Symbol exception
 
     /** Create a new exception for an unknown symbol access. */

@@ -29,17 +29,18 @@ public class LKQLUniqueResult extends BaseCachedStream {
     // ----- Instance methods -----
 
     @CompilerDirectives.TruffleBoundary
-    protected void initCacheTo(long n) {
-        while (this.iterator.hasNext() && (n >= this.cache.size() || n < 0)) {
-            var x = iterator.next();
-            var found = false;
+    protected Object computeNext() {
+        while (iterator.hasNext()) {
+            var candidate = iterator.next();
+            var hasDuplicate = false;
             for (int i = 0; i < cache.size(); i++) {
-                if (Objects.equals(x, cache.get(i))) {
-                    found = true;
+                if (Objects.equals(candidate, cache.get(i))) {
+                    hasDuplicate = true;
                     break;
                 }
             }
-            if (!found) this.cache.append(x);
+            if (!hasDuplicate) return candidate;
         }
+        return null;
     }
 }

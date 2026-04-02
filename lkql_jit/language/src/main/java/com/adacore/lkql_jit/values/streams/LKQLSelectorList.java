@@ -78,8 +78,13 @@ public class LKQLSelectorList extends BaseCachedStream {
 
     // ----- Instance methods -----
 
+    /** Stub for the compiler. Do not use. */
+    protected Object computeNext() {
+        return null;
+    }
+
     @Override
-    protected void initCacheTo(long n) {
+    public Object get(long n) {
         while (!(this.toVisitList.size() == 0) && (this.cache.size() - 1 < n || n < 0)) {
             // Get the first recurse item and execute the selector on it
             LKQLDepthValue nextNode = this.toVisitList.poll();
@@ -91,6 +96,7 @@ public class LKQLSelectorList extends BaseCachedStream {
             addToRecurse(result.recurseVal, result.depth);
             addToResult(result.resultVal, result.depth);
         }
+        return this.cache.get((int) n);
     }
 
     /** Add the object to the result cache of the selector list. */

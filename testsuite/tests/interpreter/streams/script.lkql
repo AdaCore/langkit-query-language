@@ -3,7 +3,7 @@
 
 # Simple stream definition
 val _ = print("=== Simple stream")
-val s_1 = 1 :: 2 :: 3 :: 4 :: 5 :: Unit()
+val s_1 = 1 :: 2 :: 3 :: 4 :: 5 :: nil()
 val _ = print(s_1[1])
 val _ = print(s_1[3])
 val _ = print(s_1.to_list.length)
@@ -11,14 +11,14 @@ val _ = print("")
 
 # Ensure the laziness of streams
 val _ = print("=== Ensure laziness")
-val s_2 = { val _ = print("First!"); 1 } :: { val _ = print("Second!"); 2 } :: { val _ = print("Third!"); 3 } :: Unit()
+val s_2 = { val _ = print("First!"); 1 } :: { val _ = print("Second!"); 2 } :: { val _ = print("Third!"); 3 } :: nil()
 val _ = print(s_2[2])
 val _ = print(s_2[2])
 val _ = print("")
 
 # Test concatenating streams
 val _ = print("=== Concatenating two streams")
-val s_3 = ("a" :: "b" :: "c" :: Unit()) ::: ("d" :: "e" :: "f" :: Unit())
+val s_3 = ("a" :: "b" :: "c" :: nil()) ::: ("d" :: "e" :: "f" :: nil())
 val _ = print(s_3[1])
 val _ = print(s_3[2])
 val _ = print(s_3[5])
@@ -28,13 +28,21 @@ val _ = print("")
 
 # Test concatenating a list with a stream
 val _ = print("=== Concatenating a list with a stream")
-val s_4 = [1, 2, 3, 4] ::: ("d" :: "e" :: "f" :: Unit())
+val s_4 = [1, 2, 3, 4].to_stream ::: ("d" :: "e" :: "f" :: nil())
 val _ = print(s_4[1])
 val _ = print(s_4[2])
 val _ = print(s_4[5])
 val _ = print(s_4[6])
 val _ = print(s_4.to_list.length)
 val _ = print("")
+
+# Test head and tail primitives
+val _ = print("=== Accessing head and tail")
+val s_5 = [1, 2, 3].to_stream
+val _ = print(s_5.head)
+val _ = print(s_5.tail.to_list)
+val _ = print(s_5.tail.tail.to_list)
+val _ = print(s_5.tail.tail.tail.to_list)
 
 # Test a stream from a recursive function
 val _ = print("=== Stream from a recursive function")
@@ -58,6 +66,6 @@ val _ = print("")
 
 # Ensure invalid index raise an error
 val _ = print("=== Try to access an invalid index in the stream")
-val err_s = 1 :: 2 :: Unit()
+val err_s = 1 :: 2 :: nil()
 val _ = print(err_s[6])
 val _ = print("")

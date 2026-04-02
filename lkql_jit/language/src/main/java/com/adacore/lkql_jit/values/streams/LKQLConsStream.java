@@ -9,7 +9,6 @@ import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.values.LKQLUnit;
 import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
@@ -23,9 +22,6 @@ import com.oracle.truffle.api.CallTarget;
 public class LKQLConsStream extends BaseCachedStream {
 
     // ----- Attributes -----
-
-    /** Instance of "Nil", used to flag the end of a streams. */
-    private static final LKQLConsStream NIL = new LKQLConsStream(null);
 
     /** Next stream to get the head from when computing the content of this stream. */
     private LKQLStream next;
@@ -55,11 +51,13 @@ public class LKQLConsStream extends BaseCachedStream {
 
     // ----- Instance methods -----
 
-    @Override
-    protected void initCacheTo(long n) {
-        while (this.next != null && (n >= this.cache.size() || n < 0)) {
-            this.cache.append(this.next.getHead());
+    protected Object computeNext() {
+        try {
+            var res = next.getHead();
             this.next = this.next.getTail();
+            return res;
+        } catch (Exception _) {
+            return null;
         }
     }
 
@@ -102,8 +100,8 @@ public class LKQLConsStream extends BaseCachedStream {
         public LKQLStream getTail() {
             var executionResult = this.tailExecutionUnit.call(this.tailClosure);
             return switch (executionResult) {
+                case LKQLConsStream consTail -> consTail.next;
                 case LKQLStream tail -> tail;
-                case LKQLUnit _ -> NIL;
                 default -> throw LKQLRuntimeError.wrongType(
                     LKQLTypesHelper.LKQL_STREAM,
                     LKQLTypesHelper.fromJava(executionResult),
@@ -186,8 +184,8 @@ public class LKQLConsStream extends BaseCachedStream {
                     this.tailClosure
                 );
                 return switch (executionResult) {
+                    case LKQLConsStream consTail -> consTail.next;
                     case LKQLStream tail -> tail;
-                    case LKQLUnit _ -> NIL;
                     default -> throw LKQLRuntimeError.wrongType(
                         LKQLTypesHelper.LKQL_STREAM,
                         LKQLTypesHelper.fromJava(executionResult),

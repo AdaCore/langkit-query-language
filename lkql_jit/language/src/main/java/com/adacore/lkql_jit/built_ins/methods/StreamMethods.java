@@ -16,6 +16,24 @@ import com.oracle.truffle.api.dsl.Specialization;
 @BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.LKQL_STREAM })
 public class StreamMethods {
 
+    @BuiltInMethod(name = "head", doc = "Return the head of the stream.", isProperty = true)
+    abstract static class HeadExpr extends BuiltInBody {
+
+        @Specialization
+        public Object doGeneric(LKQLStream self) {
+            return self.getHead();
+        }
+    }
+
+    @BuiltInMethod(name = "tail", doc = "Return the tail of the stream.", isProperty = true)
+    abstract static class TailExpr extends BuiltInBody {
+
+        @Specialization
+        public LKQLStream doGeneric(LKQLStream self) {
+            return self.getTail();
+        }
+    }
+
     // TODO: we want to remove this method when deprecating LKQL v1
     // (see https://gitlab.adacore-it.com/eng/libadalang/langkit-query-language/-/issues/616)
     @BuiltInMethod(

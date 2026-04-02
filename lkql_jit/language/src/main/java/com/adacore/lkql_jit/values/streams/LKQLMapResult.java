@@ -44,18 +44,14 @@ public class LKQLMapResult extends BaseCachedStream {
 
     // ----- Instance methods -----
 
-    @Override
-    protected void initCacheTo(long n) {
+    protected Object computeNext() {
+        if (!this.generatorIterator.hasNext()) return null;
         try {
-            while (this.generatorIterator.hasNext() && (n >= this.cache.size() || n < 0)) {
-                this.cache.append(
-                    this.functionLibrary.execute(
-                        this.mappingFunction,
-                        this.mappingFunction.closure,
-                        this.generatorIterator.next()
-                    )
-                );
-            }
+            return this.functionLibrary.execute(
+                this.mappingFunction,
+                this.mappingFunction.closure,
+                this.generatorIterator.next()
+            );
         } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
             throw LKQLEngineException.create(e);
         }

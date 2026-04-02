@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.values.streams;
 
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.runtime.ListStorage;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLIterator;
@@ -28,24 +29,37 @@ public abstract class BaseCachedStream extends LKQLStream {
     // ----- Instance methods -----
 
     /**
-     * This method should initialize the element cache from the next lazy element to the provided
-     * index.
+     * Computes the next element of the stream and returns it.
+     * Returns null if nothing left to compute.
      */
-    protected abstract void initCacheTo(long n);
+    protected abstract Object computeNext();
+
+    /** Initialize cache until the given index and returns the result. */
+    public Object get(long n) {
+        while (n >= this.cache.size()) {
+            var next = computeNext();
+            if (next == null) break;
+            cache.append(next);
+        }
+        return this.cache.get((int) n);
+    }
 
     public Object getHead() {
-        return this.get(0);
+        try {
+            return this.get(0);
+        } catch (IndexOutOfBoundsException _) {
+            throw LKQLRuntimeError.emptyStreamHead(null);
+        }
     }
 
     @Override
     public LKQLStream getTail() {
-        return new OffsetStream(this, 1);
-    }
-
-    @Override
-    public Object get(long n) {
-        this.initCacheTo(n);
-        return this.cache.get((int) n);
+        try {
+            this.get(0);
+            return new OffsetStream(this, 1);
+        } catch (IndexOutOfBoundsException _) {
+            throw LKQLRuntimeError.emptyStreamTail(null);
+        }
     }
 
     @Override
@@ -77,12 +91,21 @@ public abstract class BaseCachedStream extends LKQLStream {
 
         @Override
         public Object getHead() {
-            return base.get(offset);
+            try {
+                return base.get(offset);
+            } catch (IndexOutOfBoundsException _) {
+                throw LKQLRuntimeError.emptyStreamHead(null);
+            }
         }
 
         @Override
         public LKQLStream getTail() {
-            return new OffsetStream(base, offset + 1);
+            try {
+                base.get(offset);
+                return new OffsetStream(base, offset + 1);
+            } catch (IndexOutOfBoundsException _) {
+                throw LKQLRuntimeError.emptyStreamTail(null);
+            }
         }
     }
 }
