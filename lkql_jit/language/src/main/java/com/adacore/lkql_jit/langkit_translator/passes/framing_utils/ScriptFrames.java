@@ -115,7 +115,7 @@ public final class ScriptFrames {
     }
 
     public boolean isPrelude(final String symbol) {
-        return globalScope.preludeMap.containsKey(symbol);
+        return globalScope.preludeMap == null ? false : globalScope.preludeMap.containsKey(symbol);
     }
 
     public int getPrelude(final String symbol) {

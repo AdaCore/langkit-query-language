@@ -952,7 +952,7 @@ public final class LktPasses {
         }
     }
 
-    public static LKQLNode buildLKQLNode(
+    public static TopLevelList buildLKQLNode(
         Source source,
         LangkitRoot root,
         ScriptFrames frames,
