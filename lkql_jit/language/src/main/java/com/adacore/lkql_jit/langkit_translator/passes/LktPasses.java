@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 
 import static com.adacore.liblktlang.Liblktlang.*;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
@@ -50,14 +51,41 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternFieldNodeGen;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternPropertyNodeGen;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /** Namespace class containing all passes to expand from Lkt syntax to the LKQL Truffle tree. */
 public final class LktPasses {
+
+    public static final class Typecheck {
+
+        public static void check(
+            final Source source,
+            Liblktlang.LangkitRoot root,
+            LKQLStaticErrors errors
+        ) {
+            root
+                .walk()
+                .filter(Liblktlang.LktNode::pXrefEntryPoint)
+                .map(Liblktlang.LktNode::pSolveEnclosingContext)
+                .filter(solverResult -> !solverResult.success)
+                .flatMap(solverResult -> Stream.of(solverResult.diagnostics))
+                .forEach(diag ->
+                    errors.addDiag(
+                        LangkitSupport.renderSolverDiag(diag),
+                        SourceSectionWrapper.createSection(
+                            diag.location.getSourceLocationRange(),
+                            source
+                        )
+                    )
+                );
+        }
+    }
 
     /**
      * Container class containing utilities related to the framing pass. The framing pass itself is
