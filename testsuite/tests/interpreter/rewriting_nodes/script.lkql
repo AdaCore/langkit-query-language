@@ -1,0 +1,11 @@
+val bin_op = new BinOp(
+    f_left=new ParenExpr(f_expr=new IntLiteral("40")),
+    f_op=new OpEq(),
+    f_right=new IntLiteral("2")
+)
+
+print(bin_op.f_left)
+print(bin_op.f_left.f_expr)
+print(bin_op.f_op)
+print(bin_op.f_right)
+print(bin_op.f_not_a_field)

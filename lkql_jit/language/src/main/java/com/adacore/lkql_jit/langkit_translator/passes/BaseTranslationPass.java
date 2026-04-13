@@ -124,7 +124,7 @@ public class BaseTranslationPass {
     }
 
     /** Get the reflection description for the node corresponding to the provided name. */
-    protected Libadalang.Reflection.Node getNodeDescription(
+    protected LangkitSupport.Reflection.Node getNodeDescription(
         LangkitSupport.NodeInterface nodeKindId
     ) {
         final var description = Libadalang.NODE_DESCRIPTION_MAP.get(nodeKindId.getText());
@@ -141,6 +141,6 @@ public class BaseTranslationPass {
         LangkitSupport.NodeInterface nodeKindId
     ) {
         var description = getNodeDescription(nodeKindId);
-        return description == null ? null : description.clazz;
+        return description == null ? null : description.clazz();
     }
 }

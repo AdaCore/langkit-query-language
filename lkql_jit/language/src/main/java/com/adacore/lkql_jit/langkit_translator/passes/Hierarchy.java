@@ -85,7 +85,7 @@ public class Hierarchy {
         // Collect all inital classes
         final Class<? extends AdaNode>[] initialClasses = Libadalang.NODE_DESCRIPTION_MAP.values()
             .stream()
-            .map(e -> e.clazz)
+            .map(e -> e.clazz())
             .toArray(Class[]::new);
 
         final int size = initialClasses.length;

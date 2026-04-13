@@ -100,27 +100,27 @@ public final class ReflectionUtils {
         Object... arguments
     ) {
         // Verify if there is more arguments than params
-        if (arguments.length > fieldDescription.getParams().size()) {
+        if (arguments.length > fieldDescription.params().size()) {
             throw LKQLRuntimeError.wrongArity(
-                fieldDescription.getParams().size(),
+                fieldDescription.params().size(),
                 arguments.length,
                 caller
             );
         }
 
-        Object[] refinedArgs = new Object[fieldDescription.getParams().size()];
+        Object[] refinedArgs = new Object[fieldDescription.params().size()];
         try {
             // Create the argument list with the default values if needed
             for (int i = 0; i < refinedArgs.length; i++) {
-                LangkitSupport.Reflection.Param currentParam = fieldDescription.getParams().get(i);
+                LangkitSupport.Reflection.Param currentParam = fieldDescription.params().get(i);
                 if (i < arguments.length) {
-                    refinedArgs[i] = refineArgument(arguments[i], currentParam.getType(), args[i]);
+                    refinedArgs[i] = refineArgument(arguments[i], currentParam.type(), args[i]);
                 } else {
-                    if (currentParam.getDefaultValue().isPresent()) {
-                        refinedArgs[i] = currentParam.getDefaultValue().get();
+                    if (currentParam.defaultValue().isPresent()) {
+                        refinedArgs[i] = currentParam.defaultValue().get();
                     } else {
                         throw LKQLRuntimeError.wrongArity(
-                            fieldDescription.getParams().size(),
+                            fieldDescription.params().size(),
                             arguments.length,
                             caller
                         );
@@ -129,7 +129,7 @@ public final class ReflectionUtils {
             }
 
             // Call the method and check the result is valid
-            var raw = fieldDescription.getJavaMethod().invoke(node, refinedArgs);
+            var raw = fieldDescription.javaMethod().invoke(node, refinedArgs);
             var res = LKQLTypesHelper.toLKQLValue(raw);
             if (res == null) {
                 throw LKQLRuntimeError.unsupportedType(
@@ -141,10 +141,10 @@ public final class ReflectionUtils {
         } catch (IllegalArgumentException e) {
             // Explore the argument types
             for (int i = 0; i < refinedArgs.length; i++) {
-                if (!fieldDescription.getParams().get(i).getType().isInstance(refinedArgs[i])) {
+                if (!fieldDescription.params().get(i).type().isInstance(refinedArgs[i])) {
                     throw LKQLRuntimeError.conversionError(
                         LKQLTypesHelper.fromJava(refinedArgs[i]),
-                        LKQLTypesHelper.debugName(fieldDescription.getParams().get(i).getType()),
+                        LKQLTypesHelper.debugName(fieldDescription.params().get(i).type()),
                         caller
                     );
                 }
@@ -167,6 +167,18 @@ public final class ReflectionUtils {
         } catch (IllegalAccessException e) {
             throw LKQLRuntimeError.create("Java reflection access failed", caller);
         }
+    }
+
+    /**
+     * Get the field description corresponding to the provided name in the given node
+     * description.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static LangkitSupport.Reflection.Field getField(
+        LangkitSupport.Reflection.Node description,
+        String fieldName
+    ) {
+        return description.fieldDescriptions().get(fieldName);
     }
 
     /**

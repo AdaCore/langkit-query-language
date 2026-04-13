@@ -1,0 +1,8 @@
+<ParenExpr (tied)>
+<IntLiteral "40" (tied)>
+<Op.Eq (tied)>
+<IntLiteral "2" (tied)>
+script.lkql:11:14: error: No such field
+  11 | print(bin_op.f_not_a_field)
+     |              ^^^^^^^^^^^^^
+
