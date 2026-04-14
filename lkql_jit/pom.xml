@@ -12,6 +12,7 @@
         <module>language</module>
         <module>interoperability</module>
         <module>driver</module>
+        <module>stubs_generator</module>
         <module>standalone</module>
         <module>benchmarks</module>
         <module>builtins_annotations</module>
@@ -129,6 +130,7 @@
                             <include>language/src/main/java/**/*.java</include>
                             <include>interoperability/src/main/java/**/*.java</include>
                             <include>driver/src/main/java/**/*.java</include>
+                            <include>stubs_generator/src/main/java/**/*.java</include>
                             <include>benchmarks/src/test/java/**/*.java</include>
                             <include>builtins_annotations/src/main/java/**/*.java</include>
                         </includes>

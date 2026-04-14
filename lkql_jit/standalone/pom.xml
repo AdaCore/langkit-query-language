@@ -94,12 +94,37 @@
                 </configuration>
             </plugin>
 
-            <!-- Configure the Python scripts execution -->
+            <!-- Configure packaging scripts -->
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
                 <version>3.0.0</version>
                 <executions>
+                    <!-- Stubs generation tool -->
+                    <execution>
+                        <id>generate_stubs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath>
+                                    <dependency>com.adacore.lkql_jit:stubs_generator</dependency>
+                                    <dependency>com.adacore:libadalang</dependency>
+                                    <dependency>com.adacore:liblktlang</dependency>
+                                    <dependency>com.adacore:langkit_support</dependency>
+                                    <dependency>org.graalvm.truffle:truffle-api</dependency>
+                                </classpath>
+                                <argument>com.adacore.lkql_jit.StubsGenerator</argument>
+                                <argument>${project.build.directory}/lib/libadalang.lkql</argument>
+                                <argument>com.adacore.libadalang.Libadalang</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
                     <!-- make.py execution -->
                     <execution>
                         <id>make_native</id>
@@ -136,6 +161,12 @@
         <dependency>
             <groupId>com.adacore.lkql_jit</groupId>
             <artifactId>driver</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore.lkql_jit</groupId>
+            <artifactId>stubs_generator</artifactId>
             <version>0.1.0</version>
         </dependency>
     </dependencies>
