@@ -1,0 +1,4 @@
+script.lkql:10:15: error: Expected 2 fields when destructuring "Pair" but got 3
+  10 |     case Pair(x, y, bad) => print("should raise error")
+     |               ^^^^^^^^^
+

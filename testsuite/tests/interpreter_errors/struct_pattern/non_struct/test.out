@@ -1,0 +1,4 @@
+script.lkql:4:18: error: Destructuring is only applicable to structs
+  4 |     case AdaNode(bad) => print("should raise error")
+    |                  ^^^
+
