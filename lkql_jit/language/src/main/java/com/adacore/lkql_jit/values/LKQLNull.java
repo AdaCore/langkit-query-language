@@ -13,6 +13,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /** This class represents the null value in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -86,6 +87,11 @@ public class LKQLNull extends LKQLValue implements LangkitSupport.NodeInterface,
     @Override
     public int getChildrenCount() {
         return 0;
+    }
+
+    @Override
+    public Stream<? extends LangkitSupport.NodeInterface> walk() {
+        return Stream.empty();
     }
 
     @Override
