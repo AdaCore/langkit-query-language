@@ -1,0 +1,28 @@
+# This is the LKQL prelude. Those definitions are visible at the root of the LKQL context. This
+# is where we put all global definitions that must be accessible in every context
+
+|" Yields all the descendants of the given node
+fun children(this : Any) : Any = match this {
+    case AdaNode => this.children.to_stream ::: this.children.flat_map(children)
+    case _ => Unit()
+}
+
+|" Yields all the next siblings of the given node
+fun next_siblings(this : Any) : Any = match this {
+    case AdaNode => this.next_sibling() :: next_siblings(this.next_sibling())
+    case _ => Unit()
+}
+
+|" Yields all the enclosing parents of the given node
+fun parent(this : Any) : Any = match this {
+    case AdaNode => this.parent :: parent(this.parent)
+    case _ => Unit()
+}
+
+|" Yields all the previous siblings of the given node
+fun prev_siblings(this : Any) : Any = match this {
+    case AdaNode => this.previous_sibling() :: prev_siblings(this.previous_sibling())
+    case _ => Unit()
+}
+
+val all_nodes = units().flat_map((unit : Any) => children(unit.root))
