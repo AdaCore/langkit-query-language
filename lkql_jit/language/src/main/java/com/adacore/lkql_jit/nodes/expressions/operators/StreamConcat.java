@@ -44,7 +44,7 @@ public abstract class StreamConcat extends BaseStreamOp {
     @Fallback
     protected void invalidType(Object o) {
         throw LKQLRuntimeError.wrongType(
-            LKQLTypesHelper.LKQL_LIST,
+            LKQLTypesHelper.LKQL_STREAM,
             LKQLTypesHelper.fromJava(o),
             this.getHead()
         );
