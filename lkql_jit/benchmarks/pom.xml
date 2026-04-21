@@ -24,6 +24,16 @@
                 </configuration>
             </plugin>
 
+            <!-- Skip JAR creation: all sources are test-scoped, main is empty -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <skipIfEmpty>true</skipIfEmpty>
+                </configuration>
+            </plugin>
+
             <!-- Plugin to run jmh with maven -->
             <plugin>
                 <groupId>pw.krejci</groupId>
