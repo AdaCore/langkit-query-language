@@ -7,7 +7,7 @@ fun parents(this : Any) : Any = match this {
 
 
 fun super_types(this : Any) : Any = match this {
-    case BaseTypeDecl => this.p_base_types() ::: this.p_base_types().flat_map(super_types)
+    case BaseTypeDecl => this.p_base_types().to_stream ::: this.p_base_types().flat_map(super_types)
     case _            => Unit()
 }
 
@@ -19,7 +19,7 @@ fun children(this : Any) : Any = match this {
 
 
 fun foo(this : Any) : Any = match this {
-    case Foo => [s, o, m, e, t, h, i, n, g] ::: foo(this)
+    case Foo => [s, o, m, e, t, h, i, n, g].to_stream ::: foo(this)
 }
 
 
