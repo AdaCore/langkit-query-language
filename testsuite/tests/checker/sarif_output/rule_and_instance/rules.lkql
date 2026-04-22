@@ -1,0 +1,6 @@
+val rules = @{
+    custom: [
+        {bool: true},
+        {instance_name: "Other_Instance", bool: false}
+    ]
+}

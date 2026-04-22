@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
+import com.adacore.lkql_jit.exceptions.LogLocation;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -41,12 +42,14 @@ import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
 import com.adacore.lkql_jit.nodes.pass.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -530,19 +533,29 @@ public final class TranslationPass
     @Override
     public LKQLNode visit(Liblkqllang.PatternDetailDelimiterIs patternDetailDelimiterIs) {
         var ctx = LKQLLanguage.getContext(null);
-        ctx
-            .getDiagnosticEmitter()
-            .emitDiagnostic(
-                CheckerUtils.MessageKind.WARNING,
-                "'is' syntax is deprecated for patterns. Please consider migrating your" +
-                    " code via 'lkql refactor -r IS_TO_COLON " +
-                    "path/to/your/rule_file.lkql'.",
-                null,
-                SourceSectionWrapper.create(
-                    patternDetailDelimiterIs.getSourceLocationRange(),
-                    source
-                )
-            );
+        if (ctx.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
+            ctx
+                .getDiagnosticEmitter()
+                .emitDiagnostic(
+                    CheckerUtils.MessageKind.WARNING,
+                    "'is' syntax is deprecated for patterns. Please consider migrating your" +
+                        " code via 'lkql refactor -r IS_TO_COLON path/to/your/rule_file.lkql'.",
+                    null,
+                    SourceSectionWrapper.create(
+                        patternDetailDelimiterIs.getSourceLocationRange(),
+                        source
+                    )
+                );
+        } else {
+            ctx
+                .getLogger()
+                .log(
+                    Level.WARNING,
+                    "'is' syntax is deprecated for patterns. Please consider migrating your" +
+                        " code via 'lkql refactor -r IS_TO_COLON path/to/your/rule_file.lkql'.",
+                    new LogLocation(new LogLocation.TruffleLocation(loc(patternDetailDelimiterIs)))
+                );
+        }
         return null;
     }
 

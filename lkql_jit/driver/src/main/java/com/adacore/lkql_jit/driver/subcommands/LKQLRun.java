@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.File;
@@ -80,11 +79,8 @@ public class LKQLRun extends BaseSubcommand {
 
     /** Execute the LKQL script and return the exit code. */
     protected int executeScript(Context.Builder contextBuilder) {
-        // Create a new diagnostic collector
-        var diagnostics = new DiagnosticCollector();
-
         // Set the common configuration
-        contextBuilder.allowIO(IOAccess.ALL);
+        contextBuilder.allowIO(IOAccess.ALL).logHandler(logHandler);
 
         // Forward the command line options to the options builder
         final var optionsBuilder = new LKQLOptions.Builder()
@@ -93,7 +89,7 @@ public class LKQLRun extends BaseSubcommand {
             .projectFile(this.args.project)
             .target(this.args.target)
             .runtime(this.args.RTS)
-            .keepGoingOnMissingFile(this.args.keepGoingOnMissingFile)
+            .missingFileIsError(this.args.missingFileIsError)
             .files(this.args.files)
             .charset(this.args.charset);
 
@@ -116,10 +112,11 @@ public class LKQLRun extends BaseSubcommand {
             }
 
             // If an error occurred, display it and exit
+            diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
             if (diagnostics.hasError()) {
-                diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
                 return 0;
             }
+            diagnostics.clear();
 
             // Then, if the user required an interactive session, start it
             if (this.args.interactive) {
@@ -201,10 +198,10 @@ public class LKQLRun extends BaseSubcommand {
         public boolean interactive;
 
         @CommandLine.Option(
-            names = "--keep-going-on-missing-file",
-            description = "Keep going on missing file"
+            names = "--missing-file-is-error",
+            description = "Consider and log missing files as errors"
         )
-        public Boolean keepGoingOnMissingFile = false;
+        public Boolean missingFileIsError = false;
 
         @CommandLine.Unmatched
         public List<String> unmatched = new ArrayList<>();

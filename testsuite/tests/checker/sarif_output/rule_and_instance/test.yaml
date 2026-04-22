@@ -1,0 +1,5 @@
+driver: checker
+format: sarif
+sources:
+  - main.adb
+rule_file: rules.lkql

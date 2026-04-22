@@ -1,0 +1,48 @@
+{
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LKQL",
+        "version" : "lkql <version>",
+        "rules" : [ {
+          "id" : "custom",
+          "name" : "custom",
+          "shortDescription" : {
+            "text" : "custom"
+          },
+          "defaultConfiguration" : {
+            "parameters" : {
+              "bool" : "false",
+              "int" : "22",
+              "str" : "/"my_arg/"",
+              "list" : "[true, 23, /"other_arg/"]"
+            }
+          }
+        } ]
+      }
+    },
+    "invocations" : [ {
+      "executionSuccessful" : true
+    } ],
+    "results" : [ {
+      "ruleId" : "custom",
+      "message" : {
+        "text" : "custom"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "file://<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 3,
+            "startColumn" : 4,
+            "endLine" : 3,
+            "endColumn" : 11
+          }
+        }
+      } ]
+    } ]
+  } ]
+}

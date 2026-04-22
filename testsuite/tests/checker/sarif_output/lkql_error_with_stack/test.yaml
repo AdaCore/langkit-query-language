@@ -1,0 +1,6 @@
+driver: checker
+format: sarif
+sources:
+  - main.adb
+rules:
+  - custom

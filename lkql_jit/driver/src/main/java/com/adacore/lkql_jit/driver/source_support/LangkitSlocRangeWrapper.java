@@ -19,8 +19,8 @@ public final class LangkitSlocRangeWrapper extends SourceSection {
 
     public final LangkitSupport.SourceLocationRange wrappedSlocRange;
 
-    /** The unit this source location range is located in. */
-    public final LangkitSupport.AnalysisUnit unit;
+    /** Full file path of the wrapped analysis unit. */
+    private final Path unitFile;
 
     /** Cache to avoid loading source lines each time we access it. */
     private final SourceLinesCache linesCache;
@@ -33,21 +33,25 @@ public final class LangkitSlocRangeWrapper extends SourceSection {
         SourceLinesCache linesCache
     ) {
         this.wrappedSlocRange = slocRange;
-        this.unit = unit;
+        this.unitFile = Paths.get(unit.getFileName(true));
         this.linesCache = linesCache;
+
+        // Fetch lines of the unit if it is not from a file
+        if (!Files.isRegularFile(unitFile)) {
+            linesCache.initLines(unitFile, unit.getText());
+        }
     }
 
     // ----- Instance methods -----
 
     @Override
     public String getSourceName() {
-        return unit.getFileName(false);
+        return unitFile.getFileName().toString();
     }
 
     @Override
     public Optional<Path> getSourceFile() {
-        var filePath = Paths.get(unit.getFileName(true));
-        return Files.isRegularFile(filePath) ? Optional.of(filePath) : Optional.empty();
+        return Files.isRegularFile(unitFile) ? Optional.of(unitFile) : Optional.empty();
     }
 
     @Override
@@ -67,11 +71,11 @@ public final class LangkitSlocRangeWrapper extends SourceSection {
 
     @Override
     public int endColumn() {
-        return this.wrappedSlocRange.end.column - 1;
+        return this.wrappedSlocRange.end.column;
     }
 
     @Override
     public List<String> getLines() {
-        return this.linesCache.getLines(unit).subList(startLine() - 1, endLine());
+        return linesCache.getLines(unitFile).subList(startLine() - 1, endLine());
     }
 }

@@ -9,7 +9,6 @@ import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.values.interop.LKQLNoValue;
 import java.util.Map;
 import java.util.Optional;
-import org.graalvm.polyglot.Context;
 
 /** This record represents an instantiated rule. */
 public final class RuleInstance {
@@ -47,7 +46,6 @@ public final class RuleInstance {
     // ----- Constructors -----
 
     public RuleInstance(
-        Context context,
         Rule instantiatedRule,
         Optional<String> instanceName,
         SourceMode sourceMode,
@@ -91,6 +89,24 @@ public final class RuleInstance {
         } else {
             this.autoFixArguments = null;
         }
+    }
+
+    // ----- Instance methods -----
+
+    @Override
+    public String toString() {
+        return (
+            "RuleInstance(" +
+            "instantiatedRule=" +
+            instantiatedRule +
+            ", instanceName=" +
+            instanceName +
+            ", sourceMode=" +
+            sourceMode +
+            ", arguments=" +
+            arguments +
+            ")"
+        );
     }
 
     // ----- Inner enums -----

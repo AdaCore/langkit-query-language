@@ -1,0 +1,76 @@
+{
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LKQL",
+        "version" : "lkql <version>",
+        "rules" : [ {
+          "id" : "custom",
+          "name" : "custom",
+          "shortDescription" : {
+            "text" : "custom"
+          },
+          "defaultConfiguration" : {
+            "parameters" : {
+              "bool" : "true"
+            }
+          }
+        }, {
+          "id" : "other_instance",
+          "name" : "Other_Instance",
+          "defaultConfiguration" : {
+            "parameters" : {
+              "bool" : "false"
+            }
+          },
+          "relationships" : [ {
+            "target" : {
+              "id" : "custom"
+            }
+          } ]
+        } ]
+      }
+    },
+    "invocations" : [ {
+      "executionSuccessful" : true
+    } ],
+    "results" : [ {
+      "ruleId" : "custom",
+      "message" : {
+        "text" : "custom"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "file://<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 3,
+            "startColumn" : 4,
+            "endLine" : 3,
+            "endColumn" : 11
+          }
+        }
+      } ]
+    }, {
+      "ruleId" : "other_instance",
+      "message" : {
+        "text" : "custom"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "file://<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 5,
+            "startColumn" : 4,
+            "endLine" : 5,
+            "endColumn" : 9
+          }
+        }
+      } ]
+    } ]
+  } ]
+}

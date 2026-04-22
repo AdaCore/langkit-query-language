@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.driver.diagnostics;
 
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Exception;
 import com.adacore.lkql_jit.driver.diagnostics.variants.*;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import java.io.PrintStream;
@@ -37,12 +38,14 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
         // Create variant part from the diagnostic information
         var locationName = diagnostic.location.map(l -> l.shortImage() + ": ");
         StylingFunction kindStyle = switch (diagnostic) {
-            case Error _ -> this::red;
+            case Error _, Exception _ -> this::red;
             case Warning _, RuleViolation _ -> this::yellow;
+            case Info _ -> this::brightBlue;
         };
         var kindName = switch (diagnostic) {
+            case Info _ -> "info";
             case Warning _ -> "warning";
-            case Error _ -> "error";
+            case Error _, Exception _ -> "error";
             case RuleViolation _ -> "rule violation";
         };
         var leftPadding = switch (diagnostic) {
@@ -55,13 +58,17 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
         output.println(diagnostic.message);
         diagnostic.location.ifPresent(l -> printSourceSnippet(l, this::yellow, leftPadding));
 
-        // In the case of an error, show the call stack if there is one
-        if (diagnostic instanceof Error error) {
-            for (var call : error.callStack) {
-                output.print(bold(call.callLocation().shortImage() + ": "));
+        // In the case of an exception, show the call stack if there is one
+        if (diagnostic instanceof Exception exception) {
+            for (var frame : exception.callStack) {
+                output.print(bold(frame.locationImage() + ": "));
                 output.print("in ");
-                output.println(bold(red(call.callContext())));
-                printSourceSnippet(call.callLocation(), this::yellow, 2);
+                output.println(bold(red(frame.callContext())));
+                if (frame instanceof Exception.CustomFrame f) printSourceSnippet(
+                    f.callLocation,
+                    this::yellow,
+                    2
+                );
             }
         }
 
@@ -122,7 +129,7 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             output.print(" ".repeat(location.startColumn()));
             output.println(
                 underlineStyle.apply(
-                    "^".repeat(Math.max(0, location.endColumn() - location.startColumn() + 1))
+                    "^".repeat(Math.max(0, location.endColumn() - location.startColumn()))
                 )
             );
         }
@@ -148,7 +155,7 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             output.println(underlineStyle.apply("| ") + lines.getLast());
             startLine.accept(null);
             output.println(
-                underlineStyle.apply('|' + "_".repeat(Math.max(1, location.endColumn())) + '^')
+                underlineStyle.apply('|' + "_".repeat(Math.max(1, location.endColumn() - 1)) + '^')
             );
         }
     }
@@ -168,6 +175,10 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
 
     private String blue(String s) {
         return styled(s, "\u001B[34m");
+    }
+
+    private String brightBlue(String s) {
+        return styled(s, "\u001B[94m");
     }
 
     private String yellow(String s) {

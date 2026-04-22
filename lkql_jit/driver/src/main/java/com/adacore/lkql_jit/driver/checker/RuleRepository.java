@@ -131,6 +131,7 @@ public final class RuleRepository {
                 : Rule.Kind.UNIT;
 
             // Set manual default value for some arguments
+            allArguments.putIfAbsent("rule_name", callable.name);
             allArguments.putIfAbsent("message", callable.name);
             allArguments.putIfAbsent("help", callable.name);
 
@@ -185,6 +186,7 @@ public final class RuleRepository {
                 new Rule(
                     ruleKind,
                     callable.name,
+                    (String) allArguments.get("rule_name"),
                     callable,
                     autoFix,
                     (String) allArguments.get("message"),

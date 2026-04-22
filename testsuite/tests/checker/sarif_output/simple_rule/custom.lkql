@@ -1,0 +1,6 @@
+@check(
+    message="This is the rule message",
+    help="Maybe some help",
+    rule_name="My custom rule name"
+)
+fun custom(node) = node is GotoStmt

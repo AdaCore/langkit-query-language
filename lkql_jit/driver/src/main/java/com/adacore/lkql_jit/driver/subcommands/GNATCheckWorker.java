@@ -101,7 +101,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         optionsBuilder
             .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
             .fallbackToAllRules(false)
-            .keepGoingOnMissingFile(true);
+            .missingFileIsError(false);
 
         // If a LKQL rule config file has been provided, parse it and display the result
         if (this.args.lkqlConfigFile != null) {
@@ -231,7 +231,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         for (var diagnostic : diagnostics) {
             var messageTag = switch (diagnostic) {
                 case Warning _ -> "WORKER_WARNING";
-                case Error _ -> "WORKER_ERROR";
+                case
+                    Error _,
+                    com.adacore.lkql_jit.driver.diagnostics.variants.Exception _ -> "WORKER_ERROR";
                 default -> "WORKER_INFO";
             };
             var locationImage = diagnostic.location.map(SourceSection::shortImage);

@@ -20,6 +20,7 @@ from e3.testsuite.testcase_finder import (
 
 from drivers import (
     interpreter_driver,
+    checker_driver,
     parser_driver,
     java_driver,
     benchmarks_driver,
@@ -97,6 +98,7 @@ class LKQLTestsuite(Testsuite):
     test_driver_map = {
         "parser": parser_driver.ParserDriver,
         "interpreter": interpreter_driver.InterpreterDriver,
+        "checker": checker_driver.CheckerDriver,
         "java": java_driver.JavaDriver,
         "benchmarks": benchmarks_driver.BenchmarksDriver,
         "refactor": refactor_driver.RefactorDriver,

@@ -1,0 +1,46 @@
+{
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LKQL",
+        "version" : "lkql <version>",
+        "rules" : [ {
+          "id" : "custom",
+          "name" : "custom",
+          "shortDescription" : {
+            "text" : "custom"
+          },
+          "defaultConfiguration" : { }
+        } ]
+      }
+    },
+    "invocations" : [ {
+      "toolExecutionNotifications" : [ {
+        "locations" : [ {
+          "physicalLocation" : {
+            "artifactLocation" : {
+              "uri" : "file://<test-dir>/custom.lkql"
+            },
+            "region" : {
+              "startLine" : 2,
+              "startColumn" : 45,
+              "endLine" : 2,
+              "endColumn" : 47
+            }
+          }
+        } ],
+        "message" : {
+          "text" : "Type error: expected Int but got Str"
+        },
+        "level" : "error",
+        "exception" : {
+          "kind" : "LKQL execution error",
+          "message" : "Type error: expected Int but got Str",
+          "stack" : { }
+        }
+      } ],
+      "executionSuccessful" : false
+    } ]
+  } ]
+}

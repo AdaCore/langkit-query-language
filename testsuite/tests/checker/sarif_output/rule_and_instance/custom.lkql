@@ -1,0 +1,2 @@
+@check
+fun custom(node, bool=false) = if bool then node is GotoStmt else node is NullStmt

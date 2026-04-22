@@ -30,7 +30,7 @@ public record LKQLOptions(
     Map<String, RuleInstance> ruleInstances,
     boolean checkerDebug,
     boolean fallbackToAllRules,
-    boolean keepGoingOnMissingFile,
+    boolean missingFileIsError,
     boolean showInstantiationChain,
     DiagnosticOutputMode diagnosticOutputMode
 ) {
@@ -121,7 +121,7 @@ public record LKQLOptions(
             ruleInstances,
             jsonLKQLOptions.getBoolean("checkerDebug"),
             jsonLKQLOptions.getBoolean("fallbackToAllRules"),
-            jsonLKQLOptions.getBoolean("keepGoingOnMissingFile"),
+            jsonLKQLOptions.getBoolean("missingFileIsError"),
             jsonLKQLOptions.getBoolean("showInstantiationChain"),
             DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode"))
         );
@@ -158,7 +158,7 @@ public record LKQLOptions(
             .put("ruleInstances", ruleInstancesJson)
             .put("checkerDebug", checkerDebug)
             .put("fallbackToAllRules", fallbackToAllRules)
-            .put("keepGoingOnMissingFile", keepGoingOnMissingFile)
+            .put("missingFileIsError", missingFileIsError)
             .put("showInstantiationChain", showInstantiationChain)
             .put("diagnosticOutputMode", diagnosticOutputMode.toString());
     }
@@ -206,7 +206,7 @@ public record LKQLOptions(
         private Map<String, RuleInstance> ruleInstances = new HashMap<>();
         private boolean checkerDebug = false;
         private boolean fallbackToAllRules = false;
-        private boolean keepGoingOnMissingFile = false;
+        private boolean missingFileIsError = false;
         private boolean showInstantiationChain = false;
         private DiagnosticOutputMode diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
 
@@ -292,8 +292,8 @@ public record LKQLOptions(
             return this;
         }
 
-        public Builder keepGoingOnMissingFile(boolean kgomf) {
-            keepGoingOnMissingFile = kgomf;
+        public Builder missingFileIsError(boolean mfie) {
+            missingFileIsError = mfie;
             return this;
         }
 
@@ -326,7 +326,7 @@ public record LKQLOptions(
                 ruleInstances,
                 checkerDebug,
                 fallbackToAllRules,
-                keepGoingOnMissingFile,
+                missingFileIsError,
                 showInstantiationChain,
                 diagnosticOutputMode
             );

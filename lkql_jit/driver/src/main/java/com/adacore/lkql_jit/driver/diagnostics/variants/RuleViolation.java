@@ -34,6 +34,7 @@ public final class RuleViolation extends BaseDiagnostic {
         SourceSection location,
         List<LangkitSupport.NodeInterface> genericTrace
     ) {
+        // This isn't possible to provide no location for a rule violation
         super(message, Optional.of(location));
         this.violatedInstance = violatedInstance;
         this.genericTrace = genericTrace;

@@ -1,0 +1,12 @@
+driver: checker
+format: sarif
+sources:
+  - main.adb
+rules:
+  - custom
+rule_arguments:
+  custom:
+    bool: "true"
+    int: "42"
+    str: '"exterior_arg"'
+    list: '[false, 32, "exterior_other_arg"]'

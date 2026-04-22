@@ -1,0 +1,20 @@
+{
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LKQL",
+        "version" : "lkql <version>"
+      }
+    },
+    "invocations" : [ {
+      "toolExecutionNotifications" : [ {
+        "message" : {
+          "text" : "Unknown rule name /"custom/""
+        },
+        "level" : "error"
+      } ],
+      "executionSuccessful" : false
+    } ]
+  } ]
+}
