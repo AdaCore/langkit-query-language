@@ -1,0 +1,14 @@
+# lkql version: 2
+
+fun subtree(this : Any) : Any =
+{
+    # voluntarily throw inside stream
+    val _ = if this is null then print(this.garbage) else 0;
+
+    if this is null then nil() else
+    this :: this.children.flat_map(subtree)
+}
+
+val root = units()[1].root
+
+val _ = print(subtree(root).to_list)

@@ -53,10 +53,10 @@ public class LKQLConsStream extends BaseCachedStream {
 
     protected Object computeNext() {
         try {
-            var res = next.getHead();
+            var res = next.get(0);
             this.next = this.next.getTail();
             return res;
-        } catch (Exception _) {
+        } catch (IndexOutOfBoundsException _) {
             return null;
         }
     }
@@ -166,7 +166,7 @@ public class LKQLConsStream extends BaseCachedStream {
             try {
                 // try to access element in prefix first
                 return this.prefix.get(index);
-            } catch (Exception _) {
+            } catch (IndexOutOfBoundsException _) {
                 // end of prefix, continue with tail
                 return this.getTail().getHead();
             }
@@ -178,7 +178,7 @@ public class LKQLConsStream extends BaseCachedStream {
                 // try to access element in prefix first
                 this.prefix.get(index + 1);
                 return new RawConcatStream(prefix, index + 1, tailExecutionUnit, tailClosure);
-            } catch (Exception _) {
+            } catch (IndexOutOfBoundsException _) {
                 // end of prefix, continue with tail
                 if (executionResult == null) executionResult = this.tailExecutionUnit.call(
                     this.tailClosure
