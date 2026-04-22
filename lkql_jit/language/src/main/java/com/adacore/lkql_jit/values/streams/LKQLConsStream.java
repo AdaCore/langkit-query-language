@@ -125,7 +125,7 @@ public class LKQLConsStream extends BaseCachedStream {
         private final Closure tailClosure;
 
         /** Prevent tail from being computed multiple times. */
-        private Object executionResult = null;
+        private LKQLStream executionResult = null;
 
         public RawConcatStream(
             Indexable prefix,
@@ -168,31 +168,42 @@ public class LKQLConsStream extends BaseCachedStream {
                 return this.prefix.get(index);
             } catch (IndexOutOfBoundsException _) {
                 // end of prefix, continue with tail
-                return this.getTail().getHead();
+                ensureExecutionResult();
+                return executionResult.get(0);
             }
         }
 
         /** Should be called once and cached by wrapper. */
         public LKQLStream getTail() {
+            boolean isPrefixEmpty = true;
             try {
                 // try to access element in prefix first
+                this.prefix.get(index);
+                // prefix has at least one element
+                isPrefixEmpty = false;
                 this.prefix.get(index + 1);
+                // prefix has a tail, increment index
                 return new RawConcatStream(prefix, index + 1, tailExecutionUnit, tailClosure);
             } catch (IndexOutOfBoundsException _) {
                 // end of prefix, continue with tail
-                if (executionResult == null) executionResult = this.tailExecutionUnit.call(
-                    this.tailClosure
-                );
-                return switch (executionResult) {
-                    case LKQLConsStream consTail when consTail.cache.size() == 0 -> consTail.next;
-                    case LKQLStream tail -> tail;
-                    default -> throw LKQLRuntimeError.wrongType(
-                        LKQLTypesHelper.LKQL_STREAM,
-                        LKQLTypesHelper.fromJava(executionResult),
-                        null
-                    );
-                };
+                ensureExecutionResult();
+                return isPrefixEmpty ? executionResult.getTail() : executionResult;
             }
+        }
+
+        /** Compute and store tail in executionResult if not already computed. */
+        private void ensureExecutionResult() {
+            if (executionResult == null) executionResult = switch (
+                this.tailExecutionUnit.call(this.tailClosure)
+            ) {
+                case LKQLConsStream consTail when consTail.cache.size() == 0 -> consTail.next;
+                case LKQLStream tail -> tail;
+                default -> throw LKQLRuntimeError.wrongType(
+                    LKQLTypesHelper.LKQL_STREAM,
+                    LKQLTypesHelper.fromJava(executionResult),
+                    null
+                );
+            };
         }
     }
 }

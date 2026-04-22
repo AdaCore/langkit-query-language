@@ -19,12 +19,15 @@ val _ = print("")
 
 # Test concatenating streams
 val _ = print("=== Concatenating two streams")
+val _ = print((nil() ::: nil()).to_list.length)
 val s_3 = ("a" :: "b" :: "c" :: nil()) ::: ("d" :: "e" :: "f" :: nil())
 val _ = print(s_3[1])
 val _ = print(s_3[2])
 val _ = print(s_3[5])
 val _ = print(s_3[6])
 val _ = print(s_3.to_list.length)
+val _ = print((nil() ::: s_3).to_list.length)
+val _ = print((s_3 ::: nil()).to_list.length)
 val _ = print((s_1 ::: s_3).to_list.length == s_1.length + s_3.length)
 val _ = print("")
 
