@@ -14,6 +14,8 @@ from e3.testsuite.driver.diff import (
     DiffTestDriver,
     Substitute,
     OutputRefiner,
+    PatternSubstitute,
+    ReplacePath,
 )
 from e3.testsuite.driver.classic import TestAbortWithError, ProcessResult, TestSkip
 
@@ -404,9 +406,19 @@ class BaseDriver(DiffTestDriver):
     @property
     def output_refiners(self) -> list[OutputRefiner]:
         result = super().output_refiners
-        result.append(Substitute(self.working_dir(), "<working-dir>"))
+
+        # Remove URIs prefix to make sure the following path is correctly
+        # canonicalized.
+        result.append(PatternSubstitute(r"file:\/\/(\/?[A-Z]:)?", ""))
+
+        # Canonicalize all absolute path to the test working directory
+        result.append(ReplacePath(self.working_dir(), "<working-dir>"))
+
+        # If required, canonicalize backslashes
         if self.test_env.get("canonicalize_backslashes", True):
             result.append(Substitute("\\", "/"))
+
+        # If required, canonicalized the current target
         if self.test_env.get("canonicalize_target", False):
             result.append(Substitute("x86_64-linux", "<target>"))
             result.append(Substitute("x86_64-windows", "<target>"))

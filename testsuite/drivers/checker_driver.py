@@ -2,7 +2,11 @@ import os
 
 from drivers.base_driver import BaseDriver
 
-from e3.testsuite.driver.diff import OutputRefiner, PatternSubstitute, Substitute
+from e3.testsuite.driver.diff import (
+    OutputRefiner,
+    PatternSubstitute,
+    ReplacePath,
+)
 
 
 class CheckerDriver(BaseDriver):
@@ -60,7 +64,7 @@ class CheckerDriver(BaseDriver):
         return [
             # Insert this refiner first in the list so that canonicalize_backslashes
             # is run after the following substitution.
-            Substitute(self.test_env["test_dir"], "<test-dir>"),
+            ReplacePath(self.test_env["test_dir"], "<test-dir>"),
             *super().output_refiners,
             PatternSubstitute(r"lkql \d+\.\d*\w* \(.*\)", "lkql <version>"),
         ]
