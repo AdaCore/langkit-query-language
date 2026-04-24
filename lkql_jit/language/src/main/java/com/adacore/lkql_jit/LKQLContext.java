@@ -158,10 +158,6 @@ public final class LKQLContext {
     @CompilerDirectives.CompilationFinal
     private LKQLOptions options = null;
 
-    /** The project's scenario variables. */
-    @CompilerDirectives.CompilationFinal(dimensions = 1)
-    private String[] scenarioVars = null;
-
     /** Directories to look for LKQL rules into. */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] ruleDirectories = null;
@@ -302,42 +298,9 @@ public final class LKQLContext {
         return this.getOptions().showInstantiationChain();
     }
 
-    /**
-     * Return the project file of the language context.
-     *
-     * @return The project file in a string.
-     */
-    public String getProjectFile() {
-        return this.getOptions().projectFile().orElse("");
-    }
-
-    public String getTarget() {
-        return this.getOptions().target().orElse("");
-    }
-
-    public String getRuntime() {
-        return this.getOptions().runtime().orElse("");
-    }
-
-    public String getConfigFile() {
-        return this.getOptions().configFile().orElse("");
-    }
-
     @CompilerDirectives.TruffleBoundary
     public TruffleLogger getLogger() {
         return TruffleLogger.getLogger(Constants.LKQL_ID);
-    }
-
-    /** Return the list of scenario variables to specify when loading the GPR project file. */
-    public String[] getScenarioVars() {
-        if (this.scenarioVars == null) {
-            final var scenarioVarList = new ArrayList<String>();
-            for (var entry : this.getOptions().scenarioVariables().entrySet()) {
-                scenarioVarList.add(entry.getKey() + "=" + entry.getValue());
-            }
-            this.scenarioVars = scenarioVarList.toArray(new String[0]);
-        }
-        return this.scenarioVars;
     }
 
     /**
@@ -431,11 +394,12 @@ public final class LKQLContext {
 
     /** Initialize the ada sources. */
     public void initSources() {
-        // Reset the context fields
+        // Clear the context caches
         this.specifiedSourceFiles.clear();
         this.allSourceFiles.clear();
+        var options = getOptions();
 
-        // Add all the user-specified files to process after verifying they exist
+        // Store all the user-specified files to process after verifying they exist
         for (String file : this.getFiles()) {
             if (!file.isBlank()) {
                 File sourceFile = new File(file);
@@ -449,117 +413,121 @@ public final class LKQLContext {
             }
         }
 
-        // Get the project file and use it if there is one
-        final String projectFileName = this.getProjectFile();
-        final String[] vars = this.getScenarioVars();
-        final String target = this.getTarget();
-        final String runtime = this.getRuntime();
-        final String configFile = this.getConfigFile();
-        try (Libadalang.ProjectOptions opts = new Libadalang.ProjectOptions()) {
-            for (var v : vars) {
-                opts.addSwitch(Libadalang.ProjectOption.X, v);
-            }
-            if (!target.isBlank()) {
-                opts.addSwitch(Libadalang.ProjectOption.TARGET, target);
-            }
-            if (!runtime.isBlank()) {
-                opts.addSwitch(Libadalang.ProjectOption.RTS, runtime);
-            }
-            if (!configFile.isBlank()) {
-                opts.addSwitch(Libadalang.ProjectOption.CONFIG, configFile);
-            }
-            if (!projectFileName.isBlank()) {
-                opts.addSwitch(Libadalang.ProjectOption.P, projectFileName);
+        try (Libadalang.ProjectOptions gprOptions = new Libadalang.ProjectOptions()) {
+            var projectFile = options.projectFile();
 
-                this.projectManager = new Libadalang.ProjectManager(opts, true);
+            // We should not get any scenario variable if we are being run without a project file.
+            if (projectFile.isEmpty() && !options.scenarioVariables().isEmpty()) {
+                throw LKQLEngineException.create(
+                    "Scenario variable specifications require a project file"
+                );
+            }
 
-                // Forward the project diagnostics if there are some
-                var diagnostics = this.projectManager.getDiagnostics();
-                if (!diagnostics.isEmpty()) {
-                    for (var diagnostic : diagnostics) {
-                        getLogger().severe(diagnostic);
-                    }
+            // Create the GPR options object
+            options
+                .additionalProjectPaths()
+                .forEach(p -> gprOptions.addSwitch(Libadalang.ProjectOption.AP, p));
+            options
+                .autoconf()
+                .ifPresent(a -> gprOptions.addSwitch(Libadalang.ProjectOption.AUTOCONF, a));
+            options
+                .configFile()
+                .ifPresent(c -> gprOptions.addSwitch(Libadalang.ProjectOption.CONFIG, c));
+            options
+                .additionalKnowledgeBases()
+                .forEach(kb -> gprOptions.addSwitch(Libadalang.ProjectOption.DB, kb));
+            if (options.skipStandardKnowledgeBase()) gprOptions.addSwitch(
+                Libadalang.ProjectOption.DB_MINUS
+            );
+            options
+                .implicitWiths()
+                .forEach(iw -> gprOptions.addSwitch(Libadalang.ProjectOption.IMPLICIT_WITH, iw));
+            if (options.followSymlinks()) gprOptions.addSwitch(
+                Libadalang.ProjectOption.RESOLVE_LINKS
+            );
+            if (options.noProject()) gprOptions.addSwitch(Libadalang.ProjectOption.NO_PROJECT);
+            projectFile.ifPresent(p -> gprOptions.addSwitch(Libadalang.ProjectOption.P, p));
+            options
+                .rootDir()
+                .ifPresent(d -> gprOptions.addSwitch(Libadalang.ProjectOption.ROOT_DIR, d));
+            options
+                .relocateBuildTree()
+                .ifPresent(d ->
+                    gprOptions.addSwitch(Libadalang.ProjectOption.RELOCATE_BUILD_TREE, d)
+                );
+            options
+                .adaRuntime()
+                .ifPresent(r -> gprOptions.addSwitch(Libadalang.ProjectOption.RTS, r));
+            options
+                .runtimes()
+                .forEach((l, r) -> gprOptions.addSwitch(Libadalang.ProjectOption.RTS, r, l));
+            options
+                .srcSubdirs()
+                .ifPresent(d -> gprOptions.addSwitch(Libadalang.ProjectOption.SRC_SUBDIRS, d));
+            options
+                .subdirs()
+                .ifPresent(d -> gprOptions.addSwitch(Libadalang.ProjectOption.SUBDIRS, d));
+            options
+                .target()
+                .ifPresent(t -> gprOptions.addSwitch(Libadalang.ProjectOption.TARGET, t));
+            options
+                .scenarioVariables()
+                .forEach((n, v) -> gprOptions.addSwitch(Libadalang.ProjectOption.X, n + "=" + v));
+
+            // Create the Libadalang project manager
+            projectManager = new Libadalang.ProjectManager(gprOptions, true);
+
+            // Filter project diagnostics and fetch the implicitly loaded project file if any
+            var diagnosticsToForward = new ArrayList<String>();
+            var loadedProject = projectFile;
+            for (var diag : projectManager.getDiagnostics()) {
+                if (diag.startsWith("using project file")) {
+                    var split = diag.split(" ");
+                    loadedProject = Optional.of(split[split.length - 1]);
+                } else if (!diag.startsWith("use implicit project")) {
+                    diagnosticsToForward.add(diag);
                 }
+            }
 
-                // Get the subproject provided by the user
-                final String[] subprojects = this.getOptions()
-                    .subprojectFile()
-                    .map(s -> new String[] { s })
-                    .orElse(null);
-
-                // If no files were specified by the user, the files to analyze
-                // are those of the root project (i.e. without recursing into
-                // project dependencies)
-                if (this.specifiedSourceFiles.isEmpty()) {
-                    this.specifiedSourceFiles.addAll(
-                        Arrays.stream(
-                            this.projectManager.getFiles(
-                                Libadalang.SourceFileMode.ROOT_PROJECT,
-                                subprojects
-                            )
-                        ).toList()
-                    );
+            // Forward project diagnostics only if a project file has been loaded
+            if (!diagnosticsToForward.isEmpty() && loadedProject.isPresent()) {
+                for (var diagnostic : diagnosticsToForward) {
+                    getLogger().severe(diagnostic);
                 }
+            }
 
-                // The `units()` built-in function must return all units of the
-                // project including units from its dependencies. So let's
-                // retrieve all those files as well.
-                this.allSourceFiles.addAll(
-                    Arrays.stream(
-                        this.projectManager.getFiles(
-                            Libadalang.SourceFileMode.WHOLE_PROJECT,
-                            subprojects
-                        )
-                    ).toList()
-                );
+            // Create an array containing the requested subproject if any
+            var subprojects = options
+                .subprojectFile()
+                .map(f -> new String[] { f })
+                .orElse(null);
 
-                this.analysisContext = this.projectManager.createContext(
-                    this.getOptions().subprojectFile().orElse(null),
-                    this.eventHandler,
-                    true,
-                    8
+            // If no files were specified by the user, the files to analyze are those of the root
+            // project (i.e. without recursing into project dependencies)
+            if (specifiedSourceFiles.isEmpty()) {
+                specifiedSourceFiles.addAll(
+                    List.of(
+                        projectManager.getFiles(Libadalang.SourceFileMode.ROOT_PROJECT, subprojects)
+                    )
                 );
             }
-            // Else, either load the implicit project.
-            else {
-                opts.addSwitch(Libadalang.ProjectOption.NO_PROJECT);
 
-                // We should not get any scenario variable if we are being run
-                // without a project file.
-                if (vars.length != 0) {
-                    throw LKQLEngineException.create(
-                        "Scenario variable specifications require a project file"
-                    );
-                }
+            // The 'units()' built-in function must return all units of the project including units
+            // from its dependencies. So let's retrieve all those files as well.
+            allSourceFiles.addAll(
+                List.of(
+                    projectManager.getFiles(Libadalang.SourceFileMode.WHOLE_PROJECT, subprojects)
+                )
+            );
 
-                // If the option is the empty string, the language
-                // implementation will end up setting it to the default value
-                // for its language (e.g. iso-8859-1 for Ada).
-                String charset = this.getOptions().charset().orElse("");
-
-                // Load the implicit project
-                this.projectManager = new Libadalang.ProjectManager(opts, true);
-                this.allSourceFiles.addAll(
-                    Arrays.stream(
-                        this.projectManager.getFiles(Libadalang.SourceFileMode.WHOLE_PROJECT)
-                    ).toList()
-                );
-                final Libadalang.UnitProvider provider = this.projectManager.getProvider();
-
-                // Create the ada context and store it in the LKQL context
-                /*
-                 * TODO: Genericize LKQL or Java issue #502. Requires to make create static but not possible
-                 * via an interface nor an abstract class.
-                 */
-                this.analysisContext = Libadalang.AnalysisContext.create(
-                    charset,
-                    null,
-                    provider,
-                    this.eventHandler,
-                    true,
-                    8
-                );
-            }
+            // Finally create an analysis context from the loaded project
+            analysisContext = projectManager.createContext(
+                options.subprojectFile().orElse(null),
+                options.charset().orElse(null),
+                eventHandler,
+                true,
+                8
+            );
         } catch (Libadalang.ProjectManagerException e) {
             throw LKQLEngineException.create(e);
         }

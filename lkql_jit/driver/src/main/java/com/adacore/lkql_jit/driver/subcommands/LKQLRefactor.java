@@ -50,9 +50,6 @@ import picocli.CommandLine;
 )
 public class LKQLRefactor implements Callable<Integer> {
 
-    @CommandLine.Spec
-    public picocli.CommandLine.Model.CommandSpec spec;
-
     @CommandLine.Parameters(description = "LKQL files to refactor")
     public List<String> files = new ArrayList<>();
 
