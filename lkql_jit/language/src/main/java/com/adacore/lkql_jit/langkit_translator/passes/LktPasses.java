@@ -630,6 +630,13 @@ public final class LktPasses {
                     case OP_GTE -> BinGeqNodeGen.create(location, left, right);
                     default -> null;
                 };
+            } else if (expr instanceof Liblktlang.UnOp unOp) {
+                final var arg = buildExpr(unOp.fExpr());
+                final SourceSection location = loc(unOp);
+                return switch (unOp.fOp().getKind()) {
+                    case OP_MINUS -> UnMinusNodeGen.create(location, arg);
+                    default -> null;
+                };
             } else if (expr instanceof NotExpr notExpr) {
                 return UnNotNodeGen.create(loc(notExpr), buildExpr(notExpr.fExpr()));
             } else if (expr instanceof Liblktlang.IfExpr ifExpr) {
