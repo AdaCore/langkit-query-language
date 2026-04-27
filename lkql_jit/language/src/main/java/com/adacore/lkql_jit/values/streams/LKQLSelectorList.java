@@ -94,16 +94,18 @@ public class LKQLSelectorList extends BaseCachedStream {
 
             // Add the call result to the result and recurse list
             addToRecurse(result.recurseVal, result.depth);
-            addToResult(result.resultVal, result.depth);
+            if (isValidDepth(result.depth)) {
+                addToResult(result.resultVal);
+            }
         }
         return this.cache.get((int) n);
     }
 
     /** Add the object to the result cache of the selector list. */
     @CompilerDirectives.TruffleBoundary
-    private void addToResult(Object[] toAdd, int depth) {
+    private void addToResult(Object[] toAdd) {
         for (var val : toAdd) {
-            this.addResult(val, depth);
+            cache.append(val);
         }
     }
 
@@ -121,22 +123,18 @@ public class LKQLSelectorList extends BaseCachedStream {
         }
     }
 
-    /** Add a node in the result and hashed cache with all verifications. */
-    private void addResult(Object value, int depth) {
+    /** Tests if depth is in the valid range. */
+    private boolean isValidDepth(int depth) {
         // If there is no defined depth
         if (this.exactDepth < 0) {
-            if (
+            return (
                 (this.maxDepth < 0 || depth <= this.maxDepth) &&
                 (this.minDepth < 0 || depth >= this.minDepth)
-            ) {
-                this.cache.append(value);
-            }
+            );
         }
         // Else, only get the wanted nodes
         else {
-            if (depth == this.exactDepth) {
-                this.cache.append(value);
-            }
+            return depth == this.exactDepth;
         }
     }
 }
