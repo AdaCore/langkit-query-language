@@ -5,13 +5,15 @@
 
 package com.adacore.lkql_jit.values.streams;
 
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
+import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLDepthValue;
-import com.adacore.lkql_jit.values.LKQLRecValue;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.nodes.RootNode;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 
@@ -19,6 +21,9 @@ import java.util.HashSet;
 public class LKQLSelectorList extends BaseCachedStream {
 
     // ----- Attributes -----
+
+    /** Root for the selector execution. */
+    private final FunctionRootNode rootNode;
 
     /** Call target representing the selector execution. */
     private final CallTarget callTarget;
@@ -51,7 +56,7 @@ public class LKQLSelectorList extends BaseCachedStream {
      */
     @CompilerDirectives.TruffleBoundary
     public LKQLSelectorList(
-        RootNode rootNode,
+        FunctionRootNode rootNode,
         Closure closure,
         Object value,
         int maxDepth,
@@ -62,6 +67,7 @@ public class LKQLSelectorList extends BaseCachedStream {
         super(new ListStorage<>(16));
         this.arguments = new Object[3];
         this.arguments[0] = closure;
+        this.rootNode = rootNode;
         this.callTarget = rootNode.getCallTarget();
         this.toVisitList = new ArrayDeque<>();
         this.maxDepth = maxDepth;
@@ -87,15 +93,25 @@ public class LKQLSelectorList extends BaseCachedStream {
     public Object get(long n) {
         while (!(this.toVisitList.size() == 0) && (this.cache.size() - 1 < n || n < 0)) {
             // Get the first recurse item and execute the selector on it
-            LKQLDepthValue nextNode = this.toVisitList.poll();
-            arguments[1] = nextNode.value;
-            arguments[2] = (long) nextNode.depth;
-            LKQLRecValue result = (LKQLRecValue) callTarget.call(arguments);
+            LKQLDepthValue input = this.toVisitList.poll();
+            arguments[1] = input.value;
+            arguments[2] = (long) input.depth;
+            final var result = callTarget.call(arguments);
+            final int resultDepth = input.depth + 1;
 
-            // Add the call result to the result and recurse list
-            addToRecurse(result.recurseVal, result.depth);
-            if (isValidDepth(result.depth)) {
-                addToResult(result.resultVal);
+            if (LKQLTypeSystemGen.isLKQLRecValue(result)) {
+                final var res = LKQLTypeSystemGen.asLKQLRecValue(result);
+                // Add the call result to the result and recurse list
+                addToRecurse(res.recurseVal, resultDepth);
+                if (isValidDepth(resultDepth)) {
+                    addToResult(res.resultVal);
+                }
+            } else if (!LKQLTypeSystemGen.isNullish(result)) {
+                throw LKQLRuntimeError.wrongType(
+                    LKQLTypesHelper.LKQL_REC_VALUE,
+                    LKQLTypesHelper.fromJava(result),
+                    rootNode.getBody()
+                );
             }
         }
         return this.cache.get((int) n);

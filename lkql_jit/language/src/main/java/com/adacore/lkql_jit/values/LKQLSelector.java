@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.values;
 
+import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.values.interop.LKQLAnnotation;
@@ -15,7 +16,6 @@ import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Optional;
 
@@ -32,7 +32,7 @@ public class LKQLSelector extends LKQLCallable {
     private static final Node[] SELECTOR_DEFAULT_PARAMETERS = { null };
 
     /** The root node containing the selector semantics. */
-    private final RootNode rootNode;
+    private final FunctionRootNode rootNode;
 
     /** Closure for the selector execution. */
     private final Closure closure;
@@ -50,7 +50,7 @@ public class LKQLSelector extends LKQLCallable {
      * @param checkCycles Whether to check cycles in the result returned by the selector.
      */
     public LKQLSelector(
-        RootNode rootNode,
+        FunctionRootNode rootNode,
         Closure closure,
         String documentation,
         boolean checkCycles

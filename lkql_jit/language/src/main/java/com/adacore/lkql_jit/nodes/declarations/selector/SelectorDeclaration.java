@@ -11,7 +11,7 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ClosureDescr
 import com.adacore.lkql_jit.nodes.declarations.Annotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
+import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.nodes.utils.CreateClosureNode;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.values.LKQLSelector;
@@ -45,7 +45,7 @@ public final class SelectorDeclaration extends Declaration {
     private final ClosureDescriptor closureDescriptor;
 
     /** The root node of the selector. */
-    private final SelectorRootNode selectorRootNode;
+    private final FunctionRootNode selectorRootNode;
 
     @Child
     CreateClosureNode createClosureNode;
@@ -71,13 +71,17 @@ public final class SelectorDeclaration extends Declaration {
         this.documentation = documentation;
         this.slot = slot;
 
-        this.selectorRootNode = new SelectorRootNode(
+        this.selectorRootNode = new FunctionRootNode(
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
             annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
+            true,
+            new String[] { "this" },
+            new Expr[] { null },
             body,
             name
         );
+
         this.createClosureNode = new CreateClosureNode(closureDescriptor);
     }
 
