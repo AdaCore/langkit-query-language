@@ -1,3 +1,14 @@
+# ----- Misc -----
+
+|" Yields all the descendants of the given node (including itself)
+fun subtree(this: AdaNode): Stream[AdaNode] =
+    match this {
+        case AdaNode => this :: this.children.flat_map(subtree)
+        case _ => nil()
+    }
+
+val all_nodes = units().flat_map((unit: AnalysisUnit) => subtree(unit.root))
+
 # ----- Support for selectors -----
 
 fun make_depth_predicate(depth: Int, min_depth: Int, max_depth: Int): (Int) -> Bool =
@@ -41,6 +52,7 @@ fun children_body(this : Any) : Any = match this {
     case _ => Rec([], [])
 }
 
+
 |" Yields all the next siblings of the given node
 fun next_siblings(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
     unfold(next_siblings_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
@@ -69,5 +81,3 @@ fun prev_siblings_body(this : Any) : Any = match this {
     case AdaNode => Rec(non_null(this.previous_sibling()), non_null(this.previous_sibling()))
     case _ => Rec([], [])
 }
-
-val all_nodes = units().flat_map((unit : Any) => children(unit.root))

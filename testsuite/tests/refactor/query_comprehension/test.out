@@ -10,10 +10,10 @@ val _ = print(
 val _ = from all_nodes match AdaNode
 
 # Select all non null nodes starting from node a
-val _ = from children(a) match AdaNode
+val _ = from subtree(a) match AdaNode
 
 # Select all non null nodes starting from all nodes in list
-val _ = from ([a, b, c]).flat_map(children) match AdaNode
+val _ = from ([a, b, c]).flat_map(subtree) match AdaNode
 
 # Select first basic declaration
 val _ = # useless comment 1

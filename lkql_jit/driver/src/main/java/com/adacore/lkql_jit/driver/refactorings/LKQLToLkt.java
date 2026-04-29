@@ -447,7 +447,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
                 : "units().flat_map((unit) => " + refactorNode(throughNode) + "(unit.root))";
         } else {
             final var from = refactorNode(fromNode);
-            final var through = throughNode.isNone() ? "children" : refactorNode(throughNode);
+            final var through = throughNode.isNone() ? "subtree" : refactorNode(throughNode);
 
             // best effort heuristic to cover common cases
             final var isPlural = switch (fromNode) {
