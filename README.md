@@ -9,38 +9,37 @@ The syntax is not stable for now.
 
 [`lkql/`](lkql): Langkit language definition for the LKQL parser.
 
-[`lkql_checker/`](lkql_checker): GNATcheck sources and predefined LKQL rules.
-
 [`lkql_jit/`](lkql_jit): LKQL reference implementation using the Truffle Java
    framework.
+
+> GNATcheck and GNATkp have been moved to their own
+> [repository](https://gitlab.adacore-it.com/eng/codepeer/gnatcheck).
 
 ## Building & using
 
 ### Prerequisites
 
-You need to have GNAT, langkit and libadalang all available and in the proper
-paths.
+The preferred way to build and use LKQL is to use an `ancr` development
+environment, which installs all dependencies and sets up the environment:
+
+``` sh
+git clone https://gitlab.adacore-it.com/eng/devenv/ancr
+cd ancr
+./bin/ancr build libadalang
+./bin/ancr shell libadalang
+cd langkit-query-language
+```
 
 ### Build steps
 
-- Building LKQL is done via
+- Building LKQL can then be done via
 
 ```
-lkm make
+make
 ```
 
-- You can then make LKQL available (binaries, Ada libraries, and Python lib)
-  via:
-
-```
-eval `lkm setenv`
-```
-
-- LKQL checker (linter based on lkql) is built separately:
-
-```
-gprbuild -P lkql_checker/lkql_checker.gpr -p
-```
+- GNATcheck (the linter based on LKQL) is built separately and hosted in its
+  own [repository](https://gitlab.adacore-it.com/eng/codepeer/gnatcheck).
 
 ### Running the testsuite
 
@@ -63,7 +62,7 @@ directory to be able to run performances tests.
 ### Adding a test
 
 To add a test case in the testsuite you must follow the e3-testsuite standard. Moreover
-you have to annotate Ada flagged lines when using `checker` and `gnatcheck` drivers.
+you have to annotate Ada flagged lines when using the `checker` driver.
 To annotate an Ada line as flagged you must follow this syntax:
 
 ```ada
