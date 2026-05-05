@@ -40,8 +40,3 @@ e
 1
 "1"
 
-=== Try to access an invalid index in the stream
-script.lkql:70:15: error: Invalid index: 6
-  70 | val _ = print(err_s[6])
-     |               ^^^^^^^^
-

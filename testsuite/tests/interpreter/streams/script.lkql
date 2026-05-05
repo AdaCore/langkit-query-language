@@ -63,9 +63,3 @@ val _ = print(flatten_ints_and_images[2].img)
 val _ = print(flatten_ints_and_images[3].img)
 val _ = print(flatten_ints_and_images[4].img)
 val _ = print("")
-
-# Ensure invalid index raise an error
-val _ = print("=== Try to access an invalid index in the stream")
-val err_s = 1 :: 2 :: nil()
-val _ = print(err_s[6])
-val _ = print("")

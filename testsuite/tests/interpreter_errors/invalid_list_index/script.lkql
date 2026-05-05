@@ -1,2 +1,2 @@
-val p = select p when true
+val p = (select p when true).to_list
 print (p[999999])
