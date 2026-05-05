@@ -37,8 +37,6 @@ public class LKQLSelector extends LKQLCallable {
     /** Closure for the selector execution. */
     private final Closure closure;
 
-    private final boolean checkCycles;
-
     // ----- Constructors -----
 
     /**
@@ -49,12 +47,7 @@ public class LKQLSelector extends LKQLCallable {
      * @param documentation The documentation of the selector.
      * @param checkCycles Whether to check cycles in the result returned by the selector.
      */
-    public LKQLSelector(
-        FunctionRootNode rootNode,
-        Closure closure,
-        String documentation,
-        boolean checkCycles
-    ) {
+    public LKQLSelector(FunctionRootNode rootNode, Closure closure, String documentation) {
         super(
             rootNode.getName(),
             LKQLCallable.CallableKind.SELECTOR,
@@ -65,7 +58,6 @@ public class LKQLSelector extends LKQLCallable {
         );
         this.rootNode = rootNode;
         this.closure = closure;
-        this.checkCycles = checkCycles;
     }
 
     // ----- Instance functions -----
@@ -98,15 +90,7 @@ public class LKQLSelector extends LKQLCallable {
      * @param depth The precise depth to get.
      */
     public LKQLSelectorList getList(Object value, int maxDepth, int minDepth, int depth) {
-        return new LKQLSelectorList(
-            this.rootNode,
-            this.closure,
-            value,
-            maxDepth,
-            minDepth,
-            depth,
-            checkCycles
-        );
+        return new LKQLSelectorList(this.rootNode, this.closure, value, maxDepth, minDepth, depth);
     }
 
     // ----- Value methods -----

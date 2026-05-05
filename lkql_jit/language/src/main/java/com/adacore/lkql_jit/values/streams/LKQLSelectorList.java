@@ -46,9 +46,6 @@ public class LKQLSelectorList extends BaseCachedStream {
     /** The precise depth to get from the selector. */
     private final int exactDepth;
 
-    /** Whether to check if there is cycles in the selector list. */
-    private final boolean checkCycles;
-
     // ----- Constructors -----
 
     /**
@@ -61,8 +58,7 @@ public class LKQLSelectorList extends BaseCachedStream {
         Object value,
         int maxDepth,
         int minDepth,
-        int depth,
-        boolean checkCycles
+        int depth
     ) {
         super(new ListStorage<>(16));
         this.arguments = new Object[3];
@@ -74,12 +70,19 @@ public class LKQLSelectorList extends BaseCachedStream {
         this.minDepth = minDepth;
         this.exactDepth = depth;
         this.toVisitList.add(new LKQLDepthValue(0, value));
-        this.checkCycles = checkCycles;
-        if (checkCycles) {
+        // We only check cycles on memoized selectors for now
+        if (rootNode.isMemoized()) {
             this.alreadyVisited = new HashSet<>();
         } else {
             this.alreadyVisited = null;
         }
+    }
+
+    // ----- Getters -----
+
+    /** Should the selector list check for cycles. */
+    private boolean shouldCheckCycles() {
+        return this.alreadyVisited != null;
     }
 
     // ----- Instance methods -----
@@ -102,7 +105,13 @@ public class LKQLSelectorList extends BaseCachedStream {
             if (LKQLTypeSystemGen.isLKQLRecValue(result)) {
                 final var res = LKQLTypeSystemGen.asLKQLRecValue(result);
                 // Add the call result to the result and recurse list
-                addToRecurse(res.recurseVal, resultDepth);
+
+                if (shouldCheckCycles()) {
+                    addToRecurseAndCheckCycles(res.recurseVal, resultDepth);
+                } else {
+                    addToRecurse(res.recurseVal, resultDepth);
+                }
+
                 if (isValidDepth(resultDepth)) {
                     addToResult(res.resultVal);
                 }
@@ -130,9 +139,16 @@ public class LKQLSelectorList extends BaseCachedStream {
     private void addToRecurse(Object[] toAdd, int depth) {
         for (var val : toAdd) {
             var depthVal = new LKQLDepthValue(depth, val);
-            if (!checkCycles) {
-                this.toVisitList.add(depthVal);
-            } else if (!this.alreadyVisited.contains(depthVal)) {
+            this.toVisitList.add(depthVal);
+        }
+    }
+
+    /** Add the object to the recursing list of the selector list if there is no cycle. */
+    @CompilerDirectives.TruffleBoundary
+    private void addToRecurseAndCheckCycles(Object[] toAdd, int depth) {
+        for (var val : toAdd) {
+            var depthVal = new LKQLDepthValue(depth, val);
+            if (!this.alreadyVisited.contains(depthVal)) {
                 this.toVisitList.add(depthVal);
                 this.alreadyVisited.add(depthVal);
             }

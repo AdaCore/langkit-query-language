@@ -1,0 +1,6 @@
+@memoized
+selector loop
+|" Infinite loop
+| _ => rec(this)
+
+print(loop(units()[1].root).to_list)
