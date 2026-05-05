@@ -27,7 +27,6 @@ import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockExpr;
-import com.adacore.lkql_jit.nodes.expressions.dot.BaseDotAccess;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessWrapperNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.dot.SafeDotAccessNodeGen;
@@ -311,7 +310,7 @@ public final class LktPasses {
             }
 
             for (var fullDecl : root.fDecls()) {
-                topLevelNodes.add(buildDecl(fullDecl.fDecl()));
+                buildDecl(fullDecl.fDecl()).ifPresent(topLevelNodes::add);
             }
 
             frames.exitFrame();
@@ -352,7 +351,7 @@ public final class LktPasses {
             );
         }
 
-        private Declaration buildDecl(Liblktlang.Decl decl) {
+        private Optional<Declaration> buildDecl(Liblktlang.Decl decl) {
             return switch (decl) {
                 case Liblktlang.FunDecl funDecl -> {
                     final var name = funDecl.fSynName().getText();
@@ -379,30 +378,34 @@ public final class LktPasses {
                         )
                     );
 
-                    if (annotation == null) yield ret;
+                    if (annotation == null) yield Optional.of(ret);
 
-                    yield switch (annotation.getName()) {
-                        case Constants.ANNOTATION_NODE_CHECK -> new CheckerExport(
-                            loc(funDecl),
-                            annotation,
-                            CheckerExport.CheckerMode.NODE,
-                            ret
-                        );
-                        case Constants.ANNOTATION_UNIT_CHECK -> new CheckerExport(
-                            loc(funDecl),
-                            annotation,
-                            CheckerExport.CheckerMode.UNIT,
-                            ret
-                        );
-                        default -> ret;
-                    };
+                    yield Optional.of(
+                        switch (annotation.getName()) {
+                            case Constants.ANNOTATION_NODE_CHECK -> new CheckerExport(
+                                loc(funDecl),
+                                annotation,
+                                CheckerExport.CheckerMode.NODE,
+                                ret
+                            );
+                            case Constants.ANNOTATION_UNIT_CHECK -> new CheckerExport(
+                                loc(funDecl),
+                                annotation,
+                                CheckerExport.CheckerMode.UNIT,
+                                ret
+                            );
+                            default -> ret;
+                        }
+                    );
                 }
                 case Liblktlang.ValDecl valDecl -> {
                     final var name = valDecl.fSynName().getText();
                     // Build expr BEFORE the name is bound
                     final var value = buildExpr(valDecl.fExpr());
                     frames.declareBinding(name);
-                    yield new ValueDeclaration(loc(valDecl), frames.getBinding(name), value);
+                    yield Optional.of(
+                        new ValueDeclaration(loc(valDecl), frames.getBinding(name), value)
+                    );
                 }
                 case Liblktlang.StructDecl structDecl -> {
                     // Structs declarations are lowered to a constructor
@@ -466,8 +469,29 @@ public final class LktPasses {
                     );
 
                     frames.exitFrame();
-                    yield res;
+                    yield Optional.of(res);
                 }
+                case EnumTypeDecl enumTypeDecl -> {
+                    var enumName = enumTypeDecl.fSynName().getText();
+                    var variants = enumTypeDecl.fLiterals().children();
+                    frames.declareBinding(enumName);
+                    yield Optional.of(
+                        new ValueDeclaration(
+                            loc(enumTypeDecl),
+                            frames.getBinding(enumName),
+                            new ObjectLiteral(
+                                loc(enumTypeDecl.fLiterals()),
+                                Arrays.stream(variants)
+                                    .map(LktNode::getText)
+                                    .toArray(String[]::new),
+                                Arrays.stream(variants)
+                                    .map(v -> new StringLiteral(loc(v), v.getText()))
+                                    .toArray(Expr[]::new)
+                            )
+                        )
+                    );
+                }
+                case ClassDecl _ -> Optional.empty();
                 default -> throw LKQLEngineException.create(
                     "Translation for " + decl.getKind() + " not implemented"
                 );
@@ -508,21 +532,21 @@ public final class LktPasses {
                 );
             } else if (expr instanceof Liblktlang.BlockExpr blockExpr) {
                 frames.enterFrame(blockExpr);
-                final var blockBody = new BlockBody[blockExpr.fClauses().getChildrenCount() - 1];
-                for (int i = 0; i < blockBody.length; i++) {
-                    final var clause = (Liblktlang.BlockExprClause) blockExpr
-                        .fClauses()
-                        .getChild(i);
-                    final var decl = ((Liblktlang.FullDecl) clause.fClause()).fDecl();
-                    blockBody[i] = new BlockBodyDecl(loc(decl), buildDecl(decl));
+                var blockBody = new ArrayList<BlockBody>();
+                var clauses = blockExpr.fClauses();
+                for (int i = 0; i < clauses.getChildrenCount() - 1; i++) {
+                    final var decl = ((Liblktlang.FullDecl) ((BlockExprClause) clauses.getChild(
+                                i
+                            )).fClause()).fDecl();
+                    buildDecl(decl)
+                        .map(d -> new BlockBodyDecl(d.getSourceSection(), d))
+                        .ifPresent(blockBody::add);
                 }
                 final var subExpr = buildExpr(
-                    (Liblktlang.Expr) blockExpr
-                        .fClauses()
-                        .getChild(blockExpr.fClauses().getChildrenCount() - 1)
+                    (Liblktlang.Expr) blockExpr.fClauses().getChild(clauses.getChildrenCount() - 1)
                 );
                 frames.exitFrame();
-                return new BlockExpr(loc(blockExpr), blockBody, subExpr);
+                return new BlockExpr(loc(blockExpr), blockBody.toArray(new BlockBody[0]), subExpr);
             } else if (expr instanceof RefId id) {
                 // In LKQL, true & false are keywords. In Lkt, they're just an instance of the Bool
                 // enum. Waiting for more generalized handling of Lkt enums in LKQL, we'll just do
@@ -636,15 +660,16 @@ public final class LktPasses {
                     buildExpr(subscriptExpr.fIndex())
                 );
             } else if (expr instanceof DotExpr dotExpr) {
-                final var memberIdentifier = dotExpr.fSuffix();
-                final var loc = loc(dotExpr);
-                final var id = new Identifier(loc(memberIdentifier), memberIdentifier.getText());
-                final var prefix = buildExpr(dotExpr.fPrefix());
-                final BaseDotAccess dotAccess = (dotExpr.fNullCond() instanceof
-                            Liblktlang.NullCondQualifierPresent)
-                    ? SafeDotAccessNodeGen.create(loc, id, prefix)
-                    : DotAccessNodeGen.create(loc, id, prefix);
-                return DotAccessWrapperNodeGen.create(dotAccess.getSourceSection(), dotAccess);
+                var loc = loc(dotExpr);
+                var memberNode = dotExpr.fSuffix();
+                var member = new Identifier(loc(memberNode), memberNode.getText());
+                var prefix = dotExpr.fPrefix();
+                return DotAccessWrapperNodeGen.create(
+                    loc,
+                    dotExpr.fNullCond() instanceof Liblktlang.NullCondQualifierPresent
+                        ? SafeDotAccessNodeGen.create(loc, member, buildExpr(prefix))
+                        : DotAccessNodeGen.create(loc, member, buildExpr(prefix))
+                );
             } else if (expr instanceof MatchExpr matchExpr) {
                 Expr matchVal = buildExpr(matchExpr.fMatchExpr());
                 var arms = Arrays.stream(matchExpr.fBranches().children())

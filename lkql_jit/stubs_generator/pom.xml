@@ -10,7 +10,7 @@
         <version>0.1.0</version>
     </parent>
 
-    <artifactId>builtins_annotations</artifactId>
+    <artifactId>stubs_generator</artifactId>
 
     <build>
         <plugins>
@@ -23,17 +23,27 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <compilerArgs>
-                        <compilerArgument>-proc:none</compilerArgument>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>libadalang</artifactId>
+            <version>${config.libadalangVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>liblktlang</artifactId>
+            <version>${config.liblktlangVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>langkit_support</artifactId>
+            <version>${config.langkit_supportVersion}</version>
+        </dependency>
+    </dependencies>
 
 </project>
