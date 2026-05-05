@@ -38,13 +38,13 @@ public class LKQLSelectorList extends BaseCachedStream {
     private final ArrayDeque<LKQLDepthValue> toVisitList;
 
     /** The maximal depth for the return. */
-    private final int maxDepth;
+    private final long maxDepth;
 
     /** The minimal depth for the return. */
-    private final int minDepth;
+    private final long minDepth;
 
     /** The precise depth to get from the selector. */
-    private final int exactDepth;
+    private final long exactDepth;
 
     // ----- Constructors -----
 
@@ -56,9 +56,9 @@ public class LKQLSelectorList extends BaseCachedStream {
         FunctionRootNode rootNode,
         Closure closure,
         Object value,
-        int maxDepth,
-        int minDepth,
-        int depth
+        long depth,
+        long maxDepth,
+        long minDepth
     ) {
         super(new ListStorage<>(16));
         this.arguments = new Object[3];

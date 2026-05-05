@@ -15,8 +15,7 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.values.LKQLSelector;
-import com.adacore.lkql_jit.values.streams.LKQLSelectorList;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
@@ -89,18 +88,13 @@ public final class SelectorCall extends LKQLNode {
      */
     public boolean executeVerification(VirtualFrame frame, Object node, Pattern pattern) {
         // Get the selector list
-        LKQLSelectorList selectorListValue = this.getSelectorList(frame, node);
+        var selectorListValue = this.getSelectorList(frame, node);
 
-        // Get the result of the validation
-        boolean isValid;
-        if (this.quantifier == Quantifier.ALL) {
-            isValid = this.isAll(frame, selectorListValue, pattern);
-        } else {
-            isValid = this.isAny(frame, selectorListValue, pattern);
-        }
-
-        // Return the result
-        return isValid;
+        // Return the result of the validation
+        return switch (this.quantifier) {
+            case ALL -> this.isAll(frame, selectorListValue, pattern);
+            case ANY -> this.isAny(frame, selectorListValue, pattern);
+        };
     }
 
     // ----- Class methods -----
@@ -112,21 +106,22 @@ public final class SelectorCall extends LKQLNode {
      * @param node The root node of the selector list.
      * @return The selector list for the selector call.
      */
-    private LKQLSelectorList getSelectorList(VirtualFrame frame, Object node) {
+    private LKQLStream getSelectorList(VirtualFrame frame, Object node) {
         // Get the selector and verify its type
-        Object selectorObject = this.selectorExpr.executeGeneric(frame);
-        if (!LKQLTypeSystemGen.isLKQLSelector(selectorObject)) {
+        var selector = this.selectorExpr.executeGeneric(frame);
+        if (!LKQLTypeSystemGen.isLKQLFunction(selector)) {
             throw LKQLRuntimeError.wrongType(
-                LKQLTypesHelper.LKQL_SELECTOR,
-                LKQLTypesHelper.fromJava(selectorObject),
+                LKQLTypesHelper.LKQL_FUNCTION,
+                LKQLTypesHelper.fromJava(selector),
                 this.selectorExpr
             );
         }
+        var selectorFunction = LKQLTypeSystemGen.asLKQLFunction(selector);
 
         // Get the arguments
-        int depth = -1;
-        int maxDepth = -1;
-        int minDepth = -1;
+        long depth = -1;
+        long maxDepth = -1;
+        long minDepth = -1;
 
         if (this.args != null) {
             for (Arg rawArg : args.getArgs()) {
@@ -174,19 +169,29 @@ public final class SelectorCall extends LKQLNode {
         }
 
         // Cast the selector value and return the selector list
-        LKQLSelector selectorValue = LKQLTypeSystemGen.asLKQLSelector(selectorObject);
-        return selectorValue.getList(node, maxDepth, minDepth, depth);
+        var result = selectorFunction
+            .getCallTarget()
+            .call(null, selectorFunction.closure, node, depth, maxDepth, minDepth);
+        if (LKQLTypeSystemGen.isLKQLStream(result)) {
+            return LKQLTypeSystemGen.asLKQLStream(result);
+        } else {
+            throw LKQLRuntimeError.wrongType(
+                LKQLTypesHelper.LKQL_STREAM,
+                LKQLTypesHelper.fromJava(result),
+                this.selectorExpr
+            );
+        }
     }
 
     /**
      * Verify if all node verify the pattern.
      *
      * @param frame The frame to execute in.
-     * @param selectorListValue The list representing traversal of the selector.
+     * @param selectorListValue The stream representing traversal of the selector.
      * @param pattern The pattern to verify.
      * @return True of all nodes of the traversal verify the pattern, false else.
      */
-    private boolean isAll(VirtualFrame frame, LKQLSelectorList selectorListValue, Pattern pattern) {
+    private boolean isAll(VirtualFrame frame, LKQLStream selectorListValue, Pattern pattern) {
         // Iterate on nodes
         var it = selectorListValue.iterator();
         while (it.hasNext()) {
@@ -201,11 +206,11 @@ public final class SelectorCall extends LKQLNode {
      * Verify if any of the node verify the pattern.
      *
      * @param frame The frame to execute in.
-     * @param selectorListValue The list representing traversal of the selector.
+     * @param selectorListValue The stream representing traversal of the selector.
      * @param pattern The pattern to verify.
      * @return True if there is any node that verify the pattern, false else.
      */
-    private boolean isAny(VirtualFrame frame, LKQLSelectorList selectorListValue, Pattern pattern) {
+    private boolean isAny(VirtualFrame frame, LKQLStream selectorListValue, Pattern pattern) {
         // Iterate on nodes.
         // Here we use an iterator to compute the iterator list content in a
         // lazy way.

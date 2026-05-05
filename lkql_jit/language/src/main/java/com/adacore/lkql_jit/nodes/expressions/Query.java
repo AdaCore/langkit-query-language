@@ -12,9 +12,10 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.values.LKQLFunction;
 import com.adacore.lkql_jit.values.LKQLNull;
-import com.adacore.lkql_jit.values.LKQLSelector;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
+import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -128,12 +129,12 @@ public final class Query extends Expr {
         };
     }
 
-    private LKQLSelector executeThrough(VirtualFrame frame) {
+    private LKQLFunction executeThrough(VirtualFrame frame) {
         try {
-            return this.throughExpr.executeSelector(frame);
+            return this.throughExpr.executeFunction(frame);
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeError.wrongType(
-                LKQLTypesHelper.LKQL_SELECTOR,
+                LKQLTypesHelper.LKQL_FUNCTION,
                 LKQLTypesHelper.fromJava(e.getResult()),
                 this.throughExpr
             );
@@ -182,10 +183,19 @@ public final class Query extends Expr {
      *     exploration
      * @return The iterator for the node exploration
      */
-    private Iterator createNodeIterator(LangkitSupport.NodeInterface root, LKQLSelector through) {
-        return (through == null)
-            ? new ChildIterator(root, this.followGenerics)
-            : through.getList(root).iterator();
+    private Iterator createNodeIterator(LangkitSupport.NodeInterface root, LKQLFunction through) {
+        if (through == null) return new ChildIterator(root, followGenerics);
+
+        var selectorList = through.getCallTarget().call(null, through.closure, root, -1l, -1l, -1l);
+        if (selectorList instanceof LKQLStream stream) {
+            return stream.iterator();
+        } else {
+            throw LKQLRuntimeError.wrongType(
+                LKQLTypesHelper.LKQL_STREAM,
+                LKQLTypesHelper.fromJava(selectorList),
+                throughExpr
+            );
+        }
     }
 
     // ----- Override methods -----

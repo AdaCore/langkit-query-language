@@ -97,7 +97,7 @@ public abstract class LKQLCallable extends LKQLValue {
         var expandedParams = new String[this.parameterNames.length];
         for (int i = 0; i < parameterNames.length; i++) {
             var defVal = parameterDefaultValues[i];
-            if (defVal != null) {
+            if (defVal != null && defVal.getSourceSection() != null) {
                 expandedParams[i] =
                     parameterNames[i] + "=" + defVal.getSourceSection().getCharacters().toString();
             } else {

@@ -35,7 +35,7 @@ public class Main {
         System.out.println("=== Selector interop messages:");
         print("toString()", selector.toString());
         print("canExecute()", selector.canExecute());
-        Value callRes = selector.execute(node);
+        Value callRes = selector.execute(null, node, -1l, -1l, -1l);
         print("execute(node)", callRes);
         print("callRes.hasIterator()", callRes.hasIterator());
         var iterator = callRes.getIterator();
