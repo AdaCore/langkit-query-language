@@ -100,7 +100,7 @@ public class LKQLConsStream extends BaseCachedStream {
         public LKQLStream getTail() {
             var executionResult = this.tailExecutionUnit.call(this.tailClosure);
             return switch (executionResult) {
-                case LKQLConsStream consTail -> consTail.next;
+                case LKQLConsStream consTail when consTail.cache.size() == 0 -> consTail.next;
                 case LKQLStream tail -> tail;
                 default -> throw LKQLRuntimeError.wrongType(
                     LKQLTypesHelper.LKQL_STREAM,
@@ -184,7 +184,7 @@ public class LKQLConsStream extends BaseCachedStream {
                     this.tailClosure
                 );
                 return switch (executionResult) {
-                    case LKQLConsStream consTail -> consTail.next;
+                    case LKQLConsStream consTail when consTail.cache.size() == 0 -> consTail.next;
                     case LKQLStream tail -> tail;
                     default -> throw LKQLRuntimeError.wrongType(
                         LKQLTypesHelper.LKQL_STREAM,

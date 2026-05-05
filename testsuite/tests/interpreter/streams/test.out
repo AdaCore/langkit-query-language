@@ -2,6 +2,7 @@
 1
 3
 5
+6
 
 === Ensure laziness
 First!
@@ -16,6 +17,7 @@ b
 e
 f
 6
+true
 
 === Concatenating a list with a stream
 1
