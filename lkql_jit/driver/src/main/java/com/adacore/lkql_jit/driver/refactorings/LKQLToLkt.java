@@ -9,6 +9,8 @@ import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import java.util.ArrayList;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,7 +44,11 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.ParameterDecl paramDecl -> refactorParamDecl(paramDecl);
             case Liblkqllang.Match match -> refactorMatch(match);
             case Liblkqllang.MatchArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
-            case Liblkqllang.SelectorArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
+            case Liblkqllang.SelectorArm arm -> refactorSelectorArm(
+                arm,
+                arm.fPattern(),
+                arm.fExpr()
+            );
             case Liblkqllang.SelectorDecl selectorDecl -> refactorSelectorDecl(selectorDecl);
             case Liblkqllang.ComplexPattern complexPattern -> refactorComplexPattern(
                 complexPattern
@@ -277,10 +283,48 @@ public class LKQLToLkt implements TreeBasedRefactoring {
 
     /*
      *
+     * | <pattern> => <expr>
+     *
+     * case <pattern> => <expr>
+     *
+     * INFO special handling if <expr> is a UnitLiteral,
+     * as this has a special meaning for selectors
+     *
+     */
+    private String refactorSelectorArm(
+        Liblkqllang.LkqlNode arm,
+        Liblkqllang.BasePattern pattern,
+        Liblkqllang.Expr expr
+    ) {
+        String refactoredExpr = expr instanceof Liblkqllang.UnitLiteral
+            ? "Rec([], [])"
+            : refactorNode(expr);
+        return (
+            "case" +
+            textRange(arm.tokenStart().next(), pattern.tokenStart().previous()) +
+            refactorNode(pattern) +
+            textRange(pattern.tokenEnd().next(), expr.tokenStart().previous()) +
+            refactoredExpr +
+            textRange(expr.tokenEnd().next(), arm.tokenEnd())
+        );
+    }
+
+    /*
+     *
      * <annotations> selector <name> <docstring> <arms>
      *
+     * fun <name>_body (this : Any) : Any = match this { <arms> }
+     *
      * <docstring>\n
-     * <annotations> fun <name> (this : Any) : Any = match this { <arms> }
+     * <annotations> fun <name> (
+     *     this : Any,
+     *     depth : Int = -1,
+     *     min_depth : Int = -1,
+     *     max_depth : Int = -1
+     * ) : Any = unfold(<name>_body,
+     *                  make_depth_predicate(depth, min_depth, max_depth),
+     *                  [this],
+     *                  1)
      *
      */
     private String refactorSelectorDecl(Liblkqllang.SelectorDecl selectorDecl) {
@@ -288,6 +332,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         var previousSelector = currentSelector;
         // set new state for nested refactors
         currentSelector = selectorDecl;
+
+        final var name = refactorNode(selectorDecl.fName());
+        final var name_body = name + "_body";
+
         var s = "";
 
         // pull docstring before declaration
@@ -306,7 +354,17 @@ public class LKQLToLkt implements TreeBasedRefactoring {
 
         s +=
             "fun " +
-            refactorNode(selectorDecl.fName()) +
+            name +
+            "(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =\n    unfold(" +
+            name_body +
+            ", make_depth_predicate(depth, min_depth, max_depth), [this], 1)";
+
+        // Handle selectors defined in blocks
+        if (!(selectorDecl.parent() instanceof Liblkqllang.TopLevelList)) s += ";";
+
+        s +=
+            "\n\nfun " +
+            name_body +
             "(this : Any) : Any = match this {" +
             whitespace +
             refactorNode(selectorDecl.fArms()) +
@@ -325,10 +383,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      * 2) Case disjonction
      *
-     * rec( <left>,  <right>) --> <right>           ::  <selector>(<left>)
-     * rec(*<left>,  <right>) --> <right>           ::  <left>.flat_map(<selector>)
-     * rec( <left>, *<right>) --> <right>.to_stream ::: <selector>(<left>)
-     * rec(*<left>, *<right>) --> <right>.to_stream ::: <left>.flat_map(<selector>)
+     * rec( <left>,  <right>) --> Rec([<right>], [<left>])
+     * rec(*<left>,  <right>) --> Rec( <right> , [<left>])
+     * rec( <left>, *<right>) --> Rec([<right>],  <left> )
+     * rec(*<left>, *<right>) --> Rec( <right> ,  <left> )
      *
      */
     private String refactorRecExpr(Liblkqllang.RecExpr recExpr) {
@@ -340,21 +398,25 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         final var left = recExpr.fRecurseExpr();
         final var right = hasRight ? recExpr.fResultExpr() : left;
 
-        var s = unpackRight ? refactorNode(right) + ".to_stream :::" : refactorNode(right) + " ::";
+        // wrap in prelude-defined function for runtime support
+        final Function<String, String> wrapper = s -> "non_null(" + s + ")";
+
+        var s = unpackRight ? refactorNode(right) : wrapper.apply(refactorNode(right));
+
+        s += ",";
 
         // try to preserve spacing after "," (any newline for example)
         if (hasRight && left.tokenEnd().next().getText().equals(",")) {
-            for (var tok = left.tokenEnd().next().next(); tok.isTrivia(); tok = tok.next()) s +=
-                tok.getText();
+            for (var tok = left.tokenEnd().next().next(); tok.isTrivia(); tok = tok.next()) {
+                s += tok.getText();
+            }
         } else {
             s += " ";
         }
 
-        s += unpackLeft
-            ? refactorNode(left) + ".flat_map(" + currentSelector.fName().getText() + ")"
-            : currentSelector.fName().getText() + "(" + refactorNode(left) + ")";
+        s += unpackLeft ? refactorNode(left) : wrapper.apply(refactorNode(left));
 
-        return s;
+        return "Rec(" + s + ")";
     }
 
     /*
@@ -503,18 +565,29 @@ public class LKQLToLkt implements TreeBasedRefactoring {
 
         var sb = new StringBuilder();
 
+        var hasBinding = true;
+
         // Pattern binding
         if (!complexPattern.fBinding().isNone()) {
             // pattern has a binding
             sb.append(complexPattern.fBinding().getText());
-            sb.append(" @ ");
         } else if (!selectorPatternDetails.isEmpty()) {
             // pattern has no binding but needs one
-            sb.append("node @ ");
+            sb.append("node");
+        } else {
+            hasBinding = false;
         }
 
-        // Base pattern
-        sb.append(refactorNode(complexPattern.fPattern()));
+        if (hasBinding) {
+            if (!(complexPattern.fPattern() instanceof Liblkqllang.UniversalPattern)) {
+                sb.append(" @ ");
+                // Base pattern
+                sb.append(refactorNode(complexPattern.fPattern()));
+            }
+        } else {
+            // Base pattern
+            sb.append(refactorNode(complexPattern.fPattern()));
+        }
 
         // Pattern details
         if (!otherPatternDetails.isEmpty()) {
@@ -549,16 +622,27 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     /*
      * (<any|all> <selector>: <subpattern>)
      * <selector>(node).<any|all>((n) => n is <subpattern>)
+     *
+     * (<any|all> <selector>(<args>): <subpattern>)
+     * <selector>(node, <args>).<any|all>((n) => n is <subpattern>)
+     *
      */
     private String refactorNodePatternSelector(Liblkqllang.NodePatternSelector nps) {
         final var quantifier = refactorNode(nps.fCall().fQuantifier());
         final var selector = refactorNode(nps.fCall().fSelectorCall());
         final var subPattern = refactorNode(nps.fPattern());
 
+        final var matcher = Pattern.compile("(\\w+)(\\((.*)\\))?").matcher(selector);
+        matcher.matches();
+        final var selectorName = matcher.group(1);
+        final var selectorArgs = matcher.group(3);
+
         final var name = "n";
         return (
-            selector +
-            "(node)." +
+            selectorName +
+            "(node" +
+            (selectorArgs != null ? ", " + selectorArgs : "") +
+            ")." +
             quantifier +
             "((" +
             name +

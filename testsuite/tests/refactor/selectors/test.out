@@ -1,32 +1,47 @@
 # lkql version: 2
 
-fun parents(this : Any) : Any = match this {
-    case AdaNode => this :: parents(this.parent)
-    case _ => Unit()
+fun parents(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(parents_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun parents_body(this : Any) : Any = match this {
+    case AdaNode => Rec(non_null(this), non_null(this.parent))
+    case _ => Rec([], [])
 }
 
 
-fun super_types(this : Any) : Any = match this {
-    case BaseTypeDecl => this.p_base_types().to_stream ::: this.p_base_types().flat_map(super_types)
-    case _            => Unit()
+fun super_types(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(super_types_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun super_types_body(this : Any) : Any = match this {
+    case BaseTypeDecl => Rec(this.p_base_types(), this.p_base_types())
+    case _            => Rec([], [])
 }
 
 
-fun children(this : Any) : Any = match this {
-    case AdaNode => this :: this.children.flat_map(children)
-    case _ => Unit()
+fun children(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(children_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun children_body(this : Any) : Any = match this {
+    case AdaNode => Rec(non_null(this), this.children)
+    case _ => Rec([], [])
 }
 
 
-fun foo(this : Any) : Any = match this {
-    case Foo => [s, o, m, e, t, h, i, n, g].to_stream ::: foo(this)
+fun foo(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(foo_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun foo_body(this : Any) : Any = match this {
+    case Foo => Rec([s, o, m, e, t, h, i, n, g], non_null(this))
 }
 
 
 |" Infinite sequence generator
-fun infinite_sequence(this : Any) : Any = match this {
-    case nb => nb :: # Recurse with value nb + 1
-        infinite_sequence(nb + 1)
+fun infinite_sequence(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(infinite_sequence_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun infinite_sequence_body(this : Any) : Any = match this {
+    case nb => Rec(non_null(nb), # Recurse with value nb + 1
+        non_null(nb + 1))
 }
 
 
