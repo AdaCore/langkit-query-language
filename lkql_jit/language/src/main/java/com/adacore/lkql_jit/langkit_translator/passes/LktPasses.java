@@ -151,6 +151,10 @@ public final class LktPasses {
                 return;
             }
 
+            if (node instanceof Liblktlang.FullDecl decl && isBuiltin(decl)) {
+                return;
+            }
+
             switch (node) {
                 case Liblktlang.Import importStmt -> {
                     for (var importedName : importStmt.fImportedNames()) {
@@ -408,6 +412,8 @@ public final class LktPasses {
             }
 
             for (var fullDecl : root.fDecls()) {
+                if (isBuiltin(fullDecl)) continue; // skip builtins from prelude
+
                 buildDecl(fullDecl.fDecl()).ifPresent(topLevelNodes::add);
             }
 
@@ -1051,6 +1057,12 @@ public final class LktPasses {
                 }
             };
         }
+    }
+
+    public static boolean isBuiltin(Liblktlang.FullDecl decl) {
+        return StreamSupport.stream(decl.fDeclAnnotations().spliterator(), false).anyMatch(a ->
+            a.fName().getText().equals("builtin")
+        );
     }
 
     public static TopLevelList buildLKQLNode(
