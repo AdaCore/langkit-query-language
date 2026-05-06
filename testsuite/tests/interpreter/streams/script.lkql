@@ -7,6 +7,7 @@ val s_1 = 1 :: 2 :: 3 :: 4 :: 5 :: nil()
 val _ = print(s_1[1])
 val _ = print(s_1[3])
 val _ = print(s_1.to_list.length)
+val _ = print((0 :: s_1).to_list.length)
 val _ = print("")
 
 # Ensure the laziness of streams
@@ -18,12 +19,16 @@ val _ = print("")
 
 # Test concatenating streams
 val _ = print("=== Concatenating two streams")
+val _ = print((nil() ::: nil()).to_list.length)
 val s_3 = ("a" :: "b" :: "c" :: nil()) ::: ("d" :: "e" :: "f" :: nil())
 val _ = print(s_3[1])
 val _ = print(s_3[2])
 val _ = print(s_3[5])
 val _ = print(s_3[6])
 val _ = print(s_3.to_list.length)
+val _ = print((nil() ::: s_3).to_list.length)
+val _ = print((s_3 ::: nil()).to_list.length)
+val _ = print((s_1 ::: s_3).to_list.length == s_1.length + s_3.length)
 val _ = print("")
 
 # Test concatenating a list with a stream
@@ -62,10 +67,4 @@ val _ = print(flatten_ints_and_images[1].img)
 val _ = print(flatten_ints_and_images[2].img)
 val _ = print(flatten_ints_and_images[3].img)
 val _ = print(flatten_ints_and_images[4].img)
-val _ = print("")
-
-# Ensure invalid index raise an error
-val _ = print("=== Try to access an invalid index in the stream")
-val err_s = 1 :: 2 :: nil()
-val _ = print(err_s[6])
 val _ = print("")

@@ -325,10 +325,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      * 2) Case disjonction
      *
-     * rec( <left>,  <right>) --> <right> ::  <selector>(<left>)
-     * rec(*<left>,  <right>) --> <right> ::  <left>.flat_map(<selector>)
-     * rec( <left>, *<right>) --> <right> ::: <selector>(<left>)
-     * rec(*<left>, *<right>) --> <right> ::: <left>.flat_map(<selector>)
+     * rec( <left>,  <right>) --> <right>           ::  <selector>(<left>)
+     * rec(*<left>,  <right>) --> <right>           ::  <left>.flat_map(<selector>)
+     * rec( <left>, *<right>) --> <right>.to_stream ::: <selector>(<left>)
+     * rec(*<left>, *<right>) --> <right>.to_stream ::: <left>.flat_map(<selector>)
      *
      */
     private String refactorRecExpr(Liblkqllang.RecExpr recExpr) {
@@ -340,7 +340,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         final var left = recExpr.fRecurseExpr();
         final var right = hasRight ? recExpr.fResultExpr() : left;
 
-        var s = unpackRight ? refactorNode(right) + " :::" : refactorNode(right) + " ::";
+        var s = unpackRight ? refactorNode(right) + ".to_stream :::" : refactorNode(right) + " ::";
 
         // try to preserve spacing after "," (any newline for example)
         if (hasRight && left.tokenEnd().next().getText().equals(",")) {

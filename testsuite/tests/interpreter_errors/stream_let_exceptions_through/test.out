@@ -1,0 +1,7 @@
+script.lkql:6:40: error: Null receiver in dot access
+  6 |     val _ = if this is null then print(this.garbage) else 0;
+    |                                        ^^^^^^^^^^^^
+script.lkql:14:15: in script.lkql
+  14 | val _ = print(subtree(root).to_list)
+     |               ^^^^^^^^^^^^^^^^^^^^^
+
