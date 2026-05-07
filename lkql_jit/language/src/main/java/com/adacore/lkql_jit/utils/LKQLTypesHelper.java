@@ -51,9 +51,6 @@ public final class LKQLTypesHelper {
     /** The string representing the LKQL property reference type. */
     public static final String LKQL_PROPERTY_REF = "PropertyReference";
 
-    /** The string representing the LKQL selector type. */
-    public static final String LKQL_SELECTOR = "Selector";
-
     /** The string representing the LKQL tuple type. */
     public static final String LKQL_TUPLE = "Tuple";
 
@@ -101,7 +98,6 @@ public final class LKQLTypesHelper {
         LKQL_PATTERN,
         LKQL_FUNCTION,
         LKQL_PROPERTY_REF,
-        LKQL_SELECTOR,
         LKQL_TUPLE,
         LKQL_LIST,
         LKQL_STREAM,
@@ -169,8 +165,6 @@ public final class LKQLTypesHelper {
             return LKQL_FUNCTION;
         } else if (LKQLTypeSystemGen.isLKQLProperty(obj)) {
             return LKQL_PROPERTY_REF;
-        } else if (LKQLTypeSystemGen.isLKQLSelector(obj)) {
-            return LKQL_SELECTOR;
         } else if (LKQLTypeSystemGen.isLKQLTuple(obj)) {
             return LKQL_TUPLE;
         } else if (LKQLTypeSystemGen.isLKQLList(obj)) {

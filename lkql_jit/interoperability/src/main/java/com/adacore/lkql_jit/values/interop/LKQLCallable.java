@@ -145,7 +145,6 @@ public abstract class LKQLCallable extends LKQLValue {
     /** Represents the kind of callable value. */
     public enum CallableKind {
         FUNCTION,
-        SELECTOR,
         PROPERTY,
     }
 }

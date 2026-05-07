@@ -107,7 +107,6 @@ public class LKQLDocAPI implements Callable<Integer> {
         try (
             TextWriter moduleDoc = new TextWriter(new StringWriter());
             TextWriter functionsDoc = new TextWriter(new StringWriter());
-            TextWriter selectorsDoc = new TextWriter(new StringWriter());
         ) {
             // First get the namespace object representing the module to document
             LKQLBaseNamespace namespace = context
@@ -128,9 +127,7 @@ public class LKQLDocAPI implements Callable<Integer> {
             // Prepare a map for callable documentations
             Map<CallableKind, TextWriter> callableDocs = Map.of(
                 CallableKind.FUNCTION,
-                functionsDoc,
-                CallableKind.SELECTOR,
-                selectorsDoc
+                functionsDoc
             );
 
             // Then generate documentation for all module's callable values
@@ -157,11 +154,6 @@ public class LKQLDocAPI implements Callable<Integer> {
             moduleDoc.write("Functions\n");
             moduleDoc.write("^^^^^^^^^\n");
             moduleDoc.write(functionsDoc.toString());
-
-            // Display the 'Selectors' section
-            moduleDoc.write("Selectors\n");
-            moduleDoc.write("^^^^^^^^^\n");
-            moduleDoc.write(selectorsDoc.toString());
 
             // Finally return the module doc
             return moduleDoc.toString();

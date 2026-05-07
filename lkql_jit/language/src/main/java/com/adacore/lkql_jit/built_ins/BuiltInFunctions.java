@@ -142,11 +142,6 @@ public class BuiltInFunctions {
         }
 
         @Specialization
-        protected String onSelector(LKQLSelector selector) {
-            return selector.documentation;
-        }
-
-        @Specialization
         protected String onNamespace(LKQLNamespace namespace) {
             return namespace.documentation;
         }

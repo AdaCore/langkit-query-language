@@ -35,7 +35,6 @@ import java.math.BigInteger;
         String.class,
         LKQLPattern.class,
         LKQLFunction.class,
-        LKQLSelector.class,
         LKQLProperty.class,
         LKQLTuple.class,
         LKQLArrayList.class,

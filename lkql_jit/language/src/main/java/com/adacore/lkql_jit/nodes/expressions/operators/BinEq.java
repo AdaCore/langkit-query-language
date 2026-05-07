@@ -128,18 +128,6 @@ public abstract class BinEq extends BinOp {
     }
 
     /**
-     * Do the equality verification on selectors.
-     *
-     * @param left The left selector value.
-     * @param right The right selector value.
-     * @return The result of the equality verification.
-     */
-    @Specialization
-    protected boolean eqSelectors(LKQLSelector left, LKQLSelector right) {
-        return left.equals(right);
-    }
-
-    /**
      * Do the equality verification on tuples.
      *
      * @param left The left tuple value.

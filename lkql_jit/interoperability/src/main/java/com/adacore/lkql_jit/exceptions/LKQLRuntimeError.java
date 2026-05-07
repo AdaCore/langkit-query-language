@@ -225,12 +225,6 @@ public final class LKQLRuntimeError extends AbstractTruffleException {
         );
     }
 
-    /** Create an exception for a selector call without any node. */
-    @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeError selectorWithoutNode(Node location) {
-        return LKQLRuntimeError.create("Selector call should have a node argument", location);
-    }
-
     // ----- Message creation methods -----
 
     /** Get a message to report regex syntax errors. */
