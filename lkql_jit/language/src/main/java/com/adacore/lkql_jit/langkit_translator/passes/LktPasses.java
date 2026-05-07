@@ -269,7 +269,7 @@ public final class LktPasses {
                 this.frames.getClosureDescriptor(),
                 paramNames,
                 defaultVals,
-                doc == null || doc.isNone() ? "" : doc.pDenotedValue().value,
+                doc == null || doc.isNone() ? "" : doc.pDenotedValue().value.trim(),
                 body,
                 functionName
             );
@@ -320,7 +320,7 @@ public final class LktPasses {
                 frames.getFrameDescriptor(),
                 topLevelNodes.toArray(new LKQLNode[0]),
                 source.isInteractive(),
-                root.fDoc().isNone() ? "" : root.fDoc().pDenotedValue().value
+                root.fDoc().isNone() ? "" : root.fDoc().pDenotedValue().value.trim()
             );
         }
 
@@ -462,7 +462,7 @@ public final class LktPasses {
                             frames.getClosureDescriptor(),
                             params,
                             defaultVals,
-                            doc.isNone() ? "" : doc.pDenotedValue().value,
+                            doc.isNone() ? "" : doc.pDenotedValue().value.trim(),
                             body,
                             name
                         )
