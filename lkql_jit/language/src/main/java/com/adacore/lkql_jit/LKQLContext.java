@@ -117,7 +117,26 @@ public final class LKQLContext {
                 }
             }
         },
-        null
+        null,
+        (ctx, unit, message) -> {
+            if (this.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
+                this.getDiagnosticEmitter().emitFileDiagnostic(
+                    new LangkitLocationWrapper(unit.getRoot(), this.linesCache),
+                    message
+                );
+            } else {
+                this.getLogger().log(
+                    missingFileIsError() ? Level.SEVERE : Level.WARNING,
+                    message,
+                    new LogLocation(
+                        new LogLocation.LangkitLocation(
+                            unit,
+                            unit.getRoot().getSourceLocationRange()
+                        )
+                    )
+                );
+            }
+        }
     );
 
     /**

@@ -150,6 +150,21 @@ public class CheckerUtils {
             );
         }
 
+        /**
+         * Shortcut to emit a diagnostic coming from a source file. Always emits
+         * as an error.
+         *
+         * When gnatcheck parses worker output, warning-prefixed messages are
+         * stored with diagnosis kind {@code Rule_Violation} (a historical
+         * artifact: warnings used to come only from GNAT, where that
+         * classification was intentional). The error prefix doesn't have this
+         * problem, so we use it here as a workaround until gnatcheck's
+         * diagnosis classification is refactored.
+         */
+        default void emitFileDiagnostic(SourceLocation from, String message) {
+            this.emitDiagnostic(MessageKind.ERROR, message, from, null, null);
+        }
+
         /** Method used to report an error array returned by a project loading. */
         default void emitProjectErrors(String projectFileName, List<String> errorMessages) {
             final LKQLContext context = LKQLLanguage.getContext(null);
