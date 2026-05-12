@@ -56,6 +56,17 @@ fun unfold(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: List[In], depth: Int
     }
 }
 
+# generic[In, Out]
+fun unfold_check_cycles(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: List[In], depth: Int, seen : List[In]): Stream[Out] = match nxt.length {
+    case 0 => nil()
+    case _ => {
+        val rec = nxt.map((n) => fn(n)).reduce((a, b) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec([], []));
+        val prefix = if p(depth) then rec.ret.to_stream else nil();
+        val next = (from unique(nxt) match a when seen.all((b) => a != b)).to_list;
+        prefix ::: unfold_check_cycles(fn, p, next, depth+1, seen & next)
+    }
+}
+
 # This is the LKQL prelude. Those definitions are visible at the root of the LKQL context. This
 # is where we put all global definitions that must be accessible in every context
 

@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.driver.refactorings;
 import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.lkql_jit.Constants;
 import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -352,12 +353,24 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             selectorDecl.fArms().tokenStart().previous()
         );
 
+        final var isMemoized =
+            !selectorDecl.fAnnotation().isNone() &&
+            selectorDecl.fAnnotation().fName().getText().equals(Constants.ANNOTATION_MEMOIZED);
+
+        final var unfold = isMemoized ? "unfold_check_cycles" : "unfold";
+
+        final var optionalLastArg = isMemoized ? ", []" : "";
+
         s +=
             "fun " +
             name +
-            "(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =\n    unfold(" +
+            "(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =\n    " +
+            unfold +
+            "(" +
             name_body +
-            ", make_depth_predicate(depth, min_depth, max_depth), [this], 1)";
+            ", make_depth_predicate(depth, min_depth, max_depth), [this], 1" +
+            optionalLastArg +
+            ")";
 
         // Handle selectors defined in blocks
         if (!(selectorDecl.parent() instanceof Liblkqllang.TopLevelList)) s += ";";

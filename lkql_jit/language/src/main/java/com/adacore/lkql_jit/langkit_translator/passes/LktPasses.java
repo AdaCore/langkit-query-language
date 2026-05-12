@@ -347,7 +347,7 @@ public final class LktPasses {
             return new Annotation(
                 loc(annotation),
                 annotation.fName().getText(),
-                buildArgs(annotation.fArgs().fArgs())
+                annotation.fArgs().isNone() ? null : buildArgs(annotation.fArgs().fArgs())
             );
         }
 
