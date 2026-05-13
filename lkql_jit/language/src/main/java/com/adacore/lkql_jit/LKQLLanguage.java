@@ -29,6 +29,7 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.options.OptionDescriptors;
@@ -50,38 +51,6 @@ import org.graalvm.options.OptionStability;
     dependentLanguages = { "regex" }
 )
 public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
-
-    /**
-     * This is the LKQL prelude. Those definitions are visible at the root of the LKQL context. This
-     * is where we put all global definitions that must be accessible in every context
-     */
-    /*
-     * TODO: Genericize LKQL issue #499. Cannot genericize the prelude because NODE_DESCRIPTION_MAP
-     * doesn't contain any node named NodeInterface but AdaNode here for Ada.
-     */
-    private static final String PRELUDE_SOURCE = """
-        selector children
-        |" Yields all the descendants of the given node
-        | AdaNode => rec(*this.children)
-        | * => ()
-
-        selector next_siblings
-        |" Yields all the next siblings of the given node
-        | AdaNode => rec(this.next_sibling())
-        | * => ()
-
-        selector parent
-        |" Yields all the enclosing parents of the given node
-        | AdaNode => rec(this.parent)
-        | * => ()
-
-        selector prev_siblings
-        |" Yields all the previous siblings of the given node
-        | AdaNode => rec(this.previous_sibling())
-        | * => ()
-
-        val all_nodes = units().flat_map((unit) => children(unit.root))
-        """;
 
     // ----- Static variables -----
 
@@ -211,8 +180,19 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         return new LKQLLanguageOptionDescriptors();
     }
 
+    private String getLktPreludeText() {
+        // Stupid Scanner Trick
+        try (
+            final var s = new Scanner(
+                LKQLLanguage.class.getResourceAsStream("/prelude.lkt")
+            ).useDelimiter("\\A")
+        ) {
+            return s.next();
+        }
+    }
+
     private void loadPrelude() {
-        final var unit = lkqlAnalysisContext.getUnitFromBuffer(PRELUDE_SOURCE, "<prelude>");
+        final var unit = lktAnalysisContext.getUnitFromBuffer(getLktPreludeText(), "__prelude");
 
         final var source = Source.newBuilder(
             Constants.LKQL_ID,
@@ -221,7 +201,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         ).build();
 
         final var errors = new LKQLStaticErrors();
-        final var truffleTree = lowerLKQL(source, unit.getRoot(), errors);
+        final var truffleTree = lowerLkt(source, (Liblktlang.LangkitRoot) unit.getRoot(), errors);
         if (!errors.diagnostics.isEmpty()) throw errors;
 
         final var namespace = (LKQLNamespace) new TopLevelRootNode(true, truffleTree, this)
