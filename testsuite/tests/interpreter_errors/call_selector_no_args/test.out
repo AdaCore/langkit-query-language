@@ -1,4 +1,5 @@
-script.lkql:2:7: error: Selector call should have a node argument
+error: Missing value for param #0 (named "this") in call
+script.lkql:2:7: in script.lkql
   2 | print(children())
     |       ^^^^^^^^^^
 

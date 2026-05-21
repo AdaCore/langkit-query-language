@@ -5,13 +5,15 @@
 
 package com.adacore.lkql_jit.values.streams;
 
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
+import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.ListStorage;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLDepthValue;
-import com.adacore.lkql_jit.values.LKQLRecValue;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.nodes.RootNode;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 
@@ -19,6 +21,9 @@ import java.util.HashSet;
 public class LKQLSelectorList extends BaseCachedStream {
 
     // ----- Attributes -----
+
+    /** Root for the selector execution. */
+    private final FunctionRootNode rootNode;
 
     /** Call target representing the selector execution. */
     private final CallTarget callTarget;
@@ -33,16 +38,13 @@ public class LKQLSelectorList extends BaseCachedStream {
     private final ArrayDeque<LKQLDepthValue> toVisitList;
 
     /** The maximal depth for the return. */
-    private final int maxDepth;
+    private final long maxDepth;
 
     /** The minimal depth for the return. */
-    private final int minDepth;
+    private final long minDepth;
 
     /** The precise depth to get from the selector. */
-    private final int exactDepth;
-
-    /** Whether to check if there is cycles in the selector list. */
-    private final boolean checkCycles;
+    private final long exactDepth;
 
     // ----- Constructors -----
 
@@ -51,29 +53,36 @@ public class LKQLSelectorList extends BaseCachedStream {
      */
     @CompilerDirectives.TruffleBoundary
     public LKQLSelectorList(
-        RootNode rootNode,
+        FunctionRootNode rootNode,
         Closure closure,
         Object value,
-        int maxDepth,
-        int minDepth,
-        int depth,
-        boolean checkCycles
+        long depth,
+        long maxDepth,
+        long minDepth
     ) {
         super(new ListStorage<>(16));
         this.arguments = new Object[3];
         this.arguments[0] = closure;
+        this.rootNode = rootNode;
         this.callTarget = rootNode.getCallTarget();
         this.toVisitList = new ArrayDeque<>();
         this.maxDepth = maxDepth;
         this.minDepth = minDepth;
         this.exactDepth = depth;
         this.toVisitList.add(new LKQLDepthValue(0, value));
-        this.checkCycles = checkCycles;
-        if (checkCycles) {
+        // We only check cycles on memoized selectors for now
+        if (rootNode.isMemoized()) {
             this.alreadyVisited = new HashSet<>();
         } else {
             this.alreadyVisited = null;
         }
+    }
+
+    // ----- Getters -----
+
+    /** Should the selector list check for cycles. */
+    private boolean shouldCheckCycles() {
+        return this.alreadyVisited != null;
     }
 
     // ----- Instance methods -----
@@ -87,23 +96,41 @@ public class LKQLSelectorList extends BaseCachedStream {
     public Object get(long n) {
         while (!(this.toVisitList.size() == 0) && (this.cache.size() - 1 < n || n < 0)) {
             // Get the first recurse item and execute the selector on it
-            LKQLDepthValue nextNode = this.toVisitList.poll();
-            arguments[1] = nextNode.value;
-            arguments[2] = (long) nextNode.depth;
-            LKQLRecValue result = (LKQLRecValue) callTarget.call(arguments);
+            LKQLDepthValue input = this.toVisitList.poll();
+            arguments[1] = input.value;
+            arguments[2] = (long) input.depth;
+            final var result = callTarget.call(arguments);
+            final int resultDepth = input.depth + 1;
 
-            // Add the call result to the result and recurse list
-            addToRecurse(result.recurseVal, result.depth);
-            addToResult(result.resultVal, result.depth);
+            if (LKQLTypeSystemGen.isLKQLRecValue(result)) {
+                final var res = LKQLTypeSystemGen.asLKQLRecValue(result);
+                // Add the call result to the result and recurse list
+
+                if (shouldCheckCycles()) {
+                    addToRecurseAndCheckCycles(res.recurseVal, resultDepth);
+                } else {
+                    addToRecurse(res.recurseVal, resultDepth);
+                }
+
+                if (isValidDepth(resultDepth)) {
+                    addToResult(res.resultVal);
+                }
+            } else if (!LKQLTypeSystemGen.isNullish(result)) {
+                throw LKQLRuntimeError.wrongType(
+                    LKQLTypesHelper.LKQL_REC_VALUE,
+                    LKQLTypesHelper.fromJava(result),
+                    rootNode.getBody()
+                );
+            }
         }
         return this.cache.get((int) n);
     }
 
     /** Add the object to the result cache of the selector list. */
     @CompilerDirectives.TruffleBoundary
-    private void addToResult(Object[] toAdd, int depth) {
+    private void addToResult(Object[] toAdd) {
         for (var val : toAdd) {
-            this.addResult(val, depth);
+            cache.append(val);
         }
     }
 
@@ -112,31 +139,34 @@ public class LKQLSelectorList extends BaseCachedStream {
     private void addToRecurse(Object[] toAdd, int depth) {
         for (var val : toAdd) {
             var depthVal = new LKQLDepthValue(depth, val);
-            if (!checkCycles) {
-                this.toVisitList.add(depthVal);
-            } else if (!this.alreadyVisited.contains(depthVal)) {
+            this.toVisitList.add(depthVal);
+        }
+    }
+
+    /** Add the object to the recursing list of the selector list if there is no cycle. */
+    @CompilerDirectives.TruffleBoundary
+    private void addToRecurseAndCheckCycles(Object[] toAdd, int depth) {
+        for (var val : toAdd) {
+            var depthVal = new LKQLDepthValue(depth, val);
+            if (!this.alreadyVisited.contains(depthVal)) {
                 this.toVisitList.add(depthVal);
                 this.alreadyVisited.add(depthVal);
             }
         }
     }
 
-    /** Add a node in the result and hashed cache with all verifications. */
-    private void addResult(Object value, int depth) {
+    /** Tests if depth is in the valid range. */
+    private boolean isValidDepth(int depth) {
         // If there is no defined depth
         if (this.exactDepth < 0) {
-            if (
+            return (
                 (this.maxDepth < 0 || depth <= this.maxDepth) &&
                 (this.minDepth < 0 || depth >= this.minDepth)
-            ) {
-                this.cache.append(value);
-            }
+            );
         }
         // Else, only get the wanted nodes
         else {
-            if (depth == this.exactDepth) {
-                this.cache.append(value);
-            }
+            return depth == this.exactDepth;
         }
     }
 }

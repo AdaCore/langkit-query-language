@@ -17,10 +17,8 @@ import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.values.LKQLFunction;
 import com.adacore.lkql_jit.values.LKQLProperty;
-import com.adacore.lkql_jit.values.LKQLSelector;
 import com.adacore.lkql_jit.values.LKQLUnit;
 import com.adacore.lkql_jit.values.interfaces.Nullish;
-import com.adacore.lkql_jit.values.streams.LKQLSelectorList;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
@@ -187,24 +185,6 @@ public abstract class FunCall extends Expr {
             args,
             arguments
         );
-    }
-
-    /**
-     * Execute function call on a selector value.
-     *
-     * @param frame The frame to execute the selector value in.
-     * @param selectorValue The selector value to execute.
-     * @return The result of the selector value execution.
-     */
-    @Specialization
-    protected LKQLSelectorList onSelector(VirtualFrame frame, LKQLSelector selectorValue) {
-        // Verify the argument number
-        if (args.length < 1) {
-            throw LKQLRuntimeError.selectorWithoutNode(this);
-        }
-
-        // Return the selector list value
-        return selectorValue.getList(args[0].executeGeneric(frame));
     }
 
     /**

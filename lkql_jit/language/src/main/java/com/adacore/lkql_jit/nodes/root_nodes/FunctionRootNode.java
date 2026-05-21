@@ -95,6 +95,10 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
         return this.body;
     }
 
+    public boolean isMemoized() {
+        return this.isMemoized;
+    }
+
     // ----- Setters -----
 
     public void setMemoized(boolean memoized) {

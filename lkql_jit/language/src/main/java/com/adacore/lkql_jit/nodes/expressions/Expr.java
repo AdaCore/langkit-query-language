@@ -125,18 +125,6 @@ public abstract class Expr extends LKQLNode {
     }
 
     /**
-     * Execute the expression as a selector value.
-     *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a selector value.
-     * @throws UnexpectedResultException If the node cannot be evaluated as a selector.
-     */
-    @SuppressWarnings("unused")
-    public LKQLSelector executeSelector(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectLKQLSelector(executeGeneric(frame));
-    }
-
-    /**
      * Execute the expression as a tuple value.
      *
      * @param frame The frame for execution.

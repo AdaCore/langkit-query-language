@@ -207,6 +207,8 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         this.scriptFramesBuilder.openFrame(selectorDecl);
         this.scriptFramesBuilder.addParameter(Constants.THIS_SYMBOL);
         this.scriptFramesBuilder.addParameter(Constants.DEPTH_SYMBOL);
+        this.scriptFramesBuilder.addParameter(Constants.MIN_DEPTH_SYMBOL);
+        this.scriptFramesBuilder.addParameter(Constants.MAX_DEPTH_SYMBOL);
         selectorDecl.fArms().accept(this);
         this.scriptFramesBuilder.closeFrame();
         return null;

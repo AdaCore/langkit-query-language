@@ -1,5 +1,5 @@
 === Selector interop messages:
-  toString(): selector<my_selector>
+  toString(): function<my_selector>
   canExecute(): true
   execute(node): <Stream>
   callRes.hasIterator(): true

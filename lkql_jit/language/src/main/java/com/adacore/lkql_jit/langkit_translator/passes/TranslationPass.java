@@ -23,7 +23,6 @@ import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.declarations.*;
 import com.adacore.lkql_jit.nodes.declarations.selector.RecExprs;
 import com.adacore.lkql_jit.nodes.declarations.selector.RecExprsFactory;
-import com.adacore.lkql_jit.nodes.declarations.selector.SelectorDeclaration;
 import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
@@ -1581,7 +1580,7 @@ public final class TranslationPass
         // Enter the selector frame
         this.frames.enterFrame(selectorDecl);
 
-        // Get the "this" and "depth" bindings
+        // Get the "this" binding
         final int thisSlot = this.frames.getParameter(Constants.THIS_SYMBOL);
 
         var arms = toStream(selectorDecl.fArms())
@@ -1615,16 +1614,28 @@ public final class TranslationPass
         this.frames.exitFrame();
 
         // Return the new selector declaration node
-        return new SelectorDeclaration(
+        final var minus_one = new LongLiteral(null, -1);
+        final var paramNames = new String[] { "this", "depth", "min_depth", "max_depth" };
+        final var paramDefaults = new Expr[] { null, minus_one, minus_one, minus_one };
+
+        var selectorBody = new SelectorExpr(
             loc(selectorDecl),
-            annotation,
+            frameDescriptor,
+            match,
+            name,
+            annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED)
+        );
+        var selectorFunction = new FunExpr(
+            loc(selectorDecl),
             frameDescriptor,
             closureDescriptor,
-            name,
+            paramNames,
+            paramDefaults,
             documentation,
-            slot,
-            match
+            selectorBody,
+            name
         );
+        return new FunctionDeclaration(loc(selectorDecl), annotation, slot, selectorFunction);
     }
 
     /**

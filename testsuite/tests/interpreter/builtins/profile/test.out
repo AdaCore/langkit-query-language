@@ -1,2 +1,2 @@
 foo(a=12, b=(13, 14))
-bar(root)
+bar(this, depth, min_depth, max_depth)
