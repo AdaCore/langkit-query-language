@@ -59,6 +59,8 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.ListComprehension comprehension -> refactorListComprehension(
                 comprehension
             );
+            case Liblkqllang.Tuple tuple -> refactorTuple(tuple);
+            case Liblkqllang.TuplePattern tuplePattern -> refactorTuplePattern(tuplePattern);
             case Liblkqllang.CondExpr condExpr -> refactorGeneric(condExpr) +
             (condExpr.fElseExpr().isNone() ? " else true" : "");
             case Liblkqllang.BlockBodyExpr bbe -> "val _ = " + refactorGeneric(bbe);
@@ -665,5 +667,26 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             subPattern +
             ")"
         );
+    }
+
+    /*
+     * (<a>, <b>)
+     * Pair(<a>, <b>)
+     */
+    private String refactorTuple(Liblkqllang.Tuple tuple) {
+        final var s = refactorGeneric(tuple);
+
+        return "Pair" + s;
+    }
+
+    /*
+     * case (<a>, <b>) =>
+     * case Pair(<a>, <b>) =>
+     */
+    private String refactorTuplePattern(Liblkqllang.TuplePattern tuplePattern) {
+        final var fst = refactorNode(tuplePattern.fPatterns().getChild(0));
+        final var snd = refactorNode(tuplePattern.fPatterns().getChild(1));
+
+        return "Pair(fst: " + fst + ", snd: " + snd + ")";
     }
 }

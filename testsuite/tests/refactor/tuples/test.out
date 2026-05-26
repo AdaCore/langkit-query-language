@@ -1,0 +1,12 @@
+# lkql version: 2
+
+# values
+
+val flat = Pair(a, b)
+val nested = Pair(a, Pair(b, c))
+
+# patterns
+
+val flat_p = x is Pair(fst: a, snd: b)
+val nested_p = x is Pair(fst: a, snd: Pair(fst: b, snd: c))
+
