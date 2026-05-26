@@ -72,10 +72,6 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     /**
      * Copy all the text belonging to a node in the input source,
      * but recursively refactor the code of its children.
-     * Ex:
-     * - node = SomeNode(... # comment 1\n ... # comment 2\n ...)
-     * - returns = "# comment 1\n#comment 2\n"
-     *
      */
     private String refactorGeneric(Liblkqllang.LkqlNode node) {
         if (node.isTokenNode()) return node.getText();
@@ -102,6 +98,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     /**
      * Takes a node and returns the concatenation of all its comments
      * as a block of text.
+     * Ex:
+     * - node = SomeNode(... # comment 1\n ... # comment 2\n ...)
+     * - returns = "# comment 1\n#comment 2\n"
+     *
      */
     private String getAllComments(Liblkqllang.LkqlNode node) {
         return Refactoring.streamFrom(node.tokenStart())
