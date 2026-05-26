@@ -455,13 +455,20 @@ public final class LktPasses {
             );
         }
 
+        private FullDecl getFullDecl(Liblktlang.Decl decl) {
+            for (var parent : decl.parents(false)) {
+                if (parent instanceof FullDecl fd) return fd;
+            }
+            return null;
+        }
+
         private Optional<Declaration> buildDecl(Liblktlang.Decl decl) {
             return switch (decl) {
                 case Liblktlang.FunDecl funDecl -> {
                     final var name = funDecl.fSynName().getText();
                     frames.declareBinding(name);
                     // Full decl
-                    final var fullDecl = (FullDecl) funDecl.parent();
+                    final var fullDecl = getFullDecl(funDecl);
 
                     // Annotation
                     final var annotations = fullDecl.fDeclAnnotations();
@@ -517,7 +524,7 @@ public final class LktPasses {
                     frames.declareBinding(name);
                     final var slot = frames.getBinding(name);
 
-                    final var fullDecl = (FullDecl) structDecl.parent();
+                    final var fullDecl = getFullDecl(structDecl);
                     final var doc = fullDecl.fDoc();
 
                     // Build constructor formal parameters
@@ -595,6 +602,7 @@ public final class LktPasses {
                         )
                     );
                 }
+                case GenericDecl genDecl -> buildDecl(genDecl.fDecl());
                 case ClassDecl _ -> Optional.empty();
                 default -> throw LKQLEngineException.create(
                     "Translation for " + decl.getKind() + " not implemented"
@@ -634,6 +642,8 @@ public final class LktPasses {
                         .toArray(String[]::new),
                     callee
                 );
+            } else if (expr instanceof GenericInstantiation genericCallExpr) {
+                return buildExpr(genericCallExpr.fName());
             } else if (expr instanceof Liblktlang.BlockExpr blockExpr) {
                 frames.enterFrame(blockExpr);
                 var blockBody = new ArrayList<BlockBody>();
