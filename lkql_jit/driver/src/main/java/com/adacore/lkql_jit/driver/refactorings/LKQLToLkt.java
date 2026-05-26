@@ -9,6 +9,10 @@ import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
+import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
+import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -20,8 +24,18 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     /** Pointer to last-entered selector during rewriting. */
     private Liblkqllang.SelectorDecl currentSelector = Liblkqllang.SelectorDecl.NONE;
 
+    private DiagnosticCollector diags;
+
+    private SourceLinesCache cache;
+
     @Override
-    public String apply(Liblkqllang.AnalysisUnit unit) {
+    public String apply(
+        Liblkqllang.AnalysisUnit unit,
+        DiagnosticCollector diags,
+        SourceLinesCache cache
+    ) {
+        this.diags = diags;
+        this.cache = cache;
         var root = unit.getRoot();
         return (
             "# lkql version: 2\n\n" +
@@ -675,6 +689,15 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      */
     private String refactorTuple(Liblkqllang.Tuple tuple) {
         final var s = refactorGeneric(tuple);
+        if (tuple.fExprs().getChildrenCount() > 2) {
+            diags.add(
+                new Warning(
+                    "tuples of more than 2 elements cannot be refactored automatically, consider introducing a new struct type",
+                    SourceSection.wrap(tuple, cache)
+                )
+            );
+            return s;
+        }
 
         return "Pair" + s;
     }
@@ -684,6 +707,16 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      * case Pair(<a>, <b>) =>
      */
     private String refactorTuplePattern(Liblkqllang.TuplePattern tuplePattern) {
+        if (tuplePattern.fPatterns().getChildrenCount() > 2) {
+            diags.add(
+                new Warning(
+                    "tuples patterns of more than 2 elements cannot be refactored automatically",
+                    SourceSection.wrap(tuplePattern, cache)
+                )
+            );
+            return refactorGeneric(tuplePattern);
+        }
+
         final var fst = refactorNode(tuplePattern.fPatterns().getChild(0));
         final var snd = refactorNode(tuplePattern.fPatterns().getChild(1));
 

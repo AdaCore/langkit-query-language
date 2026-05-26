@@ -28,5 +28,6 @@ class RefactorDriver(BaseDriver):
             ]
         )
 
-        if self.test_env["refactoring"] == "TO_LKQL_V2":
+        failure_allowed = self.test_env.get("failure", False)
+        if self.test_env["refactoring"] == "TO_LKQL_V2" and not failure_allowed:
             self.check_run(["lkt_parse", "-s", "-f", "test.out"])

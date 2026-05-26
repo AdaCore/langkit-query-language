@@ -6,6 +6,8 @@
 package com.adacore.lkql_jit.driver.refactorings;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -13,7 +15,7 @@ import java.util.stream.Stream;
 @FunctionalInterface
 public interface Refactoring {
     /** Take a parsing tree root and return its source after refactoring actions. */
-    String apply(Liblkqllang.AnalysisUnit unit);
+    String apply(Liblkqllang.AnalysisUnit unit, DiagnosticCollector diags, SourceLinesCache cache);
 
     public static boolean isWhitespace(Liblkqllang.Token token) {
         return token.kind == Liblkqllang.TokenKind.LKQL_WHITESPACE;

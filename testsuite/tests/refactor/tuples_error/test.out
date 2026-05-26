@@ -1,0 +1,22 @@
+input.lkql:5:11: warning: tuples of more than 2 elements cannot be refactored automatically, consider introducing a new struct type
+  5 | val err = (a, b, c)
+    |           ^^^^^^^^^
+
+input.lkql:11:18: warning: tuples patterns of more than 2 elements cannot be refactored automatically
+  11 | val err_p = x is (a, b, c)
+     |                  ^^^^^^^^^
+
+# lkql version: 2
+
+# values
+
+val flat = Pair(a, b)
+val nested = Pair(a, Pair(b, c))
+val err = (a, b, c)
+
+# patterns
+
+val flat_p = x is Pair(fst: a, snd: b)
+val nested_p = x is Pair(fst: a, snd: Pair(fst: b, snd: c))
+val err_p = x is (a, b, c)
+
