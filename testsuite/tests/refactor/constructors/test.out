@@ -1,0 +1,8 @@
+# lkql version: 2
+
+
+val x = Constructor(
+	a,
+	b = c,
+	Other()
+)
