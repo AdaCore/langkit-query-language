@@ -111,6 +111,8 @@ public final class TranslationPass
                     } else {
                         builder.append(str.substring(1)).append("\n");
                     }
+                } else {
+                    builder.append("\n");
                 }
             }
             res = builder.toString().trim();
