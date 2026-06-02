@@ -608,11 +608,18 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             hasBinding = false;
         }
 
-        if (hasBinding) {
-            if (!(complexPattern.fPattern() instanceof Liblkqllang.UniversalPattern)) {
-                sb.append(" @ ");
-                // Base pattern
-                sb.append(refactorNode(complexPattern.fPattern()));
+        final var isUniv = complexPattern.fPattern() instanceof Liblkqllang.UniversalPattern;
+        final var hasDetails = !otherPatternDetails.isEmpty();
+
+        if ((hasBinding && hasDetails) || (hasBinding && !isUniv)) {
+            sb.append(" @ ");
+        }
+
+        if (isUniv) {
+            if (hasDetails) {
+                sb.append("AdaNode");
+            } else if (!hasBinding) {
+                sb.append("_");
             }
         } else {
             // Base pattern
