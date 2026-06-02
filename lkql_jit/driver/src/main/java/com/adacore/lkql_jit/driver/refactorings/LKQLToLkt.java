@@ -57,6 +57,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.FunDecl funDecl -> refactorFunDecl(funDecl);
             case Liblkqllang.NamedFunction namedFunction -> refactorNamedFunction(namedFunction);
             case Liblkqllang.ParameterDecl paramDecl -> refactorParamDecl(paramDecl);
+            case Liblkqllang.InClause inClause -> refactorInClause(inClause);
             case Liblkqllang.Match match -> refactorMatch(match);
             case Liblkqllang.MatchArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
             case Liblkqllang.SelectorArm arm -> refactorSelectorArm(
@@ -740,5 +741,19 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             textRange(consCall.fArguments().tokenEnd().next(), consCall.tokenEnd().previous()) +
             ")";
         return refactorNode(consCall.fName()) + lpar + refactorNode(consCall.fArguments()) + rpar;
+    }
+
+    /*
+     * <a> in <b>
+     * { val _tmp = <a>; (<b>).any((b) => _tmp == b) }
+     */
+    private String refactorInClause(Liblkqllang.InClause inClause) {
+        return (
+            "{ val _tmp = " +
+            refactorNode(inClause.fValueExpr()) +
+            "; (" +
+            refactorNode(inClause.fListExpr()) +
+            ").any((b) => _tmp == b) }"
+        );
     }
 }
