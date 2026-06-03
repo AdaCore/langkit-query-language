@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.driver.refactorings;
 import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.liblkqllang.Liblkqllang.TokenKind;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
@@ -56,6 +57,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         return switch (node) {
             case Liblkqllang.FunDecl funDecl -> refactorFunDecl(funDecl);
             case Liblkqllang.NamedFunction namedFunction -> refactorNamedFunction(namedFunction);
+            case Liblkqllang.FunCall funCall -> refactorFunCall(funCall);
             case Liblkqllang.ParameterDecl paramDecl -> refactorParamDecl(paramDecl);
             case Liblkqllang.InClause inClause -> refactorInClause(inClause);
             case Liblkqllang.Match match -> refactorMatch(match);
@@ -224,6 +226,37 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         }
 
         sb.append(refactorNode(namedFunction.fBodyExpr()));
+        return sb.toString();
+    }
+
+    /*
+     *
+     * <callee>[?](<args>)
+     * <callee>(<args>)
+     *
+     */
+    private String refactorFunCall(Liblkqllang.FunCall funCall) {
+        final var sb = new StringBuilder();
+
+        sb.append(refactorNode(funCall.fName()));
+
+        var cursor = funCall.fName().tokenEnd().next();
+        var stopIndex = funCall.fArguments().tokenStart().tokenIndex;
+        while (cursor.tokenIndex < stopIndex) {
+            if (cursor.kind != TokenKind.LKQL_QUESTION) {
+                sb.append(cursor.getText());
+            }
+            cursor = cursor.next();
+        }
+
+        sb.append(refactorNode(funCall.fArguments()));
+
+        if (funCall.fArguments().tokenEnd().next().tokenIndex < funCall.tokenEnd().tokenIndex) {
+            sb.append(textRange(funCall.fArguments().tokenEnd().next(), funCall.tokenEnd()));
+        } else {
+            sb.append(textRange(funCall.tokenEnd(), funCall.tokenEnd()));
+        }
+
         return sb.toString();
     }
 
