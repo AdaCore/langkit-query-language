@@ -184,7 +184,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Stupid Scanner Trick
         try (
             final var s = new Scanner(
-                LKQLLanguage.class.getResourceAsStream("/prelude.lkt")
+                LKQLLanguage.class.getResourceAsStream("/prelude.lkql")
             ).useDelimiter("\\A")
         ) {
             return s.next();
