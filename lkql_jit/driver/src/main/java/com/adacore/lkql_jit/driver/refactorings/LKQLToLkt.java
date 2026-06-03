@@ -236,6 +236,15 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      */
     private String refactorFunCall(Liblkqllang.FunCall funCall) {
+        if (funCall.fHasSafe().pAsBool()) {
+            diags.add(
+                new Warning(
+                    "safe calls are a deprecated feature",
+                    SourceSection.wrap(funCall.fHasSafe(), cache)
+                )
+            );
+        }
+
         final var sb = new StringBuilder();
 
         sb.append(refactorNode(funCall.fName()));

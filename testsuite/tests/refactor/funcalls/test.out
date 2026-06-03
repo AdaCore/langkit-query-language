@@ -1,3 +1,7 @@
+input.lkql:2:4: warning: safe calls are a deprecated feature
+  2 | foo?( # some useful comment
+    |    ^
+
 # lkql version: 2
 
 
