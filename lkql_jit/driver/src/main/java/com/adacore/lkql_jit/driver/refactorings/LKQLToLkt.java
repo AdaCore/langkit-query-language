@@ -79,6 +79,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.Tuple tuple -> refactorTuple(tuple);
             case Liblkqllang.TuplePattern tuplePattern -> refactorTuplePattern(tuplePattern);
             case Liblkqllang.ConstructorCall consCall -> refactorConstructorCall(consCall);
+            case Liblkqllang.ObjectLiteral objLit -> refactorObjectLiteral(objLit);
             case Liblkqllang.CondExpr condExpr -> refactorGeneric(condExpr) +
             (condExpr.fElseExpr().isNone() ? " else true" : "");
             case Liblkqllang.BlockBodyExpr bbe -> "val _ = " + refactorGeneric(bbe);
@@ -783,6 +784,16 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             textRange(consCall.fArguments().tokenEnd().next(), consCall.tokenEnd().previous()) +
             ")";
         return refactorNode(consCall.fName()) + lpar + refactorNode(consCall.fArguments()) + rpar;
+    }
+
+    private String refactorObjectLiteral(Liblkqllang.ObjectLiteral objLit) {
+        diags.add(
+            new Warning(
+                "objects literals cannot be refactored automatically, consider introducing a new struct type",
+                SourceSection.wrap(objLit, cache)
+            )
+        );
+        return refactorGeneric(objLit);
     }
 
     /*
