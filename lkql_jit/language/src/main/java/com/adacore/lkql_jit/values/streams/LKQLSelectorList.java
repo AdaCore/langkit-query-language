@@ -61,7 +61,7 @@ public class LKQLSelectorList extends BaseCachedStream {
         long minDepth
     ) {
         super(new ListStorage<>(16));
-        this.arguments = new Object[3];
+        this.arguments = new Object[2];
         this.arguments[0] = closure;
         this.rootNode = rootNode;
         this.callTarget = rootNode.getCallTarget();
@@ -98,7 +98,6 @@ public class LKQLSelectorList extends BaseCachedStream {
             // Get the first recurse item and execute the selector on it
             LKQLDepthValue input = this.toVisitList.poll();
             arguments[1] = input.value;
-            arguments[2] = (long) input.depth;
             final var result = callTarget.call(arguments);
             final int resultDepth = input.depth + 1;
 

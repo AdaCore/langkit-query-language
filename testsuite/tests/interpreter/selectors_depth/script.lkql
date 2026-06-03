@@ -1,4 +1,0 @@
-selector triple
-| _ => rec(if depth < 3 then this else ())
-
-print(triple(42).to_list)

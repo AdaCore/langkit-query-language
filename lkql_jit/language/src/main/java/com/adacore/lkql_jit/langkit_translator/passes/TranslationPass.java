@@ -1608,7 +1608,7 @@ public final class TranslationPass
             arms
         );
 
-        // Create the frame descriptor for the arms
+        // Create the frame and closure descriptors for the arms
         var frameDescriptor = this.frames.getFrameDescriptor();
         var closureDescriptor = this.frames.getClosureDescriptor();
 

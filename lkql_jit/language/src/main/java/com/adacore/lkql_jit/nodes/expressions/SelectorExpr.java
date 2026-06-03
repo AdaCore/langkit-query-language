@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
@@ -42,7 +43,7 @@ public final class SelectorExpr extends Expr {
             frameDescriptor,
             isMemoized,
             true,
-            new String[] { "this" },
+            new String[] { Constants.THIS_SYMBOL },
             new Expr[] { null },
             body,
             name

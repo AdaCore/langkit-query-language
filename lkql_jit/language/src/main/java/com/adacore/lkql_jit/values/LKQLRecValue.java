@@ -18,12 +18,9 @@ public class LKQLRecValue extends LKQLValue {
     public final Object[] recurseVal;
     public final Object[] resultVal;
 
-    public int depth;
-
     public LKQLRecValue(Object[] recurseVal, Object[] resultVal) {
         this.recurseVal = recurseVal;
         this.resultVal = resultVal;
-        this.depth = -1;
     }
 
     @ExportMessage
