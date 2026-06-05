@@ -635,6 +635,7 @@ public final class LktPasses {
                 final SourceSection location = loc(unOp);
                 return switch (unOp.fOp().getKind()) {
                     case OP_MINUS -> UnMinusNodeGen.create(location, arg);
+                    case OP_PLUS -> UnPlusNodeGen.create(location, arg);
                     default -> null;
                 };
             } else if (expr instanceof NotExpr notExpr) {
