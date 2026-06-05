@@ -10,7 +10,7 @@ variables:
   JAVA_VERSION: 24
   JAVA_VENDOR: graalvm
   MAVEN_VERSION: 3.9.9
-  NODEJS_VERSION: 16.19.1
+  NODEJS_VERSION: 20.19.4
 
 stages:
   - checkstyle
