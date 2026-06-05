@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
@@ -21,7 +20,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 /**
  * This node represents a query in the LKQL language
@@ -34,9 +32,6 @@ public final class Query extends Expr {
 
     /** The kind of the query */
     private final Kind kind;
-
-    /** Whether the traversal should follow the generic instantiations */
-    private final boolean followGenerics;
 
     // ----- Children -----
 
@@ -70,14 +65,12 @@ public final class Query extends Expr {
     public Query(
         SourceSection location,
         Kind kind,
-        boolean followGenerics,
         Expr throughExpr,
         Expr fromExpr,
         Pattern pattern
     ) {
         super(location);
         this.kind = kind;
-        this.followGenerics = followGenerics;
         this.throughExpr = throughExpr;
         this.fromExpr = fromExpr;
         this.pattern = pattern;
@@ -91,7 +84,7 @@ public final class Query extends Expr {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        final var through = this.throughExpr != null ? executeThrough(frame) : null;
+        final var through = executeThrough(frame);
         final var fromNodes = executeFromNodes(frame);
 
         // If the query mode is all
@@ -184,8 +177,6 @@ public final class Query extends Expr {
      * @return The iterator for the node exploration
      */
     private Iterator createNodeIterator(LangkitSupport.NodeInterface root, LKQLFunction through) {
-        if (through == null) return new ChildIterator(root, followGenerics);
-
         var selectorList = through.getCallTarget().call(null, through.closure, root, -1l, -1l, -1l);
         if (selectorList instanceof LKQLStream stream) {
             return stream.iterator();
@@ -221,100 +212,5 @@ public final class Query extends Expr {
 
         /** Select only the first node matching the query pattern. */
         FIRST,
-    }
-
-    /** This class is the iterator for a query without through */
-    public static final class ChildIterator implements Iterator {
-
-        // ----- Attributes -----
-
-        /** The queue to explore the children */
-        private final LinkedList<LangkitSupport.NodeInterface> queue;
-
-        /** Whether the iterator should follow the generic instantiations */
-        private final boolean followGenerics;
-
-        // ----- Constructors -----
-
-        /**
-         * Create a new child iterator for given root
-         *
-         * @param root The root of the exploration
-         * @param followGenerics If the iterator should follow the ada generic instantiation
-         */
-        public ChildIterator(LangkitSupport.NodeInterface root, boolean followGenerics) {
-            this.queue = new LinkedList<>();
-            this.queue.add(root);
-            this.followGenerics = followGenerics;
-        }
-
-        // ----- Override methods -----
-
-        /**
-         * @see Iterator#hasNext()
-         */
-        @Override
-        public boolean hasNext() {
-            return this.queue.size() > 0;
-        }
-
-        /**
-         * @see Iterator#next()
-         */
-        @Override
-        public Object next() {
-            // Get the next node
-            LangkitSupport.NodeInterface next = this.queue.remove(0);
-
-            // Add the node child in the queue
-            int childrenCount = next.getChildrenCount();
-            for (int i = childrenCount - 1; i >= 0; i--) {
-                LangkitSupport.NodeInterface child = next.getChild(i);
-                if (!child.isNone()) {
-                    this.queue.add(0, child);
-                }
-            }
-
-            // Test if the iterator should follow the generic instantiations
-            if (this.followGenerics) {
-                if (next instanceof Libadalang.GenericInstantiation genInst) {
-                    // If the node is a generic instantiation, traverse the instantiated generic
-                    Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
-                    Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
-                    this.queue.add(genDecl);
-                    if (!genBody.isNone()) {
-                        this.queue.add(genBody);
-                    }
-                } else if (
-                    next instanceof Libadalang.BodyStub stub && inGenericInstantiation(next)
-                ) {
-                    // If this node is a body stub and we are currently traversing a generic
-                    // instantiation,
-                    // we should also traverse the stub's completion.
-                    // TODO: can we keep track of whether we are in an instantiation like we do in
-                    // NodeCheckerFunction
-                    // instead of relying on the `pGenericInstantiations()` function ?
-                    this.queue.add(stub.pNextPartForDecl(false));
-                }
-            }
-
-            // return the result
-            return next;
-        }
-
-        /**
-         * Return whether the given node is inside an instantiated generic.
-         *
-         * @param node The node to check
-         */
-        private static boolean inGenericInstantiation(LangkitSupport.NodeInterface node) {
-            // TODO: Genericize LKQL issue #500. Cannot interface Ada specific calls.
-            return ((Libadalang.AdaNode) node).pGenericInstantiations().length > 0;
-        }
-
-        // ----- Un-needed methods -----
-
-        @Override
-        public void reset() {}
     }
 }

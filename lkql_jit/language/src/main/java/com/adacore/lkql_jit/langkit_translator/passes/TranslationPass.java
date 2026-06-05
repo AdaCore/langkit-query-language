@@ -38,6 +38,7 @@ import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
+import com.adacore.lkql_jit.nodes.expressions.value_read.ReadPrelude;
 import com.adacore.lkql_jit.nodes.pass.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
@@ -1043,13 +1044,10 @@ public final class TranslationPass
         this.frames.enterFrame(query);
 
         // Translate the query fields
-        boolean followGenerics = false;
         final Liblkqllang.Expr throughExprBase = query.fThroughExpr();
-        Expr throughExpr = null;
-        if (!throughExprBase.isNone()) {
-            if (throughExprBase.getText().equals("follow_generics")) followGenerics = true;
-            else throughExpr = (Expr) throughExprBase.accept(this);
-        }
+        final Expr throughExpr = throughExprBase.isNone()
+            ? new ReadPrelude(loc(query), this.frames.getPrelude("subtree"))
+            : (Expr) throughExprBase.accept(this);
 
         final Liblkqllang.Expr fromExprBase = query.fFromExpr();
         final Expr fromExpr = fromExprBase.isNone() ? null : (Expr) fromExprBase.accept(this);
@@ -1057,19 +1055,15 @@ public final class TranslationPass
         final Pattern pattern = (Pattern) query.fPattern().accept(this);
 
         // Get the query kind
-        final Query.Kind queryKind;
-        final Liblkqllang.QueryKind queryKindBase = query.fQueryKind();
-        if (queryKindBase instanceof Liblkqllang.QueryKindFirst) {
-            queryKind = Query.Kind.FIRST;
-        } else {
-            queryKind = Query.Kind.ALL;
-        }
+        final Query.Kind queryKind = query.fQueryKind() instanceof Liblkqllang.QueryKindFirst
+            ? Query.Kind.FIRST
+            : Query.Kind.ALL;
 
         // Exit the query frame
         this.frames.exitFrame();
 
         // Return the new query node
-        return new Query(loc(query), queryKind, followGenerics, throughExpr, fromExpr, pattern);
+        return new Query(loc(query), queryKind, throughExpr, fromExpr, pattern);
     }
 
     @Override

@@ -269,7 +269,7 @@ public final class LktPasses {
                 this.frames.getClosureDescriptor(),
                 paramNames,
                 defaultVals,
-                doc == null || doc.isNone() ? "" : doc.pDenotedValue().value,
+                doc == null || doc.isNone() ? "" : doc.pDenotedValue().value.trim(),
                 body,
                 functionName
             );
@@ -320,7 +320,7 @@ public final class LktPasses {
                 frames.getFrameDescriptor(),
                 topLevelNodes.toArray(new LKQLNode[0]),
                 source.isInteractive(),
-                root.fDoc().isNone() ? "" : root.fDoc().pDenotedValue().value
+                root.fDoc().isNone() ? "" : root.fDoc().pDenotedValue().value.trim()
             );
         }
 
@@ -347,7 +347,7 @@ public final class LktPasses {
             return new Annotation(
                 loc(annotation),
                 annotation.fName().getText(),
-                buildArgs(annotation.fArgs().fArgs())
+                annotation.fArgs().isNone() ? null : buildArgs(annotation.fArgs().fArgs())
             );
         }
 
@@ -462,7 +462,7 @@ public final class LktPasses {
                             frames.getClosureDescriptor(),
                             params,
                             defaultVals,
-                            doc.isNone() ? "" : doc.pDenotedValue().value,
+                            doc.isNone() ? "" : doc.pDenotedValue().value.trim(),
                             body,
                             name
                         )
@@ -628,6 +628,13 @@ public final class LktPasses {
                     case OP_LTE -> BinLeqNodeGen.create(location, left, right);
                     case OP_GT -> BinGtNodeGen.create(location, left, right);
                     case OP_GTE -> BinGeqNodeGen.create(location, left, right);
+                    default -> null;
+                };
+            } else if (expr instanceof Liblktlang.UnOp unOp) {
+                final var arg = buildExpr(unOp.fExpr());
+                final SourceSection location = loc(unOp);
+                return switch (unOp.fOp().getKind()) {
+                    case OP_MINUS -> UnMinusNodeGen.create(location, arg);
                     default -> null;
                 };
             } else if (expr instanceof NotExpr notExpr) {
@@ -945,7 +952,7 @@ public final class LktPasses {
         }
     }
 
-    public static LKQLNode buildLKQLNode(
+    public static TopLevelList buildLKQLNode(
         Source source,
         LangkitRoot root,
         ScriptFrames frames,

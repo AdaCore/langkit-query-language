@@ -1,2 +1,2 @@
 val declWithAssoc = select *(any children(depth=3): AspectAssoc)
-print(declWithAssoc)
+print(declWithAssoc.to_list)

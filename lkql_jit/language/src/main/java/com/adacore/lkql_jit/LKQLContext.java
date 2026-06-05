@@ -14,7 +14,6 @@ import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LogLocation;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
-import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.options.RuleInstance;
@@ -581,7 +580,7 @@ public final class LKQLContext {
             if (argSource == null) {
                 argValue = null;
             } else {
-                var tl = ((TopLevelList) language.translate(argSource, "<rule-arg>")).program;
+                var tl = language.translateBuffer(argSource, "<rule-arg>").program;
                 var node = (Expr) tl[0];
                 argValue = node.executeGeneric(null);
             }

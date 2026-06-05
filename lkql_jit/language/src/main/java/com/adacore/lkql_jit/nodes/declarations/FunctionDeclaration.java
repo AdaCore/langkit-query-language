@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
@@ -100,7 +101,9 @@ public final class FunctionDeclaration extends Declaration {
 
         // Set the function annotation
         if (this.annotation != null) {
-            var annotationArgs = this.annotation.getArguments().getArgs();
+            var annotationArgs = annotation.getArguments() != null
+                ? annotation.getArguments().getArgs()
+                : new Arg[0];
             List<Object> positionalArguments = new ArrayList<>();
             Map<String, Object> namedArguments = newMap();
             for (int i = 0; i < annotationArgs.length; i++) {

@@ -30,8 +30,7 @@ public final class GlobalScope {
     private final Object[] builtIns;
 
     public LKQLNamespace prelude = null;
-
-    public HashMap<String, Integer> preludeMap = new HashMap<>();
+    public HashMap<String, Integer> preludeMap = null;
     public Object[] preludeObjects = null;
 
     /** The meta tables that contains built-in methods. */
@@ -121,5 +120,21 @@ public final class GlobalScope {
 
     public Map<String, Object> getGlobalObjects() {
         return globalObjects;
+    }
+
+    public void loadPreludeNamespace(LKQLNamespace prelude) {
+        var entries = prelude.asMap().entrySet();
+        var objects = new Object[entries.size()];
+        var preludeMap = new HashMap<String, Integer>(entries.size());
+        int i = 0;
+        for (var entry : entries) {
+            preludeMap.put(entry.getKey(), i);
+            objects[i] = entry.getValue();
+            i++;
+        }
+
+        this.prelude = prelude;
+        this.preludeMap = preludeMap;
+        this.preludeObjects = objects;
     }
 }
