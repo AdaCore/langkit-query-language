@@ -89,15 +89,19 @@ public abstract class Indexing extends Expr {
      */
     @Specialization
     protected Object indexIndexable(Indexable collection, long index) {
+        Object res = null;
         try {
-            return collection.get((int) index - 1);
-        } catch (IndexOutOfBoundsException e) {
+            res = collection.get((int) index - 1);
+        } catch (IndexOutOfBoundsException e) {}
+
+        if (res == null) {
             if (this.isSafe) {
                 return LKQLUnit.INSTANCE;
             } else {
                 throw LKQLRuntimeError.invalidIndex((int) index, this);
             }
         }
+        return res;
     }
 
     /**

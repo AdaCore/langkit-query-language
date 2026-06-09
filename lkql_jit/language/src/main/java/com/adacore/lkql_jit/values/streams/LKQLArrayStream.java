@@ -34,6 +34,7 @@ public class LKQLArrayStream extends LKQLStream {
 
     @Override
     public Object get(long index) throws IndexOutOfBoundsException {
+        if (index >= content.length) return null;
         return content[(int) index];
     }
 

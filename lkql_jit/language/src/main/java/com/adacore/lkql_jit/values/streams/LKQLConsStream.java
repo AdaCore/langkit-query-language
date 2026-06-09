@@ -54,6 +54,7 @@ public class LKQLConsStream extends BaseCachedStream {
     protected Object computeNext() {
         try {
             var res = next.get(0);
+            if (res == null) return null;
             this.next = this.next.getTail();
             return res;
         } catch (IndexOutOfBoundsException _) {
@@ -163,32 +164,41 @@ public class LKQLConsStream extends BaseCachedStream {
 
         /** Should be called once and cached by wrapper. */
         public Object getHead() {
+            Object res = null;
             try {
                 // try to access element in prefix first
-                return this.prefix.get(index);
-            } catch (IndexOutOfBoundsException _) {
+                res = this.prefix.get(index);
+            } catch (IndexOutOfBoundsException _) {}
+
+            if (res == null) {
                 // end of prefix, continue with tail
                 ensureExecutionResult();
                 return executionResult.get(0);
             }
+
+            return res;
         }
 
         /** Should be called once and cached by wrapper. */
         public LKQLStream getTail() {
-            boolean isPrefixEmpty = true;
+            boolean prefixHas1 = false;
+            boolean prefixHas2 = false;
             try {
                 // try to access element in prefix first
-                this.prefix.get(index);
-                // prefix has at least one element
-                isPrefixEmpty = false;
-                this.prefix.get(index + 1);
-                // prefix has a tail, increment index
-                return new RawConcatStream(prefix, index + 1, tailExecutionUnit, tailClosure);
-            } catch (IndexOutOfBoundsException _) {
-                // end of prefix, continue with tail
-                ensureExecutionResult();
-                return isPrefixEmpty ? executionResult.getTail() : executionResult;
-            }
+                prefixHas1 = prefix.get(index) != null;
+                prefixHas2 = prefixHas1 && prefix.get(index + 1) != null;
+            } catch (IndexOutOfBoundsException _) {}
+
+            if (prefixHas2) return new RawConcatStream(
+                prefix,
+                index + 1,
+                tailExecutionUnit,
+                tailClosure
+            );
+
+            // end of prefix, continue with tail
+            ensureExecutionResult();
+            return prefixHas1 ? executionResult : executionResult.getTail();
         }
 
         /** Compute and store tail in executionResult if not already computed. */

@@ -41,25 +41,31 @@ public abstract class BaseCachedStream extends LKQLStream {
             if (next == null) break;
             cache.append(next);
         }
+        if (cache.size() <= n) return null;
         return this.cache.get((int) n);
     }
 
     public Object getHead() {
+        Object res = null;
         try {
-            return this.get(0);
-        } catch (IndexOutOfBoundsException _) {
-            throw LKQLRuntimeError.emptyStreamHead(null);
-        }
+            res = this.get(0);
+        } catch (IndexOutOfBoundsException _) {}
+
+        if (res == null) throw LKQLRuntimeError.emptyStreamHead(null);
+
+        return res;
     }
 
     @Override
     public LKQLStream getTail() {
+        boolean empty = true;
         try {
-            this.get(0);
-            return new OffsetStream(this, 1);
-        } catch (IndexOutOfBoundsException _) {
-            throw LKQLRuntimeError.emptyStreamTail(null);
-        }
+            empty = this.get(0) == null;
+        } catch (IndexOutOfBoundsException _) {}
+
+        if (empty) throw LKQLRuntimeError.emptyStreamTail(null);
+
+        return new OffsetStream(this, 1);
     }
 
     @Override
@@ -91,21 +97,26 @@ public abstract class BaseCachedStream extends LKQLStream {
 
         @Override
         public Object getHead() {
+            Object res = null;
             try {
-                return base.get(offset);
-            } catch (IndexOutOfBoundsException _) {
-                throw LKQLRuntimeError.emptyStreamHead(null);
-            }
+                res = base.get(offset);
+            } catch (IndexOutOfBoundsException _) {}
+
+            if (res == null) throw LKQLRuntimeError.emptyStreamHead(null);
+
+            return res;
         }
 
         @Override
         public LKQLStream getTail() {
+            boolean empty = true;
             try {
-                base.get(offset);
-                return new OffsetStream(base, offset + 1);
-            } catch (IndexOutOfBoundsException _) {
-                throw LKQLRuntimeError.emptyStreamTail(null);
-            }
+                empty = base.get(offset) == null;
+            } catch (IndexOutOfBoundsException _) {}
+
+            if (empty) throw LKQLRuntimeError.emptyStreamTail(null);
+
+            return new OffsetStream(base, offset + 1);
         }
     }
 }
