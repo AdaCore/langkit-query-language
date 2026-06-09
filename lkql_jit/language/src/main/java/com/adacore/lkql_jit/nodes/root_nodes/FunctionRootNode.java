@@ -113,26 +113,33 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     @Override
     public Object execute(VirtualFrame frame) {
         // Initialize the frame
-        this.initFrame(frame);
+        initFrame(frame);
 
         // Check that all arguments have a value
-        this.checkParamValues(frame);
+        checkParamValues(frame);
 
         // If the function is memoized, try to get the result in the cache, else
         // execute the body and set the result in the cache.
-        if (this.isMemoized) {
-            Arguments args = new Arguments(frame.getArguments());
-            if (this.isMemoized(args)) {
-                return this.getMemoized(args);
+        if (isMemoized) {
+            var argsOffset = takesClosure ? 1 : 0;
+            var args = new Arguments(
+                Arrays.copyOfRange(
+                    frame.getArguments(),
+                    argsOffset,
+                    parameterNames.length + argsOffset
+                )
+            );
+            if (isMemoized(args)) {
+                return getMemoized(args);
             }
 
-            Object res = this.body.executeGeneric(frame);
-            this.putMemoized(args, res);
+            Object res = body.executeGeneric(frame);
+            putMemoized(args, res);
             return res;
         }
         // Else just execute the body
         else {
-            return this.body.executeGeneric(frame);
+            return body.executeGeneric(frame);
         }
     }
 
@@ -166,8 +173,8 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
         @Override
         public boolean equals(Object o) {
             if (o == this) return true;
-            if (!(o instanceof Arguments other)) return false;
-            return Arrays.equals(this.args, other.args);
+            if (!(o instanceof Arguments(Object[] otherArgs))) return false;
+            return Arrays.equals(args, otherArgs);
         }
 
         @Override
