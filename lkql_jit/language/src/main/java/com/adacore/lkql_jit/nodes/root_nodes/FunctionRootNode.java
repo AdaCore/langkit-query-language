@@ -129,7 +129,7 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
                     parameterNames.length + argsOffset
                 )
             );
-            if (isMemoized(args)) {
+            if (alreadyMemoized(args)) {
                 return getMemoized(args);
             }
 
