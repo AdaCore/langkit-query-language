@@ -52,7 +52,7 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
      * @return True if the call has been done and the result is in the cache, false else.
      */
     @CompilerDirectives.TruffleBoundary
-    protected boolean isMemoized(final K key) {
+    protected boolean alreadyMemoized(final K key) {
         return this.memoizationCache.containsKey(key);
     }
 
