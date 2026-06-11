@@ -52,14 +52,10 @@ public class LKQLConsStream extends BaseCachedStream {
     // ----- Instance methods -----
 
     protected Object computeNext() {
-        try {
-            var res = next.get(0);
-            if (res == null) return null;
-            this.next = this.next.getTail();
-            return res;
-        } catch (IndexOutOfBoundsException _) {
-            return null;
-        }
+        var res = next.get(0);
+        if (res == null) return null;
+        this.next = this.next.getTail();
+        return res;
     }
 
     // ----- Inner classes -----
@@ -87,7 +83,7 @@ public class LKQLConsStream extends BaseCachedStream {
         }
 
         /** Very inefficient, should not be used. */
-        public Object get(long index) throws IndexOutOfBoundsException {
+        public Object get(long index) {
             if (index == 0) return getHead();
             else return getTail().get(index - 1);
         }
@@ -157,18 +153,15 @@ public class LKQLConsStream extends BaseCachedStream {
         }
 
         /** Very inefficient, should not be used. */
-        public Object get(long index) throws IndexOutOfBoundsException {
+        public Object get(long index) {
             if (index == 0) return getHead();
             else return getTail().get(index - 1);
         }
 
         /** Should be called once and cached by wrapper. */
         public Object getHead() {
-            Object res = null;
-            try {
-                // try to access element in prefix first
-                res = this.prefix.get(index);
-            } catch (IndexOutOfBoundsException _) {}
+            // try to access element in prefix first
+            var res = this.prefix.get(index);
 
             if (res == null) {
                 // end of prefix, continue with tail
@@ -181,13 +174,9 @@ public class LKQLConsStream extends BaseCachedStream {
 
         /** Should be called once and cached by wrapper. */
         public LKQLStream getTail() {
-            boolean prefixHas1 = false;
-            boolean prefixHas2 = false;
-            try {
-                // try to access element in prefix first
-                prefixHas1 = prefix.get(index) != null;
-                prefixHas2 = prefixHas1 && prefix.get(index + 1) != null;
-            } catch (IndexOutOfBoundsException _) {}
+            // try to access element in prefix first
+            var prefixHas1 = prefix.get(index) != null;
+            var prefixHas2 = prefixHas1 && prefix.get(index + 1) != null;
 
             if (prefixHas2) return new RawConcatStream(
                 prefix,

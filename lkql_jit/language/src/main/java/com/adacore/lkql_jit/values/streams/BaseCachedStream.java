@@ -46,10 +46,7 @@ public abstract class BaseCachedStream extends LKQLStream {
     }
 
     public Object getHead() {
-        Object res = null;
-        try {
-            res = this.get(0);
-        } catch (IndexOutOfBoundsException _) {}
+        var res = this.get(0);
 
         if (res == null) throw LKQLRuntimeError.emptyStreamHead(null);
 
@@ -58,10 +55,7 @@ public abstract class BaseCachedStream extends LKQLStream {
 
     @Override
     public LKQLStream getTail() {
-        boolean empty = true;
-        try {
-            empty = this.get(0) == null;
-        } catch (IndexOutOfBoundsException _) {}
+        var empty = this.get(0) == null;
 
         if (empty) throw LKQLRuntimeError.emptyStreamTail(null);
 
@@ -97,10 +91,7 @@ public abstract class BaseCachedStream extends LKQLStream {
 
         @Override
         public Object getHead() {
-            Object res = null;
-            try {
-                res = base.get(offset);
-            } catch (IndexOutOfBoundsException _) {}
+            var res = base.get(offset);
 
             if (res == null) throw LKQLRuntimeError.emptyStreamHead(null);
 
@@ -109,10 +100,7 @@ public abstract class BaseCachedStream extends LKQLStream {
 
         @Override
         public LKQLStream getTail() {
-            boolean empty = true;
-            try {
-                empty = base.get(offset) == null;
-            } catch (IndexOutOfBoundsException _) {}
+            var empty = base.get(offset) == null;
 
             if (empty) throw LKQLRuntimeError.emptyStreamTail(null);
 

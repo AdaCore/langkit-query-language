@@ -33,7 +33,7 @@ public class LKQLArrayStream extends LKQLStream {
     }
 
     @Override
-    public Object get(long index) throws IndexOutOfBoundsException {
+    public Object get(long index) {
         if (index >= content.length) return null;
         return content[(int) index];
     }
@@ -67,7 +67,8 @@ public class LKQLArrayStream extends LKQLStream {
         }
 
         @Override
-        public Object get(long index) throws IndexOutOfBoundsException {
+        public Object get(long index) {
+            if (index + offset >= content.length) return null;
             return content[(int) index + offset];
         }
 

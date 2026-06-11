@@ -122,7 +122,8 @@ public class LKQLSelectorList extends BaseCachedStream {
                 );
             }
         }
-        return this.cache.get((int) n);
+        if (cache.size() <= n) return null;
+        return cache.get((int) n);
     }
 
     /** Add the object to the result cache of the selector list. */
