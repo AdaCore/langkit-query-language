@@ -1483,7 +1483,7 @@ public final class TranslationPass
     public LKQLNode visit(Liblkqllang.FunCall funCall) {
         // Translate the function call fields
         final Expr callee = (Expr) funCall.fName().accept(this);
-        final boolean isSafe = true;
+        final boolean isSafe = funCall.fHasSafe() instanceof Liblkqllang.SafePresent;
         final ArgList arguments = (ArgList) funCall.fArguments().accept(this);
 
         // Return the function call
