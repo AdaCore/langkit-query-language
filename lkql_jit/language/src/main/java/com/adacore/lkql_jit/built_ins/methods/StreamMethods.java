@@ -25,6 +25,19 @@ public class StreamMethods {
         }
     }
 
+    @BuiltInMethod(
+        name = "head_or",
+        doc = "Given a default value, return the head of the stream or the default value if the stream is empty."
+    )
+    abstract static class HeadOrExpr extends BuiltInBody {
+
+        @Specialization
+        public Object doGeneric(LKQLStream self, Object defaultVal) {
+            var h = self.get(0);
+            return h != null ? h : defaultVal;
+        }
+    }
+
     @BuiltInMethod(name = "tail", doc = "Return the tail of the stream.", isProperty = true)
     abstract static class TailExpr extends BuiltInBody {
 
