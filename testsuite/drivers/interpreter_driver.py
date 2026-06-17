@@ -84,19 +84,17 @@ class InterpreterDriver(BaseDriver):
 
     def refactor(self) -> None:
         for source_filepath in find(self.test_env["working_dir"], "*.lkql"):
-            # Translate "foo/bar.lkql" to "foo/bar.lkt"
-            refactored_filepath = source_filepath.removesuffix(".lkql") + ".lkt"
-
             Run(
                 cmds=[
                     *self.command_base,
                     "refactor",
+                    "-i",
                     "-r",
                     "TO_LKQL_V2",
                     source_filepath,
                 ],
                 cwd=self.test_env["working_dir"],
-                output=refactored_filepath,
+                output=DEVNULL,
                 error=DEVNULL,
                 input=DEVNULL,
             )
@@ -109,6 +107,9 @@ class InterpreterDriver(BaseDriver):
         )
 
         script = self.test_env.get("script", "script.lkql")
+
+        # Run the interpreter
+        self.check_run(self.build_args(script), lkql_path=lkql_path)
 
         # The default behavior is to try to refactor the *.lkql script files
         # into the Lkt syntax and run the interpreter on it.
@@ -123,16 +124,11 @@ class InterpreterDriver(BaseDriver):
             # Run refactor step
             self.refactor()
 
-            script_lkt = script.removesuffix(".lkql") + ".lkt"
-
             # Run test on refactored script
             lkt_result = self.check_run(
-                self.build_args(script_lkt),
+                self.build_args(script),
                 lkql_path=lkql_path,
                 analyze_output=False,
             )
 
             self.lkt_output = lkt_result.out
-
-        # Run the interpreter
-        self.check_run(self.build_args(script), lkql_path=lkql_path)
