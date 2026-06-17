@@ -32,8 +32,8 @@ public class LKQLEmptyStream extends LKQLStream {
     }
 
     @Override
-    public Object get(long index) throws IndexOutOfBoundsException {
-        throw new IndexOutOfBoundsException();
+    public Object get(long index) {
+        return null;
     }
 
     @Override

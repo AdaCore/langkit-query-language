@@ -40,8 +40,7 @@ public abstract class LKQLStream extends LKQLValue implements Iterable, Indexabl
     @CompilerDirectives.TruffleBoundary
     public boolean asBoolean() {
         try {
-            this.get(0);
-            return true;
+            return this.get(0) != null;
         } catch (IndexOutOfBoundsException _) {
             return false;
         }

@@ -41,25 +41,25 @@ public abstract class BaseCachedStream extends LKQLStream {
             if (next == null) break;
             cache.append(next);
         }
+        if (cache.size() <= n) return null;
         return this.cache.get((int) n);
     }
 
     public Object getHead() {
-        try {
-            return this.get(0);
-        } catch (IndexOutOfBoundsException _) {
-            throw LKQLRuntimeError.emptyStreamHead(null);
-        }
+        var res = this.get(0);
+
+        if (res == null) throw LKQLRuntimeError.emptyStreamHead(null);
+
+        return res;
     }
 
     @Override
     public LKQLStream getTail() {
-        try {
-            this.get(0);
-            return new OffsetStream(this, 1);
-        } catch (IndexOutOfBoundsException _) {
-            throw LKQLRuntimeError.emptyStreamTail(null);
-        }
+        var empty = this.get(0) == null;
+
+        if (empty) throw LKQLRuntimeError.emptyStreamTail(null);
+
+        return new OffsetStream(this, 1);
     }
 
     @Override
@@ -91,21 +91,20 @@ public abstract class BaseCachedStream extends LKQLStream {
 
         @Override
         public Object getHead() {
-            try {
-                return base.get(offset);
-            } catch (IndexOutOfBoundsException _) {
-                throw LKQLRuntimeError.emptyStreamHead(null);
-            }
+            var res = base.get(offset);
+
+            if (res == null) throw LKQLRuntimeError.emptyStreamHead(null);
+
+            return res;
         }
 
         @Override
         public LKQLStream getTail() {
-            try {
-                base.get(offset);
-                return new OffsetStream(base, offset + 1);
-            } catch (IndexOutOfBoundsException _) {
-                throw LKQLRuntimeError.emptyStreamTail(null);
-            }
+            var empty = base.get(offset) == null;
+
+            if (empty) throw LKQLRuntimeError.emptyStreamTail(null);
+
+            return new OffsetStream(base, offset + 1);
         }
     }
 }

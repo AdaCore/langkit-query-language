@@ -31,12 +31,7 @@ public class LKQLStreamIterator extends LKQLIterator {
 
     @Override
     public boolean hasNext() {
-        try {
-            this.stream.get(cursor);
-            return true;
-        } catch (IndexOutOfBoundsException e) {
-            return false;
-        }
+        return this.stream.get(cursor) != null;
     }
 
     @Override
