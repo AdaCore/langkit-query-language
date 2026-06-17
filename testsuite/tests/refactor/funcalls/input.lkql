@@ -1,0 +1,9 @@
+
+foo?( # some useful comment
+    a,
+    b,
+    c
+    # bla
+) # blabla
+
+print(add(x,sub(y,z)))

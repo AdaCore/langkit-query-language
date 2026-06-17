@@ -1,0 +1,6 @@
+
+val x = new Constructor(
+	a,
+	b = c,
+	new Other()
+)

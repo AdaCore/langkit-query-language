@@ -523,7 +523,7 @@ public final class LktPasses {
                 final ArgList arguments = buildArgs(callExpr.fArgs());
                 return FunCallNodeGen.create(
                     loc(callExpr),
-                    false,
+                    calleeNode instanceof Liblktlang.DotExpr dot && dot.fNullCond().pAsBool(),
                     Arrays.stream(arguments.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
                     Arrays.stream(arguments.getArgs())
                         .map(Arg::getArgStringName)

@@ -1,0 +1,10 @@
+# values
+
+val flat = (a, b)
+val nested = (a, (b, c))
+
+# patterns
+
+val flat_p = x is (a, b)
+val nested_p = x is (a, (b, c))
+

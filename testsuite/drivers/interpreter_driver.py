@@ -1,4 +1,5 @@
 import os
+from e3.os.process import DEVNULL, Run
 from e3.testsuite.result import FailureReason
 from e3.testsuite.driver.classic import TestAbortWithFailure
 from drivers.base_driver import BaseDriver
@@ -86,19 +87,19 @@ class InterpreterDriver(BaseDriver):
             # Translate "foo/bar.lkql" to "foo/bar.lkt"
             refactored_filepath = source_filepath.removesuffix(".lkql") + ".lkt"
 
-            refactor_result = self.shell(
-                [
+            Run(
+                cmds=[
                     *self.command_base,
                     "refactor",
                     "-r",
                     "TO_LKQL_V2",
                     source_filepath,
                 ],
-                analyze_output=False,
+                cwd=self.test_env["working_dir"],
+                output=refactored_filepath,
+                error=DEVNULL,
+                input=DEVNULL,
             )
-
-            with open(refactored_filepath, "w") as file:
-                file.write(refactor_result.out)
 
     def run(self) -> None:
 

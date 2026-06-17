@@ -1,0 +1,5 @@
+# lkql version: 2
+
+val _ = x is name @ AdaNode(f_field: AdaNode(p_prop(): true))
+val _ = y is _
+val _ = from all_nodes match z when cond(z)

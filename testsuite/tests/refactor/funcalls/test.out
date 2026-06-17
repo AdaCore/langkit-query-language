@@ -1,0 +1,15 @@
+input.lkql:2:4: warning: safe calls are a deprecated feature
+  2 | foo?( # some useful comment
+    |    ^
+
+# lkql version: 2
+
+
+val _ = foo( # some useful comment
+    a,
+    b,
+    c
+    # bla
+) # blabla
+
+val _ = print(add(x,sub(y,z)))

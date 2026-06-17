@@ -1,5 +1,11 @@
 # ----- Misc -----
 
+# generic[A, B]
+struct Pair {
+    fst: A
+    snd: B
+}
+
 |" Yields all the descendants of the given node (including itself)
 fun subtree(this: AdaNode): Stream[AdaNode] =
     match this {

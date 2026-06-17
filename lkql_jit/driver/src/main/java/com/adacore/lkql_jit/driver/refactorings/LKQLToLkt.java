@@ -8,7 +8,12 @@ package com.adacore.lkql_jit.driver.refactorings;
 import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.liblkqllang.Liblkqllang.TokenKind;
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
+import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
+import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -20,8 +25,18 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     /** Pointer to last-entered selector during rewriting. */
     private Liblkqllang.SelectorDecl currentSelector = Liblkqllang.SelectorDecl.NONE;
 
+    private DiagnosticCollector diags;
+
+    private SourceLinesCache cache;
+
     @Override
-    public String apply(Liblkqllang.AnalysisUnit unit) {
+    public String apply(
+        Liblkqllang.AnalysisUnit unit,
+        DiagnosticCollector diags,
+        SourceLinesCache cache
+    ) {
+        this.diags = diags;
+        this.cache = cache;
         var root = unit.getRoot();
         return (
             "# lkql version: 2\n\n" +
@@ -42,7 +57,9 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         return switch (node) {
             case Liblkqllang.FunDecl funDecl -> refactorFunDecl(funDecl);
             case Liblkqllang.NamedFunction namedFunction -> refactorNamedFunction(namedFunction);
+            case Liblkqllang.FunCall funCall -> refactorFunCall(funCall);
             case Liblkqllang.ParameterDecl paramDecl -> refactorParamDecl(paramDecl);
+            case Liblkqllang.InClause inClause -> refactorInClause(inClause);
             case Liblkqllang.Match match -> refactorMatch(match);
             case Liblkqllang.MatchArm arm -> refactorArm(arm, arm.fPattern(), arm.fExpr());
             case Liblkqllang.SelectorArm arm -> refactorSelectorArm(
@@ -59,6 +76,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.ListComprehension comprehension -> refactorListComprehension(
                 comprehension
             );
+            case Liblkqllang.Tuple tuple -> refactorTuple(tuple);
+            case Liblkqllang.TuplePattern tuplePattern -> refactorTuplePattern(tuplePattern);
+            case Liblkqllang.ConstructorCall consCall -> refactorConstructorCall(consCall);
+            case Liblkqllang.ObjectLiteral objLit -> refactorObjectLiteral(objLit);
             case Liblkqllang.CondExpr condExpr -> refactorGeneric(condExpr) +
             (condExpr.fElseExpr().isNone() ? " else true" : "");
             case Liblkqllang.BlockBodyExpr bbe -> "val _ = " + refactorGeneric(bbe);
@@ -72,10 +93,6 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     /**
      * Copy all the text belonging to a node in the input source,
      * but recursively refactor the code of its children.
-     * Ex:
-     * - node = SomeNode(... # comment 1\n ... # comment 2\n ...)
-     * - returns = "# comment 1\n#comment 2\n"
-     *
      */
     private String refactorGeneric(Liblkqllang.LkqlNode node) {
         if (node.isTokenNode()) return node.getText();
@@ -102,6 +119,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     /**
      * Takes a node and returns the concatenation of all its comments
      * as a block of text.
+     * Ex:
+     * - node = SomeNode(... # comment 1\n ... # comment 2\n ...)
+     * - returns = "# comment 1\n#comment 2\n"
+     *
      */
     private String getAllComments(Liblkqllang.LkqlNode node) {
         return Refactoring.streamFrom(node.tokenStart())
@@ -206,6 +227,46 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         }
 
         sb.append(refactorNode(namedFunction.fBodyExpr()));
+        return sb.toString();
+    }
+
+    /*
+     *
+     * <callee>[?](<args>)
+     * <callee>(<args>)
+     *
+     */
+    private String refactorFunCall(Liblkqllang.FunCall funCall) {
+        if (funCall.fHasSafe().pAsBool()) {
+            diags.add(
+                new Warning(
+                    "safe calls are a deprecated feature",
+                    SourceSection.wrap(funCall.fHasSafe(), cache)
+                )
+            );
+        }
+
+        final var sb = new StringBuilder();
+
+        sb.append(refactorNode(funCall.fName()));
+
+        var cursor = funCall.fName().tokenEnd().next();
+        var stopIndex = funCall.fArguments().tokenStart().tokenIndex;
+        while (cursor.tokenIndex < stopIndex) {
+            if (cursor.kind != TokenKind.LKQL_QUESTION) {
+                sb.append(cursor.getText());
+            }
+            cursor = cursor.next();
+        }
+
+        sb.append(refactorNode(funCall.fArguments()));
+
+        if (funCall.fArguments().tokenEnd().next().tokenIndex < funCall.tokenEnd().tokenIndex) {
+            sb.append(textRange(funCall.fArguments().tokenEnd().next(), funCall.tokenEnd()));
+        } else {
+            sb.append(textRange(funCall.tokenEnd(), funCall.tokenEnd()));
+        }
+
         return sb.toString();
     }
 
@@ -591,11 +652,18 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             hasBinding = false;
         }
 
-        if (hasBinding) {
-            if (!(complexPattern.fPattern() instanceof Liblkqllang.UniversalPattern)) {
-                sb.append(" @ ");
-                // Base pattern
-                sb.append(refactorNode(complexPattern.fPattern()));
+        final var isUniv = complexPattern.fPattern() instanceof Liblkqllang.UniversalPattern;
+        final var hasDetails = !otherPatternDetails.isEmpty();
+
+        if ((hasBinding && hasDetails) || (hasBinding && !isUniv)) {
+            sb.append(" @ ");
+        }
+
+        if (isUniv) {
+            if (hasDetails) {
+                sb.append("AdaNode");
+            } else if (!hasBinding) {
+                sb.append("_");
             }
         } else {
             // Base pattern
@@ -664,6 +732,81 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             " is " +
             subPattern +
             ")"
+        );
+    }
+
+    /*
+     * (<a>, <b>)
+     * Pair(<a>, <b>)
+     */
+    private String refactorTuple(Liblkqllang.Tuple tuple) {
+        final var s = refactorGeneric(tuple);
+        if (tuple.fExprs().getChildrenCount() > 2) {
+            diags.add(
+                new Warning(
+                    "tuples of more than 2 elements cannot be refactored automatically, consider introducing a new struct type",
+                    SourceSection.wrap(tuple, cache)
+                )
+            );
+            return s;
+        }
+
+        return "Pair" + s;
+    }
+
+    /*
+     * case (<a>, <b>) =>
+     * case Pair(<a>, <b>) =>
+     */
+    private String refactorTuplePattern(Liblkqllang.TuplePattern tuplePattern) {
+        if (tuplePattern.fPatterns().getChildrenCount() > 2) {
+            diags.add(
+                new Warning(
+                    "tuples patterns of more than 2 elements cannot be refactored automatically",
+                    SourceSection.wrap(tuplePattern, cache)
+                )
+            );
+            return refactorGeneric(tuplePattern);
+        }
+
+        final var fst = refactorNode(tuplePattern.fPatterns().getChild(0));
+        final var snd = refactorNode(tuplePattern.fPatterns().getChild(1));
+
+        return "Pair(fst: " + fst + ", snd: " + snd + ")";
+    }
+
+    private String refactorConstructorCall(Liblkqllang.ConstructorCall consCall) {
+        final var lpar = textRange(
+            consCall.fName().tokenEnd().next(),
+            consCall.fArguments().tokenStart().previous()
+        );
+        final var rpar =
+            textRange(consCall.fArguments().tokenEnd().next(), consCall.tokenEnd().previous()) +
+            ")";
+        return refactorNode(consCall.fName()) + lpar + refactorNode(consCall.fArguments()) + rpar;
+    }
+
+    private String refactorObjectLiteral(Liblkqllang.ObjectLiteral objLit) {
+        diags.add(
+            new Warning(
+                "objects literals cannot be refactored automatically, consider introducing a new struct type",
+                SourceSection.wrap(objLit, cache)
+            )
+        );
+        return refactorGeneric(objLit);
+    }
+
+    /*
+     * <a> in <b>
+     * { val _tmp = <a>; (<b>).any((b) => _tmp == b) }
+     */
+    private String refactorInClause(Liblkqllang.InClause inClause) {
+        return (
+            "{ val _tmp = " +
+            refactorNode(inClause.fValueExpr()) +
+            "; (" +
+            refactorNode(inClause.fListExpr()) +
+            ").any((b) => _tmp == b) }"
         );
     }
 }

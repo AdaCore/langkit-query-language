@@ -1,0 +1,3 @@
+x is name @ *(f_field: *(p_prop(): true))
+y is *
+select z @ * when cond(z)

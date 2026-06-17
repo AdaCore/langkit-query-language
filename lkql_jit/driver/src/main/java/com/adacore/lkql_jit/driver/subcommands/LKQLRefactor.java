@@ -7,14 +7,19 @@ package com.adacore.lkql_jit.driver.subcommands;
 
 import static com.adacore.liblkqllang.Liblkqllang.*;
 
+import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.refactorings.LKQLToLkt;
 import com.adacore.lkql_jit.driver.refactorings.Refactoring;
 import com.adacore.lkql_jit.driver.refactorings.TokenBasedRefactoring;
+import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Map;
+import org.graalvm.options.OptionCategory;
+import org.graalvm.polyglot.Context.Builder;
 import picocli.CommandLine;
 
 /**
@@ -46,9 +51,10 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "refactor",
-    description = "Automatically run a refactoring on LKQL code"
+    description = "Automatically run a refactoring on LKQL code",
+    mixinStandardHelpOptions = true
 )
-public class LKQLRefactor implements Callable<Integer> {
+public class LKQLRefactor extends BaseSubcommand {
 
     @CommandLine.Parameters(description = "LKQL files to refactor")
     public List<String> files = new ArrayList<>();
@@ -105,8 +111,26 @@ public class LKQLRefactor implements Callable<Integer> {
     public Integer call() {
         var ctx = AnalysisContext.create();
         for (var file : files) {
+            // Parse LKQL source
             var unit = ctx.getUnitFromFile(file);
-            var result = getRefactoring(unit).apply(unit);
+            var parsingErrors = unit.getDiagnostics();
+
+            if (parsingErrors.length > 0) {
+                for (var err : parsingErrors) {
+                    diagnostics.add(
+                        new Error(
+                            err.getMessage().getContent(),
+                            SourceSection.wrap(err.getSourceLocationRange(), unit, linesCache)
+                        )
+                    );
+                }
+                diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+                return 1;
+            }
+
+            var result = getRefactoring(unit).apply(unit, diagnostics, linesCache);
+
+            diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
 
             if (inPlace) {
                 try (var writer = new PrintWriter(unit.getFileName(), StandardCharsets.UTF_8)) {
@@ -119,5 +143,30 @@ public class LKQLRefactor implements Callable<Integer> {
             }
         }
         return 0;
+    }
+
+    // ---- Stubs inherited from BaseSubcommand ----
+
+    @Override
+    protected List<String> preprocessArguments(
+        List<String> arguments,
+        Map<String, String> polyglotOptions
+    ) {
+        throw new AssertionError("Should not reach here");
+    }
+
+    @Override
+    protected void launch(Builder contextBuilder) {
+        throw new AssertionError("Should not reach here");
+    }
+
+    @Override
+    protected String getLanguageId() {
+        throw new AssertionError("Should not reach here");
+    }
+
+    @Override
+    protected void printHelp(OptionCategory maxCategory) {
+        throw new AssertionError("Should not reach here");
     }
 }
