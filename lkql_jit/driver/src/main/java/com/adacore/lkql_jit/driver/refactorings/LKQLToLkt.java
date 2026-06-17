@@ -506,7 +506,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      * If first keyword:
      * from <expr> select first <pattern>
-     * (from <expr> match <pattern>).head
+     * (from <expr> match <pattern>).head_or(null)
      *
      */
     private String refactorQuery(Liblkqllang.Query query) {
@@ -539,7 +539,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         var s = "from " + source + " match " + refactorNode(query.fPattern());
 
         if (query.fQueryKind() instanceof Liblkqllang.QueryKindFirst) {
-            s = "(" + s + ").head";
+            s = "(" + s + ").head_or(null)";
         }
 
         return getAllComments(query) + s;
