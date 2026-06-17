@@ -85,7 +85,7 @@ public abstract class BaseCachedStream extends LKQLStream {
         }
 
         @Override
-        public Object get(long index) throws IndexOutOfBoundsException {
+        public Object get(long index) {
             return base.get(index + offset);
         }
 
