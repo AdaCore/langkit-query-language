@@ -297,7 +297,6 @@ public final class LktPasses {
                                 new Import(
                                     loc(importStmt),
                                     moduleName,
-                                    ".lkql",
                                     frames.getBinding(bindingName),
                                     errors
                                 )

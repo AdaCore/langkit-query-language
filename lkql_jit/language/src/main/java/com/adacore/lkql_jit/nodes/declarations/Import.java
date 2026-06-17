@@ -39,9 +39,6 @@ public final class Import extends LKQLNode {
     /** Name of the module to import. */
     private final String name;
 
-    /** File extension to look for. */
-    private final String ext;
-
     /** LKQL file of the module. */
     private final File moduleFile;
 
@@ -58,16 +55,9 @@ public final class Import extends LKQLNode {
      * @param slot The slot to put the namespace in.
      * @param errors Static error collector to handle possible construction errors.
      */
-    public Import(
-        SourceSection location,
-        String name,
-        String ext,
-        int slot,
-        LKQLStaticErrors errors
-    ) {
+    public Import(SourceSection location, String name, int slot, LKQLStaticErrors errors) {
         super(location);
         this.name = name;
-        this.ext = ext;
         this.slot = slot;
 
         // Get the module file
@@ -153,7 +143,7 @@ public final class Import extends LKQLNode {
      */
     private File getModuleFile(LKQLStaticErrors errors) {
         // Create the module file name
-        final String moduleFileName = this.name + this.ext;
+        final String moduleFileName = this.name + Constants.LKQL_EXTENSION;
         final String lkqlPath = System.getenv().getOrDefault(Constants.LKQL_PATH, "");
         final List<File> searchDirs = new ArrayList<>();
 
