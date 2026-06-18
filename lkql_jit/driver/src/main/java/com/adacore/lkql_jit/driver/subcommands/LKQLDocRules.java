@@ -10,11 +10,7 @@ import static com.adacore.liblkqllang.Liblkqllang.*;
 import com.adacore.lkql_jit.Constants;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -90,38 +86,27 @@ public class LKQLDocRules implements Callable<Integer> {
         public Rule(FunDecl check) {
             this(
                 check,
-                getRuleName(check),
-                getAnnotationArgument(check, "category"),
-                getAnnotationArgument(check, "subcategory")
+                getAnnotationArgument(check, "rule_name").orElse(
+                    Arrays.stream(check.fName().pSym().text.split("_"))
+                        .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
+                        .collect(Collectors.joining("_"))
+                ),
+                getAnnotationArgument(check, "category").orElse(""),
+                getAnnotationArgument(check, "subcategory").orElse("")
             );
         }
 
-        private static String getRuleName(FunDecl check) {
-            // Format the rule name. The rule name comes either verbatim from the 'rule_name'
-            // annotation's argument, or from the checker's own FunDecl name, reformatted in Ada
-            // casing.
-            String name = getAnnotationArgument(check, "rule_name");
-            if (name == "") {
-                name = check.fName().pSym().text;
-                name = Arrays.stream(name.split("[_]"))
-                    .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
-                    .collect(Collectors.joining("_"));
-            }
-            return name;
-        }
-
         /** Get the argument of annotation 'name' if it exists, empty string otherwise. */
-        private static String getAnnotationArgument(FunDecl check, String name) {
+        private static Optional<String> getAnnotationArgument(FunDecl check, String name) {
             var ann = check.fAnnotation();
-
-            if (ann != null && !ann.isNone() && ann.fName().pSym().text.endsWith("check")) {
+            if (!ann.isNone()) {
                 var arg = ann.pArgWithName(Symbol.create(name));
                 if (!arg.isNone() && arg.pExpr() instanceof StringLiteral) {
                     var raw = arg.pExpr().getText();
-                    return raw.substring(1, raw.length() - 1);
+                    return Optional.of(raw.substring(1, raw.length() - 1));
                 }
             }
-            return "";
+            return Optional.empty();
         }
 
         /** When compared, rules are sorted by names. */
