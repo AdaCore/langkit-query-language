@@ -373,7 +373,7 @@ public class LKQLDocRules implements Callable<Integer> {
                .. code-block:: lkql
 
                   val rules = @{
-                     My_Rule: {Str: \"i_am_a_string\"} # If the rule param is named 'Str'
+                     My_Rule: {Str: "i_am_a_string"} # If the rule param is named 'Str'
                   }
 
                You can specify it through the ``+R`` option also by passing a string right
@@ -391,7 +391,7 @@ public class LKQLDocRules implements Callable<Integer> {
                .. code-block:: lkql
 
                   val rules = @{
-                     My_Rule: {Lst: [\"One\", \"Two\", \"Three\"]} # If the rule param is named 'Lst'
+                     My_Rule: {Lst: ["One", "Two", "Three"]} # If the rule param is named 'Lst'
                   }
 
                Through the ``+R`` option, you can specify it as a collection of string
