@@ -117,19 +117,23 @@ public class LKQLDocRules implements Callable<Integer> {
 
         /** Generate the RST code corresponding to this rule. */
         public String toRST() {
-            StringBuilder docString = new StringBuilder(500);
+            StringBuilder docString = new StringBuilder();
 
-            docString.append(rstAnchor(this.name) + "\n\n");
-            docString.append(rstHeading(this.name, subcategory.isEmpty() ? '-' : '^') + "\n\n");
-            docString.append(rstIndex(this.name) + "\n\n");
+            docString
+                .append(rstAnchor(this.name))
+                .append("\n\n")
+                .append(rstHeading(this.name, subcategory.isEmpty() ? '-' : '^'))
+                .append("\n\n")
+                .append(rstIndex(this.name))
+                .append("\n\n");
 
             // Get the LkqlNode documentation node associated to this rule.
             var doc = this.check.pDoc();
             if (doc instanceof StringLiteral) {
-                docString.append(docStringLiteralToRST(doc) + "\n");
+                docString.append(docStringLiteralToRST(doc)).append("\n");
             } else if (doc instanceof BlockStringLiteral) {
                 for (var subBlocks : ((BlockStringLiteral) doc).fDocs().children()) {
-                    docString.append(docStringLiteralToRST(subBlocks) + "\n");
+                    docString.append(docStringLiteralToRST(subBlocks)).append("\n");
                 }
             } else {
                 System.out.println(
