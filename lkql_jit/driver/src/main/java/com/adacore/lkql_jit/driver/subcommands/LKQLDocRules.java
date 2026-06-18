@@ -30,16 +30,16 @@ public class LKQLDocRules implements Callable<Integer> {
     @CommandLine.Parameters(
         description = "Any number of rules directories for which to generate documentation"
     )
-    private List<File> rulesDirs = new ArrayList<File>();
+    final List<File> rulesDirs = new ArrayList<>();
 
     @CommandLine.Option(
         names = { "-O", "--output-dir" },
         description = "Output directory for generated RST files (default to local directory)"
     )
-    private File outputDir = new File(".");
+    final File outputDir = new File(".");
 
     @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode.")
-    private boolean verbose;
+    boolean verbose;
 
     /**
      * Helper for findAll. Visit all children of 'node', calling 'cons' on each of them. TODO: Hoist
