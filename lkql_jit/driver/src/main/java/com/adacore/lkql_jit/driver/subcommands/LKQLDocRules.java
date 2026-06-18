@@ -16,8 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
 
@@ -42,37 +40,6 @@ public class LKQLDocRules implements Callable<Integer> {
     boolean verbose;
 
     /**
-     * Helper for findAll. Visit all children of 'node', calling 'cons' on each of them. TODO: Hoist
-     * in Java bindings
-     */
-    private static void visitChildren(LkqlNode node, Consumer<LkqlNode> cons) {
-        if (node == null || node.isNone()) {
-            return;
-        }
-
-        for (var c : node.children()) {
-            if (c != null && !c.isNone()) {
-                cons.accept(c);
-                visitChildren(c, cons);
-            }
-        }
-    }
-
-    /**
-     * Helper for refactor writers: Find all nodes that are children of root and which satisfies the
-     * predicate 'pred' TODO: Hoist in Java bindings
-     */
-    public static List<LkqlNode> findAll(LkqlNode root, Predicate<LkqlNode> pred) {
-        var result = new ArrayList<LkqlNode>();
-        visitChildren(root, c -> {
-            if (pred.test(c)) {
-                result.add(c);
-            }
-        });
-        return result;
-    }
-
-    /**
      * Internal method: return whether unit contains a LKQL checker (assuming an AnalysisUnit
      * contains only one checker).
      *
@@ -81,11 +48,15 @@ public class LKQLDocRules implements Callable<Integer> {
     private static FunDecl isCheck(AnalysisUnit unit) {
         final LkqlNode root = unit.getRoot();
 
-        for (var fun : findAll(root, n -> n instanceof FunDecl)) {
-            final DeclAnnotation ann = ((FunDecl) fun).fAnnotation();
+        for (var fun : root
+            .walk()
+            .filter(n -> n instanceof FunDecl)
+            .map(f -> (FunDecl) f)
+            .toList()) {
+            var ann = fun.fAnnotation();
             if (
                 ann != null && !ann.isNone() && ann.fName().pSym().text.endsWith("check")
-            ) return (FunDecl) fun;
+            ) return fun;
         }
 
         return null;
