@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
 
@@ -22,6 +23,14 @@ import picocli.CommandLine;
     description = "Generate rules documentation, in RST format"
 )
 public class LKQLDocRules implements Callable<Integer> {
+
+    /** Pattern that matches the ".. param" and ".. skip_param" RST directives. */
+    private static final Pattern PARAM_DIRECTIVE_MATCHER = Pattern.compile(
+        ".. ((skip_)?param):: (.*)"
+    );
+
+    /** Set of accepted rule parameter types. */
+    private static final Set<String> VALID_PARAM_TYPES = Set.of("bool", "int", "string", "list");
 
     @CommandLine.Parameters(
         description = "Any number of rules directories for which to generate documentation"
@@ -36,6 +45,12 @@ public class LKQLDocRules implements Callable<Integer> {
 
     @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode.")
     boolean verbose;
+
+    private static String toMixedCase(String src) {
+        return Arrays.stream(src.split("_"))
+            .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
+            .collect(Collectors.joining("_"));
+    }
 
     /**
      * Return whether `unit` contains a LKQL checker (assuming an AnalysisUnit contains only one
@@ -87,9 +102,7 @@ public class LKQLDocRules implements Callable<Integer> {
             this(
                 check,
                 getAnnotationArgument(check, "rule_name").orElse(
-                    Arrays.stream(check.fName().pSym().text.split("_"))
-                        .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
-                        .collect(Collectors.joining("_"))
+                    toMixedCase(check.fName().pSym().text)
                 ),
                 getAnnotationArgument(check, "category").orElse(""),
                 getAnnotationArgument(check, "subcategory").orElse("")
@@ -118,36 +131,96 @@ public class LKQLDocRules implements Callable<Integer> {
         /** Generate the RST documentation corresponding to this rule. */
         public String toRST() {
             var docString = new StringBuilder();
-
             docString
                 .append(rstAnchor(this.name))
                 .append("\n\n")
                 .append(rstHeading(this.name, subcategory.isEmpty() ? '-' : '^'))
                 .append("\n\n")
                 .append(rstIndex(this.name))
-                .append("\n\n");
-
-            // Get the LkqlNode documentation node associated to this rule.
-            var doc = this.check.pDoc();
-            if (doc instanceof StringLiteral) {
-                docString.append(docStringLiteralToRST(doc)).append("\n");
-            } else if (doc instanceof BlockStringLiteral) {
-                for (var subBlocks : ((BlockStringLiteral) doc).fDocs().children()) {
-                    docString.append(docStringLiteralToRST(subBlocks)).append("\n");
-                }
-            } else {
-                System.out.println(
-                    "Warning: wrong or missing documentation for " +
-                        this.name +
-                        " (doc_node: " +
-                        doc +
-                        ")"
-                );
-            }
-
-            docString.append("\n\n\n");
-
+                .append("\n\n")
+                .append(getDoc())
+                .append("\n\n\n");
             return docString.toString();
+        }
+
+        /**
+         * Process the rule documentation and return the result (or throw an error if the
+         * documentation is missing something).
+         */
+        private String getDoc() {
+            // Create a map with all parameters of the rule. We skip the first parameter because
+            // it is the object for the rule to analyze, so it's not part of the rule
+            // configuration.
+            var ruleParams = Arrays.stream(check.fFunExpr().fParameters().children())
+                .map(p -> (ParameterDecl) p)
+                .toList();
+            Map<String, ParameterDecl> paramsMap = ruleParams.isEmpty()
+                ? Map.of()
+                : ruleParams
+                      .subList(1, ruleParams.size())
+                      .stream()
+                      .collect(Collectors.toMap(p -> p.fParamIdentifier().getText(), p -> p));
+
+            // Fetch the rule documentation
+            var doc = switch (check.pDoc()) {
+                case StringLiteral s -> docStringLiteralToRST(s);
+                case BlockStringLiteral bsl -> Arrays.stream(bsl.fDocs().children())
+                    .map(LKQLDocRules::docStringLiteralToRST)
+                    .collect(Collectors.joining("\n"));
+                default -> throw new RuntimeException("Invalid documentation " + check.pDoc());
+            };
+
+            // Now replace all ".. param" directives in the documentation
+            doc = PARAM_DIRECTIVE_MATCHER.matcher(doc).replaceAll(matchResult -> {
+                var directiveName = matchResult.group(1);
+                var paramName = matchResult.group(3);
+
+                // Fetch the parameter declaration related to the name
+                var relatedParam = paramsMap.remove(paramName);
+
+                // Now check that all information about parameter are available
+                if (relatedParam == null) errorInDoc("Unknown parameter " + paramName);
+                if (relatedParam.fTypeAnnotation().isNone()) errorInDoc(
+                    "Missing type annotation for parameter " + paramName
+                );
+                if (relatedParam.fDefaultExpr().isNone()) errorInDoc(
+                    "Missing default value for parameter " + paramName
+                );
+
+                // Check parameter type is valid
+                var paramType = relatedParam.fTypeAnnotation().getText();
+                if (!VALID_PARAM_TYPES.contains(paramType)) errorInDoc(
+                    "Invalid type " + paramType + " for parameter " + paramName
+                );
+
+                return directiveName.equals("param")
+                    ? ("*" +
+                          toMixedCase(paramName) +
+                          ": " +
+                          paramType +
+                          " = " +
+                          relatedParam.fDefaultExpr().getText() +
+                          "*")
+                    : "";
+            });
+
+            if (!paramsMap.isEmpty()) errorInDoc(
+                "Those parameters are missing a docstring " + paramsMap
+            );
+
+            // Finally return the documentation
+            return doc;
+        }
+
+        private void errorInDoc(String message) {
+            throw new RuntimeException(
+                "Error when generating the documentation for the rule \"" +
+                    name +
+                    "\" (" +
+                    check.fullSlocImage() +
+                    "): " +
+                    message
+            );
         }
 
         /** Return whether this rule is from category 'category' and subcategory 'subcategory'. */
@@ -380,7 +453,7 @@ public class LKQLDocRules implements Callable<Integer> {
 
                   +RMy_Rule:i_am_a_string  -- 'My_Rule' string param is set to "i_am_a_string"
 
-            *list[string]*
+            *list*
                The parameter value is a list of string.
                In a LKQL rule options file, you can use the LKQL list type to specify the
                parameter value:
