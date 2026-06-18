@@ -8,8 +8,10 @@ package com.adacore.lkql_jit.driver.subcommands;
 import static com.adacore.liblkqllang.Liblkqllang.*;
 
 import com.adacore.lkql_jit.Constants;
-import java.io.File;
 import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
@@ -24,13 +26,13 @@ public class LKQLDocRules implements Callable<Integer> {
     @CommandLine.Parameters(
         description = "Any number of rules directories for which to generate documentation"
     )
-    final List<File> rulesDirs = new ArrayList<>();
+    final List<Path> rulesDirs = new ArrayList<>();
 
     @CommandLine.Option(
         names = { "-O", "--output-dir" },
         description = "Output directory for generated RST files (default to local directory)"
     )
-    final File outputDir = new File(".");
+    final Path outputDir = Paths.get(".");
 
     @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode.")
     boolean verbose;
@@ -214,21 +216,26 @@ public class LKQLDocRules implements Callable<Integer> {
         if (verbose) System.out.println("Analysing rule files in directories: " + rulesDirs);
 
         // Get all lkql files from directories to analyse.
-        List<File> ruleDirectoryFiles = new ArrayList<>();
-        for (var dir : rulesDirs)
-            ruleDirectoryFiles.addAll(
-                Arrays.asList(
-                    dir.listFiles(
-                        f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION)
-                    )
-                )
-            );
+        var ruleDirectoryFiles = new ArrayList<Path>();
+        for (var dir : rulesDirs) {
+            try (var files = Files.list(dir.toAbsolutePath())) {
+                ruleDirectoryFiles.addAll(
+                    files
+                        .filter(
+                            p ->
+                                Files.isReadable(p) &&
+                                p.toString().endsWith(Constants.LKQL_EXTENSION)
+                        )
+                        .toList()
+                );
+            }
+        }
 
         List<AnalysisUnit> units = new ArrayList<>();
 
         // Parse all rule files.
         for (var ruleFile : ruleDirectoryFiles) {
-            final AnalysisUnit unit = context.getUnitFromFile(ruleFile.getPath());
+            var unit = context.getUnitFromFile(ruleFile.toAbsolutePath().toString());
             if (verbose) System.out.println(" * " + unit.getFileName());
 
             if (unit.getDiagnostics().length > 0) {
@@ -255,10 +262,10 @@ public class LKQLDocRules implements Callable<Integer> {
         // Sort the rules alphabetically before generating documentation.
         Collections.sort(rules);
 
-        if (!outputDir.exists()) outputDir.mkdirs();
+        if (!Files.exists(outputDir)) Files.createDirectories(outputDir);
 
         // Generate the list of rules.
-        FileWriter listOfRules = new FileWriter(outputDir + "/list_of_rules.rst");
+        var listOfRules = new FileWriter(outputDir.resolve("list_of_rules.rst").toFile());
 
         listOfRules.write(
             """
@@ -291,7 +298,7 @@ public class LKQLDocRules implements Callable<Integer> {
         // * Metrics-related rules
         // * SPARK related rules
 
-        FileWriter predefinedRules = new FileWriter(outputDir + "/predefined_rules.rst");
+        var predefinedRules = new FileWriter(outputDir.resolve("predefined_rules.rst").toFile());
 
         predefinedRules.write(
             """
