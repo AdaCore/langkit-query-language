@@ -38,15 +38,14 @@ public class LKQLDocRules implements Callable<Integer> {
     boolean verbose;
 
     /**
-     * Internal method: return whether unit contains a LKQL checker (assuming an AnalysisUnit
-     * contains only one checker).
+     * Return whether `unit` contains a LKQL checker (assuming an AnalysisUnit contains only one
+     * checker).
      *
-     * @return The corresponding FunDecl if a check is found, null otherwise.
+     * @return The corresponding `FunDecl` if a checker is found, null otherwise.
      */
     private static FunDecl isCheck(AnalysisUnit unit) {
-        final LkqlNode root = unit.getRoot();
-
-        for (var fun : root
+        for (var fun : unit
+            .getRoot()
             .walk()
             .filter(n -> n instanceof FunDecl)
             .map(f -> (FunDecl) f)
@@ -56,29 +55,28 @@ public class LKQLDocRules implements Callable<Integer> {
                 ann != null && !ann.isNone() && ann.fName().pSym().text.endsWith("check")
             ) return fun;
         }
-
         return null;
     }
 
-    /** Get a formatted string corresponding to a RST heading named 'name'. */
+    /** Get a formatted string corresponding to an RST heading named 'name'. */
     private static String rstHeading(String name, Character kind) {
-        final String heading = "``" + name + "``";
+        var heading = "``" + name + "``";
         return heading + "\n" + kind.toString().repeat(heading.length());
     }
 
-    /** Get a formatted string for a RST anchor named 'name'. */
+    /** Get a formatted string for an RST anchor named 'name'. */
     private static String rstAnchor(String name) {
         return ".. _" + name + ":";
     }
 
-    /** Get a formatted string for a RST index named 'name'. */
+    /** Get a formatted string for an RST index named 'name'. */
     private static String rstIndex(String name) {
         return ".. index:: " + name.replace(" ", "_");
     }
 
-    /** Convert the LkqlNode 'literal' to RST (simply remove the leading '|" ' chararters). */
+    /** Convert the LkqlNode 'literal' to RST (simply remove the leading '|" ' characters). */
     private static String docStringLiteralToRST(LkqlNode literal) {
-        final String line = literal.getText();
+        var line = literal.getText();
         return line.substring(Math.min(3, line.length()));
     }
 
@@ -117,9 +115,9 @@ public class LKQLDocRules implements Callable<Integer> {
             return this.name.compareToIgnoreCase(other.name);
         }
 
-        /** Generate the RST code corresponding to this rule. */
+        /** Generate the RST documentation corresponding to this rule. */
         public String toRST() {
-            StringBuilder docString = new StringBuilder();
+            var docString = new StringBuilder();
 
             docString
                 .append(rstAnchor(this.name))
@@ -168,12 +166,12 @@ public class LKQLDocRules implements Callable<Integer> {
         String categoryName,
         String header
     ) throws Exception {
-        final String title = categoryName + "-Related Rules";
+        var title = categoryName + "-Related Rules";
         file.write(rstHeading(title, '=') + "\n\n");
         file.write(rstIndex(title) + "\n\n");
         file.write(header + "\n\n\n");
 
-        ListIterator<Rule> iter = rules.listIterator();
+        var iter = rules.listIterator();
         while (iter.hasNext()) {
             var next = iter.next();
             if (next.isFromCategory(categoryName, "")) {
@@ -199,7 +197,7 @@ public class LKQLDocRules implements Callable<Integer> {
         file.write(rstIndex(subcategoryName + "-related rules") + "\n\n");
         file.write(header + "\n\n\n");
 
-        ListIterator<Rule> iter = rules.listIterator();
+        var iter = rules.listIterator();
         while (iter.hasNext()) {
             var next = iter.next();
             if (next.isFromCategory(categoryName, subcategoryName)) {
@@ -211,11 +209,11 @@ public class LKQLDocRules implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        final AnalysisContext context = AnalysisContext.create();
+        var context = AnalysisContext.create();
 
         if (verbose) System.out.println("Analysing rule files in directories: " + rulesDirs);
 
-        // Get all lkql files from directories to analyse.
+        // Get all lkql files from directories to analyze.
         var ruleDirectoryFiles = new ArrayList<Path>();
         for (var dir : rulesDirs) {
             try (var files = Files.list(dir.toAbsolutePath())) {
@@ -231,7 +229,7 @@ public class LKQLDocRules implements Callable<Integer> {
             }
         }
 
-        List<AnalysisUnit> units = new ArrayList<>();
+        var units = new ArrayList<AnalysisUnit>();
 
         // Parse all rule files.
         for (var ruleFile : ruleDirectoryFiles) {
@@ -249,12 +247,11 @@ public class LKQLDocRules implements Callable<Integer> {
         // because we rely on the fact that the list is mutable for the
         // subsequent calls to printCategory/printSubcategory (mostly for
         // performance).
-        List<Rule> rules = new ArrayList<>();
-        rules = units
+        var rules = units
             .stream()
-            .map(u -> isCheck(u))
-            .filter(u -> u != null)
-            .map(u -> new Rule(u))
+            .map(LKQLDocRules::isCheck)
+            .filter(Objects::nonNull)
+            .map(Rule::new)
             .collect(Collectors.toList());
 
         if (verbose) System.out.println("Found " + rules.size() + " rules for documentation.");
@@ -530,7 +527,6 @@ public class LKQLDocRules implements Callable<Integer> {
 
         if (!rules.isEmpty()) {
             System.err.println("Error: " + rules.size() + " rules not documented!");
-
             for (var r : rules) System.out.println(r.toString());
         }
 
