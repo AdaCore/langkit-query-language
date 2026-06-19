@@ -7,16 +7,12 @@ package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.driver.checker.CheckerRun;
-import com.adacore.lkql_jit.driver.checker.Rule;
-import com.adacore.lkql_jit.driver.checker.RuleInstance;
-import com.adacore.lkql_jit.driver.checker.RuleRepository;
+import com.adacore.lkql_jit.driver.checker.*;
 import com.adacore.lkql_jit.driver.diagnostics.SarifReportCreator;
 import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
-import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.adacore.lkql_jit.values.interop.LKQLList;
 import de.jcup.sarif_2_1_0.SarifSchema210ImportExportSupport;
 import de.jcup.sarif_2_1_0.model.SarifSchema210;
@@ -28,7 +24,6 @@ import java.util.*;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
-import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.io.IOAccess;
 import picocli.CommandLine;
 
@@ -253,7 +248,9 @@ public class LKQLChecker extends BaseSubcommand {
     /** Get all rule instances to run for the current run. */
     private List<RuleInstance> getRuleInstances(Context context, RuleRepository repository) {
         var res = new ArrayList<>(processCommandLineInstances(context, repository));
-        if (ruleFile != null) res.addAll(processLkqlRuleFile(context, repository, ruleFile));
+        if (ruleFile != null) res.addAll(
+            Utils.processLKQLRuleFile(diagnostics, context, repository, ruleFile)
+        );
         return res;
     }
 
@@ -325,204 +322,6 @@ public class LKQLChecker extends BaseSubcommand {
             }
         }
         return res;
-    }
-
-    /**
-     * Internal helper used to process an LKQL rule file and extract all rule instances defined
-     * in it.
-     */
-    private List<RuleInstance> processLkqlRuleFile(
-        Context context,
-        RuleRepository repository,
-        Path lkqlRuleFile
-    ) {
-        try {
-            // Evaluate the rule file to get its namespace
-            var ruleFileNamespace = context
-                .eval(Source.newBuilder("lkql", lkqlRuleFile.toFile()).build())
-                .as(LKQLBaseNamespace.class);
-
-            // Prepare working variables and the result
-            var generalInstances = ruleFileNamespace.getUncached("rules");
-            var adaInstances = ruleFileNamespace.getUncached("ada_rules");
-            var sparkInstances = ruleFileNamespace.getUncached("spark_rules");
-            var res = new ArrayList<RuleInstance>();
-
-            // Process the general instances object
-            if (generalInstances instanceof LKQLDynamicObject obj) {
-                res.addAll(
-                    processInstancesObject(
-                        repository,
-                        lkqlRuleFile,
-                        obj,
-                        RuleInstance.SourceMode.GENERAL
-                    )
-                );
-            } else {
-                errorInRuleFile(
-                    lkqlRuleFile,
-                    "An LKQL rule file must define a \"rules\" top level object"
-                );
-            }
-
-            // Process the Ada instances object
-            if (adaInstances != null) {
-                if (adaInstances instanceof LKQLDynamicObject obj) {
-                    res.addAll(
-                        processInstancesObject(
-                            repository,
-                            lkqlRuleFile,
-                            obj,
-                            RuleInstance.SourceMode.ADA
-                        )
-                    );
-                } else {
-                    errorInRuleFile(
-                        lkqlRuleFile,
-                        "Value associated to \"ada_rules\" must be an object"
-                    );
-                }
-            }
-
-            // Process the Spark instances object
-            if (sparkInstances != null) {
-                if (sparkInstances instanceof LKQLDynamicObject obj) {
-                    res.addAll(
-                        processInstancesObject(
-                            repository,
-                            lkqlRuleFile,
-                            obj,
-                            RuleInstance.SourceMode.SPARK
-                        )
-                    );
-                } else {
-                    errorInRuleFile(
-                        lkqlRuleFile,
-                        "Value associated to \"spark_rules\" must be an object"
-                    );
-                }
-            }
-
-            // Finally return the result
-            return res;
-        } catch (IOException e) {
-            diagnostics.add(
-                new Error(
-                    "Cannot read the LKQL rule file \"" +
-                        lkqlRuleFile.getFileName() +
-                        "\" (" +
-                        e.getMessage() +
-                        ')'
-                )
-            );
-        } catch (PolyglotException e) {
-            diagnostics.handleException(e);
-        }
-
-        // This is the default return case, an empty instance list
-        return List.of();
-    }
-
-    /**
-     * Process the provided LKQL object as an instance container, and return all instances defined
-     * in it. Instances are created with the provided source mode.
-     */
-    private List<RuleInstance> processInstancesObject(
-        RuleRepository repository,
-        Path lkqlRuleFile,
-        LKQLDynamicObject object,
-        RuleInstance.SourceMode sourceMode
-    ) {
-        // Create the result object
-        var res = new ArrayList<RuleInstance>();
-
-        // Process each instantiated rule
-        for (var ruleInstancesEntry : object.asMap().entrySet()) {
-            // Get the rule identifier
-            var ruleId = ruleInstancesEntry.getKey().toLowerCase();
-            var instantiatedRule = repository.getRuleByName(ruleId);
-
-            // Start by ensuring the rule exists
-            if (instantiatedRule.isEmpty()) {
-                errorInRuleFile(
-                    lkqlRuleFile,
-                    "Unknown rule name \"" + ruleInstancesEntry.getKey() + '"'
-                );
-                continue;
-            }
-
-            // Then process all arguments sets for the rule
-            if (ruleInstancesEntry.getValue() instanceof LKQLList argSets) {
-                if (argSets.size() == 0) {
-                    // If not argument set is provided, create a default instance of the rule
-                    res.add(
-                        new RuleInstance(
-                            instantiatedRule.get(),
-                            Optional.empty(),
-                            sourceMode,
-                            Map.of(),
-                            Optional.empty()
-                        )
-                    );
-                } else {
-                    for (var maybeArgSet : argSets.getContent()) {
-                        if (maybeArgSet instanceof LKQLDynamicObject argSet) {
-                            res.add(
-                                instantiateWithArgumentSet(
-                                    sourceMode,
-                                    instantiatedRule.get(),
-                                    argSet
-                                )
-                            );
-                        } else {
-                            errorInRuleFile(
-                                lkqlRuleFile,
-                                "Rule arguments must be in an object value"
-                            );
-                        }
-                    }
-                }
-            } else {
-                errorInRuleFile(lkqlRuleFile, "The value associated to a rule name must be a list");
-            }
-        }
-
-        // Return the result
-        return res;
-    }
-
-    /** Internal helper to create an instance of the provided rule with an argument set. */
-    private RuleInstance instantiateWithArgumentSet(
-        RuleInstance.SourceMode sourceMode,
-        Rule instantiatedRule,
-        LKQLDynamicObject argumentSet
-    ) {
-        // Process the argument set to extract the new instance config
-        var instanceArgs = new HashMap<String, Object>();
-        String instanceName = null;
-        for (var argEntry : argumentSet.asMap().entrySet()) {
-            var argName = argEntry.getKey().toLowerCase();
-
-            // Special case for argument "instance_name" which defines the name of the instance
-            if (argName.equals("instance_name")) instanceName = (String) argEntry.getValue();
-
-            // All other arguments are processed normally
-            instanceArgs.put(argName, argEntry.getValue());
-        }
-
-        // Then return the new instance
-        return new RuleInstance(
-            instantiatedRule,
-            Optional.ofNullable(instanceName),
-            sourceMode,
-            instanceArgs,
-            Optional.empty()
-        );
-    }
-
-    /** Internal helper to signal an error in an LKQL rule file. */
-    private void errorInRuleFile(Path lkqlRuleFile, String message) {
-        diagnostics.add(new Error(lkqlRuleFile.getFileName().toString() + ": " + message));
     }
 
     // ----- Inner classes -----
