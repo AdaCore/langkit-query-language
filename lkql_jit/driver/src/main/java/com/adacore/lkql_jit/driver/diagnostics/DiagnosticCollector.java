@@ -53,10 +53,7 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
         if (exception.isGuestException()) {
             var guestException = exception.getGuestObject();
             if (guestException != null) {
-                var truffleException = exception
-                    .getGuestObject()
-                    .as(AbstractTruffleException.class);
-                switch (truffleException) {
+                switch (guestException.as(AbstractTruffleException.class)) {
                     case LKQLEngineException e:
                         handleException(e, hints);
                         return;
