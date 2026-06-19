@@ -14,8 +14,10 @@ import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.RuleViolation;
 import com.adacore.lkql_jit.driver.source_support.Source;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.github.difflib.DiffUtils;
+import com.oracle.truffle.api.exception.AbstractTruffleException;
 import java.util.*;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
@@ -301,7 +303,8 @@ public final class CheckerRun {
                         diagnostics.add(ruleViolation);
                     }
                 } catch (PolyglotException e) {
-                    diagnostics.handleException(
+                    handlePolyglotException(
+                        diagnostics,
                         e,
                         new Hint(
                             "Error occurred when analyzing " + step.node.toString(),
@@ -411,7 +414,8 @@ public final class CheckerRun {
                 );
             }
         } catch (PolyglotException e) {
-            diagnostics.handleException(
+            handlePolyglotException(
+                diagnostics,
                 e,
                 new Hint(
                     "Error occurred when analyzing " + unit.getFileName(false),
@@ -425,6 +429,31 @@ public final class CheckerRun {
     private LangkitSupport.RewritingContextInterface getRewritingContext() {
         var ctx = analysisContext.getRewritingContext();
         return ctx == null ? analysisContext.startRewriting() : ctx;
+    }
+
+    /** Handle the polyglot exception and store it in diagnostics if this is required. */
+    private void handlePolyglotException(
+        DiagnosticCollector diagnostics,
+        PolyglotException polyglotException,
+        Hint hint
+    ) {
+        // Fetch whether the exception is from the Langkit analysis library
+        var exceptionFromAnalysisLib = false;
+        if (polyglotException.isGuestException()) {
+            var guestException = polyglotException.getGuestObject();
+            if (
+                guestException != null &&
+                guestException.as(AbstractTruffleException.class) instanceof
+                    LKQLRuntimeError lkqlRuntimeError
+            ) {
+                exceptionFromAnalysisLib = lkqlRuntimeError.getCause() != null;
+            }
+        }
+
+        // If the checker is not in debug mode, errors from the analysis library aren't forwarded
+        if (debugMode || !exceptionFromAnalysisLib) {
+            diagnostics.handleException(polyglotException, hint);
+        }
     }
 
     // ----- Inner classes and enums -----
