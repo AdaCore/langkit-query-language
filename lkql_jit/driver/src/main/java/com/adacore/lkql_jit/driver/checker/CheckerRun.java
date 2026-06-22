@@ -49,6 +49,12 @@ public final class CheckerRun {
     /** Whether and how to apply auto-fixing function of executed rules. */
     private final AutoFixMode autoFixMode;
 
+    /**
+     * Whether to compute and store generic traces when a violation is reported in a generic
+     * instantiation.
+     */
+    private final boolean storeGenericTraces;
+
     // ----- Constructors -----
 
     public CheckerRun(
@@ -57,7 +63,8 @@ public final class CheckerRun {
         Context executionContext,
         LangkitSupport.AnalysisContextInterface analysisContext,
         List<LangkitSupport.AnalysisUnit> units,
-        AutoFixMode autoFixMode
+        AutoFixMode autoFixMode,
+        boolean storeGenericTraces
     ) {
         this.debugMode = debugMode;
         this.ruleInstances = ruleInstances;
@@ -68,6 +75,7 @@ public final class CheckerRun {
             .stream()
             .anyMatch(i -> i.instantiatedRule.followGenericInstantiations());
         this.autoFixMode = autoFixMode;
+        this.storeGenericTraces = storeGenericTraces;
     }
 
     // ----- Instance methods -----
@@ -226,6 +234,21 @@ public final class CheckerRun {
                             )
                         );
                     } else if (checkRes.asBoolean()) {
+                        // If required, compute the generic trace
+                        final List<SourceSection> genericTrace;
+                        if (storeGenericTraces && step.inGenericInstantiation) {
+                            // Get the generic instantiations trace from Libadalang, reversing the
+                            // returned list because we want it to be outermost first.
+                            genericTrace = Arrays.stream(
+                                ((Libadalang.AdaNode) step.node).pGenericInstantiations()
+                            )
+                                .map(SourceSection::from)
+                                .toList()
+                                .reversed();
+                        } else {
+                            genericTrace = List.of();
+                        }
+
                         // Create the base diagnostic
                         var ruleViolation = new RuleViolation(
                             instance,
@@ -237,7 +260,8 @@ public final class CheckerRun {
                                     }
                                     default -> step.node;
                                 }
-                            )
+                            ),
+                            genericTrace
                         );
 
                         // If required, call the auto fixing function
@@ -333,15 +357,35 @@ public final class CheckerRun {
                 while (iterator.hasIteratorNextElement()) {
                     var resObj = iterator.getIteratorNextElement().as(LKQLDynamicObject.class);
                     var message = (String) resObj.getUncached("message");
-                    var location = switch (resObj.getUncached("loc")) {
-                        case LangkitSupport.NodeInterface ni -> SourceSection.from(ni);
-                        case LangkitSupport.TokenInterface ti -> SourceSection.from(ti);
-                        default -> null;
-                    };
+                    final SourceSection location;
+                    final List<SourceSection> genericTrace;
+                    switch (resObj.getUncached("loc")) {
+                        case LangkitSupport.NodeInterface ni -> {
+                            location = SourceSection.from(ni);
+                            // Get the generic instantiations trace from Libadalang, reversing the
+                            // returned list because we want it to be outermost first.
+                            genericTrace = storeGenericTraces
+                                ? Arrays.stream(((Libadalang.AdaNode) ni).pGenericInstantiations())
+                                      .map(SourceSection::from)
+                                      .toList()
+                                      .reversed()
+                                : List.of();
+                        }
+                        case LangkitSupport.TokenInterface ti -> {
+                            location = SourceSection.from(ti);
+                            genericTrace = List.of();
+                        }
+                        default -> {
+                            location = null;
+                            genericTrace = null;
+                        }
+                    }
 
                     // If the violation report location is valid, emit a rule violation
                     if (location != null) {
-                        diagnostics.add(new RuleViolation(message, instance, location));
+                        diagnostics.add(
+                            new RuleViolation(message, instance, location, genericTrace)
+                        );
                     } else {
                         diagnostics.add(
                             new Error(

@@ -142,6 +142,7 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
             var result = new Result();
             result.setRuleId(violation.violatedInstance.identifier());
             result.setMessage(message);
+
             // Here we don't check if the location is present because there is no rule violation
             // without location.
             result.setLocations(List.of(location.get()));
@@ -156,6 +157,35 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
                 }
                 fix.setArtifactChanges(changes);
                 result.setFixes(Set.of(fix));
+            }
+
+            // If the rule violation comes from a generic instantiation
+            if (!violation.genericTrace.isEmpty()) {
+                var codeFlow = new CodeFlow();
+
+                // Create the message object
+                var codeFlowMessage = new Message();
+                codeFlowMessage.setText("Generic instantiation chain");
+                codeFlow.setMessage(codeFlowMessage);
+
+                // Create the thread flow object that contains all instantiation locations
+                var threadFlow = new ThreadFlow();
+                threadFlow.setLocations(
+                    violation.genericTrace
+                        .stream()
+                        .map(l -> {
+                            var threadFlowLocation = new ThreadFlowLocation();
+                            var threadFlowInnerLoc = new Location();
+                            threadFlowInnerLoc.setPhysicalLocation(toPhysicalLocation(l).get());
+                            threadFlowLocation.setLocation(threadFlowInnerLoc);
+                            return threadFlowLocation;
+                        })
+                        .toList()
+                );
+                codeFlow.setThreadFlows(List.of(threadFlow));
+
+                // Add the code flow in the result
+                result.setCodeFlows(List.of(codeFlow));
             }
 
             // Finally, add the result in the report

@@ -196,7 +196,8 @@ public class LKQLChecker extends BaseSubcommand {
                 context,
                 analysisContext,
                 specifiedUnits,
-                autoFixMode
+                autoFixMode,
+                reportFormat == ReportFormat.SARIF
             );
             checkerRun.start(diagnostics);
 

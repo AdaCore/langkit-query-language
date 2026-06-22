@@ -1,0 +1,7 @@
+driver: checker
+format: sarif
+sources:
+  - main.adb
+rules:
+  - node_rule
+  - unit_rule
