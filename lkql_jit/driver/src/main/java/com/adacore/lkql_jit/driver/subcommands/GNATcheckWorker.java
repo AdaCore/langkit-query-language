@@ -17,9 +17,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionCategory;
@@ -52,7 +51,7 @@ public class GNATcheckWorker extends BaseSubcommand {
             " result as a JSON encoded string. If this option is provided, all other features are" +
             " disabled."
     )
-    public String lkqlConfigToProcess;
+    public Path lkqlConfigToProcess;
 
     @CommandLine.Option(
         names = "-A",
@@ -65,25 +64,25 @@ public class GNATcheckWorker extends BaseSubcommand {
         names = "--rules-dir",
         description = "Additional directory in which to check for rules"
     )
-    public List<String> rulesDirs = new ArrayList<>();
+    public List<Path> rulesDirs = new ArrayList<>();
 
     @CommandLine.Option(
         names = "--rules-from",
         description = "The file containing all rule instances to run in the LKQL format"
     )
-    public List<String> rulesFrom;
+    public Path rulesFrom;
 
     @CommandLine.Option(
         names = "--files-from",
         description = "The file containing the list of files to analyze"
     )
-    public String filesFrom;
+    public Path filesFrom;
 
     @CommandLine.Option(
         names = "--log-file",
         description = "The file used by the worker to output logs"
     )
-    public String logFile;
+    public Path logFile;
 
     @CommandLine.Option(
         names = "--show-instantiation-chain",
@@ -147,7 +146,10 @@ public class GNATcheckWorker extends BaseSubcommand {
         // If a LKQL rule config file has been provided, parse it and display the result
         if (lkqlConfigToProcess != null) {
             try {
-                final var instances = parseLKQLRuleFile(lkqlConfigToProcess, engineArgs.verbose);
+                final var instances = parseLKQLRuleFile(
+                    lkqlConfigToProcess.toString(),
+                    engineArgs.verbose
+                );
                 final var jsonInstances = new JSONObject(
                     instances
                         .entrySet()
@@ -167,7 +169,7 @@ public class GNATcheckWorker extends BaseSubcommand {
             .engineMode(LKQLOptions.EngineMode.CHECKER)
             .diagnosticOutputMode(LKQLOptions.DiagnosticOutputMode.GNATCHECK)
             .subprojectFile(subProject)
-            .rulesDir(rulesDirs)
+            .rulesDir(rulesDirs.stream().map(Path::toString).toList())
             .showInstantiationChain(showInstantiationChain)
             .checkerDebug(debug);
         engineArgs.fillEngineOptions(optionsBuilder);
@@ -188,7 +190,7 @@ public class GNATcheckWorker extends BaseSubcommand {
         // Read the list of sources to analyze provided by GNATcheck driver
         if (filesFrom != null) {
             try {
-                optionsBuilder.files(Files.readAllLines(Paths.get(filesFrom)));
+                optionsBuilder.files(Files.readAllLines(filesFrom));
             } catch (IOException e) {
                 System.err.println("WORKER_ERROR: Could not read file: " + filesFrom);
             }
@@ -196,15 +198,11 @@ public class GNATcheckWorker extends BaseSubcommand {
 
         // Parse the rule instances provided by the GNATcheck driver
         final Map<String, RuleInstance> instances = new HashMap<>();
-        for (var rulesFrom : rulesFrom) {
-            if (!rulesFrom.isEmpty()) {
-                try {
-                    instances.putAll(parseLKQLRuleFile(rulesFrom, engineArgs.verbose));
-                } catch (LKQLRuleFileError e) {
-                    System.out.println(e.getMessage());
-                    return 0;
-                }
-            }
+        try {
+            instances.putAll(parseLKQLRuleFile(rulesFrom.toString(), engineArgs.verbose));
+        } catch (LKQLRuleFileError e) {
+            System.out.println(e.getMessage());
+            return 0;
         }
         optionsBuilder.ruleInstances(instances);
 
@@ -214,7 +212,6 @@ public class GNATcheckWorker extends BaseSubcommand {
         try {
             // Install a log handler only if logFile is set
             if (logFile != null) {
-                var logFile = FileSystems.getDefault().getPath(this.logFile);
                 OutputStream outputStream = new FileOutputStream(logFile.toFile());
                 contextBuilder.logHandler(outputStream);
             }
