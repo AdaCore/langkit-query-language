@@ -38,19 +38,23 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
         this.notifications = new ArrayList<>();
 
         // Create a map associating each enabled rules to their default instance and a list of
-        // remaining instances. This map is ordered by insertion to keep the report generation
+        // instances renaming rules. This map is ordered by insertion to keep the report generation
         // deterministic.
         Map<Rule, Optional<RuleInstance>> enabledRules = new LinkedHashMap<>();
-        List<RuleInstance> remainingInstances = new ArrayList<>();
+        List<RuleInstance> renamingInstances = new ArrayList<>();
         for (var instance : instances) {
             var rule = instance.instantiatedRule;
             if (instance.instanceName.isPresent()) {
                 enabledRules.putIfAbsent(rule, Optional.empty());
-                remainingInstances.add(instance);
+                renamingInstances.add(instance);
             } else {
                 enabledRules.put(rule, Optional.of(instance));
             }
         }
+
+        // Create a default rule configuration object
+        var defaultConfiguration = new ReportingConfiguration();
+        defaultConfiguration.setEnabled(false);
 
         // Compute the set of SARIF rules
         Set<ReportingDescriptor> sarifRules = new TreeSet<>(
@@ -74,13 +78,15 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
                 sarifRule.setHelp(help);
             }
 
-            // Set rule configuration
-            sarifRule.setDefaultConfiguration(getConfig(rule, instance));
+            // Set rule configuration if there is an instance for this rule
+            sarifRule.setDefaultConfiguration(
+                instance.map(i -> getConfig(rule, i)).orElse(defaultConfiguration)
+            );
 
             // Add the SARIF rule object to the rule set
             sarifRules.add(sarifRule);
         });
-        remainingInstances.forEach(i -> {
+        renamingInstances.forEach(i -> {
             // Create the SARIF rule object
             var sarifRule = new ReportingDescriptor();
             sarifRule.setId(i.identifier());
@@ -90,12 +96,12 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
             var ruleRelationship = new ReportingDescriptorRelationship();
             var ruleReference = new ReportingDescriptorReference();
             ruleReference.setId(i.instantiatedRule.name());
-            ruleRelationship.setKinds(Set.of("relevant"));
+            ruleRelationship.setKinds(Set.of("equal"));
             ruleRelationship.setTarget(ruleReference);
             sarifRule.setRelationships(Set.of(ruleRelationship));
 
             // Set the instance configuration
-            sarifRule.setDefaultConfiguration(getConfig(i.instantiatedRule, Optional.of(i)));
+            sarifRule.setDefaultConfiguration(getConfig(i.instantiatedRule, i));
 
             // Finally, add the sarif rule to the rule set
             sarifRules.add(sarifRule);
@@ -262,20 +268,28 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
     // ----- Class methods -----
 
     /** Internal helper to get the SARIF configuration of a rule and its instance. */
-    private static ReportingConfiguration getConfig(Rule rule, Optional<RuleInstance> instance) {
+    private static ReportingConfiguration getConfig(Rule rule, RuleInstance instance) {
         // Create SARIF objects
         var ruleConfig = new ReportingConfiguration();
         var parameters = new PropertyBag();
 
         // For each rule parameter, get its value
+        Map<String, String> instanceArgs = new LinkedHashMap<>();
         for (int i = 1; i < rule.checker().parameterNames.length; i++) {
             var name = rule.checker().parameterNames[i];
-            var value = instance
-                .flatMap(ins -> Optional.ofNullable(toLiteral(ins.arguments.get(name))))
-                .orElse(rule.checker().parameterDefaultValues[i].getSourceSection().getCharacters())
-                .toString();
-            parameters.setAdditionalProperty(name, value);
+            var value = Optional.ofNullable(instance.arguments.get(name))
+                .map(SarifReportCreator::toLiteral)
+                .orElse(
+                    rule.checker().parameterDefaultValues[i].getSourceSection().getCharacters()
+                );
+            instanceArgs.put(name, value.toString());
         }
+        if (!instanceArgs.isEmpty()) {
+            parameters.setAdditionalProperty("args", instanceArgs);
+        }
+
+        // Add a special parameter to provide the source mode of the instance
+        parameters.setAdditionalProperty("sourceMode", instance.sourceMode.toString());
 
         // Fill SARIF objects and return the result
         ruleConfig.setLevel(ReportingConfiguration.Level.WARNING);

@@ -11,14 +11,22 @@
           "shortDescription" : {
             "text" : "Node rule"
           },
-          "defaultConfiguration" : { }
+          "defaultConfiguration" : {
+            "parameters" : {
+              "sourceMode" : "GENERAL"
+            }
+          }
         }, {
           "id" : "unit_rule",
           "name" : "unit_rule",
           "shortDescription" : {
             "text" : "unit_rule"
           },
-          "defaultConfiguration" : { }
+          "defaultConfiguration" : {
+            "parameters" : {
+              "sourceMode" : "GENERAL"
+            }
+          }
         } ]
       }
     },

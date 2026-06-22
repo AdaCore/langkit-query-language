@@ -11,7 +11,11 @@
           "shortDescription" : {
             "text" : "This is the rule message"
           },
-          "defaultConfiguration" : { },
+          "defaultConfiguration" : {
+            "parameters" : {
+              "sourceMode" : "GENERAL"
+            }
+          },
           "help" : {
             "text" : "Maybe some help"
           }

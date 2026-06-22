@@ -11,7 +11,11 @@
           "shortDescription" : {
             "text" : "custom"
           },
-          "defaultConfiguration" : { }
+          "defaultConfiguration" : {
+            "parameters" : {
+              "sourceMode" : "GENERAL"
+            }
+          }
         } ]
       }
     },
