@@ -33,7 +33,7 @@ import picocli.CommandLine;
     name = "gnatcheck_worker",
     description = "Internal driver meant to be called by GNATcheck. Not for public use"
 )
-public class GNATCheckWorker extends BaseSubcommand {
+public class GNATcheckWorker extends BaseSubcommand {
 
     // ----- Attributes -----
 
@@ -98,7 +98,7 @@ public class GNATCheckWorker extends BaseSubcommand {
 
     // ----- Constructors -----
 
-    public GNATCheckWorker() {}
+    public GNATcheckWorker() {}
 
     // ----- Instance methods -----
 
