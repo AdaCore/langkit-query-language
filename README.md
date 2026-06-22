@@ -12,8 +12,7 @@ The syntax is not stable for now.
 [`lkql_jit/`](lkql_jit): LKQL reference implementation using the Truffle Java
    framework.
 
-> GNATcheck and GNATkp have been moved to their own
-> [repository](https://gitlab.adacore-it.com/eng/codepeer/gnatcheck).
+> GNATcheck and GNATkp have been moved to a dedicated repository: gnatcheck.
 
 ## Building & using
 
@@ -23,7 +22,7 @@ The preferred way to build and use LKQL is to use an `ancr` development
 environment, which installs all dependencies and sets up the environment:
 
 ``` sh
-git clone https://gitlab.adacore-it.com/eng/devenv/ancr
+git clone <gitlab_url>/eng/devenv/ancr
 cd ancr
 ./bin/ancr build libadalang
 ./bin/ancr shell libadalang
@@ -38,8 +37,7 @@ cd langkit-query-language
 make
 ```
 
-- GNATcheck (the linter based on LKQL) is built separately and hosted in its
-  own [repository](https://gitlab.adacore-it.com/eng/codepeer/gnatcheck).
+- GNATcheck (the linter based on LKQL) is built separately.
 
 ### Running the testsuite
 
