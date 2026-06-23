@@ -82,8 +82,8 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
         remainingInstances.forEach(i -> {
             // Create the SARIF rule object
             var sarifRule = new ReportingDescriptor();
-            sarifRule.setId(i.instanceName.get().toLowerCase());
-            sarifRule.setName(i.instanceName.get());
+            sarifRule.setId(i.identifier());
+            sarifRule.setName(i.name());
 
             // Link the instance to its instantiated rule
             var ruleRelationship = new ReportingDescriptorRelationship();
@@ -139,11 +139,7 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
         if (diagnostic instanceof RuleViolation violation) {
             // Create the new result object and initialize it
             var result = new Result();
-            result.setRuleId(
-                violation.violatedInstance.instanceName
-                    .orElse(violation.violatedInstance.instantiatedRule.name())
-                    .toLowerCase()
-            );
+            result.setRuleId(violation.violatedInstance.identifier());
             result.setMessage(message);
             // Here we don't check if the location is present because there is no rule violation
             // without location.

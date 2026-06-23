@@ -95,6 +95,28 @@ public final class RuleInstance {
 
     // ----- Instance methods -----
 
+    /** Get the name of this rule instance. */
+    public String name() {
+        return instanceName.orElse(instantiatedRule.name());
+    }
+
+    /** Get the string identifier this rule instance. */
+    public String identifier() {
+        return name().toLowerCase();
+    }
+
+    /**
+     * Whether this instance is semantically equivalent to the other instance, meaning that both run
+     * the same rule, with same arguments, with the same source mode.
+     */
+    public boolean isEquivalent(RuleInstance other) {
+        return (
+            instantiatedRule.equals(other.instantiatedRule) &&
+            arguments.equals(other.arguments) &&
+            sourceMode == other.sourceMode
+        );
+    }
+
     /**
      * Check whether this rule instance can be run in a checker run. If not all diagnostics are
      * added to the provided collector.
