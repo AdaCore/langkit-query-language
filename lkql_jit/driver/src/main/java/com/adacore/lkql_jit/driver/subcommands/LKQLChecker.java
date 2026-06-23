@@ -16,7 +16,6 @@ import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
 import com.adacore.lkql_jit.values.interop.LKQLList;
 import de.jcup.sarif_2_1_0.SarifSchema210ImportExportSupport;
 import de.jcup.sarif_2_1_0.model.SarifSchema210;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -237,10 +236,7 @@ public class LKQLChecker extends BaseSubcommand {
         }
 
         // Then look in the "LKQL_PATH" environment variable
-        final var lkqlPath = System.getenv(Constants.LKQL_PATH);
-        if (lkqlPath != null) {
-            res.addAll(Arrays.stream(lkqlPath.split(File.pathSeparator)).map(Paths::get).toList());
-        }
+        res.addAll(lkqlPaths());
 
         return res;
     }
