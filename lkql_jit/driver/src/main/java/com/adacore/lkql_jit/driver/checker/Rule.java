@@ -67,6 +67,7 @@ public record Rule(
     public enum Kind {
         NODE,
         UNIT,
+        STUB,
     }
 
     /** Rule remediation estimated complexity. */

@@ -91,6 +91,7 @@ public final class CheckerRun {
             switch (i.instantiatedRule.kind()) {
                 case NODE -> nodeRuleInstances.add(i);
                 case UNIT -> unitRuleInstances.add(i);
+                case STUB -> {}
             }
         });
 

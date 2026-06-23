@@ -107,7 +107,8 @@ public final class RuleRepository {
             .filter(
                 a ->
                     a.name().equals(Constants.ANNOTATION_NODE_CHECK) ||
-                    a.name().equals(Constants.ANNOTATION_UNIT_CHECK)
+                    a.name().equals(Constants.ANNOTATION_UNIT_CHECK) ||
+                    a.name().equals(Constants.ANNOTATION_STUB_CHECK)
             )
             .findFirst();
 
@@ -126,9 +127,12 @@ public final class RuleRepository {
             }
 
             // Get the rule mode
-            var ruleKind = annotation.name().equals(Constants.ANNOTATION_NODE_CHECK)
-                ? Rule.Kind.NODE
-                : Rule.Kind.UNIT;
+            var ruleKind = switch (annotation.name()) {
+                case Constants.ANNOTATION_NODE_CHECK -> Rule.Kind.NODE;
+                case Constants.ANNOTATION_UNIT_CHECK -> Rule.Kind.UNIT;
+                case Constants.ANNOTATION_STUB_CHECK -> Rule.Kind.STUB;
+                default -> throw new RuntimeException("Shouldn't reach here");
+            };
 
             // Set manual default value for some arguments
             allArguments.putIfAbsent("rule_name", callable.name);
