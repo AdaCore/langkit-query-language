@@ -32,12 +32,14 @@ public class Utils {
      * @param diagnostics Place all diagnostics fetched during the process in it.
      * @param context Execute the LKQL rule file in it.
      * @param repository Repository of rules available to instantiation.
+     * @param argProcessFallback Function to call when the processing of a rule argument set fail.
      */
     public static List<RuleInstance> processLKQLRuleFile(
         DiagnosticCollector diagnostics,
         Context context,
         RuleRepository repository,
-        Path lkqlRuleFile
+        Path lkqlRuleFile,
+        RuleArgProcessor argProcessFallback
     ) {
         try {
             // Evaluate the rule file to get its namespace
@@ -62,6 +64,7 @@ public class Utils {
                         diagnostics,
                         context,
                         repository,
+                        argProcessFallback,
                         obj,
                         RuleInstance.SourceMode.GENERAL
                     )
@@ -83,6 +86,7 @@ public class Utils {
                             diagnostics,
                             context,
                             repository,
+                            argProcessFallback,
                             obj,
                             RuleInstance.SourceMode.ADA
                         )
@@ -105,6 +109,7 @@ public class Utils {
                             diagnostics,
                             context,
                             repository,
+                            argProcessFallback,
                             obj,
                             RuleInstance.SourceMode.SPARK
                         )
@@ -149,6 +154,7 @@ public class Utils {
         DiagnosticCollector diagnostics,
         Context context,
         RuleRepository repository,
+        RuleArgProcessor argProcessFallback,
         LKQLDynamicObject object,
         RuleInstance.SourceMode sourceMode
     ) {
@@ -191,8 +197,12 @@ public class Utils {
                         )
                     );
                 } else {
-                    for (var maybeArgSet : argSets.getContent()) {
-                        if (maybeArgSet instanceof LKQLDynamicObject argSet) {
+                    for (var argObject : argSets.getContent()) {
+                        var invalidArgContainerDiag = new Error(
+                            "Invalid rule arguments container: \"" + argObject + '"',
+                            configLocation
+                        );
+                        if (argObject instanceof LKQLDynamicObject argSet) {
                             instantiateWithArgumentSet(
                                 diagnostics,
                                 context,
@@ -200,13 +210,19 @@ public class Utils {
                                 instantiatedRule.get(),
                                 argSet
                             ).ifPresent(res::add);
-                        } else {
-                            diagnostics.add(
-                                new Error(
-                                    "Rule arguments must be in an object value",
-                                    configLocation
+                        } else if (argProcessFallback != null) {
+                            argProcessFallback
+                                .processArg(
+                                    instantiatedRule.get(),
+                                    sourceMode,
+                                    configLocation,
+                                    argObject
                                 )
-                            );
+                                .ifPresentOrElse(res::add, () ->
+                                    diagnostics.add(invalidArgContainerDiag)
+                                );
+                        } else {
+                            diagnostics.add(invalidArgContainerDiag);
                         }
                     }
                 }
@@ -391,5 +407,16 @@ public class Utils {
 
         // Finally, return the list of filtered and checked instances
         return res;
+    }
+
+    /** Function interface that instantiate a rule with an arbitrary argument. */
+    @FunctionalInterface
+    public interface RuleArgProcessor {
+        Optional<RuleInstance> processArg(
+            Rule instantiatedRule,
+            RuleInstance.SourceMode sourceMode,
+            Optional<SourceSection> instanceLocation,
+            Object argument
+        );
     }
 }

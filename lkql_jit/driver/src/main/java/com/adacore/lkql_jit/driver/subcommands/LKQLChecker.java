@@ -238,7 +238,7 @@ public class LKQLChecker extends BaseSubcommand {
     private List<RuleInstance> getRuleInstances(Context context, RuleRepository repository) {
         var res = new ArrayList<>(processCommandLineInstances(context, repository));
         if (ruleFile != null) res.addAll(
-            Utils.processLKQLRuleFile(diagnostics, context, repository, ruleFile)
+            Utils.processLKQLRuleFile(diagnostics, context, repository, ruleFile, null)
         );
         return res;
     }
