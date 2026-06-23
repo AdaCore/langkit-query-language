@@ -1,0 +1,4 @@
+val rules = @{
+    Goto_Stmt: {instance_name: "some_instance"},
+    Null_Stmt: {instance_name: "some_instance"}
+}

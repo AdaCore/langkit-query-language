@@ -1,0 +1,11 @@
+rules.lkql:4:9: warning: Instance "some_instance" is duplicated, ignoring this declaration
+  4 |         {instance_name: "some_instance", b: true, i: 38, s: "Some string", l: ["Some", 1, "List"]}
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+rules.lkql:3:9: hint: Previous declaration was here
+  3 |         {instance_name: "some_instance", b: true, i: 38, s: "Some string", l: ["Some", 1, "List"]},
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:3:4: rule violation: goto_stmt
+3 |    goto x;
+  |    ^^^^^^^
+

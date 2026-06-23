@@ -1,0 +1,4 @@
+rules.lkql:1:13: error: Invalid rule arguments container: "Not an object"
+  1 | val rules = @{ Goto_Stmt: "Not an object" }
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

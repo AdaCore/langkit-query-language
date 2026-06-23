@@ -1,0 +1,11 @@
+rules.lkql:3:16: error: Multiple instances with the name "some_instance", instance names must be unique
+  3 |     Null_Stmt: {instance_name: "some_instance"}
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+rules.lkql:2:16: hint: Previous instance named "some_instance" was declared here
+  2 |     Goto_Stmt: {instance_name: "some_instance"},
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:3:4: rule violation: goto_stmt
+3 |    goto x;
+  |    ^^^^^^^
+

@@ -1,0 +1,42 @@
+Goto_Stmt has been called with:
+  Bool param = true
+  Int param = 42
+  String param = "Hello!"
+  List param = ["This", "is", "a", "list"]
+
+Goto_Stmt has been called with:
+  Bool param = false
+  Int param = 0
+  String param = ""
+  List param = []
+
+Null_Stmt has been called with:
+  Bool param = false
+  Int param = 0
+  String param = ""
+  List param = []
+
+rules.lkql:3:9: info: Register new instance "goto_stmt"
+  3 |         {b: true, i: 42, s: "Hello!", lst: ["This", "is", "a", "list"]},
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+rules.lkql:4:9: info: Register new instance "default_instance"
+  4 |         {instance_name: "default_instance"}
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+rules.lkql:6:5: info: Register new instance "null_stmt"
+  6 |     Null_Stmt
+    |     ^^^^^^^^^
+
+main.adb:3:4: rule violation: goto_stmt
+3 |    goto x;
+  |    ^^^^^^^
+
+main.adb:3:4: rule violation: goto_stmt
+3 |    goto x;
+  |    ^^^^^^^
+
+main.adb:5:4: rule violation: null_stmt
+5 |    null;
+  |    ^^^^^
+

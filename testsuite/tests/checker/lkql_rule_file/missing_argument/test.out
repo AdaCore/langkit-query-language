@@ -1,0 +1,4 @@
+rules.lkql:1:16: error: Missing mandatory parameter #1 ("no_default") in instance "goto_stmt"
+  1 | val rules = @{ Goto_Stmt }
+    |                ^^^^^^^^^
+

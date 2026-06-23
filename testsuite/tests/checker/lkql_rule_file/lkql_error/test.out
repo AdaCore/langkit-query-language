@@ -1,0 +1,4 @@
+rules.lkql:1:31: error: Type error: expected Int but got Str
+  1 | val rules = @{ Goto_Stmt: 1 + "" }
+    |                               ^^
+

@@ -24,6 +24,8 @@ class CheckerDriver(BaseDriver):
           Default is "text".
         - ``auto_fix`` (bool): Whether to enable auto-fix function when running
           the checker.
+        - ``verbose`` (bool): Whether to provide the verbosity flag when
+          spawning the checker.
     """
 
     perf_supported = True
@@ -45,6 +47,9 @@ class CheckerDriver(BaseDriver):
             "--rules-dir",
             self.working_dir(),
         ]
+
+        if self.test_env.get("verbose", False):
+            args.append("--verbose")
 
         if self.test_env.get("rule_file"):
             args += ["--rule-file", self.test_env["rule_file"]]

@@ -1,0 +1,3 @@
+@check()
+fun goto_stmt(node, no_default: bool) =
+    node is GotoStmt
