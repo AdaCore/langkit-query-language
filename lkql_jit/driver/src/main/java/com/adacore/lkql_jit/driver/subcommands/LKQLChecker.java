@@ -48,6 +48,9 @@ public class LKQLChecker extends BaseSubcommand {
     @CommandLine.Mixin
     GPRArgs gprArgs;
 
+    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
+    public boolean verbose;
+
     @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
     public boolean debug;
 
@@ -110,19 +113,6 @@ public class LKQLChecker extends BaseSubcommand {
     /** Simply initialized arguments. */
     public LKQLChecker() {}
 
-    // ----- Abstract methods -----
-
-    /**
-     * Perform a custom post-processing on rule instances that are going to be executed. By default,
-     * this method check instances validity and filter out invalid ones.
-     */
-    private List<RuleInstance> postProcessInstances(List<RuleInstance> ruleInstances) {
-        return ruleInstances
-            .stream()
-            .filter(i -> i.isValid(diagnostics))
-            .toList();
-    }
-
     // ----- Instance methods -----
 
     @Override
@@ -172,8 +162,10 @@ public class LKQLChecker extends BaseSubcommand {
         // Then build the context and perform the checking process
         try (Context context = contextBuilder.build()) {
             RuleRepository repository = new RuleRepository(context, searchingDirs(), diagnostics);
-            List<RuleInstance> ruleInstances = postProcessInstances(
-                this.getRuleInstances(context, repository)
+            List<RuleInstance> ruleInstances = Utils.postProcessInstances(
+                diagnostics,
+                this.getRuleInstances(context, repository),
+                verbose
             );
 
             // Get analysis context and specified unit from the LKQL engine
