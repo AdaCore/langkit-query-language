@@ -43,7 +43,7 @@
       "locations" : [ {
         "physicalLocation" : {
           "artifactLocation" : {
-            "uri" : "file://<working-dir>/main.adb"
+            "uri" : "<working-dir>/main.adb"
           },
           "region" : {
             "startLine" : 3,
@@ -61,7 +61,7 @@
       "locations" : [ {
         "physicalLocation" : {
           "artifactLocation" : {
-            "uri" : "file://<working-dir>/main.adb"
+            "uri" : "<working-dir>/main.adb"
           },
           "region" : {
             "startLine" : 5,
