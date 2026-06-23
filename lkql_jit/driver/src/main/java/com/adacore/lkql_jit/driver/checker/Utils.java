@@ -215,9 +215,8 @@ public class Utils {
 
             // Special case for argument "instance_name" which defines the name of the instance
             if (argName.equals("instance_name")) instanceName = (String) argEntry.getValue();
-
             // All other arguments are processed normally
-            instanceArgs.put(argName, argEntry.getValue());
+            else instanceArgs.put(argName, argEntry.getValue());
         }
 
         // Then return the new instance
