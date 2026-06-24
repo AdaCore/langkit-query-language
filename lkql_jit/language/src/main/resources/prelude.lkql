@@ -7,9 +7,9 @@ struct Pair {
 }
 
 |" Yields all the descendants of the given node (including itself)
-fun subtree(this: AdaNode): Stream[AdaNode] =
+fun subtree(this: Node): Stream[Node] =
     match this {
-        case AdaNode => this :: this.children.flat_map(subtree)
+        case Node => this :: this.children.flat_map(subtree)
         case _ => nil()
     }
 
@@ -81,7 +81,7 @@ fun children(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int
     unfold(children_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun children_body(this : Any) : Any = match this {
-    case AdaNode => Rec(this.children, this.children)
+    case Node => Rec(this.children, this.children)
     case _ => Rec([], [])
 }
 
@@ -91,7 +91,7 @@ fun next_siblings(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth 
     unfold(next_siblings_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun next_siblings_body(this : Any) : Any = match this {
-    case AdaNode => Rec(non_null(this.next_sibling()), non_null(this.next_sibling()))
+    case Node => Rec(non_null(this.next_sibling()), non_null(this.next_sibling()))
     case _ => Rec([], [])
 }
 
@@ -101,7 +101,7 @@ fun parent(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int =
     unfold(parent_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun parent_body(this : Any) : Any = match this {
-    case AdaNode => Rec(non_null(this.parent), non_null(this.parent))
+    case Node => Rec(non_null(this.parent), non_null(this.parent))
     case _ => Rec([], [])
 }
 
@@ -111,6 +111,6 @@ fun prev_siblings(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth 
     unfold(prev_siblings_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun prev_siblings_body(this : Any) : Any = match this {
-    case AdaNode => Rec(non_null(this.previous_sibling()), non_null(this.previous_sibling()))
+    case Node => Rec(non_null(this.previous_sibling()), non_null(this.previous_sibling()))
     case _ => Rec([], [])
 }

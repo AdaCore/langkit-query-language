@@ -948,6 +948,12 @@ public final class LktPasses {
                 case Liblktlang.NotPattern notPattern:
                     yield new NotPattern(loc(notPattern), buildPattern(notPattern.fSubPattern()));
                 case Liblktlang.TypePattern typePattern:
+                    if (typePattern.fTypeName().getText().equals("Node")) {
+                        yield new NodeKindPattern(
+                            loc(typePattern),
+                            LangkitSupport.NodeInterface.class
+                        );
+                    }
                     yield new NodeKindPattern(
                         loc(typePattern),
                         getNodeClass(typePattern.fTypeName())
