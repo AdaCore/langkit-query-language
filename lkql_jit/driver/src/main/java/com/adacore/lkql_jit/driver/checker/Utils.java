@@ -18,6 +18,7 @@ import com.adacore.lkql_jit.values.interop.LKQLList;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
@@ -192,14 +193,13 @@ public class Utils {
                 } else {
                     for (var maybeArgSet : argSets.getContent()) {
                         if (maybeArgSet instanceof LKQLDynamicObject argSet) {
-                            res.add(
-                                instantiateWithArgumentSet(
-                                    context,
-                                    sourceMode,
-                                    instantiatedRule.get(),
-                                    argSet
-                                )
-                            );
+                            instantiateWithArgumentSet(
+                                diagnostics,
+                                context,
+                                sourceMode,
+                                instantiatedRule.get(),
+                                argSet
+                            ).ifPresent(res::add);
                         } else {
                             diagnostics.add(
                                 new Error(
@@ -222,12 +222,28 @@ public class Utils {
     }
 
     /** Internal helper to create an instance of the provided rule with an argument set. */
-    private static RuleInstance instantiateWithArgumentSet(
+    private static Optional<RuleInstance> instantiateWithArgumentSet(
+        DiagnosticCollector diagnostics,
         Context context,
         RuleInstance.SourceMode sourceMode,
         Rule instantiatedRule,
         LKQLDynamicObject argumentSet
     ) {
+        boolean hasError = false;
+
+        // Create a map going from lowered parameter name to their real name as declared in the
+        // associated LKQL function.
+        var ruleParameters = Arrays.stream(
+            instantiatedRule.checker().parameterNames,
+            1,
+            instantiatedRule.checker().parameterNames.length
+        ).collect(Collectors.toMap(String::toLowerCase, s -> s));
+
+        // Create the new instance location
+        var instanceLocation = Optional.ofNullable(
+            context.asValue(argumentSet).getSourceLocation()
+        ).map(SourceSection::from);
+
         // Process the argument set to extract the new instance config
         var instanceArgs = new HashMap<String, Object>();
         String instanceName = null;
@@ -237,19 +253,37 @@ public class Utils {
             // Special case for argument "instance_name" which defines the name of the instance
             if (argName.equals("instance_name")) instanceName = (String) argEntry.getValue();
             // All other arguments are processed normally
-            else instanceArgs.put(argName, argEntry.getValue());
+            else {
+                if (ruleParameters.containsKey(argName)) {
+                    instanceArgs.put(ruleParameters.get(argName), argEntry.getValue());
+                } else {
+                    diagnostics.add(
+                        new Error(
+                            "Rule \"" +
+                                instantiatedRule.name() +
+                                "\" doesn't have a parameter named \"" +
+                                argName +
+                                '"',
+                            instanceLocation
+                        )
+                    );
+                    hasError = true;
+                }
+            }
         }
 
         // Then return the new instance
-        return new RuleInstance(
-            instantiatedRule,
-            Optional.ofNullable(instanceName),
-            sourceMode,
-            instanceArgs,
-            Optional.ofNullable(context.asValue(argumentSet).getSourceLocation()).map(
-                SourceSection::from
-            )
-        );
+        return hasError
+            ? Optional.empty()
+            : Optional.of(
+                  new RuleInstance(
+                      instantiatedRule,
+                      Optional.ofNullable(instanceName),
+                      sourceMode,
+                      instanceArgs,
+                      instanceLocation
+                  )
+              );
     }
 
     /**
