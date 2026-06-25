@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.options;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,21 +14,13 @@ import org.json.JSONObject;
  * using the JSON format.
  * If you want to create an instance of this class, please use the {@link Builder} builder class.
  *
- * @param engineMode In which mode the engine should run.
- * @param checkerDebug Whether the debug mode should be enabled for the checker process.
- * @param diagnosticOutputMode The format diagnostics should be output in.
  * @param charset Charset to use to decode sources.
  * @param files Explicit list of files to analyze.
  * @param ignores Explicit list of files to exclude from the analysis.
- * @param rulesDirs Directories to fetch LKQL rules from.
- * @param ruleInstances All rule instances to execute during the checking process.
  * @param additionalLkqlPaths List of paths to add to the searching directories when LKQL is
  *                            importing a module.
- * @param fallbackToAllRules If no instance have been provided, whether to execute all known rules.
  * @param missingFileIsError If a file is missing from the analysis, whether to consider this event
  *                           as an error.
- * @param showInstantiationChain Show instantiation chains when a rule violation is raised inside an
- *                               Ada generic instantiation.
  * @param additionalProjectPaths Directories to search GPR projects in.
  * @param autoconf Autoconf option to forward to GPR2.
  * @param configFile Config file to forward to GPR2.
@@ -51,18 +42,11 @@ import org.json.JSONObject;
  */
 public record LKQLOptions(
     // LKQL specific options
-    EngineMode engineMode,
-    boolean checkerDebug,
-    DiagnosticOutputMode diagnosticOutputMode,
     Optional<String> charset,
     List<String> files,
     List<String> ignores,
-    List<String> rulesDirs,
-    Map<String, RuleInstance> ruleInstances,
     List<String> additionalLkqlPaths,
-    boolean fallbackToAllRules,
     boolean missingFileIsError,
-    boolean showInstantiationChain,
     boolean typecheck,
 
     // GPR options
@@ -89,16 +73,6 @@ public record LKQLOptions(
     // ----- Constructors -----
 
     public LKQLOptions {
-        // Ensure that there is no null values in the LKQL options, also ensure that all
-        // contained values are strictly unmodifiable.
-        if (engineMode == null) {
-            engineMode = EngineMode.INTERPRETER;
-        }
-
-        if (diagnosticOutputMode == null) {
-            diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
-        }
-
         if (files == null) {
             files = List.of();
         } else {
@@ -109,18 +83,6 @@ public record LKQLOptions(
             ignores = List.of();
         } else {
             ignores = Collections.unmodifiableList(ignores);
-        }
-
-        if (rulesDirs == null) {
-            rulesDirs = List.of();
-        } else {
-            rulesDirs = Collections.unmodifiableList(rulesDirs);
-        }
-
-        if (ruleInstances == null) {
-            ruleInstances = Map.of();
-        } else {
-            ruleInstances = Collections.unmodifiableMap(ruleInstances);
         }
 
         if (additionalProjectPaths == null) {
@@ -158,19 +120,8 @@ public record LKQLOptions(
 
     /** Create an LKQL options object from the provided JSON object. */
     public static LKQLOptions fromJson(JSONObject jsonLKQLOptions) {
-        final Map<String, RuleInstance> ruleInstances = new HashMap<>();
-        final var ruleInstancesJson = jsonLKQLOptions.getJSONObject("ruleInstances");
-        for (String instanceName : ruleInstancesJson.keySet()) {
-            ruleInstances.put(
-                instanceName,
-                RuleInstance.fromJson(ruleInstancesJson.getJSONObject(instanceName))
-            );
-        }
         return new LKQLOptions(
             // LKQL specific options
-            EngineMode.valueOf(jsonLKQLOptions.getString("engineMode")),
-            jsonLKQLOptions.getBoolean("checkerDebug"),
-            DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")),
             Optional.ofNullable(jsonLKQLOptions.optString("charset", null)),
             jsonLKQLOptions
                 .getJSONArray("files")
@@ -185,21 +136,12 @@ public record LKQLOptions(
                 .map(e -> (String) e)
                 .toList(),
             jsonLKQLOptions
-                .getJSONArray("rulesDirs")
-                .toList()
-                .stream()
-                .map(e -> (String) e)
-                .toList(),
-            ruleInstances,
-            jsonLKQLOptions
                 .getJSONArray("additionalLkqlPaths")
                 .toList()
                 .stream()
                 .map(e -> (String) e)
                 .toList(),
-            jsonLKQLOptions.getBoolean("fallbackToAllRules"),
             jsonLKQLOptions.getBoolean("missingFileIsError"),
-            jsonLKQLOptions.getBoolean("showInstantiationChain"),
             jsonLKQLOptions.getBoolean("typecheck"),
             // GPR options
             jsonLKQLOptions
@@ -248,26 +190,12 @@ public record LKQLOptions(
 
     /** Serialize the LKQL options to a JSON object. */
     public JSONObject toJson() {
-        final var ruleInstancesJson = new JSONObject(
-            this.ruleInstances.entrySet()
-                .stream()
-                .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-        );
-
         return new JSONObject()
-            .put("engineMode", engineMode.toString())
-            .put("checkerDebug", checkerDebug)
-            .put("diagnosticOutputMode", diagnosticOutputMode.toString())
             .put("charset", charset.orElse(null))
             .put("files", new JSONArray(files))
             .put("ignores", new JSONArray(ignores))
-            .put("rulesDirs", new JSONArray(rulesDirs))
-            .put("ruleInstances", ruleInstancesJson)
             .put("additionalLkqlPaths", new JSONArray(additionalLkqlPaths))
-            .put("fallbackToAllRules", fallbackToAllRules)
             .put("missingFileIsError", missingFileIsError)
-            .put("showInstantiationChain", showInstantiationChain)
             .put("typecheck", typecheck)
             .put("additionalProjectPaths", new JSONArray(additionalProjectPaths))
             .put("autoconf", autoconf.orElse(null))
@@ -292,45 +220,17 @@ public record LKQLOptions(
 
     // ----- Inner classes -----
 
-    /** The way diagnostics are output by the LKQL engine. */
-    public enum DiagnosticOutputMode {
-        /**
-         * Emit a pretty diagnostic with source listing where the diagnostic location is
-         * highlighted.
-         */
-        PRETTY,
-
-        /** Use a GNATCheck-compliant format: "{file}:{line}:{col} check: {message} [{check}]". */
-        GNATCHECK,
-    }
-
-    /** Represents the mode the LKQL engine runs on. */
-    public enum EngineMode {
-        /** LKQL engine is just going to run the provided LKQL script, without doing more. */
-        INTERPRETER,
-
-        /** LKQL engine will seek for defined rules and make them accessible. */
-        CHECKER,
-    }
-
     /** Util class to build a new LKQL options object. */
     public static final class Builder {
 
         // ----- Options -----
 
         // LKQL specific options
-        private EngineMode engineMode = EngineMode.INTERPRETER;
-        private boolean checkerDebug = false;
-        private DiagnosticOutputMode diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
         private Optional<String> charset = Optional.empty();
         private List<String> files = new ArrayList<>();
         private List<String> ignores = new ArrayList<>();
-        private List<String> rulesDirs = new ArrayList<>();
-        private Map<String, RuleInstance> ruleInstances = new HashMap<>();
         private List<String> additionalLkqlPaths = new ArrayList<>();
-        private boolean fallbackToAllRules = false;
         private boolean missingFileIsError = false;
-        private boolean showInstantiationChain = false;
         private boolean typecheck = false;
 
         // GPR options
@@ -358,21 +258,6 @@ public record LKQLOptions(
 
         // --- LKQL specific options
 
-        public Builder engineMode(EngineMode em) {
-            engineMode = em;
-            return this;
-        }
-
-        public Builder checkerDebug(boolean cd) {
-            checkerDebug = cd;
-            return this;
-        }
-
-        public Builder diagnosticOutputMode(DiagnosticOutputMode dom) {
-            diagnosticOutputMode = dom;
-            return this;
-        }
-
         public Builder charset(String c) {
             charset = Optional.ofNullable(c);
             return this;
@@ -393,33 +278,13 @@ public record LKQLOptions(
             return this;
         }
 
-        public Builder rulesDir(List<String> rd) {
-            rulesDirs = rd;
-            return this;
-        }
-
-        public Builder ruleInstances(Map<String, RuleInstance> ri) {
-            ruleInstances = ri;
-            return this;
-        }
-
         public Builder additionalLkqlPaths(List<String> p) {
             additionalLkqlPaths = p;
             return this;
         }
 
-        public Builder fallbackToAllRules(boolean fbtar) {
-            fallbackToAllRules = fbtar;
-            return this;
-        }
-
         public Builder missingFileIsError(boolean mfie) {
             missingFileIsError = mfie;
-            return this;
-        }
-
-        public Builder showInstantiationChain(boolean sic) {
-            showInstantiationChain = sic;
             return this;
         }
 
@@ -529,18 +394,11 @@ public record LKQLOptions(
 
         public LKQLOptions build() {
             return new LKQLOptions(
-                engineMode,
-                checkerDebug,
-                diagnosticOutputMode,
                 charset,
                 files,
                 ignores,
-                rulesDirs,
-                ruleInstances,
                 additionalLkqlPaths,
-                fallbackToAllRules,
                 missingFileIsError,
-                showInstantiationChain,
                 typecheck,
                 additionalProjectPaths,
                 autoconf,

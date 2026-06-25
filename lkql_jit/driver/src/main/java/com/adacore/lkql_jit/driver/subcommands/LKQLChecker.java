@@ -145,10 +145,7 @@ public class LKQLChecker extends BaseSubcommand {
     @Override
     protected void launch(Context.Builder contextBuilder) {
         // Create the option object for the context builder
-        var optionsBuilder = new LKQLOptions.Builder()
-            .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .files(files)
-            .ignores(ignores);
+        var optionsBuilder = new LKQLOptions.Builder().files(files).ignores(ignores);
         engineArgs.fillEngineOptions(optionsBuilder);
         gprArgs.fillGPROptions(optionsBuilder);
 

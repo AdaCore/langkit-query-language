@@ -5,8 +5,6 @@
 
 package com.adacore.lkql_jit;
 
-import static com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper.createSection;
-
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.liblktlang.Liblktlang;
@@ -20,8 +18,8 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
-import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.GlobalScope;
+import com.adacore.lkql_jit.utils.functions.SourceSectionUtils;
 import com.adacore.lkql_jit.values.LKQLNamespace;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Option;
@@ -211,14 +209,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Translate the LKQL AST from Langkit to a Truffle AST
         final var result = translateSource(request.getSource());
 
-        if (
-            !request.getSource().isInternal() &&
-            getContext(null).getEngineMode() == LKQLOptions.EngineMode.CHECKER
-        ) {
-            // And add rule imports to the TopLevelList if we're in a mode that requires it
-            result.addRuleImports();
-        }
-
         // Return the call target
         return new TopLevelRootNode(result, this).getCallTarget();
     }
@@ -254,7 +244,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         for (var diagnostic : unit.getDiagnostics()) {
             errors.addDiag(
                 diagnostic.getMessage().getContent(),
-                createSection(diagnostic.getSourceLocationRange(), source)
+                SourceSectionUtils.createSection(diagnostic.getSourceLocationRange(), source)
             );
         }
         // If parsing errors occurred throw here

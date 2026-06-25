@@ -16,7 +16,7 @@ import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.value_read.*;
-import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
+import com.adacore.lkql_jit.utils.functions.SourceSectionUtils;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.HashSet;
@@ -54,7 +54,7 @@ public class BaseTranslationPass {
      * @return The source location.
      */
     public SourceSection loc(LangkitSupport.NodeInterface node) {
-        return SourceSectionWrapper.createSection(node.getSourceLocationRange(), this.source);
+        return SourceSectionUtils.createSection(node.getSourceLocationRange(), this.source);
     }
 
     /**

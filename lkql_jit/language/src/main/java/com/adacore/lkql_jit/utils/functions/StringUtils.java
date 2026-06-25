@@ -5,15 +5,10 @@
 
 package com.adacore.lkql_jit.utils.functions;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.values.interop.Utils;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
 
 /**
  * Util functions to manipulate the java string type in the JIT implementation.
@@ -21,15 +16,6 @@ import java.util.function.Consumer;
  * @author Hugo GUERRIER
  */
 public final class StringUtils {
-
-    // ----- Macros -----
-
-    // --- The color constants
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final Object ANSI_RED = "\u001B[31m";
-    public static final String ANSI_BOLD = "\u001B[1m";
 
     // ----- Class methods -----
 
@@ -46,19 +32,6 @@ public final class StringUtils {
             builder.append(s);
         }
         return builder.toString();
-    }
-
-    /**
-     * Fill the given string with space character to get to the given size.
-     *
-     * @param toFill The string to fill with space.
-     * @param size The size to get to.
-     * @return The filled string.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static String fill(String toFill, int size) {
-        int missing = size - toFill.length();
-        return toFill + " ".repeat(Math.max(0, missing));
     }
 
     /**
@@ -159,123 +132,6 @@ public final class StringUtils {
             .replace("\\\"", "\"")
             .replace("\\'", "'")
             .replace("\\\\", "\\");
-    }
-
-    /**
-     * Split the source by lines.
-     *
-     * @param source The source to split.
-     * @return The lines in an array.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static String[] separateLines(String source) {
-        // Prepare the result and the working variables
-        List<String> lines = new ArrayList<>();
-        StringBuilder buffer = new StringBuilder();
-
-        // Iterate over the character to separate the lines
-        for (int i = 0; i < source.length(); i++) {
-            char c = source.charAt(i);
-            if (c == '\n') {
-                lines.add(buffer.toString());
-                buffer.delete(0, buffer.length());
-            } else {
-                buffer.append(c);
-            }
-        }
-        lines.add(buffer.toString());
-
-        // Return the separated lines
-        return lines.toArray(new String[0]);
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    public static String underlineSource(SourceLocation loc, String underLineColor) {
-        return underlineSource(loc, underLineColor, 0);
-    }
-
-    /** Get the underlined source representation. */
-    @CompilerDirectives.TruffleBoundary
-    public static String underlineSource(
-        SourceLocation loc,
-        String underLineColor,
-        int indentation
-    ) {
-        // Prepare the result
-        StringBuilder res = new StringBuilder();
-        int colSize = String.valueOf(loc.endLine()).length();
-
-        var lines = loc.getLines();
-
-        // Create the function to start a line
-        Consumer<Integer> lineStarting = lineNum -> {
-            res.append(" ".repeat(indentation));
-            res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
-            if (lineNum < 1) {
-                res.append(" ".repeat(colSize));
-            } else {
-                res.append(fill(String.valueOf(lineNum), colSize));
-            }
-            res.append(" |").append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
-        };
-
-        // If the source is single line
-        if (lines.length == 1) {
-            lineStarting.accept(loc.startLine());
-            res.append(' ').append(lines[0]);
-            if (loc.startColumn() != loc.endColumn() + 1) {
-                res.append('\n');
-                lineStarting.accept(0);
-                res
-                    .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append(" ".repeat(loc.startColumn()))
-                    .append("^".repeat(Math.max(0, loc.endColumn() - loc.startColumn() + 1)));
-            }
-        }
-        // Else do the multiline display
-        else {
-            int difference = loc.endLine() - loc.startLine() - 1;
-            lineStarting.accept(loc.startLine());
-            res.append("  ").append(lines[0]).append("\n");
-            lineStarting.accept(0);
-            res
-                .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                .append(" ")
-                .append("_".repeat(loc.startColumn()))
-                .append("^\n");
-
-            if (difference > 0) {
-                lineStarting.accept(0);
-                res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "").append("|\n");
-                lineStarting.accept(0);
-                res
-                    .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append('|')
-                    .append(" ~~~ ")
-                    .append(difference)
-                    .append(" other lines ~~~\n");
-                lineStarting.accept(0);
-                res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "").append("|\n");
-            }
-
-            lineStarting.accept(loc.endLine());
-            res
-                .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                .append("| ")
-                .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "")
-                .append(lines[lines.length - 1])
-                .append('\n');
-            lineStarting.accept(0);
-            res
-                .append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                .append("|")
-                .append("_".repeat(Math.max(1, loc.endColumn())))
-                .append("^");
-        }
-
-        // Return the underlined sources
-        res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
-        return res.toString();
     }
 
     @CompilerDirectives.TruffleBoundary

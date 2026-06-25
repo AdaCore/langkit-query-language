@@ -135,21 +135,15 @@ public final class Import extends Expr {
         final List<File> searchDirs = new ArrayList<>();
 
         // Add the current directory to the searching dirs if the location is not null
-        if (this.location != null) {
-            searchDirs.add(this.getLocation().getDir());
+        var currentPath = getSourceSection().getSource().getPath();
+        if (currentPath != null) {
+            searchDirs.add(new File(currentPath).getParentFile());
         }
 
         // Compute the directories to import from
         searchDirs.addAll(
             Arrays.stream(StringUtils.splitPaths(lkqlPath))
-                .filter(s -> !s.isEmpty() && !s.isBlank())
-                .map(File::new)
-                .toList()
-        );
-
-        searchDirs.addAll(
-            Arrays.stream(LKQLLanguage.getContext(this).getRuleDirectories())
-                .filter(s -> !s.isEmpty() && !s.isBlank())
+                .filter(s -> !s.isBlank())
                 .map(File::new)
                 .toList()
         );

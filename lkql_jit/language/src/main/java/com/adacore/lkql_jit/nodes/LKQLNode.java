@@ -7,16 +7,16 @@ package com.adacore.lkql_jit.nodes;
 
 import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 import java.lang.reflect.Field;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The base node of the LKQL implementation in Truffle, all other nodes come from it.
@@ -60,6 +60,14 @@ public abstract class LKQLNode extends Node {
     public abstract Object executeGeneric(VirtualFrame frame);
 
     // ----- Instance methods -----
+
+    /** Get a string representing the source this node has been defined in. */
+    public String getSourceName() {
+        var source = getSourceSection().getSource();
+        return Optional.ofNullable(source.getPath())
+            .map(p -> Paths.get(p).getFileName().toString())
+            .orElse(source.getName());
+    }
 
     /**
      * Create the string representation of the node with its children.
@@ -236,8 +244,4 @@ public abstract class LKQLNode extends Node {
      * @return The tree representation of the node in a string.
      */
     public abstract String toString(int indentLevel);
-
-    public SourceLocation getLocation() {
-        return new SourceSectionWrapper(this.getSourceSection());
-    }
 }

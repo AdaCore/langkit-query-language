@@ -132,7 +132,6 @@ public class GNATcheckWorker extends BaseSubcommand {
     protected void launch(Context.Builder contextBuilder) {
         // Create the LKQL options object builder
         final var optionsBuilder = new LKQLOptions.Builder()
-            .engineMode(LKQLOptions.EngineMode.INTERPRETER)
             .additionalLkqlPaths(rulesDirs.stream().map(Path::toString).toList())
             .subprojectFile(subProject)
             .missingFileIsError(false);

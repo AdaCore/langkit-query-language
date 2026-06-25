@@ -193,9 +193,9 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     @Override
     public String toString() {
         // If the function's body is a built-in, then there is no LKQL source location to refer to
-        var pfx = (this.body instanceof BuiltInBody
-                ? "<builtin>"
-                : this.body.getLocation().fileName() + ":" + this.body.getLocation().startLine());
+        var pfx = this.body instanceof BuiltInBody
+            ? "<builtin>"
+            : body.getSourceName() + ":" + body.getSourceSection().getStartLine();
 
         return pfx + "::" + this.name;
     }

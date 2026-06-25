@@ -79,10 +79,7 @@ public final class ListComprehensionRootNode extends BaseRootNode {
     @Override
     public String toString() {
         return (
-            "<listcomp>:" +
-            this.result.getLocation().fileName() +
-            ":" +
-            this.result.getLocation().startLine()
+            "<listcomp>:" + result.getSourceName() + ":" + result.getSourceSection().getStartLine()
         );
     }
 }

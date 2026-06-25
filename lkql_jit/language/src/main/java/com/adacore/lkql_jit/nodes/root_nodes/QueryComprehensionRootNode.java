@@ -77,9 +77,9 @@ public final class QueryComprehensionRootNode extends BaseRootNode {
     public String toString() {
         return this.result != null
             ? ("<querycomp>:" +
-                  this.result.getLocation().fileName() +
+                  result.getSourceName() +
                   ":" +
-                  this.result.getLocation().startLine())
+                  result.getSourceSection().getStartLine())
             : "<querycomp>";
     }
 }
