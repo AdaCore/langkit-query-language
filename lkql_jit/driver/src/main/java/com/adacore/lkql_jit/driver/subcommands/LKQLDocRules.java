@@ -8,16 +8,13 @@ package com.adacore.lkql_jit.driver.subcommands;
 import static com.adacore.liblkqllang.Liblkqllang.*;
 
 import com.adacore.lkql_jit.Constants;
-import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
 
@@ -27,89 +24,74 @@ import picocli.CommandLine;
 )
 public class LKQLDocRules implements Callable<Integer> {
 
+    /** Pattern that matches the ".. param" and ".. skip_param" RST directives. */
+    private static final Pattern PARAM_DIRECTIVE_MATCHER = Pattern.compile(
+        ".. ((skip_)?param):: (.*)"
+    );
+
+    /** Set of accepted rule parameter types. */
+    private static final Set<String> VALID_PARAM_TYPES = Set.of("bool", "int", "string", "list");
+
     @CommandLine.Parameters(
         description = "Any number of rules directories for which to generate documentation"
     )
-    private List<File> rulesDirs = new ArrayList<File>();
+    final List<Path> rulesDirs = new ArrayList<>();
 
     @CommandLine.Option(
         names = { "-O", "--output-dir" },
         description = "Output directory for generated RST files (default to local directory)"
     )
-    private File outputDir = new File(".");
+    final Path outputDir = Paths.get(".");
 
     @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode.")
-    private boolean verbose;
+    boolean verbose;
 
-    /**
-     * Helper for findAll. Visit all children of 'node', calling 'cons' on each of them. TODO: Hoist
-     * in Java bindings
-     */
-    private static void visitChildren(LkqlNode node, Consumer<LkqlNode> cons) {
-        if (node == null || node.isNone()) {
-            return;
-        }
-
-        for (var c : node.children()) {
-            if (c != null && !c.isNone()) {
-                cons.accept(c);
-                visitChildren(c, cons);
-            }
-        }
+    private static String toMixedCase(String src) {
+        return Arrays.stream(src.split("_"))
+            .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
+            .collect(Collectors.joining("_"));
     }
 
     /**
-     * Helper for refactor writers: Find all nodes that are children of root and which satisfies the
-     * predicate 'pred' TODO: Hoist in Java bindings
-     */
-    public static List<LkqlNode> findAll(LkqlNode root, Predicate<LkqlNode> pred) {
-        var result = new ArrayList<LkqlNode>();
-        visitChildren(root, c -> {
-            if (pred.test(c)) {
-                result.add(c);
-            }
-        });
-        return result;
-    }
-
-    /**
-     * Internal method: return whether unit contains a LKQL checker (assuming an AnalysisUnit
-     * contains only one checker).
+     * Return whether `unit` contains a LKQL checker (assuming an AnalysisUnit contains only one
+     * checker).
      *
-     * @return The corresponding FunDecl if a check is found, null otherwise.
+     * @return The corresponding `FunDecl` if a checker is found, null otherwise.
      */
     private static FunDecl isCheck(AnalysisUnit unit) {
-        final LkqlNode root = unit.getRoot();
-
-        for (var fun : findAll(root, n -> n instanceof FunDecl)) {
-            final DeclAnnotation ann = ((FunDecl) fun).fAnnotation();
+        for (var fun : unit
+            .getRoot()
+            .walk()
+            .filter(n -> n instanceof FunDecl)
+            .map(f -> (FunDecl) f)
+            .toList()) {
+            var ann = fun.fAnnotation();
             if (
                 ann != null && !ann.isNone() && ann.fName().pSym().text.endsWith("check")
-            ) return (FunDecl) fun;
+            ) return fun;
         }
-
         return null;
     }
 
-    /** Get a formatted string corresponding to a RST heading named 'name'. */
+    /** Get a formatted string corresponding to an RST heading named 'name'. */
     private static String rstHeading(String name, Character kind) {
-        final String heading = "``" + name + "``";
+        var heading = "``" + name + "``";
         return heading + "\n" + kind.toString().repeat(heading.length());
     }
 
-    /** Get a formatted string for a RST anchor named 'name'. */
+    /** Get a formatted string for an RST anchor named 'name'. */
     private static String rstAnchor(String name) {
         return ".. _" + name + ":";
     }
 
-    /** Get a formatted string for a RST index named 'name'. */
+    /** Get a formatted string for an RST index named 'name'. */
     private static String rstIndex(String name) {
         return ".. index:: " + name.replace(" ", "_");
     }
 
-    /** Convert the LkqlNode 'literal' to RST (simply remove the leading '|" ' chararters). */
+    /** Convert the LkqlNode 'literal' to RST (simply remove the leading '|" ' characters). */
     private static String docStringLiteralToRST(LkqlNode literal) {
-        final String line = literal.getText();
+        var line = literal.getText();
         return line.substring(Math.min(3, line.length()));
     }
 
@@ -119,38 +101,25 @@ public class LKQLDocRules implements Callable<Integer> {
         public Rule(FunDecl check) {
             this(
                 check,
-                getRuleName(check),
-                getAnnotationArgument(check, "category"),
-                getAnnotationArgument(check, "subcategory")
+                getAnnotationArgument(check, "rule_name").orElse(
+                    toMixedCase(check.fName().pSym().text)
+                ),
+                getAnnotationArgument(check, "category").orElse(""),
+                getAnnotationArgument(check, "subcategory").orElse("")
             );
         }
 
-        private static String getRuleName(FunDecl check) {
-            // Format the rule name. The rule name comes either verbatim from the 'rule_name'
-            // annotation's argument, or from the checker's own FunDecl name, reformatted in Ada
-            // casing.
-            String name = getAnnotationArgument(check, "rule_name");
-            if (name == "") {
-                name = check.fName().pSym().text;
-                name = Arrays.stream(name.split("[_]"))
-                    .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
-                    .collect(Collectors.joining("_"));
-            }
-            return name;
-        }
-
         /** Get the argument of annotation 'name' if it exists, empty string otherwise. */
-        private static String getAnnotationArgument(FunDecl check, String name) {
+        private static Optional<String> getAnnotationArgument(FunDecl check, String name) {
             var ann = check.fAnnotation();
-
-            if (ann != null && !ann.isNone() && ann.fName().pSym().text.endsWith("check")) {
+            if (!ann.isNone()) {
                 var arg = ann.pArgWithName(Symbol.create(name));
                 if (!arg.isNone() && arg.pExpr() instanceof StringLiteral) {
                     var raw = arg.pExpr().getText();
-                    return raw.substring(1, raw.length() - 1);
+                    return Optional.of(raw.substring(1, raw.length() - 1));
                 }
             }
-            return "";
+            return Optional.empty();
         }
 
         /** When compared, rules are sorted by names. */
@@ -159,35 +128,99 @@ public class LKQLDocRules implements Callable<Integer> {
             return this.name.compareToIgnoreCase(other.name);
         }
 
-        /** Generate the RST code corresponding to this rule. */
+        /** Generate the RST documentation corresponding to this rule. */
         public String toRST() {
-            StringBuilder docString = new StringBuilder(500);
-
-            docString.append(rstAnchor(this.name) + "\n\n");
-            docString.append(rstHeading(this.name, subcategory.isEmpty() ? '-' : '^') + "\n\n");
-            docString.append(rstIndex(this.name) + "\n\n");
-
-            // Get the LkqlNode documentation node associated to this rule.
-            var doc = this.check.pDoc();
-            if (doc instanceof StringLiteral) {
-                docString.append(docStringLiteralToRST(doc) + "\n");
-            } else if (doc instanceof BlockStringLiteral) {
-                for (var subBlocks : ((BlockStringLiteral) doc).fDocs().children()) {
-                    docString.append(docStringLiteralToRST(subBlocks) + "\n");
-                }
-            } else {
-                System.out.println(
-                    "Warning: wrong or missing documentation for " +
-                        this.name +
-                        " (doc_node: " +
-                        doc +
-                        ")"
-                );
-            }
-
-            docString.append("\n\n\n");
-
+            var docString = new StringBuilder();
+            docString
+                .append(rstAnchor(this.name))
+                .append("\n\n")
+                .append(rstHeading(this.name, subcategory.isEmpty() ? '-' : '^'))
+                .append("\n\n")
+                .append(rstIndex(this.name))
+                .append("\n\n")
+                .append(getDoc())
+                .append("\n\n\n");
             return docString.toString();
+        }
+
+        /**
+         * Process the rule documentation and return the result (or throw an error if the
+         * documentation is missing something).
+         */
+        private String getDoc() {
+            // Create a map with all parameters of the rule. We skip the first parameter because
+            // it is the object for the rule to analyze, so it's not part of the rule
+            // configuration.
+            var ruleParams = Arrays.stream(check.fFunExpr().fParameters().children())
+                .map(p -> (ParameterDecl) p)
+                .toList();
+            Map<String, ParameterDecl> paramsMap = ruleParams.isEmpty()
+                ? Map.of()
+                : ruleParams
+                      .subList(1, ruleParams.size())
+                      .stream()
+                      .collect(Collectors.toMap(p -> p.fParamIdentifier().getText(), p -> p));
+
+            // Fetch the rule documentation
+            var doc = switch (check.pDoc()) {
+                case StringLiteral s -> docStringLiteralToRST(s);
+                case BlockStringLiteral bsl -> Arrays.stream(bsl.fDocs().children())
+                    .map(LKQLDocRules::docStringLiteralToRST)
+                    .collect(Collectors.joining("\n"));
+                default -> throw new RuntimeException("Invalid documentation " + check.pDoc());
+            };
+
+            // Now replace all ".. param" directives in the documentation
+            doc = PARAM_DIRECTIVE_MATCHER.matcher(doc).replaceAll(matchResult -> {
+                var directiveName = matchResult.group(1);
+                var paramName = matchResult.group(3);
+
+                // Fetch the parameter declaration related to the name
+                var relatedParam = paramsMap.remove(paramName);
+
+                // Now check that all information about parameter are available
+                if (relatedParam == null) errorInDoc("Unknown parameter " + paramName);
+                if (relatedParam.fTypeAnnotation().isNone()) errorInDoc(
+                    "Missing type annotation for parameter " + paramName
+                );
+                if (relatedParam.fDefaultExpr().isNone()) errorInDoc(
+                    "Missing default value for parameter " + paramName
+                );
+
+                // Check parameter type is valid
+                var paramType = relatedParam.fTypeAnnotation().getText();
+                if (!VALID_PARAM_TYPES.contains(paramType)) errorInDoc(
+                    "Invalid type " + paramType + " for parameter " + paramName
+                );
+
+                return directiveName.equals("param")
+                    ? ("*" +
+                          toMixedCase(paramName) +
+                          ": " +
+                          paramType +
+                          " = " +
+                          relatedParam.fDefaultExpr().getText() +
+                          "*")
+                    : "";
+            });
+
+            if (!paramsMap.isEmpty()) errorInDoc(
+                "Those parameters are missing a docstring " + paramsMap
+            );
+
+            // Finally return the documentation
+            return doc;
+        }
+
+        private void errorInDoc(String message) {
+            throw new RuntimeException(
+                "Error when generating the documentation for the rule \"" +
+                    name +
+                    "\" (" +
+                    check.fullSlocImage() +
+                    "): " +
+                    message
+            );
         }
 
         /** Return whether this rule is from category 'category' and subcategory 'subcategory'. */
@@ -206,12 +239,12 @@ public class LKQLDocRules implements Callable<Integer> {
         String categoryName,
         String header
     ) throws Exception {
-        final String title = categoryName + "-Related Rules";
+        var title = categoryName + "-Related Rules";
         file.write(rstHeading(title, '=') + "\n\n");
         file.write(rstIndex(title) + "\n\n");
         file.write(header + "\n\n\n");
 
-        ListIterator<Rule> iter = rules.listIterator();
+        var iter = rules.listIterator();
         while (iter.hasNext()) {
             var next = iter.next();
             if (next.isFromCategory(categoryName, "")) {
@@ -237,7 +270,7 @@ public class LKQLDocRules implements Callable<Integer> {
         file.write(rstIndex(subcategoryName + "-related rules") + "\n\n");
         file.write(header + "\n\n\n");
 
-        ListIterator<Rule> iter = rules.listIterator();
+        var iter = rules.listIterator();
         while (iter.hasNext()) {
             var next = iter.next();
             if (next.isFromCategory(categoryName, subcategoryName)) {
@@ -249,26 +282,31 @@ public class LKQLDocRules implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        final AnalysisContext context = AnalysisContext.create();
+        var context = AnalysisContext.create();
 
         if (verbose) System.out.println("Analysing rule files in directories: " + rulesDirs);
 
-        // Get all lkql files from directories to analyse.
-        List<File> ruleDirectoryFiles = new ArrayList<>();
-        for (var dir : rulesDirs)
-            ruleDirectoryFiles.addAll(
-                Arrays.asList(
-                    dir.listFiles(
-                        f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION)
-                    )
-                )
-            );
+        // Get all lkql files from directories to analyze.
+        var ruleDirectoryFiles = new ArrayList<Path>();
+        for (var dir : rulesDirs) {
+            try (var files = Files.list(dir.toAbsolutePath())) {
+                ruleDirectoryFiles.addAll(
+                    files
+                        .filter(
+                            p ->
+                                Files.isReadable(p) &&
+                                p.toString().endsWith(Constants.LKQL_EXTENSION)
+                        )
+                        .toList()
+                );
+            }
+        }
 
-        List<AnalysisUnit> units = new ArrayList<>();
+        var units = new ArrayList<AnalysisUnit>();
 
         // Parse all rule files.
         for (var ruleFile : ruleDirectoryFiles) {
-            final AnalysisUnit unit = context.getUnitFromFile(ruleFile.getPath());
+            var unit = context.getUnitFromFile(ruleFile.toAbsolutePath().toString());
             if (verbose) System.out.println(" * " + unit.getFileName());
 
             if (unit.getDiagnostics().length > 0) {
@@ -282,12 +320,11 @@ public class LKQLDocRules implements Callable<Integer> {
         // because we rely on the fact that the list is mutable for the
         // subsequent calls to printCategory/printSubcategory (mostly for
         // performance).
-        List<Rule> rules = new ArrayList<>();
-        rules = units
+        var rules = units
             .stream()
-            .map(u -> isCheck(u))
-            .filter(u -> u != null)
-            .map(u -> new Rule(u))
+            .map(LKQLDocRules::isCheck)
+            .filter(Objects::nonNull)
+            .map(Rule::new)
             .collect(Collectors.toList());
 
         if (verbose) System.out.println("Found " + rules.size() + " rules for documentation.");
@@ -295,10 +332,10 @@ public class LKQLDocRules implements Callable<Integer> {
         // Sort the rules alphabetically before generating documentation.
         Collections.sort(rules);
 
-        if (!outputDir.exists()) outputDir.mkdirs();
+        if (!Files.exists(outputDir)) Files.createDirectories(outputDir);
 
         // Generate the list of rules.
-        FileWriter listOfRules = new FileWriter(outputDir + "/list_of_rules.rst");
+        var listOfRules = new FileWriter(outputDir.resolve("list_of_rules.rst").toFile());
 
         listOfRules.write(
             """
@@ -331,7 +368,7 @@ public class LKQLDocRules implements Callable<Integer> {
         // * Metrics-related rules
         // * SPARK related rules
 
-        FileWriter predefinedRules = new FileWriter(outputDir + "/predefined_rules.rst");
+        var predefinedRules = new FileWriter(outputDir.resolve("predefined_rules.rst").toFile());
 
         predefinedRules.write(
             """
@@ -406,7 +443,7 @@ public class LKQLDocRules implements Callable<Integer> {
                .. code-block:: lkql
 
                   val rules = @{
-                     My_Rule: {Str: \"i_am_a_string\"} # If the rule param is named 'Str'
+                     My_Rule: {Str: "i_am_a_string"} # If the rule param is named 'Str'
                   }
 
                You can specify it through the ``+R`` option also by passing a string right
@@ -416,7 +453,7 @@ public class LKQLDocRules implements Callable<Integer> {
 
                   +RMy_Rule:i_am_a_string  -- 'My_Rule' string param is set to "i_am_a_string"
 
-            *list[string]*
+            *list*
                The parameter value is a list of string.
                In a LKQL rule options file, you can use the LKQL list type to specify the
                parameter value:
@@ -424,7 +461,7 @@ public class LKQLDocRules implements Callable<Integer> {
                .. code-block:: lkql
 
                   val rules = @{
-                     My_Rule: {Lst: [\"One\", \"Two\", \"Three\"]} # If the rule param is named 'Lst'
+                     My_Rule: {Lst: ["One", "Two", "Three"]} # If the rule param is named 'Lst'
                   }
 
                Through the ``+R`` option, you can specify it as a collection of string
@@ -563,7 +600,6 @@ public class LKQLDocRules implements Callable<Integer> {
 
         if (!rules.isEmpty()) {
             System.err.println("Error: " + rules.size() + " rules not documented!");
-
             for (var r : rules) System.out.println(r.toString());
         }
 
