@@ -99,7 +99,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         this.lktAnalysisContext = Liblktlang.AnalysisContext.create(
             null,
             null,
-            null,
+            Liblktlang.UnitProvider.createDefault(Liblktlang.LanguageMode.LKQL),
             null,
             true,
             1
