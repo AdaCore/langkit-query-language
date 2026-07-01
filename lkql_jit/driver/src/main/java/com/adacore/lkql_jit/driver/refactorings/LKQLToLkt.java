@@ -507,6 +507,15 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         final var fromNode = query.fFromExpr();
         final var throughNode = query.fThroughExpr();
 
+        if (throughNode.getText().equals("follow_generics")) {
+            diags.add(
+                new Warning(
+                    "follow_generics is not available globally anymore, please import stdlib.follow_generics instead",
+                    SourceSection.from(throughNode)
+                )
+            );
+        }
+
         final String source;
 
         if (fromNode.isNone()) {
