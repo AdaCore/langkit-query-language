@@ -91,22 +91,6 @@ fun subtree(this: Node): Stream[Node] =
         case _ => nil[Node]()
     }
 
-fun follow_generics(this : AdaNode) : Stream[AdaNode] =
-    match this {
-        case GenericInstantiation => {
-            val gen_decl = this.p_designated_generic_decl();
-            val gen_body = gen_decl.p_body_part_for_decl(false);
-            this :: (this.children
-                & [gen_decl]
-                & if gen_body is not null then [gen_body] else []
-            ).flat_map(follow_generics)
-        }
-        case BodyStub when this.p_generic_instantiations().length > 0 =>
-            this :: (this.children & [this.p_next_part_for_decl(false)]).flat_map(follow_generics)
-        case AdaNode => this :: this.children.flat_map(follow_generics)
-        case _ => nil()
-    }
-
 val all_nodes = units().flat_map((unit) => subtree(unit.root))
 
 # ----- Support for selectors -----
