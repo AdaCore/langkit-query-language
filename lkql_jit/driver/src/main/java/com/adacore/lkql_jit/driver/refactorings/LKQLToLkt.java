@@ -76,6 +76,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.ListComprehension comprehension -> refactorListComprehension(
                 comprehension
             );
+            case Liblkqllang.Indexing indexing -> refactorIndexing(indexing);
             case Liblkqllang.Tuple tuple -> refactorTuple(tuple);
             case Liblkqllang.TuplePattern tuplePattern -> refactorTuplePattern(tuplePattern);
             case Liblkqllang.ConstructorCall consCall -> refactorConstructorCall(consCall);
@@ -733,6 +734,23 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             subPattern +
             ")"
         );
+    }
+
+    /*
+     * <obj><issafe>[<idx>]
+     * <obj><issafe>[<idx>-1]
+     */
+    private String refactorIndexing(Liblkqllang.Indexing indexing) {
+        final String obj = refactorNode(indexing.fCollectionExpr());
+        final String idx;
+        final boolean isSafe = indexing instanceof Liblkqllang.SafeIndexing;
+        if (indexing.fIndexExpr() instanceof Liblkqllang.IntegerLiteral lit) {
+            long value = Long.parseLong(lit.getText());
+            idx = Long.toString(value - 1);
+        } else {
+            idx = "(" + refactorNode(indexing.fIndexExpr()) + ")-1";
+        }
+        return obj + (isSafe ? "?[" : "[") + idx + "]";
     }
 
     /*
