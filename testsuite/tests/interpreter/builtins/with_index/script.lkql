@@ -1,0 +1,10 @@
+val x = [1, 2, 3, 4]
+val y = [4, 3, 2, 1]
+val z = []
+print(x.with_index.to_list)
+print(y.with_index.to_list)
+print(z.with_index.to_list)
+
+# also works on streams
+val lazy = [i & j for i in ["a", "b", "c"], j in ["!", "?"]]
+print(lazy.with_index.to_list)

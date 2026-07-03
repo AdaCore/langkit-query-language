@@ -23,10 +23,10 @@ public class LKQLEnumerateResult extends BaseCachedStream {
 
     // ----- Constructors -----
 
-    public LKQLEnumerateResult(Iterable generator) {
+    public LKQLEnumerateResult(Iterable generator, boolean zeroBased) {
         super(new ListStorage<>(16));
         this.iterator = generator.iterator();
-        this.index = 1;
+        this.index = zeroBased ? 0 : 1;
     }
 
     // ----- Instance methods -----
