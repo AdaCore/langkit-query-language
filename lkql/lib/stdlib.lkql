@@ -7,6 +7,8 @@
 |"" library.
 
 from libadalang import *
+import libadalang_rewriting as rewriting
+
 import stdlib_internal
 
 |" Yields the chain of super types of the given type, as viewed from that
@@ -301,25 +303,23 @@ fun is_negated_op(node : Any) : Any =
     |" ``negate_op("A = B") -> "A /= B"``
     |" ``negate_op("A > B") -> "A <= B"``
     |" ``negate_op("not A") -> "A"``
-fun negate_op(node : Any) : Any =
-
-    match node.f_op {
-    case OpNot => node.f_expr
-    case op    =>
-        RelationOp(
-            f_left = node.f_left,
-            f_right = node.f_right,
-            f_op = match op {
-                   case OpEq  => OpNeq()
-                   case OpNeq => OpEq()
-                   case OpLt  => OpGte()
-                   case OpLte => OpGt()
-                   case OpGt  => OpLte()
-                   case OpGte => OpLt()
-}
-
-        )
-}
+fun negate_op(node : Expr) : rewriting.Expr =
+    match node {
+        case notop @ UnOp(f_op: OpNot) => notop.f_expr.to_rewriting
+        case binop @ BinOp =>
+            rewriting.RelationOp(
+                f_left = binop.f_left.to_rewriting,
+                f_right = binop.f_right.to_rewriting,
+                f_op = match binop.f_op {
+                    case OpEq  => rewriting.OpNeq()
+                    case OpNeq => rewriting.OpEq()
+                    case OpLt  => rewriting.OpGte()
+                    case OpLte => rewriting.OpGt()
+                    case OpGt  => rewriting.OpLte()
+                    case OpGte => rewriting.OpLt()
+                }
+            )
+    }
 
 
 |" Return the full view of the root type of ``t``, traversing subtypes,
