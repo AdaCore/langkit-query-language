@@ -233,7 +233,7 @@ fun is_in_library_unit_body(o : Any) : Any =
 
 
 |" Return the position of node ``n`` in its current list of siblings
-fun param_pos(n : Any, pos: int = 0) : Any =
+fun param_pos(n : Any, pos: Int = 0) : Any =
 
     if not n then pos else param_pos(n?.previous_sibling(), pos+1)
 
@@ -744,11 +744,16 @@ fun get_parameter_with_name(params : Any, name : Any) : Any =
 
     (from params match p select p.actual if p.param.p_name_is(name)).head_or(null)
 
+struct FormalParam {
+    name: DefiningName
+    param_spec: ParamSpec
+}
+
 |" Given a SubpSpec node, return a list of all its formal parameter
     |" defining names, each one associated to its ParamSpec node.
 fun get_formals(subp_spec : Any) : Any =
 
-    concat((from subp_spec.p_params() match param_spec select (from from subtree(param_spec) match DefiningName match name select {name: name, param_spec: param_spec}).to_list).to_list)
+    concat((from subp_spec.p_params() match param_spec select (from from subtree(param_spec) match DefiningName match name select FormalParam(name, param_spec)).to_list).to_list)
 
 |" Strip ``ParenExpr`` from the provided node.
 fun strip_parenthesis(node : Any) : Any =
