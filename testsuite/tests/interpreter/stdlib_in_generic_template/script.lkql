@@ -1,6 +1,6 @@
 import stdlib
 
-val gens = through follow_generics select BasicDecl
+val gens = through stdlib.follow_generics select BasicDecl
 val igi = [
     { print(i); i }
     for i in gens if stdlib.in_generic_template(i)

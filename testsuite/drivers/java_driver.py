@@ -63,5 +63,6 @@ class JavaDriver(BaseDriver):
                 "--sun-misc-unsafe-memory-access=allow",
                 f"-Djava.library.path={java_library_path}",
                 main_java_file,
-            ]
+            ],
+            lkql_path=os.environ["LKQL_PATH"],
         )

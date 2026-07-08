@@ -175,7 +175,32 @@ public final class TranslationPass
         this.frames.enterFrame(topLevelList);
 
         // Initialize the top level nodes list
-        final List<LKQLNode> topLevelNodes = new ArrayList<>();
+        final List<LKQLNode> topLevelNodes = new ArrayList<>(topLevelList.getChildrenCount() + 1);
+
+        // Initialize a slot "follow_generics"
+        final var followGenerics = "follow_generics";
+        this.frames.declareBinding(followGenerics);
+        final int followGenericsSlot = this.frames.getBinding(followGenerics);
+
+        // Create an import node for stdlib
+        final var fakeFollowGenericsImport = new Import(
+            source.createUnavailableSection(),
+            "stdlib",
+            errors
+        );
+
+        // Create a decl "follow_generics" = Import(stdlib)."follow_generics"
+        final var fakeAccess = DotAccessNodeGen.create(
+            source.createUnavailableSection(),
+            new Identifier(source.createUnavailableSection(), followGenerics),
+            fakeFollowGenericsImport
+        );
+        final var fakeDecl = new ValueDeclaration(
+            source.createUnavailableSection(),
+            followGenericsSlot,
+            fakeAccess
+        );
+        topLevelNodes.add(fakeDecl);
 
         // Iterate over all top level nodes and translate them
         for (Liblkqllang.LkqlNode child : topLevelList.children()) {
@@ -187,8 +212,9 @@ public final class TranslationPass
 
         String doc = null;
 
-        if (topLevelNodes.size() > 0 && topLevelNodes.get(0) instanceof StringLiteral) {
-            doc = ((StringLiteral) topLevelNodes.get(0)).value;
+        // Look for 2nd element since first is the "follow_generics" decl
+        if (topLevelNodes.size() > 1 && topLevelNodes.get(1) instanceof StringLiteral sl) {
+            doc = sl.value;
         }
 
         // Return the top level node

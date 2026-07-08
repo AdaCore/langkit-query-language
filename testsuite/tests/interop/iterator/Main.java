@@ -1,6 +1,7 @@
 import com.adacore.lkql_jit.options.LKQLOptions;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.io.IOAccess;
 
 public class Main {
     private static void print(String messageName, Object value) {
@@ -8,7 +9,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Context context = Context.newBuilder("lkql").build();
+        Context context = Context.newBuilder("lkql").allowIO(IOAccess.ALL).build();
         Value executable = context.parse("lkql", "val list = [1, \"Hello\", [1, 2]]");
 
         Value namespace = executable.execute(false);

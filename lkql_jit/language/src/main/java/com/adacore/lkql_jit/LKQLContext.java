@@ -581,7 +581,7 @@ public final class LKQLContext {
                 argValue = null;
             } else {
                 var tl = language.translateBuffer(argSource, "<rule-arg>").program;
-                var node = (Expr) tl[0];
+                var node = (Expr) tl[1]; // First node is "follow_generics" import
                 argValue = node.executeGeneric(null);
             }
             instanceArgs.put(argName, argValue);
