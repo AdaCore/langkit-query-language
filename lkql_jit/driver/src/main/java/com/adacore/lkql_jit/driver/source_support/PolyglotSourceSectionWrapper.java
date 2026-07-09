@@ -33,12 +33,7 @@ public final class PolyglotSourceSectionWrapper extends SourceSection {
 
     @Override
     public Optional<Path> getSourceFile() {
-        var sourcePath = this.wrappedSourceSection.getSource().getPath();
-        if (sourcePath != null) {
-            return Optional.of(Paths.get(sourcePath));
-        } else {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(this.wrappedSourceSection.getSource().getPath()).map(Paths::get);
     }
 
     @Override
