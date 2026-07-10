@@ -28,11 +28,11 @@ public class LKQLFix extends BaseCheckerSubcommand {
 
     @CommandLine.Option(
         names = { "--auto-fix-mode" },
-        description = "Mode to apply auto fixes (default is DISPLAY)" +
+        description = "Mode to apply auto fixes (default is IN_REPORT)" +
             "%nPossible values: ${COMPLETION-CANDIDATES}",
         completionCandidates = AutoFixModeCompletion.class
     )
-    public CheckerRun.AutoFixMode autoFixMode = CheckerRun.AutoFixMode.DISPLAY;
+    public CheckerRun.AutoFixMode autoFixMode = CheckerRun.AutoFixMode.IN_REPORT;
 
     // ----- Constructors -----
 
