@@ -189,7 +189,6 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
             // Create a new checker run with the gathered configuration
             CheckerRun checkerRun = new CheckerRun(
                 debug,
-                linesCache,
                 ruleInstances,
                 context,
                 analysisContext,

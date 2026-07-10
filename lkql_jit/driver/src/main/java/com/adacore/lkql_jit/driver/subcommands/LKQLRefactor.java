@@ -120,7 +120,7 @@ public class LKQLRefactor extends BaseSubcommand {
                     diagnostics.add(
                         new Error(
                             err.getMessage().getContent(),
-                            SourceSection.wrap(err.getSourceLocationRange(), unit, linesCache)
+                            SourceSection.wrap(err.getSourceLocationRange(), unit)
                         )
                     );
                 }
@@ -128,7 +128,7 @@ public class LKQLRefactor extends BaseSubcommand {
                 return 1;
             }
 
-            var result = getRefactoring(unit).apply(unit, diagnostics, linesCache);
+            var result = getRefactoring(unit).apply(unit, diagnostics);
 
             diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
 

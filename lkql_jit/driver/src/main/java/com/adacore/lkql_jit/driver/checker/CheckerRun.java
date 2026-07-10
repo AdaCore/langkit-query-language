@@ -11,7 +11,6 @@ import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.Hint;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.RuleViolation;
-import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import java.io.IOException;
@@ -31,9 +30,6 @@ public final class CheckerRun {
 
     /** Whether debug information should be displayed. */
     private final boolean debugMode;
-
-    /** Object to cache source lines of analyzed Ada source and avoid multiple decoding. */
-    private final SourceLinesCache linesCache;
 
     /** Rule instances to run during the checking process. */
     private final List<RuleInstance> ruleInstances;
@@ -57,7 +53,6 @@ public final class CheckerRun {
 
     public CheckerRun(
         boolean debugMode,
-        SourceLinesCache linesCache,
         List<RuleInstance> ruleInstances,
         Context executionContext,
         LangkitSupport.AnalysisContextInterface analysisContext,
@@ -65,7 +60,6 @@ public final class CheckerRun {
         AutoFixMode autoFixMode
     ) {
         this.debugMode = debugMode;
-        this.linesCache = linesCache;
         this.ruleInstances = ruleInstances;
         this.executionContext = executionContext;
         this.analysisContext = analysisContext;
@@ -303,10 +297,7 @@ public final class CheckerRun {
                                 default -> step.node;
                             };
                             diagnostics.add(
-                                new RuleViolation(
-                                    instance,
-                                    SourceSection.wrap(locationNode, linesCache)
-                                )
+                                new RuleViolation(instance, SourceSection.wrap(locationNode))
                             );
                         } else if (instance.instantiatedRule.autoFix().isPresent()) {
                             var autoFix = instance.instantiatedRule.autoFix().get();
@@ -326,7 +317,7 @@ public final class CheckerRun {
                         e,
                         new Hint(
                             "Error occurred when analyzing " + step.node.toString(),
-                            SourceSection.wrap(step.node, linesCache)
+                            SourceSection.wrap(step.node)
                         )
                     );
                 }
@@ -379,8 +370,8 @@ public final class CheckerRun {
                     var resObj = iterator.getIteratorNextElement().as(LKQLDynamicObject.class);
                     var message = (String) resObj.getUncached("message");
                     var location = switch (resObj.getUncached("loc")) {
-                        case LangkitSupport.NodeInterface ni -> SourceSection.wrap(ni, linesCache);
-                        case LangkitSupport.TokenInterface ti -> SourceSection.wrap(ti, linesCache);
+                        case LangkitSupport.NodeInterface ni -> SourceSection.wrap(ni);
+                        case LangkitSupport.TokenInterface ti -> SourceSection.wrap(ti);
                         default -> null;
                     };
 
@@ -416,7 +407,7 @@ public final class CheckerRun {
                 e,
                 new Hint(
                     "Error occurred when analyzing " + unit.getFileName(false),
-                    SourceSection.wrap(unit.getRoot(), linesCache)
+                    SourceSection.wrap(unit.getRoot())
                 )
             );
         }

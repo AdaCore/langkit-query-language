@@ -9,7 +9,6 @@ import com.adacore.lkql_jit.driver.diagnostics.variants.BaseDiagnostic;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Info;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
-import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.exceptions.LogLocation;
 import java.util.logging.Handler;
@@ -23,13 +22,10 @@ public final class DiagnosticLogHandler extends Handler {
 
     private final DiagnosticCollector diagnostics;
 
-    private final SourceLinesCache linesCache;
-
     // ----- Constructors -----
 
-    public DiagnosticLogHandler(DiagnosticCollector diagnostics, SourceLinesCache linesCache) {
+    public DiagnosticLogHandler(DiagnosticCollector diagnostics) {
         this.diagnostics = diagnostics;
-        this.linesCache = linesCache;
     }
 
     // ----- Instance methods -----
@@ -43,8 +39,7 @@ public final class DiagnosticLogHandler extends Handler {
                 case LogLocation e -> location = switch (e.location) {
                     case LogLocation.LangkitLocation l -> SourceSection.wrap(
                         l.locationRange,
-                        l.unit,
-                        linesCache
+                        l.unit
                     );
                     case LogLocation.TruffleLocation l -> SourceSection.wrap(l.sourceSection);
                 };

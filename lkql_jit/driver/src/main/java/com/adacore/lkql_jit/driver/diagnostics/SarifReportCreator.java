@@ -235,7 +235,8 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
     /** Internal helper to get a SARIF physical location from a diagnostic source section object. */
     private static Optional<PhysicalLocation> toPhysicalLocation(SourceSection location) {
         return location
-            .getSourceFile()
+            .source()
+            .getFile()
             .map(f -> {
                 var physicalLoc = new PhysicalLocation();
                 var artifactLoc = new ArtifactLocation();

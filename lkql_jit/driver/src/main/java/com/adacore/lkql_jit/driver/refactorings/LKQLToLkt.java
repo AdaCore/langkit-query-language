@@ -12,7 +12,6 @@ import com.adacore.liblkqllang.Liblkqllang.TokenKind;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
-import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import java.util.ArrayList;
 import java.util.function.Function;
@@ -27,16 +26,9 @@ public class LKQLToLkt implements TreeBasedRefactoring {
 
     private DiagnosticCollector diags;
 
-    private SourceLinesCache cache;
-
     @Override
-    public String apply(
-        Liblkqllang.AnalysisUnit unit,
-        DiagnosticCollector diags,
-        SourceLinesCache cache
-    ) {
+    public String apply(Liblkqllang.AnalysisUnit unit, DiagnosticCollector diags) {
         this.diags = diags;
-        this.cache = cache;
         var root = unit.getRoot();
         return (
             "# lkql version: 2\n\n" +
@@ -242,7 +234,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             diags.add(
                 new Warning(
                     "safe calls are a deprecated feature",
-                    SourceSection.wrap(funCall.fHasSafe(), cache)
+                    SourceSection.wrap(funCall.fHasSafe())
                 )
             );
         }
@@ -769,7 +761,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             diags.add(
                 new Warning(
                     "tuples of more than 2 elements cannot be refactored automatically, consider introducing a new struct type",
-                    SourceSection.wrap(tuple, cache)
+                    SourceSection.wrap(tuple)
                 )
             );
             return s;
@@ -787,7 +779,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             diags.add(
                 new Warning(
                     "tuples patterns of more than 2 elements cannot be refactored automatically",
-                    SourceSection.wrap(tuplePattern, cache)
+                    SourceSection.wrap(tuplePattern)
                 )
             );
             return refactorGeneric(tuplePattern);
@@ -814,7 +806,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         diags.add(
             new Warning(
                 "objects literals cannot be refactored automatically, consider introducing a new struct type",
-                SourceSection.wrap(objLit, cache)
+                SourceSection.wrap(objLit)
             )
         );
         return refactorGeneric(objLit);
