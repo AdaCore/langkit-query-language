@@ -80,7 +80,7 @@ public abstract class SafeDotAccess extends BaseDotAccess {
         // Create the property reference
         LKQLProperty propertyRef = new LKQLProperty(this.member.getName(), receiver);
         if (propertyRef.description == null) {
-            throw LKQLRuntimeError.noSuchField(this.getReceiver());
+            throw LKQLRuntimeError.noSuchField(this.member);
         }
 
         // Return the result
