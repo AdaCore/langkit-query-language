@@ -5,13 +5,13 @@
 
 package com.adacore.lkql_jit.driver.diagnostics;
 
+import com.adacore.lkql_jit.driver.Styling;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Exception;
 import com.adacore.lkql_jit.driver.diagnostics.variants.*;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import java.io.PrintStream;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /** This class provide a callable interface to create a text report from a diagnostic collector. */
 public final class TextReportCreator implements Consumer<BaseDiagnostic> {
@@ -21,14 +21,14 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
     /** Stream to output the report in. */
     private final PrintStream output;
 
-    /** Whether to include ANSI colors in the report */
-    private final boolean withColors;
+    /** Whether to emit ANSI code to style the report. */
+    private final boolean withStyle;
 
     // ----- Constructors -----
 
-    public TextReportCreator(PrintStream output, boolean withColors) {
+    public TextReportCreator(PrintStream output, boolean withStyle) {
         this.output = output;
-        this.withColors = withColors;
+        this.withStyle = withStyle;
     }
 
     // ----- Instance methods ------
@@ -37,10 +37,10 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
     public void accept(BaseDiagnostic diagnostic) {
         // Create variant part from the diagnostic information
         var locationName = diagnostic.location.map(l -> l.shortImage() + ": ");
-        StylingFunction kindStyle = switch (diagnostic) {
-            case Error _, Exception _ -> this::red;
-            case Warning _, RuleViolation _ -> this::yellow;
-            case Info _ -> this::brightBlue;
+        Styling.StylingFunction kindStyle = switch (diagnostic) {
+            case Error _, Exception _ -> Styling::red;
+            case Warning _, RuleViolation _ -> Styling::yellow;
+            case Info _ -> Styling::brightBlue;
         };
         var kindName = switch (diagnostic) {
             case Info _ -> "info";
@@ -54,19 +54,20 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
         };
 
         // Then output the diagnostic
-        output.print(bold(locationName.orElse("") + kindStyle.apply(kindName + ": ")));
+        output.print(styled(locationName.orElse(""), Styling::bold));
+        output.print(styled(kindName + ": ", Styling::bold, kindStyle));
         output.println(diagnostic.message);
-        diagnostic.location.ifPresent(l -> printSourceSnippet(l, this::yellow, leftPadding));
+        diagnostic.location.ifPresent(l -> printSourceSnippet(l, Styling::yellow, leftPadding));
 
         // In the case of an exception, show the call stack if there is one
         if (diagnostic instanceof Exception exception) {
             for (var frame : exception.callStack) {
-                output.print(bold(frame.locationImage() + ": "));
+                output.print(styled(frame.locationImage() + ": ", Styling::bold));
                 output.print("in ");
-                output.println(bold(red(frame.callContext())));
+                output.println(styled(frame.callContext(), Styling::bold, Styling::red));
                 if (frame instanceof Exception.CustomFrame f) printSourceSnippet(
                     f.callLocation,
-                    this::yellow,
+                    Styling::yellow,
                     2
                 );
             }
@@ -75,9 +76,10 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
         // If there are some hints, display them
         for (var hint : diagnostic.hints) {
             var hintLocationImage = hint.location.map(l -> l.shortImage() + ": ");
-            output.print(bold(hintLocationImage.orElse("") + blue("hint: ")));
+            output.print(styled(hintLocationImage.orElse(""), Styling::bold));
+            output.print(styled("hint: ", Styling::blue, Styling::bold));
             output.println(hint.message);
-            hint.location.ifPresent(l -> printSourceSnippet(l, this::blue, 2));
+            hint.location.ifPresent(l -> printSourceSnippet(l, Styling::blue, 2));
         }
 
         // Display a final newline
@@ -91,7 +93,7 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
      */
     private void printSourceSnippet(
         SourceSection location,
-        StylingFunction underlineStyle,
+        Styling.StylingFunction underlineStyle,
         int leftPadding
     ) {
         // Get lines and compute the size of the line number colon
@@ -106,13 +108,15 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             // If a line number has been provided then display it, otherwise fill with spaces
             if (lineNum != null) {
                 var lineNumStr = String.valueOf(lineNum);
-                output.print(blue(lineNumStr + " ".repeat(colSize - lineNumStr.length())));
+                output.print(
+                    styled(lineNumStr + " ".repeat(colSize - lineNumStr.length()), Styling::blue)
+                );
             } else {
-                output.print(blue(" ".repeat(colSize)));
+                output.print(styled(" ".repeat(colSize), Styling::blue));
             }
 
             // Finally display the separator
-            output.print(blue(" |"));
+            output.print(styled(" |", Styling::blue));
         };
 
         // Always show the first line number
@@ -128,8 +132,9 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             startLine.accept(null);
             output.print(" ".repeat(location.startColumn()));
             output.println(
-                underlineStyle.apply(
-                    "^".repeat(Math.max(0, location.endColumn() - location.startColumn()))
+                styled(
+                    "^".repeat(Math.max(0, location.endColumn() - location.startColumn())),
+                    underlineStyle
                 )
             );
         }
@@ -138,54 +143,46 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             // Print the first source line with the underlining
             output.println("  " + lines.getFirst());
             startLine.accept(null);
-            output.println(underlineStyle.apply(' ' + "_".repeat(location.startColumn()) + '^'));
+            output.println(styled(' ' + "_".repeat(location.startColumn()) + '^', underlineStyle));
 
             // Then show a message to tell how many lines have been skipped if there are more than 1
             if (lines.size() > 2) {
                 startLine.accept(null);
-                output.println(underlineStyle.apply("|"));
+                output.println(styled("|", underlineStyle));
                 startLine.accept(null);
-                output.printf(underlineStyle.apply("| ~~~ %d other lines ~~~%n"), lines.size() - 2);
+                output.printf(
+                    styled("| ~~~ %d other lines ~~~%n", underlineStyle),
+                    lines.size() - 2
+                );
                 startLine.accept(null);
-                output.println(underlineStyle.apply("|"));
+                output.println(styled("|", underlineStyle));
             }
 
             // Finally show the final line of the section with the underlining end
             startLine.accept(location.endLine());
-            output.println(underlineStyle.apply("| ") + lines.getLast());
+            output.println(styled("| ", underlineStyle) + lines.getLast());
             startLine.accept(null);
             output.println(
-                underlineStyle.apply('|' + "_".repeat(Math.max(1, location.endColumn() - 1)) + '^')
+                styled(
+                    '|' + "_".repeat(Math.max(1, location.endColumn() - 1)) + '^',
+                    underlineStyle
+                )
             );
         }
     }
 
-    /**
-     * This interface defines a function that can be called to color a text with an ANSI sequence.
-     */
-    private interface StylingFunction extends Function<String, String> {}
-
-    private String bold(String s) {
-        return styled(s, "\u001B[1m");
+    /** Inner helper to dispatch text style emission. */
+    private String styled(String s, Styling.StylingFunction style) {
+        return withStyle ? style.apply(s) : s;
     }
 
-    private String red(String s) {
-        return styled(s, "\u001B[31m");
-    }
-
-    private String blue(String s) {
-        return styled(s, "\u001B[34m");
-    }
-
-    private String brightBlue(String s) {
-        return styled(s, "\u001B[94m");
-    }
-
-    private String yellow(String s) {
-        return styled(s, "\u001B[33m");
-    }
-
-    private String styled(String s, String ansiStyle) {
-        return withColors ? ansiStyle + s + "\u001B[0m" : s;
+    /** Inner helper to compose some styles. */
+    private String styled(String s, Styling.StylingFunction... styles) {
+        if (withStyle) {
+            for (var style : styles) {
+                s = style.apply(s);
+            }
+        }
+        return s;
     }
 }
