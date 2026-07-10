@@ -19,18 +19,18 @@ public record SourceSection(
 ) {
     // ----- Constructors -----
 
-    /** Wrap a Langkit token is a SourceSection object. */
-    public static SourceSection wrap(LangkitSupport.TokenInterface token) {
-        return wrap(token.getSourceLocationRange(), token.getUnit());
+    /** Create a new source section from a Langkit token. */
+    public static SourceSection from(LangkitSupport.TokenInterface token) {
+        return from(token.getSourceLocationRange(), token.getUnit());
     }
 
-    /** Wrap a Langkit node in a SourceSection object. */
-    public static SourceSection wrap(LangkitSupport.NodeInterface node) {
-        return wrap(node.getSourceLocationRange(), node.getUnit());
+    /** Create a new source section from a Langkit node. */
+    public static SourceSection from(LangkitSupport.NodeInterface node) {
+        return from(node.getSourceLocationRange(), node.getUnit());
     }
 
-    /** Wrap a langkit source location with its related analysis unit in a SourceSection object. */
-    public static SourceSection wrap(
+    /** Create a new source section from a Langkit location range and a related analysis unit. */
+    public static SourceSection from(
         LangkitSupport.SourceLocationRange locationRange,
         LangkitSupport.AnalysisUnit unit
     ) {
@@ -43,8 +43,8 @@ public record SourceSection(
         );
     }
 
-    /** Wrap a Truffle source section in a SourceSection object. */
-    public static SourceSection wrap(com.oracle.truffle.api.source.SourceSection sourceSection) {
+    /** Create a new source section from a Truffle one. */
+    public static SourceSection from(com.oracle.truffle.api.source.SourceSection sourceSection) {
         return new SourceSection(
             Source.from(sourceSection.getSource()),
             sourceSection.getStartLine(),
@@ -54,8 +54,8 @@ public record SourceSection(
         );
     }
 
-    /** Wrap a Polyglot source section in a SourceSection object. */
-    public static SourceSection wrap(org.graalvm.polyglot.SourceSection sourceSection) {
+    /** Create a new source section from a Polyglot one. */
+    public static SourceSection from(org.graalvm.polyglot.SourceSection sourceSection) {
         return new SourceSection(
             Source.from(sourceSection.getSource()),
             sourceSection.getStartLine(),
@@ -70,12 +70,12 @@ public record SourceSection(
      * object. This function may be recursive on node's parents, meaning that if the provided node
      * isn't related to Truffle source section, the function will recurse on its parent.
      */
-    public static SourceSection wrap(Node node) {
+    public static SourceSection from(Node node) {
         if (node.getSourceSection() == null) {
             var parent = node.getParent();
-            return parent == null ? null : wrap(parent);
+            return parent == null ? null : from(parent);
         }
-        return wrap(node.getSourceSection());
+        return from(node.getSourceSection());
     }
 
     // ----- Instance methods -----

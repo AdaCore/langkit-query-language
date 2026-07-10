@@ -279,7 +279,7 @@ public final class CheckerRun {
                         diagnostics.add(
                             new Error(
                                 "The result of a node checking function must be a boolean",
-                                SourceSection.wrap(
+                                SourceSection.from(
                                     instance.instantiatedRule
                                         .checker()
                                         .getDeclarationLocation()
@@ -297,7 +297,7 @@ public final class CheckerRun {
                                 default -> step.node;
                             };
                             diagnostics.add(
-                                new RuleViolation(instance, SourceSection.wrap(locationNode))
+                                new RuleViolation(instance, SourceSection.from(locationNode))
                             );
                         } else if (instance.instantiatedRule.autoFix().isPresent()) {
                             var autoFix = instance.instantiatedRule.autoFix().get();
@@ -317,7 +317,7 @@ public final class CheckerRun {
                         e,
                         new Hint(
                             "Error occurred when analyzing " + step.node.toString(),
-                            SourceSection.wrap(step.node)
+                            SourceSection.from(step.node)
                         )
                     );
                 }
@@ -370,8 +370,8 @@ public final class CheckerRun {
                     var resObj = iterator.getIteratorNextElement().as(LKQLDynamicObject.class);
                     var message = (String) resObj.getUncached("message");
                     var location = switch (resObj.getUncached("loc")) {
-                        case LangkitSupport.NodeInterface ni -> SourceSection.wrap(ni);
-                        case LangkitSupport.TokenInterface ti -> SourceSection.wrap(ti);
+                        case LangkitSupport.NodeInterface ni -> SourceSection.from(ni);
+                        case LangkitSupport.TokenInterface ti -> SourceSection.from(ti);
                         default -> null;
                     };
 
@@ -382,7 +382,7 @@ public final class CheckerRun {
                         diagnostics.add(
                             new Error(
                                 "Checker result is not locatable",
-                                SourceSection.wrap(
+                                SourceSection.from(
                                     instance.instantiatedRule
                                         .checker()
                                         .getDeclarationLocation()
@@ -396,7 +396,7 @@ public final class CheckerRun {
                 diagnostics.add(
                     new Error(
                         "Checker result is not iterable",
-                        SourceSection.wrap(
+                        SourceSection.from(
                             instance.instantiatedRule.checker().getDeclarationLocation().get()
                         )
                     )
@@ -407,7 +407,7 @@ public final class CheckerRun {
                 e,
                 new Hint(
                     "Error occurred when analyzing " + unit.getFileName(false),
-                    SourceSection.wrap(unit.getRoot())
+                    SourceSection.from(unit.getRoot())
                 )
             );
         }

@@ -37,11 +37,11 @@ public final class DiagnosticLogHandler extends Handler {
         if (record.getThrown() != null) {
             switch (record.getThrown()) {
                 case LogLocation e -> location = switch (e.location) {
-                    case LogLocation.LangkitLocation l -> SourceSection.wrap(
+                    case LogLocation.LangkitLocation l -> SourceSection.from(
                         l.locationRange,
                         l.unit
                     );
-                    case LogLocation.TruffleLocation l -> SourceSection.wrap(l.sourceSection);
+                    case LogLocation.TruffleLocation l -> SourceSection.from(l.sourceSection);
                 };
                 default -> {}
             }

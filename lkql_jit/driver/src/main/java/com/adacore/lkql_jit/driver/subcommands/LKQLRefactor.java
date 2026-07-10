@@ -120,7 +120,7 @@ public class LKQLRefactor extends BaseSubcommand {
                     diagnostics.add(
                         new Error(
                             err.getMessage().getContent(),
-                            SourceSection.wrap(err.getSourceLocationRange(), unit)
+                            SourceSection.from(err.getSourceLocationRange(), unit)
                         )
                     );
                 }

@@ -234,7 +234,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             diags.add(
                 new Warning(
                     "safe calls are a deprecated feature",
-                    SourceSection.wrap(funCall.fHasSafe())
+                    SourceSection.from(funCall.fHasSafe())
                 )
             );
         }
@@ -761,7 +761,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             diags.add(
                 new Warning(
                     "tuples of more than 2 elements cannot be refactored automatically, consider introducing a new struct type",
-                    SourceSection.wrap(tuple)
+                    SourceSection.from(tuple)
                 )
             );
             return s;
@@ -779,7 +779,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             diags.add(
                 new Warning(
                     "tuples patterns of more than 2 elements cannot be refactored automatically",
-                    SourceSection.wrap(tuplePattern)
+                    SourceSection.from(tuplePattern)
                 )
             );
             return refactorGeneric(tuplePattern);
@@ -806,7 +806,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         diags.add(
             new Warning(
                 "objects literals cannot be refactored automatically, consider introducing a new struct type",
-                SourceSection.wrap(objLit)
+                SourceSection.from(objLit)
             )
         );
         return refactorGeneric(objLit);

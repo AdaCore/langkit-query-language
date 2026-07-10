@@ -82,7 +82,7 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
         var diagnostic = new Exception(
             kind,
             message,
-            location == null ? null : SourceSection.wrap(location)
+            location == null ? null : SourceSection.from(location)
         );
 
         // Add all hints to the diagnostic
@@ -108,7 +108,7 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
         var diagnostic = new Exception(
             exceptionKind,
             exception.getMessage(),
-            location == null ? null : SourceSection.wrap(location)
+            location == null ? null : SourceSection.from(location)
         );
 
         // Add all hints to the diagnostic
@@ -130,7 +130,7 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
         var diagnostic = new Exception(
             Exception.Kind.LKQL_EXECUTION,
             error.getMessage(),
-            errorNode == null ? null : SourceSection.wrap(errorNode)
+            errorNode == null ? null : SourceSection.from(errorNode)
         );
         Arrays.stream(hints).forEach(diagnostic::addHint);
 
@@ -144,7 +144,7 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
         for (var frame : stackTrace) {
             var frameNode = frame.getLocation();
             if (frameNode != null) {
-                var callLocation = SourceSection.wrap(frameNode);
+                var callLocation = SourceSection.from(frameNode);
                 var callContext = frame.getTarget().getRootNode().getName();
                 if (callLocation != null) {
                     diagnostic.addFrame(callContext, callLocation);
@@ -162,7 +162,7 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
             var diagnostic = new Exception(
                 Exception.Kind.LKQL_EXECUTION,
                 staticError.message(),
-                SourceSection.wrap(staticError.location())
+                SourceSection.from(staticError.location())
             );
             Arrays.stream(hints).forEach(diagnostic::addHint);
             add(diagnostic);

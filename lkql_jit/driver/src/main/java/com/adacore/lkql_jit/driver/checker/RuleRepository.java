@@ -163,7 +163,7 @@ public final class RuleRepository {
                         diagnostics.add(
                             new Error(
                                 "Auto fixes not available for unit checks",
-                                SourceSection.wrap(annotation.location())
+                                SourceSection.from(annotation.location())
                             )
                         );
                         return Optional.empty();
@@ -172,7 +172,7 @@ public final class RuleRepository {
                     diagnostics.add(
                         new Error(
                             "Auto fix value must be callable",
-                            SourceSection.wrap(annotation.location())
+                            SourceSection.from(annotation.location())
                         )
                     );
                     return Optional.empty();
