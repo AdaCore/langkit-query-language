@@ -1,0 +1,2 @@
+val objects = select ObjectDecl
+print(objects[1]?.f_has_constant?.f_nonExistingField)
