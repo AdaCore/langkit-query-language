@@ -119,7 +119,7 @@
                                     <dependency>org.graalvm.truffle:truffle-api</dependency>
                                 </classpath>
                                 <argument>com.adacore.lkql_jit.StubsGenerator</argument>
-                                <argument>${project.build.directory}/lib/libadalang.lkql</argument>
+                                <argument>${project.build.directory}/lib/</argument>
                                 <argument>com.adacore.libadalang.Libadalang</argument>
                             </arguments>
                         </configuration>

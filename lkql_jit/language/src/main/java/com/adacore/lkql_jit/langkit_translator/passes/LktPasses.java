@@ -325,6 +325,15 @@ public final class LktPasses {
             return res;
         }
 
+        /** Helper to get a referenced decl when possible without crashing and null otherwise. */
+        private Liblktlang.Decl getReferencedDecl(Liblktlang.Expr expr) {
+            try {
+                return expr.pReferencedDecl();
+            } catch (Exception _) {
+                return null;
+            }
+        }
+
         private TopLevelList buildRoot(Liblktlang.LangkitRoot root) {
             frames.enterFrame(root);
             final List<LKQLNode> topLevelNodes = new ArrayList<>();
@@ -630,18 +639,34 @@ public final class LktPasses {
                     return new UnitLiteral(loc(callExpr));
                 }
 
-                // In all other cases, translate the call expression to a function call
-                final Expr callee = buildExpr(callExpr.fName());
-                final ArgList arguments = buildArgs(callExpr.fArgs());
-                return FunCallNodeGen.create(
-                    loc(callExpr),
-                    calleeNode instanceof Liblktlang.DotExpr dot && dot.fNullCond().pAsBool(),
-                    Arrays.stream(arguments.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
-                    Arrays.stream(arguments.getArgs())
-                        .map(Arg::getArgStringName)
-                        .toArray(String[]::new),
-                    callee
-                );
+                return switch (getReferencedDecl(calleeNode)) {
+                    case Liblktlang.ClassDecl classDecl -> {
+                        yield new ConstructorCall(
+                            loc(callExpr),
+                            new Identifier(loc(calleeNode), calleeNode.getText()),
+                            getNodeDescription(classDecl.fSynName()),
+                            buildArgs(callExpr.fArgs()),
+                            errors
+                        );
+                    }
+                    case null, default -> {
+                        // In all other cases, translate the call expression to a function call
+                        final Expr callee = buildExpr(callExpr.fName());
+                        final ArgList arguments = buildArgs(callExpr.fArgs());
+                        yield FunCallNodeGen.create(
+                            loc(callExpr),
+                            calleeNode instanceof Liblktlang.DotExpr dot &&
+                                dot.fNullCond().pAsBool(),
+                            Arrays.stream(arguments.getArgs())
+                                .map(Arg::getArgExpr)
+                                .toArray(Expr[]::new),
+                            Arrays.stream(arguments.getArgs())
+                                .map(Arg::getArgStringName)
+                                .toArray(String[]::new),
+                            callee
+                        );
+                    }
+                };
             } else if (expr instanceof GenericInstantiation genericCallExpr) {
                 return buildExpr(genericCallExpr.fName());
             } else if (expr instanceof Liblktlang.BlockExpr blockExpr) {

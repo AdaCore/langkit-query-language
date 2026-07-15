@@ -1,0 +1,24 @@
+# lkql version: 2
+
+import libadalang_rewriting as lal
+
+val int_lit_50 = lal.IntLiteral(_token="50")
+val int_lit_8 = lal.IntLiteral(_token="8")
+val sub = lal.BinOp(
+    f_op=lal.OpMinus(),
+    f_left=int_lit_50,
+    f_right=int_lit_8
+)
+val lst = lal.StmtList(_elements=[
+    int_lit_50.clone,
+    int_lit_8.clone,
+    sub
+] : lal.AdaNode)
+val other_lst = lal.StmtList()
+
+val _ = print(int_lit_50)
+val _ = print(int_lit_50.clone)
+val _ = print(int_lit_8)
+val _ = print(sub)
+val _ = print(lst)
+val _ = print(other_lst)
