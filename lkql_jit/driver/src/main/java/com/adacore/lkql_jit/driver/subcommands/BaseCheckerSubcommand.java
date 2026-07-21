@@ -106,9 +106,15 @@ public abstract class BaseCheckerSubcommand extends BaseSubcommand {
 
     // ----- Abstract methods -----
 
-    /** Perform a custom post-processing on rule instances that are going to be executed. */
+    /**
+     * Perform a custom post-processing on rule instances that are going to be executed. By default,
+     * this method check instances validity and filter out invalid ones.
+     */
     protected List<RuleInstance> postProcessInstances(List<RuleInstance> ruleInstances) {
-        return ruleInstances;
+        return ruleInstances
+            .stream()
+            .filter(i -> i.isValid(diagnostics))
+            .toList();
     }
 
     /** Get the mode to apply auto-fixes in. */

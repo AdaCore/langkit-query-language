@@ -42,7 +42,8 @@ public class LKQLFix extends BaseCheckerSubcommand {
 
     @Override
     protected List<RuleInstance> postProcessInstances(List<RuleInstance> ruleInstances) {
-        return ruleInstances
+        return super
+            .postProcessInstances(ruleInstances)
             .stream()
             .filter(i -> {
                 if (i.instantiatedRule.autoFix().isEmpty()) {

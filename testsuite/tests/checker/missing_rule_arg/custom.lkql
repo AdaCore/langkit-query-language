@@ -1,0 +1,2 @@
+@check
+fun custom(node, mandatory_param: str) = false
