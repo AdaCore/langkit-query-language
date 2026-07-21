@@ -6,6 +6,7 @@
 |"" These functions may be moved in the future in Libadalang or LKQL's builtin
 |"" library.
 
+from libadalang import *
 import stdlib_internal
 
 |" Yields the chain of super types of the given type, as viewed from that
