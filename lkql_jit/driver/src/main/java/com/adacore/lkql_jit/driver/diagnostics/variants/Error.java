@@ -13,13 +13,18 @@ public final class Error extends BaseDiagnostic {
 
     // ----- Constructors -----
 
+    /** Create a new error diagnostic with an optional related location. */
+    public Error(String message, Optional<SourceSection> location) {
+        super(message, location);
+    }
+
     /** Create a new error diagnostic with a related location. */
     public Error(String message, SourceSection location) {
-        super(message, Optional.ofNullable(location));
+        this(message, Optional.ofNullable(location));
     }
 
     /** Create a new error diagnostic without a location. */
     public Error(String message) {
-        this(message, null);
+        this(message, Optional.empty());
     }
 }

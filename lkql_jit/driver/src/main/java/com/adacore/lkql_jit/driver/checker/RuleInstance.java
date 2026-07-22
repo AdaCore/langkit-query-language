@@ -5,6 +5,8 @@
 
 package com.adacore.lkql_jit.driver.checker;
 
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.values.interop.LKQLNoValue;
 import java.util.Map;
@@ -92,6 +94,41 @@ public final class RuleInstance {
     }
 
     // ----- Instance methods -----
+
+    /**
+     * Check whether this rule instance can be run in a checker run. If not all diagnostics are
+     * added to the provided collector.
+     */
+    public boolean isValid(DiagnosticCollector diagnostics) {
+        // Prepare the result
+        var res = true;
+
+        // Check that instance have all required parameters
+        for (int i = 1; i < instantiatedRule.checker().parameterNames.length; i++) {
+            var paramName = instantiatedRule.checker().parameterNames[i];
+            if (
+                !arguments.containsKey(paramName) &&
+                instantiatedRule.checker().parameterDefaultValues[i] == null
+            ) {
+                diagnostics.add(
+                    new Error(
+                        "Missing mandatory parameter #" +
+                            i +
+                            " (\"" +
+                            paramName +
+                            "\") in instance \"" +
+                            instanceName.orElse(instantiatedRule.name()) +
+                            '"',
+                        instanceLocation
+                    )
+                );
+                res = false;
+            }
+        }
+
+        // Finally, return the result
+        return res;
+    }
 
     @Override
     public String toString() {

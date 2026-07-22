@@ -62,15 +62,20 @@ public final class NodeCheckerFunction {
                 new Object[function.parameterNames.length + 1]
             );
 
-            for (int j = 1; j < function.getParameterDefaultValues().length; j++) {
+            for (int j = 1; j < function.parameterNames.length; j++) {
                 String paramName = function.parameterNames[j];
                 Object userDefinedArg = context.getRuleArg(
                     (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
                     StringUtils.toLowerCase(paramName)
                 );
-                instance.arguments[j + 1] = userDefinedArg == null
-                    ? ((Expr) function.getParameterDefaultValues()[j]).executeGeneric(frame)
-                    : userDefinedArg;
+                var defaultValue = (Expr) function.getParameterDefaultValues()[j];
+                if (userDefinedArg != null) {
+                    instance.arguments[j + 1] = userDefinedArg;
+                } else if (defaultValue != null) {
+                    instance.arguments[j + 1] = defaultValue.executeGeneric(frame);
+                } else {
+                    instance.arguments[j + 1] = null;
+                }
             }
 
             instantiatedFuncs[i] = instance;

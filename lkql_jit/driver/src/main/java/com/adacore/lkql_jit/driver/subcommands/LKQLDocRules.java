@@ -178,29 +178,30 @@ public class LKQLDocRules implements Callable<Integer> {
                 // Fetch the parameter declaration related to the name
                 var relatedParam = paramsMap.remove(paramName);
 
-                // Now check that all information about parameter are available
+                // Now check that all information about the parameter are available
                 if (relatedParam == null) errorInDoc("Unknown parameter " + paramName);
                 if (relatedParam.fTypeAnnotation().isNone()) errorInDoc(
                     "Missing type annotation for parameter " + paramName
                 );
-                if (relatedParam.fDefaultExpr().isNone()) errorInDoc(
-                    "Missing default value for parameter " + paramName
-                );
 
-                // Check parameter type is valid
+                // Check that the parameter type is valid
                 var paramType = relatedParam.fTypeAnnotation().getText();
                 if (!VALID_PARAM_TYPES.contains(paramType)) errorInDoc(
                     "Invalid type " + paramType + " for parameter " + paramName
                 );
 
+                // Now create the default value annotation
+                var defaultValPrecision = relatedParam.fDefaultExpr().isNone()
+                    ? "(no default value, this parameter is mandatory)"
+                    : "(default: ``" + relatedParam.fDefaultExpr().getText() + "``)";
+
                 return directiveName.equals("param")
-                    ? ("*" +
+                    ? ("- *" +
                           toMixedCase(paramName) +
                           ": " +
                           paramType +
-                          " = " +
-                          relatedParam.fDefaultExpr().getText() +
-                          "*")
+                          "* " +
+                          defaultValPrecision)
                     : "";
             });
 
