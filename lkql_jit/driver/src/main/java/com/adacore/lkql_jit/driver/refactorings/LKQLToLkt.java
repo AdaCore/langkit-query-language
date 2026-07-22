@@ -351,7 +351,8 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         Liblkqllang.BasePattern pattern,
         Liblkqllang.Expr expr
     ) {
-        String refactoredExpr = expr instanceof Liblkqllang.UnitLiteral
+        String refactoredExpr = expr instanceof Liblkqllang.UnitLiteral ||
+            expr instanceof Liblkqllang.NullLiteral
             ? "Rec([], [])"
             : refactorNode(expr);
         return (
