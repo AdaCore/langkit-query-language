@@ -62,14 +62,10 @@ fun children_no_nested(node : Any) : Any =
     stdlib_internal.children_no_nested_implem(Pair(node, true))
 
 |" Return whether all elements in the given iterable are truthy
-fun all(iterable : Any) : Any =
-
-    (from iterable match x select x if not x)?.at(0) == Unit()
+fun all(iterable : Any) : Any = iterable.all((x) => x)
 
 |" Return whether at least one element in the given iterable is truthy
-fun any(iterable : Any) : Any =
-
-    (from iterable match x select x if x)?.at(0) != Unit()
+fun any(iterable : Any) : Any = iterable.any((x) => x)
 
 |" Return ``true`` if the string ``s`` is the name of an assert pragma
 fun is_assert_pragma(s : Any) : Any =
