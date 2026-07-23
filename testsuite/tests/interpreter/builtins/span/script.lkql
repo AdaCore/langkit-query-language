@@ -1,0 +1,9 @@
+# lkql version: 2
+
+val l = [1,2,3,4,5]
+#       | | | | | |
+#       0 1 2 3 4 5
+val _ = print("list = " & l.img)
+val _ = print("span[0:0] = " & l.span(0, 0).img)
+val _ = print("span[2:3] = " & l.span(2, 3).img)
+val _ = print("span[0:5] = " & l.span(0, 5).img)

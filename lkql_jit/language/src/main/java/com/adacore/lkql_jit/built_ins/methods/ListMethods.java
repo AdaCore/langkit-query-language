@@ -20,9 +20,9 @@ public class ListMethods {
 
     @BuiltInMethod(
         name = "sublist",
-        doc = "Return a sublist of `list` from `low_bound` to `high_bound`"
+        doc = "Return a sublist of `list` from `low_bound` to `high_bound` 1-based indexes (legacy)."
     )
-    public abstract static class SublistExpr extends BuiltInBody {
+    public abstract static class Sublist1BasedExpr extends BuiltInBody {
 
         @Specialization
         protected LKQLArrayList onValid(LKQLArrayList list, long low, long high) {
@@ -35,6 +35,28 @@ public class ListMethods {
             } else if (high > list.getContent().length) {
                 throw LKQLRuntimeError.invalidIndex((int) high, this);
             }
+
+            // Return the sublist
+            return new LKQLArrayList(Arrays.copyOfRange(list.getContent(), (int) low, (int) high));
+        }
+    }
+
+    @BuiltInMethod(
+        name = "span",
+        doc = """
+        Return a span of `list` from `first_idx` to `last_index` 0-based indexes (inclusive).
+        The resulting span has length `last_index` - `first_idx`.
+        """
+    )
+    public abstract static class SublistExpr extends BuiltInBody {
+
+        @Specialization
+        protected LKQLArrayList onValid(LKQLArrayList list, long low, long high) {
+            // Check bounds validity
+            // TODO: support wrap around (#642)
+            if (low < 0) throw LKQLRuntimeError.invalidIndex((int) low, this);
+            if (high > list.size()) throw LKQLRuntimeError.invalidIndex((int) high, this);
+            if (low > high) throw LKQLRuntimeError.invalidRange((int) low, (int) high, this);
 
             // Return the sublist
             return new LKQLArrayList(Arrays.copyOfRange(list.getContent(), (int) low, (int) high));
