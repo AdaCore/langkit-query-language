@@ -39,14 +39,29 @@ public class IterableMethods {
         name = "enumerate",
         doc = """
         Return the content of the iterable object with each element associated \
-        to its index in a tuple: [(<index>, <elem>), ...]""",
+        to its 1-based index (legacy) in a tuple: [(<index+1>, <elem>), ...]""",
         isProperty = true
     )
     abstract static class EnumerateExpr extends BuiltInBody {
 
         @Specialization
         public Iterable doGeneric(Iterable self) {
-            return new LKQLEnumerateResult(self);
+            return new LKQLEnumerateResult(self, false);
+        }
+    }
+
+    @BuiltInMethod(
+        name = "with_index",
+        doc = """
+        Return the content of the iterable object with each element associated (0-based) \
+        to its index in a tuple: [(<index>, <elem>), ...]""",
+        isProperty = true
+    )
+    abstract static class EnumerateZeroExpr extends BuiltInBody {
+
+        @Specialization
+        public Iterable doGeneric(Iterable self) {
+            return new LKQLEnumerateResult(self, true);
         }
     }
 

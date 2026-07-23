@@ -38,6 +38,9 @@ public abstract class Indexing extends Expr {
     /** Whether the indexing is safe. */
     protected final boolean isSafe;
 
+    /** Whether the indexing is 0-based (else it's 1-based). */
+    protected final boolean zeroBased;
+
     // ----- Constructors -----
 
     /**
@@ -46,9 +49,10 @@ public abstract class Indexing extends Expr {
      * @param location The location of the node in the source.
      * @param isSafe Whether the indexing operation is safe.
      */
-    protected Indexing(SourceSection location, boolean isSafe) {
+    protected Indexing(SourceSection location, boolean isSafe, boolean zeroBased) {
         super(location);
         this.isSafe = isSafe;
+        this.zeroBased = zeroBased;
     }
 
     // ----- Execution methods -----
@@ -68,7 +72,7 @@ public abstract class Indexing extends Expr {
         @CachedLibrary("tuple") InteropLibrary tupleLibrary
     ) {
         try {
-            return tupleLibrary.readArrayElement(tuple, index - 1);
+            return tupleLibrary.readArrayElement(tuple, zeroBased ? index : index - 1);
         } catch (InvalidArrayIndexException e) {
             if (this.isSafe) {
                 return LKQLUnit.INSTANCE;
@@ -91,7 +95,7 @@ public abstract class Indexing extends Expr {
     protected Object indexIndexable(Indexable collection, long index) {
         Object res = null;
         try {
-            res = collection.get((int) index - 1);
+            res = collection.get((int) (zeroBased ? index : index - 1));
         } catch (IndexOutOfBoundsException e) {}
 
         if (res == null) {
@@ -113,12 +117,13 @@ public abstract class Indexing extends Expr {
      */
     @Specialization
     protected Object indexNode(LangkitSupport.NodeInterface node, long index) {
-        if (index > node.getChildrenCount()) {
+        final var effectiveIndex = zeroBased ? index : index - 1;
+        if (effectiveIndex >= node.getChildrenCount()) {
             return LKQLNull.INSTANCE;
-        } else if (index < 1) {
+        } else if (effectiveIndex < 0) {
             throw LKQLRuntimeError.invalidIndex((int) index, this);
         }
-        LangkitSupport.NodeInterface res = node.getChild((int) index - 1);
+        LangkitSupport.NodeInterface res = node.getChild((int) effectiveIndex);
         return res.isNone() ? LKQLNull.INSTANCE : res;
     }
 

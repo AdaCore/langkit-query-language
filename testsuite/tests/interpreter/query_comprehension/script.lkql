@@ -9,9 +9,9 @@ fun debug_id(i : Any) : Any = {
 val itt = (from [1, 2, 3, 4, 5] match i select debug_id(i*i) if i > 2)
 
 val _ = print("Evaluating itt up to index 2")
-val _ = print(itt[2])
-val _ = print("Querying element 1, already computed")
 val _ = print(itt[1])
+val _ = print("Querying element 1, already computed")
+val _ = print(itt[0])
 val _ = print("Calling to_list will consume itt entirely")
 val _ = print(itt.to_list)
 
@@ -20,5 +20,5 @@ fun dfs(this : Any) : Any = match this {
     case _ => []
 }
 
-val root = units()[1].root
+val root = units()[0].root
 val _ = print(dfs(root))

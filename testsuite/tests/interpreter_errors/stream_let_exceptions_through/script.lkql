@@ -9,6 +9,6 @@ fun subtree(this : Any) : Any =
     this :: this.children.flat_map(subtree)
 }
 
-val root = units()[1].root
+val root = units()[0].root
 
 val _ = print(subtree(root).to_list)
