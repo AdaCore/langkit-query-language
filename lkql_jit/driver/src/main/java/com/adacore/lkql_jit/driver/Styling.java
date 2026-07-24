@@ -16,8 +16,24 @@ public final class Styling {
         return styled(s, "\u001B[1m");
     }
 
+    public static String underline(String s) {
+        return styled(s, "\u001B[4m");
+    }
+
+    public static String brightBlack(String s) {
+        return styled(s, "\u001B[90m");
+    }
+
     public static String red(String s) {
         return styled(s, "\u001B[31m");
+    }
+
+    public static String green(String s) {
+        return styled(s, "\u001B[32m");
+    }
+
+    public static String brightGreen(String s) {
+        return styled(s, "\u001B[92m");
     }
 
     public static String blue(String s) {
