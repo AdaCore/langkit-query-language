@@ -38,11 +38,21 @@ public final class TruffleSourceWrapper extends Source {
     }
 
     @Override
+    public List<String> getLines() {
+        return getLines(0, truffleSource.getLineCount());
+    }
+
+    @Override
     public List<String> getLines(int from, int to) {
         var res = new ArrayList<String>(to - from);
         for (int i = from; i < to; i++) {
             res.add(truffleSource.getCharacters(i + 1).toString());
         }
         return res;
+    }
+
+    @Override
+    public String getLineSeparator() {
+        return getLineSeparator(truffleSource.getCharacters());
     }
 }

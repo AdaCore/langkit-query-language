@@ -36,7 +36,17 @@ public final class SourceFile extends Source {
     }
 
     @Override
+    public List<String> getLines() {
+        return SOURCE_LINES_CACHE.getLines(file);
+    }
+
+    @Override
     public List<String> getLines(int from, int to) {
-        return SOURCE_LINES_CACHE.getLines(file).subList(from, to);
+        return getLines().subList(from, to);
+    }
+
+    @Override
+    public String getLineSeparator() {
+        return SOURCE_LINES_CACHE.getLineSeparator(file);
     }
 }

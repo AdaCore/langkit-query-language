@@ -20,11 +20,15 @@ public final class SourceBuffer extends Source {
     /** Lines that defines the content of the source. */
     private final List<String> lines;
 
+    /** Character sequence that separate lines in the buffer. */
+    private final String lineSeparator;
+
     // ----- Content -----
 
     SourceBuffer(String name, String content) {
         this.name = name;
-        this.lines = SourceLinesCache.splitLines(content);
+        this.lines = splitLines(content);
+        this.lineSeparator = getLineSeparator(content);
     }
 
     // ----- Instance methods -----
@@ -40,7 +44,17 @@ public final class SourceBuffer extends Source {
     }
 
     @Override
+    public List<String> getLines() {
+        return lines;
+    }
+
+    @Override
     public List<String> getLines(int from, int to) {
         return lines.subList(from, to);
+    }
+
+    @Override
+    public String getLineSeparator() {
+        return lineSeparator;
     }
 }
