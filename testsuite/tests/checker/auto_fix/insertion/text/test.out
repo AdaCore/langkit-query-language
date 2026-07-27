@@ -1,0 +1,12 @@
+main.adb:3:4: rule violation: goto_stmt
+3 |    goto lbl;
+  |    ^^^^^^^^^
+fix proposal:
+  in main.adb:
+  2  begin
+  3     goto lbl;
+    +   null;
+    +   null;
+  4     <<lbl>>
+  5  end Main;
+

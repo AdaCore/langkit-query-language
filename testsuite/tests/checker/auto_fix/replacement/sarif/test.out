@@ -1,0 +1,83 @@
+{
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LKQL",
+        "version" : "lkql <version>",
+        "rules" : [ {
+          "id" : "goto_stmts",
+          "name" : "goto_stmts",
+          "shortDescription" : {
+            "text" : "goto_stmts"
+          },
+          "defaultConfiguration" : { }
+        } ]
+      }
+    },
+    "invocations" : [ {
+      "executionSuccessful" : true
+    } ],
+    "results" : [ {
+      "ruleId" : "goto_stmts",
+      "message" : {
+        "text" : "goto_stmts"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 2,
+            "startColumn" : 6,
+            "endLine" : 6,
+            "endColumn" : 1
+          }
+        }
+      } ],
+      "fixes" : [ {
+        "artifactChanges" : [ {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "replacements" : [ {
+            "deletedRegion" : {
+              "startLine" : 3,
+              "startColumn" : 4,
+              "endLine" : 3,
+              "endColumn" : 9
+            },
+            "insertedContent" : {
+              "text" : "nu"
+            }
+          }, {
+            "deletedRegion" : {
+              "startLine" : 3,
+              "startColumn" : 10,
+              "endLine" : 3,
+              "endColumn" : 11
+            }
+          }, {
+            "deletedRegion" : {
+              "startLine" : 4,
+              "startColumn" : 4,
+              "endLine" : 4,
+              "endColumn" : 9
+            },
+            "insertedContent" : {
+              "text" : "nu"
+            }
+          }, {
+            "deletedRegion" : {
+              "startLine" : 4,
+              "startColumn" : 10,
+              "endLine" : 4,
+              "endColumn" : 11
+            }
+          } ]
+        } ]
+      } ]
+    } ]
+  } ]
+}

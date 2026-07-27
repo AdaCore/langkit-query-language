@@ -20,7 +20,7 @@
         "locations" : [ {
           "physicalLocation" : {
             "artifactLocation" : {
-              "uri" : "file://<test-dir>/custom.lkql"
+              "uri" : "<working-dir>/custom.lkql"
             },
             "region" : {
               "startLine" : 2,

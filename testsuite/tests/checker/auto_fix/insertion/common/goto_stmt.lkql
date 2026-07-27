@@ -1,0 +1,7 @@
+@check(
+    auto_fix=(node, ctx) => {
+        val _ = ctx.insert_after(node, new NullStmt());
+        ctx.insert_after(node, new NullStmt())
+    }
+)
+fun goto_stmt(node) = node is GotoStmt

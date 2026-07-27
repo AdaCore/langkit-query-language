@@ -1,0 +1,17 @@
+main.adb:2:6: rule violation: null_stmts
+2 |  begin
+  | ______^
+  ||
+  || ~~~ 4 other lines ~~~
+  ||
+7 || end Main;
+  ||_^
+fix proposal:
+  in main.adb:
+  2  begin
+  3     goto lbl;
+  4 -   null;
+  5 -   null;
+  6     <<lbl>>
+  7  end Main;
+

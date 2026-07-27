@@ -1,0 +1,7 @@
+@check(
+    auto_fix=(node, ctx) => [
+        ctx.remove(n)
+        for n in from node select NullStmt
+    ].to_list
+)
+fun null_stmts(node) = node is HandledStmts(any children: NullStmt)
