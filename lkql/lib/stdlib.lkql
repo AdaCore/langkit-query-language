@@ -92,6 +92,13 @@ fun within_assert(node) =
                   at.f_attribute?.p_canonical_text() == "class"
               | *               => false))
 
+|" List of the nonoverridable aspects (RM 13.1.1) that denote a subprogram,
+|" omitting those denoting a subtype or a discriminant.
+val subprogram_denoting_nonoverridable_aspects = [
+    "Aggregate", "Constant_Indexing", "Variable_Indexing", "Default_Iterator",
+    "Integer_Literal", "Real_Literal", "String_Literal"
+]
+
 @memoized
 fun ultimate_alias(name, all_nodes=true, strip_component=false) =
     |" Return the ultimately designated ``ObjectDecl``, going through renamings
