@@ -8,7 +8,7 @@ import select
 import subprocess
 import sys
 
-from e3.fs import mkdir
+from e3.fs import mkdir, sync_tree
 from e3.testsuite.control import YAMLTestControlCreator
 from e3.testsuite.driver.diff import (
     DiffTestDriver,
@@ -233,6 +233,11 @@ class BaseDriver(DiffTestDriver):
             and self.test_env["test_name"].startswith("internal__")
         ):
             raise TestSkip("Skipping internal testcase")
+
+        # Allow tests to clone directories in their own working dir, such
+        # as common dependencies between multiple tests.
+        for path in self.test_env.get("sync_trees", []):
+            sync_tree(self.test_dir(path), self.working_dir(), delete=False)
 
         self._define_lkql_executables()
 
