@@ -1,0 +1,5 @@
+[1, 2, 3, 4, 5]
+3
+[<AdaNodeList main.adb:1:1-1:35>, <LibraryItem main.adb:3:1-8:10>, <PragmaNodeList main.adb:8:10-8:10>]
+<PragmaNodeList main.adb:8:10-8:10>
+null

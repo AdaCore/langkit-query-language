@@ -1,0 +1,5 @@
+# lkql version: 2
+
+val unsafe = null
+
+val _ = print(unsafe[2])

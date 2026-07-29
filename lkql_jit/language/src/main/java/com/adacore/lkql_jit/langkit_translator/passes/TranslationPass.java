@@ -751,7 +751,7 @@ public final class TranslationPass
         final Expr index = (Expr) indexing.fIndexExpr().accept(this);
 
         // Return the indexing node
-        return IndexingNodeGen.create(loc(indexing), false, false, collection, index);
+        return Indexing1BasedNodeGen.create(loc(indexing), false, collection, index);
     }
 
     /**
@@ -767,7 +767,7 @@ public final class TranslationPass
         final Expr index = (Expr) safeIndexing.fIndexExpr().accept(this);
 
         // Return the indexing node with safe flag
-        return IndexingNodeGen.create(loc(safeIndexing), true, false, collection, index);
+        return Indexing1BasedNodeGen.create(loc(safeIndexing), true, collection, index);
     }
 
     // --- General patterns

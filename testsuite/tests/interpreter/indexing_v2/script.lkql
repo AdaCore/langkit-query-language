@@ -1,0 +1,11 @@
+# lkql version: 2
+
+val list = [1,2,3,4,5]
+val node = (from all_nodes match _).head
+val safe = null
+
+val _ = print(list)
+val _ = print(list[2])
+val _ = print(node.children)
+val _ = print(node[2])
+val _ = print(safe?[2])

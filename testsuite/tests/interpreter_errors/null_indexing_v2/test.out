@@ -1,0 +1,4 @@
+script.lkql:5:15: error: Null receiver in indexing
+  5 | val _ = print(unsafe[2])
+    |               ^^^^^^^^^
+

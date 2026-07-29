@@ -6,25 +6,33 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.LKQLNull;
+import com.adacore.lkql_jit.values.LKQLTuple;
+import com.adacore.lkql_jit.values.LKQLUnit;
 import com.adacore.lkql_jit.values.interfaces.Indexable;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.InvalidArrayIndexException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents the indexing operation in the LKQL language.
- * TODO: support wrap around (#642)
+ * It's an LKQL V1 expression and should not be used in V2.
  *
  * @author Hugo GUERRIER
  */
 @NodeChild(value = "collection", type = Expr.class)
 @NodeChild(value = "index", type = Expr.class)
-public abstract class Indexing extends Expr {
+public abstract class Indexing1Based extends Expr {
 
     // ----- Attributes -----
 
@@ -39,7 +47,7 @@ public abstract class Indexing extends Expr {
      * @param location The location of the node in the source.
      * @param isSafe Whether the indexing operation is safe.
      */
-    protected Indexing(SourceSection location, boolean isSafe) {
+    protected Indexing1Based(SourceSection location, boolean isSafe) {
         super(location);
         this.isSafe = isSafe;
     }
@@ -47,19 +55,30 @@ public abstract class Indexing extends Expr {
     // ----- Execution methods -----
 
     /**
-     * Specialization for the unsafe indexing operation on null.
+     * Execute the indexing operation on a truffle tuple.
+     *
+     * @param tuple The tuple to index
+     * @param index The index of the element to get.
+     * @return The element at the given index in the tuple, unit if the index is invalid and the
+     *     indexing is safe else raise a runtime error.
      */
-    @Specialization(guards = "isSafe == false")
-    protected Object indexNull(LKQLNull nullObj, long index) {
-        throw LKQLRuntimeError.nullIndexing(this);
-    }
-
-    /**
-     * Specialization for the safe indexing operation on null.
-     */
-    @Specialization(guards = "isSafe == true")
-    protected Object indexNullSafe(LKQLNull nullObj, long index) {
-        return LKQLNull.INSTANCE;
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected Object indexTuple(
+        final LKQLTuple tuple,
+        final long index,
+        @CachedLibrary("tuple") InteropLibrary tupleLibrary
+    ) {
+        try {
+            return tupleLibrary.readArrayElement(tuple, index - 1);
+        } catch (InvalidArrayIndexException e) {
+            if (this.isSafe) {
+                return LKQLUnit.INSTANCE;
+            } else {
+                throw LKQLRuntimeError.invalidIndex((int) index, this);
+            }
+        } catch (UnsupportedMessageException e) {
+            throw LKQLEngineException.create(e, this);
+        }
     }
 
     /**
@@ -71,11 +90,19 @@ public abstract class Indexing extends Expr {
      */
     @Specialization
     protected Object indexIndexable(Indexable collection, long index) {
+        Object res = null;
         try {
-            return collection.get((int) index);
-        } catch (IndexOutOfBoundsException e) {
-            throw LKQLRuntimeError.invalidIndex((int) index, this);
+            res = collection.get((int) (index - 1));
+        } catch (IndexOutOfBoundsException e) {}
+
+        if (res == null) {
+            if (this.isSafe) {
+                return LKQLUnit.INSTANCE;
+            } else {
+                throw LKQLRuntimeError.invalidIndex((int) index, this);
+            }
         }
+        return res;
     }
 
     /**
@@ -87,10 +114,13 @@ public abstract class Indexing extends Expr {
      */
     @Specialization
     protected Object indexNode(LangkitSupport.NodeInterface node, long index) {
-        if (index < 0 || index >= node.getChildrenCount()) {
+        final var effectiveIndex = index - 1;
+        if (effectiveIndex >= node.getChildrenCount()) {
+            return LKQLNull.INSTANCE;
+        } else if (effectiveIndex < 0) {
             throw LKQLRuntimeError.invalidIndex((int) index, this);
         }
-        LangkitSupport.NodeInterface res = node.getChild((int) index);
+        LangkitSupport.NodeInterface res = node.getChild((int) effectiveIndex);
         return res.isNone() ? LKQLNull.INSTANCE : res;
     }
 
@@ -104,7 +134,7 @@ public abstract class Indexing extends Expr {
     protected void indexError(Object collection, Object index) {
         if (!LKQLTypeSystemGen.isIndexable(collection)) {
             throw LKQLRuntimeError.wrongType(
-                "Indexable",
+                "list, tuple, node or iterator",
                 LKQLTypesHelper.fromJava(collection),
                 this
             );

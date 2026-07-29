@@ -199,6 +199,12 @@ public final class LKQLRuntimeError extends AbstractTruffleException {
         return LKQLRuntimeError.create("Null receiver in dot access", location);
     }
 
+    /** Create an exception for an index access on a null value. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeError nullIndexing(Node location) {
+        return LKQLRuntimeError.create("Null receiver in indexing", location);
+    }
+
     /** Create an exception when there is a collision during an object combination. */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeError objectCombiningCollision(String collidingMember, Node location) {
