@@ -150,7 +150,7 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
 
         @CommandLine.Option(
             names = { "--src-subdirs" },
-            description = "prepend <obj>/directory to the list of source dirs for each project",
+            description = "Prepend <obj>/directory to the list of source dirs for each project",
             paramLabel = "<directory>"
         )
         public Path srcSubdirs;
