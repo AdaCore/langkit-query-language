@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.dsl.Specialization;
 import java.util.Arrays;
@@ -17,6 +18,23 @@ import java.util.Arrays;
 /** This class contains all built-in methods for the list type in the LKQL language. */
 @BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.LKQL_LIST })
 public class ListMethods {
+
+    @BuiltInMethod(
+        name = "at",
+        doc = "Index into `list`. Returns null if index is larger than length."
+    )
+    public abstract static class AtExpr extends BuiltInBody {
+
+        @Specialization
+        protected Object doGeneric(LKQLArrayList list, long idx) {
+            // TODO: support wrap around (#642)
+            if (idx >= 0 && idx < list.size()) {
+                return list.content[(int) idx];
+            } else {
+                return LKQLNull.INSTANCE;
+            }
+        }
+    }
 
     @BuiltInMethod(
         name = "sublist",

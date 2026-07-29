@@ -1,0 +1,7 @@
+# lkql version: 2
+
+val l = [1,2,3,4,5]
+val _ = print("list = " & l.img)
+val _ = print("at(0) = " & l.at(0).img)
+val _ = print("at(2) = " & l.at(2).img)
+val _ = print("at(9) = " & l.at(9).img)
