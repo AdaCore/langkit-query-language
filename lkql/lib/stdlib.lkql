@@ -712,16 +712,20 @@ fun has_non_default_sso(decl) =
 {
     val aspect = decl.p_get_aspect("Scalar_Storage_Order");
 
-    aspect.exists and match default_bit_order()
-    | null   => true
-    | expr => match expr.text
-        | "High_Order_First" =>
-            ultimate_alias(aspect.value).p_canonical_fully_qualified_name()
-            != "system.bit_order.high_order_first"
-        | "Low_Order_First" =>
-            ultimate_alias(aspect.value).p_canonical_fully_qualified_name()
-            != "system.bit_order.low_order_first"
-        | * => true
+    aspect.exists and {
+        val aspect_fqn = ultimate_alias(aspect.value).p_canonical_fully_qualified_name();
+        aspect_fqn != "system.default_bit_order"
+        and match default_bit_order()
+        | null   => true
+        | expr => (
+            match expr.text
+            | "High_Order_First" =>
+                aspect_fqn != "system.bit_order.high_order_first"
+            | "Low_Order_First" =>
+                aspect_fqn != "system.bit_order.low_order_first"
+            | * => true
+        )
+    }
 }
 
 fun depends_on_mutable_discriminant(component_decl) =
