@@ -654,6 +654,11 @@ fun get_parameter(params, actual) =
     find(params, actual, params.length)
 }
 
+fun get_parameter_with_name(params, name) =
+    |" Given a ``List[ParamActual]``, return the parameter actual value
+    |" corresponding to the provided ``name``, null if not found.
+    [p.actual for p in params if p.param.p_name_is(name)].head_or(null)
+
 fun get_formals(subp_spec) =
     |" Given a SubpSpec node, return a list of all its formal parameter
     |" defining names, each one associated to its ParamSpec node.
