@@ -109,11 +109,13 @@ public final class TopLevelList extends LKQLNode {
         if (this.isInteractive) {
             // In interactive mode, return the last evaluated value, and add the namespace values
             // to the global namespace
-            this.updateGlobals(LKQLNamespace.createUncached(frame.materialize(), doc));
+            this.updateGlobals(
+                LKQLNamespace.createUncached(frame.materialize(), doc, this.location)
+            );
             return context.getEnv().asGuestValue(val);
         } else {
             // Else return the namespace corresponding to the program execution
-            return LKQLNamespace.createUncached(frame.materialize(), doc);
+            return LKQLNamespace.createUncached(frame.materialize(), doc, this.location);
         }
     }
 

@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.values.interop;
 
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.source.SourceSection;
 
 /** This class represents the base of LKQL namespaces. */
 public abstract class LKQLBaseNamespace extends LKQLDynamicObject {
@@ -17,8 +18,8 @@ public abstract class LKQLBaseNamespace extends LKQLDynamicObject {
 
     // ----- Constructors -----
 
-    public LKQLBaseNamespace(Shape shape, String documentation) {
-        super(shape);
+    public LKQLBaseNamespace(Shape shape, SourceSection creationLocation, String documentation) {
+        super(shape, creationLocation);
         this.documentation = documentation;
     }
 }
