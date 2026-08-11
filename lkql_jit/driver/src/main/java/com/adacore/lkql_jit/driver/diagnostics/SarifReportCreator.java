@@ -174,9 +174,30 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
                 }
             );
             notification.setMessage(message);
-            location.ifPresent(l -> {
-                notification.setLocations(Set.of(l));
-            });
+
+            // Create a location set that will contain all useful location for the notification
+            var locations = new LinkedHashSet<Location>();
+            location.ifPresent(locations::add);
+
+            // If there are hints in the diagnostic, add them to the notification locations
+            for (var hint : diagnostic.hints) {
+                // Create the location representing the hint
+                var hintLocation = new Location();
+
+                // Create the hint message
+                var hintMessage = new Message();
+                hintMessage.setText(hint.message());
+                hintLocation.setMessage(hintMessage);
+
+                // Create the hint physical location
+                toPhysicalLocation(hint.location()).ifPresent(hintLocation::setPhysicalLocation);
+
+                // Add the hint to all notification locations
+                locations.add(hintLocation);
+            }
+
+            // Finally, set notification locations
+            notification.setLocations(locations);
 
             // If the diagnostic is an exception, fill the exception property
             if (diagnostic instanceof Exception e) {
