@@ -1829,7 +1829,7 @@ public final class TranslationPass
         final int slot = this.frames.getBinding(name);
 
         // Return the import node
-        return new Import(loc(anImport), name, slot, errors);
+        return new ValueDeclaration(loc(anImport), slot, new Import(loc(anImport), name, errors));
     }
 
     // --- Tuples

@@ -131,11 +131,6 @@ public final class LKQLStaticErrors extends AbstractTruffleException {
         );
     }
 
-    /** Add a diagnostic when a complex import is encountered. */
-    public void complexImportNotSupported(SourceSection location) {
-        addDiag("Only simple imports statements are supported", location);
-    }
-
     // --- Arguments related exceptions
 
     /** Add a diagnostic when multiple arguments have the same name in a call. */

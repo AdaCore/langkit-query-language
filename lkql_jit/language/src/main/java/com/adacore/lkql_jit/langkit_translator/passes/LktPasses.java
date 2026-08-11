@@ -126,12 +126,26 @@ public final class LktPasses {
             switch (node) {
                 case Liblktlang.Import importStmt -> {
                     for (var importedName : importStmt.fImportedNames()) {
-                        if (!importedName.fRenaming().isNone()) {
-                            builder.addBinding(importedName.fRenaming().getText());
-                        } else {
-                            builder.addBinding(importedName.fOriginalName().getText());
-                        }
+                        builder.addBinding(
+                            (!importedName.fRenaming().isNone())
+                                ? importedName.fRenaming().getText()
+                                : importedName.fOriginalName().getText()
+                        );
                     }
+                }
+                case Liblktlang.ImportFrom importFromStmt -> {
+                    for (var importedName : importFromStmt.fImportedNames()) {
+                        builder.addBinding(
+                            (!importedName.fRenaming().isNone())
+                                ? importedName.fRenaming().getText()
+                                : importedName.fOriginalName().getText()
+                        );
+                    }
+                }
+                case Liblktlang.ImportAllFrom importAllStmt -> {
+                    var unit = importAllStmt.pReferencedUnits()[0];
+                    var root = (Liblktlang.LangkitRoot) unit.getRoot();
+                    recurseBuildFrames(root.fDecls(), builder);
                 }
                 case LangkitRoot _ -> {}
                 case FunParamDecl funParamDecl -> {
@@ -285,7 +299,7 @@ public final class LktPasses {
 
             for (var importClause : root.fImports()) {
                 switch (importClause) {
-                    case Liblktlang.Import importStmt:
+                    case Liblktlang.Import importStmt -> {
                         for (var importedName : importStmt.fImportedNames()) {
                             final var bindingName = !importedName.fRenaming().isNone()
                                 ? importedName.fRenaming().getText()
@@ -294,17 +308,74 @@ public final class LktPasses {
                             final var moduleName = importedName.fOriginalName().getText();
                             frames.declareBinding(bindingName);
                             topLevelNodes.add(
-                                new Import(
+                                new ValueDeclaration(
                                     loc(importStmt),
-                                    moduleName,
                                     frames.getBinding(bindingName),
-                                    errors
+                                    new Import(loc(importStmt), moduleName, errors)
                                 )
                             );
                         }
-                        break;
-                    default:
-                        errors.complexImportNotSupported(loc(importClause));
+                    }
+                    case Liblktlang.ImportFrom importFromStmt -> {
+                        final var loc = loc(importFromStmt);
+                        final var moduleName = importFromStmt.fModuleName().getText();
+                        for (var importedName : importFromStmt.fImportedNames()) {
+                            final var bindingName = !importedName.fRenaming().isNone()
+                                ? importedName.fRenaming().getText()
+                                : importedName.fOriginalName().getText();
+
+                            final var srcImport = new Import(loc, moduleName, errors);
+
+                            frames.declareBinding(bindingName);
+                            topLevelNodes.add(
+                                new ValueDeclaration(
+                                    loc,
+                                    frames.getBinding(bindingName),
+                                    DotAccessWrapperNodeGen.create(
+                                        loc,
+                                        DotAccessNodeGen.create(
+                                            loc,
+                                            new Identifier(
+                                                loc,
+                                                importedName.fOriginalName().getText()
+                                            ),
+                                            (Import) srcImport.copy()
+                                        )
+                                    )
+                                )
+                            );
+                        }
+                    }
+                    case Liblktlang.ImportAllFrom importAllStmt -> {
+                        final var loc = loc(importAllStmt);
+                        final var moduleName = importAllStmt.fModuleName().getText();
+                        final var importRoot = (Liblktlang.LangkitRoot) importAllStmt
+                            .pReferencedUnits()[0].getRoot();
+                        final var srcImport = new Import(loc, moduleName, errors);
+                        for (var decl : importRoot.fDecls()) {
+                            // skip typedecls (no accessible value)
+                            if (decl.fDecl() instanceof Liblktlang.ClassDecl) continue;
+                            var bindingName = decl.fDecl().fSynName().getText();
+                            frames.declareBinding(bindingName);
+                            topLevelNodes.add(
+                                new ValueDeclaration(
+                                    loc,
+                                    frames.getBinding(bindingName),
+                                    DotAccessWrapperNodeGen.create(
+                                        loc,
+                                        DotAccessNodeGen.create(
+                                            loc,
+                                            new Identifier(loc, bindingName),
+                                            (Import) srcImport.copy()
+                                        )
+                                    )
+                                )
+                            );
+                        }
+                    }
+                    default -> {
+                        throw LKQLEngineException.shouldNotReachHere();
+                    }
                 }
             }
 

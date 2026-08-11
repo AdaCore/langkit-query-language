@@ -1,0 +1,3 @@
+# lkql version: 2
+val test = 12
+enum Foo { case bar, baz }
