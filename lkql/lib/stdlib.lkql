@@ -1,55 +1,76 @@
-|" LKQL stdlib module
-|"
-|" This module contains functions that are shared accross lkql_checker rules.
-|" These functions may be moved in the future in Libadalang or LKQL's builtin
-|" library.
+# lkql version: 2
+
+|"" LKQL stdlib module
+|""
+|"" This module contains functions that are shared accross lkql_checker rules.
+|"" These functions may be moved in the future in Libadalang or LKQL's builtin
+|"" library.
 
 import stdlib_internal
 
-selector super_types
-    |" Yields the chain of super types of the given type, as viewed from that
+|" Yields the chain of super types of the given type, as viewed from that
     |" type. Hence, for a type T which public view derives from a type A but
     |" private view derives from a type B (which itself derives from A),
     |" invoking this selector on the public view of T will yield A.
-    | BaseTypeDecl => rec(*this.p_base_types())
-    | * => ()
+fun super_types(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(super_types_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
-selector complete_super_types
-    |" Yields the chain of super types of the given type in their most complete
+fun super_types_body(this : Any) : Any = match this {
+    case BaseTypeDecl => Rec(this.p_base_types(), this.p_base_types())
+    case _ => Rec([], [])
+}
+
+
+|" Yields the chain of super types of the given type in their most complete
     |" view. Hence, for a type T which public view derives from a type A but
     |" private view derives from a type B (which itself derives from A),
     |" invoking this selector on the public view of T will yield B and then A.
-    | b@BaseTypeDecl when b.p_is_private() => {
+fun complete_super_types(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(complete_super_types_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun complete_super_types_body(this : Any) : Any = match this {
+    case b @ BaseTypeDecl when b.p_is_private() => {
         # We go through `p_base_subtype` to correctly handle SubtypeDecl nodes:
         # while they themselves don't have a next part, their base type may.
         val np = this.p_base_subtype().p_next_part();
         val typ = if np == null then this else np;
-        rec(*typ.p_base_types())
+        Rec(typ.p_base_types(), typ.p_base_types())
     }
-    | BaseTypeDecl =>
-        rec(*this.p_base_types())
-    | * => ()
+    case BaseTypeDecl =>
+        Rec(this.p_base_types(), this.p_base_types())
+    case _ => Rec([], [])
+}
 
-selector semantic_parent
-    |" Return all semantic parent nodes starting from a given node.
-    | null     => ()
-    | *        => rec(this.p_semantic_parent())
 
-fun children_no_nested(node) =
-    |" Return all children nodes starting from a base subprogram body, but not
+|" Return all semantic parent nodes starting from a given node.
+fun semantic_parent(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(semantic_parent_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun semantic_parent_body(this : Any) : Any = match this {
+    case null     => Rec([], [])
+    case _        => Rec(non_null(this.p_semantic_parent()), non_null(this.p_semantic_parent()))
+}
+
+
+|" Return all children nodes starting from a base subprogram body, but not
     |" entering in nested bodies.
-    stdlib_internal.children_no_nested_implem((node, true))
+fun children_no_nested(node : Any) : Any =
 
-fun all(iterable) =
-    |" Return whether all elements in the given iterable are truthy
-    [x for x in iterable if not x]?[1] == ()
+    stdlib_internal.children_no_nested_implem(Pair(node, true))
 
-fun any(iterable) =
-    |" Return whether at least one element in the given iterable is truthy
-    [x for x in iterable if x]?[1] != ()
+|" Return whether all elements in the given iterable are truthy
+fun all(iterable : Any) : Any =
 
-fun is_assert_pragma(s) =
-    |" Return ``true`` if the string ``s`` is the name of an assert pragma
+    (from iterable match x select x if not x)?.at(0) == Unit()
+
+|" Return whether at least one element in the given iterable is truthy
+fun any(iterable : Any) : Any =
+
+    (from iterable match x select x if x)?.at(0) != Unit()
+
+|" Return ``true`` if the string ``s`` is the name of an assert pragma
+fun is_assert_pragma(s : Any) : Any =
+
 
     s == "assert" or
     s == "assert_and_cut" or
@@ -64,8 +85,9 @@ fun is_assert_pragma(s) =
     s == "predicate" or
     s == "refined_post"
 
-fun is_assert_aspect(s) =
-    |" Return ``true`` if the string ``s`` is the name of an assert aspect
+|" Return ``true`` if the string ``s`` is the name of an assert aspect
+fun is_assert_aspect(s : Any) : Any =
+
 
     s == "static_predicate" or
     s == "dynamic_predicate" or
@@ -79,18 +101,19 @@ fun is_assert_aspect(s) =
     s == "default_initial_condition" or
     s == "predicate_failure"
 
-fun within_assert(node) =
-    |" Return ``true`` if ``node`` is part of an assertion-related pragma or
+|" Return ``true`` if ``node`` is part of an assertion-related pragma or
     |" aspect.
-    node is *(any parent:
-        (p@PragmaNode when is_assert_pragma(p.f_id?.p_canonical_text()))
-     | a@AspectAssoc
-        when (match a.f_id
-              | id@Identifier   =>
+fun within_assert(node : Any) : Any =
+
+    node is node when parent(node).any((n) => n is (p @ PragmaNode when is_assert_pragma(p.f_id?.p_canonical_text()))
+     | a @ AspectAssoc when match a.f_id {
+              case id @ Identifier   =>
                   is_assert_aspect(id.p_canonical_text())
-              | at@AttributeRef =>
+              case at @ AttributeRef =>
                   at.f_attribute?.p_canonical_text() == "class"
-              | *               => false))
+              case _               => false
+}
+)
 
 |" List of the nonoverridable aspects (RM 13.1.1) that denote a subprogram,
 |" omitting those denoting a subtype or a discriminant.
@@ -99,28 +122,32 @@ val subprogram_denoting_nonoverridable_aspects = [
     "Integer_Literal", "Real_Literal", "String_Literal"
 ]
 
-@memoized
-fun ultimate_alias(name, all_nodes=true, strip_component=false) =
-    |" Return the ultimately designated ``ObjectDecl``, going through renamings
+|" Return the ultimately designated ``ObjectDecl``, going through renamings
     |" This will not go through generic instantiations. If all_nodes is true,
     |" consider all kinds of nodes, otherwise consider only ``BaseId`` and
     |" ``DottedName``. If ``strip_component`` is true, go to the prefix when
     |" encountering a component, otherwise stop at the ``ComponentDecl``.
+@memoized
+fun ultimate_alias(name : Any, all_nodes : Any=true, strip_component : Any=false) : Any =
+
 
     if all_nodes or name is (BaseId | DottedName) then {
         val decl = name.p_referenced_decl();
 
-        match decl
-        | ObjectDecl(f_renaming_clause: r@RenamingClause) =>
+        match decl {
+        case ObjectDecl(f_renaming_clause: r @ RenamingClause) =>
             ultimate_alias(r.f_renamed_object, all_nodes, strip_component)
-        | ComponentDecl when strip_component and name is DottedName =>
+        case ComponentDecl when strip_component and name is DottedName =>
             ultimate_alias(name.f_prefix, all_nodes, strip_component)
-        | *                                     => decl
+        case _                                     => decl
+}
+
     } else name
 
+|" Return the ultimately designated ``ExceptionDecl``, going through renamings
 @memoized
-fun ultimate_exception_alias(name) =
-    |" Return the ultimately designated ``ExceptionDecl``, going through renamings
+fun ultimate_exception_alias(name : Any) : Any =
+
 {
     val decl = name.p_referenced_decl();
 
@@ -129,53 +156,63 @@ fun ultimate_exception_alias(name) =
     else decl
 }
 
+|" Return the ultimately designated ``BasicSubpDecl``, going through renamings
 @memoized
-fun ultimate_subprogram_alias(name) =
-    |" Return the ultimately designated ``BasicSubpDecl``, going through renamings
+fun ultimate_subprogram_alias(name : Any) : Any =
+
     if name is SubpRenamingDecl
     then ultimate_subprogram_alias(name.f_renames.f_renamed_object
                                        .p_referenced_decl())
     else name
 
+|" Return the ultimately designated ``GenericDecl``, going through renamings
 @memoized
-fun ultimate_generic_alias(name) =
-    |" Return the ultimately designated ``GenericDecl``, going through renamings
-    match name.p_referenced_decl()
-    | r@GenericRenamingDecl => ultimate_generic_alias(r.f_renames.f_renamed_object)
-    | *                     => name
+fun ultimate_generic_alias(name : Any) : Any =
 
+    match name.p_referenced_decl() {
+    case r @ GenericRenamingDecl => ultimate_generic_alias(r.f_renames.f_renamed_object)
+    case _                     => name
+}
+
+
+|" Return ``true`` if ``n`` is enclosed in a local scope
 @memoized
-fun has_local_scope(n) =
-    |" Return ``true`` if ``n`` is enclosed in a local scope
+fun has_local_scope(n : Any) : Any =
+
     n.parent is GenericFormalObjDecl or
-    n is *(any semantic_parent: BasicSubpDecl | SubpBody | TaskBody |
+    n is node when semantic_parent(node).any((n) => n is BasicSubpDecl | SubpBody | TaskBody |
                                   ExprFunction | BlockStmt | EntryBody |
                                   ProtectedBody)
 
-fun is_local_object(o) =
-    |" Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
+|" Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
+fun is_local_object(o : Any) : Any =
+
     o is (ParamSpec | ObjectDecl when has_local_scope(o))
 
-@memoized
-fun is_in_package_scope(o) =
-    |" Return ``true`` if ``o`` is immediately in the scope of a package spec,
+|" Return ``true`` if ``o`` is immediately in the scope of a package spec,
     |" body or generic package.
-    match o?.parent
-    | BasePackageDecl     => true
-    | PackageBody         => true
-    | SingleTaskDecl      => false
-    | TaskTypeDecl        => false
-    | TaskBody            => false
-    | BlockStmt           => false
-    | BaseSubpBody        => false
-    | EntryBody           => false
-    | SingleProtectedDecl => false
-    | ProtectedTypeDecl   => false
-    | null                => false
-    | *                   => is_in_package_scope(o?.parent)
+@memoized
+fun is_in_package_scope(o : Any) : Any =
 
-fun is_program_unit(n) =
-    |" Return ``true`` if ``n`` is a program unit spec, body or stub
+    match o?.parent {
+    case BasePackageDecl     => true
+    case PackageBody         => true
+    case SingleTaskDecl      => false
+    case TaskTypeDecl        => false
+    case TaskBody            => false
+    case BlockStmt           => false
+    case BaseSubpBody        => false
+    case EntryBody           => false
+    case SingleProtectedDecl => false
+    case ProtectedTypeDecl   => false
+    case null                => false
+    case _                   => is_in_package_scope(o?.parent)
+}
+
+
+|" Return ``true`` if ``n`` is a program unit spec, body or stub
+fun is_program_unit(n : Any) : Any =
+
     n is (SubpDecl | AbstractSubpDecl | BaseSubpBody
       | BasePackageDecl | PackageBody | GenericPackageInstantiation
       | GenericDecl | GenericInstantiation
@@ -183,33 +220,39 @@ fun is_program_unit(n) =
       | SubpBodyStub | ProtectedBodyStub | PackageBodyStub | TaskBodyStub
       | SingleProtectedDecl | ProtectedTypeDecl)
 
+|" Return ``true`` if ``o`` is located in a library unit body
 @memoized
-fun is_in_library_unit_body(o) =
-    |" Return ``true`` if ``o`` is located in a library unit body
-    match o?.parent
-    | s@SubpBody    => s?.parent is LibraryItem
-    | p@PackageBody => p?.parent is LibraryItem
-    | null          => false
-    | *             => is_in_library_unit_body(o?.parent)
+fun is_in_library_unit_body(o : Any) : Any =
 
-fun param_pos(n, pos: int = 0) =
-    |" Return the position of node ``n`` in its current list of siblings
+    match o?.parent {
+    case s @ SubpBody    => s?.parent is LibraryItem
+    case p @ PackageBody => p?.parent is LibraryItem
+    case null          => false
+    case _             => is_in_library_unit_body(o?.parent)
+}
+
+
+|" Return the position of node ``n`` in its current list of siblings
+fun param_pos(n : Any, pos: int = 0) : Any =
+
     if not n then pos else param_pos(n?.previous_sibling(), pos+1)
 
 # TODO: move this in LAL
-fun is_predefined_op(op, follow_renamings=false) =
-    |" Return true if ``op`` is a predefined operator; ``op`` can be an Op or
+|" Return true if ``op`` is a predefined operator; ``op`` can be an Op or
     |" a CallExpr.
+fun is_predefined_op(op : Any, follow_renamings : Any=false) : Any =
+
 {
     val ref = if follow_renamings
               then ultimate_subprogram_alias(op.p_referenced_decl())
               else op.p_referenced_decl();
     op is (Op | CallExpr(p_is_call(): true)) and
-    if ref then ref.p_is_predefined_operator()
+    if ref then ref.p_is_predefined_operator() else true
 }
 
-fun is_standard_numeric(n) =
-    |" Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
+|" Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
+fun is_standard_numeric(n : Any) : Any =
+
     n == "standard.integer" or
     n == "standard.natural" or
     n == "standard.positive" or
@@ -224,63 +267,64 @@ fun is_standard_numeric(n) =
     n == "standard.long_long_float" or
     n == "standard.duration"
 
-fun is_standard_boolean(n) =
-    |" Return true if the root type of ``n`` is ``Standard.Boolean``.
-    n.p_expression_type() is t@BaseTypeDecl
-    when t.p_root_type() == n.p_bool_type()
+|" Return true if the root type of ``n`` is ``Standard.Boolean``.
+fun is_standard_boolean(n : Any) : Any =
 
-fun is_standard_true(node) =
-    |" Get whether the given node is a Name representing the True literal
+    n.p_expression_type() is t @ BaseTypeDecl when t.p_root_type() == n.p_bool_type()
+
+|" Get whether the given node is a Name representing the True literal
     |" of the standard Boolean type, or of any type deriving from it.
-    node is Name(
-        p_referenced_decl(): EnumLiteralDecl(p_relative_name_text(): "true")
-    )
-    when is_standard_boolean(node)
+fun is_standard_true(node : Any) : Any =
 
-fun is_standard_false(node) =
-    |" Get whether the given node is a Name representing the False literal
+    node is Name(p_referenced_decl(): EnumLiteralDecl(p_relative_name_text(): "true")) when is_standard_boolean(node)
+
+|" Get whether the given node is a Name representing the False literal
     |" of the standard Boolean type, or of any type deriving from it.
-    node is Name(
-        p_referenced_decl(): EnumLiteralDecl(p_relative_name_text(): "false")
-    )
-    when is_standard_boolean(node)
+fun is_standard_false(node : Any) : Any =
 
-fun is_negated_op(node) =
-    |" Return whether ``node`` is a "not" unary operation, returning a standard
+    node is Name(p_referenced_decl(): EnumLiteralDecl(p_relative_name_text(): "false")) when is_standard_boolean(node)
+
+|" Return whether ``node`` is a "not" unary operation, returning a standard
     |" boolean, and having as operand a predefined RelationOp or UnOp with
     |" OpNeq as operator.
-    node is UnOp(f_op: nop@OpNot)
-    when is_predefined_op(nop)
-     and is_standard_boolean(node)
-     and strip_conversions(node.f_expr) is eop@(RelationOp | UnOp(f_op: OpNot))
-         when is_predefined_op(eop.f_op)
+fun is_negated_op(node : Any) : Any =
 
-fun negate_op(node) =
-    |" Assumes that ``node`` is either a RelationOp or UnOp with the OpNot
+    node is UnOp(f_op: nop @ OpNot) when is_predefined_op(nop)
+     and is_standard_boolean(node)
+     and strip_conversions(node.f_expr) is eop @ (RelationOp | UnOp(f_op: OpNot)) when is_predefined_op(eop.f_op)
+
+|" Assumes that ``node`` is either a RelationOp or UnOp with the OpNot
     |" as operator. Returns the negated form of the operation as a rewriting
     |" node.
     |" Examples:
     |" ``negate_op("A = B") -> "A /= B"``
     |" ``negate_op("A > B") -> "A <= B"``
     |" ``negate_op("not A") -> "A"``
-    match node.f_op
-    | OpNot => node.f_expr
-    | op    =>
-        new RelationOp(
+fun negate_op(node : Any) : Any =
+
+    match node.f_op {
+    case OpNot => node.f_expr
+    case op    =>
+        RelationOp(
             f_left = node.f_left,
             f_right = node.f_right,
-            f_op = match op
-                   | OpEq  => new OpNeq()
-                   | OpNeq => new OpEq()
-                   | OpLt  => new OpGte()
-                   | OpLte => new OpGt()
-                   | OpGt  => new OpLte()
-                   | OpGte => new OpLt()
-        )
+            f_op = match op {
+                   case OpEq  => OpNeq()
+                   case OpNeq => OpEq()
+                   case OpLt  => OpGte()
+                   case OpLte => OpGt()
+                   case OpGt  => OpLte()
+                   case OpGte => OpLt()
+}
 
-fun full_root_type(t) =
-    |" Return the full view of the root type of ``t``, traversing subtypes,
+        )
+}
+
+
+|" Return the full view of the root type of ``t``, traversing subtypes,
     |" derivations and privacy.
+fun full_root_type(t : Any) : Any =
+
 {
     val res = t.p_root_type();
     if res.p_is_private() then {
@@ -289,63 +333,74 @@ fun full_root_type(t) =
     } else res
 }
 
-fun is_predefined_type(n) =
-    |" Return true if ``n`` is the name of a type declared in a predefined
+|" Return true if ``n`` is the name of a type declared in a predefined
     |" package spec.
+fun is_predefined_type(n : Any) : Any =
+
 {
     # Retrieve the root enclosing package
-    val packages = [
-        p for p in full_root_type(n.p_referenced_decl())
-                                   .parents(include_self=false)
-        if p is BasePackageDecl
-    ].to_list;
+    val packages = (from full_root_type(n.p_referenced_decl())
+                                   .parents(include_self=false) match p select p if p is BasePackageDecl).to_list;
 
-    packages and packages[packages.length] is
+    packages and packages?[(packages.length)-1] is
         BasePackageDecl(f_package_name:
-                        DefiningName(p_canonical_part(): name@DefiningName))
-        when name.p_name_is("Standard")
+                        DefiningName(p_canonical_part(): name @ DefiningName)) when name.p_name_is("Standard")
           or name.p_name_is("System")
           or name.p_name_is("Ada")
           or name.p_name_is("Interfaces")
 }
 
-selector parent_decl_chain
-    |" Return all parent basic decl nodes starting from a given node, using
+|" Return all parent basic decl nodes starting from a given node, using
     |" semantic parent.
     |" When on a subprogram or package body, go to the declaration
     |" This allows us to, if in a generic template, always find back the
     |" generic formal.
-    | null         => ()
-    | (BaseSubpBody | PackageBody) => rec({
+fun parent_decl_chain(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(parent_decl_chain_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun parent_decl_chain_body(this : Any) : Any = match this {
+    case null         => Rec([], [])
+    case (BaseSubpBody | PackageBody) => Rec(non_null({
         val prev_part = this.p_decl_part();
 
         # Some subprogram bodies don't have a previous part because they're
         # also the decl. In that case, return the semantic parent.
         if prev_part then prev_part else this.p_semantic_parent()
-    })
-    | *            => rec(this.p_semantic_parent())
+    }), non_null({
+        val prev_part = this.p_decl_part();
 
-fun closest_enclosing_generic(n) =
-    |" If ``n`` is part of a generic package or subprogram, whether it is
+        # Some subprogram bodies don't have a previous part because they're
+        # also the decl. In that case, return the semantic parent.
+        if prev_part then prev_part else this.p_semantic_parent()
+    }))
+    case _            => Rec(non_null(this.p_semantic_parent()), non_null(this.p_semantic_parent()))
+}
+
+
+|" If ``n`` is part of a generic package or subprogram, whether it is
     |" instantiated or not, then return it.
+fun closest_enclosing_generic(n : Any) : Any =
+
 {
-    val n = from n through parent_decl_chain select first GenericDecl;
+    val n = (from parent_decl_chain(n) match GenericDecl).head_or(null);
     if n then n.p_get_uninstantiated_node() else null
 }
 
 # TODO: move to LAL
-fun in_generic_instance(n) =
-    |" Return true if ``n`` is part of a generic instantiation.
+|" Return true if ``n`` is part of a generic instantiation.
+fun in_generic_instance(n : Any) : Any =
+
     n.p_generic_instantiations().length != 0
 
-fun in_generic_template(n) =
-    |" Return true if ``n`` is declared as part of a generic template (spec
+|" Return true if ``n`` is declared as part of a generic template (spec
     |" or body). Return false otherwise, including inside a generic
     |" instantiation.
+fun in_generic_template(n : Any) : Any =
+
     n and {
         val closest_gen = closest_enclosing_generic(n);
         val insts = n.p_generic_instantiations();
-        val last_inst = if insts then insts[insts.length] else null;
+        val last_inst = if insts then insts?[(insts.length)-1] else null;
 
         # Check that the node is in a generic and that either
         # 1. It's part of no instantiations
@@ -358,37 +413,38 @@ fun in_generic_template(n) =
            != closest_gen)
     }
 
-fun enclosing_block(n) =
-    |" Return the first ``DeclBlock`` enclosing ``n`` if any, ``null``
+|" Return the first ``DeclBlock`` enclosing ``n`` if any, ``null``
     |" otherwise.
+fun enclosing_block(n : Any) : Any =
+
 {
-    val block = [p for p in n.parents(include_self=false)
-                  if p is DeclBlock]?[1];
+    val block = (from n.parents(include_self=false) match p select p if p is DeclBlock)?.at(0);
     if block then block else null
 }
 
+|" Return the first BodyNode enclosing n if any, null otherwise
 @memoized
-fun enclosing_body(n) =
-    |" Return the first BodyNode enclosing n if any, null otherwise
+fun enclosing_body(n : Any) : Any =
+
 {
-    val body = [p for p in n.parents(include_self=false)
-                  if p is BodyNode]?[1];
+    val body = (from n.parents(include_self=false) match p select p if p is BodyNode)?.at(0);
     if body then body else null
 }
 
-@memoized
-fun enclosing_package(n) =
-    |" Return the first BasePackageDecl or PackageBody enclosing n if any,
+|" Return the first BasePackageDecl or PackageBody enclosing n if any,
     |" null otherwise
+@memoized
+fun enclosing_package(n : Any) : Any =
+
 {
-    val pkg = [p for p in n.parents(include_self=false)
-                  if p is (BasePackageDecl | PackageBody)]?[1];
+    val pkg = (from n.parents(include_self=false) match p select p if p is (BasePackageDecl | PackageBody))?.at(0);
     if pkg then pkg else null
 }
 
-fun ultimate_designated_generic_subp(subp_inst) =
-    |" Given a node representing an instantiation of a generic subprogram,
+|" Given a node representing an instantiation of a generic subprogram,
     |" return that non-instantiated subprogram after resolving all renamings.
+fun ultimate_designated_generic_subp(subp_inst : Any) : Any =
+
 {
     val inst = subp_inst.p_designated_generic_decl();
     val aliased = ultimate_subprogram_alias(inst);
@@ -396,17 +452,18 @@ fun ultimate_designated_generic_subp(subp_inst) =
 }
 
 # TODO: move to LAL
-fun is_classwide_type(t) =
-    |" Return true if t is a classwide TypeDecl.
+|" Return true if t is a classwide TypeDecl.
+fun is_classwide_type(t : Any) : Any =
+
     t is (ClasswideTypeDecl |
          BaseSubtypeDecl(p_base_subtype(): ClasswideTypeDecl))
 
 # TODO: move to LAL
-fun is_controlling_param_type(t, spec) =
-    |" Return true if `t` is a TypeExpr corresponding to a controlling
+|" Return true if `t` is a TypeExpr corresponding to a controlling
     |" parameter of the subprogram spec `spec`.
-    t is TypeExpr(p_designated_type_decl(): d@BaseTypeDecl)
-    when ((d.p_is_tagged_type() and not is_classwide_type(d)) or
+fun is_controlling_param_type(t : Any, spec : Any) : Any =
+
+    t is TypeExpr(p_designated_type_decl(): d @ BaseTypeDecl) when ((d.p_is_tagged_type() and not is_classwide_type(d)) or
           (d is AnonymousTypeDecl and
            d.p_accessed_type()?.p_is_tagged_type() and
            not is_classwide_type(d.p_accessed_type())))
@@ -414,40 +471,42 @@ fun is_controlling_param_type(t, spec) =
      and (enclosing_package(t) == enclosing_package(spec))
 
 # TODO: move to LAL?
-fun is_constructor(spec) =
-    |" Return true if spec is a subprogram spec of a constructor, that is, has
+|" Return true if spec is a subprogram spec of a constructor, that is, has
     |" a controlling result and no controlling parameter.
-    is_controlling_param_type(spec.p_returns(), spec)
-     and not [p for p in spec.p_params()
-              if is_controlling_param_type(p.f_type_expr, spec)]
+fun is_constructor(spec : Any) : Any =
 
-fun is_constant_object(node) =
-    |" Return true is node represents a constant object, false otherwise
+    is_controlling_param_type(spec.p_returns(), spec)
+     and not (from spec.p_params() match p select p if is_controlling_param_type(p.f_type_expr, spec))
+
+|" Return true is node represents a constant object, false otherwise
+fun is_constant_object(node : Any) : Any =
+
     node is (ObjectDecl | ParamSpec) and node.p_is_constant_object()
 
-fun is_unchecked_conversion(node) =
-    |" Return true if node represents an instantiation of the
+|" Return true if node represents an instantiation of the
     |" `Ada.Unchecked_Conversion` subprogram
-    node is GenericSubpInstantiation
-    when ({
+fun is_unchecked_conversion(node : Any) : Any =
+
+    node is GenericSubpInstantiation when {
         val subp = ultimate_designated_generic_subp(node);
         val fqn = subp.p_fully_qualified_name();
         fqn == "Ada.Unchecked_Conversion" or fqn == "Unchecked_Conversion"
-    })
+    }
 
-fun is_unchecked_deallocation(node) =
-    |" Return true if node represents an instantiation of the
+|" Return true if node represents an instantiation of the
     |" `Ada.Unchecked_Deallocation` subprogram
-    node is GenericSubpInstantiation
-    when ({
+fun is_unchecked_deallocation(node : Any) : Any =
+
+    node is GenericSubpInstantiation when {
         val subp = ultimate_designated_generic_subp(node);
         val fqn = subp.p_fully_qualified_name();
         fqn == "Ada.Unchecked_Deallocation" or fqn == "Unchecked_Deallocation"
-    })
+    }
 
-fun is_composite_type(decl) =
-    |" Given a BaseTypeDecl, returns whether the declared type is a composite
+|" Given a BaseTypeDecl, returns whether the declared type is a composite
     |" Ada type (record, array, task or protected).
+fun is_composite_type(decl : Any) : Any =
+
     {
         val v = decl.p_full_view();
         v.p_is_array_type() or
@@ -456,313 +515,342 @@ fun is_composite_type(decl) =
         v.p_root_type() is (TaskTypeDecl | ProtectedTypeDecl)
     }
 
-@memoized
-fun get_subp_body(node) =
-    |" Return the SubpBody, TaskBody or ExprFunction corresponding to node,
+|" Return the SubpBody, TaskBody or ExprFunction corresponding to node,
     |" if any, null otherwise.
-    match node
-    | SubpRenamingDecl =>
+@memoized
+fun get_subp_body(node : Any) : Any =
+
+    match node {
+    case SubpRenamingDecl =>
         get_subp_body(node.f_renames.f_renamed_object.p_referenced_decl())
-    | BaseSubpBody     => node
-    | EnumLiteralDecl  => null
-    | ClassicSubpDecl  => node.p_body_part()
-    | GenericSubpInstantiation
+    case BaseSubpBody     => node
+    case EnumLiteralDecl  => null
+    case ClassicSubpDecl  => node.p_body_part()
+    case GenericSubpInstantiation
                        => node.p_designated_generic_decl().p_body_part()
-    | SubpBodyStub     => node.p_body_part_for_decl()
-    | EntryDecl        =>
+    case SubpBodyStub     => node.p_body_part_for_decl()
+    case EntryDecl        =>
         # For a task entry decl, return the task body as an over approximation
         # TODO: replace p_next_part_for_decl once U920-016 if fixed.
-        (match node.p_semantic_parent()
-         | d@SingleTaskTypeDecl => d.parent.p_next_part_for_decl()
-         | d@TaskTypeDecl       => d.p_next_part_for_decl()
-         | *                    => node.p_body_part())
-    | TaskTypeDecl     => node.p_next_part_for_decl()
-    | BasicDecl when node.p_is_subprogram()
+        (match node.p_semantic_parent() {
+         case d @ SingleTaskTypeDecl => d.parent.p_next_part_for_decl()
+         case d @ TaskTypeDecl       => d.p_next_part_for_decl()
+         case _                    => node.p_body_part()
+}
+)
+    case TaskTypeDecl     => node.p_next_part_for_decl()
+    case BasicDecl when node.p_is_subprogram()
                        => node.p_body_part_for_decl()
-    | *                => null
+    case _                => null
+}
 
-fun is_limited_type(type) =
-    |" Return `true` if type is a limited type. This function expects `type` to
+
+|" Return `true` if type is a limited type. This function expects `type` to
     |" be a BaseTypeDecl.
     |"
     |" .. WARNING::
     |"   This function is deprecated. Call `type.p_is_limited_type()` instead.
+fun is_limited_type(type : Any) : Any =
+
     type.p_is_limited_type()
 
+|" Return a (cached) list of all known units
 @memoized
-fun list_of_units() =
-    |" Return a (cached) list of all known units
+fun list_of_units() : Any =
+
     units().to_list
 
-fun sloc_image(node) =
-    |" Return a string with basename:line corresponding to node's sloc
+|" Return a string with basename:line corresponding to node's sloc
+fun sloc_image(node : Any) : Any =
+
 {
     val tok = node.token_start();
     tok.unit.name.base_name & ":" & img(tok.start_line)
 }
 
-fun find_comment(token, name) =
-    |" Return true if a comment token immediately following the previous
+|" Return true if a comment token immediately following the previous
     |" "begin" keyword is found and contains only the provided name.
+fun find_comment(token : Any, name : Any) : Any =
+
 
     if token.kind == "comment" and
        token.previous().previous().kind == "begin"
 
     then token.text.ends_with(name) and
-         match token.text.substring(1, token.text.length - name.length)
-         | "^-- *$" => true
-         | *        => false
+         match token.text.substring(1, token.text.length - name.length) {
+         case "^-- *$" => true
+         case _        => false
+}
+
 
     else token.kind != "begin" and find_comment(token.previous(), name)
 
-fun first_non_blank(s, ind=1) =
-    |" Return the index of the first non blank character of s, starting at ind
-    match s.substring(ind, ind)
-    | "[ \t]" => first_non_blank(s, ind + 1)
-    | *       => ind
+|" Return the index of the first non blank character of s, starting at ind
+fun first_non_blank(s : Any, ind : Any=1) : Any =
 
-fun next_non_blank_token_line(token) =
-    |" Return the start line of the next non blank token, or the next line for
+    match s.substring(ind, ind) {
+    case "[ \t]" => first_non_blank(s, ind + 1)
+    case _       => ind
+}
+
+
+|" Return the start line of the next non blank token, or the next line for
     |" a comment, or 0 if none.
+fun next_non_blank_token_line(token : Any) : Any =
+
 {
     val n = token.next();
-    match n.kind
-    | "whitespace"  => next_non_blank_token_line(n)
-    | "comment"     => n.start_line + 1
-    | "termination" => 0
-    | "no_token"    => 0
-    | *             => n.start_line
+    match n.kind {
+    case "whitespace"  => next_non_blank_token_line(n)
+    case "comment"     => n.start_line + 1
+    case "termination" => 0
+    case "no_token"    => 0
+    case _             => n.start_line
 }
 
-fun previous_non_blank_token_line(token) =
-    |" Return the end line of the previous non blank token, or the previous
+}
+
+|" Return the end line of the previous non blank token, or the previous
     |" line for a comment, or 0 if none.
+fun previous_non_blank_token_line(token : Any) : Any =
+
 {
     val p = token.previous();
-    match p.kind
-    | "whitespace"  => previous_non_blank_token_line(p)
-    | "comment"     => p.start_line - 1
-    | "termination" => 0
-    | "no_token"    => 0
-    | *             => p.end_line
+    match p.kind {
+    case "whitespace"  => previous_non_blank_token_line(p)
+    case "comment"     => p.start_line - 1
+    case "termination" => 0
+    case "no_token"    => 0
+    case _             => p.end_line
 }
 
-fun max(x, y) =
-    |" Return the max value between x and y
+}
+
+|" Return the max value between x and y
+fun max(x : Any, y : Any) : Any =
+
     if x > y then x else y
 
-fun range_values(left, right) =
-    |" Return the number of values covered between left and right expressions,
+|" Return the number of values covered between left and right expressions,
     |" -1 if it cannot be determined.
+fun range_values(left : Any, right : Any) : Any =
+
     if right.p_is_static_expr() and left.p_is_static_expr()
     then max(right.p_eval_as_int() - left.p_eval_as_int() + 1, 0)
     else -1
 
-fun number_of_values(type) =
-    |" Return the number of values covered by a given BaseTypeDecl, -1 if
+|" Return the number of values covered by a given BaseTypeDecl, -1 if
     |" this value cannot be determined.
-    match type
-    | SubtypeDecl(f_subtype: SubtypeIndication(f_constraint: RangeConstraint(f_range: RangeSpec(f_range: op@BinOp)))) => range_values(op.f_left, op.f_right)
-    | SubtypeDecl => number_of_values(type.f_subtype.f_name.p_referenced_decl())
-    | * when type == type.p_universal_int_type() => -1
-    | TypeDecl(f_type_def: type_def) => match type_def
-        | EnumTypeDef(f_enum_literals: e) => (
-            match type.f_name?.p_canonical_fully_qualified_name()
-            | "standard.character"           => 256
-            | "standard.wide_character"      => 65536
-            | "standard.wide_wide_character" => 2147483648
-            | * => e.children_count
+fun number_of_values(type : Any) : Any =
+
+    match type {
+    case SubtypeDecl(f_subtype: SubtypeIndication(f_constraint: RangeConstraint(f_range: RangeSpec(f_range: op @ BinOp)))) => range_values(op.f_left, op.f_right)
+    case SubtypeDecl => number_of_values(type.f_subtype.f_name.p_referenced_decl())
+    case _ when type == type.p_universal_int_type() => -1
+    case TypeDecl(f_type_def: type_def) => match type_def {
+        case EnumTypeDef(f_enum_literals: e) => (
+            match type.f_name?.p_canonical_fully_qualified_name() {
+            case "standard.character"           => 256
+            case "standard.wide_character"      => 65536
+            case "standard.wide_wide_character" => 2147483648
+            case _ => e.children_count
+}
+
         )
-        | m@ModIntTypeDef when m.f_expr.p_is_static_expr() => m.f_expr.p_eval_as_int()
-        | s@SignedIntTypeDef when s.f_range.f_range is BinOp(f_op: OpDoubleDot) => {
+        case m @ ModIntTypeDef when m.f_expr.p_is_static_expr() => m.f_expr.p_eval_as_int()
+        case s @ SignedIntTypeDef when s.f_range.f_range is BinOp(f_op: OpDoubleDot) => {
             val op = s.f_range.f_range;
             range_values(op.f_left, op.f_right)
           }
-        | DerivedTypeDef(f_subtype_indication: SubtypeIndication(f_constraint: RangeConstraint(f_range: RangeSpec(f_range: op@BinOp)))) =>
+        case DerivedTypeDef(f_subtype_indication: SubtypeIndication(f_constraint: RangeConstraint(f_range: RangeSpec(f_range: op @ BinOp)))) =>
             range_values(op.f_left, op.f_right)
-        | DerivedTypeDef(f_subtype_indication: s) => number_of_values(s.f_name.p_referenced_decl())
-        | *                     => -1
+        case DerivedTypeDef(f_subtype_indication: s) => number_of_values(s.f_name.p_referenced_decl())
+        case _                     => -1
+}
 
-fun has_interfaces(n) =
-    |" Return true if ``n`` is an interface or implements some interfaces
+}
+
+
+|" Return true if ``n`` is an interface or implements some interfaces
+fun has_interfaces(n : Any) : Any =
+
     n.p_is_interface_type() or
-    n is TypeDecl(any super_types: TypeDecl(p_is_interface_type(): true))
+    n is node @ TypeDecl when super_types(node).any((n) => n is TypeDecl(p_is_interface_type(): true))
 
-@memoized
-fun propagate_exceptions(body) =
-    |" Return true if the given body may propagate an exception, namely if:
+|" Return true if the given body may propagate an exception, namely if:
     |"
     |" - it has no exception handler with a ``when others`` choice;
     |" - or it has an exception handler containing a raise statement, or a call
     |"
     |" to ``Ada.Exception.Raise_Exception`` or
     |" ``Ada.Exception.Reraise_Occurrence``.
-    not (# Look for a when others handler
-         [e for e in body.f_stmts.f_exceptions.children
-          if e is ExceptionHandler and
-              (from e.f_handled_exceptions
-               select first OthersDesignator) != null] and
-          # and no (re)raise statement
-          (from body.f_stmts.f_exceptions.children
-           select first (RaiseStmt |
-               CallStmt(f_call: c@CallExpr) when {
-                   val name = c.f_name.p_referenced_decl()
-                               ?.p_fully_qualified_name?();
-                   name == "Ada.Exceptions.Raise_Exception" or
-                   name == "Ada.Exceptions.Reraise_Occurrence" })) == null)
+@memoized
+fun propagate_exceptions(body : Any) : Any =
 
-fun is_by_copy(param) =
-    |" Return true if ``param`` (a ``ParamActual``) has a non aliased by-copy
+    not (# Look for a when others handler
+         (from body.f_stmts.f_exceptions.children match e select e if e is ExceptionHandler and
+              ((from subtree(e.f_handled_exceptions) match OthersDesignator).head_or(null)) != null) and
+          # and no (re)raise statement
+          ((from (body.f_stmts.f_exceptions.children).flat_map(subtree) match (RaiseStmt |
+               CallStmt(f_call: c @ CallExpr) when {
+                   val name = c.f_name.p_referenced_decl()
+                               ?.p_fully_qualified_name();
+                   name == "Ada.Exceptions.Raise_Exception" or
+                   name == "Ada.Exceptions.Reraise_Occurrence" })).head_or(null)) == null)
+
+|" Return true if ``param`` (a ``ParamActual``) has a non aliased by-copy
     |" type
+fun is_by_copy(param : Any) : Any =
+
     not (param.param.parent.parent is ParamSpec(f_has_aliased: AliasedPresent)) and
-    param.actual.p_expression_type() is expr@BaseTypeDecl
-    when expr.p_root_type().p_full_view().p_root_type() is t@BaseTypeDecl
-    when t.p_is_discrete_type() or t.p_is_access_type() or
+    param.actual.p_expression_type() is expr @ BaseTypeDecl when expr.p_root_type().p_full_view().p_root_type() is t @ BaseTypeDecl when t.p_is_discrete_type() or t.p_is_access_type() or
          t.p_is_fixed_point() or t.p_is_float_type()
 
-fun is_by_ref(param) =
-    |" Get whether the provided parameter (a ``ParamActual``) type is a
+|" Get whether the provided parameter (a ``ParamActual``) type is a
     |" by-reference" type as defined in the reference manual at 6.2(4-9).
+fun is_by_ref(param : Any) : Any =
+
     {
-        fun is_type_by_ref(type_decl) =
+        fun is_type_by_ref(type_decl : Any) : Any =
             type_decl is (
                 BaseTypeDecl(p_is_tagged_type(): true)
                 | TaskTypeDecl
                 | ProtectedTypeDecl
                 | TypeDecl(f_type_def: RecordTypeDef(f_has_limited: LimitedPresent))
                 | BaseTypeDecl(p_is_private(): true) when is_type_by_ref(type_decl.p_full_view())
-                | BaseTypeDecl
-                    when is_composite_type(type_decl)
-                    and any([
-                        is_type_by_ref(t)
-                        for t in component_types(type_decl)
-                    ])
+                | BaseTypeDecl when is_composite_type(type_decl)
+                    and any((from component_types(type_decl) match t select is_type_by_ref(t)))
                 | SubtypeDecl when is_type_by_ref(type_decl.p_base_subtype())
             );
-        val param_spec = from param.param through parent select first ParamSpec;
+        val param_spec = (from parent(param.param) match ParamSpec).head_or(null);
         is_type_by_ref(param_spec.f_type_expr.p_designated_type_decl())
     }
 
-fun get_parameter(params, actual) =
-    |" Given a ``List[ParamActual]``, return the parameter corresponding to
+|" Given a ``List[ParamActual]``, return the parameter corresponding to
     |" actual, null if actual is not found.
+fun get_parameter(params : Any, actual : Any) : Any =
+
 {
-    fun find(params, actual, n) =
+    fun find(params : Any, actual : Any, n : Any) : Any =
         if n == 0 then null
-        else if params[n].actual == actual then params[n].param
+        else if params?[(n)-1].actual == actual then params?[(n)-1].param
         else find(params, actual, n - 1);
     find(params, actual, params.length)
 }
 
-fun get_parameter_with_name(params, name) =
-    |" Given a ``List[ParamActual]``, return the parameter actual value
+|" Given a ``List[ParamActual]``, return the parameter actual value
     |" corresponding to the provided ``name``, null if not found.
-    [p.actual for p in params if p.param.p_name_is(name)].head_or(null)
+fun get_parameter_with_name(params : Any, name : Any) : Any =
 
-fun get_formals(subp_spec) =
-    |" Given a SubpSpec node, return a list of all its formal parameter
+    (from params match p select p.actual if p.param.p_name_is(name)).head_or(null)
+
+|" Given a SubpSpec node, return a list of all its formal parameter
     |" defining names, each one associated to its ParamSpec node.
-    concat([
-        [
-            {name: name, param_spec: param_spec}
-            for name in from param_spec select DefiningName
-        ].to_list
-        for param_spec in subp_spec.p_params()
-    ].to_list)
+fun get_formals(subp_spec : Any) : Any =
 
-fun strip_parenthesis(node) =
-    |" Strip ``ParenExpr`` from the provided node.
-    match node
-    | ParenExpr => strip_parenthesis(node.f_expr)
-    | * => node
+    concat((from subp_spec.p_params() match param_spec select (from from subtree(param_spec) match DefiningName match name select {name: name, param_spec: param_spec}).to_list).to_list)
 
+|" Strip ``ParenExpr`` from the provided node.
+fun strip_parenthesis(node : Any) : Any =
+
+    match node {
+    case ParenExpr => strip_parenthesis(node.f_expr)
+    case _ => node
+}
+
+
+|" Strip ``ParenExpr``, ``QualExpr`` and type conversions
 @memoized
-fun strip_conversions(node) =
-    |" Strip ``ParenExpr``, ``QualExpr`` and type conversions
-    match node
-    # Strip parenthesis
-    | ParenExpr => strip_conversions(node.f_expr)
-    # Strip type qualifications
-    | QualExpr  => strip_conversions(node.f_suffix)
-    # Strip type conversions
-    | CallExpr(p_kind(): "type_conversion")
-                => strip_conversions(node.f_suffix[1].f_r_expr)
-    | *         => node
+fun strip_conversions(node : Any) : Any =
 
-fun ultimate_prefix(n) =
-    |" Return ``n.f_prefix`` as long as ``n`` is a ``DottedName`` and
+    match node {
+    # Strip parenthesis
+    case ParenExpr => strip_conversions(node.f_expr)
+    # Strip type qualifications
+    case QualExpr  => strip_conversions(node.f_suffix)
+    # Strip type conversions
+    case CallExpr(p_kind(): "type_conversion")
+                => strip_conversions(node.f_suffix?[0].f_r_expr)
+    case _         => node
+}
+
+
+|" Return ``n.f_prefix`` as long as ``n`` is a ``DottedName`` and
     |" designates a ``ComponentDecl``, ``n`` otherwise.
+fun ultimate_prefix(n : Any) : Any =
+
     if n is DottedName and n.p_referenced_decl() is ComponentDecl
     then ultimate_prefix(n.f_prefix)
     else n
 
+|" Return the value of ``System.Default_Bit_Order``.
 @memoized
-fun default_bit_order() =
-    |" Return the value of ``System.Default_Bit_Order``.
+fun default_bit_order() : Any =
+
 {
     val system = get_unit("system", "unit_specification");
     (
-        from system.root
-        select first decl@ObjectDecl(
-            f_has_constant: ConstantPresent,
-            f_default_expr: not null
-        ) when decl.p_canonical_fully_qualified_name() == "system.default_bit_order"
+        (from subtree(system.root) match decl @ ObjectDecl(f_has_constant: ConstantPresent, f_default_expr: not null) when decl.p_canonical_fully_qualified_name() == "system.default_bit_order").head_or(null)
     ).f_default_expr
 }
 
+|" Return the value of ``System.Storage_Unit``, 8 if not found.
 @memoized
-fun storage_unit() =
-    |" Return the value of ``System.Storage_Unit``, 8 if not found.
+fun storage_unit() : Any =
 {
     val system = get_unit("system", "unit_specification");
-    val decl = if system == null
-               then null
-               else from system.root
-                    select first n@NumberDecl
-                    when n.p_canonical_fully_qualified_name() ==
-                         "system.storage_unit";
+    val decl = (
+        if system == null
+        then null
+        else (
+            from subtree(system.root)
+            match n@NumberDecl when n.p_canonical_fully_qualified_name() == "system.storage_unit"
+        ).head_or(null)
+    );
     if decl == null then 8 else decl.f_expr.p_eval_as_int()
 }
 
-fun has_non_default_sso(decl) =
-    |" Return true if ``decl`` has a ``Scalar_Storage_Order`` aspect whose
+|" Return true if ``decl`` has a ``Scalar_Storage_Order`` aspect whose
     |" value cannot be determined to be equal to
     |" ``System.Default_Storage_Order``.
+fun has_non_default_sso(decl : Any) : Any =
+
 {
     val aspect = decl.p_get_aspect("Scalar_Storage_Order");
 
     aspect.exists and {
         val aspect_fqn = ultimate_alias(aspect.value).p_canonical_fully_qualified_name();
         aspect_fqn != "system.default_bit_order"
-        and match default_bit_order()
-        | null   => true
-        | expr => (
-            match expr.text
-            | "High_Order_First" =>
+        and match default_bit_order() {
+        case null   => true
+        case expr => (
+            match expr.text {
+            case "High_Order_First" =>
                 aspect_fqn != "system.bit_order.high_order_first"
-            | "Low_Order_First" =>
+            case "Low_Order_First" =>
                 aspect_fqn != "system.bit_order.low_order_first"
-            | * => true
+            case _ => true
+}
+
         )
+}
+
     }
 }
 
-fun depends_on_mutable_discriminant(component_decl) =
-    |" Given a `ComponentDecl`, return whether it depends on a mutable
+|" Given a `ComponentDecl`, return whether it depends on a mutable
     |" discriminant value coming from its parent record declaration.
     |" The component depends on a discriminant if it uses it in its subtype
     |" constraint or if it is a variant.
-    any([
-        id.p_referenced_decl() is DiscriminantSpec(f_default_expr: not null)
-        for id in from component_decl.p_type_expression().p_subtype_constraint()
-                  select Identifier &
-                  [v.f_discr_name
-                   for v in from component_decl through parent select VariantPart].to_list
-    ])
+fun depends_on_mutable_discriminant(component_decl : Any) : Any =
 
-fun is_tasking_construct(node) =
-    |" Returns whether the given node is a construct related to Ada tasking,
+    any((from from subtree(component_decl.p_type_expression().p_subtype_constraint()) match Identifier &
+                  (from from parent(component_decl) match VariantPart match v select v.f_discr_name).to_list match id select id.p_referenced_decl() is DiscriminantSpec(f_default_expr: not null)))
+
+|" Returns whether the given node is a construct related to Ada tasking,
     |" in other words: All constructs described in the section 9 of Ada RM.
+fun is_tasking_construct(node : Any) : Any =
+
     node is (
         TaskTypeDecl
         | TaskBody
@@ -777,71 +865,79 @@ fun is_tasking_construct(node) =
         | SelectStmt
         | DelayStmt
         | AbortStmt
-        | ObjectDecl(
-            p_type_expression: TypeExpr(
-                p_designated_type_decl(): (ProtectedTypeDecl | TaskTypeDecl)
-            )
-        )
-        | Name(
-            p_is_call: true,
-            p_referenced_decl: d@BasicDecl when ultimate_subprogram_alias(d) is (
+        | ObjectDecl(p_type_expression: TypeExpr(p_designated_type_decl(): (ProtectedTypeDecl | TaskTypeDecl)))
+        | Name(p_is_call: true, p_referenced_decl: d @ BasicDecl when ultimate_subprogram_alias(d) is (
                 EntryDecl
-                | BasicSubpDecl(any parent: (ProtectedTypeDecl | ProtectedBody | SingleProtectedDecl))
-            )
-        )
+                | node @ BasicSubpDecl when parent(node).any((n) => n is (ProtectedTypeDecl | ProtectedBody | SingleProtectedDecl))
+            ))
     )
 
-fun is_subject_to_predicate(decl) =
-    |" Return whether the provided declaration is subject to a dynamic or
+|" Return whether the provided declaration is subject to a dynamic or
     |" static predicate.
+fun is_subject_to_predicate(decl : Any) : Any =
+
     decl.p_has_aspect("predicate")
     or decl.p_has_aspect("static_predicate")
     or decl.p_has_aspect("dynamic_predicate")
 
-fun is_subtype_indication_constrained(subtype_indication) =
-    |" Return whether the provided subtype indication declare
+|" Return whether the provided subtype indication declare
     |" constraints.
+fun is_subtype_indication_constrained(subtype_indication : Any) : Any =
+
     subtype_indication.f_constraint is not null
     or is_constrained_subtype(subtype_indication.f_name.p_referenced_decl())
 
-fun is_constrained_subtype(type_decl) =
-    |" Return whether the provided base type declaration declare a constrained
+|" Return whether the provided base type declaration declare a constrained
     |" type. This function also looks for constrains in parents of the type.
+fun is_constrained_subtype(type_decl : Any) : Any =
+
     (
         type_decl.p_has_aspect("Predicate")
         and not type_decl.p_is_statically_predicated()
     )
     or type_decl.p_has_aspect("Dynamic_Predicate")
-    or type_decl.p_full_view() is BaseTypeDecl when
-        match type_decl
-        | TypeDecl => (
-            match type_decl.f_type_def
-            | ArrayTypeDef(f_indices: ConstrainedArrayIndices) => true
-            | d@DerivedTypeDef => is_subtype_indication_constrained(d.f_subtype_indication)
-            | * => false
+    or type_decl.p_full_view() is BaseTypeDecl when match type_decl {
+        case TypeDecl => (
+            match type_decl.f_type_def {
+            case ArrayTypeDef(f_indices: ConstrainedArrayIndices) => true
+            case d @ DerivedTypeDef => is_subtype_indication_constrained(d.f_subtype_indication)
+            case _ => false
+}
+
         )
-        | sd@SubtypeDecl => is_subtype_indication_constrained(sd.f_subtype)
+        case sd @ SubtypeDecl => is_subtype_indication_constrained(sd.f_subtype)
+}
 
-selector component_types
-    |" Return all the ``BaseTypeDecl`` corresponding to all fields of a given
+
+|" Return all the ``BaseTypeDecl`` corresponding to all fields of a given
     |" type, including their full views, base types and subtypes.
-    | TypeDecl(f_type_def: d@RecordTypeDef) =>
-        rec(*(from d select ComponentDecl), ())
-    | TypeDecl(f_type_def: DerivedTypeDef(f_record_extension:
-                                            def@BaseRecordDef)) =>
-        rec(*([this.p_base_type()] & (from def select ComponentDecl)), ())
-    | TypeDecl(f_type_def: DerivedTypeDef) => rec(this.p_base_type())
-    | TypeDecl(f_type_def: ArrayTypeDef)   => rec(this.p_comp_type())
-    | TypeDecl(f_type_def: PrivateTypeDef) => rec(this.p_full_view())
-    | SubtypeDecl                            => rec(this.p_base_subtype())
-    | ComponentDecl(f_component_def: ComponentDef(f_type_expr:
-                    ind@SubtypeIndication))  =>
-        rec(ind.f_name.p_referenced_decl())
-    | *                                      => ()
+fun component_types(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(component_types_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
-selector full_parent_types
-    |" Return all base (sub)types full views
-    | SubtypeDecl       => rec(this.p_base_subtype().p_full_view())
-    | ClasswideTypeDecl => rec(this.f_name.p_basic_decl().p_full_view())
-    | BaseTypeDecl      => rec(*this.p_full_view().p_base_types())
-    | *            => ()
+fun component_types_body(this : Any) : Any = match this {
+    case TypeDecl(f_type_def: d @ RecordTypeDef) =>
+        Rec(non_null(Unit()), from subtree(d) match ComponentDecl)
+    case TypeDecl(f_type_def: DerivedTypeDef(f_record_extension:
+                                            def @ BaseRecordDef)) =>
+        Rec(non_null(Unit()), [this.p_base_type()] & (from subtree(def) match ComponentDecl))
+    case TypeDecl(f_type_def: DerivedTypeDef) => Rec(non_null(this.p_base_type()), non_null(this.p_base_type()))
+    case TypeDecl(f_type_def: ArrayTypeDef)   => Rec(non_null(this.p_comp_type()), non_null(this.p_comp_type()))
+    case TypeDecl(f_type_def: PrivateTypeDef) => Rec(non_null(this.p_full_view()), non_null(this.p_full_view()))
+    case SubtypeDecl                            => Rec(non_null(this.p_base_subtype()), non_null(this.p_base_subtype()))
+    case ComponentDecl(f_component_def: ComponentDef(f_type_expr:
+                    ind @ SubtypeIndication))  =>
+        Rec(non_null(ind.f_name.p_referenced_decl()), non_null(ind.f_name.p_referenced_decl()))
+    case _                                      => Rec([], [])
+}
+
+
+|" Return all base (sub)types full views
+fun full_parent_types(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold(full_parent_types_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun full_parent_types_body(this : Any) : Any = match this {
+    case SubtypeDecl       => Rec(non_null(this.p_base_subtype().p_full_view()), non_null(this.p_base_subtype().p_full_view()))
+    case ClasswideTypeDecl => Rec(non_null(this.f_name.p_basic_decl().p_full_view()), non_null(this.f_name.p_basic_decl().p_full_view()))
+    case BaseTypeDecl      => Rec(this.p_full_view().p_base_types(), this.p_full_view().p_base_types())
+    case _            => Rec([], [])
+}
