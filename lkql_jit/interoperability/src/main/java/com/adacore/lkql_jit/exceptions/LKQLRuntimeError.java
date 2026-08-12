@@ -166,6 +166,12 @@ public final class LKQLRuntimeError extends AbstractTruffleException {
         return LKQLRuntimeError.create("Invalid index: " + index, location);
     }
 
+    /** Create an exception for an invalid range. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeError invalidRange(int start, int end, Node location) {
+        return LKQLRuntimeError.create("Invalid range: " + start + ":" + end, location);
+    }
+
     /** Create an exception for a not such member exception. */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeError noSuchMember(Node location) {
@@ -191,6 +197,12 @@ public final class LKQLRuntimeError extends AbstractTruffleException {
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeError nullReceiver(Node location) {
         return LKQLRuntimeError.create("Null receiver in dot access", location);
+    }
+
+    /** Create an exception for an index access on a null value. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeError nullIndexing(Node location) {
+        return LKQLRuntimeError.create("Null receiver in indexing", location);
     }
 
     /** Create an exception when there is a collision during an object combination. */

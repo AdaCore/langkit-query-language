@@ -89,7 +89,13 @@ public abstract class SafeDotAccess extends BaseDotAccess {
 
     /** Fallback when the receiver is a generic object. */
     @Fallback
-    protected void onGeneric(Object receiver) {
+    protected Object onGeneric(Object receiver) {
+        // In the fallback case, only built-in methods are candidates. Try to get a built-in.
+        Object builtIn = this.getBuiltIn(receiver);
+        if (builtIn != null) {
+            return builtIn;
+        }
+
         throw LKQLRuntimeError.wrongType(
             LKQLTypesHelper.NODE_INTERFACE,
             LKQLTypesHelper.fromJava(receiver),

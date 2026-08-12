@@ -1,0 +1,9 @@
+# values
+
+val list = [1,2,3,4,5]
+
+val index_lit = list[3]
+val index_var = list[i]
+
+val safe_index_lit = list?[3]
+val safe_index_var = list?[i]

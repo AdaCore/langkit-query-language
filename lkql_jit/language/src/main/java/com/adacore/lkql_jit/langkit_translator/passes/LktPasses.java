@@ -663,7 +663,6 @@ public final class LktPasses {
                 return IndexingNodeGen.create(
                     loc(subscriptExpr),
                     subscriptExpr.fNullCond() instanceof NullCondQualifierPresent,
-                    true,
                     buildExpr(subscriptExpr.fPrefix()),
                     buildExpr(subscriptExpr.fIndex())
                 );

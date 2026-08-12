@@ -738,19 +738,25 @@ public class LKQLToLkt implements TreeBasedRefactoring {
 
     /*
      * <obj><issafe>[<idx>]
-     * <obj><issafe>[<idx>-1]
+     *
+     * <obj>?.at(<idx>-1) if issafe
+     * <obj>?[<idx>-1] otherwise
+     *
+     * NB: Since LKQL V1 is null-safe by default, the refactor always produce
+     * null-safe Lkt variants
+     *
      */
     private String refactorIndexing(Liblkqllang.Indexing indexing) {
         final String obj = refactorNode(indexing.fCollectionExpr());
-        final String idx;
         final boolean isSafe = indexing instanceof Liblkqllang.SafeIndexing;
+        final String idx;
         if (indexing.fIndexExpr() instanceof Liblkqllang.IntegerLiteral lit) {
             long value = Long.parseLong(lit.getText());
             idx = Long.toString(value - 1);
         } else {
             idx = "(" + refactorNode(indexing.fIndexExpr()) + ")-1";
         }
-        return obj + (isSafe ? "?[" : "[") + idx + "]";
+        return isSafe ? obj + "?.at(" + idx + ")" : obj + "?[" + idx + "]";
     }
 
     /*

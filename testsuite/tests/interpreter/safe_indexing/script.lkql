@@ -1,5 +1,5 @@
 val lst = [1, 2, 3, 4, 5]
-val itt = [i for i in lst]
+val itt = [i for i in lst].to_list
 
 print(itt?[1])
 print(lst?[1])

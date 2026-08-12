@@ -1,0 +1,11 @@
+# lkql version: 2
+
+# values
+
+val list = [1,2,3,4,5]
+
+val index_lit = list?[2]
+val index_var = list?[(i)-1]
+
+val safe_index_lit = list?.at(2)
+val safe_index_var = list?.at((i)-1)
