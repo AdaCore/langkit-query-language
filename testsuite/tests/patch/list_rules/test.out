@@ -1,0 +1,15 @@
+"report.sarif" contains 3 rule(s):
+  rule_alpha        2 fix(es)
+  rule_beta         1 fix(es)
+  rule_without_fix  0 fix(es)
+
+Resulting files
+===============
+
+== main.adb ==
+procedure P is
+begin
+   A;
+   B;
+   C;
+end P;

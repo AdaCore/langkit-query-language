@@ -23,6 +23,7 @@ import picocli.CommandLine.Command;
         LKQLDocAPI.class,
         LKQLDocRules.class,
         LKQLRefactor.class,
+        LKQLPatch.class,
     },
     description = "Unified driver for LKQL (Langkit query language). Allows you to run LKQL " +
         "scripts or apply specific checks on a given Ada codebase",

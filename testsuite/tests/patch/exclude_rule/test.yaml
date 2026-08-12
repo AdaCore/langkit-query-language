@@ -1,0 +1,4 @@
+driver: patch
+args:
+  - --exclude-rule
+  - RULE_ALPHA

@@ -1,0 +1,106 @@
+{
+    "version": "2.1.0",
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "LKQL"
+                }
+            },
+            "originalUriBaseIds": {
+                "URI_BASE_DIR": {
+                    "uri": "file://@TEST_DIR@/",
+                    "description": {
+                        "text": "Project directory if one has been used, working directory otherwise"
+                    }
+                }
+            },
+            "artifacts": [
+                {
+                    "location": {
+                        "uri": "a.adb",
+                        "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "hashes": {
+                        "sha-256": "4613aa0c0f116900aff1b5057756c76a02781768e152781cf92fb0eedf9fd7a8"
+                    }
+                },
+                {
+                    "location": {
+                        "uri": "b.adb",
+                        "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "hashes": {
+                        "sha-256": "d5c42d7e0a18cba4818d2a96946e7522c847861b1307ec90be2332b845b15953"
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "ruleId": "redundant_null_statements",
+                    "message": {
+                        "text": "redundant null statement"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "a.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 3,
+                                    "startColumn": 4
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "a.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 3,
+                                                "startColumn": 1,
+                                                "endLine": 4,
+                                                "endColumn": 1,
+                                                "snippet": {
+                                                    "text": "   null;\n"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "artifactLocation": {
+                                        "uri": "b.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 3,
+                                                "startColumn": 1,
+                                                "endLine": 4,
+                                                "endColumn": 1,
+                                                "snippet": {
+                                                    "text": "   null;\n"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

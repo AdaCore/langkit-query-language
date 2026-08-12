@@ -1,0 +1,129 @@
+{
+    "version": "2.1.0",
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "LKQL"
+                }
+            },
+            "originalUriBaseIds": {
+                "URI_BASE_DIR": {
+                    "uri": "file://@TEST_DIR@/",
+                    "description": {
+                        "text": "Project directory if one has been used, working directory otherwise"
+                    }
+                }
+            },
+            "artifacts": [
+                {
+                    "location": {
+                        "uri": "dropped.adb",
+                        "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "hashes": {
+                        "sha-256": "54e014a7f6c95aa1797b19459a200f4c1da1895b8e204145f9fc563796aa2211"
+                    }
+                },
+                {
+                    "location": {
+                        "uri": "added.adb",
+                        "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "hashes": {
+                        "sha-256": "54e014a7f6c95aa1797b19459a200f4c1da1895b8e204145f9fc563796aa2211"
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "ruleId": "drop_final_separator",
+                    "message": {
+                        "text": "remove the final line separator"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "dropped.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 4,
+                                    "startColumn": 7
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "dropped.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 4,
+                                                "startColumn": 7,
+                                                "endLine": 5,
+                                                "endColumn": 1
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ruleId": "add_blank_line",
+                    "message": {
+                        "text": "add a blank line at the end of the file"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "added.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 5,
+                                    "startColumn": 1
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "added.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 5,
+                                                "startColumn": 1,
+                                                "endLine": 5,
+                                                "endColumn": 1
+                                            },
+                                            "insertedContent": {
+                                                "text": "\n"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,29 @@
+[1/1] redundant_null_statements: redundant null statement
+  at a.adb:6:4
+-> applied
+
+Patched 1 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+1 fix(es) filtered out by the source filters.
+
+Resulting files
+===============
+
+== a.adb ==
+with Ada.Text_IO; use Ada.Text_IO;
+
+procedure Main is
+begin
+   null;
+   Put_Line ("Hello");
+end Main;
+
+== b.adb ==
+with Ada.Text_IO; use Ada.Text_IO;
+
+procedure Other is
+begin
+   null;
+   null;
+
+   Put_Line ("Hello");
+end Other;

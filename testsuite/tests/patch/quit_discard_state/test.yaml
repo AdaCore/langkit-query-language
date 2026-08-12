@@ -1,0 +1,5 @@
+driver: patch
+runs:
+  - auto_mode: false
+    input: "y\nq\nn\n"
+  - auto_mode: true

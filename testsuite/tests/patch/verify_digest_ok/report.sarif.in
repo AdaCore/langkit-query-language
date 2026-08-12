@@ -1,0 +1,75 @@
+{
+    "version": "2.1.0",
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "LKQL"
+                }
+            },
+            "originalUriBaseIds": {
+                "URI_BASE_DIR": {
+                    "uri": "file://@TEST_DIR@/",
+                    "description": {
+                        "text": "Project directory if one has been used, working directory otherwise"
+                    }
+                }
+            },
+            "results": [
+                {
+                    "ruleId": "redundant_null_statements",
+                    "message": {
+                        "text": "redundant null statement"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "main.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 4,
+                                    "startColumn": 4
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "main.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 4,
+                                                "startColumn": 1,
+                                                "endLine": 5,
+                                                "endColumn": 1
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "artifacts": [
+                {
+                    "location": {
+                        "uri": "main.adb",
+                        "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "hashes": {
+                        "sha-256": "6eb629128457b13219622ab21c747dfd94761c0c9e2b8e50e2949e8406f1ff73"
+                    }
+                }
+            ]
+        }
+    ]
+}

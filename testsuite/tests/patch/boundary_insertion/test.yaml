@@ -1,0 +1,6 @@
+driver: patch
+runs:
+  # Both files must end up identical, whatever the order of the edits
+  - auto_mode: true
+  # And the state must still reconstruct, so the rerun is a no-op
+  - auto_mode: true

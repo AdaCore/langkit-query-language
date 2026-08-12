@@ -1,0 +1,20 @@
+[1/2] past_end_of_line: insertion past the end of line 3
+  at main.adb:3:10
+-> skipped (position 3:10 is out of the bounds of "main.adb")
+
+[2/2] at_end_of_line: insertion at the end of line 3
+  at main.adb:3:9
+-> applied
+
+Patched 1 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 1 error(s).
+error: Invalid fix at main.adb:3:10: position 3:10 is out of the bounds of "main.adb"
+
+
+Resulting files
+===============
+
+== main.adb ==
+procedure P is
+begin
+   Call;  --  kept
+end P;

@@ -1,0 +1,11 @@
+error: Cannot read the patch state "<working-dir>/report.sarif.applied": Expected a ':' after a key at 44 [character 0 line 2]. It records the fixes already applied from this report: remove it to start over, at the risk of applying some of them twice.
+
+
+Resulting files
+===============
+
+== main.adb ==
+procedure P is
+begin
+   null;
+end P;

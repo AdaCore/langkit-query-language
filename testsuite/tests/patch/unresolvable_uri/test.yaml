@@ -1,0 +1,4 @@
+driver: patch
+# A relative URI is only resolved from a root the report declares: naming an
+# undeclared one, or naming none at all, makes the fix unapplicable. Only the
+# last fix can be applied.

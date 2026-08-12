@@ -1,0 +1,34 @@
+[1/2] boundary_insertion: insertion at the start of a replaced range
+  at a.adb:3:4
+-> applied
+
+[2/2] boundary_insertion: insertion at the start of a replaced range
+  at b.adb:3:4
+-> applied
+
+Patched 2 file(s): 2 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+
+[1/2] boundary_insertion: insertion at the start of a replaced range
+  at a.adb:3:4
+-> already applied
+
+[2/2] boundary_insertion: insertion at the start of a replaced range
+  at b.adb:3:4
+-> already applied
+
+0 fix(es) applied, 2 already applied, 0 skipped, 0 conflict(s), 0 error(s).
+
+Resulting files
+===============
+
+== a.adb ==
+procedure P is
+begin
+   pragma Assert (X); Go (X);
+end P;
+
+== b.adb ==
+procedure P is
+begin
+   pragma Assert (X); Go (X);
+end P;

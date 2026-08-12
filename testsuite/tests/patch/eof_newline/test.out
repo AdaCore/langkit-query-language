@@ -1,0 +1,41 @@
+[1/2] drop_final_separator: remove the final line separator
+  at dropped.adb:4:7
+--- a/dropped.adb
++++ b/dropped.adb
+@@ -2,3 +2,4 @@
+ begin
+    null;
+ end P;
++/ No newline at end of file
+Apply this fix? [y/n/a/A/q/h]
+-> applied
+
+[2/2] add_blank_line: add a blank line at the end of the file
+  at added.adb:5:1
+--- a/added.adb
++++ b/added.adb
+@@ -2,3 +2,4 @@
+ begin
+    null;
+ end P;
++
+Apply this fix? [y/n/a/A/q/h]
+-> applied
+
+Patched 2 file(s): 2 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+
+Resulting files
+===============
+
+== added.adb ==
+procedure P is
+begin
+   null;
+end P;
+
+
+== dropped.adb ==
+procedure P is
+begin
+   null;
+end P;

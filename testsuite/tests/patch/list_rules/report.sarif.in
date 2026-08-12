@@ -1,0 +1,197 @@
+{
+    "version": "2.1.0",
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "LKQL"
+                }
+            },
+            "originalUriBaseIds": {
+                "URI_BASE_DIR": {
+                    "uri": "file://@TEST_DIR@/",
+                    "description": {
+                        "text": "Project directory if one has been used, working directory otherwise"
+                    }
+                }
+            },
+            "artifacts": [
+                {
+                    "location": {
+                        "uri": "main.adb",
+                        "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "hashes": {
+                        "sha-256": "85fcac9ef8f4414fc63392df8f618ea1290e9888742661a437fa14a92538af54"
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "ruleId": "rule_alpha",
+                    "message": {
+                        "text": "violation of rule_alpha"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "main.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 3,
+                                    "startColumn": 4
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "main.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 3,
+                                                "startColumn": 4,
+                                                "endLine": 3,
+                                                "endColumn": 5,
+                                                "snippet": {
+                                                    "text": "A"
+                                                }
+                                            },
+                                            "insertedContent": {
+                                                "text": "X"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ruleId": "rule_beta",
+                    "message": {
+                        "text": "violation of rule_beta"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "main.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 4,
+                                    "startColumn": 4
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "main.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 4,
+                                                "startColumn": 4,
+                                                "endLine": 4,
+                                                "endColumn": 5,
+                                                "snippet": {
+                                                    "text": "B"
+                                                }
+                                            },
+                                            "insertedContent": {
+                                                "text": "X"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ruleId": "rule_alpha",
+                    "message": {
+                        "text": "violation of rule_alpha"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "main.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 5,
+                                    "startColumn": 4
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "main.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 5,
+                                                "startColumn": 4,
+                                                "endLine": 5,
+                                                "endColumn": 5,
+                                                "snippet": {
+                                                    "text": "C"
+                                                }
+                                            },
+                                            "insertedContent": {
+                                                "text": "X"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ruleId": "rule_without_fix",
+                    "message": {
+                        "text": "violation of rule_without_fix"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "main.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 3,
+                                    "startColumn": 4
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

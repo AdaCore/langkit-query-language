@@ -1,0 +1,10 @@
+driver: patch
+runs:
+  # Applies the fix and records it in the state file
+  - auto_mode: true
+  # Reading the source with another charset gives a content the recorded
+  # state cannot be replayed on. What the file holds is then unknown, so
+  # the fix must be refused rather than applied at coordinates which no
+  # longer designate anything, which would apply it a second time.
+  - auto_mode: true
+    args: ["-C", "iso-8859-1"]

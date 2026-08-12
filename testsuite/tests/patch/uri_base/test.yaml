@@ -1,0 +1,5 @@
+driver: patch
+# URIs are resolved from the roots the report declares, including a root
+# expressed relatively to another one. A root is only where paths are
+# shortened from, so a URI leading out of it is resolved as well. An absolute
+# URI needs no root, so it is applied even when it names none.

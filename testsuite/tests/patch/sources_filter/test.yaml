@@ -1,0 +1,4 @@
+driver: patch
+# Only "a.adb" may be patched, although the report also fixes "b.adb"
+source_filters:
+  - a.adb

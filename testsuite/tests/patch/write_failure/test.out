@@ -1,0 +1,27 @@
+[1/1] redundant_null_statements: redundant null statement
+  at a.adb:3:4
+-> applied
+
+All the fixes of this run have been cancelled and no source has been modified: a file could not be written.
+0 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+error: Cannot write "b.adb": permission denied
+
+
+[1/1] redundant_null_statements: redundant null statement
+  at a.adb:3:4
+-> applied
+
+Patched 2 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+
+Resulting files
+===============
+
+== a.adb ==
+procedure A is
+begin
+end A;
+
+== b.adb ==
+procedure B is
+begin
+end B;

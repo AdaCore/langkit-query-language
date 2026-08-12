@@ -1,0 +1,3 @@
+driver: patch
+# Empty entries in the report must be reported and skipped, a fix holding one
+# must be rejected as a whole, and the sane fix must still be applied

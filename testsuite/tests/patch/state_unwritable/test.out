@@ -1,0 +1,17 @@
+[1/1] redundant_null_statements: redundant null statement
+  at main.adb:3:4
+-> applied
+
+All the fixes of this run have been cancelled and no source has been modified: the patch state could not be written.
+0 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+error: Cannot write the patch state "<working-dir>/ro/report.sarif.applied": permission denied
+
+
+Resulting files
+===============
+
+== main.adb ==
+procedure P is
+begin
+   null;
+end P;

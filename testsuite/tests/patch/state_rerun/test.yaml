@@ -1,0 +1,4 @@
+driver: patch
+runs:
+  - auto_mode: true
+  - auto_mode: true

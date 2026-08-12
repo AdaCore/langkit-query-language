@@ -1,0 +1,16 @@
+[1/1] some_rule: fix out of the file bounds
+  at main.adb:100:1
+-> skipped (position 100:1 is out of the bounds of "main.adb")
+
+0 fix(es) applied, 0 skipped, 0 conflict(s), 1 error(s).
+error: Invalid fix at main.adb:100:1: position 100:1 is out of the bounds of "main.adb"
+
+
+Resulting files
+===============
+
+== main.adb ==
+procedure Main is
+begin
+   null;
+end Main;
