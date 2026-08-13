@@ -19,7 +19,6 @@ import picocli.CommandLine.Command;
         LKQLRun.class,
         LKQLPasses.class,
         LKQLChecker.class,
-        LKQLFix.class,
         GNATCheckWorker.class,
         LKQLDocAPI.class,
         LKQLDocRules.class,

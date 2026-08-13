@@ -22,6 +22,8 @@ class CheckerDriver(BaseDriver):
         - ``rule_file`` (str): LKQL rule file to provide to the checker.
         - ``format`` (str): Output format to forward to the LKQL checker.
           Default is "text".
+        - ``auto_fix`` (bool): Whether to enable auto-fix function when running
+          the checker.
     """
 
     perf_supported = True
@@ -41,11 +43,14 @@ class CheckerDriver(BaseDriver):
             "--format",
             self.test_env.get("format", "text").upper(),
             "--rules-dir",
-            self.test_env["test_dir"],
+            self.working_dir(),
         ]
 
         if self.test_env.get("rule_file"):
             args += ["--rule-file", self.test_env["rule_file"]]
+
+        if self.test_env.get("auto_fix"):
+            args += ["--auto-fix-mode", "IN_REPORT"]
 
         # Run the checker
         if self.perf_mode:

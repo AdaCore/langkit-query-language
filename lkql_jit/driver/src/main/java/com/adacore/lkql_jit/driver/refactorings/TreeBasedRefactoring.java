@@ -9,16 +9,11 @@ import static com.adacore.liblkqllang.Liblkqllang.Token.textRange;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
-import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 
 @FunctionalInterface
 public interface TreeBasedRefactoring extends Refactoring {
     @Override
-    default String apply(
-        Liblkqllang.AnalysisUnit unit,
-        DiagnosticCollector diags,
-        SourceLinesCache cache
-    ) {
+    default String apply(Liblkqllang.AnalysisUnit unit, DiagnosticCollector diags) {
         var root = unit.getRoot();
         return (
             textRange(unit.getFirstToken(), root.tokenStart().previous()) +

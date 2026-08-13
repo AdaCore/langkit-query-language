@@ -7,50 +7,62 @@ package com.adacore.lkql_jit.driver.source_support;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.oracle.truffle.api.nodes.Node;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
-/**
- * This interface materialize the abstract concept of "a source section" under a unified interface.
- */
-public abstract class SourceSection {
-
+/** Represents a section in a source. */
+public record SourceSection(
+    Source source,
+    int startLine,
+    int startColumn,
+    int endLine,
+    int endColumn
+) {
     // ----- Constructors -----
 
-    /** Wrap a Langkit token is a SourceSection object. */
-    public static SourceSection wrap(
-        LangkitSupport.TokenInterface token,
-        SourceLinesCache linesCache
-    ) {
-        return wrap(token.getSourceLocationRange(), token.getUnit(), linesCache);
+    /** Create a new source section from a Langkit token. */
+    public static SourceSection from(LangkitSupport.TokenInterface token) {
+        return from(token.getSourceLocationRange(), token.getUnit());
     }
 
-    /** Wrap a Langkit node in a SourceSection object. */
-    public static SourceSection wrap(
-        LangkitSupport.NodeInterface node,
-        SourceLinesCache linesCache
-    ) {
-        return wrap(node.getSourceLocationRange(), node.getUnit(), linesCache);
+    /** Create a new source section from a Langkit node. */
+    public static SourceSection from(LangkitSupport.NodeInterface node) {
+        return from(node.getSourceLocationRange(), node.getUnit());
     }
 
-    /** Wrap a langkit source location with its related analysis unit in a SourceSection object. */
-    public static SourceSection wrap(
+    /** Create a new source section from a Langkit location range and a related analysis unit. */
+    public static SourceSection from(
         LangkitSupport.SourceLocationRange locationRange,
-        LangkitSupport.AnalysisUnit unit,
-        SourceLinesCache linesCache
+        LangkitSupport.AnalysisUnit unit
     ) {
-        return new LangkitSlocRangeWrapper(locationRange, unit, linesCache);
+        return new SourceSection(
+            Source.from(unit),
+            locationRange.start.line,
+            locationRange.start.column,
+            locationRange.end.line,
+            locationRange.end.column
+        );
     }
 
-    /** Wrap a Truffle source section in a SourceSection object. */
-    public static SourceSection wrap(com.oracle.truffle.api.source.SourceSection sourceSection) {
-        return new TruffleSourceSectionWrapper(sourceSection);
+    /** Create a new source section from a Truffle one. */
+    public static SourceSection from(com.oracle.truffle.api.source.SourceSection sourceSection) {
+        return new SourceSection(
+            Source.from(sourceSection.getSource()),
+            sourceSection.getStartLine(),
+            sourceSection.getStartColumn(),
+            sourceSection.getEndLine(),
+            sourceSection.getEndColumn() + 1
+        );
     }
 
-    /** Wrap a Polyglot source section in a SourceSection object. */
-    public static SourceSection wrap(org.graalvm.polyglot.SourceSection sourceSection) {
-        return new PolyglotSourceSectionWrapper(sourceSection);
+    /** Create a new source section from a Polyglot one. */
+    public static SourceSection from(org.graalvm.polyglot.SourceSection sourceSection) {
+        return new SourceSection(
+            Source.from(sourceSection.getSource()),
+            sourceSection.getStartLine(),
+            sourceSection.getStartColumn(),
+            sourceSection.getEndLine(),
+            sourceSection.getEndColumn() + 1
+        );
     }
 
     /**
@@ -58,63 +70,29 @@ public abstract class SourceSection {
      * object. This function may be recursive on node's parents, meaning that if the provided node
      * isn't related to Truffle source section, the function will recurse on its parent.
      */
-    public static SourceSection wrap(Node node) {
+    public static SourceSection from(Node node) {
         if (node.getSourceSection() == null) {
             var parent = node.getParent();
-            return parent == null ? null : wrap(parent);
+            return parent == null ? null : from(parent);
         }
-        return wrap(node.getSourceSection());
+        return from(node.getSourceSection());
     }
 
     // ----- Instance methods -----
-
-    /** Get the name of the source. */
-    public abstract String getSourceName();
-
-    /** Return the path to the file this source section refers to, if applicable. */
-    public abstract Optional<Path> getSourceFile();
-
-    /** Return the 1-indexed start line for this location. */
-    public abstract int startLine();
-
-    /** Return the 1-indexed end line for this location. */
-    public abstract int endLine();
-
-    /** Return the 1-indexed start column for this location. */
-    public abstract int startColumn();
-
-    /** Return the 1-indexed end column for this location. */
-    public abstract int endColumn();
-
-    /**
-     * Return the lines of the source that this location spans, including the text outside the
-     * strict span of this location, column-wise.
-     */
-    public abstract List<String> getLines();
 
     /**
      * Get a string representation of this source section with the format
      * [source-name]:[start-line]:[start-column].
      */
     public String shortImage() {
-        return getSourceName() + ":" + startLine() + ":" + startColumn();
+        return source().getName() + ":" + startLine() + ":" + startColumn();
     }
 
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        return (
-            getSourceName() +
-            '(' +
-            startLine() +
-            ':' +
-            startColumn() +
-            " - " +
-            endLine() +
-            ':' +
-            endColumn() +
-            ')'
-        );
+    /**
+     * Return the lines of the source that this location spans, including the text outside the
+     * strict span of this location, column-wise.
+     */
+    public List<String> getLines() {
+        return source.getLines(startLine - 1, endLine);
     }
 }

@@ -1,0 +1,56 @@
+{
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LKQL",
+        "version" : "lkql <version>",
+        "rules" : [ {
+          "id" : "null_stmts",
+          "name" : "null_stmts",
+          "shortDescription" : {
+            "text" : "null_stmts"
+          },
+          "defaultConfiguration" : { }
+        } ]
+      }
+    },
+    "invocations" : [ {
+      "executionSuccessful" : true
+    } ],
+    "results" : [ {
+      "ruleId" : "null_stmts",
+      "message" : {
+        "text" : "null_stmts"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 2,
+            "startColumn" : 6,
+            "endLine" : 7,
+            "endColumn" : 1
+          }
+        }
+      } ],
+      "fixes" : [ {
+        "artifactChanges" : [ {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "replacements" : [ {
+            "deletedRegion" : {
+              "startLine" : 4,
+              "startColumn" : 1,
+              "endLine" : 6,
+              "endColumn" : 1
+            }
+          } ]
+        } ]
+      } ]
+    } ]
+  } ]
+}

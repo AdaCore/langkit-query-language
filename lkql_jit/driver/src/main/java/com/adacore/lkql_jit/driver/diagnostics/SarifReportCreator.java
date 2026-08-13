@@ -149,6 +149,17 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
             // without location.
             result.setLocations(List.of(location.get()));
 
+            // If there is are auto-fixes, add them to the SARIF report
+            if (!violation.autoFixes.isEmpty()) {
+                var fix = new Fix();
+                var changes = new HashSet<ArtifactChange>();
+                for (var autoFix : violation.autoFixes) {
+                    changes.add(autoFix.toArtifactChange());
+                }
+                fix.setArtifactChanges(changes);
+                result.setFixes(Set.of(fix));
+            }
+
             // Finally, add the result in the report
             results.add(result);
         }
@@ -235,7 +246,8 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
     /** Internal helper to get a SARIF physical location from a diagnostic source section object. */
     private static Optional<PhysicalLocation> toPhysicalLocation(SourceSection location) {
         return location
-            .getSourceFile()
+            .source()
+            .getFile()
             .map(f -> {
                 var physicalLoc = new PhysicalLocation();
                 var artifactLoc = new ArtifactLocation();

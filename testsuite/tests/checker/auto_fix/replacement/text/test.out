@@ -1,0 +1,19 @@
+main.adb:2:6: rule violation: goto_stmts
+2 |  begin
+  | ______^
+  ||
+  || ~~~ 3 other lines ~~~
+  ||
+6 || end Main;
+  ||_^
+fix proposal:
+  in main.adb:
+  1  procedure Main is
+  2  begin
+  3 -   goto lbl;
+  4 -   goto lbl;
+    +   null;
+    +   null;
+  5     <<lbl>>
+  6  end Main;
+

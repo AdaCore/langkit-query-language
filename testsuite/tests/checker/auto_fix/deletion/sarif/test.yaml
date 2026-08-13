@@ -1,0 +1,10 @@
+driver: checker
+format: sarif
+sources:
+  - main.adb
+rules:
+  - null_stmts
+auto_fix: True
+
+sync_trees:
+  - ../common

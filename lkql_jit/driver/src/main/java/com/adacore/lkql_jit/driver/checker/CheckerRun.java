@@ -7,16 +7,15 @@ package com.adacore.lkql_jit.driver.checker;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.driver.diagnostics.AutoFix;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.Hint;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.RuleViolation;
-import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
+import com.adacore.lkql_jit.driver.source_support.Source;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import com.github.difflib.DiffUtils;
 import java.util.*;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
@@ -31,9 +30,6 @@ public final class CheckerRun {
 
     /** Whether debug information should be displayed. */
     private final boolean debugMode;
-
-    /** Object to cache source lines of analyzed Ada source and avoid multiple decoding. */
-    private final SourceLinesCache linesCache;
 
     /** Rule instances to run during the checking process. */
     private final List<RuleInstance> ruleInstances;
@@ -57,7 +53,6 @@ public final class CheckerRun {
 
     public CheckerRun(
         boolean debugMode,
-        SourceLinesCache linesCache,
         List<RuleInstance> ruleInstances,
         Context executionContext,
         LangkitSupport.AnalysisContextInterface analysisContext,
@@ -65,7 +60,6 @@ public final class CheckerRun {
         AutoFixMode autoFixMode
     ) {
         this.debugMode = debugMode;
-        this.linesCache = linesCache;
         this.ruleInstances = ruleInstances;
         this.executionContext = executionContext;
         this.analysisContext = analysisContext;
@@ -115,71 +109,9 @@ public final class CheckerRun {
         });
 
         // Then for each unit to analyze visit their tree by applying all instances to each node
-        for (var unit : units) {
-            visitTree(generalInstances, adaInstances, sparkInstances, unit.getRoot(), diagnostics);
-
-            // If the unit has some modifications, then apply them as requested.
-            var rewritingContext = analysisContext.getRewritingContext();
-            if (rewritingContext != null) {
-                // Apply the current rewriting context
-                var applyRes = rewritingContext.apply();
-
-                // If there is an error in the rewriting application report them in diagnostics
-                if (!applyRes.success) {
-                    rewritingContext.close();
-                    diagnostics.add(
-                        new Error(
-                            "Error(s) while applying a rewriting context: " +
-                                Arrays.toString(applyRes.getDiagnostics())
-                        )
-                    );
-                }
-                // Otherwise, process the rewrote unit as required
-                else {
-                    var patchedSource = unit.getText();
-                    var basePatchedFileName = unit.getFileName(false);
-                    var fullPatchedFileName = unit.getFileName(true);
-                    try {
-                        switch (autoFixMode) {
-                            case DISPLAY -> {
-                                // If the required action is the display, just print the patched
-                                // unit.
-                                var header = "Patched \"" + basePatchedFileName + "\":\n";
-                                header = header + "=".repeat(header.length() - 1) + "\n";
-                                System.out.println(header);
-                                System.out.println(patchedSource);
-                            }
-                            case NEW_FILE -> {
-                                // If the required action is creating a new file, then write in a
-                                // file named <original_file_name>.patched the patched unit.
-                                var newFile = Paths.get(fullPatchedFileName + ".patched");
-                                Files.deleteIfExists(newFile);
-                                Files.createFile(newFile);
-                                Files.writeString(newFile, patchedSource);
-                                System.out.println(
-                                    "File \"" +
-                                        basePatchedFileName +
-                                        "\" has been patched (result in \"" +
-                                        basePatchedFileName +
-                                        ".patched\")"
-                                );
-                            }
-                            case PATCH_FILE -> {
-                                // If the required action is to patch the existing file, just
-                                // replace the content of the original file with the patched unit.
-                                var originalFile = Paths.get(fullPatchedFileName);
-                                Files.writeString(originalFile, patchedSource);
-                                System.out.println(
-                                    "File \"" + basePatchedFileName + "\" has been patched"
-                                );
-                            }
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }
+        units.forEach(u ->
+            visitTree(generalInstances, adaInstances, sparkInstances, u.getRoot(), diagnostics)
+        );
     }
 
     /**
@@ -285,7 +217,7 @@ public final class CheckerRun {
                         diagnostics.add(
                             new Error(
                                 "The result of a node checking function must be a boolean",
-                                SourceSection.wrap(
+                                SourceSection.from(
                                     instance.instantiatedRule
                                         .checker()
                                         .getDeclarationLocation()
@@ -294,39 +226,62 @@ public final class CheckerRun {
                             )
                         );
                     } else if (checkRes.asBoolean()) {
-                        if (autoFixMode == AutoFixMode.NONE) {
-                            var locationNode = switch (step.node) {
-                                case Libadalang.BasicDecl decl -> {
-                                    var defName = decl.pDefiningName();
-                                    yield defName.isNone() ? step.node : defName;
+                        // Create the base diagnostic
+                        var ruleViolation = new RuleViolation(
+                            instance,
+                            SourceSection.from(
+                                switch (step.node) {
+                                    case Libadalang.BasicDecl decl -> {
+                                        var defName = decl.pDefiningName();
+                                        yield defName.isNone() ? step.node : defName;
+                                    }
+                                    default -> step.node;
                                 }
-                                default -> step.node;
-                            };
-                            diagnostics.add(
-                                new RuleViolation(
-                                    instance,
-                                    SourceSection.wrap(locationNode, linesCache)
-                                )
-                            );
-                        } else if (instance.instantiatedRule.autoFix().isPresent()) {
-                            var autoFix = instance.instantiatedRule.autoFix().get();
+                            )
+                        );
 
-                            // Create arguments to call the auto-fix function
-                            var closureOffset = autoFix.takesClosure() ? 1 : 0;
-                            var autoFixArguments = instance.autoFixArguments;
-                            autoFixArguments[closureOffset] = step.node;
-                            autoFixArguments[1 + closureOffset] = getRewritingContext();
+                        // If required, call the auto fixing function
+                        if (
+                            autoFixMode != AutoFixMode.DISABLED &&
+                            instance.instantiatedRule.autoFix().isPresent()
+                        ) {
+                            try (var rewritingContext = getRewritingContext()) {
+                                var autoFix = instance.instantiatedRule.autoFix().get();
 
-                            // Then call the auto-fix function
-                            executionContext.asValue(autoFix).execute(autoFixArguments);
+                                // Create arguments to call the auto-fix function
+                                var closureOffset = autoFix.takesClosure() ? 1 : 0;
+                                var autoFixArguments = instance.autoFixArguments;
+                                autoFixArguments[closureOffset] = step.node;
+                                autoFixArguments[1 + closureOffset] = rewritingContext;
+
+                                // Then, call the auto-fix function
+                                executionContext.asValue(autoFix).execute(autoFixArguments);
+
+                                // Add all auto-fix object to the rule violation object
+                                for (var rewritingUnit : rewritingContext.rewritingUnits()) {
+                                    var targetSource = Source.from(rewritingUnit.getAnalysisUnit());
+                                    var patch = DiffUtils.diff(
+                                        targetSource.getLines(),
+                                        Source.splitLines(
+                                            rewritingUnit.unparseWithPartialFormatting()
+                                        )
+                                    );
+                                    if (!patch.getDeltas().isEmpty()) {
+                                        ruleViolation.addAutoFix(new AutoFix(targetSource, patch));
+                                    }
+                                }
+                            }
                         }
+
+                        // Add the rule violation to diagnostics
+                        diagnostics.add(ruleViolation);
                     }
                 } catch (PolyglotException e) {
                     diagnostics.handleException(
                         e,
                         new Hint(
                             "Error occurred when analyzing " + step.node.toString(),
-                            SourceSection.wrap(step.node, linesCache)
+                            SourceSection.from(step.node)
                         )
                     );
                 }
@@ -379,8 +334,8 @@ public final class CheckerRun {
                     var resObj = iterator.getIteratorNextElement().as(LKQLDynamicObject.class);
                     var message = (String) resObj.getUncached("message");
                     var location = switch (resObj.getUncached("loc")) {
-                        case LangkitSupport.NodeInterface ni -> SourceSection.wrap(ni, linesCache);
-                        case LangkitSupport.TokenInterface ti -> SourceSection.wrap(ti, linesCache);
+                        case LangkitSupport.NodeInterface ni -> SourceSection.from(ni);
+                        case LangkitSupport.TokenInterface ti -> SourceSection.from(ti);
                         default -> null;
                     };
 
@@ -391,7 +346,7 @@ public final class CheckerRun {
                         diagnostics.add(
                             new Error(
                                 "Checker result is not locatable",
-                                SourceSection.wrap(
+                                SourceSection.from(
                                     instance.instantiatedRule
                                         .checker()
                                         .getDeclarationLocation()
@@ -405,7 +360,7 @@ public final class CheckerRun {
                 diagnostics.add(
                     new Error(
                         "Checker result is not iterable",
-                        SourceSection.wrap(
+                        SourceSection.from(
                             instance.instantiatedRule.checker().getDeclarationLocation().get()
                         )
                     )
@@ -416,7 +371,7 @@ public final class CheckerRun {
                 e,
                 new Hint(
                     "Error occurred when analyzing " + unit.getFileName(false),
-                    SourceSection.wrap(unit.getRoot(), linesCache)
+                    SourceSection.from(unit.getRoot())
                 )
             );
         }
@@ -433,16 +388,10 @@ public final class CheckerRun {
     /** Represents the way to apply auto-fix functions when one is available. */
     public enum AutoFixMode {
         /** Do not run auto-fix functions at all. */
-        NONE,
+        DISABLED,
 
         /** Include auto-fix result in the generated report. */
-        DISPLAY,
-
-        /** Create a new Ada file containing the patched sources. */
-        NEW_FILE,
-
-        /** Apply auto-fix result directly on Ada sources. */
-        PATCH_FILE,
+        IN_REPORT,
     }
 
     /** Represents a step in the visit of a Libadalang parsing tree in the checking context. */

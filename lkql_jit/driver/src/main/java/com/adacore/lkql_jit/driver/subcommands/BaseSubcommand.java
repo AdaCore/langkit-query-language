@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.driver.subcommands;
 
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticLogHandler;
-import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import java.nio.file.Path;
 import java.util.*;
@@ -28,16 +27,12 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
     /** Handle log from the Truffle engine. */
     protected final DiagnosticLogHandler logHandler;
 
-    /** Object used to cache sources lines from files when fetching their content. */
-    protected final SourceLinesCache linesCache;
-
     // ----- Constructors -----
 
     protected BaseSubcommand() {
         this.supportAnsi = System.getenv("TERM") != null && System.console() != null;
         this.diagnostics = new DiagnosticCollector();
-        this.linesCache = new SourceLinesCache();
-        this.logHandler = new DiagnosticLogHandler(diagnostics, linesCache);
+        this.logHandler = new DiagnosticLogHandler(diagnostics);
     }
 
     // ----- Inner classes -----
@@ -155,7 +150,7 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
 
         @CommandLine.Option(
             names = { "--src-subdirs" },
-            description = "prepend <obj>/directory to the list of source dirs for each project",
+            description = "Prepend <obj>/directory to the list of source dirs for each project",
             paramLabel = "<directory>"
         )
         public Path srcSubdirs;

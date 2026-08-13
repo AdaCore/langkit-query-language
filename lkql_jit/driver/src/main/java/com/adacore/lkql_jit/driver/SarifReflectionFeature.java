@@ -29,6 +29,8 @@ public class SarifReflectionFeature implements Feature {
             ReportingDescriptorRelationship.class,
             ReportingDescriptorReference.class,
             Result.class,
+            Fix.class,
+            Replacement.class,
             Notification.class,
             Notification.Level.class,
             Exception.class,
@@ -40,6 +42,8 @@ public class SarifReflectionFeature implements Feature {
             PhysicalLocation.class,
             LogicalLocation.class,
             ArtifactLocation.class,
+            ArtifactChange.class,
+            ArtifactContent.class,
             Region.class,
             PropertyBag.class
         );

@@ -50,6 +50,6 @@ public final class RuleViolation extends BaseDiagnostic {
      * violated instance.
      */
     public RuleViolation(RuleInstance violatedInstance, SourceSection location) {
-        this(violatedInstance.instantiatedRule.message(), violatedInstance, location);
+        this(violatedInstance.instantiatedRule.message(), violatedInstance, location, List.of());
     }
 }

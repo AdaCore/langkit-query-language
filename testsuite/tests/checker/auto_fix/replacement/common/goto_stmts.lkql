@@ -1,0 +1,7 @@
+@check(
+    auto_fix=(node, ctx) => [
+        ctx.replace(n, new NullStmt())
+        for n in from node select GotoStmt
+    ].to_list
+)
+fun goto_stmts(node) = node is HandledStmts(any children: GotoStmt)

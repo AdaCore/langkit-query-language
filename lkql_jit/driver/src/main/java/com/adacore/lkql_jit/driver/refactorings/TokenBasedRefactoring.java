@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.driver.refactorings;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
-import com.adacore.lkql_jit.driver.source_support.SourceLinesCache;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +14,7 @@ import java.util.List;
 @FunctionalInterface
 public interface TokenBasedRefactoring extends Refactoring {
     @Override
-    default String apply(
-        Liblkqllang.AnalysisUnit unit,
-        DiagnosticCollector diags,
-        SourceLinesCache cache
-    ) {
+    default String apply(Liblkqllang.AnalysisUnit unit, DiagnosticCollector diags) {
         var state = new State(unit);
         apply(state);
         return state.getRewroteUnit();

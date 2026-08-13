@@ -20,7 +20,7 @@
         "locations" : [ {
           "physicalLocation" : {
             "artifactLocation" : {
-              "uri" : "file://<test-dir>/custom.lkql"
+              "uri" : "<working-dir>/custom.lkql"
             },
             "region" : {
               "startLine" : 1,
@@ -42,7 +42,7 @@
               "location" : {
                 "physicalLocation" : {
                   "artifactLocation" : {
-                    "uri" : "file://<test-dir>/custom.lkql"
+                    "uri" : "<working-dir>/custom.lkql"
                   },
                   "region" : {
                     "startLine" : 3,
@@ -60,7 +60,7 @@
               "location" : {
                 "physicalLocation" : {
                   "artifactLocation" : {
-                    "uri" : "file://<test-dir>/custom.lkql"
+                    "uri" : "<working-dir>/custom.lkql"
                   },
                   "region" : {
                     "startLine" : 6,
