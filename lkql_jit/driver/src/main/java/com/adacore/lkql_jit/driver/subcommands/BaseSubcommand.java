@@ -56,9 +56,6 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
      */
     public static class EngineArgs {
 
-        @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-        public boolean verbose;
-
         @CommandLine.Option(
             names = { "-C", "--charset" },
             description = "Charset to use for the source decoding"
@@ -72,7 +69,7 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
         public Boolean missingFileIsError = false;
 
         public void fillEngineOptions(LKQLOptions.Builder optionsBuilder) {
-            optionsBuilder.verbose(verbose).charset(charset).missingFileIsError(missingFileIsError);
+            optionsBuilder.charset(charset).missingFileIsError(missingFileIsError);
         }
     }
 

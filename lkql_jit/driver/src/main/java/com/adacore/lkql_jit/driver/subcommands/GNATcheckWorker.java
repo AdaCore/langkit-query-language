@@ -42,6 +42,9 @@ public class GNATcheckWorker extends BaseSubcommand {
     @CommandLine.Mixin
     GPRArgs gprArgs;
 
+    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
+    public boolean verbose;
+
     @CommandLine.Option(names = "-d", description = "Enable the debug mode")
     public boolean debug;
 
@@ -146,10 +149,7 @@ public class GNATcheckWorker extends BaseSubcommand {
         // If a LKQL rule config file has been provided, parse it and display the result
         if (lkqlConfigToProcess != null) {
             try {
-                final var instances = parseLKQLRuleFile(
-                    lkqlConfigToProcess.toString(),
-                    engineArgs.verbose
-                );
+                final var instances = parseLKQLRuleFile(lkqlConfigToProcess.toString(), verbose);
                 final var jsonInstances = new JSONObject(
                     instances
                         .entrySet()
@@ -199,7 +199,7 @@ public class GNATcheckWorker extends BaseSubcommand {
         // Parse the rule instances provided by the GNATcheck driver
         final Map<String, RuleInstance> instances = new HashMap<>();
         try {
-            instances.putAll(parseLKQLRuleFile(rulesFrom.toString(), engineArgs.verbose));
+            instances.putAll(parseLKQLRuleFile(rulesFrom.toString(), verbose));
         } catch (LKQLRuleFileError e) {
             System.out.println(e.getMessage());
             return 0;

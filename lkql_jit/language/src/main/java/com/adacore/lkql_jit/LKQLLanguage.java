@@ -223,16 +223,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             }
         }
 
-        // Print the Truffle AST if the JIT is in debug mode
-        if (getContext(result).isVerbose()) {
-            System.out.println(
-                "=== Truffle AST <" +
-                    result.getSourceSection().getSource().getPath() +
-                    "> :\n" +
-                    result
-            );
-        }
-
         // Return the call target
         return new TopLevelRootNode(request.getSource().isInternal(), result, this).getCallTarget();
     }

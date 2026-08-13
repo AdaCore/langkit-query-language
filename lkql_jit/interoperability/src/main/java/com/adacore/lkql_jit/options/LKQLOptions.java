@@ -16,8 +16,6 @@ import org.json.JSONObject;
  * If you want to create an instance of this class, please use the {@link Builder} builder class.
  *
  * @param engineMode In which mode the engine should run.
- * @param verbose Whether the engine should display additional information about the execution
- *                process.
  * @param checkerDebug Whether the debug mode should be enabled for the checker process.
  * @param diagnosticOutputMode The format diagnostics should be output in.
  * @param charset Charset to use to decode sources.
@@ -52,7 +50,6 @@ import org.json.JSONObject;
 public record LKQLOptions(
     // LKQL specific options
     EngineMode engineMode,
-    boolean verbose,
     boolean checkerDebug,
     DiagnosticOutputMode diagnosticOutputMode,
     Optional<String> charset,
@@ -168,7 +165,6 @@ public record LKQLOptions(
         return new LKQLOptions(
             // LKQL specific options
             EngineMode.valueOf(jsonLKQLOptions.getString("engineMode")),
-            jsonLKQLOptions.getBoolean("verbose"),
             jsonLKQLOptions.getBoolean("checkerDebug"),
             DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")),
             Optional.ofNullable(jsonLKQLOptions.optString("charset", null)),
@@ -250,7 +246,6 @@ public record LKQLOptions(
 
         return new JSONObject()
             .put("engineMode", engineMode.toString())
-            .put("verbose", verbose)
             .put("checkerDebug", checkerDebug)
             .put("diagnosticOutputMode", diagnosticOutputMode.toString())
             .put("charset", charset.orElse(null))
@@ -312,7 +307,6 @@ public record LKQLOptions(
 
         // LKQL specific options
         private EngineMode engineMode = EngineMode.INTERPRETER;
-        private boolean verbose = false;
         private boolean checkerDebug = false;
         private DiagnosticOutputMode diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
         private Optional<String> charset = Optional.empty();
@@ -351,11 +345,6 @@ public record LKQLOptions(
 
         public Builder engineMode(EngineMode em) {
             engineMode = em;
-            return this;
-        }
-
-        public Builder verbose(boolean v) {
-            verbose = v;
             return this;
         }
 
@@ -516,7 +505,6 @@ public record LKQLOptions(
         public LKQLOptions build() {
             return new LKQLOptions(
                 engineMode,
-                verbose,
                 checkerDebug,
                 diagnosticOutputMode,
                 charset,

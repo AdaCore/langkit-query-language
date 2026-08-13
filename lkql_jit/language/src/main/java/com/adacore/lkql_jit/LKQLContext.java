@@ -297,15 +297,6 @@ public final class LKQLContext {
         return this.getOptions().engineMode();
     }
 
-    /**
-     * Get if the language execution is in verbose mode.
-     *
-     * @return True if the verbose flag is on.
-     */
-    public boolean isVerbose() {
-        return this.getOptions().verbose();
-    }
-
     /** Return true if the engine should keep running when a required file is not found. */
     public boolean missingFileIsError() {
         return this.getOptions().missingFileIsError();
