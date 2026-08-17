@@ -157,6 +157,9 @@ public final class Import extends Expr {
                 .map(File::new)
                 .toList()
         );
+        searchDirs.addAll(
+            LKQLLanguage.getContext(this).getAdditionalLkqlPaths().stream().map(File::new).toList()
+        );
 
         // Search in the importable directories
         SortedSet<File> matchingFiles = new TreeSet<>();

@@ -358,6 +358,10 @@ public final class LKQLContext {
         return this.getOptions().ignores().toArray(new String[0]);
     }
 
+    public List<String> getAdditionalLkqlPaths() {
+        return this.getOptions().additionalLkqlPaths();
+    }
+
     /** Invalidate the option caches. */
     private void invalidateOptionCaches() {
         this.options = null;

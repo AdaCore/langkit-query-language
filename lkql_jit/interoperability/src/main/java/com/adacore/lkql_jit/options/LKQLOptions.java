@@ -23,6 +23,8 @@ import org.json.JSONObject;
  * @param ignores Explicit list of files to exclude from the analysis.
  * @param rulesDirs Directories to fetch LKQL rules from.
  * @param ruleInstances All rule instances to execute during the checking process.
+ * @param additionalLkqlPaths List of paths to add to the searching directories when LKQL is
+ *                            importing a module.
  * @param fallbackToAllRules If no instance have been provided, whether to execute all known rules.
  * @param missingFileIsError If a file is missing from the analysis, whether to consider this event
  *                           as an error.
@@ -57,6 +59,7 @@ public record LKQLOptions(
     List<String> ignores,
     List<String> rulesDirs,
     Map<String, RuleInstance> ruleInstances,
+    List<String> additionalLkqlPaths,
     boolean fallbackToAllRules,
     boolean missingFileIsError,
     boolean showInstantiationChain,
@@ -187,6 +190,12 @@ public record LKQLOptions(
                 .map(e -> (String) e)
                 .toList(),
             ruleInstances,
+            jsonLKQLOptions
+                .getJSONArray("additionalLkqlPaths")
+                .toList()
+                .stream()
+                .map(e -> (String) e)
+                .toList(),
             jsonLKQLOptions.getBoolean("fallbackToAllRules"),
             jsonLKQLOptions.getBoolean("missingFileIsError"),
             jsonLKQLOptions.getBoolean("showInstantiationChain"),
@@ -253,6 +262,7 @@ public record LKQLOptions(
             .put("ignores", new JSONArray(ignores))
             .put("rulesDirs", new JSONArray(rulesDirs))
             .put("ruleInstances", ruleInstancesJson)
+            .put("additionalLkqlPaths", new JSONArray(additionalLkqlPaths))
             .put("fallbackToAllRules", fallbackToAllRules)
             .put("missingFileIsError", missingFileIsError)
             .put("showInstantiationChain", showInstantiationChain)
@@ -314,6 +324,7 @@ public record LKQLOptions(
         private List<String> ignores = new ArrayList<>();
         private List<String> rulesDirs = new ArrayList<>();
         private Map<String, RuleInstance> ruleInstances = new HashMap<>();
+        private List<String> additionalLkqlPaths = new ArrayList<>();
         private boolean fallbackToAllRules = false;
         private boolean missingFileIsError = false;
         private boolean showInstantiationChain = false;
@@ -385,6 +396,11 @@ public record LKQLOptions(
 
         public Builder ruleInstances(Map<String, RuleInstance> ri) {
             ruleInstances = ri;
+            return this;
+        }
+
+        public Builder additionalLkqlPaths(List<String> p) {
+            additionalLkqlPaths = p;
             return this;
         }
 
@@ -512,6 +528,7 @@ public record LKQLOptions(
                 ignores,
                 rulesDirs,
                 ruleInstances,
+                additionalLkqlPaths,
                 fallbackToAllRules,
                 missingFileIsError,
                 showInstantiationChain,
