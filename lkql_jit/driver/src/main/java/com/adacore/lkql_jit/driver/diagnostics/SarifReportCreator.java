@@ -277,12 +277,16 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
         Map<String, String> instanceArgs = new LinkedHashMap<>();
         for (int i = 1; i < rule.checker().parameterNames.length; i++) {
             var name = rule.checker().parameterNames[i];
-            var value = Optional.ofNullable(instance.arguments.get(name))
+            var defaultValue = rule.checker().parameterDefaultValues[i];
+
+            Optional.ofNullable(instance.arguments.get(name))
                 .map(SarifReportCreator::toLiteral)
-                .orElse(
-                    rule.checker().parameterDefaultValues[i].getSourceSection().getCharacters()
-                );
-            instanceArgs.put(name, value.toString());
+                .or(() ->
+                    defaultValue == null
+                        ? Optional.empty()
+                        : Optional.of(defaultValue.getSourceSection().getCharacters())
+                )
+                .ifPresent(v -> instanceArgs.put(name, v.toString()));
         }
         if (!instanceArgs.isEmpty()) {
             parameters.setAdditionalProperty("args", instanceArgs);
