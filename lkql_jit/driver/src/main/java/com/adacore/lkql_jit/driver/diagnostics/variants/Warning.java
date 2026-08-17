@@ -13,13 +13,18 @@ public final class Warning extends BaseDiagnostic {
 
     // ----- Constructors -----
 
+    /** Create a new warning diagnostic with an optional related location. */
+    public Warning(String message, Optional<SourceSection> location) {
+        super(message, location);
+    }
+
     /** Create a new warning diagnostic with a related location. */
     public Warning(String message, SourceSection location) {
-        super(message, Optional.ofNullable(location));
+        this(message, Optional.ofNullable(location));
     }
 
     /** Create a new warning diagnostic without location. */
     public Warning(String message) {
-        this(message, null);
+        this(message, Optional.empty());
     }
 }
