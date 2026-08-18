@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.utils.functions;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.source.Source;
 import java.io.File;
 
 /**
@@ -24,5 +25,11 @@ public final class FileUtils {
     @CompilerDirectives.TruffleBoundary
     public static String baseName(String filePath) {
         return new File(filePath).getName();
+    }
+
+    /** Get the full path of a source if possible, otherwise get its name. */
+    public static String sourcePathOrName(Source source) {
+        var sourcePath = source.getPath();
+        return sourcePath != null ? sourcePath : source.getName();
     }
 }

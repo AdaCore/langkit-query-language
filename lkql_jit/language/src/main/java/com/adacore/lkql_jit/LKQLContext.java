@@ -23,7 +23,6 @@ import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLogger;
-import com.oracle.truffle.api.source.Source;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.*;
@@ -54,7 +53,7 @@ public final class LKQLContext {
     public final CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
 
     /** The stack representing the current LKQL source chain. */
-    public final Stack<Source> fromStack = new Stack<>();
+    public final Stack<String> fromStack = new Stack<>();
 
     // ----- Ada project attributes -----
 
@@ -261,6 +260,11 @@ public final class LKQLContext {
         return typingContext;
     }
 
+    @CompilerDirectives.TruffleBoundary
+    public boolean isSourceInStack(String sourceName) {
+        return fromStack.contains(sourceName);
+    }
+
     // ----- Setters -----
 
     public void patchContext(TruffleLanguage.Env newEnv) {
@@ -272,6 +276,16 @@ public final class LKQLContext {
 
     public void setTypingContext(Hierarchy typingContext) {
         this.typingContext = typingContext;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public void pushSourceToStack(String sourceName) {
+        fromStack.push(sourceName);
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public void popSourceFromStack() {
+        fromStack.pop();
     }
 
     // ----- Options getting methods -----

@@ -195,7 +195,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         final var truffleTree = lowerLkt(source, (Liblktlang.LangkitRoot) unit.getRoot(), errors);
         if (!errors.diagnostics.isEmpty()) throw errors;
 
-        final var namespace = (LKQLNamespace) new TopLevelRootNode(true, truffleTree, this)
+        final var namespace = (LKQLNamespace) new TopLevelRootNode(truffleTree, this)
             .getCallTarget()
             .call();
         getContext(truffleTree).getGlobal().loadPreludeNamespace(namespace);
@@ -211,20 +211,16 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Translate the LKQL AST from Langkit to a Truffle AST
         final var result = translateSource(request.getSource());
 
-        // If the current parsing request is the root request
-        if (!request.getSource().isInternal()) {
-            // Initialize the context source chain with the current source.
-            getContext(result).fromStack.add(request.getSource());
-
+        if (
+            !request.getSource().isInternal() &&
+            getContext(null).getEngineMode() == LKQLOptions.EngineMode.CHECKER
+        ) {
             // And add rule imports to the TopLevelList if we're in a mode that requires it
-            var engineMode = getContext(null).getEngineMode();
-            if (engineMode == LKQLOptions.EngineMode.CHECKER) {
-                result.addRuleImports();
-            }
+            result.addRuleImports();
         }
 
         // Return the call target
-        return new TopLevelRootNode(request.getSource().isInternal(), result, this).getCallTarget();
+        return new TopLevelRootNode(result, this).getCallTarget();
     }
 
     /**

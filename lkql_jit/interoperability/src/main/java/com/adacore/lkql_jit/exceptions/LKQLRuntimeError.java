@@ -8,9 +8,10 @@ package com.adacore.lkql_jit.exceptions;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.source.Source;
+import java.io.File;
 import java.io.Serial;
 import java.util.Stack;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -87,15 +88,16 @@ public final class LKQLRuntimeError extends AbstractTruffleException {
     /** Create a new exception when there is a circular dependency. */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeError circularDependency(
-        Stack<Source> importStack,
-        Source responsible,
+        Stack<String> importStack,
+        String responsible,
         Node location
     ) {
+        Function<String, String> basename = s -> new File(s).getName();
         return LKQLRuntimeError.create(
             "Circular dependency in LKQL modules (" +
-                importStack.stream().map(Source::getName).collect(Collectors.joining(" -> ")) +
+                importStack.stream().map(basename).collect(Collectors.joining(" -> ")) +
                 " -> " +
-                responsible.getName() +
+                basename.apply(responsible) +
                 ")",
             location
         );
