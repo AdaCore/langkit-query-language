@@ -12,6 +12,7 @@ import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 public final class QueryComprehensionRootNode extends BaseRootNode {
 
@@ -33,13 +34,14 @@ public final class QueryComprehensionRootNode extends BaseRootNode {
     // ----- Constructors -----
 
     public QueryComprehensionRootNode(
+        SourceSection location,
         TruffleLanguage<?> language,
         FrameDescriptor frameDescriptor,
         Pattern pattern,
         Expr guard,
         Expr result
     ) {
-        super(language, frameDescriptor);
+        super(location, language, frameDescriptor);
         this.pattern = pattern;
         this.guard = guard;
         this.result = result;

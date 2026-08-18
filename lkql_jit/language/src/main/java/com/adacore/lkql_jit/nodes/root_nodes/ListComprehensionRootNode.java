@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This root node represents a list comprehension execution (expression and predicate) in the LKQL
@@ -44,12 +45,13 @@ public final class ListComprehensionRootNode extends BaseRootNode {
      * @param result The result expression of the list comprehension.
      */
     public ListComprehensionRootNode(
+        SourceSection location,
         TruffleLanguage<?> language,
         FrameDescriptor frameDescriptor,
         Expr predicate,
         Expr result
     ) {
-        super(language, frameDescriptor);
+        super(location, language, frameDescriptor);
         this.predicate = predicate;
         this.result = result;
         this.toBoolean = LKQLToBooleanNodeGen.create();

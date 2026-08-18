@@ -22,7 +22,7 @@ public final class LazyCell extends BaseRootNode {
     // ----- Constructors -----
 
     public LazyCell(TruffleLanguage<?> language, FrameDescriptor frameDescriptor, Expr value) {
-        super(language, frameDescriptor);
+        super(value.getSourceSection(), language, frameDescriptor);
         this.value = value;
     }
 

@@ -40,7 +40,7 @@ public final class TopLevelRootNode extends BaseRootNode {
         final TopLevelList program,
         final LKQLLanguage language
     ) {
-        super(language, program.getFrameDescriptor());
+        super(program.getSourceSection(), language, program.getFrameDescriptor());
         this.fromImport = fromImport;
         this.program = program;
     }

@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.nodes.root_nodes;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.HashMap;
 
 /**
@@ -36,10 +37,11 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
      * @param frameDescriptor The descriptor of the frame for the root node execution.
      */
     protected MemoizedRootNode(
+        SourceSection location,
         final TruffleLanguage<?> language,
         final FrameDescriptor frameDescriptor
     ) {
-        super(language, frameDescriptor);
+        super(location, language, frameDescriptor);
         this.memoizationCache = new HashMap<>();
     }
 
