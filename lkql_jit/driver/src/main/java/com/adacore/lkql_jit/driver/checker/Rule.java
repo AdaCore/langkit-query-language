@@ -43,6 +43,15 @@ public record Rule(
     boolean parametricExemption,
     String target
 ) {
+    // ----- Instance methods -----
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Rule other)) return false;
+        return checker == other.checker;
+    }
+
     // ----- Inner enums -----
 
     /** Kind of a rule, which input it should be called with. */

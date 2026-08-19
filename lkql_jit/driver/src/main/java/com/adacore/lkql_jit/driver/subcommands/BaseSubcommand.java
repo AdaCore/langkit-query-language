@@ -5,10 +5,13 @@
 
 package com.adacore.lkql_jit.driver.subcommands;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticLogHandler;
 import com.adacore.lkql_jit.options.LKQLOptions;
+import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
 import org.graalvm.launcher.AbstractLanguageLauncher;
@@ -33,6 +36,16 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
         this.supportAnsi = System.getenv("TERM") != null && System.console() != null;
         this.diagnostics = new DiagnosticCollector();
         this.logHandler = new DiagnosticLogHandler(diagnostics);
+    }
+
+    // ----- Instance methods -----
+
+    /** Get the list of directories composing the `LKQL_PATH` environment variable. */
+    protected List<Path> lkqlPaths() {
+        final var lkqlPath = System.getenv(Constants.LKQL_PATH);
+        return lkqlPath == null
+            ? List.of()
+            : Arrays.stream(lkqlPath.split(File.pathSeparator)).map(Paths::get).toList();
     }
 
     // ----- Inner classes -----
