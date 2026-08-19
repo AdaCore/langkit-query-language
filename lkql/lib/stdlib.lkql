@@ -710,6 +710,20 @@ fun default_bit_order() =
     ).f_default_expr
 }
 
+@memoized
+fun storage_unit() =
+    |" Return the value of ``System.Storage_Unit``, 8 if not found.
+{
+    val system = get_unit("system", "unit_specification");
+    val decl = if system == null
+               then null
+               else from system.root
+                    select first n@NumberDecl
+                    when n.p_canonical_fully_qualified_name() ==
+                         "system.storage_unit";
+    if decl == null then 8 else decl.f_expr.p_eval_as_int()
+}
+
 fun has_non_default_sso(decl) =
     |" Return true if ``decl`` has a ``Scalar_Storage_Order`` aspect whose
     |" value cannot be determined to be equal to
