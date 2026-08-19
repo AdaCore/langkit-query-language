@@ -362,6 +362,11 @@ public final class LKQLContext {
         return this.getOptions().additionalLkqlPaths();
     }
 
+    /** Get whether project diagnostics should be hidden. */
+    public boolean hideProjectDiagnostics() {
+        return this.getOptions().hideProjectDiagnostics();
+    }
+
     /** Invalidate the option caches. */
     private void invalidateOptionCaches() {
         this.options = null;
@@ -503,7 +508,11 @@ public final class LKQLContext {
             }
 
             // Forward project diagnostics only if a project file has been loaded
-            if (!diagnosticsToForward.isEmpty() && loadedProject.isPresent()) {
+            if (
+                !hideProjectDiagnostics() &&
+                !diagnosticsToForward.isEmpty() &&
+                loadedProject.isPresent()
+            ) {
                 for (var diagnostic : diagnosticsToForward) {
                     getLogger().severe(diagnostic);
                 }

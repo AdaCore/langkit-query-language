@@ -83,7 +83,8 @@ public record LKQLOptions(
     Optional<String> srcSubdirs,
     Optional<String> subdirs,
     Optional<String> target,
-    Map<String, String> scenarioVariables
+    Map<String, String> scenarioVariables,
+    boolean hideProjectDiagnostics
 ) {
     // ----- Constructors -----
 
@@ -233,7 +234,8 @@ public record LKQLOptions(
             Optional.ofNullable(jsonLKQLOptions.optString("srcSubdirs", null)),
             Optional.ofNullable(jsonLKQLOptions.optString("subdirs", null)),
             Optional.ofNullable(jsonLKQLOptions.optString("target", null)),
-            JSONUtils.parseStringMap(jsonLKQLOptions.getJSONObject("scenarioVariables"))
+            JSONUtils.parseStringMap(jsonLKQLOptions.getJSONObject("scenarioVariables")),
+            jsonLKQLOptions.getBoolean("hideProjectDiagnostics")
         );
     }
 
@@ -284,7 +286,8 @@ public record LKQLOptions(
             .put("srcSubdirs", srcSubdirs.orElse(null))
             .put("subdirs", subdirs.orElse(null))
             .put("target", target.orElse(null))
-            .put("scenarioVariables", new JSONObject(scenarioVariables));
+            .put("scenarioVariables", new JSONObject(scenarioVariables))
+            .put("hideProjectDiagnostics", hideProjectDiagnostics);
     }
 
     // ----- Inner classes -----
@@ -349,6 +352,7 @@ public record LKQLOptions(
         private Optional<String> subdirs = Optional.empty();
         private Optional<String> target = Optional.empty();
         private Map<String, String> scenarioVariables = new HashMap<>();
+        private boolean hideProjectDiagnostics = false;
 
         // ----- Setters -----
 
@@ -516,6 +520,11 @@ public record LKQLOptions(
             return this;
         }
 
+        public Builder hideProjectDiagnostics(boolean hpd) {
+            hideProjectDiagnostics = hpd;
+            return this;
+        }
+
         // ----- Instance methods -----
 
         public LKQLOptions build() {
@@ -550,7 +559,8 @@ public record LKQLOptions(
                 srcSubdirs,
                 subdirs,
                 target,
-                scenarioVariables
+                scenarioVariables,
+                hideProjectDiagnostics
             );
         }
     }
