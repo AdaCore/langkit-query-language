@@ -76,16 +76,13 @@ public final class RuleRepository {
         // Fetch all LKQL files from the searching dirs
         for (var dir : searchingDirs.stream().filter(Files::isDirectory).toList()) {
             try (var files = Files.list(dir)) {
-                res.addAll(
-                    files
-                        .filter(
-                            f ->
-                                f.toString().endsWith(Constants.LKQL_EXTENSION) &&
-                                Files.isRegularFile(f) &&
-                                Files.isReadable(f)
-                        )
-                        .toList()
-                );
+                for (var file : files.toList()) {
+                    if (
+                        file.toString().endsWith(Constants.LKQL_EXTENSION) &&
+                        Files.isRegularFile(file) &&
+                        Files.isReadable(file)
+                    ) res.add(file.toRealPath());
+                }
             } catch (IOException e) {
                 // Here we want the application to crash when a directory is not readable
                 throw new RuntimeException(e);
