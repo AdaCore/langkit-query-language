@@ -413,30 +413,18 @@ fun in_generic_template(n : Any) : Any =
 |" Return the first ``DeclBlock`` enclosing ``n`` if any, ``null``
     |" otherwise.
 fun enclosing_block(n : Any) : Any =
-
-{
-    val block = (from n.parents(include_self=false) match p select p if p is DeclBlock)?.at(0);
-    if block then block else null
-}
+    (from n.parents(include_self=false) match DeclBlock).head_or(null)
 
 |" Return the first BodyNode enclosing n if any, null otherwise
 @memoized
 fun enclosing_body(n : Any) : Any =
-
-{
-    val body = (from n.parents(include_self=false) match p select p if p is BodyNode)?.at(0);
-    if body then body else null
-}
+    (from n.parents(include_self=false) match BodyNode).head_or(null)
 
 |" Return the first BasePackageDecl or PackageBody enclosing n if any,
     |" null otherwise
 @memoized
 fun enclosing_package(n : Any) : Any =
-
-{
-    val pkg = (from n.parents(include_self=false) match p select p if p is (BasePackageDecl | PackageBody))?.at(0);
-    if pkg then pkg else null
-}
+    (from n.parents(include_self=false) match (BasePackageDecl | PackageBody)).head_or(null)
 
 |" Given a node representing an instantiation of a generic subprogram,
     |" return that non-instantiated subprogram after resolving all renamings.
