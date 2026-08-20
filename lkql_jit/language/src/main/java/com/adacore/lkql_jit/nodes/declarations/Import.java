@@ -10,11 +10,9 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
-import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.utils.functions.FrameUtils;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.LKQLNamespace;
-import com.adacore.lkql_jit.values.LKQLUnit;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -29,7 +27,7 @@ import java.util.*;
  *
  * @author Hugo GUERRIER
  */
-public final class Import extends LKQLNode {
+public final class Import extends Expr {
 
     // ----- Attributes -----
 
@@ -42,9 +40,6 @@ public final class Import extends LKQLNode {
     /** LKQL file of the module. */
     private final File moduleFile;
 
-    /** Slot to put the namespace in (if it's -1 the import is an internal operation rule import) */
-    private final int slot;
-
     // ----- Constructors -----
 
     /**
@@ -55,11 +50,9 @@ public final class Import extends LKQLNode {
      * @param slot The slot to put the namespace in.
      * @param errors Static error collector to handle possible construction errors.
      */
-    public Import(SourceSection location, String name, int slot, LKQLStaticErrors errors) {
+    public Import(SourceSection location, String name, LKQLStaticErrors errors) {
         super(location);
         this.name = name;
-        this.slot = slot;
-
         // Get the module file
         this.moduleFile = this.getModuleFile(errors);
     }
@@ -72,19 +65,17 @@ public final class Import extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
+        return this.executeNamespace(frame);
+    }
+
+    @Override
+    public LKQLNamespace executeNamespace(VirtualFrame frame) {
         // Execute the module file
         try {
-            LKQLNamespace module = this.importModule(this.moduleFile);
-            // TODO: Create a new ImportInternal node to avoid this runtime check
-            if (this.slot != -1) {
-                FrameUtils.writeLocal(frame, this.slot, module);
-            }
+            return this.importModule(this.moduleFile);
         } catch (IOException e) {
             throw LKQLEngineException.shouldNotReachHere();
         }
-
-        // Return the unit value
-        return LKQLUnit.INSTANCE;
     }
 
     /**
@@ -207,8 +198,8 @@ public final class Import extends LKQLNode {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[] { "name", "slot" },
-            new Object[] { this.name, this.slot }
+            new String[] { "name" },
+            new Object[] { this.name }
         );
     }
 }
