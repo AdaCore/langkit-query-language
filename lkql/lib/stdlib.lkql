@@ -834,7 +834,7 @@ fun has_non_default_sso(decl : Any) : Any =
     |" constraint or if it is a variant.
 fun depends_on_mutable_discriminant(component_decl : Any) : Any =
 
-    any((from from subtree(component_decl.p_type_expression().p_subtype_constraint()) match Identifier &
+    any((from (from subtree(component_decl.p_type_expression().p_subtype_constraint()) match Identifier).to_list &
                   (from from parent(component_decl) match VariantPart match v select v.f_discr_name).to_list match id select id.p_referenced_decl() is DiscriminantSpec(f_default_expr: not null)))
 
 |" Returns whether the given node is a construct related to Ada tasking,
@@ -906,10 +906,10 @@ fun component_types(this : Any, depth : Int = -1, min_depth : Int = -1, max_dept
 
 fun component_types_body(this : Any) : Any = match this {
     case TypeDecl(f_type_def: d @ RecordTypeDef) =>
-        Rec(non_null(Unit()), from subtree(d) match ComponentDecl)
+        Rec(non_null(Unit()), (from subtree(d) match ComponentDecl).to_list)
     case TypeDecl(f_type_def: DerivedTypeDef(f_record_extension:
                                             def @ BaseRecordDef)) =>
-        Rec(non_null(Unit()), [this.p_base_type()] & (from subtree(def) match ComponentDecl))
+        Rec(non_null(Unit()), [this.p_base_type()] & (from subtree(def) match ComponentDecl).to_list)
     case TypeDecl(f_type_def: DerivedTypeDef) => Rec(non_null(this.p_base_type()), non_null(this.p_base_type()))
     case TypeDecl(f_type_def: ArrayTypeDef)   => Rec(non_null(this.p_comp_type()), non_null(this.p_comp_type()))
     case TypeDecl(f_type_def: PrivateTypeDef) => Rec(non_null(this.p_full_view()), non_null(this.p_full_view()))
