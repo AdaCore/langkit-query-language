@@ -84,7 +84,7 @@ CompilationUnit main.adb:1:1-18:10>
 |  |  |  |  |  |  |  |  |  |  |f_left:
 |  |  |  |  |  |  |  |  |  |  |  Int main.adb:4:23-4:24>: 1
 |  |  |  |  |  |  |  |  |  |  |f_op:
-|  |  |  |  |  |  |  |  |  |  |  OpDoubleDot ".." main.adb:4:25-4:27>
+|  |  |  |  |  |  |  |  |  |  |  OpDoubleDot main.adb:4:25-4:27>
 |  |  |  |  |  |  |  |  |  |  |f_right:
 |  |  |  |  |  |  |  |  |  |  |  Int main.adb:4:28-4:30>: 13
 |  |  |  |  |  |f_default_expr:
@@ -126,7 +126,7 @@ CompilationUnit main.adb:1:1-18:10>
 |  |  |  |  |  |  |  |  |  |  |f_left:
 |  |  |  |  |  |  |  |  |  |  |  Int main.adb:5:24-5:25>: 1
 |  |  |  |  |  |  |  |  |  |  |f_op:
-|  |  |  |  |  |  |  |  |  |  |  OpDoubleDot ".." main.adb:5:26-5:28>
+|  |  |  |  |  |  |  |  |  |  |  OpDoubleDot main.adb:5:26-5:28>
 |  |  |  |  |  |  |  |  |  |  |f_right:
 |  |  |  |  |  |  |  |  |  |  |  Int main.adb:5:29-5:31>: 13
 |  |  |  |  |  |f_default_expr:
@@ -222,7 +222,7 @@ CompilationUnit main.adb:1:1-18:10>
 |  |  |  |  |  |  |  |  |  |  |  |  |  |f_left:
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  Int main.adb:7:24-7:25>: 1
 |  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  OpDoubleDot ".." main.adb:7:26-7:28>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  OpDoubleDot main.adb:7:26-7:28>
 |  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  Int main.adb:7:29-7:31>: 13
 |  |  |  |  |  |  |  |  |f_default_expr:
@@ -288,7 +288,7 @@ CompilationUnit main.adb:1:1-18:10>
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_args:
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AssocList main.adb:10:29-10:29>
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  OpPlus "+" main.adb:10:30-10:31>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  OpPlus main.adb:10:30-10:31>
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AttributeRef main.adb:10:32-10:42>
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_prefix:
@@ -298,7 +298,7 @@ CompilationUnit main.adb:1:1-18:10>
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_args:
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  AssocList main.adb:10:42-10:42>
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  OpMinus "-" main.adb:10:43-10:44>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  OpMinus main.adb:10:43-10:44>
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Id "I" main.adb:10:45-10:46>: I
 |  |  |  |  |  |  |  |  |  |  |f_expr:
@@ -368,7 +368,7 @@ CompilationUnit main.adb:1:1-18:10>
 |  |  |  |  |  |  |  |  |  |  |item_0:
 |  |  |  |  |  |  |  |  |  |  |  ConcatOperand main.adb:16:27-16:37>
 |  |  |  |  |  |  |  |  |  |  |  |f_operator:
-|  |  |  |  |  |  |  |  |  |  |  |  OpConcat "&" main.adb:16:27-16:28>
+|  |  |  |  |  |  |  |  |  |  |  |  OpConcat main.adb:16:27-16:28>
 |  |  |  |  |  |  |  |  |  |  |  |f_operand:
 |  |  |  |  |  |  |  |  |  |  |  |  Id "Original" main.adb:16:29-16:37>: Original
 |  |  |  |  |item_2:
@@ -392,7 +392,7 @@ CompilationUnit main.adb:1:1-18:10>
 |  |  |  |  |  |  |  |  |  |  |item_0:
 |  |  |  |  |  |  |  |  |  |  |  ConcatOperand main.adb:17:27-17:37>
 |  |  |  |  |  |  |  |  |  |  |  |f_operator:
-|  |  |  |  |  |  |  |  |  |  |  |  OpConcat "&" main.adb:17:27-17:28>
+|  |  |  |  |  |  |  |  |  |  |  |  OpConcat main.adb:17:27-17:28>
 |  |  |  |  |  |  |  |  |  |  |  |f_operand:
 |  |  |  |  |  |  |  |  |  |  |  |  Id "Reversed" main.adb:17:29-17:37>: Reversed
 |  |  |  |f_exceptions:
