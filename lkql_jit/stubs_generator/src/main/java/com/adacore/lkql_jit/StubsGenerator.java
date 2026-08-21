@@ -120,19 +120,7 @@ public class StubsGenerator {
             )
         ) {
             // Load prelude
-            try {
-                ctx.getUnitFromBuffer(
-                    Files.readString(
-                        Paths.get("")
-                            .toAbsolutePath()
-                            .getParent()
-                            .resolve("language", "src", "main", "resources", "prelude.lkql")
-                    ),
-                    "__prelude"
-                );
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            ctx.getUnitFromBuffer(Prelude.getPreludeText(), "__prelude");
             var unit = ctx.getUnitFromFile(stubsOutputFile.toString());
 
             // Check parsing diagnostics
