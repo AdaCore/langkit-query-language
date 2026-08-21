@@ -46,7 +46,10 @@
               "startLine" : 3,
               "startColumn" : 4,
               "endLine" : 3,
-              "endColumn" : 9
+              "endColumn" : 9,
+              "snippet" : {
+                "text" : "goto "
+              }
             },
             "insertedContent" : {
               "text" : "nu"
@@ -56,14 +59,20 @@
               "startLine" : 3,
               "startColumn" : 10,
               "endLine" : 3,
-              "endColumn" : 11
+              "endColumn" : 11,
+              "snippet" : {
+                "text" : "b"
+              }
             }
           }, {
             "deletedRegion" : {
               "startLine" : 4,
               "startColumn" : 4,
               "endLine" : 4,
-              "endColumn" : 9
+              "endColumn" : 9,
+              "snippet" : {
+                "text" : "goto "
+              }
             },
             "insertedContent" : {
               "text" : "nu"
@@ -73,7 +82,10 @@
               "startLine" : 4,
               "startColumn" : 10,
               "endLine" : 4,
-              "endColumn" : 11
+              "endColumn" : 11,
+              "snippet" : {
+                "text" : "b"
+              }
             }
           } ]
         } ]
