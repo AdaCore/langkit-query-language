@@ -153,21 +153,26 @@ public record AutoFix(Source targetSource, Patch<String> patch) {
                         // Get the column number where the delta start in the source
                         var startCol = delta.getSource().getPosition() + 1;
 
+                        // Get the text replaced in the source
+                        var replacedText = delta.getSource().getLines().stream().findFirst();
+
                         // Create the object describing the region that is being deleted
                         var deletedRegion = new Region();
                         deletedRegion.setStartLine(diffLine.lineNum);
                         deletedRegion.setStartColumn(startCol);
                         deletedRegion.setEndLine(diffLine.lineNum);
                         deletedRegion.setEndColumn(
-                            startCol +
-                                delta
-                                    .getSource()
-                                    .getLines()
-                                    .stream()
-                                    .findFirst()
-                                    .orElse("")
-                                    .length()
+                            startCol + replacedText.map(String::length).orElse(0)
                         );
+
+                        // Set the code snippet that is being deleted
+                        replacedText.ifPresent(t -> {
+                            var snippet = new ArtifactContent();
+                            snippet.setText(t);
+                            deletedRegion.setSnippet(snippet);
+                        });
+
+                        // Finally, place the deleted region in the replacement object
                         replacement.setDeletedRegion(deletedRegion);
 
                         // Now create the content to insert
@@ -187,7 +192,7 @@ public record AutoFix(Source targetSource, Patch<String> patch) {
                     }
                 }
             }
-            // Otherwise, the batch is insertions of deletions
+            // Otherwise, the batch is insertions or deletions
             else {
                 // Create the resulting replacement object
                 var replacement = new Replacement();
@@ -216,6 +221,16 @@ public record AutoFix(Source targetSource, Patch<String> patch) {
                     // If the diff is a deletion, set the end of the deleted region to the start of
                     // the line next to the batch.
                     deletedRegion.setEndLine(batch.getLast().lineNum + 1);
+
+                    // Then set the snippet of the deleted region to the text of the removed batch
+                    var snippet = new ArtifactContent();
+                    snippet.setText(
+                        batch
+                            .stream()
+                            .map(l -> l.diff.getOldLine() + lineSep)
+                            .collect(Collectors.joining())
+                    );
+                    deletedRegion.setSnippet(snippet);
                 }
 
                 // Finally, add the replacement object to the result
