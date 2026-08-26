@@ -52,6 +52,15 @@ public record Rule(
         return checker == other.checker;
     }
 
+    /**
+     * Hash a rule by its checking function, consistently with 'equals'. The generated
+     * implementation would hash all components, making hash-based iteration vary between runs.
+     */
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(checker);
+    }
+
     // ----- Inner enums -----
 
     /** Kind of a rule, which input it should be called with. */

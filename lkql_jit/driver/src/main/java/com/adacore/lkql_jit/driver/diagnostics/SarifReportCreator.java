@@ -38,8 +38,9 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
         this.notifications = new ArrayList<>();
 
         // Create a map associating each enabled rules to their default instance and a list of
-        // remaining instances.
-        Map<Rule, Optional<RuleInstance>> enabledRules = new HashMap<>();
+        // remaining instances. This map is ordered by insertion to keep the report generation
+        // deterministic.
+        Map<Rule, Optional<RuleInstance>> enabledRules = new LinkedHashMap<>();
         List<RuleInstance> remainingInstances = new ArrayList<>();
         for (var instance : instances) {
             var rule = instance.instantiatedRule;
@@ -148,7 +149,8 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
             // If there is are auto-fixes, add them to the SARIF report
             if (!violation.autoFixes.isEmpty()) {
                 var fix = new Fix();
-                var changes = new HashSet<ArtifactChange>();
+                // Use an insertion ordered set to keep the auto-fix order in the emitted report
+                var changes = new LinkedHashSet<ArtifactChange>();
                 for (var autoFix : violation.autoFixes) {
                     changes.add(autoFix.toArtifactChange());
                 }
