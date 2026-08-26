@@ -251,7 +251,18 @@ public class Utils {
             var argName = argEntry.getKey().toLowerCase();
 
             // Special case for argument "instance_name" which defines the name of the instance
-            if (argName.equals("instance_name")) instanceName = (String) argEntry.getValue();
+            if (argName.equals("instance_name")) {
+                if (argEntry.getValue() instanceof String s) instanceName = s;
+                else {
+                    diagnostics.add(
+                        new Error(
+                            "The provided instance name must be a string value",
+                            instanceLocation
+                        )
+                    );
+                    hasError = true;
+                }
+            }
             // All other arguments are processed normally
             else {
                 if (ruleParameters.containsKey(argName)) {
