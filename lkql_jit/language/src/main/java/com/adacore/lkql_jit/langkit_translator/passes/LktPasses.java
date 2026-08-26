@@ -898,6 +898,8 @@ public final class LktPasses {
                         buildPattern(orPattern.fLeftSubPattern()),
                         buildPattern(orPattern.fRightSubPattern())
                     );
+                case Liblktlang.ScopedPattern scopedPattern:
+                    yield buildPattern(scopedPattern.fSubPattern());
                 default:
                     throw LKQLEngineException.create(
                         "Translation for " + pattern.getKind() + " " + "not implemented"
