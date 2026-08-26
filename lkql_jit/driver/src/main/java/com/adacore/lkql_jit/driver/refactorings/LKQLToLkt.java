@@ -351,7 +351,8 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         Liblkqllang.BasePattern pattern,
         Liblkqllang.Expr expr
     ) {
-        String refactoredExpr = expr instanceof Liblkqllang.UnitLiteral
+        String refactoredExpr = expr instanceof Liblkqllang.UnitLiteral ||
+            expr instanceof Liblkqllang.NullLiteral
             ? "Rec([], [])"
             : refactorNode(expr);
         return (
@@ -505,6 +506,15 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     private String refactorQuery(Liblkqllang.Query query) {
         final var fromNode = query.fFromExpr();
         final var throughNode = query.fThroughExpr();
+
+        if (throughNode.getText().equals("follow_generics")) {
+            diags.add(
+                new Warning(
+                    "follow_generics is not available globally anymore, please import stdlib.follow_generics instead",
+                    SourceSection.from(throughNode)
+                )
+            );
+        }
 
         final String source;
 

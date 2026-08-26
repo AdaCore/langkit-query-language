@@ -121,6 +121,19 @@ public final class NodeMethods {
         }
     }
 
+    @BuiltInMethod(
+        name = "to_rewriting",
+        doc = "Convert the node to a rewriting node",
+        isProperty = true
+    )
+    abstract static class RewritingExpr extends BuiltInBody {
+
+        @Specialization
+        public Object onNode(NodeInterface self) {
+            return self; // noop
+        }
+    }
+
     @BuiltInMethod(name = "tokens", doc = "Return the node's tokens", isProperty = true)
     abstract static class TokensExpr extends BuiltInBody {
 

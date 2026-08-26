@@ -1,7 +1,9 @@
+import stdlib
+
 val a = select first ObjectDecl
 
 #  Print every parent of a
 print((from a through parent select *).to_list)
 
 #  Print every basic declaration following generics, from the roots
-print((through follow_generics select BasicDecl).to_list)
+print((through stdlib.follow_generics select BasicDecl).to_list)

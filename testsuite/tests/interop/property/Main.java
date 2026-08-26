@@ -1,6 +1,7 @@
 import com.adacore.lkql_jit.options.LKQLOptions;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.io.IOAccess;
 
 public class Main {
     private static final String LKQL_SOURCE =
@@ -15,6 +16,7 @@ public class Main {
     public static void main(String[] args) {
         Context context = Context
             .newBuilder("lkql")
+            .allowIO(IOAccess.ALL)
             .option(
                 "lkql.options", new LKQLOptions.Builder()
                     .projectFile("default_project/default.gpr")

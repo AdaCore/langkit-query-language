@@ -1,8 +1,8 @@
 === Namespace interop messages:
-  toString(): Namespace(x: 42)
+  toString(): Namespace(follow_generics: function<follow_generics>, x: 42)
   hasMembers(): true
   hasMember('x'): true
   hasMember('y'): false
   getMember('x'): 42
   getMember('y'): null
-  getMemberKeys(): [x]
+  getMemberKeys(): [follow_generics, x]

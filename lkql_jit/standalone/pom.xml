@@ -116,10 +116,11 @@
                                     <dependency>com.adacore:libadalang</dependency>
                                     <dependency>com.adacore:liblktlang</dependency>
                                     <dependency>com.adacore:langkit_support</dependency>
+                                    <dependency>com.adacore.lkql_jit:interoperability</dependency>
                                     <dependency>org.graalvm.truffle:truffle-api</dependency>
                                 </classpath>
                                 <argument>com.adacore.lkql_jit.StubsGenerator</argument>
-                                <argument>${project.build.directory}/lib/libadalang.lkql</argument>
+                                <argument>${project.build.directory}/lib/</argument>
                                 <argument>com.adacore.libadalang.Libadalang</argument>
                             </arguments>
                         </configuration>

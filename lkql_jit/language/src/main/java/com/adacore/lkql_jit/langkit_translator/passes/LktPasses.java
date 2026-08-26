@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 
 import static com.adacore.liblktlang.Liblktlang.*;
 
+import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
@@ -50,14 +51,41 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternFieldNodeGen;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternPropertyNodeGen;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /** Namespace class containing all passes to expand from Lkt syntax to the LKQL Truffle tree. */
 public final class LktPasses {
+
+    public static final class Typecheck {
+
+        public static void check(
+            final Source source,
+            Liblktlang.LangkitRoot root,
+            LKQLStaticErrors errors
+        ) {
+            root
+                .walk()
+                .filter(Liblktlang.LktNode::pXrefEntryPoint)
+                .map(Liblktlang.LktNode::pSolveEnclosingContext)
+                .filter(solverResult -> !solverResult.success)
+                .flatMap(solverResult -> Stream.of(solverResult.diagnostics))
+                .forEach(diag ->
+                    errors.addDiag(
+                        LangkitSupport.renderSolverDiag(diag),
+                        SourceSectionWrapper.createSection(
+                            diag.location.getSourceLocationRange(),
+                            source
+                        )
+                    )
+                );
+        }
+    }
 
     /**
      * Container class containing utilities related to the framing pass. The framing pass itself is
@@ -120,6 +148,10 @@ public final class LktPasses {
             // Queries need special handling
             if (node instanceof Liblktlang.Query query) {
                 handleQuery(query, builder);
+                return;
+            }
+
+            if (node instanceof Liblktlang.FullDecl decl && isBuiltin(decl)) {
                 return;
             }
 
@@ -293,6 +325,15 @@ public final class LktPasses {
             return res;
         }
 
+        /** Helper to get a referenced decl when possible without crashing and null otherwise. */
+        private Liblktlang.Decl getReferencedDecl(Liblktlang.Expr expr) {
+            try {
+                return expr.pReferencedDecl();
+            } catch (Exception _) {
+                return null;
+            }
+        }
+
         private TopLevelList buildRoot(Liblktlang.LangkitRoot root) {
             frames.enterFrame(root);
             final List<LKQLNode> topLevelNodes = new ArrayList<>();
@@ -380,6 +421,8 @@ public final class LktPasses {
             }
 
             for (var fullDecl : root.fDecls()) {
+                if (isBuiltin(fullDecl)) continue; // skip builtins from prelude
+
                 buildDecl(fullDecl.fDecl()).ifPresent(topLevelNodes::add);
             }
 
@@ -421,13 +464,20 @@ public final class LktPasses {
             );
         }
 
+        private FullDecl getFullDecl(Liblktlang.Decl decl) {
+            for (var parent : decl.parents(false)) {
+                if (parent instanceof FullDecl fd) return fd;
+            }
+            return null;
+        }
+
         private Optional<Declaration> buildDecl(Liblktlang.Decl decl) {
             return switch (decl) {
                 case Liblktlang.FunDecl funDecl -> {
                     final var name = funDecl.fSynName().getText();
                     frames.declareBinding(name);
                     // Full decl
-                    final var fullDecl = (FullDecl) funDecl.parent();
+                    final var fullDecl = getFullDecl(funDecl);
 
                     // Annotation
                     final var annotations = fullDecl.fDeclAnnotations();
@@ -483,7 +533,7 @@ public final class LktPasses {
                     frames.declareBinding(name);
                     final var slot = frames.getBinding(name);
 
-                    final var fullDecl = (FullDecl) structDecl.parent();
+                    final var fullDecl = getFullDecl(structDecl);
                     final var doc = fullDecl.fDoc();
 
                     // Build constructor formal parameters
@@ -561,6 +611,7 @@ public final class LktPasses {
                         )
                     );
                 }
+                case GenericDecl genDecl -> buildDecl(genDecl.fDecl());
                 case ClassDecl _ -> Optional.empty();
                 default -> throw LKQLEngineException.create(
                     "Translation for " + decl.getKind() + " not implemented"
@@ -588,18 +639,36 @@ public final class LktPasses {
                     return new UnitLiteral(loc(callExpr));
                 }
 
-                // In all other cases, translate the call expression to a function call
-                final Expr callee = buildExpr(callExpr.fName());
-                final ArgList arguments = buildArgs(callExpr.fArgs());
-                return FunCallNodeGen.create(
-                    loc(callExpr),
-                    calleeNode instanceof Liblktlang.DotExpr dot && dot.fNullCond().pAsBool(),
-                    Arrays.stream(arguments.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
-                    Arrays.stream(arguments.getArgs())
-                        .map(Arg::getArgStringName)
-                        .toArray(String[]::new),
-                    callee
-                );
+                return switch (getReferencedDecl(calleeNode)) {
+                    case Liblktlang.ClassDecl classDecl -> {
+                        yield new ConstructorCall(
+                            loc(callExpr),
+                            new Identifier(loc(calleeNode), calleeNode.getText()),
+                            getNodeDescription(classDecl.fSynName()),
+                            buildArgs(callExpr.fArgs()),
+                            errors
+                        );
+                    }
+                    case null, default -> {
+                        // In all other cases, translate the call expression to a function call
+                        final Expr callee = buildExpr(callExpr.fName());
+                        final ArgList arguments = buildArgs(callExpr.fArgs());
+                        yield FunCallNodeGen.create(
+                            loc(callExpr),
+                            calleeNode instanceof Liblktlang.DotExpr dot &&
+                                dot.fNullCond().pAsBool(),
+                            Arrays.stream(arguments.getArgs())
+                                .map(Arg::getArgExpr)
+                                .toArray(Expr[]::new),
+                            Arrays.stream(arguments.getArgs())
+                                .map(Arg::getArgStringName)
+                                .toArray(String[]::new),
+                            callee
+                        );
+                    }
+                };
+            } else if (expr instanceof GenericInstantiation genericCallExpr) {
+                return buildExpr(genericCallExpr.fName());
             } else if (expr instanceof Liblktlang.BlockExpr blockExpr) {
                 frames.enterFrame(blockExpr);
                 var blockBody = new ArrayList<BlockBody>();
@@ -879,6 +948,12 @@ public final class LktPasses {
                 case Liblktlang.NotPattern notPattern:
                     yield new NotPattern(loc(notPattern), buildPattern(notPattern.fSubPattern()));
                 case Liblktlang.TypePattern typePattern:
+                    if (typePattern.fTypeName().getText().equals("Node")) {
+                        yield new NodeKindPattern(
+                            loc(typePattern),
+                            LangkitSupport.NodeInterface.class
+                        );
+                    }
                     yield new NodeKindPattern(
                         loc(typePattern),
                         getNodeClass(typePattern.fTypeName())
@@ -1023,6 +1098,12 @@ public final class LktPasses {
                 }
             };
         }
+    }
+
+    public static boolean isBuiltin(Liblktlang.FullDecl decl) {
+        return StreamSupport.stream(decl.fDeclAnnotations().spliterator(), false).anyMatch(a ->
+            a.fName().getText().equals("builtin")
+        );
     }
 
     public static TopLevelList buildLKQLNode(

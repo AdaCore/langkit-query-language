@@ -29,7 +29,6 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.options.OptionDescriptors;
@@ -180,19 +179,11 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         return new LKQLLanguageOptionDescriptors();
     }
 
-    private String getLktPreludeText() {
-        // Stupid Scanner Trick
-        try (
-            final var s = new Scanner(
-                LKQLLanguage.class.getResourceAsStream("/prelude.lkql")
-            ).useDelimiter("\\A")
-        ) {
-            return s.next();
-        }
-    }
-
     private void loadPrelude() {
-        final var unit = lktAnalysisContext.getUnitFromBuffer(getLktPreludeText(), "__prelude");
+        final var unit = lktAnalysisContext.getUnitFromBuffer(
+            Prelude.getPreludeText(),
+            "__prelude"
+        );
 
         final var source = Source.newBuilder(
             Constants.LKQL_ID,
@@ -343,6 +334,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         Liblktlang.LangkitRoot lktRoot,
         LKQLStaticErrors errors
     ) {
+        var options = getContext(null).getOptions();
+
+        if (options.typecheck()) LktPasses.Typecheck.check(source, lktRoot, errors);
+
         // Create frames for the Lkt script
         final ScriptFrames frames = LktPasses.Frames.buildFrames(lktRoot).build(
             CONTEXT_REFERENCE.get(null).getGlobal()

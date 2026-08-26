@@ -1,3 +1,7 @@
+input.lkql:29:9: warning: follow_generics is not available globally anymore, please import stdlib.follow_generics instead
+  29 | through follow_generics select *
+     |         ^^^^^^^^^^^^^^^
+
 # lkql version: 2
 
 val _ = (from int_list match a select a * 2 if is_prime(a))

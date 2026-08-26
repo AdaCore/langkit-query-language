@@ -87,16 +87,21 @@ public class LKQLNamespace extends LKQLBaseNamespace {
             Object key = keys[i];
             Object value = thisLibrary.getOrDefault(this, key, null);
 
-            // Create the string of the value
-            String valueString;
-            if (value instanceof String) {
-                valueString = StringUtils.toRepr((String) elemLibrary.toDisplayString(value));
-            } else {
-                valueString = (String) elemLibrary.toDisplayString(value);
+            resultBuilder.append(key);
+            // TODO: ideally value should never be null (#643)
+            if (value != null) {
+                // Create the string of the value
+                String valueString;
+                if (value instanceof String) {
+                    valueString = StringUtils.toRepr((String) elemLibrary.toDisplayString(value));
+                } else {
+                    valueString = (String) elemLibrary.toDisplayString(value);
+                }
+
+                // Add the strings to the result
+                resultBuilder.append(": ").append(valueString);
             }
 
-            // Add the strings to the result
-            resultBuilder.append(key).append(": ").append(valueString);
             if (i < keys.length - 1) resultBuilder.append(", ");
         }
 

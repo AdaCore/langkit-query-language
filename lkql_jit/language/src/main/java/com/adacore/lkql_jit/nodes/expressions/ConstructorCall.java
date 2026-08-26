@@ -98,32 +98,33 @@ public final class ConstructorCall extends Expr {
         }
 
         for (int i = 0; i < argList.getArgs().length; i++) {
-            final var arg = argList.getArgs()[i];
+            switch (argList.getArgs()[i]) {
+                // Special handling for token/list nodes _token/_elements args
+                case NamedArg n when this.isTokenNode || this.isListNode -> {
+                    this.args[0] = new ExprArg(n.getSourceSection(), n.getArgExpr());
+                }
+                // If the argument is an expression arg, just add it to the children
+                case ExprArg arg -> {
+                    this.args[i] = arg;
+                }
+                case NamedArg namedArg -> {
+                    final var name = namedArg.getArgStringName();
 
-            // If the argument is an expression arg, just add it to the children
-            if (arg instanceof ExprArg exprArg) {
-                this.args[i] = exprArg;
-            }
-            // Else, this is a named arg, so turn it into an expression arg and add it to children
-            // at the right index.
-            else {
-                final var namedArg = (NamedArg) arg;
-                final var name = namedArg.getArgStringName();
-
-                // Check that the argument name is a valid field and get its index
-                var fieldIndex = fieldIndexes.get(name);
-                if (fieldIndex == null) {
-                    errors.unknownArg(name, namedArg.getSourceSection());
-                } else {
-                    // Check that the child argument s empty and set it
-                    var index = fieldIndex.getFirst();
-                    if (this.args[index] != null) {
-                        errors.namedOverlapPositional(namedArg.getSourceSection());
+                    // Check that the argument name is a valid field and get its index
+                    var fieldIndex = fieldIndexes.get(name);
+                    if (fieldIndex == null) {
+                        errors.unknownArg(name, namedArg.getSourceSection());
                     } else {
-                        this.args[index] = new ExprArg(
-                            namedArg.getSourceSection(),
-                            namedArg.getArgExpr()
-                        );
+                        // Check that the child argument s empty and set it
+                        var index = fieldIndex.getFirst();
+                        if (this.args[index] != null) {
+                            errors.namedOverlapPositional(namedArg.getSourceSection());
+                        } else {
+                            this.args[index] = new ExprArg(
+                                namedArg.getSourceSection(),
+                                namedArg.getArgExpr()
+                            );
+                        }
                     }
                 }
             }

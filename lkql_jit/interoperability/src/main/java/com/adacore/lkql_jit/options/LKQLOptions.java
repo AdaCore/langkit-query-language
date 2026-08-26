@@ -63,6 +63,7 @@ public record LKQLOptions(
     boolean fallbackToAllRules,
     boolean missingFileIsError,
     boolean showInstantiationChain,
+    boolean typecheck,
 
     // GPR options
     List<String> additionalProjectPaths,
@@ -193,6 +194,7 @@ public record LKQLOptions(
             jsonLKQLOptions.getBoolean("fallbackToAllRules"),
             jsonLKQLOptions.getBoolean("missingFileIsError"),
             jsonLKQLOptions.getBoolean("showInstantiationChain"),
+            jsonLKQLOptions.getBoolean("typecheck"),
             // GPR options
             jsonLKQLOptions
                 .getJSONArray("additionalProjectPaths")
@@ -259,6 +261,7 @@ public record LKQLOptions(
             .put("fallbackToAllRules", fallbackToAllRules)
             .put("missingFileIsError", missingFileIsError)
             .put("showInstantiationChain", showInstantiationChain)
+            .put("typecheck", typecheck)
             .put("additionalProjectPaths", new JSONArray(additionalProjectPaths))
             .put("autoconf", autoconf.orElse(null))
             .put("configFile", configFile.orElse(null))
@@ -320,6 +323,7 @@ public record LKQLOptions(
         private boolean fallbackToAllRules = false;
         private boolean missingFileIsError = false;
         private boolean showInstantiationChain = false;
+        private boolean typecheck = false;
 
         // GPR options
         private List<String> additionalProjectPaths = new ArrayList<>();
@@ -407,6 +411,11 @@ public record LKQLOptions(
 
         public Builder showInstantiationChain(boolean sic) {
             showInstantiationChain = sic;
+            return this;
+        }
+
+        public Builder typecheck(boolean tc) {
+            typecheck = tc;
             return this;
         }
 
@@ -518,6 +527,7 @@ public record LKQLOptions(
                 fallbackToAllRules,
                 missingFileIsError,
                 showInstantiationChain,
+                typecheck,
                 additionalProjectPaths,
                 autoconf,
                 configFile,

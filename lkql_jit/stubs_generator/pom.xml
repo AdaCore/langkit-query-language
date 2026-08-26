@@ -44,6 +44,12 @@
             <artifactId>langkit_support</artifactId>
             <version>${config.langkit_supportVersion}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.adacore.lkql_jit</groupId>
+            <artifactId>interoperability</artifactId>
+            <version>0.1.0</version>
+        </dependency>
     </dependencies>
 
 </project>

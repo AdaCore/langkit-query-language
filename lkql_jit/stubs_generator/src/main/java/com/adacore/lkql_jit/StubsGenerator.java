@@ -29,20 +29,33 @@ public class StubsGenerator {
 
     public static void main(String[] args) {
         // Get script arguments
-        var outputFile = Paths.get(args[0]);
+        final var outputDirectory = args[0];
+        final var targetClass = args[1];
+
+        final String baseName;
 
         // Load the required analysis library
         LangkitSupport.Reflection.Library analysisLib;
         try {
-            var analysisLibClass = Class.forName(args[1]);
+            var analysisLibClass = Class.forName(targetClass);
             var descriptionGetter = analysisLibClass.getMethod("getDescription");
             analysisLib = (LangkitSupport.Reflection.Library) descriptionGetter.invoke(null);
+            baseName = analysisLibClass.getSimpleName().toLowerCase();
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
 
-        // Create the string builder used to accumulate the result
+        // Get output files
+        final var stubsOutputFile = Paths.get(outputDirectory).resolve(baseName + ".lkql");
+        final var rewritingOutputFile = Paths.get(outputDirectory).resolve(
+            baseName + "_rewriting.lkql"
+        );
+
+        // Create the string builders used to accumulate the result
         var stubContent = new StringBuilder("# lkql version: 2\n\n");
+        var rewritingContent = new StringBuilder("# lkql version: 2\n\n");
+
+        stubContent.append("import ").append(baseName).append("_rewriting as rewriting\n\n");
 
         // Generate enumeration types
         stubContent.append("# ===== Enumeration types =====\n\n");
@@ -76,27 +89,46 @@ public class StubsGenerator {
             .sorted(Map.Entry.comparingByKey())
             .toList()) {
             emitNode(nodeEntry.getValue(), stubContent);
+            emitRewriting(nodeEntry.getValue(), rewritingContent);
         }
 
         // Get the output file, create it if required and write the result in it
         try {
-            Files.deleteIfExists(outputFile);
-            Files.createFile(outputFile);
-            Files.writeString(outputFile, stubContent, StandardOpenOption.WRITE);
+            Files.deleteIfExists(stubsOutputFile);
+            Files.createFile(stubsOutputFile);
+            Files.writeString(stubsOutputFile, stubContent, StandardOpenOption.WRITE);
+
+            Files.deleteIfExists(rewritingOutputFile);
+            Files.createFile(rewritingOutputFile);
+            Files.writeString(rewritingOutputFile, rewritingContent, StandardOpenOption.WRITE);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         // Finally, try to parse and type check the emitted file to make sure it is valid
-        try (var ctx = Liblktlang.AnalysisContext.create()) {
-            var unit = ctx.getUnitFromFile(outputFile.toString());
+        try (
+            var ctx = Liblktlang.AnalysisContext.create(
+                null,
+                null,
+                Liblktlang.UnitProvider.createFromDirectories(
+                    Liblktlang.LanguageMode.LKQL,
+                    new String[] { outputDirectory }
+                ),
+                null,
+                true,
+                1
+            )
+        ) {
+            // Load prelude
+            ctx.getUnitFromBuffer(Prelude.getPreludeText(), "__prelude");
+            var unit = ctx.getUnitFromFile(stubsOutputFile.toString());
 
             // Check parsing diagnostics
             var parsingDiags = unit.getDiagnostics();
             if (parsingDiags.length > 0) {
                 throw new RuntimeException(
                     "Diagnostics when parsing the \"" +
-                        outputFile +
+                        stubsOutputFile +
                         "\" file:\n" +
                         String.join(
                             "\n",
@@ -128,7 +160,7 @@ public class StubsGenerator {
             if (!typingDiags.isEmpty()) {
                 throw new RuntimeException(
                     "Diagnostic when typing the \"" +
-                        outputFile +
+                        stubsOutputFile +
                         "\" file:\n" +
                         String.join("\n", typingDiags)
                 );
@@ -179,49 +211,117 @@ public class StubsGenerator {
         }
         output.append("{\n");
 
-        // Compute the list of fields to represent
-        var fields = nodeType
+        // Emit the "to_rewriting" property
+        output
+            .append("    @builtin @property fun to_rewriting(): rewriting.")
+            .append(nodeType.className())
+            .append('\n');
+
+        // Emit all fields and properties to represent
+        nodeType
             .fieldDescriptions()
             .entrySet()
             .stream()
             .filter(e -> e.getKey().startsWith("f_") || e.getKey().startsWith("p_"))
             .filter(e -> e.getValue().javaMethod().getDeclaringClass() == nodeType.clazz())
             .sorted(Map.Entry.comparingByKey())
-            .toList();
-
-        // Emit all fields of the node type
-        for (var f : fields) {
-            var fieldName = f.getKey();
-            var field = f.getValue();
-            output.append("    ");
-
-            if (fieldName.startsWith("f_")) {
-                // Emit fields for parsing fields
-                output.append("@parse_field ");
-                if (field.isNullable()) output.append("@nullable ");
-                output.append(fieldName);
-            } else {
-                // Declare the property with its parameters
-                output.append("@external() fun ").append(fieldName).append('(');
-                for (int i = 0; i < field.params().size(); i++) {
-                    var param = field.params().get(i);
-                    output.append(param.name()).append(": ").append(toLktType(param.type()));
-                    param
-                        .defaultValue()
-                        .ifPresent(v -> output.append(" = ").append(toLktLiteral(v)));
-                    if (i < field.params().size() - 1) {
-                        output.append(", ");
-                    }
-                }
-                output.append(')');
-            }
-
-            // Then add the field type or the function return type
-            output.append(": ").append(toLktType(field.javaMethod().getReturnType())).append('\n');
-        }
+            .forEach(f -> emitField(f.getKey(), f.getValue(), output));
 
         // Finally close the node class
         output.append("}\n\n");
+    }
+
+    private static void emitRewriting(
+        LangkitSupport.Reflection.Node nodeType,
+        StringBuilder output
+    ) {
+        // Start by emitting the class declaration
+        output.append("class ").append(nodeType.className()).append(": ");
+
+        // Now handle the inheritance part
+        var superNodeType = nodeType.clazz().getSuperclass();
+        if (superNodeType == Object.class) {
+            output.append("RewritingNode ");
+        } else {
+            output.append(toLktType(superNodeType)).append(' ');
+        }
+        output.append("{\n");
+
+        // Emit the "clone" property
+        output
+            .append("    @builtin @property fun clone(): ")
+            .append(nodeType.className())
+            .append('\n');
+
+        // Emit all fields to represent
+        nodeType
+            .fieldDescriptions()
+            .entrySet()
+            .stream()
+            .filter(e -> e.getKey().startsWith("f_"))
+            .filter(e -> e.getValue().javaMethod().getDeclaringClass() == nodeType.clazz())
+            .sorted(Map.Entry.comparingByKey())
+            .forEach(f -> emitField(f.getKey(), f.getValue(), output));
+
+        // Handle list nodes
+        if (nodeType.isListNode()) {
+            try {
+                // get Iterator<T> from iterator() method of list node
+                var genericIteratorType = (ParameterizedType) nodeType
+                    .clazz()
+                    .getMethod("iterator")
+                    .getGenericReturnType();
+                // get type T from Iterator<T>
+                var elementClass = (Class<?>) genericIteratorType.getActualTypeArguments()[0];
+
+                // Emit special field for constructor typing
+                output
+                    .append("    _elements: Array[")
+                    .append(elementClass.getSimpleName())
+                    .append("] = []\n");
+            } catch (Exception _) {
+                throw new AssertionError();
+            }
+        }
+
+        // Handle token nodes
+        if (nodeType.isTokenNode()) {
+            // Emit special field for constructor typing
+            output.append("    _token: String\n");
+        }
+
+        // Finally close the rewriting class
+        output.append("}\n\n");
+    }
+
+    private static void emitField(
+        String fieldName,
+        LangkitSupport.Reflection.Field field,
+        StringBuilder output
+    ) {
+        output.append("    ");
+
+        if (fieldName.startsWith("f_")) {
+            // Emit fields for parsing fields
+            output.append("@parse_field ");
+            if (field.isNullable()) output.append("@nullable ");
+            output.append(fieldName);
+        } else {
+            // Declare the property with its parameters
+            output.append("@external() fun ").append(fieldName).append('(');
+            for (int i = 0; i < field.params().size(); i++) {
+                var param = field.params().get(i);
+                output.append(param.name()).append(": ").append(toLktType(param.type()));
+                param.defaultValue().ifPresent(v -> output.append(" = ").append(toLktLiteral(v)));
+                if (i < field.params().size() - 1) {
+                    output.append(", ");
+                }
+            }
+            output.append(')');
+        }
+
+        // Then add the field type or the function return type
+        output.append(": ").append(toLktType(field.javaMethod().getReturnType())).append('\n');
     }
 
     /**

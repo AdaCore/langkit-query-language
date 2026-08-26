@@ -1,0 +1,179 @@
+# ----- Type declarations -----
+
+# TODO: remove useless declarations (langkit#1029)
+@builtin generic[T] trait BasicTrait {}
+@builtin @covariant generic[N] struct Entity {}
+
+@open enum Bool { case false, true }
+@builtin struct Int {}
+@builtin struct BigInt {}
+@builtin struct Char {}
+@builtin struct String {
+    @builtin @property fun length(): Int
+    @builtin fun contains(pattern: Regex): Bool
+    @builtin fun find(pattern: Regex): Int
+}
+@builtin struct Regex {}
+@builtin struct Symbol {}
+@builtin struct Unit {}
+@builtin struct Token {}
+
+@builtin trait Sized {
+    @builtin @property fun length(): Int
+}
+
+@builtin generic[T] trait Indexable {
+    # necessary for typechecker
+    @builtin fun __call__(index: Int): T
+}
+
+@builtin generic[T] trait Iterable {
+    @builtin @property fun unique(): Stream[T]
+    @builtin generic[U] fun map(map_fn: (T)->U): Stream[U]
+    @builtin generic[U] fun flat_map(map_fn: (T)->Stream[U]): Stream[U]
+    @builtin generic[U] fun reduce(zip_fn: (U, T)->U, init: U): U
+    @builtin generic[U] fun all(predicate: (T)->Bool): Bool
+}
+
+@builtin generic[T] struct Iterator {}
+
+@builtin generic[T] struct Array implements Sized, Indexable[T], Iterable[T] {
+    @builtin fun at(idx: Int): T
+    @builtin fun span(start: Int, end: Int): Array[T]
+    @builtin @property fun to_stream(): Stream[T]
+}
+@builtin generic[T] struct Stream implements Sized, Indexable[T], Iterable[T] {
+    @builtin @property fun head(): T
+    @builtin fun head_or(default: T): T
+    @builtin @property fun tail(): Stream[T]
+    @builtin @property fun to_list(): Array[T]
+}
+
+struct AnalysisUnit {
+    root: Node
+    name: String
+}
+
+@builtin class Node {
+    @builtin @property fun parent(): Node
+    @builtin @property fun children(): Array[Node]
+    @builtin fun previous_sibling(): Node
+    @builtin fun next_sibling(): Node
+}
+
+@builtin class RewritingNode {}
+
+# ----- Builtins declarations -----
+
+@builtin generic[T] fun nil(): Stream[T]
+
+@builtin fun units(): Stream[AnalysisUnit]
+
+@builtin fun pattern(str: String): Regex
+
+@builtin generic[T] fun print(x: T): Unit
+@builtin generic[T] fun img(x: T): String
+@builtin generic[T] fun doc(x: T): String
+
+
+# ----- Misc -----
+
+generic[A, B]
+struct Pair {
+    fst: A
+    snd: B
+}
+
+|" Yields all the descendants of the given node (including itself)
+fun subtree(this: Node): Stream[Node] =
+    match this {
+        case Node => this :: this.children.flat_map(subtree)
+        case _ => nil[Node]()
+    }
+
+val all_nodes = units().flat_map((unit) => subtree(unit.root))
+
+# ----- Support for selectors -----
+
+fun make_depth_predicate(depth: Int, min_depth: Int, max_depth: Int): (Int) -> Bool =
+    (current_depth: Int): Bool =>
+        if depth >= 0 then
+            current_depth == depth
+         else
+            (max_depth < 0 or current_depth <= max_depth)
+            and (min_depth < 0 or current_depth >= min_depth)
+
+generic[In, Out]
+struct Rec {
+    ret: Array[Out]
+    nxt: Array[In]
+}
+
+|" Helper to simulate the builtin Java behavior of `rec`.
+|" This is for refactored selectors only, do not use this function.
+|" It will probably be removed at a later stage.
+generic[T]
+fun non_null(value: T): Array[T] = if value is null then [] else [value]
+
+generic[In, Out]
+fun unfold(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: Array[In], depth: Int): Stream[Out] = match nxt.length {
+    case 0 => nil[Out]()
+    case _ => {
+        val rec = nxt.map(fn).reduce[Rec[In, Out]]((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec[In, Out]([], []));
+        val prefix = if p(depth) then rec.ret.to_stream else nil[Out]();
+        prefix ::: unfold[In, Out](fn, p, rec.nxt, depth+1)
+    }
+}
+
+generic[In, Out]
+fun unfold_check_cycles(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: Array[In], depth: Int, seen: Array[In]): Stream[Out] = match nxt.length {
+    case 0 => nil[Out]()
+    case _ => {
+        val rec = nxt.map(fn).reduce[Rec[In, Out]]((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec[In, Out]([], []));
+        val prefix = if p(depth) then rec.ret.to_stream else nil[Out]();
+        val next = (from (nxt.unique) match a when seen.all[In]((b: In) => a != b)).to_list;
+        prefix ::: unfold_check_cycles[In, Out](fn, p, next, depth+1, seen & next)
+    }
+}
+
+# This is the LKQL prelude. Those definitions are visible at the root of the LKQL context. This
+# is where we put all global definitions that must be accessible in every context
+
+|" Yields all the descendants of the given node
+fun children(this: Node, depth: Int = -1, min_depth: Int = -1, max_depth: Int = -1): Stream[Node] =
+    unfold(children_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun children_body(this: Node): Rec[Node, Node] = match this {
+    case Node => Rec(this.children, this.children)
+    case _ => Rec[Node, Node]([], [])
+}
+
+
+|" Yields all the next siblings of the given node
+fun next_siblings(this: Node, depth: Int = -1, min_depth: Int = -1, max_depth: Int = -1): Stream[Node] =
+    unfold(next_siblings_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun next_siblings_body(this: Node): Rec[Node, Node] = match this {
+    case Node => Rec(non_null(this.next_sibling()), non_null(this.next_sibling()))
+    case _ => Rec[Node, Node]([], [])
+}
+
+
+|" Yields all the enclosing parents of the given node
+fun parent(this: Node, depth: Int = -1, min_depth: Int = -1, max_depth: Int = -1): Stream[Node] =
+    unfold(parent_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun parent_body(this: Node): Rec[Node, Node] = match this {
+    case Node => Rec(non_null(this.parent), non_null(this.parent))
+    case _ => Rec[Node, Node]([], [])
+}
+
+
+|" Yields all the previous siblings of the given node
+fun prev_siblings(this: Node, depth: Int = -1, min_depth: Int = -1, max_depth: Int = -1): Stream[Node] =
+    unfold(prev_siblings_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
+
+fun prev_siblings_body(this: Node): Rec[Node, Node] = match this {
+    case Node => Rec(non_null(this.previous_sibling()), non_null(this.previous_sibling()))
+    case _ => Rec[Node, Node]([], [])
+}

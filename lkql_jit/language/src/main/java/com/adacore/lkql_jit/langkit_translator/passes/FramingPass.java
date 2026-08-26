@@ -123,6 +123,8 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     public Void visit(Liblkqllang.TopLevelList topLevelList) {
         this.scriptFramesBuilder.openFrame(topLevelList);
 
+        this.scriptFramesBuilder.addBinding("follow_generics");
+
         this.traverseChildren(topLevelList);
         this.scriptFramesBuilder.closeFrame();
         return null;
