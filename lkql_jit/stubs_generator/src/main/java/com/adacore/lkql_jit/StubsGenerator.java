@@ -276,7 +276,7 @@ public class StubsGenerator {
 
                 // Emit special field for constructor typing
                 output
-                    .append("    _elements: Array[")
+                    .append("    _elements: List[")
                     .append(elementClass.getSimpleName())
                     .append("] = []\n");
             } catch (Exception _) {
@@ -348,7 +348,7 @@ public class StubsGenerator {
             ) -> "Iterator[" +
             toLktType(genericArgs(clazz.getGenericInterfaces()[0]).getFirst()) +
             ']';
-            case Object _ when clazz.isArray() -> "Array[" + toLktType(clazz.componentType()) + ']';
+            case Object _ when clazz.isArray() -> "List[" + toLktType(clazz.componentType()) + ']';
             default -> throw new RuntimeException("Cannot map " + clazz + " to a Lkt type");
         };
     }

@@ -1,0 +1,8 @@
+script.lkql:12:31: error: expected List[String], got List[Int]
+  12 | val invalid_1: List[String] = [1, 2, 3]
+     |                               ^^^^^^^^^
+
+script.lkql:13:22: error: expected Int, got String
+  13 | val invalid_2: Int = invalid_1[1]
+     |                      ^^^^^^^^^^^^
+
