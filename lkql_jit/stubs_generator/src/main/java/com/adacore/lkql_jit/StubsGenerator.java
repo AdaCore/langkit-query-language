@@ -333,10 +333,12 @@ public class StubsGenerator {
             case Object _ when clazz == boolean.class || clazz == Boolean.class -> "Bool";
             case Object _ when clazz == int.class || clazz == Integer.class -> "Int";
             case Object _ when clazz == BigInteger.class -> "BigInt";
-            case Object _ when (clazz == String.class) -> "String";
+            case Object _ when (
+                clazz == String.class ||
+                LangkitSupport.SymbolInterface.class.isAssignableFrom(clazz)
+            ) -> "String";
             case Object _ when (
                 LangkitSupport.CharInterface.class.isAssignableFrom(clazz) ||
-                LangkitSupport.SymbolInterface.class.isAssignableFrom(clazz) ||
                 LangkitSupport.StructInterface.class.isAssignableFrom(clazz) ||
                 LangkitSupport.EnumInterface.class.isAssignableFrom(clazz) ||
                 LangkitSupport.AnalysisUnit.class.isAssignableFrom(clazz) ||
