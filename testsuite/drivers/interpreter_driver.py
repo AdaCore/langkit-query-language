@@ -20,7 +20,10 @@ class InterpreterDriver(BaseDriver):
         - script: The LKQL script to interpret (default is script.lkql)
         - lkql_path: A list of directories forwarded to the `LKQL_PATH`
             variable when the test is run.
-        - lkt_refactor: Should the test try refactor to Lkt syntax (default is False).
+        - lkt_refactor: Should the test try refactor to Lkt syntax (default is
+            False).
+        - typecheck: Whether to perform the typechecking pass on the given
+            script (default is False).
     """
 
     perf_supported = True
@@ -34,8 +37,12 @@ class InterpreterDriver(BaseDriver):
         # Build the process's arguments list
         args = [*self.base_args(), "--script-path", script_path]
 
+        typecheck = self.test_env.get("typecheck", False)
         input_sources = self.test_env.get("input_sources", None)
         project = self.test_env.get("project", None)
+
+        if typecheck:
+            args += ["--typecheck"]
 
         if project:
             args += ["-P", project]

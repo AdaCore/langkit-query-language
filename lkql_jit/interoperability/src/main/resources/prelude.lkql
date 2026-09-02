@@ -37,16 +37,17 @@
 
 @builtin generic[T] struct Iterator {}
 
-@builtin generic[T] struct Array implements Sized, Indexable[T], Iterable[T] {
+@array
+@builtin generic[T] struct List implements Sized, Indexable[T], Iterable[T] {
     @builtin fun at(idx: Int): T
-    @builtin fun span(start: Int, end: Int): Array[T]
+    @builtin fun span(start: Int, end: Int): List[T]
     @builtin @property fun to_stream(): Stream[T]
 }
 @builtin generic[T] struct Stream implements Sized, Indexable[T], Iterable[T] {
     @builtin @property fun head(): T
     @builtin fun head_or(default: T): T
     @builtin @property fun tail(): Stream[T]
-    @builtin @property fun to_list(): Array[T]
+    @builtin @property fun to_list(): List[T]
 }
 
 struct AnalysisUnit {
@@ -56,7 +57,7 @@ struct AnalysisUnit {
 
 @builtin class Node {
     @builtin @property fun parent(): Node
-    @builtin @property fun children(): Array[Node]
+    @builtin @property fun children(): List[Node]
     @builtin fun previous_sibling(): Node
     @builtin fun next_sibling(): Node
 }
@@ -105,18 +106,18 @@ fun make_depth_predicate(depth: Int, min_depth: Int, max_depth: Int): (Int) -> B
 
 generic[In, Out]
 struct Rec {
-    ret: Array[Out]
-    nxt: Array[In]
+    ret: List[Out]
+    nxt: List[In]
 }
 
 |" Helper to simulate the builtin Java behavior of `rec`.
 |" This is for refactored selectors only, do not use this function.
 |" It will probably be removed at a later stage.
 generic[T]
-fun non_null(value: T): Array[T] = if value is null then [] else [value]
+fun non_null(value: T): List[T] = if value is null then [] else [value]
 
 generic[In, Out]
-fun unfold(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: Array[In], depth: Int): Stream[Out] = match nxt.length {
+fun unfold(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: List[In], depth: Int): Stream[Out] = match nxt.length {
     case 0 => nil[Out]()
     case _ => {
         val rec = nxt.map(fn).reduce[Rec[In, Out]]((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec[In, Out]([], []));
@@ -126,7 +127,7 @@ fun unfold(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: Array[In], depth: In
 }
 
 generic[In, Out]
-fun unfold_check_cycles(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: Array[In], depth: Int, seen: Array[In]): Stream[Out] = match nxt.length {
+fun unfold_check_cycles(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: List[In], depth: Int, seen: List[In]): Stream[Out] = match nxt.length {
     case 0 => nil[Out]()
     case _ => {
         val rec = nxt.map(fn).reduce[Rec[In, Out]]((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec[In, Out]([], []));

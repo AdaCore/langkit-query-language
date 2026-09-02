@@ -1,0 +1,13 @@
+# lkql version: 2
+import libadalang as lal
+import libadalang_rewriting as lalrw
+
+val valid_1: List[Int] = [1, 2, 3]
+val valid_2: Int = valid_1[1]
+fun valid_3(t: lal.BaseTypeDecl): List[lal.BaseTypeDecl] =
+    t.p_base_types()
+fun valid_4(nodes: List[lalrw.AdaNode]): lalrw.AdaNodeList =
+    lalrw.AdaNodeList(nodes)
+
+val invalid_1: List[String] = [1, 2, 3]
+val invalid_2: Int = invalid_1[1]
