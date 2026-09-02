@@ -1,0 +1,9 @@
+driver: patch
+control:
+  - ["SKIP", "os != 'linux'", "needs POSIX permissions to make a directory read-only"]
+# The state file goes next to the report, in a directory which cannot be
+# written, while the source itself stays writable. The report therefore
+# declares the directory holding its sources as its URI base.
+read_only:
+  - ro
+sarif: ro/report.sarif

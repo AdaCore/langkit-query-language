@@ -1,0 +1,23 @@
+[1/1] some_rule: violation on line 4
+  at main.adb:4:4
+-> applied
+
+Patched 1 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+warning: Skipping an empty run of the report
+
+warning: Skipping an unusable artifact of the report: incomplete location
+
+warning: Skipping an empty result of the report
+
+warning: Skipping an unusable fix of "some_rule": incomplete location
+
+
+Resulting files
+===============
+
+== main.adb ==
+procedure P is
+begin
+   A;
+   Z;
+end P;

@@ -1,0 +1,69 @@
+[1/4] rule_alpha: violation of rule_alpha
+  at main.adb:3:4
+--- a/main.adb
++++ b/main.adb
+@@ -1,6 +1,6 @@
+ procedure P is
+ begin
+-   A;
++   Z;
+    B;
+    C;
+    D;
+Apply this fix? [y/n/a/A/q/h]
+  y, yes   apply this fix
+  n, no    skip this fix
+  a, auto  apply this fix and all the remaining ones of "rule_alpha"
+  A, all   apply this fix and all the remaining ones, of every rule
+  q, quit  skip this fix and all the remaining ones
+  h, help  display this help
+Apply this fix? [y/n/a/A/q/h]
+-> applying all remaining fixes of "rule_alpha"
+
+[2/4] rule_beta: violation of rule_beta
+  at main.adb:4:4
+--- a/main.adb
++++ b/main.adb
+@@ -1,7 +1,7 @@
+ procedure P is
+ begin
+    A;
+-   B;
++   Z;
+    C;
+    D;
+ end P;
+Apply this fix? [y/n/a/A/q/h]
+-> skipped
+
+[3/4] rule_alpha: violation of rule_alpha
+  at main.adb:5:4
+-> applied
+
+[4/4] rule_beta: violation of rule_beta
+  at main.adb:6:4
+--- a/main.adb
++++ b/main.adb
+@@ -3,5 +3,5 @@
+    A;
+    B;
+    C;
+-   D;
++   Z;
+ end P;
+Apply this fix? [y/n/a/A/q/h]
+-> applying all remaining fixes
+
+Patched 1 file(s): 3 fix(es) applied, 1 skipped, 0 conflict(s), 0 error(s).
+
+Resulting files
+===============
+
+== main.adb ==
+procedure P is
+begin
+   Z;
+   B;
+   Z;
+   Z;
+end P;

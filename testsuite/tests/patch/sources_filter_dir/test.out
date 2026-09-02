@@ -1,0 +1,31 @@
+[1/2] some_rule: violation in sub/mid.adb
+  at sub/mid.adb:3:4
+-> applied
+
+[2/2] some_rule: violation in sub/deeper/low.adb
+  at sub/deeper/low.adb:3:4
+-> applied
+
+Patched 2 file(s): 2 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+1 fix(es) filtered out by the source filters.
+
+Resulting files
+===============
+
+== sub/deeper/low.adb ==
+procedure X is
+begin
+   Z;
+end X;
+
+== sub/mid.adb ==
+procedure X is
+begin
+   Z;
+end X;
+
+== top.adb ==
+procedure X is
+begin
+   A;
+end X;

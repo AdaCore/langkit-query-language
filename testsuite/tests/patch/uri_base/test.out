@@ -1,0 +1,35 @@
+[1/4] through_base: violation of through_base
+  at src/main.adb:3:4
+-> applied
+
+[2/4] through_chained_base: violation of through_chained_base
+  at main.adb:3:4
+-> skipped (conflicts with a previously accepted fix)
+
+[3/4] absolute_uri: violation of absolute_uri
+  at <working-dir>/top.adb:3:4
+-> applied
+
+[4/4] above_base: violation of above_base
+  at ../other.adb:3:4
+-> applied
+
+Patched 3 file(s): 3 fix(es) applied, 0 skipped, 1 conflict(s), 0 error(s).
+
+Resulting files
+===============
+
+== other.adb ==
+procedure P is
+begin
+end P;
+
+== src/main.adb ==
+procedure P is
+begin
+end P;
+
+== top.adb ==
+procedure P is
+begin
+end P;

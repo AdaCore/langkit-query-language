@@ -1,0 +1,17 @@
+[1/1] redundant_null_statements: redundant null statement
+  at main.adb:4:4
+-> skipped (deleted text at 4:1 does not match the report, "main.adb" has changed since it was created)
+
+0 fix(es) applied, 0 skipped, 0 conflict(s), 1 error(s).
+error: Invalid fix at main.adb:4:4: deleted text at 4:1 does not match the report, "main.adb" has changed since it was created
+
+
+Resulting files
+===============
+
+== main.adb ==
+procedure Main is
+begin
+   Keep_Me;
+   null;
+end Main;

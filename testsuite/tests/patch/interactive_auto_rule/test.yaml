@@ -1,0 +1,6 @@
+driver: patch
+auto_mode: false
+# 'h' displays the meaning of the answers, 'a' then accepts every fix of
+# "rule_alpha" only, so the next "rule_beta" fix is still prompted and
+# skipped, and 'A' finally accepts everything which remains.
+input: "h\na\nn\nA\n"

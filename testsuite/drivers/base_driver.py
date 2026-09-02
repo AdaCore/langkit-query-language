@@ -544,6 +544,7 @@ class BaseDriver(DiffTestDriver):
         self.lkql_exe = [*self.command_base, "run"]
         self.lkql_checker_exe = [*self.command_base, "check"]
         self.lkql_fix_exe = [*self.command_base, "fix"]
+        self.lkql_patch_exe = [*self.command_base, "patch"]
         self.gnatcheck_worker_exe = [*self.command_base, "gnatcheck_worker"]
         self.lkql_pass_exe = [*self.command_base, "run-passes"]
 

@@ -1,0 +1,11 @@
+driver: patch
+control:
+  - ["SKIP", "os != 'linux'", "needs POSIX permissions to make a file unwritable"]
+read_only:
+  - b.adb
+runs:
+  # "b.adb" cannot be written: the whole fix must be rolled back
+  - auto_mode: true
+  # Once it is writable again, the very same fix must apply to both files
+  - auto_mode: true
+    writable: ["b.adb"]

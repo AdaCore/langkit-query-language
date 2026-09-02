@@ -1,0 +1,6 @@
+driver: patch
+auto_mode: false
+runs:
+  # Apply the first fix, quit, and keep the record so the run can be resumed
+  - input: "y\nq\ny\n"
+  - input: "y\n"

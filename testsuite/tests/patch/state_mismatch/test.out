@@ -1,0 +1,22 @@
+[1/1] redundant_null_statements: redundant null statement
+  at main.adb:4:4
+-> applied
+
+Patched 1 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+
+[1/1] redundant_null_statements: redundant null statement
+  at main.adb:4:4
+-> skipped (does not match the recorded state)
+
+0 fix(es) applied, 0 skipped, 0 conflict(s), 1 error(s).
+error: "<working-dir>/main.adb" has been modified since the last run, so the fixes already applied to it can no longer be identified. Regenerate the report from the current sources.
+
+
+Resulting files
+===============
+
+== main.adb ==
+procedure P is
+   S : constant String := "café";
+begin
+end P;

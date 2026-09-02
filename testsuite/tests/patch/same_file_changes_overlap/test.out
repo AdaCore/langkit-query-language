@@ -1,0 +1,17 @@
+[1/1] multi_change_rule: several changes for the same file
+  at main.adb:3:4
+-> skipped (fix contains overlapping replacements)
+
+0 fix(es) applied, 0 skipped, 0 conflict(s), 1 error(s).
+error: Invalid fix at main.adb:3:4: fix contains overlapping replacements
+
+
+Resulting files
+===============
+
+== main.adb ==
+procedure Main is
+begin
+   Some_Call (X);
+   Keep_Me;
+end Main;

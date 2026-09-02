@@ -1,0 +1,52 @@
+[1/2] some_rule: violation on line 3
+  at main.adb:3:4
+--- a/main.adb
++++ b/main.adb
+@@ -1,5 +1,5 @@
+ procedure P is
+ begin
+-   A;
++   Z;
+    B;
+ end P;
+Apply this fix? [y/n/a/A/q/h]
+-> applied
+
+[2/2] some_rule: violation on line 4
+  at main.adb:4:4
+--- a/main.adb
++++ b/main.adb
+@@ -1,5 +1,5 @@
+ procedure P is
+ begin
+    A;
+-   B;
++   Z;
+ end P;
+Apply this fix? [y/n/a/A/q/h]
+-> quit
+Keep the record of the fixes applied so far? [y/n/h]
+
+Patched 1 file(s): 1 fix(es) applied, 1 skipped, 0 conflict(s), 0 error(s).
+
+[1/2] some_rule: violation on line 3
+  at main.adb:3:4
+-> skipped (file changed since the report)
+
+[2/2] some_rule: violation on line 4
+  at main.adb:4:4
+-> skipped (file changed since the report)
+
+0 fix(es) applied, 0 skipped, 0 conflict(s), 2 error(s).
+error: "<working-dir>/main.adb" has changed since the report was created, its fixes cannot be applied safely
+
+
+Resulting files
+===============
+
+== main.adb ==
+procedure P is
+begin
+   Z;
+   B;
+end P;

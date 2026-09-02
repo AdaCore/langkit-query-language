@@ -26,6 +26,7 @@ from drivers import (
     benchmarks_driver,
     refactor_driver,
     nanopass_driver,
+    patch_driver,
 )
 
 
@@ -103,6 +104,7 @@ class LKQLTestsuite(Testsuite):
         "benchmarks": benchmarks_driver.BenchmarksDriver,
         "refactor": refactor_driver.RefactorDriver,
         "nanopass": nanopass_driver.NanopassDriver,
+        "patch": patch_driver.PatchDriver,
     }
 
     def add_options(self, parser: ArgumentParser) -> None:

@@ -45,7 +45,20 @@ public class SarifReflectionFeature implements Feature {
             ArtifactChange.class,
             ArtifactContent.class,
             Region.class,
-            PropertyBag.class
+            PropertyBag.class,
+            Fix.class,
+            ArtifactChange.class,
+            Replacement.class,
+            ArtifactContent.class,
+            Artifact.class,
+            Hashes.class,
+            OriginalUriBaseIds.class,
+            EnvironmentVariables.class,
+            // Concrete collection types instantiated reflectively by Jackson
+            // when deserializing the interface-typed fields of the model
+            java.util.ArrayList.class,
+            java.util.LinkedHashSet.class,
+            java.util.LinkedHashMap.class
         );
 
         // Then register them

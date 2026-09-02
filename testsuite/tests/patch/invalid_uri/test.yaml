@@ -1,0 +1,3 @@
+driver: patch
+# The two malformed fixes must be reported and skipped, and the sane one must
+# still be applied, rather than the command dying on them

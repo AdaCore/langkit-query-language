@@ -1,0 +1,3 @@
+driver: patch
+auto_mode: false
+input: "y\nq\n"

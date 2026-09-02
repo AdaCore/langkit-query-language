@@ -1,0 +1,14 @@
+[1/1] redundant_null_statements: redundant null statement
+  at main.adb:4:4
+-> applied
+
+Patched 1 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+
+Resulting files
+===============
+
+== main.adb ==
+procedure Main is
+begin
+   Keep_Me;
+end Main;

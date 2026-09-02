@@ -1,0 +1,5 @@
+driver: patch
+# A directory selects every file under it, recursively, so "top.adb"
+# stays untouched while both files below "sub" are patched
+source_filters:
+  - sub

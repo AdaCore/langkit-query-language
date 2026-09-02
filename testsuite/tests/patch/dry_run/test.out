@@ -1,0 +1,49 @@
+[1/2] use_for_of_loops: FOR loop may be replaced by a FOR OF loop
+  at main.adb:6:4
+-> applied
+
+[2/2] use_for_of_loops: FOR loop may be replaced by a FOR OF loop
+  at main.adb:11:4
+-> applied
+
+--- a/main.adb
++++ b/main.adb
+@@ -3,12 +3,12 @@
+    C : Character;
+ begin
+    --  First violation
+-   for I in S'Range loop
+-      C := S (I);
++   for I of S loop
++      C := I;
+    end loop;
+ 
+    --  Second violation
+-   for J in S'Range loop
+-      S (J) := C;
++   for J of S loop
++      J := C;
+    end loop;
+ end Main;
+
+Would patch 1 file(s): 2 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+Dry run: no file was modified.
+
+Resulting files
+===============
+
+== main.adb ==
+procedure Main is
+   S : constant String := "Hello";
+   C : Character;
+begin
+   --  First violation
+   for I in S'Range loop
+      C := S (I);
+   end loop;
+
+   --  Second violation
+   for J in S'Range loop
+      S (J) := C;
+   end loop;
+end Main;

@@ -1,0 +1,7 @@
+[1/1] redundant_null_statements: redundant null statement
+  at nonexistent.adb:6:4
+-> skipped (unreadable file)
+
+0 fix(es) applied, 0 skipped, 0 conflict(s), 1 error(s).
+error: Cannot read "<working-dir>/nonexistent.adb": no such file
+
