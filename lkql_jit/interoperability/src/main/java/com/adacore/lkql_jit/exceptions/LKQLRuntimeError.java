@@ -117,6 +117,15 @@ public final class LKQLRuntimeError extends AbstractTruffleException {
         return LKQLRuntimeError.create("Cannot convert a " + source + " to a " + target, location);
     }
 
+    /** Create an exception when a cast attempt failed. */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeError castError(Class<?> source, Class<?> target, Node location) {
+        return LKQLRuntimeError.create(
+            "Cannot cast a " + source.getSimpleName() + " to a " + target.getSimpleName(),
+            location
+        );
+    }
+
     /** Create an exception for a wrong from clause. */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeError wrongFrom(Node location) {
