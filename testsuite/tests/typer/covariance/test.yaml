@@ -1,0 +1,5 @@
+driver: 'interpreter'
+project: 'default_project/default.gpr'
+lkt_refactor: False
+typecheck: True
+

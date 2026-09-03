@@ -1,0 +1,15 @@
+# lkql version: 2
+import libadalang as lal
+
+fun foo(x: List[lal.BasicDecl]): List[lal.BasicDecl] = x
+fun bar(x: Stream[lal.BasicDecl]): Stream[lal.BasicDecl] = x
+
+fun valid_list_covariance(x: List[lal.ObjectDecl]): List[lal.BasicDecl] =
+    foo(x)
+fun valid_stream_covariance(x: Stream[lal.ObjectDecl]): Stream[lal.BasicDecl] =
+    bar(x)
+
+fun invalid_list_covariance(x: List[lal.AdaNode]): List[lal.BasicDecl] =
+    foo(x)
+fun invalid_stream_covariance(x: Stream[lal.AdaNode]): Stream[lal.BasicDecl] =
+    bar(x)

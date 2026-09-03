@@ -1,0 +1,8 @@
+script.lkql:13:9: error: expected List[BasicDecl], got List[AdaNode]
+  13 |     foo(x)
+     |         ^
+
+script.lkql:15:9: error: expected Stream[BasicDecl], got Stream[AdaNode]
+  15 |     bar(x)
+     |         ^
+

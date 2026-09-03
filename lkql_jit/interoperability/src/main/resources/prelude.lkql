@@ -39,12 +39,16 @@
 @builtin generic[T] struct Iterator {}
 
 @array
-@builtin generic[T] struct List implements Sized, Indexable[T], Iterable[T] {
+@builtin
+@covariant
+generic[T] struct List implements Sized, Indexable[T], Iterable[T] {
     @builtin fun at(idx: Int): T
     @builtin fun span(start: Int, end: Int): List[T]
     @builtin @property fun to_stream(): Stream[T]
 }
-@builtin generic[T] struct Stream implements Sized, Indexable[T], Iterable[T] {
+@builtin
+@covariant
+generic[T] struct Stream implements Sized, Indexable[T], Iterable[T] {
     @builtin @property fun head(): T
     @builtin fun head_or(default: T): T
     @builtin @property fun tail(): Stream[T]
