@@ -73,15 +73,15 @@
                     ]
                 },
                 {
-                    "ruleId": "root_uri",
+                    "ruleId": "directory_uri",
                     "message": {
-                        "text": "violation of root_uri"
+                        "text": "violation of directory_uri"
                     },
                     "locations": [
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "/",
+                                    "uri": ".",
                                     "uriBaseId": "URI_BASE_DIR"
                                 },
                                 "region": {
@@ -96,7 +96,7 @@
                             "artifactChanges": [
                                 {
                                     "artifactLocation": {
-                                        "uri": "/",
+                                        "uri": ".",
                                         "uriBaseId": "URI_BASE_DIR"
                                     },
                                     "replacements": [
