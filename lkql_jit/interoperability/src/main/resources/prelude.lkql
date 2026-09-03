@@ -32,7 +32,8 @@
     @builtin generic[U] fun map(map_fn: (T)->U): Stream[U]
     @builtin generic[U] fun flat_map(map_fn: (T)->Stream[U]): Stream[U]
     @builtin generic[U] fun reduce(zip_fn: (U, T)->U, init: U): U
-    @builtin generic[U] fun all(predicate: (T)->Bool): Bool
+    @builtin fun all(predicate: (T)->Bool): Bool
+    @builtin fun any(predicate: (T)->Bool): Bool
 }
 
 @builtin generic[T] struct Iterator {}
@@ -132,7 +133,7 @@ fun unfold_check_cycles(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: List[In
     case _ => {
         val rec = nxt.map(fn).reduce[Rec[In, Out]]((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec[In, Out]([], []));
         val prefix = if p(depth) then rec.ret.to_stream else nil[Out]();
-        val next = (from (nxt.unique) match a when seen.all[In]((b: In) => a != b)).to_list;
+        val next = (from (nxt.unique) match a when seen.all((b) => a != b)).to_list;
         prefix ::: unfold_check_cycles[In, Out](fn, p, next, depth+1, seen & next)
     }
 }
