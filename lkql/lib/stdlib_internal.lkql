@@ -3,16 +3,20 @@
 from libadalang import *
 
 |" Internal implementation selector for `children_no_nested`
-fun children_no_nested_implem(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+fun children_no_nested_implem(this : Pair[AdaNode, Bool], depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Stream[AdaNode] =
     unfold(children_no_nested_implem_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
-fun children_no_nested_implem_body(this : Any) : Any = match this {
+fun children_no_nested_implem_body(this : Pair[AdaNode, Bool]) : Rec[Pair[AdaNode, Bool], AdaNode] = match this {
     # Don't recurse on bodies except if it's the root node (depth == 0)
-    case Pair(fst: BodyNode, snd: false) => Rec(non_null(Unit()), non_null(Unit()))
-    case Pair(fst: n @ AdaNode, snd: _) => Rec(n.children, (from n.children match c select Pair(c, false)).to_list)
+    case Pair(fst: BodyNode, snd: false) => Rec[Pair[AdaNode, Bool], AdaNode]([], [])
+    case Pair(fst: n @ AdaNode, snd: _) => Rec(
+        (from n.children match c@AdaNode select c).to_list,
+        (from n.children match c@AdaNode select Pair(c, false)).to_list
+    )
 
     # TODO: This branch shouldn't ever be taken, but we miss a raise expression
     # to verify it
-    case _     => Rec(non_null(Unit()), non_null(Unit()))
+    case _ => Rec[Pair[AdaNode, Bool], AdaNode]([], [])
+
 }
 
