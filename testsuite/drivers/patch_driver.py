@@ -1,6 +1,7 @@
 import glob
 import os
 import os.path as P
+from pathlib import Path
 
 from drivers.base_driver import BaseDriver
 
@@ -49,11 +50,15 @@ class PatchDriver(BaseDriver):
     def run(self) -> None:
         sarif = self.test_env.get("sarif", "report.sarif")
 
-        # Instantiate the SARIF template
+        # Instantiate the SARIF template. The markers stand inside "file:"
+        # URIs, so the working directory is substituted in URI form, which a
+        # filesystem path is not: its separators, and the characters an URI
+        # gives a meaning to, have to be converted and encoded first.
+        test_dir = Path(self.working_dir()).as_uri().removeprefix("file://")
         with open(self.working_dir(f"{sarif}.in")) as f:
             content = f.read()
         with open(self.working_dir(sarif), "w") as f:
-            f.write(content.replace("@TEST_DIR@", self.working_dir()))
+            f.write(content.replace("@TEST_DIR@", test_dir))
 
         # Make the requested files read-only, to exercise write failures. The
         # testsuite is expected to have the rights to do so, so failing to
