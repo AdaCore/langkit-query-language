@@ -777,8 +777,11 @@ public class LKQLPatch extends BaseSubcommand {
                         patcher = FilePatcher.read(file, uriByFile.get(file), forcedCharset);
                     }
                 } catch (IOException e) {
+                    // No system reports reading a directory in a usable way,
+                    // so detect it here
+                    final var reason = Files.isDirectory(file) ? "is a directory" : reasonOf(e);
                     brokenFiles.put(file, "unreadable file");
-                    diagnostics.add(new Error("Cannot read \"" + file + "\": " + reasonOf(e)));
+                    diagnostics.add(new Error("Cannot read \"" + file + "\": " + reason));
                     System.out.println(styled("-> skipped (unreadable file)", Styling::red));
                     return null;
                 }

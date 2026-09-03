@@ -1,5 +1,5 @@
-[1/2] root_uri: violation of root_uri
-  at /:3:4
+[1/2] directory_uri: violation of directory_uri
+  at .:3:4
 -> skipped (unreadable file)
 
 [2/2] redundant_null_statements: violation of redundant_null_statements
@@ -9,7 +9,7 @@
 Patched 1 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 1 error(s).
 warning: Skipping an unusable fix of "nul_in_uri": invalid path "ma/u0000in.adb"
 
-error: Cannot read "/": Is a directory
+error: Cannot read "<working-dir>": is a directory
 
 
 Resulting files
