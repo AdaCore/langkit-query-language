@@ -627,6 +627,10 @@ public final class LktPasses {
                 } catch (NumberFormatException e) {
                     return new BigIntegerLiteral(loc(numLit), new BigInteger(numLit.getText()));
                 }
+            } else if (expr instanceof BigNumLit bigNumLit) {
+                final String fullText = bigNumLit.getText();
+                final String withoutSuffix = fullText.substring(0, fullText.length() - 1);
+                return new BigIntegerLiteral(loc(bigNumLit), new BigInteger(withoutSuffix));
             } else if (expr instanceof NullLit nullLit) {
                 return new NullLiteral(loc(nullLit));
             } else if (expr instanceof Liblktlang.ParenExpr parenExpr) {
