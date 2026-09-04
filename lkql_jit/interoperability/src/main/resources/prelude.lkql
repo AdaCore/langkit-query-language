@@ -11,12 +11,23 @@
 @builtin struct String {
     @builtin @property fun length(): Int
     @builtin fun contains(pattern: Regex): Bool
+    @builtin fun ends_with(suffix: String): Bool
     @builtin fun find(pattern: Regex): Int
+    @builtin fun substring(start: Int, end: Int): String
 }
 @builtin struct Regex {}
 @builtin struct Symbol {}
 @builtin struct Unit {}
-@builtin struct Token {}
+
+@builtin struct Token {
+    @builtin @property fun kind(): String
+    @builtin @property fun text(): String
+    @builtin @property fun start_line(): Int
+    @builtin @property fun end_line(): Int
+    @builtin @property fun unit(): AnalysisUnit
+    @builtin fun previous(): Token
+    @builtin fun next(): Token
+}
 
 @builtin trait Sized {
     @builtin @property fun length(): Int
@@ -32,18 +43,23 @@
     @builtin generic[U] fun map(map_fn: (T)->U): Stream[U]
     @builtin generic[U] fun flat_map(map_fn: (T)->Stream[U]): Stream[U]
     @builtin generic[U] fun reduce(zip_fn: (U, T)->U, init: U): U
-    @builtin generic[U] fun all(predicate: (T)->Bool): Bool
+    @builtin fun all(predicate: (T)->Bool): Bool
+    @builtin fun any(predicate: (T)->Bool): Bool
 }
 
 @builtin generic[T] struct Iterator {}
 
 @array
-@builtin generic[T] struct List implements Sized, Indexable[T], Iterable[T] {
+@builtin
+@covariant
+generic[T] struct List implements Sized, Indexable[T], Iterable[T] {
     @builtin fun at(idx: Int): T
     @builtin fun span(start: Int, end: Int): List[T]
     @builtin @property fun to_stream(): Stream[T]
 }
-@builtin generic[T] struct Stream implements Sized, Indexable[T], Iterable[T] {
+@builtin
+@covariant
+generic[T] struct Stream implements Sized, Indexable[T], Iterable[T] {
     @builtin @property fun head(): T
     @builtin fun head_or(default: T): T
     @builtin @property fun tail(): Stream[T]
@@ -56,8 +72,13 @@ struct AnalysisUnit {
 }
 
 @builtin class Node {
+    @builtin @property fun token_start(): Token
+    @builtin @property fun token_end(): Token
+    @builtin @property fun text(): String
     @builtin @property fun parent(): Node
+    @builtin @property fun parents(include_self: Bool = false): Stream[Node]
     @builtin @property fun children(): List[Node]
+    @builtin @property fun children_count(): Int
     @builtin fun previous_sibling(): Node
     @builtin fun next_sibling(): Node
 }
@@ -67,10 +88,13 @@ struct AnalysisUnit {
 # ----- Builtins declarations -----
 
 @builtin generic[T] fun nil(): Stream[T]
+@builtin generic[T] fun concat(lists: List[List[T]]): List[T]
 
 @builtin fun units(): Stream[AnalysisUnit]
+@builtin fun get_unit(name: String, kind: String): AnalysisUnit
 
 @builtin fun pattern(str: String): Regex
+@builtin fun base_name(str: String): String
 
 @builtin generic[T] fun print(x: T): Unit
 @builtin generic[T] fun img(x: T): String
@@ -132,7 +156,7 @@ fun unfold_check_cycles(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: List[In
     case _ => {
         val rec = nxt.map(fn).reduce[Rec[In, Out]]((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec[In, Out]([], []));
         val prefix = if p(depth) then rec.ret.to_stream else nil[Out]();
-        val next = (from (nxt.unique) match a when seen.all[In]((b: In) => a != b)).to_list;
+        val next = (from (nxt.unique) match a when seen.all((b) => a != b)).to_list;
         prefix ::: unfold_check_cycles[In, Out](fn, p, next, depth+1, seen & next)
     }
 }

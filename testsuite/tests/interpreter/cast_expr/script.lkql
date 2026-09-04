@@ -1,0 +1,17 @@
+# lkql version: 2
+
+from libadalang import *
+
+val obj: Node = (from all_nodes match ObjectDecl).head
+
+val valid_cast_1: AdaNode = obj.as[AdaNode]
+val _ = print(valid_cast_1)
+
+val valid_cast_2: SubpDecl = obj.as[SubpDecl]  # valid, produces null
+val _ = print(valid_cast_2)
+
+val valid_cast_3: PackageDecl = valid_cast_2.as[PackageDecl]
+val _ = print(valid_cast_2)
+
+val invalid_cast_1: SubpDecl = obj.as![SubpDecl]  # invalid, raises error
+val _ = print(invalid_cast_1)

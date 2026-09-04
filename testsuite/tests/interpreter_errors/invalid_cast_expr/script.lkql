@@ -1,0 +1,3 @@
+# lkql version: 2
+
+fun invalid_cast_1(x: Node): Int = x.as[Int]

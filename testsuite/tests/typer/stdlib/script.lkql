@@ -1,0 +1,16 @@
+# lkql version: 2
+
+# The main purpose of this test is to import the stdlib in order to run the
+# typechecking pass on it. To make sure it's done properly, perform one valid
+# and one invalid use of it.
+
+from libadalang import *
+import stdlib
+
+val exprs = (
+    from units().map((u) => u.root).flat_map(stdlib.follow_generics)
+    match o@ObjectDecl
+    select o.f_default_expr
+)
+
+val b = stdlib.is_standard_numeric(exprs.head)

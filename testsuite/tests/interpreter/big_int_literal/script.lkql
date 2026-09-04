@@ -1,0 +1,7 @@
+# lkql version: 2
+
+val x = 2b
+val _ = print(x)
+
+val y = 837549874357836458734b
+val _ = print(y)

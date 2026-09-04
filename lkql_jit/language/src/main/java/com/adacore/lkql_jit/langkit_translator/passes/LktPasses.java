@@ -23,6 +23,7 @@ import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.declarations.Import;
 import com.adacore.lkql_jit.nodes.declarations.*;
+import com.adacore.lkql_jit.nodes.expressions.CastExpr;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
@@ -626,6 +627,10 @@ public final class LktPasses {
                 } catch (NumberFormatException e) {
                     return new BigIntegerLiteral(loc(numLit), new BigInteger(numLit.getText()));
                 }
+            } else if (expr instanceof BigNumLit bigNumLit) {
+                final String fullText = bigNumLit.getText();
+                final String withoutSuffix = fullText.substring(0, fullText.length() - 1);
+                return new BigIntegerLiteral(loc(bigNumLit), new BigInteger(withoutSuffix));
             } else if (expr instanceof NullLit nullLit) {
                 return new NullLiteral(loc(nullLit));
             } else if (expr instanceof Liblktlang.ParenExpr parenExpr) {
@@ -704,6 +709,11 @@ public final class LktPasses {
                 var pattern = buildPattern(isA.fPattern());
                 frames.exitFrame();
                 return IsClauseNodeGen.create(loc(isA), pattern, nodeExpr);
+            } else if (expr instanceof Liblktlang.CastExpr castExpr) {
+                var inner = buildExpr(castExpr.fExpr());
+                var castType = getNodeClass(castExpr.fDestType());
+                var isStrict = castExpr.fExcludesNull().pAsBool();
+                return new CastExpr(loc(castExpr), inner, castType, isStrict);
             } else if (expr instanceof StringLit stringLit) {
                 return new StringLiteral(loc(stringLit), parseStringLiteral(stringLit));
             } else if (expr instanceof Liblktlang.ArrayLiteral arrayLiteral) {

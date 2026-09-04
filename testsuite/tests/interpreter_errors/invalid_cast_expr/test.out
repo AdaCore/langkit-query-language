@@ -1,0 +1,4 @@
+script.lkql:3:41: error: Invalid kind name
+  3 | fun invalid_cast_1(x: Node): Int = x.as[Int]
+    |                                         ^^^
+
