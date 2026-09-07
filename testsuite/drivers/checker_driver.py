@@ -24,6 +24,8 @@ class CheckerDriver(BaseDriver):
           Default is "text".
         - ``auto_fix`` (bool): Whether to enable auto-fix function when running
           the checker.
+        - ``disable_formatting`` (bool): Whether to skip partial
+          formatting when emitting auto-fixes.
         - ``verbose`` (bool): Whether to provide the verbosity flag when
           spawning the checker.
     """
@@ -56,6 +58,9 @@ class CheckerDriver(BaseDriver):
 
         if self.test_env.get("auto_fix"):
             args += ["--auto-fix-mode", "IN_REPORT"]
+
+        if self.test_env.get("disable_formatting"):
+            args += ["--disable-formatting"]
 
         # Run the checker
         if self.perf_mode:

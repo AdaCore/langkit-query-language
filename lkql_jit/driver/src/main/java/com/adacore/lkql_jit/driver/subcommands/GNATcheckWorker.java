@@ -93,6 +93,12 @@ public class GNATcheckWorker extends BaseSubcommand {
     @CommandLine.Option(names = "--emit-fixes", description = "Include auto fixes in the report")
     public boolean exportAutoFix;
 
+    @CommandLine.Option(
+        names = "--disable-formatting",
+        description = "If auto fixes are enabled, skip the partial formatting when generating them"
+    )
+    public boolean disableFormatting;
+
     @CommandLine.Unmatched
     public List<String> unmatched = new ArrayList<>();
 
@@ -251,6 +257,7 @@ public class GNATcheckWorker extends BaseSubcommand {
                     exportAutoFix
                         ? CheckerRun.AutoFixMode.IN_REPORT
                         : CheckerRun.AutoFixMode.DISABLED,
+                    disableFormatting,
                     reportInstantiationChain
                 );
                 checker.start(diagnostics);

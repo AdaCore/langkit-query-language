@@ -1,0 +1,9 @@
+driver: checker
+sync_trees:
+  - ../common
+sources:
+  - main.adb
+rules:
+  - goto_stmt
+auto_fix: True
+disable_formatting: True
