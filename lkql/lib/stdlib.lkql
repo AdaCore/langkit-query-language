@@ -579,29 +579,29 @@ fun previous_non_blank_token_line(token : Token) : Int = {
 }
 
 |" Return the max value between x and y
-fun max(x : BigInt, y : BigInt) : BigInt =
+fun max(x : Int, y : Int) : Int =
     if x > y then x else y
 
 |" Return the number of values covered between left and right expressions,
 |" -1 if it cannot be determined.
-fun range_values(left : Expr, right : Expr) : BigInt =
+fun range_values(left : Expr, right : Expr) : Int =
     if right.p_is_static_expr() and left.p_is_static_expr()
-    then max(right.p_eval_as_int() - left.p_eval_as_int() + 1b, 0b)
-    else -1b
+    then max(right.p_eval_as_int() - left.p_eval_as_int() + 1, 0)
+    else -1
 
 |" Return the number of values covered by a given BaseTypeDecl, -1 if
 |" this value cannot be determined.
-fun number_of_values(type : BaseTypeDecl) : BigInt = match type {
+fun number_of_values(type : BaseTypeDecl) : Int = match type {
     case SubtypeDecl(f_subtype: SubtypeIndication(f_constraint: RangeConstraint(f_range: RangeSpec(f_range: op @ BinOp)))) => range_values(op.f_left, op.f_right)
     case st@SubtypeDecl => number_of_values(st.p_get_type())
-    case _ when type == type.p_universal_int_type() => -1b
+    case _ when type == type.p_universal_int_type() => -1
     case td@TypeDecl(f_type_def: type_def) => match type_def {
         case EnumTypeDef(f_enum_literals: e) =>
             match td.f_name?.p_canonical_fully_qualified_name() {
-                case "standard.character"           => 256b
-                case "standard.wide_character"      => 65536b
-                case "standard.wide_wide_character" => 2147483648b
-                case _ => e.children.reduce[BigInt]((c: BigInt, n: Node) => c + 1b, 0b)
+                case "standard.character"           => 256
+                case "standard.wide_character"      => 65536
+                case "standard.wide_wide_character" => 2147483648
+                case _ => e.children_count
             }
         case m @ ModIntTypeDef when m.f_expr.p_is_static_expr() => m.f_expr.p_eval_as_int()
         case s @ SignedIntTypeDef when s.f_range.f_range is BinOp(f_op: OpDoubleDot) => {
@@ -612,7 +612,7 @@ fun number_of_values(type : BaseTypeDecl) : BigInt = match type {
             range_values(op.f_left, op.f_right)
         case DerivedTypeDef(f_subtype_indication: s@SubtypeIndication) =>
             number_of_values(s.p_designated_type_decl())
-        case _ => -1b
+        case _ => -1
     }
 }
 
@@ -758,7 +758,7 @@ fun default_bit_order() : Expr = {
 
 |" Return the value of ``System.Storage_Unit``, 8 if not found.
 @memoized
-fun storage_unit() : BigInt = {
+fun storage_unit() : Int = {
     val system = get_unit("system", "unit_specification");
     val decl = (
         if system == null
@@ -769,7 +769,7 @@ fun storage_unit() : BigInt = {
             when n.p_canonical_fully_qualified_name() == "system.storage_unit"
         ).head_or(null)
     );
-    if decl == null then 8b else decl.f_expr.p_eval_as_int()
+    if decl == null then 8 else decl.f_expr.p_eval_as_int()
 }
 
 |" Return true if ``decl`` has a ``Scalar_Storage_Order`` aspect whose

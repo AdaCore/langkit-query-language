@@ -1,7 +1,6 @@
 # lkql version: 2
 
-val x = 2b
-val _ = print(x)
+# Test that a proper error is emitted when using big integer literals, and that
+# they are not silently ignored/defaulting to integers.
 
-val y = 837549874357836458734b
-val _ = print(y)
+val x: Int = 2b
