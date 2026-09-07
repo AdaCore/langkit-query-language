@@ -90,6 +90,9 @@ public class GNATcheckWorker extends BaseSubcommand {
     )
     public boolean reportInstantiationChain;
 
+    @CommandLine.Option(names = "--emit-fixes", description = "Include auto fixes in the report")
+    public boolean exportAutoFix;
+
     @CommandLine.Unmatched
     public List<String> unmatched = new ArrayList<>();
 
@@ -245,7 +248,9 @@ public class GNATcheckWorker extends BaseSubcommand {
                     context,
                     analysisContext,
                     analysisUnits,
-                    CheckerRun.AutoFixMode.DISABLED,
+                    exportAutoFix
+                        ? CheckerRun.AutoFixMode.IN_REPORT
+                        : CheckerRun.AutoFixMode.DISABLED,
                     reportInstantiationChain
                 );
                 checker.start(diagnostics);
