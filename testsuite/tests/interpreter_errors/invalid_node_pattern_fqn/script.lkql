@@ -1,0 +1,6 @@
+# lkql version: 2
+
+import libadalang as lal
+
+
+val invalid: Stream[lal.AdaNode] = (from all_nodes match lal.MissingNode)

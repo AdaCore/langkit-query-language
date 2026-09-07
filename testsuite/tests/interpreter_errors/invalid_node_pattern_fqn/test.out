@@ -1,0 +1,4 @@
+script.lkql:6:62: error: undefined entity
+  6 | val invalid: Stream[lal.AdaNode] = (from all_nodes match lal.MissingNode)
+    |                                                              ^^^^^^^^^^^
+

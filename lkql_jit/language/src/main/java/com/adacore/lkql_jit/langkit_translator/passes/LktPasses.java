@@ -335,6 +335,21 @@ public final class LktPasses {
             }
         }
 
+        /** Get the node class corresponding to the provided Lkt type reference. */
+        protected Class<? extends LangkitSupport.NodeInterface> getReferencedNodeClass(
+            Liblktlang.TypeRef typeRef
+        ) {
+            try {
+                final var refDecl = typeRef.pReferencedDecl();
+                if (!refDecl.isNone()) {
+                    return getNodeClass(refDecl.fSynName());
+                }
+            } catch (Exception _) {}
+
+            // Fallback to using the typeRef's text, in case we are running on untyped LKQLv2 code.
+            return getNodeClass(typeRef);
+        }
+
         private TopLevelList buildRoot(Liblktlang.LangkitRoot root) {
             frames.enterFrame(root);
             final List<LKQLNode> topLevelNodes = new ArrayList<>();
@@ -693,7 +708,7 @@ public final class LktPasses {
                 return IsClauseNodeGen.create(loc(isA), pattern, nodeExpr);
             } else if (expr instanceof Liblktlang.CastExpr castExpr) {
                 var inner = buildExpr(castExpr.fExpr());
-                var castType = getNodeClass(castExpr.fDestType());
+                var castType = getReferencedNodeClass(castExpr.fDestType());
                 var isStrict = castExpr.fExcludesNull().pAsBool();
                 return new CastExpr(loc(castExpr), inner, castType, isStrict);
             } else if (expr instanceof StringLit stringLit) {
@@ -948,7 +963,7 @@ public final class LktPasses {
                     }
                     yield new NodeKindPattern(
                         loc(typePattern),
-                        getNodeClass(typePattern.fTypeName())
+                        getReferencedNodeClass(typePattern.fTypeName())
                     );
                 case Liblktlang.AnyTypePattern univPattern:
                     yield new UniversalPattern(loc(univPattern));
