@@ -1,0 +1,23 @@
+@check()
+fun goto_stmt(node, b: bool = false, i: int = 0, s: string = "", lSt: list = []) =
+    node is GotoStmt and {
+        print("Goto_Stmt has been called with:");
+        print("  Bool param = " & b.img);
+        print("  Int param = " & i.img);
+        print("  String param = " & s.img);
+        print("  List param = " & lSt.img);
+        print("");
+        true
+    }
+
+@check()
+fun null_stmt(node, b: bool = false, i: int = 0, s: string = "", lSt: list = []) =
+    node is NullStmt and {
+        print("Null_Stmt has been called with:");
+        print("  Bool param = " & b.img);
+        print("  Int param = " & i.img);
+        print("  String param = " & s.img);
+        print("  List param = " & lSt.img);
+        print("");
+        true
+    }

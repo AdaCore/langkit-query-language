@@ -11,7 +11,11 @@
           "shortDescription" : {
             "text" : "custom"
           },
-          "defaultConfiguration" : { }
+          "defaultConfiguration" : {
+            "parameters" : {
+              "sourceMode" : "GENERAL"
+            }
+          }
         } ]
       }
     },
@@ -28,6 +32,21 @@
               "endLine" : 1,
               "endColumn" : 19
             }
+          }
+        }, {
+          "physicalLocation" : {
+            "artifactLocation" : {
+              "uri" : "<working-dir>/main.adb"
+            },
+            "region" : {
+              "startLine" : 3,
+              "startColumn" : 4,
+              "endLine" : 3,
+              "endColumn" : 11
+            }
+          },
+          "message" : {
+            "text" : "Error occurred when analyzing <GotoStmt main.adb:3:4-3:11>"
           }
         } ],
         "message" : {

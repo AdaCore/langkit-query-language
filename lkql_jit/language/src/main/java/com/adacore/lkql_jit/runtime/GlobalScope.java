@@ -7,7 +7,6 @@ package com.adacore.lkql_jit.runtime;
 
 import com.adacore.lkql_jit.built_ins.AllBuiltIns;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
-import com.adacore.lkql_jit.checker.BaseChecker;
 import com.adacore.lkql_jit.values.LKQLNamespace;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.HashMap;
@@ -22,9 +21,6 @@ import java.util.Map;
 public final class GlobalScope {
 
     // ----- Attributes -----
-
-    /** The defined LKQL rules. */
-    private final Map<String, BaseChecker> checkers;
 
     /** The array containing the built-in functions . */
     private final Object[] builtIns;
@@ -46,7 +42,6 @@ public final class GlobalScope {
 
     /** Create a new global scope. */
     public GlobalScope() {
-        this.checkers = new HashMap<>();
         this.metaTables = new HashMap<>();
         this.globalObjects = new HashMap<>();
 
@@ -63,39 +58,6 @@ public final class GlobalScope {
     }
 
     // ----- Instance methods -----
-
-    /**
-     * Get the LKQL checkers.
-     *
-     * @return The LKQL checkers.
-     */
-    public Map<String, BaseChecker> getCheckers() {
-        return this.checkers;
-    }
-
-    /**
-     * Add the given LKQL checker in the global values.
-     *
-     * @param name The name of the checker.
-     * @param checker The object representing the checker.
-     * @param checkDuplicate Whether to check if a checker with the same name already exists.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public void addChecker(String name, BaseChecker checker, boolean checkDuplicate) {
-        BaseChecker previousValue = this.checkers.put(name, checker);
-
-        if (previousValue != null && checkDuplicate) {
-            System.err.println(
-                "Warning: a checker named \"" +
-                    name +
-                    "\" from: " +
-                    previousValue.getPath() +
-                    ", has been replaced by the one from: " +
-                    checker.getPath() +
-                    ". Note: checkers should have unique names."
-            );
-        }
-    }
 
     /**
      * Get the built-in value at the given slot.

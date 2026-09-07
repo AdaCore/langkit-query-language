@@ -64,6 +64,7 @@ public final class ListComprehension extends Expr {
         super(location);
         this.generators = generators;
         this.rootNode = new ListComprehensionRootNode(
+            location,
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
             guard,

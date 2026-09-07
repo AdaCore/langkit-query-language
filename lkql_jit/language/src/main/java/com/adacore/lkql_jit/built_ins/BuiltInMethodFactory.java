@@ -41,6 +41,7 @@ public final class BuiltInMethodFactory {
     ) {
         this.documentation = documentation;
         this.rootNode = new FunctionRootNode(
+            null,
             LKQLLanguage.getLanguage(methodBody),
             null,
             false,

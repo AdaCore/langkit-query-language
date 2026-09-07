@@ -21,6 +21,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,15 +32,19 @@ public class LKQLNamespace extends LKQLBaseNamespace {
     // ----- Constructors -----
 
     /** Create a new LKQL namespace with its shape. */
-    public LKQLNamespace(Shape shape, String documentation) {
-        super(shape, documentation);
+    public LKQLNamespace(Shape shape, SourceSection creationLocation, String documentation) {
+        super(shape, creationLocation, documentation);
     }
 
     // ----- Class methods -----
 
     /** Create a namespace from the given Truffle frame and its store values. */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLNamespace createUncached(MaterializedFrame frame, String doc) {
+    public static LKQLNamespace createUncached(
+        MaterializedFrame frame,
+        String doc,
+        SourceSection creationLocation
+    ) {
         // Prepare the map for the symbols
         final Map<String, Object> symbols = new HashMap<>();
 
@@ -53,7 +58,7 @@ public class LKQLNamespace extends LKQLBaseNamespace {
         }
 
         // Return the new namespace
-        LKQLNamespace res = new LKQLNamespace(Shape.newBuilder().build(), doc);
+        LKQLNamespace res = new LKQLNamespace(Shape.newBuilder().build(), creationLocation, doc);
         for (String key : symbols.keySet()) {
             uncachedObjectLibrary.put(res, key, symbols.get(key));
         }

@@ -100,9 +100,7 @@ public class LKQLPasses extends BaseSubcommand {
         contextBuilder.allowIO(IOAccess.ALL).logHandler(logHandler);
 
         // Forward the command line options to the options builder
-        var optionsBuilder = new LKQLOptions.Builder()
-            .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .files(files);
+        var optionsBuilder = new LKQLOptions.Builder().files(files);
         engineArgs.fillEngineOptions(optionsBuilder);
         gprArgs.fillGPROptions(optionsBuilder);
 

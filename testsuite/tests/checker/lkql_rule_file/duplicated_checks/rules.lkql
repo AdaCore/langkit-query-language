@@ -1,0 +1,6 @@
+val rules = @{
+    Goto_Stmt: [
+        {instance_name: "some_instance", b: true, i: 38, s: "Some string", l: ["Some", 1, "List"]},
+        {instance_name: "other_instance", b: true, i: 38, s: "Some string", l: ["Some", 1, "List"]}
+    ]
+}

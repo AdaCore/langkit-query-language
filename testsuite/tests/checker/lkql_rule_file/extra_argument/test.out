@@ -1,0 +1,8 @@
+rules.lkql:2:16: error: Rule "goto_stmt" doesn't have a parameter named "not_a_valid_arg"
+  2 |     Goto_Stmt: {Not_A_Valid_Arg: 0, Another_Invalid_Arg: true}
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+rules.lkql:2:16: error: Rule "goto_stmt" doesn't have a parameter named "another_invalid_arg"
+  2 |     Goto_Stmt: {Not_A_Valid_Arg: 0, Another_Invalid_Arg: true}
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

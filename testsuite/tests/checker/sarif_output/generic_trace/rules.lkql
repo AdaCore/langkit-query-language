@@ -1,0 +1,11 @@
+@check(
+    message="Node rule",
+    follow_generic_instantiations=true
+)
+fun node_rule(node) = node is GotoStmt
+
+@unit_check(follow_generic_instantiations=true)
+fun unit_rule(unit) = [
+    {loc: n, message: "Unit rule"}
+    for n in from unit.root through follow_generics select GotoStmt
+]

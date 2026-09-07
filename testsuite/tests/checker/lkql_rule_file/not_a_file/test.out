@@ -1,0 +1,2 @@
+error: Cannot read the LKQL rule file "rules.lkql" (NoSuchFileException: "rules.lkql")
+

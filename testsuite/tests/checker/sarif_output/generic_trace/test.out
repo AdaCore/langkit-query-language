@@ -1,0 +1,262 @@
+{
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LKQL",
+        "version" : "lkql <version>",
+        "rules" : [ {
+          "id" : "node_rule",
+          "name" : "node_rule",
+          "shortDescription" : {
+            "text" : "Node rule"
+          },
+          "defaultConfiguration" : {
+            "parameters" : {
+              "sourceMode" : "GENERAL"
+            }
+          }
+        }, {
+          "id" : "unit_rule",
+          "name" : "unit_rule",
+          "shortDescription" : {
+            "text" : "unit_rule"
+          },
+          "defaultConfiguration" : {
+            "parameters" : {
+              "sourceMode" : "GENERAL"
+            }
+          }
+        } ]
+      }
+    },
+    "invocations" : [ {
+      "executionSuccessful" : true
+    } ],
+    "results" : [ {
+      "ruleId" : "node_rule",
+      "message" : {
+        "text" : "Node rule"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 8,
+            "startColumn" : 7,
+            "endLine" : 8,
+            "endColumn" : 14
+          }
+        }
+      } ]
+    }, {
+      "ruleId" : "node_rule",
+      "message" : {
+        "text" : "Node rule"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 8,
+            "startColumn" : 7,
+            "endLine" : 8,
+            "endColumn" : 14
+          }
+        }
+      } ],
+      "codeFlows" : [ {
+        "message" : {
+          "text" : "Generic instantiation chain"
+        },
+        "threadFlows" : [ {
+          "locations" : [ {
+            "location" : {
+              "physicalLocation" : {
+                "artifactLocation" : {
+                  "uri" : "<working-dir>/main.adb"
+                },
+                "region" : {
+                  "startLine" : 17,
+                  "startColumn" : 7,
+                  "endLine" : 17,
+                  "endColumn" : 42
+                }
+              }
+            }
+          } ]
+        } ]
+      } ]
+    }, {
+      "ruleId" : "node_rule",
+      "message" : {
+        "text" : "Node rule"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 8,
+            "startColumn" : 7,
+            "endLine" : 8,
+            "endColumn" : 14
+          }
+        }
+      } ],
+      "codeFlows" : [ {
+        "message" : {
+          "text" : "Generic instantiation chain"
+        },
+        "threadFlows" : [ {
+          "locations" : [ {
+            "location" : {
+              "physicalLocation" : {
+                "artifactLocation" : {
+                  "uri" : "<working-dir>/main.adb"
+                },
+                "region" : {
+                  "startLine" : 22,
+                  "startColumn" : 4,
+                  "endLine" : 22,
+                  "endColumn" : 45
+                }
+              }
+            }
+          }, {
+            "location" : {
+              "physicalLocation" : {
+                "artifactLocation" : {
+                  "uri" : "<working-dir>/main.adb"
+                },
+                "region" : {
+                  "startLine" : 17,
+                  "startColumn" : 7,
+                  "endLine" : 17,
+                  "endColumn" : 42
+                }
+              }
+            }
+          } ]
+        } ]
+      } ]
+    }, {
+      "ruleId" : "unit_rule",
+      "message" : {
+        "text" : "Unit rule"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 8,
+            "startColumn" : 7,
+            "endLine" : 8,
+            "endColumn" : 14
+          }
+        }
+      } ]
+    }, {
+      "ruleId" : "unit_rule",
+      "message" : {
+        "text" : "Unit rule"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 8,
+            "startColumn" : 7,
+            "endLine" : 8,
+            "endColumn" : 14
+          }
+        }
+      } ],
+      "codeFlows" : [ {
+        "message" : {
+          "text" : "Generic instantiation chain"
+        },
+        "threadFlows" : [ {
+          "locations" : [ {
+            "location" : {
+              "physicalLocation" : {
+                "artifactLocation" : {
+                  "uri" : "<working-dir>/main.adb"
+                },
+                "region" : {
+                  "startLine" : 17,
+                  "startColumn" : 7,
+                  "endLine" : 17,
+                  "endColumn" : 42
+                }
+              }
+            }
+          } ]
+        } ]
+      } ]
+    }, {
+      "ruleId" : "unit_rule",
+      "message" : {
+        "text" : "Unit rule"
+      },
+      "locations" : [ {
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "<working-dir>/main.adb"
+          },
+          "region" : {
+            "startLine" : 8,
+            "startColumn" : 7,
+            "endLine" : 8,
+            "endColumn" : 14
+          }
+        }
+      } ],
+      "codeFlows" : [ {
+        "message" : {
+          "text" : "Generic instantiation chain"
+        },
+        "threadFlows" : [ {
+          "locations" : [ {
+            "location" : {
+              "physicalLocation" : {
+                "artifactLocation" : {
+                  "uri" : "<working-dir>/main.adb"
+                },
+                "region" : {
+                  "startLine" : 22,
+                  "startColumn" : 4,
+                  "endLine" : 22,
+                  "endColumn" : 45
+                }
+              }
+            }
+          }, {
+            "location" : {
+              "physicalLocation" : {
+                "artifactLocation" : {
+                  "uri" : "<working-dir>/main.adb"
+                },
+                "region" : {
+                  "startLine" : 17,
+                  "startColumn" : 7,
+                  "endLine" : 17,
+                  "endColumn" : 42
+                }
+              }
+            }
+          } ]
+        } ]
+      } ]
+    } ]
+  } ]
+}

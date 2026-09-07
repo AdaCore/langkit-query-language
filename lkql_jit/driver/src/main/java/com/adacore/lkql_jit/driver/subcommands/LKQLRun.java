@@ -115,10 +115,7 @@ public class LKQLRun extends BaseSubcommand {
         contextBuilder.allowIO(IOAccess.ALL).logHandler(logHandler);
 
         // Forward the command line options to the options builder
-        var optionsBuilder = new LKQLOptions.Builder()
-            .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .files(files)
-            .typecheck(typecheck);
+        var optionsBuilder = new LKQLOptions.Builder().files(files).typecheck(typecheck);
         engineArgs.fillEngineOptions(optionsBuilder);
         gprArgs.fillGPROptions(optionsBuilder);
 

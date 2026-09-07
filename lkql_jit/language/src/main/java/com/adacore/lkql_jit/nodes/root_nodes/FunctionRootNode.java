@@ -15,6 +15,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
 /**
@@ -63,6 +64,7 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
      * @param body The expression of the function.
      */
     public FunctionRootNode(
+        SourceSection location,
         TruffleLanguage<?> language,
         FrameDescriptor frameDescriptor,
         boolean isMemoized,
@@ -72,7 +74,7 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
         Expr body,
         String name
     ) {
-        super(language, frameDescriptor);
+        super(location, language, frameDescriptor);
         this.isMemoized = isMemoized;
         this.takesClosure = takesClosure;
         this.parameterNames = parameterNames;
@@ -191,9 +193,9 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     @Override
     public String toString() {
         // If the function's body is a built-in, then there is no LKQL source location to refer to
-        var pfx = (this.body instanceof BuiltInBody
-                ? "<builtin>"
-                : this.body.getLocation().fileName() + ":" + this.body.getLocation().startLine());
+        var pfx = this.body instanceof BuiltInBody
+            ? "<builtin>"
+            : body.getSourceName() + ":" + body.getSourceSection().getStartLine();
 
         return pfx + "::" + this.name;
     }

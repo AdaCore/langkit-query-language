@@ -13,10 +13,13 @@
           },
           "defaultConfiguration" : {
             "parameters" : {
-              "bool" : "true",
-              "int" : "42",
-              "str" : "/"exterior_arg/"",
-              "list" : "[false, 32, /"exterior_other_arg/"]"
+              "args" : {
+                "bool" : "true",
+                "int" : "42",
+                "str" : "/"exterior_arg/"",
+                "list" : "[false, 32, /"exterior_other_arg/"]"
+              },
+              "sourceMode" : "GENERAL"
             }
           }
         } ]

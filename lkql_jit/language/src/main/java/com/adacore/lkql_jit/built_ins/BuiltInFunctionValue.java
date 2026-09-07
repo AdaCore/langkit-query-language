@@ -28,6 +28,7 @@ public class BuiltInFunctionValue extends LKQLFunction {
         this(
             documentation,
             new FunctionRootNode(
+                null,
                 LKQLLanguage.getLanguage(body),
                 null,
                 false,

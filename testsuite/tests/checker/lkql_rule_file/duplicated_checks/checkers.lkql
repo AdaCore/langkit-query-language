@@ -1,0 +1,3 @@
+@check()
+fun goto_stmt(node, b: bool = false, i: int = 0, s: string = "", l: list = []) =
+    node is GotoStmt

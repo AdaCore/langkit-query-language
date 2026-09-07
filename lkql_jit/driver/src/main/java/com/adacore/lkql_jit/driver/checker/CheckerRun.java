@@ -14,8 +14,10 @@ import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.RuleViolation;
 import com.adacore.lkql_jit.driver.source_support.Source;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
+import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.github.difflib.DiffUtils;
+import com.oracle.truffle.api.exception.AbstractTruffleException;
 import java.util.*;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
@@ -49,6 +51,12 @@ public final class CheckerRun {
     /** Whether and how to apply auto-fixing function of executed rules. */
     private final AutoFixMode autoFixMode;
 
+    /**
+     * Whether to compute and store generic traces when a violation is reported in a generic
+     * instantiation.
+     */
+    private final boolean storeGenericTraces;
+
     // ----- Constructors -----
 
     public CheckerRun(
@@ -57,7 +65,8 @@ public final class CheckerRun {
         Context executionContext,
         LangkitSupport.AnalysisContextInterface analysisContext,
         List<LangkitSupport.AnalysisUnit> units,
-        AutoFixMode autoFixMode
+        AutoFixMode autoFixMode,
+        boolean storeGenericTraces
     ) {
         this.debugMode = debugMode;
         this.ruleInstances = ruleInstances;
@@ -68,6 +77,7 @@ public final class CheckerRun {
             .stream()
             .anyMatch(i -> i.instantiatedRule.followGenericInstantiations());
         this.autoFixMode = autoFixMode;
+        this.storeGenericTraces = storeGenericTraces;
     }
 
     // ----- Instance methods -----
@@ -81,6 +91,7 @@ public final class CheckerRun {
             switch (i.instantiatedRule.kind()) {
                 case NODE -> nodeRuleInstances.add(i);
                 case UNIT -> unitRuleInstances.add(i);
+                case STUB -> {}
             }
         });
 
@@ -226,6 +237,21 @@ public final class CheckerRun {
                             )
                         );
                     } else if (checkRes.asBoolean()) {
+                        // If required, compute the generic trace
+                        final List<SourceSection> genericTrace;
+                        if (storeGenericTraces && step.inGenericInstantiation) {
+                            // Get the generic instantiations trace from Libadalang, reversing the
+                            // returned list because we want it to be outermost first.
+                            genericTrace = Arrays.stream(
+                                ((Libadalang.AdaNode) step.node).pGenericInstantiations()
+                            )
+                                .map(SourceSection::from)
+                                .toList()
+                                .reversed();
+                        } else {
+                            genericTrace = List.of();
+                        }
+
                         // Create the base diagnostic
                         var ruleViolation = new RuleViolation(
                             instance,
@@ -237,7 +263,8 @@ public final class CheckerRun {
                                     }
                                     default -> step.node;
                                 }
-                            )
+                            ),
+                            genericTrace
                         );
 
                         // If required, call the auto fixing function
@@ -277,7 +304,8 @@ public final class CheckerRun {
                         diagnostics.add(ruleViolation);
                     }
                 } catch (PolyglotException e) {
-                    diagnostics.handleException(
+                    handlePolyglotException(
+                        diagnostics,
                         e,
                         new Hint(
                             "Error occurred when analyzing " + step.node.toString(),
@@ -333,15 +361,35 @@ public final class CheckerRun {
                 while (iterator.hasIteratorNextElement()) {
                     var resObj = iterator.getIteratorNextElement().as(LKQLDynamicObject.class);
                     var message = (String) resObj.getUncached("message");
-                    var location = switch (resObj.getUncached("loc")) {
-                        case LangkitSupport.NodeInterface ni -> SourceSection.from(ni);
-                        case LangkitSupport.TokenInterface ti -> SourceSection.from(ti);
-                        default -> null;
-                    };
+                    final SourceSection location;
+                    final List<SourceSection> genericTrace;
+                    switch (resObj.getUncached("loc")) {
+                        case LangkitSupport.NodeInterface ni -> {
+                            location = SourceSection.from(ni);
+                            // Get the generic instantiations trace from Libadalang, reversing the
+                            // returned list because we want it to be outermost first.
+                            genericTrace = storeGenericTraces
+                                ? Arrays.stream(((Libadalang.AdaNode) ni).pGenericInstantiations())
+                                      .map(SourceSection::from)
+                                      .toList()
+                                      .reversed()
+                                : List.of();
+                        }
+                        case LangkitSupport.TokenInterface ti -> {
+                            location = SourceSection.from(ti);
+                            genericTrace = List.of();
+                        }
+                        default -> {
+                            location = null;
+                            genericTrace = null;
+                        }
+                    }
 
                     // If the violation report location is valid, emit a rule violation
                     if (location != null) {
-                        diagnostics.add(new RuleViolation(message, instance, location));
+                        diagnostics.add(
+                            new RuleViolation(message, instance, location, genericTrace)
+                        );
                     } else {
                         diagnostics.add(
                             new Error(
@@ -367,7 +415,8 @@ public final class CheckerRun {
                 );
             }
         } catch (PolyglotException e) {
-            diagnostics.handleException(
+            handlePolyglotException(
+                diagnostics,
                 e,
                 new Hint(
                     "Error occurred when analyzing " + unit.getFileName(false),
@@ -381,6 +430,31 @@ public final class CheckerRun {
     private LangkitSupport.RewritingContextInterface getRewritingContext() {
         var ctx = analysisContext.getRewritingContext();
         return ctx == null ? analysisContext.startRewriting() : ctx;
+    }
+
+    /** Handle the polyglot exception and store it in diagnostics if this is required. */
+    private void handlePolyglotException(
+        DiagnosticCollector diagnostics,
+        PolyglotException polyglotException,
+        Hint hint
+    ) {
+        // Fetch whether the exception is from the Langkit analysis library
+        var exceptionFromAnalysisLib = false;
+        if (polyglotException.isGuestException()) {
+            var guestException = polyglotException.getGuestObject();
+            if (
+                guestException != null &&
+                guestException.as(AbstractTruffleException.class) instanceof
+                    LKQLRuntimeError lkqlRuntimeError
+            ) {
+                exceptionFromAnalysisLib = lkqlRuntimeError.getCause() != null;
+            }
+        }
+
+        // If the checker is not in debug mode, errors from the analysis library aren't forwarded
+        if (debugMode || !exceptionFromAnalysisLib) {
+            diagnostics.handleException(polyglotException, hint);
+        }
     }
 
     // ----- Inner classes and enums -----

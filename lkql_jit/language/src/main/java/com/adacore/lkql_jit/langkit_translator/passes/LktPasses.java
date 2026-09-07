@@ -51,8 +51,8 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternFieldNodeGen;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternPropertyNodeGen;
+import com.adacore.lkql_jit.utils.functions.SourceSectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
@@ -79,7 +79,7 @@ public final class LktPasses {
                 .forEach(diag ->
                     errors.addDiag(
                         LangkitSupport.renderSolverDiag(diag),
-                        SourceSectionWrapper.createSection(
+                        SourceSectionUtils.createSection(
                             diag.location.getSourceLocationRange(),
                             source
                         )
@@ -486,37 +486,19 @@ public final class LktPasses {
                         ? buildAnnotation((Liblktlang.DeclAnnotation) annotations.getChild(0))
                         : null;
 
-                    final var ret = new FunctionDeclaration(
-                        loc(funDecl),
-                        annotation,
-                        frames.getBinding(name),
-                        createFunExpr(
-                            funDecl,
-                            name,
-                            fullDecl.fDoc(),
-                            funDecl.fBody(),
-                            funDecl.fParams()
-                        )
-                    );
-
-                    if (annotation == null) yield Optional.of(ret);
-
                     yield Optional.of(
-                        switch (annotation.getName()) {
-                            case Constants.ANNOTATION_NODE_CHECK -> new CheckerExport(
-                                loc(funDecl),
-                                annotation,
-                                CheckerExport.CheckerMode.NODE,
-                                ret
-                            );
-                            case Constants.ANNOTATION_UNIT_CHECK -> new CheckerExport(
-                                loc(funDecl),
-                                annotation,
-                                CheckerExport.CheckerMode.UNIT,
-                                ret
-                            );
-                            default -> ret;
-                        }
+                        new FunctionDeclaration(
+                            loc(funDecl),
+                            annotation,
+                            frames.getBinding(name),
+                            createFunExpr(
+                                funDecl,
+                                name,
+                                fullDecl.fDoc(),
+                                funDecl.fBody(),
+                                funDecl.fParams()
+                            )
+                        )
                     );
                 }
                 case Liblktlang.ValDecl valDecl -> {

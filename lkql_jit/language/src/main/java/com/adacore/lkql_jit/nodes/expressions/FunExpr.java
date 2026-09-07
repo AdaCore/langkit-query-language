@@ -70,6 +70,7 @@ public final class FunExpr extends Expr {
     ) {
         super(location);
         this.functionRootNode = new FunctionRootNode(
+            location,
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
             false,

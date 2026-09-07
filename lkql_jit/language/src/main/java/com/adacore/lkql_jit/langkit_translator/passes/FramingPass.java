@@ -14,7 +14,7 @@ import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
-import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
+import com.adacore.lkql_jit.utils.functions.SourceSectionUtils;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -55,7 +55,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     /** Create a Truffle source section from a parsing node. */
     private SourceSection loc(LangkitSupport.NodeInterface node) {
-        return SourceSectionWrapper.createSection(node.getSourceLocationRange(), source);
+        return SourceSectionUtils.createSection(node.getSourceLocationRange(), source);
     }
 
     /**

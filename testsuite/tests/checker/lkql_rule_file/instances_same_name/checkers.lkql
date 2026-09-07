@@ -1,0 +1,7 @@
+@check()
+fun goto_stmt(node) =
+    node is GotoStmt
+
+@check()
+fun null_stmt(node) =
+    node is NullStmt

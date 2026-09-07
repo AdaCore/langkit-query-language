@@ -48,6 +48,9 @@ public class LKQLChecker extends BaseSubcommand {
     @CommandLine.Mixin
     GPRArgs gprArgs;
 
+    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
+    public boolean verbose;
+
     @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
     public boolean debug;
 
@@ -110,19 +113,6 @@ public class LKQLChecker extends BaseSubcommand {
     /** Simply initialized arguments. */
     public LKQLChecker() {}
 
-    // ----- Abstract methods -----
-
-    /**
-     * Perform a custom post-processing on rule instances that are going to be executed. By default,
-     * this method check instances validity and filter out invalid ones.
-     */
-    private List<RuleInstance> postProcessInstances(List<RuleInstance> ruleInstances) {
-        return ruleInstances
-            .stream()
-            .filter(i -> i.isValid(diagnostics))
-            .toList();
-    }
-
     // ----- Instance methods -----
 
     @Override
@@ -155,10 +145,7 @@ public class LKQLChecker extends BaseSubcommand {
     @Override
     protected void launch(Context.Builder contextBuilder) {
         // Create the option object for the context builder
-        var optionsBuilder = new LKQLOptions.Builder()
-            .engineMode(LKQLOptions.EngineMode.INTERPRETER)
-            .files(files)
-            .ignores(ignores);
+        var optionsBuilder = new LKQLOptions.Builder().files(files).ignores(ignores);
         engineArgs.fillEngineOptions(optionsBuilder);
         gprArgs.fillGPROptions(optionsBuilder);
 
@@ -172,8 +159,10 @@ public class LKQLChecker extends BaseSubcommand {
         // Then build the context and perform the checking process
         try (Context context = contextBuilder.build()) {
             RuleRepository repository = new RuleRepository(context, searchingDirs(), diagnostics);
-            List<RuleInstance> ruleInstances = postProcessInstances(
-                this.getRuleInstances(context, repository)
+            List<RuleInstance> ruleInstances = Utils.postProcessInstances(
+                diagnostics,
+                this.getRuleInstances(context, repository),
+                verbose
             );
 
             // Get analysis context and specified unit from the LKQL engine
@@ -196,7 +185,8 @@ public class LKQLChecker extends BaseSubcommand {
                 context,
                 analysisContext,
                 specifiedUnits,
-                autoFixMode
+                autoFixMode,
+                reportFormat == ReportFormat.SARIF
             );
             checkerRun.start(diagnostics);
 
@@ -245,7 +235,7 @@ public class LKQLChecker extends BaseSubcommand {
     private List<RuleInstance> getRuleInstances(Context context, RuleRepository repository) {
         var res = new ArrayList<>(processCommandLineInstances(context, repository));
         if (ruleFile != null) res.addAll(
-            Utils.processLKQLRuleFile(diagnostics, context, repository, ruleFile)
+            Utils.processLKQLRuleFile(diagnostics, context, repository, ruleFile, null)
         );
         return res;
     }

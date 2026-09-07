@@ -1,0 +1,4 @@
+driver: checker
+rule_file: ./rule_file/rules.lkql
+sources:
+  - main.adb

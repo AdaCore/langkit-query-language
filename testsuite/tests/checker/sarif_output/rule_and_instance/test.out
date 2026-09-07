@@ -13,7 +13,10 @@
           },
           "defaultConfiguration" : {
             "parameters" : {
-              "bool" : "true"
+              "args" : {
+                "bool" : "true"
+              },
+              "sourceMode" : "GENERAL"
             }
           }
         }, {
@@ -21,13 +24,17 @@
           "name" : "Other_Instance",
           "defaultConfiguration" : {
             "parameters" : {
-              "bool" : "false"
+              "args" : {
+                "bool" : "false"
+              },
+              "sourceMode" : "GENERAL"
             }
           },
           "relationships" : [ {
             "target" : {
               "id" : "custom"
-            }
+            },
+            "kinds" : [ "equal" ]
           } ]
         } ]
       }

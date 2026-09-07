@@ -11,7 +11,11 @@
           "shortDescription" : {
             "text" : "null_stmts"
           },
-          "defaultConfiguration" : { }
+          "defaultConfiguration" : {
+            "parameters" : {
+              "sourceMode" : "GENERAL"
+            }
+          }
         } ]
       }
     },

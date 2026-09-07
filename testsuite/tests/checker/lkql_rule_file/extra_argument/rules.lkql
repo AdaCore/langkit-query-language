@@ -1,0 +1,3 @@
+val rules = @{
+    Goto_Stmt: {Not_A_Valid_Arg: 0, Another_Invalid_Arg: true}
+}

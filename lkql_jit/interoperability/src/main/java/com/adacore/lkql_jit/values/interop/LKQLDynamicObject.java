@@ -13,6 +13,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.source.SourceSection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,10 +25,13 @@ public abstract class LKQLDynamicObject extends DynamicObject {
     protected static final DynamicObjectLibrary uncachedObjectLibrary =
         DynamicObjectLibrary.getUncached();
 
+    private final SourceSection creationLocation;
+
     // ----- Constructors -----
 
-    public LKQLDynamicObject(Shape shape) {
+    public LKQLDynamicObject(Shape shape, SourceSection creationLocation) {
         super(shape);
+        this.creationLocation = creationLocation;
     }
 
     // ----- Uncached access methods -----
@@ -94,6 +98,16 @@ public abstract class LKQLDynamicObject extends DynamicObject {
     protected abstract LKQLList getKeys(DynamicObjectLibrary lib);
 
     // ----- Value methods -----
+
+    @ExportMessage
+    public boolean hasSourceLocation() {
+        return creationLocation != null;
+    }
+
+    @ExportMessage
+    public SourceSection getSourceLocation() {
+        return creationLocation;
+    }
 
     /**
      * Get the default displayable string, exporting because this message is abstract and all

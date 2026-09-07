@@ -6,13 +6,19 @@
 package com.adacore.lkql_jit.driver.checker;
 
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.Hint;
+import com.adacore.lkql_jit.driver.diagnostics.variants.BaseDiagnostic;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Info;
+import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
+import com.adacore.lkql_jit.driver.source_support.SourceSection;
 import com.adacore.lkql_jit.values.interop.LKQLBaseNamespace;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.adacore.lkql_jit.values.interop.LKQLList;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
@@ -26,18 +32,24 @@ public class Utils {
      * @param diagnostics Place all diagnostics fetched during the process in it.
      * @param context Execute the LKQL rule file in it.
      * @param repository Repository of rules available to instantiation.
+     * @param argProcessFallback Function to call when the processing of a rule argument set fail.
      */
     public static List<RuleInstance> processLKQLRuleFile(
         DiagnosticCollector diagnostics,
         Context context,
         RuleRepository repository,
-        Path lkqlRuleFile
+        Path lkqlRuleFile,
+        RuleArgProcessor argProcessFallback
     ) {
         try {
             // Evaluate the rule file to get its namespace
-            var ruleFileNamespace = context
-                .eval(Source.newBuilder("lkql", lkqlRuleFile.toFile()).build())
-                .as(LKQLBaseNamespace.class);
+            var ruleFileExecutionResult = context.eval(
+                Source.newBuilder("lkql", lkqlRuleFile.toFile()).build()
+            );
+            var defaultLocation = Optional.ofNullable(
+                ruleFileExecutionResult.getSourceLocation()
+            ).map(SourceSection::from);
+            var ruleFileNamespace = ruleFileExecutionResult.as(LKQLBaseNamespace.class);
 
             // Prepare working variables and the result
             var generalInstances = ruleFileNamespace.getUncached("rules");
@@ -50,17 +62,19 @@ public class Utils {
                 res.addAll(
                     processInstancesObject(
                         diagnostics,
+                        context,
                         repository,
-                        lkqlRuleFile,
+                        argProcessFallback,
                         obj,
                         RuleInstance.SourceMode.GENERAL
                     )
                 );
             } else {
-                errorInRuleFile(
-                    diagnostics,
-                    lkqlRuleFile,
-                    "An LKQL rule file must define a \"rules\" top level object"
+                diagnostics.add(
+                    new Error(
+                        "An LKQL rule file must define a \"rules\" top level object",
+                        defaultLocation
+                    )
                 );
             }
 
@@ -70,17 +84,19 @@ public class Utils {
                     res.addAll(
                         processInstancesObject(
                             diagnostics,
+                            context,
                             repository,
-                            lkqlRuleFile,
+                            argProcessFallback,
                             obj,
                             RuleInstance.SourceMode.ADA
                         )
                     );
                 } else {
-                    errorInRuleFile(
-                        diagnostics,
-                        lkqlRuleFile,
-                        "Value associated to \"ada_rules\" must be an object"
+                    diagnostics.add(
+                        new Error(
+                            "Value associated to \"ada_rules\" must be an object",
+                            defaultLocation
+                        )
                     );
                 }
             }
@@ -91,17 +107,19 @@ public class Utils {
                     res.addAll(
                         processInstancesObject(
                             diagnostics,
+                            context,
                             repository,
-                            lkqlRuleFile,
+                            argProcessFallback,
                             obj,
                             RuleInstance.SourceMode.SPARK
                         )
                     );
                 } else {
-                    errorInRuleFile(
-                        diagnostics,
-                        lkqlRuleFile,
-                        "Value associated to \"spark_rules\" must be an object"
+                    diagnostics.add(
+                        new Error(
+                            "Value associated to \"spark_rules\" must be an object",
+                            defaultLocation
+                        )
                     );
                 }
             }
@@ -114,8 +132,10 @@ public class Utils {
                     "Cannot read the LKQL rule file \"" +
                         lkqlRuleFile.getFileName() +
                         "\" (" +
+                        e.getClass().getSimpleName() +
+                        ": \"" +
                         e.getMessage() +
-                        ')'
+                        "\")"
                 )
             );
         } catch (PolyglotException e) {
@@ -132,13 +152,19 @@ public class Utils {
      */
     private static List<RuleInstance> processInstancesObject(
         DiagnosticCollector diagnostics,
+        Context context,
         RuleRepository repository,
-        Path lkqlRuleFile,
+        RuleArgProcessor argProcessFallback,
         LKQLDynamicObject object,
         RuleInstance.SourceMode sourceMode
     ) {
         // Create the result object
         var res = new ArrayList<RuleInstance>();
+
+        // Get the location of the rule configuration object if possible
+        var configLocation = Optional.ofNullable(context.asValue(object).getSourceLocation()).map(
+            SourceSection::from
+        );
 
         // Process each instantiated rule
         for (var ruleInstancesEntry : object.asMap().entrySet()) {
@@ -148,10 +174,11 @@ public class Utils {
 
             // Start by ensuring the rule exists
             if (instantiatedRule.isEmpty()) {
-                errorInRuleFile(
-                    diagnostics,
-                    lkqlRuleFile,
-                    "Unknown rule name \"" + ruleInstancesEntry.getKey() + '"'
+                diagnostics.add(
+                    new Error(
+                        "Unknown rule name \"" + ruleInstancesEntry.getKey() + '"',
+                        configLocation
+                    )
                 );
                 continue;
             }
@@ -166,33 +193,42 @@ public class Utils {
                             Optional.empty(),
                             sourceMode,
                             Map.of(),
-                            Optional.empty()
+                            configLocation
                         )
                     );
                 } else {
-                    for (var maybeArgSet : argSets.getContent()) {
-                        if (maybeArgSet instanceof LKQLDynamicObject argSet) {
-                            res.add(
-                                instantiateWithArgumentSet(
-                                    sourceMode,
-                                    instantiatedRule.get(),
-                                    argSet
-                                )
-                            );
-                        } else {
-                            errorInRuleFile(
+                    for (var argObject : argSets.getContent()) {
+                        var invalidArgContainerDiag = new Error(
+                            "Invalid rule arguments container: \"" + argObject + '"',
+                            configLocation
+                        );
+                        if (argObject instanceof LKQLDynamicObject argSet) {
+                            instantiateWithArgumentSet(
                                 diagnostics,
-                                lkqlRuleFile,
-                                "Rule arguments must be in an object value"
-                            );
+                                context,
+                                sourceMode,
+                                instantiatedRule.get(),
+                                argSet
+                            ).ifPresent(res::add);
+                        } else if (argProcessFallback != null) {
+                            argProcessFallback
+                                .processArg(
+                                    instantiatedRule.get(),
+                                    sourceMode,
+                                    configLocation,
+                                    argObject
+                                )
+                                .ifPresentOrElse(res::add, () ->
+                                    diagnostics.add(invalidArgContainerDiag)
+                                );
+                        } else {
+                            diagnostics.add(invalidArgContainerDiag);
                         }
                     }
                 }
             } else {
-                errorInRuleFile(
-                    diagnostics,
-                    lkqlRuleFile,
-                    "The value associated to a rule name must be a list"
+                diagnostics.add(
+                    new Error("The value associated to a rule name must be a list", configLocation)
                 );
             }
         }
@@ -202,11 +238,28 @@ public class Utils {
     }
 
     /** Internal helper to create an instance of the provided rule with an argument set. */
-    private static RuleInstance instantiateWithArgumentSet(
+    private static Optional<RuleInstance> instantiateWithArgumentSet(
+        DiagnosticCollector diagnostics,
+        Context context,
         RuleInstance.SourceMode sourceMode,
         Rule instantiatedRule,
         LKQLDynamicObject argumentSet
     ) {
+        boolean hasError = false;
+
+        // Create a map going from lowered parameter name to their real name as declared in the
+        // associated LKQL function.
+        var ruleParameters = Arrays.stream(
+            instantiatedRule.checker().parameterNames,
+            1,
+            instantiatedRule.checker().parameterNames.length
+        ).collect(Collectors.toMap(String::toLowerCase, s -> s));
+
+        // Create the new instance location
+        var instanceLocation = Optional.ofNullable(
+            context.asValue(argumentSet).getSourceLocation()
+        ).map(SourceSection::from);
+
         // Process the argument set to extract the new instance config
         var instanceArgs = new HashMap<String, Object>();
         String instanceName = null;
@@ -214,28 +267,156 @@ public class Utils {
             var argName = argEntry.getKey().toLowerCase();
 
             // Special case for argument "instance_name" which defines the name of the instance
-            if (argName.equals("instance_name")) instanceName = (String) argEntry.getValue();
-
+            if (argName.equals("instance_name")) {
+                if (argEntry.getValue() instanceof String s) instanceName = s;
+                else {
+                    diagnostics.add(
+                        new Error(
+                            "The provided instance name must be a string value",
+                            instanceLocation
+                        )
+                    );
+                    hasError = true;
+                }
+            }
             // All other arguments are processed normally
-            instanceArgs.put(argName, argEntry.getValue());
+            else {
+                if (ruleParameters.containsKey(argName)) {
+                    instanceArgs.put(ruleParameters.get(argName), argEntry.getValue());
+                } else {
+                    diagnostics.add(
+                        new Error(
+                            "Rule \"" +
+                                instantiatedRule.name() +
+                                "\" doesn't have a parameter named \"" +
+                                argName +
+                                '"',
+                            instanceLocation
+                        )
+                    );
+                    hasError = true;
+                }
+            }
         }
 
         // Then return the new instance
-        return new RuleInstance(
-            instantiatedRule,
-            Optional.ofNullable(instanceName),
-            sourceMode,
-            instanceArgs,
-            Optional.empty()
-        );
+        return hasError
+            ? Optional.empty()
+            : Optional.of(
+                  new RuleInstance(
+                      instantiatedRule,
+                      Optional.ofNullable(instanceName),
+                      sourceMode,
+                      instanceArgs,
+                      instanceLocation
+                  )
+              );
     }
 
-    /** Internal helper to signal an error in an LKQL rule file. */
-    private static void errorInRuleFile(
+    /**
+     * Post-process the provided instance list to check their validity and unicity, returning the
+     * list of valid instances.
+     */
+    public static List<RuleInstance> postProcessInstances(
         DiagnosticCollector diagnostics,
-        Path lkqlRuleFile,
-        String message
+        List<RuleInstance> instances,
+        boolean verbose
     ) {
-        diagnostics.add(new Error(lkqlRuleFile.getFileName().toString() + ": " + message));
+        // Prepare the result list and a unicity map
+        var unicityMap = new HashMap<String, RuleInstance>();
+
+        var res = instances
+            .stream()
+            .filter(i -> i.isValid(diagnostics))
+            .filter(instance -> {
+                // Check for instances unicity
+                var sameNameInstance = unicityMap.get(instance.identifier());
+                if (sameNameInstance != null) {
+                    final BaseDiagnostic diag;
+                    if (instance.isEquivalent(sameNameInstance)) {
+                        diag = new Warning(
+                            "Instance \"" +
+                                instance.name() +
+                                "\" is duplicated, ignoring this declaration",
+                            instance.instanceLocation
+                        );
+                        sameNameInstance.instanceLocation.ifPresent(l ->
+                            diag.addHint(new Hint("Previous declaration was here", l))
+                        );
+                    } else {
+                        diag = new Error(
+                            "Multiple instances with the name \"" +
+                                instance.name() +
+                                "\", instance names must be unique",
+                            instance.instanceLocation
+                        );
+                        sameNameInstance.instanceLocation.ifPresent(l ->
+                            diag.addHint(
+                                new Hint(
+                                    "Previous instance named \"" +
+                                        sameNameInstance.name() +
+                                        "\" was declared here",
+                                    l
+                                )
+                            )
+                        );
+                    }
+                    diagnostics.add(diag);
+                    return false;
+                } else {
+                    unicityMap.put(instance.identifier(), instance);
+                    if (verbose) {
+                        diagnostics.add(
+                            new Info(
+                                "Register new instance \"" + instance.name() + '"',
+                                instance.instanceLocation
+                            )
+                        );
+                    }
+                    return true;
+                }
+            })
+            .toList();
+
+        // Now check for instances running the same rule with the same config
+        for (int i = 0; i < res.size(); i++) {
+            var instance = res.get(i);
+            for (int j = i + 1; j < res.size(); j++) {
+                var otherInstance = res.get(j);
+                if (instance.isEquivalent(otherInstance)) {
+                    var warning = new Warning(
+                        "Instance \"" +
+                            instance.name() +
+                            "\" is running the same check as instance \"" +
+                            otherInstance.name() +
+                            '"',
+                        instance.instanceLocation
+                    );
+                    otherInstance.instanceLocation.ifPresent(l ->
+                        warning.addHint(
+                            new Hint(
+                                "Instance \"" + otherInstance.name() + "\" was declared here",
+                                l
+                            )
+                        )
+                    );
+                    diagnostics.add(warning);
+                }
+            }
+        }
+
+        // Finally, return the list of filtered and checked instances
+        return res;
+    }
+
+    /** Function interface that instantiate a rule with an arbitrary argument. */
+    @FunctionalInterface
+    public interface RuleArgProcessor {
+        Optional<RuleInstance> processArg(
+            Rule instantiatedRule,
+            RuleInstance.SourceMode sourceMode,
+            Optional<SourceSection> instanceLocation,
+            Object argument
+        );
     }
 }

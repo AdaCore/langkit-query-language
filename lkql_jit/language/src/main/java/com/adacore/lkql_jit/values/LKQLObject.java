@@ -28,19 +28,11 @@ public final class LKQLObject extends LKQLDynamicObject {
 
     private static final Shape.Builder shapeBuilder = Shape.newBuilder();
 
-    /**
-     * The source location where this object was created. This attribute was
-     * introduced to provide location information for object instances defined
-     * in LKQL rules files.
-     */
-    private final SourceSection creationLocation;
-
     // ----- Constructors -----
 
     /** Create a new LKQL object with its dynamic shape. */
     public LKQLObject(final Shape shape, SourceSection creationLocation) {
-        super(shape);
-        this.creationLocation = creationLocation;
+        super(shape, creationLocation);
     }
 
     // ----- Class methods -----
@@ -72,16 +64,6 @@ public final class LKQLObject extends LKQLDynamicObject {
     }
 
     // ----- Value methods -----
-
-    @ExportMessage
-    public boolean hasSourceLocation() {
-        return creationLocation != null;
-    }
-
-    @ExportMessage
-    public SourceSection getSourceLocation() {
-        return creationLocation;
-    }
 
     /** Get the displayable string of the object. */
     @ExportMessage

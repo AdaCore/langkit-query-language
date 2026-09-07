@@ -42,6 +42,10 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
         this.diagnostics.add(diagnostic);
     }
 
+    public void addAll(DiagnosticCollector otherCollector) {
+        this.diagnostics.addAll(otherCollector.diagnostics);
+    }
+
     /**
      * Helper function that provide support to handle an exception from the execution of a source
      * in a polyglot context. This function tries to extract an LKQL specific exception from the

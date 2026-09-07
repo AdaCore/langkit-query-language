@@ -1,0 +1,7 @@
+val rules = @{
+    Goto_Stmt: [
+        {b: true, i: 42, s: "Hello!", lst: ["This", "is", "a", "list"]},
+        {instance_name: "default_instance"}
+    ],
+    Null_Stmt
+}

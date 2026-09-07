@@ -75,11 +75,11 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
 
         // If there are some hints, display them
         for (var hint : diagnostic.hints) {
-            var hintLocationImage = hint.location.map(l -> l.shortImage() + ": ");
-            output.print(styled(hintLocationImage.orElse(""), Styling::bold));
+            var hintLocationImage = hint.location().shortImage() + ": ";
+            output.print(styled(hintLocationImage, Styling::bold));
             output.print(styled("hint: ", Styling::blue, Styling::bold));
-            output.println(hint.message);
-            hint.location.ifPresent(l -> printSourceSnippet(l, Styling::blue, 2));
+            output.println(hint.message());
+            printSourceSnippet(hint.location(), Styling::blue, 2);
         }
 
         // If there are auto-fixes, display them

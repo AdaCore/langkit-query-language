@@ -13,10 +13,13 @@
           },
           "defaultConfiguration" : {
             "parameters" : {
-              "bool" : "false",
-              "int" : "22",
-              "str" : "/"my_arg/"",
-              "list" : "[true, 23, /"other_arg/"]"
+              "args" : {
+                "bool" : "false",
+                "int" : "22",
+                "str" : "/"my_arg/"",
+                "list" : "[true, 23, /"other_arg/"]"
+              },
+              "sourceMode" : "GENERAL"
             }
           }
         } ]

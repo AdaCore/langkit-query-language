@@ -8,7 +8,6 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.exceptions.LogLocation;
@@ -42,9 +41,7 @@ import com.adacore.lkql_jit.nodes.expressions.value_read.ReadPrelude;
 import com.adacore.lkql_jit.nodes.pass.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
-import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.SourceSectionWrapper;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
@@ -560,30 +557,14 @@ public final class TranslationPass
 
     @Override
     public LKQLNode visit(Liblkqllang.PatternDetailDelimiterIs patternDetailDelimiterIs) {
-        var ctx = LKQLLanguage.getContext(null);
-        if (ctx.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
-            ctx
-                .getDiagnosticEmitter()
-                .emitDiagnostic(
-                    CheckerUtils.MessageKind.WARNING,
-                    "'is' syntax is deprecated for patterns. Please consider migrating your" +
-                        " code via 'lkql refactor -r IS_TO_COLON path/to/your/rule_file.lkql'.",
-                    null,
-                    SourceSectionWrapper.create(
-                        patternDetailDelimiterIs.getSourceLocationRange(),
-                        source
-                    )
-                );
-        } else {
-            ctx
-                .getLogger()
-                .log(
-                    Level.WARNING,
-                    "'is' syntax is deprecated for patterns. Please consider migrating your" +
-                        " code via 'lkql refactor -r IS_TO_COLON path/to/your/rule_file.lkql'.",
-                    new LogLocation(new LogLocation.TruffleLocation(loc(patternDetailDelimiterIs)))
-                );
-        }
+        LKQLLanguage.getContext(null)
+            .getLogger()
+            .log(
+                Level.WARNING,
+                "'is' syntax is deprecated for patterns. Please consider migrating your" +
+                    " code via 'lkql refactor -r IS_TO_COLON path/to/your/rule_file.lkql'.",
+                new LogLocation(new LogLocation.TruffleLocation(loc(patternDetailDelimiterIs)))
+            );
         return null;
     }
 
@@ -1453,31 +1434,8 @@ public final class TranslationPass
         // Translate the function body
         FunExpr funExpr = (FunExpr) funDecl.fFunExpr().accept(this);
 
-        // Create the new function declaration node
-        final var functionDecl = new FunctionDeclaration(loc(funDecl), annotation, slot, funExpr);
-
-        // If the function is annotated as a checker, create a checker exportation node and
-        // return it
-        if (annotation != null) {
-            if (annotation.getName().equals(Constants.ANNOTATION_NODE_CHECK)) {
-                return new CheckerExport(
-                    loc(funDecl),
-                    annotation,
-                    CheckerExport.CheckerMode.NODE,
-                    functionDecl
-                );
-            } else if (annotation.getName().equals(Constants.ANNOTATION_UNIT_CHECK)) {
-                return new CheckerExport(
-                    loc(funDecl),
-                    annotation,
-                    CheckerExport.CheckerMode.UNIT,
-                    functionDecl
-                );
-            }
-        }
-
-        // Finally return the function declaration
-        return functionDecl;
+        // Create the new function declaration node and return it
+        return new FunctionDeclaration(loc(funDecl), annotation, slot, funExpr);
     }
 
     // --- Safe tokens

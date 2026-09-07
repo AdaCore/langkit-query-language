@@ -11,7 +11,11 @@
           "shortDescription" : {
             "text" : "goto_stmt"
           },
-          "defaultConfiguration" : { }
+          "defaultConfiguration" : {
+            "parameters" : {
+              "sourceMode" : "GENERAL"
+            }
+          }
         } ]
       }
     },

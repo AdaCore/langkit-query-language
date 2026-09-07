@@ -76,16 +76,13 @@ public final class RuleRepository {
         // Fetch all LKQL files from the searching dirs
         for (var dir : searchingDirs.stream().filter(Files::isDirectory).toList()) {
             try (var files = Files.list(dir)) {
-                res.addAll(
-                    files
-                        .filter(
-                            f ->
-                                f.toString().endsWith(Constants.LKQL_EXTENSION) &&
-                                Files.isRegularFile(f) &&
-                                Files.isReadable(f)
-                        )
-                        .toList()
-                );
+                for (var file : files.toList()) {
+                    if (
+                        file.toString().endsWith(Constants.LKQL_EXTENSION) &&
+                        Files.isRegularFile(file) &&
+                        Files.isReadable(file)
+                    ) res.add(file.toRealPath());
+                }
             } catch (IOException e) {
                 // Here we want the application to crash when a directory is not readable
                 throw new RuntimeException(e);
@@ -107,7 +104,8 @@ public final class RuleRepository {
             .filter(
                 a ->
                     a.name().equals(Constants.ANNOTATION_NODE_CHECK) ||
-                    a.name().equals(Constants.ANNOTATION_UNIT_CHECK)
+                    a.name().equals(Constants.ANNOTATION_UNIT_CHECK) ||
+                    a.name().equals(Constants.ANNOTATION_STUB_CHECK)
             )
             .findFirst();
 
@@ -126,9 +124,12 @@ public final class RuleRepository {
             }
 
             // Get the rule mode
-            var ruleKind = annotation.name().equals(Constants.ANNOTATION_NODE_CHECK)
-                ? Rule.Kind.NODE
-                : Rule.Kind.UNIT;
+            var ruleKind = switch (annotation.name()) {
+                case Constants.ANNOTATION_NODE_CHECK -> Rule.Kind.NODE;
+                case Constants.ANNOTATION_UNIT_CHECK -> Rule.Kind.UNIT;
+                case Constants.ANNOTATION_STUB_CHECK -> Rule.Kind.STUB;
+                default -> throw new RuntimeException("Shouldn't reach here");
+            };
 
             // Set manual default value for some arguments
             allArguments.putIfAbsent("rule_name", callable.name);

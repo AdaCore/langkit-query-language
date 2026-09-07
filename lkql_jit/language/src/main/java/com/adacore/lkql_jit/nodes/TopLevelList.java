@@ -5,10 +5,8 @@
 
 package com.adacore.lkql_jit.nodes;
 
-import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.Import;
 import com.adacore.lkql_jit.values.LKQLNamespace;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -16,10 +14,6 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * This node represents the list of all top level instructions of a LKQL program. It's the "highest"
@@ -38,10 +32,6 @@ public final class TopLevelList extends LKQLNode {
     private final String doc;
 
     // ----- Children -----
-
-    /** The rule importation nodes. */
-    @Children
-    private Import[] ruleImports;
 
     /** The list of nodes representing the LKQL program. */
     @Children
@@ -68,7 +58,6 @@ public final class TopLevelList extends LKQLNode {
         super(location);
         this.frameDescriptor = frameDescriptor;
         this.program = nodes;
-        this.ruleImports = new Import[0];
         this.isInteractive = isInteractive;
         this.doc = doc;
     }
@@ -88,13 +77,7 @@ public final class TopLevelList extends LKQLNode {
     @Override
     @ExplodeLoop
     public Object executeGeneric(VirtualFrame frame) {
-        CompilerAsserts.compilationConstant(this.ruleImports.length);
         CompilerAsserts.compilationConstant(this.program.length);
-
-        // If there is rule imports, run them
-        for (int i = 0; i < ruleImports.length; i++) {
-            ruleImports[i].executeGeneric(frame);
-        }
 
         Object val = null;
 
@@ -109,11 +92,13 @@ public final class TopLevelList extends LKQLNode {
         if (this.isInteractive) {
             // In interactive mode, return the last evaluated value, and add the namespace values
             // to the global namespace
-            this.updateGlobals(LKQLNamespace.createUncached(frame.materialize(), doc));
+            this.updateGlobals(
+                LKQLNamespace.createUncached(frame.materialize(), doc, this.location)
+            );
             return context.getEnv().asGuestValue(val);
         } else {
             // Else return the namespace corresponding to the program execution
-            return LKQLNamespace.createUncached(frame.materialize(), doc);
+            return LKQLNamespace.createUncached(frame.materialize(), doc, this.location);
         }
     }
 
@@ -122,47 +107,6 @@ public final class TopLevelList extends LKQLNode {
         var context = LKQLLanguage.getContext(this);
         var globalObjects = context.getGlobal().getGlobalObjects();
         globalObjects.putAll(namespace.asMap());
-    }
-
-    // ----- Class methods -----
-
-    /** Add all required rule importing nodes. */
-    @CompilerDirectives.TruffleBoundary
-    public void addRuleImports() {
-        // Get the current context
-        LKQLContext context = LKQLLanguage.getContext(this);
-
-        // Get the directories to fetch the rules from
-        final String[] ruleDirectories = context.getRuleDirectories();
-        final List<Import> ruleImports = new ArrayList<>();
-
-        // Get all rule modules import nodes
-        for (String dirName : ruleDirectories) {
-            File ruleDirectory = new File(dirName);
-            if (ruleDirectory.isDirectory() && ruleDirectory.canRead()) {
-                final File[] ruleDirectoryFiles = ruleDirectory.listFiles(
-                    f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION)
-                );
-                if (ruleDirectoryFiles != null) {
-                    ruleImports.addAll(
-                        Arrays.stream(ruleDirectoryFiles)
-                            .sorted()
-                            .filter(File::canRead)
-                            .map(f ->
-                                new Import(
-                                    this.getSourceSection(),
-                                    f.getName().replace(Constants.LKQL_EXTENSION, ""),
-                                    null
-                                )
-                            )
-                            .toList()
-                    );
-                }
-            }
-        }
-
-        // Set the rule imports children
-        this.ruleImports = ruleImports.toArray(new Import[0]);
     }
 
     // ----- Override methods -----

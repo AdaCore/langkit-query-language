@@ -7,27 +7,17 @@ package com.adacore.lkql_jit;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.checker.BaseChecker;
-import com.adacore.lkql_jit.checker.NodeChecker;
-import com.adacore.lkql_jit.checker.UnitChecker;
-import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LogLocation;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.options.LKQLOptions;
-import com.adacore.lkql_jit.options.RuleInstance;
 import com.adacore.lkql_jit.runtime.GlobalScope;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.LangkitLocationWrapper;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLogger;
-import com.oracle.truffle.api.source.Source;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 import org.json.JSONObject;
@@ -51,10 +41,8 @@ public final class LKQLContext {
     /** The global values of the LKQL execution. */
     private final GlobalScope global;
 
-    public final CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
-
     /** The stack representing the current LKQL source chain. */
-    public final Stack<Source> fromStack = new Stack<>();
+    public final Stack<String> fromStack = new Stack<>();
 
     // ----- Ada project attributes -----
 
@@ -94,47 +82,27 @@ public final class LKQLContext {
                     .orElse(from.getRoot());
 
                 // Now report the error
-                var level = missingFileIsError() ? Level.SEVERE : Level.WARNING;
-                var message = "File " + adaFileName + " not found";
-                if (this.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
-                    this.getDiagnosticEmitter().emitFileNotFound(
-                        new LangkitLocationWrapper(reportLocationNode, this.linesCache),
-                        name,
-                        missingFileIsError()
-                    );
-                } else {
-                    this.getLogger().log(
-                        level,
-                        message,
-                        new LogLocation(
-                            new LogLocation.LangkitLocation(
-                                from,
-                                reportLocationNode.getSourceLocationRange()
-                            )
-                        )
-                    );
-                }
-            }
-        },
-        null,
-        (ctx, unit, message) -> {
-            if (this.getEngineMode() == LKQLOptions.EngineMode.CHECKER) {
-                this.getDiagnosticEmitter().emitFileDiagnostic(
-                    new LangkitLocationWrapper(unit.getRoot(), this.linesCache),
-                    message
-                );
-            } else {
                 this.getLogger().log(
                     missingFileIsError() ? Level.SEVERE : Level.WARNING,
-                    message,
+                    "File " + adaFileName + " not found",
                     new LogLocation(
                         new LogLocation.LangkitLocation(
-                            unit,
-                            unit.getRoot().getSourceLocationRange()
+                            from,
+                            reportLocationNode.getSourceLocationRange()
                         )
                     )
                 );
             }
+        },
+        null,
+        (ctx, unit, message) -> {
+            this.getLogger().log(
+                Level.SEVERE,
+                message,
+                new LogLocation(
+                    new LogLocation.LangkitLocation(unit, unit.getRoot().getSourceLocationRange())
+                )
+            );
         }
     );
 
@@ -148,41 +116,13 @@ public final class LKQLContext {
      * All the source files of the project, including those of its non-externally-built
      * dependencies.
      */
-    private List<String> allSourceFiles;
-
-    // ----- Checker attributes -----
-
-    /** A cache for all rule arguments to avoid evaluating twice the same argument source. */
-    private Map<String, Map<String, Object>> instancesArgsCache = new HashMap<>();
-
-    /** Whether there is at least one rule that needs to follow generic instantiations. */
-    private boolean needsToFollowInstantiations = false;
-
-    /** Node checkers to run on all nodes from the Ada sources. */
-    private NodeChecker[] filteredGeneralNodeCheckers = null;
-
-    /** Node checkers to run on non-SPARK nodes from the Ada sources. */
-    private NodeChecker[] filteredNodeCheckers = null;
-
-    /** Node checkers to run only on SPARK nodes from the Ada sources. */
-    private NodeChecker[] filteredSparkNodeCheckers = null;
-
-    /** Unit checkers to run. */
-    private UnitChecker[] filteredUnitCheckers = null;
+    private final List<String> allSourceFiles;
 
     // ----- Option caches -----
 
     /** Options object passed to the LKQL engine. */
     @CompilerDirectives.CompilationFinal
     private LKQLOptions options = null;
-
-    /** Directories to look for LKQL rules into. */
-    @CompilerDirectives.CompilationFinal(dimensions = 1)
-    private String[] ruleDirectories = null;
-
-    /** Tool to emit diagnostics in the wanted format. */
-    @CompilerDirectives.CompilationFinal
-    private CheckerUtils.DiagnosticEmitter emitter;
 
     // ----- Nanopass typing context -----
 
@@ -261,6 +201,11 @@ public final class LKQLContext {
         return typingContext;
     }
 
+    @CompilerDirectives.TruffleBoundary
+    public boolean isSourceInStack(String sourceName) {
+        return fromStack.contains(sourceName);
+    }
+
     // ----- Setters -----
 
     public void patchContext(TruffleLanguage.Env newEnv) {
@@ -272,6 +217,16 @@ public final class LKQLContext {
 
     public void setTypingContext(Hierarchy typingContext) {
         this.typingContext = typingContext;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public void pushSourceToStack(String sourceName) {
+        fromStack.push(sourceName);
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public void popSourceFromStack() {
+        fromStack.pop();
     }
 
     // ----- Options getting methods -----
@@ -293,27 +248,9 @@ public final class LKQLContext {
         return this.options;
     }
 
-    public LKQLOptions.EngineMode getEngineMode() {
-        return this.getOptions().engineMode();
-    }
-
-    /**
-     * Get if the language execution is in verbose mode.
-     *
-     * @return True if the verbose flag is on.
-     */
-    public boolean isVerbose() {
-        return this.getOptions().verbose();
-    }
-
     /** Return true if the engine should keep running when a required file is not found. */
     public boolean missingFileIsError() {
         return this.getOptions().missingFileIsError();
-    }
-
-    /** Get whether to display instantiation chain in diagnostics. */
-    public boolean showInstantiationChain() {
-        return this.getOptions().showInstantiationChain();
     }
 
     @CompilerDirectives.TruffleBoundary
@@ -331,34 +268,6 @@ public final class LKQLContext {
     }
 
     /**
-     * Get whether the checker is in debug mode.
-     *
-     * @return True if the checker is in debug mode, false else
-     */
-    @CompilerDirectives.TruffleBoundary
-    public boolean isCheckerDebug() {
-        return this.getOptions().checkerDebug();
-    }
-
-    /**
-     * Get the directories to get the rules from.
-     *
-     * @return The directory array.
-     */
-    public String[] getRuleDirectories() {
-        if (this.ruleDirectories == null) {
-            final var rulesDirsList = new ArrayList<>(this.getOptions().rulesDirs());
-            final var additionalRulesDirs = System.getenv(Constants.LKQL_PATH);
-            if (additionalRulesDirs != null) {
-                rulesDirsList.addAll(Arrays.asList(StringUtils.splitPaths(additionalRulesDirs)));
-            }
-            rulesDirsList.sort(null);
-            this.ruleDirectories = rulesDirsList.toArray(new String[0]);
-        }
-        return this.ruleDirectories;
-    }
-
-    /**
      * Get the Ada file to ignore during the analysis.
      *
      * @return The array containing all Ada files to ignore.
@@ -367,11 +276,18 @@ public final class LKQLContext {
         return this.getOptions().ignores().toArray(new String[0]);
     }
 
+    public List<String> getAdditionalLkqlPaths() {
+        return this.getOptions().additionalLkqlPaths();
+    }
+
+    /** Get whether project diagnostics should be hidden. */
+    public boolean hideProjectDiagnostics() {
+        return this.getOptions().hideProjectDiagnostics();
+    }
+
     /** Invalidate the option caches. */
     private void invalidateOptionCaches() {
         this.options = null;
-        this.instancesArgsCache = new HashMap<>();
-        this.emitter = null;
     }
 
     // ----- IO methods -----
@@ -396,21 +312,7 @@ public final class LKQLContext {
         System.out.println(toPrint);
     }
 
-    /**
-     * @return the diagnostic emitter to use according to which diagnostic style was chosen.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public CheckerUtils.DiagnosticEmitter getDiagnosticEmitter() {
-        if (this.emitter == null) {
-            this.emitter = switch (this.getOptions().diagnosticOutputMode()) {
-                case PRETTY -> new CheckerUtils.DefaultEmitter();
-                case GNATCHECK -> new CheckerUtils.GNATcheckEmitter();
-            };
-        }
-        return this.emitter;
-    }
-
-    /** Initialize the ada sources. */
+    /** Initialize the Ada sources. */
     public void initSources() {
         // Clear the context caches
         this.specifiedSourceFiles.clear();
@@ -508,7 +410,11 @@ public final class LKQLContext {
             }
 
             // Forward project diagnostics only if a project file has been loaded
-            if (!diagnosticsToForward.isEmpty() && loadedProject.isPresent()) {
+            if (
+                !hideProjectDiagnostics() &&
+                !diagnosticsToForward.isEmpty() &&
+                loadedProject.isPresent()
+            ) {
                 for (var diagnostic : diagnosticsToForward) {
                     getLogger().severe(diagnostic);
                 }
@@ -549,172 +455,5 @@ public final class LKQLContext {
         } catch (Libadalang.ProjectManagerException e) {
             throw LKQLEngineException.create(e);
         }
-    }
-
-    // ----- Checker methods -----
-
-    @CompilerDirectives.TruffleBoundary
-    public Map<String, RuleInstance> getRuleInstances() {
-        return this.getOptions().ruleInstances();
-    }
-
-    /**
-     * Get the argument value for the given instance.
-     *
-     * @param instanceId Identifier of the instance to get the argument from.
-     * @param argName Name of the argument to get.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public Object getRuleArg(String instanceId, String argName) {
-        final Map<String, Object> instanceArgs = this.instancesArgsCache.getOrDefault(
-            instanceId,
-            new HashMap<>()
-        );
-
-        // If an argument is not already in the argument values cache, get its source from the
-        // registered instances and evaluate it if some.
-        if (!instanceArgs.containsKey(argName)) {
-            final RuleInstance instance = this.getRuleInstances().get(instanceId);
-            final String argSource = instance == null ? null : instance.arguments().get(argName);
-            final Object argValue;
-            if (argSource == null) {
-                argValue = null;
-            } else {
-                var tl = language.translateBuffer(argSource, "<rule-arg>").program;
-                var node = (Expr) tl[1]; // First node is "follow_generics" import
-                argValue = node.executeGeneric(null);
-            }
-            instanceArgs.put(argName, argValue);
-            this.instancesArgsCache.put(instanceId, instanceArgs);
-        }
-
-        return instanceArgs.get(argName);
-    }
-
-    /**
-     * Get the filtered node rules in this context.
-     *
-     * @return The node checkers array filtered according to options.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public NodeChecker[] getAllNodeCheckers() {
-        if (this.filteredGeneralNodeCheckers == null) {
-            this.initCheckerCaches();
-        }
-        return this.filteredGeneralNodeCheckers;
-    }
-
-    /**
-     * Get the filtered node checkers for Ada code only.
-     *
-     * @return The node checkers array for Ada code only.
-     */
-    public NodeChecker[] getNodeCheckers() {
-        if (this.filteredNodeCheckers == null) {
-            this.initCheckerCaches();
-        }
-        return this.filteredNodeCheckers;
-    }
-
-    /**
-     * Get the filtered node checkers for SPARK code only.
-     *
-     * @return The node checkers array for SPARK code only.
-     */
-    public NodeChecker[] getSparkNodeCheckers() {
-        if (this.filteredSparkNodeCheckers == null) {
-            this.initCheckerCaches();
-        }
-        return this.filteredSparkNodeCheckers;
-    }
-
-    /**
-     * Get the filtered unit checkers for the context.
-     *
-     * @return The list for unit checkers filtered according to options.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public UnitChecker[] getUnitCheckersFiltered() {
-        if (this.filteredUnitCheckers == null) {
-            this.initCheckerCaches();
-        }
-        return this.filteredUnitCheckers;
-    }
-
-    /** Initialize the filtered and separated checker caches. */
-    @CompilerDirectives.TruffleBoundary
-    private void initCheckerCaches() {
-        // Prepare the working variables
-        final List<NodeChecker> generalNodeCheckers = new ArrayList<>();
-        final List<NodeChecker> nodeCheckers = new ArrayList<>();
-        final List<NodeChecker> sparkNodeCheckers = new ArrayList<>();
-        final List<UnitChecker> unitCheckers = new ArrayList<>();
-        final Map<String, BaseChecker> allCheckers = this.global.getCheckers();
-
-        // Lambda to dispatch checkers in the correct lists
-        final BiConsumer<BaseChecker, List<NodeChecker>> dispatchChecker = (
-            checker,
-            nodeCheckerList
-        ) -> {
-            if (checker instanceof NodeChecker nodeChecker) {
-                nodeCheckerList.add(nodeChecker);
-                if (nodeChecker.isFollowGenericInstantiations()) {
-                    needsToFollowInstantiations = true;
-                }
-            } else {
-                unitCheckers.add((UnitChecker) checker);
-            }
-        };
-
-        // If there are no required instance, check if we have to fall back on all checkers
-        if (this.getRuleInstances().isEmpty() && this.getOptions().fallbackToAllRules()) {
-            for (BaseChecker checker : allCheckers.values()) {
-                dispatchChecker.accept(checker, generalNodeCheckers);
-            }
-        }
-        // Iterate over all rule instance to create the checker lists
-        else {
-            for (Map.Entry<
-                String,
-                RuleInstance
-            > instanceEntry : this.getRuleInstances().entrySet()) {
-                final RuleInstance instance = instanceEntry.getValue();
-
-                // Get the checker associated to the rule instance
-                BaseChecker checker = allCheckers.get(instance.ruleName().toLowerCase());
-
-                // Verify that the instantiated rule exists
-                if (checker == null) {
-                    throw LKQLEngineException.create(
-                        "Could not find any rule named " + instance.ruleName()
-                    );
-                }
-
-                // If the instance has a custom name, close the checker and set the alias name
-                if (instance.instanceName().isPresent()) {
-                    checker = checker.copy();
-                    checker.setAlias(instance.instanceName().get());
-                }
-
-                switch (instance.sourceMode()) {
-                    case GENERAL -> dispatchChecker.accept(checker, generalNodeCheckers);
-                    case ADA -> dispatchChecker.accept(checker, nodeCheckers);
-                    case SPARK -> dispatchChecker.accept(checker, sparkNodeCheckers);
-                }
-            }
-        }
-
-        // Set the checker caches
-        this.filteredGeneralNodeCheckers = generalNodeCheckers.toArray(new NodeChecker[0]);
-        this.filteredNodeCheckers = nodeCheckers.toArray(new NodeChecker[0]);
-        this.filteredSparkNodeCheckers = sparkNodeCheckers.toArray(new NodeChecker[0]);
-        this.filteredUnitCheckers = unitCheckers.toArray(new UnitChecker[0]);
-    }
-
-    /**
-     * @return whether there is at least one rule that needs to follow generic instantiations.
-     */
-    public boolean mustFollowInstantiations() {
-        return needsToFollowInstantiations;
     }
 }

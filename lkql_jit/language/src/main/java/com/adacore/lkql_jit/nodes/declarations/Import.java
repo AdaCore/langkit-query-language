@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.LKQLNamespace;
 import com.oracle.truffle.api.CallTarget;
@@ -99,8 +100,9 @@ public final class Import extends Expr {
 
         // Check that the file isn't already in the source chain, if so, it means that there
         // is a circular dependency.
-        if (context.fromStack.contains(source)) {
-            throw LKQLRuntimeError.circularDependency(context.fromStack, source, this);
+        var sourceName = FileUtils.sourcePathOrName(source);
+        if (context.isSourceInStack(sourceName)) {
+            throw LKQLRuntimeError.circularDependency(context.fromStack, sourceName, this);
         }
 
         // If the file is already in the cache
@@ -109,16 +111,10 @@ public final class Import extends Expr {
         }
         // Else, parse the source and execute the result to get the namespace
         else {
-            // Add the parsed source to the chain
-            context.fromStack.add(source);
-
             // Get the current context and parse the file with the internal strategy
             CallTarget target = context.getEnv().parseInternal(source);
             LKQLNamespace res = (LKQLNamespace) target.call();
             importCache.put(moduleFile, res);
-
-            // Pop the previously added source from the chain
-            context.fromStack.pop();
 
             // Finally return the namespace
             return res;
@@ -139,23 +135,20 @@ public final class Import extends Expr {
         final List<File> searchDirs = new ArrayList<>();
 
         // Add the current directory to the searching dirs if the location is not null
-        if (this.location != null) {
-            searchDirs.add(this.getLocation().getDir());
+        var currentPath = getSourceSection().getSource().getPath();
+        if (currentPath != null) {
+            searchDirs.add(new File(currentPath).getParentFile());
         }
 
         // Compute the directories to import from
         searchDirs.addAll(
             Arrays.stream(StringUtils.splitPaths(lkqlPath))
-                .filter(s -> !s.isEmpty() && !s.isBlank())
+                .filter(s -> !s.isBlank())
                 .map(File::new)
                 .toList()
         );
-
         searchDirs.addAll(
-            Arrays.stream(LKQLLanguage.getContext(this).getRuleDirectories())
-                .filter(s -> !s.isEmpty() && !s.isBlank())
-                .map(File::new)
-                .toList()
+            LKQLLanguage.getContext(this).getAdditionalLkqlPaths().stream().map(File::new).toList()
         );
 
         // Search in the importable directories
