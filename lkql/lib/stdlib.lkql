@@ -315,7 +315,6 @@ fun is_predefined_type(n : Name) : Bool = {
     val packages = (
         from full_root_type(n.p_name_designated_type()).parents(include_self=false)
         match p@BasePackageDecl
-        select p
     ).to_list;
 
     packages.length > 0 and packages?[packages.length - 1] is
@@ -362,7 +361,6 @@ fun closest_enclosing_generic(n : AdaNode) : GenericDecl = {
     val g = (
         from parent_decl_chain(n)
         match g@GenericDecl
-        select g
     ).head_or(null);
     if g != null then g.p_get_uninstantiated_node().as[GenericDecl] else null
 }
@@ -400,7 +398,6 @@ fun in_generic_template(n : AdaNode) : Bool =
 fun enclosing_block(n : AdaNode) : DeclBlock = (
     from n.parents(include_self=false)
     match db@DeclBlock
-    select db
 ).head_or(null)
 
 |" Return the first BodyNode enclosing n if any, null otherwise
@@ -408,7 +405,6 @@ fun enclosing_block(n : AdaNode) : DeclBlock = (
 fun enclosing_body(n : AdaNode) : BodyNode = (
     from n.parents(include_self=false)
     match bn@BodyNode
-    select bn
 ).head_or(null)
 
 |" Return the first BasePackageDecl or PackageBody enclosing n if any,
@@ -417,7 +413,6 @@ fun enclosing_body(n : AdaNode) : BodyNode = (
 fun enclosing_package(n : AdaNode) : BasicDecl = (
     from n.parents(include_self=false)
     match pkg@(BasePackageDecl | PackageBody)
-    select pkg
 ).head_or(null)
 
 |" Given a node representing an instantiation of a generic subprogram,
@@ -680,8 +675,7 @@ fun is_by_ref(param : ParamActual) : Bool = {
             | SubtypeDecl when is_type_by_ref(type_decl.p_base_subtype())
         );
     val param_spec = (from parent(param.param)
-                      match p@ParamSpec
-                      select p).head_or(null);
+                      match p@ParamSpec).head_or(null);
     is_type_by_ref(param_spec.f_type_expr.p_designated_type_decl())
 }
 
@@ -714,7 +708,6 @@ fun get_formals(subp_spec : BaseSubpSpec) : List[FormalParam] = concat((
         from (
             from subtree(param_spec)
             match dn@DefiningName
-            select dn
         )
         match name
         select FormalParam(name, param_spec)
@@ -759,7 +752,6 @@ fun default_bit_order() : Expr = {
             from subtree(system.root)
             match decl @ ObjectDecl(f_has_constant: ConstantPresent, f_default_expr: not null)
             when decl.p_canonical_fully_qualified_name() == "system.default_bit_order"
-            select decl
         ).head_or(null)
     ).f_default_expr
 }
@@ -775,7 +767,6 @@ fun storage_unit() : BigInt = {
             from subtree(system.root)
             match n@NumberDecl
             when n.p_canonical_fully_qualified_name() == "system.storage_unit"
-            select n
         ).head_or(null)
     );
     if decl == null then 8b else decl.f_expr.p_eval_as_int()
@@ -813,7 +804,6 @@ fun depends_on_mutable_discriminant(component_decl : ComponentDecl) : Bool = any
         (
             from subtree(component_decl.p_type_expression().p_subtype_constraint())
             match id@Identifier
-            select id
         ) ::: (
             from parent(component_decl)
             match vp@VariantPart
@@ -888,14 +878,14 @@ fun component_types_body(this : BasicDecl) : Rec[BasicDecl, BaseTypeDecl] = matc
     case TypeDecl(f_type_def: d @ RecordTypeDef) =>
         Rec[BasicDecl, BaseTypeDecl](
             [],
-            (from subtree(d) match cd@ComponentDecl select cd).to_list
+            (from subtree(d) match cd@ComponentDecl).to_list
         )
     case td@TypeDecl(f_type_def: DerivedTypeDef(f_record_extension:
                                             def @ BaseRecordDef)) =>
         Rec[BasicDecl, BaseTypeDecl](
             [],
             [td.p_base_type().as[BasicDecl]]
-            & (from subtree(def) match cd@ComponentDecl select cd).to_list
+            & (from subtree(def) match cd@ComponentDecl).to_list
         )
     case td@TypeDecl(f_type_def: DerivedTypeDef) =>
         Rec[BasicDecl, BaseTypeDecl](
