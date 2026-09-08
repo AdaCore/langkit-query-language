@@ -68,6 +68,9 @@ public class Constants {
     public static final String[] PASS_FAKE_ARGS = new String[] { "input" };
     // ----- Checker annotation helpers -----
 
+    /** Description of an auto-fix when the rule doesn't provide its own. */
+    public static final String DEFAULT_AUTO_FIX_DESCRIPTION = "Quick Fix";
+
     /** The names of the parameters for a checker annotation */
     public static final String[] CHECKER_PARAMETER_NAMES = new String[] {
         "message",
@@ -81,6 +84,7 @@ public class Constants {
         "target",
         "rule_name",
         "auto_fix",
+        "auto_fix_description",
     };
 
     /** The default values for annotation parameters. */
@@ -96,6 +100,7 @@ public class Constants {
         "amd64",
         null,
         null,
+        DEFAULT_AUTO_FIX_DESCRIPTION,
     };
 
     // ----- Reserved names -----

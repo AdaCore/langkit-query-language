@@ -16,6 +16,7 @@ import java.util.Optional;
  * @param displayName Customizable name for display purpose.
  * @param checker LKQL callable object representing the rule logic.
  * @param autoFix Optional LKQL callable to fix node flagged by the rule.
+ * @param autoFixDescription Short description of what the auto-fix does.
  * @param message Message to display to the used when this rule flags a node.
  * @param help Help message associated to the rule.
  * @param followGenericInstantiations Whether the rule should be applied to nodes in generic
@@ -33,6 +34,7 @@ public record Rule(
     String displayName,
     LKQLCallable checker,
     Optional<LKQLCallable> autoFix,
+    String autoFixDescription,
     String message,
     String help,
     boolean followGenericInstantiations,
