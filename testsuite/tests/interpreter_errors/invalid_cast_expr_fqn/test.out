@@ -2,7 +2,3 @@ script.lkql:5:53: error: undefined entity
   5 | fun invalid_cast_2(x: Node): lal.AdaNode = x.as[lal.MissingNode]
     |                                                     ^^^^^^^^^^^
 
-script.lkql:5:53: error: undefined entity
-  5 | fun invalid_cast_2(x: Node): lal.AdaNode = x.as[lal.MissingNode]
-    |                                                     ^^^^^^^^^^^
-
