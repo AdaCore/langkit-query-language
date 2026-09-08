@@ -1,0 +1,36 @@
+main.adb:1:11: rule violation: BasicDecl
+1 | procedure Main is
+  |           ^^^^
+
+main.adb:2:4: rule violation: BasicDecl
+2 |    X : Integer;
+  |    ^
+
+main.adb:5:12: rule violation: BasicDecl
+5 |    package Pkg is
+  |            ^^^
+
+main.adb:5:12: rule violation: BasicDecl
+5 |    package Pkg is
+  |            ^^^
+
+main.adb:6:16: rule violation: BasicDecl
+6 |       function Foo return Boolean is (True);
+  |                ^^^
+
+main.adb:9:12: rule violation: BasicDecl
+9 |    package My_Pkg is new Pkg;
+  |            ^^^^^^
+
+main.adb:5:12: rule violation: BasicDecl
+5 |    package Pkg is
+  |            ^^^
+
+main.adb:5:12: rule violation: BasicDecl
+5 |    package Pkg is
+  |            ^^^
+
+main.adb:6:16: rule violation: BasicDecl
+6 |       function Foo return Boolean is (True);
+  |                ^^^
+

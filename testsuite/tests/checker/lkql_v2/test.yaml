@@ -1,0 +1,5 @@
+driver: checker
+sources:
+  - main.adb
+rules:
+  - custom

@@ -1,0 +1,8 @@
+# lkql version: 2
+
+import libadalang as lal
+
+@check(help="Flag BasicDecl nodes", message="BasicDecl",
+       follow_generic_instantiations=true, category="Style",
+       subcategory="Programming Practice")
+fun custom(node: lal.AdaNode): Bool = node is lal.BasicDecl
