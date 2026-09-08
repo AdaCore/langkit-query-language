@@ -1,4 +1,4 @@
-[1/1] redundant_null_statements: redundant null statement
+[1/1] redundant_null_statements: redundant null statement (fix: Quick Fix)
   at main.adb:4:4
 -> skipped (deleted text at 4:1 does not match the report, "main.adb" has changed since it was created)
 

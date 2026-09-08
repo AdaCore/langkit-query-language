@@ -1,16 +1,16 @@
-[1/4] through_base: violation of through_base
+[1/4] through_base: violation of through_base (fix: Quick Fix)
   at src/main.adb:3:4
 -> applied
 
-[2/4] through_chained_base: violation of through_chained_base
+[2/4] through_chained_base: violation of through_chained_base (fix: Quick Fix)
   at main.adb:3:4
 -> skipped (conflicts with a previously accepted fix)
 
-[3/4] absolute_uri: violation of absolute_uri
+[3/4] absolute_uri: violation of absolute_uri (fix: Quick Fix)
   at <working-dir>/top.adb:3:4
 -> applied
 
-[4/4] above_base: violation of above_base
+[4/4] above_base: violation of above_base (fix: Quick Fix)
   at ../other.adb:3:4
 -> applied
 

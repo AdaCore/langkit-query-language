@@ -6,7 +6,7 @@ main.adb:2:6: rule violation: null_stmts
   ||
 7 || end Main;
   ||_^
-fix proposal:
+fix proposal: Quick Fix
   in main.adb:
   2  begin
   3     goto lbl;

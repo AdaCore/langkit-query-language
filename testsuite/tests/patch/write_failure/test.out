@@ -1,4 +1,4 @@
-[1/1] redundant_null_statements: redundant null statement
+[1/1] redundant_null_statements: redundant null statement (fix: Quick Fix)
   at a.adb:3:4
 -> applied
 
@@ -7,7 +7,7 @@ All the fixes of this run have been cancelled and no source has been modified: a
 error: Cannot write "b.adb": permission denied
 
 
-[1/1] redundant_null_statements: redundant null statement
+[1/1] redundant_null_statements: redundant null statement (fix: Quick Fix)
   at a.adb:3:4
 -> applied
 

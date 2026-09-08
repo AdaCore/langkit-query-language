@@ -1,4 +1,4 @@
-[1/2] use_for_of_loops: FOR loop may be replaced by a FOR OF loop
+[1/2] use_for_of_loops: FOR loop may be replaced by a FOR OF loop (fix: Quick Fix)
   at main.adb:6:4
 --- a/main.adb
 +++ b/main.adb

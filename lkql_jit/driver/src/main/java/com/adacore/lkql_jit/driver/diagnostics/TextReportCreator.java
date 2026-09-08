@@ -82,9 +82,15 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
             printSourceSnippet(hint.location(), Styling::blue, 2);
         }
 
-        // If there are auto-fixes, display them
+        // If there are auto-fixes, display them along with their description
         if (!diagnostic.autoFixes.isEmpty()) {
-            output.println(styled("fix proposal:", Styling::bold, Styling::brightGreen));
+            output.print(styled("fix proposal:", Styling::bold, Styling::brightGreen));
+            if (diagnostic instanceof RuleViolation violation) {
+                output.print(
+                    ' ' + violation.violatedInstance.instantiatedRule.autoFixDescription()
+                );
+            }
+            output.println();
             for (var autoFix : diagnostic.autoFixes) {
                 output.println(
                     "  in " +

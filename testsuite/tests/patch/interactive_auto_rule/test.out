@@ -1,4 +1,4 @@
-[1/4] rule_alpha: violation of rule_alpha
+[1/4] rule_alpha: violation of rule_alpha (fix: Quick Fix)
   at main.adb:3:4
 --- a/main.adb
 +++ b/main.adb
@@ -20,7 +20,7 @@ Apply this fix? [y/n/a/A/q/h]
 Apply this fix? [y/n/a/A/q/h]
 -> applying all remaining fixes of "rule_alpha"
 
-[2/4] rule_beta: violation of rule_beta
+[2/4] rule_beta: violation of rule_beta (fix: Quick Fix)
   at main.adb:4:4
 --- a/main.adb
 +++ b/main.adb
@@ -36,11 +36,11 @@ Apply this fix? [y/n/a/A/q/h]
 Apply this fix? [y/n/a/A/q/h]
 -> skipped
 
-[3/4] rule_alpha: violation of rule_alpha
+[3/4] rule_alpha: violation of rule_alpha (fix: Quick Fix)
   at main.adb:5:4
 -> applied
 
-[4/4] rule_beta: violation of rule_beta
+[4/4] rule_beta: violation of rule_beta (fix: Quick Fix)
   at main.adb:6:4
 --- a/main.adb
 +++ b/main.adb

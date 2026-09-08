@@ -1,8 +1,8 @@
-[1/2] directory_uri: violation of directory_uri
+[1/2] directory_uri: violation of directory_uri (fix: Quick Fix)
   at .:3:4
 -> skipped (unreadable file)
 
-[2/2] redundant_null_statements: violation of redundant_null_statements
+[2/2] redundant_null_statements: violation of redundant_null_statements (fix: Quick Fix)
   at main.adb:3:4
 -> applied
 

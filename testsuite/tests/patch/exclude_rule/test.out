@@ -1,4 +1,4 @@
-[1/1] rule_beta: violation of rule_beta
+[1/1] rule_beta: violation of rule_beta (fix: Quick Fix)
   at main.adb:4:4
 -> applied
 

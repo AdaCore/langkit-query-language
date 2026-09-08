@@ -1,10 +1,10 @@
-[1/1] redundant_null_statements: redundant null statement
+[1/1] redundant_null_statements: redundant null statement (fix: Quick Fix)
   at main.adb:4:4
 -> applied
 
 Patched 1 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
 
-[1/1] redundant_null_statements: redundant null statement
+[1/1] redundant_null_statements: redundant null statement (fix: Quick Fix)
   at main.adb:4:4
 -> skipped (does not match the recorded state)
 
