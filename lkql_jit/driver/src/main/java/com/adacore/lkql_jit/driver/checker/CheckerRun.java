@@ -51,6 +51,9 @@ public final class CheckerRun {
     /** Whether and how to apply auto-fixing function of executed rules. */
     private final AutoFixMode autoFixMode;
 
+    /** Whether to skip the partial formatting when generating an auto-fix. */
+    private final boolean skipPartialFormatting;
+
     /**
      * Whether to compute and store generic traces when a violation is reported in a generic
      * instantiation.
@@ -66,6 +69,7 @@ public final class CheckerRun {
         LangkitSupport.AnalysisContextInterface analysisContext,
         List<LangkitSupport.AnalysisUnit> units,
         AutoFixMode autoFixMode,
+        boolean skipPartialFormatting,
         boolean storeGenericTraces
     ) {
         this.debugMode = debugMode;
@@ -77,6 +81,7 @@ public final class CheckerRun {
             .stream()
             .anyMatch(i -> i.instantiatedRule.followGenericInstantiations());
         this.autoFixMode = autoFixMode;
+        this.skipPartialFormatting = skipPartialFormatting;
         this.storeGenericTraces = storeGenericTraces;
     }
 
@@ -290,7 +295,9 @@ public final class CheckerRun {
                                     var patch = DiffUtils.diff(
                                         targetSource.getLines(),
                                         Source.splitLines(
-                                            rewritingUnit.unparseWithPartialFormatting()
+                                            skipPartialFormatting
+                                                ? rewritingUnit.unparse()
+                                                : rewritingUnit.unparseWithPartialFormatting()
                                         )
                                     );
                                     if (!patch.getDeltas().isEmpty()) {

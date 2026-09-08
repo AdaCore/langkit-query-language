@@ -1,0 +1,4 @@
+@check(
+    auto_fix=(node, ctx) => ctx.insert_after(node, new NullStmt())
+)
+fun goto_stmt(node) = node is GotoStmt

@@ -105,6 +105,12 @@ public class LKQLChecker extends BaseSubcommand {
     )
     public CheckerRun.AutoFixMode autoFixMode = CheckerRun.AutoFixMode.DISABLED;
 
+    @CommandLine.Option(
+        names = "--disable-formatting",
+        description = "If auto fixes are enabled, skip the partial formatting when generating them"
+    )
+    public boolean disableFormatting;
+
     @CommandLine.Unmatched
     public List<String> unmatched = new ArrayList<>();
 
@@ -186,6 +192,7 @@ public class LKQLChecker extends BaseSubcommand {
                 analysisContext,
                 specifiedUnits,
                 autoFixMode,
+                disableFormatting,
                 reportFormat == ReportFormat.SARIF
             );
             checkerRun.start(diagnostics);
