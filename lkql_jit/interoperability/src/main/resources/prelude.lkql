@@ -6,7 +6,6 @@
 
 @open enum Bool { case false, true }
 @builtin struct Int {}
-@builtin struct BigInt {}
 @builtin struct Char {}
 @builtin struct String {
     @builtin @property fun length(): Int

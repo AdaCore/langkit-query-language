@@ -1,2 +1,4 @@
-2
-837549874357836458734
+script.lkql:6:14: error: Big integer literals are not supported, use integer literals instead (they automatically use big integers if needed)
+  6 | val x: Int = 2b
+    |              ^^
+

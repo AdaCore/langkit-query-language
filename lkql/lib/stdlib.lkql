@@ -315,7 +315,6 @@ fun is_predefined_type(n : Name) : Bool = {
     val packages = (
         from full_root_type(n.p_name_designated_type()).parents(include_self=false)
         match p@BasePackageDecl
-        select p
     ).to_list;
 
     packages.length > 0 and packages?[packages.length - 1] is
@@ -362,7 +361,6 @@ fun closest_enclosing_generic(n : AdaNode) : GenericDecl = {
     val g = (
         from parent_decl_chain(n)
         match g@GenericDecl
-        select g
     ).head_or(null);
     if g != null then g.p_get_uninstantiated_node().as[GenericDecl] else null
 }
@@ -400,7 +398,6 @@ fun in_generic_template(n : AdaNode) : Bool =
 fun enclosing_block(n : AdaNode) : DeclBlock = (
     from n.parents(include_self=false)
     match db@DeclBlock
-    select db
 ).head_or(null)
 
 |" Return the first BodyNode enclosing n if any, null otherwise
@@ -408,7 +405,6 @@ fun enclosing_block(n : AdaNode) : DeclBlock = (
 fun enclosing_body(n : AdaNode) : BodyNode = (
     from n.parents(include_self=false)
     match bn@BodyNode
-    select bn
 ).head_or(null)
 
 |" Return the first BasePackageDecl or PackageBody enclosing n if any,
@@ -417,7 +413,6 @@ fun enclosing_body(n : AdaNode) : BodyNode = (
 fun enclosing_package(n : AdaNode) : BasicDecl = (
     from n.parents(include_self=false)
     match pkg@(BasePackageDecl | PackageBody)
-    select pkg
 ).head_or(null)
 
 |" Given a node representing an instantiation of a generic subprogram,
@@ -584,29 +579,29 @@ fun previous_non_blank_token_line(token : Token) : Int = {
 }
 
 |" Return the max value between x and y
-fun max(x : BigInt, y : BigInt) : BigInt =
+fun max(x : Int, y : Int) : Int =
     if x > y then x else y
 
 |" Return the number of values covered between left and right expressions,
 |" -1 if it cannot be determined.
-fun range_values(left : Expr, right : Expr) : BigInt =
+fun range_values(left : Expr, right : Expr) : Int =
     if right.p_is_static_expr() and left.p_is_static_expr()
-    then max(right.p_eval_as_int() - left.p_eval_as_int() + 1b, 0b)
-    else -1b
+    then max(right.p_eval_as_int() - left.p_eval_as_int() + 1, 0)
+    else -1
 
 |" Return the number of values covered by a given BaseTypeDecl, -1 if
 |" this value cannot be determined.
-fun number_of_values(type : BaseTypeDecl) : BigInt = match type {
+fun number_of_values(type : BaseTypeDecl) : Int = match type {
     case SubtypeDecl(f_subtype: SubtypeIndication(f_constraint: RangeConstraint(f_range: RangeSpec(f_range: op @ BinOp)))) => range_values(op.f_left, op.f_right)
     case st@SubtypeDecl => number_of_values(st.p_get_type())
-    case _ when type == type.p_universal_int_type() => -1b
+    case _ when type == type.p_universal_int_type() => -1
     case td@TypeDecl(f_type_def: type_def) => match type_def {
         case EnumTypeDef(f_enum_literals: e) =>
             match td.f_name?.p_canonical_fully_qualified_name() {
-                case "standard.character"           => 256b
-                case "standard.wide_character"      => 65536b
-                case "standard.wide_wide_character" => 2147483648b
-                case _ => e.children.reduce[BigInt]((c: BigInt, n: Node) => c + 1b, 0b)
+                case "standard.character"           => 256
+                case "standard.wide_character"      => 65536
+                case "standard.wide_wide_character" => 2147483648
+                case _ => e.children_count
             }
         case m @ ModIntTypeDef when m.f_expr.p_is_static_expr() => m.f_expr.p_eval_as_int()
         case s @ SignedIntTypeDef when s.f_range.f_range is BinOp(f_op: OpDoubleDot) => {
@@ -617,7 +612,7 @@ fun number_of_values(type : BaseTypeDecl) : BigInt = match type {
             range_values(op.f_left, op.f_right)
         case DerivedTypeDef(f_subtype_indication: s@SubtypeIndication) =>
             number_of_values(s.p_designated_type_decl())
-        case _ => -1b
+        case _ => -1
     }
 }
 
@@ -680,8 +675,7 @@ fun is_by_ref(param : ParamActual) : Bool = {
             | SubtypeDecl when is_type_by_ref(type_decl.p_base_subtype())
         );
     val param_spec = (from parent(param.param)
-                      match p@ParamSpec
-                      select p).head_or(null);
+                      match p@ParamSpec).head_or(null);
     is_type_by_ref(param_spec.f_type_expr.p_designated_type_decl())
 }
 
@@ -714,7 +708,6 @@ fun get_formals(subp_spec : BaseSubpSpec) : List[FormalParam] = concat((
         from (
             from subtree(param_spec)
             match dn@DefiningName
-            select dn
         )
         match name
         select FormalParam(name, param_spec)
@@ -759,14 +752,13 @@ fun default_bit_order() : Expr = {
             from subtree(system.root)
             match decl @ ObjectDecl(f_has_constant: ConstantPresent, f_default_expr: not null)
             when decl.p_canonical_fully_qualified_name() == "system.default_bit_order"
-            select decl
         ).head_or(null)
     ).f_default_expr
 }
 
 |" Return the value of ``System.Storage_Unit``, 8 if not found.
 @memoized
-fun storage_unit() : BigInt = {
+fun storage_unit() : Int = {
     val system = get_unit("system", "unit_specification");
     val decl = (
         if system == null
@@ -775,10 +767,9 @@ fun storage_unit() : BigInt = {
             from subtree(system.root)
             match n@NumberDecl
             when n.p_canonical_fully_qualified_name() == "system.storage_unit"
-            select n
         ).head_or(null)
     );
-    if decl == null then 8b else decl.f_expr.p_eval_as_int()
+    if decl == null then 8 else decl.f_expr.p_eval_as_int()
 }
 
 |" Return true if ``decl`` has a ``Scalar_Storage_Order`` aspect whose
@@ -813,7 +804,6 @@ fun depends_on_mutable_discriminant(component_decl : ComponentDecl) : Bool = any
         (
             from subtree(component_decl.p_type_expression().p_subtype_constraint())
             match id@Identifier
-            select id
         ) ::: (
             from parent(component_decl)
             match vp@VariantPart
@@ -888,14 +878,14 @@ fun component_types_body(this : BasicDecl) : Rec[BasicDecl, BaseTypeDecl] = matc
     case TypeDecl(f_type_def: d @ RecordTypeDef) =>
         Rec[BasicDecl, BaseTypeDecl](
             [],
-            (from subtree(d) match cd@ComponentDecl select cd).to_list
+            (from subtree(d) match cd@ComponentDecl).to_list
         )
     case td@TypeDecl(f_type_def: DerivedTypeDef(f_record_extension:
                                             def @ BaseRecordDef)) =>
         Rec[BasicDecl, BaseTypeDecl](
             [],
             [td.p_base_type().as[BasicDecl]]
-            & (from subtree(def) match cd@ComponentDecl select cd).to_list
+            & (from subtree(def) match cd@ComponentDecl).to_list
         )
     case td@TypeDecl(f_type_def: DerivedTypeDef) =>
         Rec[BasicDecl, BaseTypeDecl](

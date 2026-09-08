@@ -331,8 +331,9 @@ public class StubsGenerator {
     private static String toLktType(Class<?> clazz) {
         return switch (clazz) {
             case Object _ when clazz == boolean.class || clazz == Boolean.class -> "Bool";
-            case Object _ when clazz == int.class || clazz == Integer.class -> "Int";
-            case Object _ when clazz == BigInteger.class -> "BigInt";
+            case Object _ when (
+                clazz == int.class || clazz == Integer.class || clazz == BigInteger.class
+            ) -> "Int";
             case Object _ when (
                 clazz == String.class ||
                 LangkitSupport.SymbolInterface.class.isAssignableFrom(clazz)

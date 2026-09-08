@@ -59,6 +59,14 @@ public final class LKQLStaticErrors extends AbstractTruffleException {
         addDiag(regexSyntaxErrorMessage(regex), location);
     }
 
+    /** Add a diagnostic when a big integer literal is used. */
+    public void invalidBigIntegerLiteral(SourceSection location) {
+        addDiag(
+            "Big integer literals are not supported, use integer literals instead (they automatically use big integers if needed)",
+            location
+        );
+    }
+
     // --- Symbol errors
 
     /** Add a diagnostic when an unknown symbol is encountered. */
