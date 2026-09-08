@@ -1,0 +1,6 @@
+# lkql version: 2
+
+import libadalang as lal
+
+
+val _ = print(all_nodes.head.as[lal.AdaNode])

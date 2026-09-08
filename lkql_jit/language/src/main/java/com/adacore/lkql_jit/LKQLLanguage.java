@@ -312,7 +312,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     ) {
         var options = getContext(null).getOptions();
 
-        if (options.typecheck()) LktPasses.Typecheck.check(source, lktRoot, errors);
+        if (options.typecheck()) {
+            LktPasses.Typecheck.check(source, lktRoot, errors);
+            if (!errors.diagnostics.isEmpty()) throw errors;
+        }
 
         // Create frames for the Lkt script
         final ScriptFrames frames = LktPasses.Frames.buildFrames(lktRoot).build(

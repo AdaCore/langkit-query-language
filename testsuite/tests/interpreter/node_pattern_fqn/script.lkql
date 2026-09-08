@@ -1,0 +1,7 @@
+# lkql version: 2
+
+import libadalang as lal
+
+
+val valid = (from all_nodes match lal.BasicDecl)
+val _ = print(valid.to_list)
