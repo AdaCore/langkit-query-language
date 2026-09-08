@@ -156,6 +156,14 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
             // If there is are auto-fixes, add them to the SARIF report
             if (!violation.autoFixes.isEmpty()) {
                 var fix = new Fix();
+
+                // Describe the fix with the wording provided by the rule
+                var fixDescription = new Message();
+                fixDescription.setText(
+                    violation.violatedInstance.instantiatedRule.autoFixDescription()
+                );
+                fix.setDescription(fixDescription);
+
                 // Use an insertion ordered set to keep the auto-fix order in the emitted report
                 var changes = new LinkedHashSet<ArtifactChange>();
                 for (var autoFix : violation.autoFixes) {

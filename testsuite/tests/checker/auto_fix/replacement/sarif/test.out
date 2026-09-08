@@ -41,6 +41,9 @@
         }
       } ],
       "fixes" : [ {
+        "description" : {
+          "text" : "Quick Fix"
+        },
         "artifactChanges" : [ {
           "artifactLocation" : {
             "uri" : "<working-dir>/main.adb"
