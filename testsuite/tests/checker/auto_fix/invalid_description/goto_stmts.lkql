@@ -1,0 +1,5 @@
+@check(
+    auto_fix=(node, ctx) => ctx.replace(node, new NullStmt()),
+    auto_fix_description=42
+)
+fun goto_stmts(node) = node is GotoStmt

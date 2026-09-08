@@ -1,0 +1,11 @@
+goto_stmts.lkql:1:1: error: Auto fix description must be a string
+  1 |  @check(
+    | _^
+    ||
+    || ~~~ 2 other lines ~~~
+    ||
+  4 || )
+    ||_^
+
+error: Unknown rule name "goto_stmts"
+
