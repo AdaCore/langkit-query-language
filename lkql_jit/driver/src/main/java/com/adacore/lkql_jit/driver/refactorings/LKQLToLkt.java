@@ -447,7 +447,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      * 1) Expansion of implicit argument
      *
-     * rec(<expr>) --> rec(<expr>, <expr>)
+     * rec(<expr>) --> { val _tmp = <expr>; rec(_tmp, _tmp) }
      *
      * 2) Case disjonction
      *
@@ -460,31 +460,41 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     private String refactorRecExpr(Liblkqllang.RecExpr recExpr) {
         final var hasRight = !recExpr.fResultExpr().isNone();
 
-        final var unpackLeft = recExpr.fRecurseUnpack().pAsBool();
-        final var unpackRight = hasRight ? recExpr.fResultUnpack().pAsBool() : unpackLeft;
-
-        final var left = recExpr.fRecurseExpr();
-        final var right = hasRight ? recExpr.fResultExpr() : left;
-
         // wrap in prelude-defined function for runtime support
         final Function<String, String> wrapper = s -> "non_null(" + s + ")";
 
-        var s = unpackRight ? refactorNode(right) : wrapper.apply(refactorNode(right));
+        if (hasRight) {
+            final var unpackLeft = recExpr.fRecurseUnpack().pAsBool();
+            final var left = recExpr.fRecurseExpr();
 
-        s += ",";
+            final var unpackRight = recExpr.fResultUnpack().pAsBool();
+            final var right = recExpr.fResultExpr();
 
-        // try to preserve spacing after "," (any newline for example)
-        if (hasRight && left.tokenEnd().next().getText().equals(",")) {
-            for (var tok = left.tokenEnd().next().next(); tok.isTrivia(); tok = tok.next()) {
-                s += tok.getText();
+            var s = unpackRight ? refactorNode(right) : wrapper.apply(refactorNode(right));
+
+            s += ",";
+
+            // try to preserve spacing after "," (any newline for example)
+            if (left.tokenEnd().next().getText().equals(",")) {
+                for (var tok = left.tokenEnd().next().next(); tok.isTrivia(); tok = tok.next()) {
+                    s += tok.getText();
+                }
+            } else {
+                s += " ";
             }
+
+            s += unpackLeft ? refactorNode(left) : wrapper.apply(refactorNode(left));
+
+            return "Rec(" + s + ")";
         } else {
-            s += " ";
+            final var unpackLeft = recExpr.fRecurseUnpack().pAsBool();
+
+            final var left = recExpr.fRecurseExpr();
+
+            var s = unpackLeft ? refactorNode(left) : wrapper.apply(refactorNode(left));
+
+            return "{ val _tmp = " + s + "; Rec(_tmp, _tmp) }";
         }
-
-        s += unpackLeft ? refactorNode(left) : wrapper.apply(refactorNode(left));
-
-        return "Rec(" + s + ")";
     }
 
     /*
