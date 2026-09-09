@@ -642,24 +642,27 @@ public class LKQLToLkt implements TreeBasedRefactoring {
 
         var sb = new StringBuilder();
 
-        var hasBinding = true;
-
+        final String binding;
         // Pattern binding
         if (!complexPattern.fBinding().isNone()) {
             // pattern has a binding
-            sb.append(complexPattern.fBinding().getText());
+            binding = complexPattern.fBinding().getText();
         } else if (!selectorPatternDetails.isEmpty()) {
             // pattern has no binding but needs one
-            sb.append("node");
+            binding = "node";
         } else {
-            hasBinding = false;
+            binding = null;
         }
 
+        final var hasBinding = binding != null;
         final var isUniv = complexPattern.fPattern() instanceof Liblkqllang.UniversalPattern;
         final var hasDetails = !otherPatternDetails.isEmpty();
 
-        if ((hasBinding && hasDetails) || (hasBinding && !isUniv)) {
-            sb.append(" @ ");
+        if (hasBinding) {
+            sb.append(binding);
+            if (hasDetails || !isUniv) {
+                sb.append(" @ ");
+            }
         }
 
         if (isUniv) {
@@ -691,7 +694,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             : Stream.of(refactorNode(complexPattern.fPredicate()));
         final var newPredicates = selectorPatternDetails
             .stream()
-            .map(this::refactorNodePatternSelector);
+            .map(detail -> refactorNodePatternSelector(detail, binding));
         final var predicates = Stream.concat(previousPredicate, newPredicates).collect(
             Collectors.joining(" and ")
         );
@@ -711,7 +714,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      * <selector>(node, <args>).<any|all>((n) => n is <subpattern>)
      *
      */
-    private String refactorNodePatternSelector(Liblkqllang.NodePatternSelector nps) {
+    private String refactorNodePatternSelector(
+        Liblkqllang.NodePatternSelector nps,
+        String selectorArg
+    ) {
         final var quantifier = refactorNode(nps.fCall().fQuantifier());
         final var selector = refactorNode(nps.fCall().fSelectorCall());
         final var subPattern = refactorNode(nps.fPattern());
@@ -724,7 +730,8 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         final var name = "n";
         return (
             selectorName +
-            "(node" +
+            "(" +
+            selectorArg +
             (selectorArgs != null ? ", " + selectorArgs : "") +
             ")." +
             quantifier +
