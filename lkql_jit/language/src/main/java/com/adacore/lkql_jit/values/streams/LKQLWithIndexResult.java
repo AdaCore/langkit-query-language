@@ -5,13 +5,14 @@
 
 package com.adacore.lkql_jit.values.streams;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.runtime.ListStorage;
-import com.adacore.lkql_jit.values.LKQLTuple;
+import com.adacore.lkql_jit.values.LKQLObject;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 
-/** This class represents the result of a mapping operation on a stream. */
-public class LKQLEnumerateResult extends BaseCachedStream {
+/** This class represents the result of adding indexes to a stream. */
+public class LKQLWithIndexResult extends BaseCachedStream {
 
     // ----- Attributes -----
 
@@ -23,16 +24,19 @@ public class LKQLEnumerateResult extends BaseCachedStream {
 
     // ----- Constructors -----
 
-    public LKQLEnumerateResult(Iterable generator) {
+    public LKQLWithIndexResult(Iterable generator) {
         super(new ListStorage<>(16));
         this.iterator = generator.iterator();
-        this.index = 1;
+        this.index = 0;
     }
 
     // ----- Instance methods -----
 
     protected Object computeNext() {
         if (!iterator.hasNext()) return null;
-        return new LKQLTuple(new Object[] { index++, iterator.next() });
+
+        final var keys = new String[] { "fst", "snd", Constants.STRUCT_TYPE_TAG };
+        final var vals = new Object[] { index++, iterator.next(), "Pair" };
+        return LKQLObject.createUncached(keys, vals);
     }
 }

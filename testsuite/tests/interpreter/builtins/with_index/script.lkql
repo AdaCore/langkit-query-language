@@ -1,10 +1,20 @@
+# lkql version: 2
+
 val x = [1, 2, 3, 4]
 val y = [4, 3, 2, 1]
 val z = []
-print(x.with_index.to_list)
-print(y.with_index.to_list)
-print(z.with_index.to_list)
+val _ = print(x.with_index.to_list)
+val _ = print(y.with_index.to_list)
+val _ = print(z.with_index.to_list)
+
+val _ = print((from x.with_index match e select e.fst).to_list)
+val _ = print((from x.with_index match e select e.snd).to_list)
+
+fun is_pair(x: Int): Bool = (x / 2) == ((x + 1) / 2)
 
 # also works on streams
-val lazy = [i & j for i in ["a", "b", "c"], j in ["!", "?"]]
-print(lazy.with_index.to_list)
+val lazy = ["a", "b", "c"].flat_map((i) => ["!", "?"].flat_map((j) => [i & j]))
+
+val _ = print(lazy.with_index.to_list)
+val _ = print((from lazy.with_index match Pair(i, e) select e if is_pair(i)).to_list)
+val _ = print((from lazy.with_index match Pair(i, e) select e if not is_pair(i)).to_list)

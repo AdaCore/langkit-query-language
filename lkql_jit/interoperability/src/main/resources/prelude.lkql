@@ -39,6 +39,7 @@
 
 @builtin generic[T] trait Iterable {
     @builtin @property fun unique(): Stream[T]
+    @builtin @property fun with_index(): Stream[Pair[Int, T]]
     @builtin generic[U] fun map(map_fn: (T)->U): Stream[U]
     @builtin generic[U] fun flat_map(map_fn: (T)->Stream[U]): Stream[U]
     @builtin generic[U] fun reduce(zip_fn: (U, T)->U, init: U): U
