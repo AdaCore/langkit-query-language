@@ -4,7 +4,7 @@ fun foo() =
 
 fun bar(arg) = 42 + arg
 
-fun baz(x, y, z) =
+fun baz(x, y : int, z : bool = true) =
     # bla
     # bla
     |" Baz doc

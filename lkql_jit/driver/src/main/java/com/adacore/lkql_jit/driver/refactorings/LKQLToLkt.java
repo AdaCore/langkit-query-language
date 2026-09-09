@@ -267,7 +267,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      * <id> [: <type>] [= <expr>]
      *
-     * <id> : (Any|<type>) [= expr]
+     * <id> : (Any|<Type>) [= expr]
      *
      */
     private String refactorParamDecl(Liblkqllang.ParameterDecl paramDecl) {
@@ -276,9 +276,9 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         var cursor = paramDecl.fParamIdentifier().tokenEnd().next();
 
         if (!paramDecl.fTypeAnnotation().isNone()) {
-            s +=
-                textRange(cursor, paramDecl.fTypeAnnotation().tokenStart().previous()) +
-                refactorNode(paramDecl.fTypeAnnotation());
+            s += textRange(cursor, paramDecl.fTypeAnnotation().tokenStart().previous());
+            var type = paramDecl.fTypeAnnotation().getText();
+            s += type.substring(0, 1).toUpperCase() + type.substring(1);
             cursor = paramDecl.fTypeAnnotation().tokenEnd().next();
         } else {
             s += " : Any"; // add type annotation if none

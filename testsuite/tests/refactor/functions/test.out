@@ -8,7 +8,7 @@ fun foo() : Any =
 fun bar(arg : Any) : Any = 42 + arg
 
 |" Baz doc
-fun baz(x : Any, y : Any, z : Any) : Any =
+fun baz(x : Any, y : Int, z : Bool = true) : Any =
     # bla
     # bla
     
