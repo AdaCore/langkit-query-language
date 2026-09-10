@@ -23,6 +23,7 @@ import com.adacore.lkql_jit.values.streams.LKQLArrayStream;
 import com.adacore.lkql_jit.values.streams.LKQLEnumerateResult;
 import com.adacore.lkql_jit.values.streams.LKQLFlattenResult;
 import com.adacore.lkql_jit.values.streams.LKQLMapResult;
+import com.adacore.lkql_jit.values.streams.LKQLWithIndexResult;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -46,7 +47,7 @@ public class IterableMethods {
 
         @Specialization
         public Iterable doGeneric(Iterable self) {
-            return new LKQLEnumerateResult(self, false);
+            return new LKQLEnumerateResult(self);
         }
     }
 
@@ -57,11 +58,11 @@ public class IterableMethods {
         to its index in a tuple: [(<index>, <elem>), ...]""",
         isProperty = true
     )
-    abstract static class EnumerateZeroExpr extends BuiltInBody {
+    abstract static class WithIndexExpr extends BuiltInBody {
 
         @Specialization
         public Iterable doGeneric(Iterable self) {
-            return new LKQLEnumerateResult(self, true);
+            return new LKQLWithIndexResult(self);
         }
     }
 
