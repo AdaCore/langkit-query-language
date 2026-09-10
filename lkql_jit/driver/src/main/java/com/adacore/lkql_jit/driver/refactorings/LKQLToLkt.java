@@ -267,7 +267,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      * <id> [: <type>] [= <expr>]
      *
-     * <id> : (Any|<type>) [= expr]
+     * <id> : (Any|<Type>) [= expr]
      *
      */
     private String refactorParamDecl(Liblkqllang.ParameterDecl paramDecl) {
@@ -276,9 +276,9 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         var cursor = paramDecl.fParamIdentifier().tokenEnd().next();
 
         if (!paramDecl.fTypeAnnotation().isNone()) {
-            s +=
-                textRange(cursor, paramDecl.fTypeAnnotation().tokenStart().previous()) +
-                refactorNode(paramDecl.fTypeAnnotation());
+            s += textRange(cursor, paramDecl.fTypeAnnotation().tokenStart().previous());
+            var type = paramDecl.fTypeAnnotation().getText();
+            s += type.substring(0, 1).toUpperCase() + type.substring(1);
             cursor = paramDecl.fTypeAnnotation().tokenEnd().next();
         } else {
             s += " : Any"; // add type annotation if none
@@ -447,7 +447,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      *
      * 1) Expansion of implicit argument
      *
-     * rec(<expr>) --> rec(<expr>, <expr>)
+     * rec(<expr>) --> { val _tmp = <expr>; rec(_tmp, _tmp) }
      *
      * 2) Case disjonction
      *
@@ -460,31 +460,41 @@ public class LKQLToLkt implements TreeBasedRefactoring {
     private String refactorRecExpr(Liblkqllang.RecExpr recExpr) {
         final var hasRight = !recExpr.fResultExpr().isNone();
 
-        final var unpackLeft = recExpr.fRecurseUnpack().pAsBool();
-        final var unpackRight = hasRight ? recExpr.fResultUnpack().pAsBool() : unpackLeft;
-
-        final var left = recExpr.fRecurseExpr();
-        final var right = hasRight ? recExpr.fResultExpr() : left;
-
         // wrap in prelude-defined function for runtime support
         final Function<String, String> wrapper = s -> "non_null(" + s + ")";
 
-        var s = unpackRight ? refactorNode(right) : wrapper.apply(refactorNode(right));
+        if (hasRight) {
+            final var unpackLeft = recExpr.fRecurseUnpack().pAsBool();
+            final var left = recExpr.fRecurseExpr();
 
-        s += ",";
+            final var unpackRight = recExpr.fResultUnpack().pAsBool();
+            final var right = recExpr.fResultExpr();
 
-        // try to preserve spacing after "," (any newline for example)
-        if (hasRight && left.tokenEnd().next().getText().equals(",")) {
-            for (var tok = left.tokenEnd().next().next(); tok.isTrivia(); tok = tok.next()) {
-                s += tok.getText();
+            var s = unpackRight ? refactorNode(right) : wrapper.apply(refactorNode(right));
+
+            s += ",";
+
+            // try to preserve spacing after "," (any newline for example)
+            if (left.tokenEnd().next().getText().equals(",")) {
+                for (var tok = left.tokenEnd().next().next(); tok.isTrivia(); tok = tok.next()) {
+                    s += tok.getText();
+                }
+            } else {
+                s += " ";
             }
+
+            s += unpackLeft ? refactorNode(left) : wrapper.apply(refactorNode(left));
+
+            return "Rec(" + s + ")";
         } else {
-            s += " ";
+            final var unpackLeft = recExpr.fRecurseUnpack().pAsBool();
+
+            final var left = recExpr.fRecurseExpr();
+
+            var s = unpackLeft ? refactorNode(left) : wrapper.apply(refactorNode(left));
+
+            return "{ val _tmp = " + s + "; Rec(_tmp, _tmp) }";
         }
-
-        s += unpackLeft ? refactorNode(left) : wrapper.apply(refactorNode(left));
-
-        return "Rec(" + s + ")";
     }
 
     /*
@@ -642,24 +652,27 @@ public class LKQLToLkt implements TreeBasedRefactoring {
 
         var sb = new StringBuilder();
 
-        var hasBinding = true;
-
+        final String binding;
         // Pattern binding
         if (!complexPattern.fBinding().isNone()) {
             // pattern has a binding
-            sb.append(complexPattern.fBinding().getText());
+            binding = complexPattern.fBinding().getText();
         } else if (!selectorPatternDetails.isEmpty()) {
             // pattern has no binding but needs one
-            sb.append("node");
+            binding = "node";
         } else {
-            hasBinding = false;
+            binding = null;
         }
 
+        final var hasBinding = binding != null;
         final var isUniv = complexPattern.fPattern() instanceof Liblkqllang.UniversalPattern;
         final var hasDetails = !otherPatternDetails.isEmpty();
 
-        if ((hasBinding && hasDetails) || (hasBinding && !isUniv)) {
-            sb.append(" @ ");
+        if (hasBinding) {
+            sb.append(binding);
+            if (hasDetails || !isUniv) {
+                sb.append(" @ ");
+            }
         }
 
         if (isUniv) {
@@ -691,7 +704,7 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             : Stream.of(refactorNode(complexPattern.fPredicate()));
         final var newPredicates = selectorPatternDetails
             .stream()
-            .map(this::refactorNodePatternSelector);
+            .map(detail -> refactorNodePatternSelector(detail, binding));
         final var predicates = Stream.concat(previousPredicate, newPredicates).collect(
             Collectors.joining(" and ")
         );
@@ -711,7 +724,10 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      * <selector>(node, <args>).<any|all>((n) => n is <subpattern>)
      *
      */
-    private String refactorNodePatternSelector(Liblkqllang.NodePatternSelector nps) {
+    private String refactorNodePatternSelector(
+        Liblkqllang.NodePatternSelector nps,
+        String selectorArg
+    ) {
         final var quantifier = refactorNode(nps.fCall().fQuantifier());
         final var selector = refactorNode(nps.fCall().fSelectorCall());
         final var subPattern = refactorNode(nps.fPattern());
@@ -724,7 +740,8 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         final var name = "n";
         return (
             selectorName +
-            "(node" +
+            "(" +
+            selectorArg +
             (selectorArgs != null ? ", " + selectorArgs : "") +
             ")." +
             quantifier +

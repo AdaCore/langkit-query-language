@@ -19,7 +19,7 @@ fun super_types(this : BaseTypeDecl, depth : Int = -1, min_depth : Int = -1, max
     unfold(super_types_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun super_types_body(this : BaseTypeDecl) : Rec[BaseTypeDecl, BaseTypeDecl] = match this {
-    case BaseTypeDecl => Rec(this.p_base_types(), this.p_base_types())
+    case BaseTypeDecl => { val _tmp = this.p_base_types(); Rec(_tmp, _tmp) }
     case _ => Rec[BaseTypeDecl, BaseTypeDecl]([], [])
 }
 
@@ -37,10 +37,10 @@ fun complete_super_types_body(this : BaseTypeDecl) : Rec[BaseTypeDecl, BaseTypeD
         # while they themselves don't have a next part, their base type may.
         val np = this.p_base_subtype().p_next_part();
         val typ = if np == null then this else np;
-        Rec(typ.p_base_types(), typ.p_base_types())
+        { val _tmp = typ.p_base_types(); Rec(_tmp, _tmp) }
     }
     case BaseTypeDecl =>
-        Rec(this.p_base_types(), this.p_base_types())
+        { val _tmp = this.p_base_types(); Rec(_tmp, _tmp) }
     case _ => Rec[BaseTypeDecl, BaseTypeDecl]([], [])
 }
 
@@ -51,7 +51,7 @@ fun semantic_parent(this : AdaNode, depth : Int = -1, min_depth : Int = -1, max_
 
 fun semantic_parent_body(this : AdaNode) : Rec[AdaNode, AdaNode] = match this {
     case null     => Rec[AdaNode, AdaNode]([], [])
-    case _        => Rec(non_null(this.p_semantic_parent()), non_null(this.p_semantic_parent()))
+    case _        => { val _tmp = non_null(this.p_semantic_parent()); Rec(_tmp, _tmp) }
 }
 
 
@@ -335,23 +335,17 @@ fun parent_decl_chain(this : AdaNode, depth : Int = -1, min_depth : Int = -1, ma
 
 fun parent_decl_chain_body(this : AdaNode) : Rec[AdaNode, AdaNode] = match this {
     case null => Rec[AdaNode, AdaNode]([], [])
-    case decl@(BaseSubpBody | PackageBody) => Rec(non_null({
+    case decl@(BaseSubpBody | PackageBody) => { val _tmp = non_null({
         val prev_part = decl.p_decl_part();
 
         # Some subprogram bodies don't have a previous part because they're
         # also the decl. In that case, return the semantic parent.
-        if prev_part != null then prev_part else this.p_semantic_parent()
-    }), non_null({
-        val prev_part = decl.p_decl_part();
-
-        # Some subprogram bodies don't have a previous part because they're
-        # also the decl. In that case, return the semantic parent.
-        if prev_part != null then prev_part else this.p_semantic_parent()
-    }))
-    case _ => Rec(
-        non_null(this.p_semantic_parent()),
-        non_null(this.p_semantic_parent())
-    )
+        if prev_part then prev_part else this.p_semantic_parent()
+    }); Rec(_tmp, _tmp) }
+    case _ => {
+        val _tmp = non_null(this.p_semantic_parent());
+        Rec(_tmp, _tmp)
+    }
 }
 
 
@@ -887,32 +881,27 @@ fun component_types_body(this : BasicDecl) : Rec[BasicDecl, BaseTypeDecl] = matc
             [td.p_base_type().as[BasicDecl]]
             & (from subtree(def) match cd@ComponentDecl).to_list
         )
-    case td@TypeDecl(f_type_def: DerivedTypeDef) =>
-        Rec[BasicDecl, BaseTypeDecl](
-            non_null(td.p_base_type()),
-            non_null(td.p_base_type())
-        )
-    case td@TypeDecl(f_type_def: ArrayTypeDef) =>
-        Rec[BasicDecl, BaseTypeDecl](
-            non_null(td.p_comp_type()),
-            non_null(td.p_comp_type())
-        )
-    case td@TypeDecl(f_type_def: PrivateTypeDef) =>
-        Rec[BasicDecl, BaseTypeDecl](
-            non_null(td.p_full_view()),
-            non_null(td.p_full_view())
-        )
-    case sd@SubtypeDecl =>
-        Rec[BasicDecl, BaseTypeDecl](
-            non_null(sd.p_base_subtype()),
-            non_null(sd.p_base_subtype())
-        )
+    case td@TypeDecl(f_type_def: DerivedTypeDef) => {
+        val _tmp = non_null(td.p_base_type());
+        Rec[BasicDecl, BaseTypeDecl]( _tmp, _tmp)
+    }
+    case td@TypeDecl(f_type_def: ArrayTypeDef) => {
+        val _tmp = non_null(td.p_comp_type());
+        Rec[BasicDecl, BaseTypeDecl]( _tmp, _tmp)
+    }
+    case td@TypeDecl(f_type_def: PrivateTypeDef) => {
+        val _tmp = non_null(td.p_full_view());
+        Rec[BasicDecl, BaseTypeDecl]( _tmp, _tmp)
+    }
+    case sd@SubtypeDecl => {
+        val _tmp = non_null(sd.p_base_subtype());
+        Rec[BasicDecl, BaseTypeDecl](_tmp, _tmp)
+    }
     case ComponentDecl(f_component_def: ComponentDef(f_type_expr:
-                       ind @ SubtypeIndication))  =>
-        Rec[BasicDecl, BaseTypeDecl](
-            non_null(ind.p_designated_type_decl()),
-            non_null(ind.f_name.p_referenced_decl())
-        )
+                       ind @ SubtypeIndication))  => {
+        val _tmp = non_null(ind.p_designated_type_decl());
+        Rec[BasicDecl, BaseTypeDecl](_tmp, _tmp)
+    }
     case _ =>
         Rec[BasicDecl, BaseTypeDecl]([], [])
 }
@@ -923,18 +912,9 @@ fun full_parent_types(this : BaseTypeDecl, depth : Int = -1, min_depth : Int = -
     unfold(full_parent_types_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun full_parent_types_body(this : BaseTypeDecl) : Rec[BaseTypeDecl, BaseTypeDecl] = match this {
-    case SubtypeDecl => Rec(
-        non_null(this.p_base_subtype().p_full_view()),
-        non_null(this.p_base_subtype().p_full_view())
-    )
-    case ClasswideTypeDecl => Rec(
-        non_null(this.f_name.p_basic_decl().as[BaseTypeDecl].p_full_view()),
-        non_null(this.f_name.p_basic_decl().as[BaseTypeDecl].p_full_view())
-    )
-    case BaseTypeDecl => Rec(
-        this.p_full_view().p_base_types(),
-        this.p_full_view().p_base_types()
-    )
+    case SubtypeDecl       => { val _tmp = non_null(this.p_base_subtype().p_full_view()); Rec(_tmp, _tmp) }
+    case ClasswideTypeDecl => { val _tmp = non_null(this.f_name.p_basic_decl().p_full_view()); Rec(_tmp, _tmp) }
+    case BaseTypeDecl      => { val _tmp = this.p_full_view().p_base_types(); Rec(_tmp, _tmp) }
     case _ => Rec[BaseTypeDecl, BaseTypeDecl]([], [])
 }
 

@@ -13,7 +13,7 @@ fun super_types(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : 
     unfold(super_types_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun super_types_body(this : Any) : Any = match this {
-    case BaseTypeDecl => Rec(this.p_base_types(), this.p_base_types())
+    case BaseTypeDecl => { val _tmp = this.p_base_types(); Rec(_tmp, _tmp) }
     case _            => Rec([], [])
 }
 
