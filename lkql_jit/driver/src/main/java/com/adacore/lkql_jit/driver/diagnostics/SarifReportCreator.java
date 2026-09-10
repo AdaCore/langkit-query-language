@@ -153,25 +153,23 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
             // without location.
             result.setLocations(List.of(location.get()));
 
-            // If there is are auto-fixes, add them to the SARIF report
-            if (!violation.autoFixes.isEmpty()) {
+            // If there is an auto-fix, add it to the SARIF report
+            violation.autoFix.ifPresent(autoFix -> {
                 var fix = new Fix();
 
-                // Describe the fix with the wording provided by the rule
+                // Describe the fix
                 var fixDescription = new Message();
-                fixDescription.setText(
-                    violation.violatedInstance.instantiatedRule.autoFixDescription()
-                );
+                fixDescription.setText(autoFix.description());
                 fix.setDescription(fixDescription);
 
-                // Use an insertion ordered set to keep the auto-fix order in the emitted report
+                // Use an insertion ordered set to keep the change order in the emitted report
                 var changes = new LinkedHashSet<ArtifactChange>();
-                for (var autoFix : violation.autoFixes) {
-                    changes.add(autoFix.toArtifactChange());
+                for (var change : autoFix.changes()) {
+                    changes.add(change.toArtifactChange());
                 }
                 fix.setArtifactChanges(changes);
                 result.setFixes(Set.of(fix));
-            }
+            });
 
             // If the rule violation comes from a generic instantiation
             if (!violation.genericTrace.isEmpty()) {

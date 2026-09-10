@@ -196,8 +196,7 @@ public final class RuleRepository {
 
             // A description only makes sense along with an auto fix
             if (
-                autoFix.isEmpty() &&
-                annotation.namedArguments().containsKey("auto_fix_description")
+                autoFix.isEmpty() && annotation.namedArguments().containsKey("auto_fix_description")
             ) {
                 diagnostics.add(
                     new Error(

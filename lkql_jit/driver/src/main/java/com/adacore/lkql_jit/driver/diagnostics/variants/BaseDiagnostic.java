@@ -26,8 +26,8 @@ public abstract sealed class BaseDiagnostic permits Info, Warning, Error, Except
     /** List of hints for this diagnostic. */
     public final List<Hint> hints;
 
-    /** Auto-fixes resolving this rule violation. */
-    public final List<AutoFix> autoFixes;
+    /** Auto-fix resolving this diagnostic, if any. */
+    public Optional<AutoFix> autoFix;
 
     // ----- Constructors -----
 
@@ -35,7 +35,7 @@ public abstract sealed class BaseDiagnostic permits Info, Warning, Error, Except
         this.message = message;
         this.location = location;
         this.hints = new ArrayList<>();
-        this.autoFixes = new ArrayList<>();
+        this.autoFix = Optional.empty();
     }
 
     // ----- Instance methods -----
@@ -44,8 +44,8 @@ public abstract sealed class BaseDiagnostic permits Info, Warning, Error, Except
         this.hints.add(hint);
     }
 
-    public void addAutoFix(AutoFix autoFix) {
-        this.autoFixes.add(autoFix);
+    public void setAutoFix(AutoFix autoFix) {
+        this.autoFix = Optional.of(autoFix);
     }
 
     @Override
