@@ -1,8 +1,8 @@
-[1/2] some_rule: violation in sub/mid.adb
+[1/2] some_rule: violation in sub/mid.adb (fix: Quick Fix)
   at sub/mid.adb:3:4
 -> applied
 
-[2/2] some_rule: violation in sub/deeper/low.adb
+[2/2] some_rule: violation in sub/deeper/low.adb (fix: Quick Fix)
   at sub/deeper/low.adb:3:4
 -> applied
 

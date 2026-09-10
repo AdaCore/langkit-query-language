@@ -13,6 +13,11 @@ import java.util.List;
  * source files it targets.
  *
  * <p>
+ * The message is the one of the result the fix belongs to, describing the
+ * violation, while the description says what the fix does. It is the default
+ * one when the report provides none.
+ *
+ * <p>
  * Textual edits are expressed in SARIF region coordinates: 1-based lines and
  * columns, columns are character-based and end-exclusive. A zero-width region
  * represents a pure insertion, and an edit without inserted text represents a
@@ -21,6 +26,7 @@ import java.util.List;
 public record CandidateFix(
     String ruleId,
     String message,
+    String description,
     String locationImage,
     List<FileChange> changes
 ) {

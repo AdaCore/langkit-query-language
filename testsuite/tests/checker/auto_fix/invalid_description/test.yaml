@@ -1,0 +1,6 @@
+driver: checker
+sources:
+  - main.adb
+rules:
+  - goto_stmts
+auto_fix: True

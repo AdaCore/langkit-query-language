@@ -5,12 +5,14 @@
 
 package com.adacore.lkql_jit.driver.patching;
 
+import com.adacore.lkql_jit.Constants;
 import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Warning;
 import de.jcup.sarif_2_1_0.SarifSchema210ImportExportSupport;
 import de.jcup.sarif_2_1_0.model.Artifact;
 import de.jcup.sarif_2_1_0.model.ArtifactLocation;
+import de.jcup.sarif_2_1_0.model.Message;
 import de.jcup.sarif_2_1_0.model.Region;
 import de.jcup.sarif_2_1_0.model.Replacement;
 import de.jcup.sarif_2_1_0.model.Result;
@@ -216,6 +218,9 @@ public final class SarifFixLoader {
             );
         }
         final var fix = fixes.iterator().next();
+        final var description = Optional.ofNullable(fix.getDescription())
+            .map(Message::getText)
+            .orElse(Constants.DEFAULT_AUTO_FIX_DESCRIPTION);
 
         final var changes = new ArrayList<CandidateFix.FileChange>();
         for (var change : orEmpty(fix.getArtifactChanges())) {
@@ -256,7 +261,7 @@ public final class SarifFixLoader {
             return Optional.empty();
         }
 
-        return Optional.of(new CandidateFix(ruleId, message, locationImage, changes));
+        return Optional.of(new CandidateFix(ruleId, message, description, locationImage, changes));
     }
 
     /**

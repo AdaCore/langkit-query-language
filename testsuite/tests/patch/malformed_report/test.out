@@ -1,4 +1,4 @@
-[1/1] some_rule: violation on line 4
+[1/1] some_rule: violation on line 4 (fix: Quick Fix)
   at main.adb:4:4
 -> applied
 

@@ -1,4 +1,4 @@
-[1/1] some_rule: fix out of the file bounds
+[1/1] some_rule: fix out of the file bounds (fix: Quick Fix)
   at main.adb:100:1
 -> skipped (position 100:1 is out of the bounds of "main.adb")
 

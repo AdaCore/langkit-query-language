@@ -289,7 +289,8 @@ public final class CheckerRun {
                                 // Then, call the auto-fix function
                                 executionContext.asValue(autoFix).execute(autoFixArguments);
 
-                                // Add all auto-fix object to the rule violation object
+                                // Gather the changes of all rewritten units
+                                var changes = new ArrayList<AutoFix.Change>();
                                 for (var rewritingUnit : rewritingContext.rewritingUnits()) {
                                     var targetSource = Source.from(rewritingUnit.getAnalysisUnit());
                                     var patch = DiffUtils.diff(
@@ -301,8 +302,18 @@ public final class CheckerRun {
                                         )
                                     );
                                     if (!patch.getDeltas().isEmpty()) {
-                                        ruleViolation.addAutoFix(new AutoFix(targetSource, patch));
+                                        changes.add(new AutoFix.Change(targetSource, patch));
                                     }
+                                }
+
+                                // Then attach them to the rule violation, described by the rule
+                                if (!changes.isEmpty()) {
+                                    ruleViolation.setAutoFix(
+                                        new AutoFix(
+                                            instance.instantiatedRule.autoFixDescription(),
+                                            changes
+                                        )
+                                    );
                                 }
                             }
                         }

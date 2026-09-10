@@ -6,7 +6,7 @@ main.adb:2:6: rule violation: goto_stmts
   ||
 6 || end Main;
   ||_^
-fix proposal:
+fix proposal: Quick Fix
   in main.adb:
   1  procedure Main is
   2  begin

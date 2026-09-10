@@ -1,0 +1,6 @@
+goto_stmts.lkql:1:1: error: Auto fix description provided without auto fix
+  1 | @check(auto_fix_description="Replace the goto statement")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: Unknown rule name "goto_stmts"
+

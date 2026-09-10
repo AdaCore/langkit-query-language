@@ -1,7 +1,7 @@
 main.adb:3:4: rule violation: goto_stmt
 3 |    goto lbl;
   |    ^^^^^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in main.adb:
   2  begin
   3     goto lbl;

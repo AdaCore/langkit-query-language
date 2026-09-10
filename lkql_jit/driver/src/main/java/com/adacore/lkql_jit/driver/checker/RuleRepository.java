@@ -182,6 +182,31 @@ public final class RuleRepository {
                 autoFix = Optional.empty();
             }
 
+            // Get the auto fix description, which must be a string
+            var autoFixDescription = allArguments.get("auto_fix_description");
+            if (!(autoFixDescription instanceof String)) {
+                diagnostics.add(
+                    new Error(
+                        "Auto fix description must be a string",
+                        SourceSection.from(annotation.location())
+                    )
+                );
+                return Optional.empty();
+            }
+
+            // A description only makes sense along with an auto fix
+            if (
+                autoFix.isEmpty() && annotation.namedArguments().containsKey("auto_fix_description")
+            ) {
+                diagnostics.add(
+                    new Error(
+                        "Auto fix description provided without auto fix",
+                        SourceSection.from(annotation.location())
+                    )
+                );
+                return Optional.empty();
+            }
+
             // Finally return the new rule object
             return Optional.of(
                 new Rule(
@@ -190,6 +215,7 @@ public final class RuleRepository {
                     (String) allArguments.get("rule_name"),
                     callable,
                     autoFix,
+                    (String) autoFixDescription,
                     (String) allArguments.get("message"),
                     (String) allArguments.get("help"),
                     (boolean) allArguments.get("follow_generic_instantiations"),

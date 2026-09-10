@@ -1,0 +1,2 @@
+@check(auto_fix_description="Replace the goto statement")
+fun goto_stmts(node) = node is GotoStmt

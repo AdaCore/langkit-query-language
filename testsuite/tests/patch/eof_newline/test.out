@@ -1,4 +1,4 @@
-[1/2] drop_final_separator: remove the final line separator
+[1/2] drop_final_separator: remove the final line separator (fix: Quick Fix)
   at dropped.adb:4:7
 --- a/dropped.adb
 +++ b/dropped.adb
@@ -10,7 +10,7 @@
 Apply this fix? [y/n/a/A/q/h]
 -> applied
 
-[2/2] add_blank_line: add a blank line at the end of the file
+[2/2] add_blank_line: add a blank line at the end of the file (fix: Quick Fix)
   at added.adb:5:1
 --- a/added.adb
 +++ b/added.adb

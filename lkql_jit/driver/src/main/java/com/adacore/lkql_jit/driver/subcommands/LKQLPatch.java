@@ -302,7 +302,10 @@ public class LKQLPatch extends BaseSubcommand {
                         "[" + (i + 1) + "/" + eligible.size() + "] " + fix.ruleId() + ": ",
                         Styling::bold
                     ) +
-                    fix.message()
+                    fix.message() +
+                    " (fix: " +
+                    fix.description() +
+                    ")"
             );
             System.out.println(styled("  at " + fix.locationImage(), Styling::brightBlue));
 

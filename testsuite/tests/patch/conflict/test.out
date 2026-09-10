@@ -1,8 +1,8 @@
-[1/2] rule_one: first fix
+[1/2] rule_one: first fix (fix: Quick Fix)
   at main.adb:3:4
 -> applied
 
-[2/2] rule_two: second fix, overlapping the first one
+[2/2] rule_two: second fix, overlapping the first one (fix: Quick Fix)
   at main.adb:4:4
 -> skipped (conflicts with a previously accepted fix)
 
