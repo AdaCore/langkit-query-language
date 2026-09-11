@@ -1,0 +1,35 @@
+"report.sarif" contains 3 rule(s):
+  goto_statements   2 fix(es)
+  null_statements   1 fix(es)
+  rule_without_fix  0 fix(es)
+
+[1/3] goto_statements: goto statement (fix: Remove the goto statement)
+  at pkg_a.adb:4:4
+-> applied
+
+[2/3] null_statements: null statement (fix: Replace the null statement by a comment)
+  at pkg_a.adb:3:4
+-> applied
+
+[3/3] goto_statements: goto statement (fix: Remove the goto statement)
+  at pkg_b.adb:4:4
+-> applied
+
+Patched 2 file(s): 3 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+
+Resulting files
+===============
+
+== proj_a/pkg_a.adb ==
+procedure Pkg_A is
+begin
+   --  Nothing to do
+   <<L>> null;
+end Pkg_A;
+
+== proj_b/pkg_b.adb ==
+procedure Pkg_B is
+begin
+   null;
+   <<L>> null;
+end Pkg_B;

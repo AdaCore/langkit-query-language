@@ -29,6 +29,8 @@ public class SarifReflectionFeature implements Feature {
             ReportingDescriptorRelationship.class,
             ReportingDescriptorReference.class,
             Result.class,
+            Result.Level.class,
+            Result.Kind.class,
             Fix.class,
             Replacement.class,
             Notification.class,
