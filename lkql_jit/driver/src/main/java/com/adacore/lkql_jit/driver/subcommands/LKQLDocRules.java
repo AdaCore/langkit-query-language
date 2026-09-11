@@ -115,12 +115,22 @@ public class LKQLDocRules implements Callable<Integer> {
         docString
             .append(rstAnchor(displayName(rule)))
             .append("\n\n")
-            .append(rstHeading(displayName(rule), rule.subcategory().isEmpty() ? '-' : '^'))
+            .append(rstHeading(displayName(rule), rule.subcategory().equals("Misc") ? '-' : '^'))
             .append("\n\n")
             .append(rstIndex(displayName(rule)))
             .append("\n\n")
-            .append(getDoc(rule))
-            .append("\n\n\n");
+            .append(getDoc(rule));
+
+        if (rule.autoFix().isPresent()) {
+            docString
+                .append("\n\n")
+                .append(".. admonition:: Auto-fix available\n")
+                .append("\n")
+                .append("   ")
+                .append(rule.autoFixDescription());
+        }
+
+        docString.append("\n\n\n");
         return docString.toString();
     }
 
