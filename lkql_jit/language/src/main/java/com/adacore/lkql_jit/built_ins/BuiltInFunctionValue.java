@@ -47,6 +47,7 @@ public class BuiltInFunctionValue extends LKQLFunction {
             Closure.EMPTY,
             documentation,
             functionRootNode.getParameterNames(),
+            new String[functionRootNode.getParameterNames().length],
             functionRootNode.getDefaultParameters(),
             functionRootNode.getBody(),
             new LKQLAnnotation[0]

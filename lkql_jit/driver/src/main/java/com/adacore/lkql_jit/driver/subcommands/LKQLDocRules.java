@@ -5,9 +5,12 @@
 
 package com.adacore.lkql_jit.driver.subcommands;
 
-import static com.adacore.liblkqllang.Liblkqllang.*;
-
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.driver.checker.Rule;
+import com.adacore.lkql_jit.driver.checker.RuleRepository;
+import com.adacore.lkql_jit.driver.diagnostics.DiagnosticCollector;
+import com.adacore.lkql_jit.driver.diagnostics.TextReportCreator;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +19,8 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.graalvm.collections.Pair;
+import org.graalvm.polyglot.Context;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -24,6 +29,8 @@ import picocli.CommandLine;
 )
 public class LKQLDocRules implements Callable<Integer> {
 
+    // ----- Attributes -----
+
     /** Pattern that matches the ".. param" and ".. skip_param" RST directives. */
     private static final Pattern PARAM_DIRECTIVE_MATCHER = Pattern.compile(
         ".. ((skip_)?param):: (.*)"
@@ -31,6 +38,9 @@ public class LKQLDocRules implements Callable<Integer> {
 
     /** Set of accepted rule parameter types. */
     private static final Set<String> VALID_PARAM_TYPES = Set.of("bool", "int", "string", "list");
+
+    /** Whether the current output support ANSI colors. */
+    protected final boolean supportAnsi;
 
     @CommandLine.Parameters(
         description = "Any number of rules directories for which to generate documentation"
@@ -46,31 +56,25 @@ public class LKQLDocRules implements Callable<Integer> {
     @CommandLine.Option(names = { "-v", "--verbose" }, description = "Verbose mode.")
     boolean verbose;
 
+    // ----- Constructor -----
+
+    public LKQLDocRules() {
+        this.supportAnsi = System.getenv("TERM") != null && System.console() != null;
+    }
+
+    // ----- Class methods -----
+
     private static String toMixedCase(String src) {
         return Arrays.stream(src.split("_"))
             .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
             .collect(Collectors.joining("_"));
     }
 
-    /**
-     * Return whether `unit` contains a LKQL checker (assuming an AnalysisUnit contains only one
-     * checker).
-     *
-     * @return The corresponding `FunDecl` if a checker is found, null otherwise.
-     */
-    private static FunDecl isCheck(AnalysisUnit unit) {
-        for (var fun : unit
-            .getRoot()
-            .walk()
-            .filter(n -> n instanceof FunDecl)
-            .map(f -> (FunDecl) f)
-            .toList()) {
-            var ann = fun.fAnnotation();
-            if (
-                ann != null && !ann.isNone() && ann.fName().pSym().text.endsWith("check")
-            ) return fun;
-        }
-        return null;
+    /** Get the name to display in doc for the provided rule. */
+    private static String displayName(Rule rule) {
+        return rule.displayName().equals(rule.name())
+            ? toMixedCase(rule.name())
+            : rule.displayName();
     }
 
     /** Get a formatted string corresponding to an RST heading named 'name'. */
@@ -89,111 +93,99 @@ public class LKQLDocRules implements Callable<Integer> {
         return ".. index:: " + name.replace(" ", "_");
     }
 
-    /** Convert the LkqlNode 'literal' to RST (simply remove the leading '|" ' characters). */
-    private static String docStringLiteralToRST(LkqlNode literal) {
-        var line = literal.getText();
-        return line.substring(Math.min(3, line.length()));
+    /** Raise an exception about an error while documenting the specified rule. */
+    private static void errorInDoc(Rule rule, String message) {
+        throw new RuntimeException(
+            "Error when generating the documentation for the rule \"" +
+                rule.name() +
+                "\" (" +
+                message +
+                ')'
+        );
     }
 
-    /** Object to represent a LKQL rule for easier documentation generation. */
-    private record Rule(FunDecl check, String name, String category, String subcategory) implements
-        Comparable<Rule> {
-        public Rule(FunDecl check) {
-            this(
-                check,
-                getAnnotationArgument(check, "rule_name").orElse(
-                    toMixedCase(check.fName().pSym().text)
-                ),
-                getAnnotationArgument(check, "category").orElse(""),
-                getAnnotationArgument(check, "subcategory").orElse("")
+    /** Return whether the rule is from category and subcategory. */
+    private static boolean isFromCategory(Rule rule, String category, String subcategory) {
+        return (rule.category().equals(category) && rule.subcategory().equals(subcategory));
+    }
+
+    /** Generate the RST documentation corresponding to the provided rule. */
+    private static String toRST(Rule rule) {
+        var docString = new StringBuilder();
+        docString
+            .append(rstAnchor(displayName(rule)))
+            .append("\n\n")
+            .append(rstHeading(displayName(rule), rule.subcategory().equals("Misc") ? '-' : '^'))
+            .append("\n\n")
+            .append(rstIndex(displayName(rule)))
+            .append("\n\n")
+            .append(getDoc(rule));
+
+        if (rule.autoFix().isPresent()) {
+            docString
+                .append("\n\n")
+                .append(".. admonition:: Auto-fix available\n")
+                .append("\n")
+                .append("   ")
+                .append(rule.autoFixDescription());
+        }
+
+        docString.append("\n\n\n");
+        return docString.toString();
+    }
+
+    /**
+     * Process the rule documentation and return the result (or throw an error if the
+     * documentation is missing something).
+     */
+    private static String getDoc(Rule rule) {
+        // Create a map of parameters to document, keys are parameter names, and values are pairs
+        // with their types and their default value.
+        var paramsToDocument = new HashMap<String, Pair<Optional<String>, Optional<String>>>();
+        for (int i = 1; i < rule.checker().parameterNames.length; i++) {
+            var defaultValue = Optional.ofNullable(rule.checker().parameterDefaultValues[i]);
+            paramsToDocument.put(
+                rule.checker().parameterNames[i],
+                Pair.create(
+                    Optional.ofNullable(rule.checker().parameterTypes[i]),
+                    defaultValue.map(v -> v.getSourceSection().getCharacters().toString())
+                )
             );
         }
 
-        /** Get the argument of annotation 'name' if it exists, empty string otherwise. */
-        private static Optional<String> getAnnotationArgument(FunDecl check, String name) {
-            var ann = check.fAnnotation();
-            if (!ann.isNone()) {
-                var arg = ann.pArgWithName(Symbol.create(name));
-                if (!arg.isNone() && arg.pExpr() instanceof StringLiteral) {
-                    var raw = arg.pExpr().getText();
-                    return Optional.of(raw.substring(1, raw.length() - 1));
-                }
-            }
-            return Optional.empty();
-        }
-
-        /** When compared, rules are sorted by names. */
-        @Override
-        public int compareTo(Rule other) {
-            return this.name.compareToIgnoreCase(other.name);
-        }
-
-        /** Generate the RST documentation corresponding to this rule. */
-        public String toRST() {
-            var docString = new StringBuilder();
-            docString
-                .append(rstAnchor(this.name))
-                .append("\n\n")
-                .append(rstHeading(this.name, subcategory.isEmpty() ? '-' : '^'))
-                .append("\n\n")
-                .append(rstIndex(this.name))
-                .append("\n\n")
-                .append(getDoc())
-                .append("\n\n\n");
-            return docString.toString();
-        }
-
-        /**
-         * Process the rule documentation and return the result (or throw an error if the
-         * documentation is missing something).
-         */
-        private String getDoc() {
-            // Create a map with all parameters of the rule. We skip the first parameter because
-            // it is the object for the rule to analyze, so it's not part of the rule
-            // configuration.
-            var ruleParams = Arrays.stream(check.fFunExpr().fParameters().children())
-                .map(p -> (ParameterDecl) p)
-                .toList();
-            Map<String, ParameterDecl> paramsMap = ruleParams.isEmpty()
-                ? Map.of()
-                : ruleParams
-                      .subList(1, ruleParams.size())
-                      .stream()
-                      .collect(Collectors.toMap(p -> p.fParamIdentifier().getText(), p -> p));
-
-            // Fetch the rule documentation
-            var doc = switch (check.pDoc()) {
-                case StringLiteral s -> docStringLiteralToRST(s);
-                case BlockStringLiteral bsl -> Arrays.stream(bsl.fDocs().children())
-                    .map(LKQLDocRules::docStringLiteralToRST)
-                    .collect(Collectors.joining("\n"));
-                default -> throw new RuntimeException("Invalid documentation " + check.pDoc());
-            };
-
-            // Now replace all ".. param" directives in the documentation
-            doc = PARAM_DIRECTIVE_MATCHER.matcher(doc).replaceAll(matchResult -> {
+        // Replace all ".. param" directives in the documentation
+        var doc = PARAM_DIRECTIVE_MATCHER.matcher(rule.checker().documentation).replaceAll(
+            matchResult -> {
                 var directiveName = matchResult.group(1);
                 var paramName = matchResult.group(3);
 
                 // Fetch the parameter declaration related to the name
-                var relatedParam = paramsMap.remove(paramName);
+                var relatedParam = paramsToDocument.remove(paramName);
+
+                // Check that the documented parameter exists
+                if (relatedParam == null) errorInDoc(rule, "Unknown parameter " + paramName);
+
+                // Get type and default value of the parameter
+                var maybeParamType = relatedParam.getLeft();
+                var paramDefaultValue = relatedParam.getRight();
 
                 // Now check that all information about the parameter are available
-                if (relatedParam == null) errorInDoc("Unknown parameter " + paramName);
-                if (relatedParam.fTypeAnnotation().isNone()) errorInDoc(
+                if (maybeParamType.isEmpty()) errorInDoc(
+                    rule,
                     "Missing type annotation for parameter " + paramName
                 );
+                var paramType = maybeParamType.get();
 
                 // Check that the parameter type is valid
-                var paramType = relatedParam.fTypeAnnotation().getText();
                 if (!VALID_PARAM_TYPES.contains(paramType)) errorInDoc(
+                    rule,
                     "Invalid type " + paramType + " for parameter " + paramName
                 );
 
                 // Now create the default value annotation
-                var defaultValPrecision = relatedParam.fDefaultExpr().isNone()
-                    ? "(no default value, this parameter is mandatory)"
-                    : "(default: ``" + relatedParam.fDefaultExpr().getText() + "``)";
+                var defaultValPrecision = paramDefaultValue
+                    .map(d -> "(default: ``" + d + "``)")
+                    .orElse("(no default value, this parameter is mandatory)");
 
                 return directiveName.equals("param")
                     ? ("- *" +
@@ -203,31 +195,16 @@ public class LKQLDocRules implements Callable<Integer> {
                           "* " +
                           defaultValPrecision)
                     : "";
-            });
+            }
+        );
 
-            if (!paramsMap.isEmpty()) errorInDoc(
-                "Those parameters are missing a docstring " + paramsMap
-            );
+        if (!paramsToDocument.isEmpty()) errorInDoc(
+            rule,
+            "Those parameters are missing a docstring " + paramsToDocument.keySet()
+        );
 
-            // Finally return the documentation
-            return doc;
-        }
-
-        private void errorInDoc(String message) {
-            throw new RuntimeException(
-                "Error when generating the documentation for the rule \"" +
-                    name +
-                    "\" (" +
-                    check.fullSlocImage() +
-                    "): " +
-                    message
-            );
-        }
-
-        /** Return whether this rule is from category 'category' and subcategory 'subcategory'. */
-        public Boolean isFromCategory(String category, String subcategory) {
-            return (this.category.equals(category) && this.subcategory.equals(subcategory));
-        }
+        // Finally return the documentation
+        return doc;
     }
 
     /**
@@ -248,8 +225,8 @@ public class LKQLDocRules implements Callable<Integer> {
         var iter = rules.listIterator();
         while (iter.hasNext()) {
             var next = iter.next();
-            if (next.isFromCategory(categoryName, "")) {
-                file.write(next.toRST());
+            if (isFromCategory(next, categoryName, "Misc")) {
+                file.write(toRST(next));
                 iter.remove();
             }
         }
@@ -274,65 +251,53 @@ public class LKQLDocRules implements Callable<Integer> {
         var iter = rules.listIterator();
         while (iter.hasNext()) {
             var next = iter.next();
-            if (next.isFromCategory(categoryName, subcategoryName)) {
-                file.write(next.toRST());
+            if (isFromCategory(next, categoryName, subcategoryName)) {
+                file.write(toRST(next));
                 iter.remove();
             }
         }
     }
 
+    // ----- Instance methods -----
+
     @Override
     public Integer call() throws Exception {
-        var context = AnalysisContext.create();
+        // Create a new collector for diagnostics
+        var diagnostics = new DiagnosticCollector();
 
-        if (verbose) System.out.println("Analysing rule files in directories: " + rulesDirs);
+        // Create a text report creator to display potential diagnostics
+        var reporter = new TextReportCreator(System.out, supportAnsi);
 
-        // Get all lkql files from directories to analyze.
-        var ruleDirectoryFiles = new ArrayList<Path>();
-        for (var dir : rulesDirs) {
-            try (var files = Files.list(dir.toAbsolutePath())) {
-                ruleDirectoryFiles.addAll(
-                    files
-                        .filter(
-                            p ->
-                                Files.isReadable(p) &&
-                                p.toString().endsWith(Constants.LKQL_EXTENSION)
-                        )
-                        .toList()
-                );
+        // Now create a context to get all rules
+        var contextBuilder = Context.newBuilder(Constants.LKQL_ID)
+            .allowAllAccess(true)
+            .option("lkql.options", new LKQLOptions.Builder().build().toJson().toString());
+
+        // Create a rule repository and populate it
+        RuleRepository ruleRepository;
+        try (var context = contextBuilder.build()) {
+            if (verbose) System.out.println("Analysing rule files in directories: " + rulesDirs);
+            ruleRepository = new RuleRepository(context, rulesDirs, diagnostics);
+
+            // Check if some errors occurred during rules fetching
+            if (diagnostics.hasError()) {
+                diagnostics.createReport(reporter);
+                return 1;
             }
+
+            if (verbose) System.out.println(
+                "Found " + ruleRepository.rules.size() + " rules for documentation."
+            );
         }
 
-        var units = new ArrayList<AnalysisUnit>();
-
-        // Parse all rule files.
-        for (var ruleFile : ruleDirectoryFiles) {
-            var unit = context.getUnitFromFile(ruleFile.toAbsolutePath().toString());
-            if (verbose) System.out.println(" * " + unit.getFileName());
-
-            if (unit.getDiagnostics().length > 0) {
-                System.err.println("Error while parsing \"" + unit.getFileName() + "\":");
-                for (var diag : unit.getDiagnostics()) System.err.println(diag);
-            } else units.add(unit);
-        }
-
-        // Create rules objects, only keep check/unit_check FunDecls. We need to
-        // use Collectors.toList() here instead of a direct call to toList()
-        // because we rely on the fact that the list is mutable for the
-        // subsequent calls to printCategory/printSubcategory (mostly for
-        // performance).
-        var rules = units
+        // Now create a list of all rules, sorted by name
+        var rules = ruleRepository.rules
+            .values()
             .stream()
-            .map(LKQLDocRules::isCheck)
-            .filter(Objects::nonNull)
-            .map(Rule::new)
+            .sorted(Comparator.comparing(Rule::name))
             .collect(Collectors.toList());
 
-        if (verbose) System.out.println("Found " + rules.size() + " rules for documentation.");
-
-        // Sort the rules alphabetically before generating documentation.
-        Collections.sort(rules);
-
+        // Create the output directory if it doesn't exist
         if (!Files.exists(outputDir)) Files.createDirectories(outputDir);
 
         // Generate the list of rules.
@@ -351,7 +316,7 @@ public class LKQLDocRules implements Callable<Integer> {
 
             """
         );
-        for (var r : rules) listOfRules.write("* :ref:`" + r.name + "`\n");
+        for (var r : rules) listOfRules.write("* :ref:`" + displayName(r) + "`\n");
 
         listOfRules.close();
 
@@ -599,9 +564,10 @@ public class LKQLDocRules implements Callable<Integer> {
 
         predefinedRules.close();
 
+        // Finally, show rules that haven't been documented
         if (!rules.isEmpty()) {
             System.err.println("Error: " + rules.size() + " rules not documented!");
-            for (var r : rules) System.out.println(r.toString());
+            for (var r : rules) System.out.println(r.name().toString());
         }
 
         return 0;
