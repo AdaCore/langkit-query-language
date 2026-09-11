@@ -10,8 +10,10 @@ import static com.adacore.liblktlang.Liblktlang.*;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
+import com.adacore.lkql_jit.exceptions.LogLocation;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
 import com.adacore.lkql_jit.nodes.Identifier;
@@ -51,12 +53,14 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternFieldNodeGen;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternPropertyNodeGen;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.utils.functions.SourceSectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -68,6 +72,7 @@ public final class LktPasses {
         public static void check(
             final Source source,
             Liblktlang.LangkitRoot root,
+            LKQLOptions.TypecheckingMode typecheckingMode,
             LKQLStaticErrors errors
         ) {
             root
@@ -76,15 +81,31 @@ public final class LktPasses {
                 .map(Liblktlang.LktNode::pSolveEnclosingContext)
                 .filter(solverResult -> !solverResult.success)
                 .flatMap(solverResult -> Stream.of(solverResult.diagnostics))
-                .forEach(diag ->
-                    errors.addDiag(
-                        LangkitSupport.renderSolverDiag(diag),
-                        SourceSectionUtils.createSection(
-                            diag.location.getSourceLocationRange(),
-                            source
-                        )
-                    )
-                );
+                .forEach(diag -> {
+                    final var diagnosticMsg = LangkitSupport.renderSolverDiag(diag);
+                    if (typecheckingMode == LKQLOptions.TypecheckingMode.STRICT) {
+                        errors.addDiag(
+                            diagnosticMsg,
+                            SourceSectionUtils.createSection(
+                                diag.location.getSourceLocationRange(),
+                                source
+                            )
+                        );
+                    } else {
+                        LKQLLanguage.getContext(null)
+                            .getLogger()
+                            .log(
+                                Level.WARNING,
+                                diagnosticMsg,
+                                new LogLocation(
+                                    new LogLocation.LangkitLocation(
+                                        diag.location.getUnit(),
+                                        diag.location.getSourceLocationRange()
+                                    )
+                                )
+                            );
+                    }
+                });
         }
     }
 

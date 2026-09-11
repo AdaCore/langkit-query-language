@@ -55,12 +55,6 @@ public class LKQLRun extends BaseSubcommand {
     @CommandLine.Option(names = { "-i", "--interactive" }, description = "Run a REPL")
     public boolean interactive;
 
-    @CommandLine.Option(
-        names = { "-t", "--typecheck" },
-        description = "Try to typecheck (only works with lkql version: 2)"
-    )
-    public boolean typecheck;
-
     @CommandLine.Unmatched
     public List<String> unmatched = new ArrayList<>();
 
@@ -115,7 +109,7 @@ public class LKQLRun extends BaseSubcommand {
         contextBuilder.allowIO(IOAccess.ALL).logHandler(logHandler);
 
         // Forward the command line options to the options builder
-        var optionsBuilder = new LKQLOptions.Builder().files(files).typecheck(typecheck);
+        var optionsBuilder = new LKQLOptions.Builder().files(files);
         engineArgs.fillEngineOptions(optionsBuilder);
         gprArgs.fillGPROptions(optionsBuilder);
 

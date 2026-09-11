@@ -18,6 +18,7 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.functions.SourceSectionUtils;
 import com.adacore.lkql_jit.values.LKQLNamespace;
@@ -311,9 +312,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         LKQLStaticErrors errors
     ) {
         var options = getContext(null).getOptions();
+        var typecheckingMode = options.typecheckingMode();
 
-        if (options.typecheck()) {
-            LktPasses.Typecheck.check(source, lktRoot, errors);
+        if (typecheckingMode != LKQLOptions.TypecheckingMode.DISABLE) {
+            LktPasses.Typecheck.check(source, lktRoot, typecheckingMode, errors);
             if (!errors.diagnostics.isEmpty()) throw errors;
         }
 
