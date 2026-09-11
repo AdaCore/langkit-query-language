@@ -1,0 +1,8 @@
+driver: patch
+# A report may hold several runs, for instance one per aggregated project.
+# Each run declares its own roots, so the same "URI_BASE_DIR" identifier
+# denotes a different directory in each of them.
+runs:
+  - args:
+      - --list-rules
+  - auto_mode: true

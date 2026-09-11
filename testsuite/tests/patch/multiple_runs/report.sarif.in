@@ -1,0 +1,250 @@
+{
+    "version": "2.1.0",
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "gnatcheck",
+                    "rules": [
+                        {
+                            "id": "goto_statements"
+                        },
+                        {
+                            "id": "null_statements"
+                        }
+                    ]
+                }
+            },
+            "originalUriBaseIds": {
+                "URI_BASE_DIR": {
+                    "uri": "file://@TEST_DIR@/proj_a/",
+                    "description": {
+                        "text": "Project directory if one has been used, working directory otherwise"
+                    }
+                }
+            },
+            "artifacts": [
+                {
+                    "location": {
+                        "uri": "pkg_a.adb",
+                        "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "hashes": {
+                        "sha-256": "7d8292e3fede1110f4c2a7c295025ab084bc28e6b2fa9c3bd929ad48d85a6779"
+                    },
+                    "sourceLanguage": "ada"
+                }
+            ],
+            "results": [
+                {
+                    "ruleId": "goto_statements",
+                    "level": "warning",
+                    "message": {
+                        "text": "goto statement"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "pkg_a.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 4,
+                                    "startColumn": 4
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "description": {
+                                "text": "Remove the goto statement"
+                            },
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "pkg_a.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 4,
+                                                "startColumn": 1,
+                                                "endLine": 5,
+                                                "endColumn": 1,
+                                                "snippet": {
+                                                    "text": "   goto L;\n"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ruleId": "null_statements",
+                    "level": "warning",
+                    "message": {
+                        "text": "null statement"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "pkg_a.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 3,
+                                    "startColumn": 4
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "description": {
+                                "text": "Replace the null statement by a comment"
+                            },
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "pkg_a.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 3,
+                                                "startColumn": 4,
+                                                "endLine": 3,
+                                                "endColumn": 9,
+                                                "snippet": {
+                                                    "text": "null;"
+                                                }
+                                            },
+                                            "insertedContent": {
+                                                "text": "--  Nothing to do"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "tool": {
+                "driver": {
+                    "name": "gnatcheck",
+                    "rules": [
+                        {
+                            "id": "goto_statements"
+                        },
+                        {
+                            "id": "rule_without_fix"
+                        }
+                    ]
+                }
+            },
+            "originalUriBaseIds": {
+                "URI_BASE_DIR": {
+                    "uri": "file://@TEST_DIR@/proj_b/",
+                    "description": {
+                        "text": "Project directory if one has been used, working directory otherwise"
+                    }
+                }
+            },
+            "artifacts": [
+                {
+                    "location": {
+                        "uri": "pkg_b.adb",
+                        "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "hashes": {
+                        "sha-256": "06f7c7a20cfddb9dd9458448963c2f368ed04b597a6b9c0bd7d61803ade72fb4"
+                    },
+                    "sourceLanguage": "ada"
+                }
+            ],
+            "results": [
+                {
+                    "ruleId": "goto_statements",
+                    "level": "warning",
+                    "message": {
+                        "text": "goto statement"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "pkg_b.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 4,
+                                    "startColumn": 4
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "description": {
+                                "text": "Remove the goto statement"
+                            },
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "pkg_b.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 4,
+                                                "startColumn": 1,
+                                                "endLine": 5,
+                                                "endColumn": 1,
+                                                "snippet": {
+                                                    "text": "   goto L;\n"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ruleId": "rule_without_fix",
+                    "level": "warning",
+                    "message": {
+                        "text": "violation without any fix"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "pkg_b.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 1,
+                                    "startColumn": 1
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
