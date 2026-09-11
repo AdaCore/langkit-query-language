@@ -1,0 +1,7 @@
+# values
+
+val _ = [x, y, z].flatten
+
+val _ = (
+	[[x] for x in some_list]
+).flatten

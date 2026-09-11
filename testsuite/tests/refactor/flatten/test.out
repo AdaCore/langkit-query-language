@@ -1,0 +1,9 @@
+# lkql version: 2
+
+# values
+
+val _ = [x, y, z].flat_map(id)
+
+val _ = (
+	(from some_list match x select [x])
+).flat_map(id)

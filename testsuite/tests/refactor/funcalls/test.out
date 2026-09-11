@@ -2,6 +2,10 @@ input.lkql:2:4: warning: safe calls are a deprecated feature
   2 | foo?( # some useful comment
     |    ^
 
+input.lkql:9:1: warning: concat will be deprecated in a future release, consider using either stdlib.concat_str or Iterable.flat_map
+  9 | concat(["a", "b", "c"])
+    | ^^^^^^
+
 # lkql version: 2
 
 
@@ -11,5 +15,9 @@ val _ = foo( # some useful comment
     c
     # bla
 ) # blabla
+
+val _ = concat(["a", "b", "c"])
+
+val _ = ([[1], [2], [3]]).flat_map(id)
 
 val _ = print(add(x,sub(y,z)))
