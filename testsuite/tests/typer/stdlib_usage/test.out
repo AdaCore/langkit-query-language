@@ -1,0 +1,4 @@
+script.lkql:18:36: error: expected String, got Expr
+  18 | val b = stdlib.is_standard_numeric(exprs.head)
+     |                                    ^^^^^^^^^^
+

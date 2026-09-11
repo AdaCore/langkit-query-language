@@ -1,0 +1,18 @@
+# lkql version: 2
+
+# The purpose of this test is to make sure the stdlib is typechecked, e.g. that
+# users can rely on its type annotation to write typechecked LKQL code.
+# To show that the stdlib contains useful type annotations, perform one valid
+# and one invalid use of it (the latter will produce a diagnostic, while the
+# former will not).
+
+from libadalang import *
+import stdlib
+
+val exprs = (
+    from units().map((u) => u.root).flat_map(stdlib.follow_generics)
+    match o@ObjectDecl
+    select o.f_default_expr
+)
+
+val b = stdlib.is_standard_numeric(exprs.head)

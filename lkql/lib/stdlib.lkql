@@ -335,13 +335,18 @@ fun parent_decl_chain(this : AdaNode, depth : Int = -1, min_depth : Int = -1, ma
 
 fun parent_decl_chain_body(this : AdaNode) : Rec[AdaNode, AdaNode] = match this {
     case null => Rec[AdaNode, AdaNode]([], [])
-    case decl@(BaseSubpBody | PackageBody) => { val _tmp = non_null({
-        val prev_part = decl.p_decl_part();
+    case decl@(BaseSubpBody | PackageBody) => {
+        val _tmp = non_null({
+            val prev_part = decl.p_decl_part();
 
-        # Some subprogram bodies don't have a previous part because they're
-        # also the decl. In that case, return the semantic parent.
-        if prev_part then prev_part else this.p_semantic_parent()
-    }); Rec(_tmp, _tmp) }
+            # Some subprogram bodies don't have a previous part because they're
+            # also the decl. In that case, return the semantic parent.
+            if prev_part != null
+            then prev_part
+            else this.p_semantic_parent()
+        });
+        Rec(_tmp, _tmp)
+    }
     case _ => {
         val _tmp = non_null(this.p_semantic_parent());
         Rec(_tmp, _tmp)
@@ -912,9 +917,18 @@ fun full_parent_types(this : BaseTypeDecl, depth : Int = -1, min_depth : Int = -
     unfold(full_parent_types_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun full_parent_types_body(this : BaseTypeDecl) : Rec[BaseTypeDecl, BaseTypeDecl] = match this {
-    case SubtypeDecl       => { val _tmp = non_null(this.p_base_subtype().p_full_view()); Rec(_tmp, _tmp) }
-    case ClasswideTypeDecl => { val _tmp = non_null(this.f_name.p_basic_decl().p_full_view()); Rec(_tmp, _tmp) }
-    case BaseTypeDecl      => { val _tmp = this.p_full_view().p_base_types(); Rec(_tmp, _tmp) }
+    case SubtypeDecl       => {
+        val _tmp = non_null(this.p_base_subtype().p_full_view());
+        Rec(_tmp, _tmp)
+    }
+    case ClasswideTypeDecl => {
+        val _tmp = non_null(this.f_name.p_basic_decl().as[BaseTypeDecl].p_full_view());
+        Rec(_tmp, _tmp)
+    }
+    case BaseTypeDecl      => {
+        val _tmp = this.p_full_view().p_base_types();
+        Rec(_tmp, _tmp)
+    }
     case _ => Rec[BaseTypeDecl, BaseTypeDecl]([], [])
 }
 

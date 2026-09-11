@@ -1,16 +1,8 @@
 # lkql version: 2
 
 # The main purpose of this test is to import the stdlib in order to run the
-# typechecking pass on it. To make sure it's done properly, perform one valid
-# and one invalid use of it.
+# typechecking pass on it. Make sure there are no diagnostic in this file,
+# otherwise the import will never be executed and thus the stdlib will never
+# be typechecked.
 
-from libadalang import *
 import stdlib
-
-val exprs = (
-    from units().map((u) => u.root).flat_map(stdlib.follow_generics)
-    match o@ObjectDecl
-    select o.f_default_expr
-)
-
-val b = stdlib.is_standard_numeric(exprs.head)
