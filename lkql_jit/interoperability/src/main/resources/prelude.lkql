@@ -110,6 +110,8 @@ struct AnalysisUnit {
 
 # ----- Misc -----
 
+generic[T] fun id(x: T): T = x
+
 generic[A, B]
 struct Pair {
     fst: A

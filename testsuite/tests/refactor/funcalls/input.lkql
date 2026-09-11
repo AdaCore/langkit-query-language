@@ -6,4 +6,8 @@ foo?( # some useful comment
     # bla
 ) # blabla
 
+concat(["a", "b", "c"])
+
+flatten([[1], [2], [3]])
+
 print(add(x,sub(y,z)))

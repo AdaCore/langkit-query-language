@@ -79,6 +79,9 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             case Liblkqllang.UnitLiteral _ -> "Unit()";
             case Liblkqllang.TopLevelList topLevel -> refactorTopLevelList(topLevel);
             case Liblkqllang.UniversalPattern _ -> "_";
+            case Liblkqllang.DotAccess flattenExpr when (
+                flattenExpr.fMember().getText().equals("flatten")
+            ) -> refactorFlatten(flattenExpr);
             default -> refactorGeneric(node);
         };
     }
@@ -228,6 +231,9 @@ public class LKQLToLkt implements TreeBasedRefactoring {
      * <callee>[?](<args>)
      * <callee>(<args>)
      *
+     * special case:
+     * concat --> warning
+     * flatten --> (<arg>).flat_map(id)
      */
     private String refactorFunCall(Liblkqllang.FunCall funCall) {
         if (funCall.fHasSafe().pAsBool()) {
@@ -239,28 +245,43 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             );
         }
 
-        final var sb = new StringBuilder();
-
-        sb.append(refactorNode(funCall.fName()));
+        // Build args first
+        final var argsBuilder = new StringBuilder();
 
         var cursor = funCall.fName().tokenEnd().next();
         var stopIndex = funCall.fArguments().tokenStart().tokenIndex;
         while (cursor.tokenIndex < stopIndex) {
             if (cursor.kind != TokenKind.LKQL_QUESTION) {
-                sb.append(cursor.getText());
+                argsBuilder.append(cursor.getText());
             }
             cursor = cursor.next();
         }
 
-        sb.append(refactorNode(funCall.fArguments()));
+        argsBuilder.append(refactorNode(funCall.fArguments()));
 
         if (funCall.fArguments().tokenEnd().next().tokenIndex < funCall.tokenEnd().tokenIndex) {
-            sb.append(textRange(funCall.fArguments().tokenEnd().next(), funCall.tokenEnd()));
+            argsBuilder.append(
+                textRange(funCall.fArguments().tokenEnd().next(), funCall.tokenEnd())
+            );
         } else {
-            sb.append(textRange(funCall.tokenEnd(), funCall.tokenEnd()));
+            argsBuilder.append(textRange(funCall.tokenEnd(), funCall.tokenEnd()));
         }
 
-        return sb.toString();
+        // Handle special names
+        var name = refactorNode(funCall.fName());
+
+        if (name.equals("concat")) {
+            diags.add(
+                new Warning(
+                    "concat will be deprecated in a future release, consider using either stdlib.concat_str or Iterable.flat_map",
+                    SourceSection.from(funCall.fName())
+                )
+            );
+        }
+
+        if (name.equals("flatten")) return argsBuilder.toString() + ".flat_map(id)";
+
+        return name + argsBuilder.toString();
     }
 
     /*
@@ -851,5 +872,21 @@ public class LKQLToLkt implements TreeBasedRefactoring {
             refactorNode(inClause.fListExpr()) +
             ").any((b) => _tmp == b) }"
         );
+    }
+
+    /*
+     * <expr>.flatten
+     * <expr>.flat_map(id)
+     */
+    private String refactorFlatten(Liblkqllang.DotAccess flattenExpr) {
+        var s = "";
+        s += textRange(flattenExpr.tokenStart(), flattenExpr.fReceiver().tokenStart().previous());
+        s += refactorNode(flattenExpr.fReceiver());
+        s += textRange(
+            flattenExpr.fReceiver().tokenEnd().next(),
+            flattenExpr.fMember().tokenStart().previous()
+        );
+        s += "flat_map(id)";
+        return s;
     }
 }

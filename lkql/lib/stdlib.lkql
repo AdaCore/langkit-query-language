@@ -950,3 +950,5 @@ fun follow_generics(this: Node): Stream[AdaNode] = match this {
         n :: this.children.flat_map(follow_generics)
     case _ => nil[AdaNode]()
 }
+
+fun concat_str(strs: List[String]): String = strs.reduce[String]((a: String,b: String) => a & b, "")
