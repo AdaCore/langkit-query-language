@@ -43,11 +43,14 @@ public class LKQLProperty extends LKQLCallable {
             LKQLCallable.CallableKind.PROPERTY,
             description == null
                 ? new String[0]
+                : description.params().stream().map(Param::name).toArray(String[]::new),
+            description == null
+                ? new String[0]
                 : description
                       .params()
                       .stream()
-                      .map(Param::name)
-                      .toArray(v -> new String[v]),
+                      .map(p -> p.type().getSimpleName())
+                      .toArray(String[]::new),
             description == null ? new Node[0] : new Node[description.params().size()],
             "",
             new LKQLAnnotation[0]

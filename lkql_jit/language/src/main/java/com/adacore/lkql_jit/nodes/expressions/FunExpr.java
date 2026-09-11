@@ -42,6 +42,9 @@ public final class FunExpr extends Expr {
     /** The names of the parameters. */
     private final String[] parameterNames;
 
+    /** Type annotations provided to function parameters. */
+    private final String[] parameterTypes;
+
     /** Documentation for the function */
     private final String documentation;
 
@@ -63,6 +66,7 @@ public final class FunExpr extends Expr {
         FrameDescriptor frameDescriptor,
         ClosureDescriptor closureDescriptor,
         String[] parameterNames,
+        String[] parameterTypes,
         Expr[] parameterDefaultValues,
         String documentation,
         Expr body,
@@ -82,6 +86,7 @@ public final class FunExpr extends Expr {
         );
         this.name = name;
         this.parameterNames = parameterNames;
+        this.parameterTypes = parameterTypes;
         this.parameterValues = parameterDefaultValues;
         this.documentation = documentation;
         this.createClosureNode = new CreateClosureNode(closureDescriptor);
@@ -101,6 +106,7 @@ public final class FunExpr extends Expr {
             createClosureNode.execute(frame),
             this.documentation,
             this.parameterNames,
+            this.parameterTypes,
             this.parameterValues,
             this.functionRootNode.getBody(),
             new LKQLAnnotation[0]

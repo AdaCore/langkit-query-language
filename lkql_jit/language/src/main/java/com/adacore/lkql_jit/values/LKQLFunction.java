@@ -47,6 +47,7 @@ public class LKQLFunction extends LKQLCallable {
      * @param closure The closure of the function.
      * @param documentation The documentation of the function.
      * @param parameterNames The names of the parameters.
+     * @param parameterTypes Type annotations for function parameters, may contain nulls.
      * @param parameterDefaultValues Truffle nodes representing parameter default values.
      * @param body Expression representing the function semantics.
      */
@@ -55,6 +56,7 @@ public class LKQLFunction extends LKQLCallable {
         final Closure closure,
         final String documentation,
         final String[] parameterNames,
+        final String[] parameterTypes,
         final Node[] parameterDefaultValues,
         final Node body,
         final LKQLAnnotation[] annotations
@@ -63,6 +65,7 @@ public class LKQLFunction extends LKQLCallable {
             rootNode.getName(),
             LKQLCallable.CallableKind.FUNCTION,
             parameterNames,
+            parameterTypes,
             parameterDefaultValues,
             documentation,
             annotations

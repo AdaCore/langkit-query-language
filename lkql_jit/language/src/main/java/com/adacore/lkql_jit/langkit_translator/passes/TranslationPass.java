@@ -1387,6 +1387,9 @@ public final class TranslationPass
         var names = toStream(baseFunction.fParameters())
             .map(p -> p.fParamIdentifier().getText())
             .toArray(String[]::new);
+        var types = toStream(baseFunction.fParameters())
+            .map(p -> p.fTypeAnnotation().isNone() ? null : p.fTypeAnnotation().getText())
+            .toArray(String[]::new);
         var defaultVals = toStream(baseFunction.fParameters())
             .map(p -> p.fDefaultExpr().isNone() ? null : (Expr) p.fDefaultExpr().accept(this))
             .toArray(Expr[]::new);
@@ -1399,6 +1402,7 @@ public final class TranslationPass
             this.frames.getFrameDescriptor(),
             this.frames.getClosureDescriptor(),
             names,
+            types,
             defaultVals,
             docstring.isNone() ? "" : parseStringLiteral(docstring),
             body,
@@ -1596,6 +1600,7 @@ public final class TranslationPass
         // Return the new selector declaration node
         final var minus_one = new LongLiteral(null, -1);
         final var paramNames = new String[] { "this", "depth", "min_depth", "max_depth" };
+        final var paramTypes = new String[paramNames.length];
         final var paramDefaults = new Expr[] { null, minus_one, minus_one, minus_one };
 
         var selectorBody = new SelectorExpr(
@@ -1610,6 +1615,7 @@ public final class TranslationPass
             frameDescriptor,
             closureDescriptor,
             paramNames,
+            paramTypes,
             paramDefaults,
             documentation,
             selectorBody,
@@ -1923,6 +1929,7 @@ public final class TranslationPass
             frames.getFrameDescriptor(),
             frames.getClosureDescriptor(),
             Constants.PASS_FAKE_ARGS,
+            new String[Constants.PASS_FAKE_ARGS.length],
             new Expr[Constants.PASS_FAKE_ARGS.length],
             docstring.isNone() ? "" : parseStringLiteral(docstring),
             passExpr,

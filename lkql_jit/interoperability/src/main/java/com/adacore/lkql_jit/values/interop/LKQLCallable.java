@@ -34,6 +34,9 @@ public abstract class LKQLCallable extends LKQLValue {
     /** Names of parameters of this callable value. */
     public final String[] parameterNames;
 
+    /** Type annotations of rule parameters. This array may contain null strings. */
+    public final String[] parameterTypes;
+
     /**
      * Truffle nodes representing default values for this callable parameters. This array may
      * contain null nodes.
@@ -53,6 +56,7 @@ public abstract class LKQLCallable extends LKQLValue {
         String name,
         CallableKind kind,
         String[] parameterNames,
+        String[] parameterTypes,
         Node[] parameterDefaultValues,
         String documentation,
         LKQLAnnotation[] annotations
@@ -60,6 +64,7 @@ public abstract class LKQLCallable extends LKQLValue {
         this.name = name;
         this.kind = kind;
         this.parameterNames = parameterNames;
+        this.parameterTypes = parameterTypes;
         this.parameterDefaultValues = parameterDefaultValues;
         this.documentation = documentation;
         this.annotations = annotations;

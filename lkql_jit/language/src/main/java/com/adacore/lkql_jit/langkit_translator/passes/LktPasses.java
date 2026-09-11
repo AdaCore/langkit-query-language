@@ -289,23 +289,28 @@ public final class LktPasses {
             this.frames.enterFrame(function);
 
             var paramNames = new String[params.getChildrenCount()];
-            var defaultVals = new Expr[params.getChildrenCount()];
+            var paramTypes = new String[paramNames.length];
+            var defaultVals = new Expr[paramNames.length];
 
             for (int i = 0; i < params.getChildrenCount(); i++) {
                 String paramName;
+                String paramType;
                 Liblktlang.Expr defaultValue;
                 switch (params.getChild(i)) {
                     case FunParamDecl funParamDecl -> {
                         paramName = funParamDecl.fSynName().getText();
+                        paramType = funParamDecl.fDeclType().getText();
                         defaultValue = funParamDecl.fDefaultVal();
                     }
                     case LambdaParamDecl lambdaParamDecl -> {
                         paramName = lambdaParamDecl.fSynName().getText();
+                        paramType = lambdaParamDecl.fDeclType().getText();
                         defaultValue = lambdaParamDecl.fDefaultVal();
                     }
                     default -> throw LKQLEngineException.shouldNotReachHere();
                 }
                 paramNames[i] = paramName;
+                paramTypes[i] = paramType;
                 defaultVals[i] = defaultValue.isNone() ? null : buildExpr(defaultValue);
             }
             final var body = buildExpr(functionBody);
@@ -315,6 +320,7 @@ public final class LktPasses {
                 this.frames.getFrameDescriptor(),
                 this.frames.getClosureDescriptor(),
                 paramNames,
+                paramTypes,
                 defaultVals,
                 doc == null || doc.isNone() ? "" : doc.pDenotedValue().value.trim(),
                 body,
@@ -536,6 +542,7 @@ public final class LktPasses {
 
                     // Build constructor formal parameters
                     final var params = new String[structDecl.fDecls().getChildrenCount()];
+                    final var types = new String[params.length];
                     final var defaultVals = new Expr[params.length];
 
                     final var localDecls = structDecl.fDecls().iterator();
@@ -544,6 +551,7 @@ public final class LktPasses {
 
                         if (localDecl instanceof Liblktlang.FieldDecl fieldDecl) {
                             params[i] = fieldDecl.fSynName().getText();
+                            types[i] = fieldDecl.fDeclType().getText();
                             if (!fieldDecl.fDefaultVal().isNone()) {
                                 defaultVals[i] = buildExpr(fieldDecl.fDefaultVal());
                             }
@@ -579,6 +587,7 @@ public final class LktPasses {
                             frames.getFrameDescriptor(),
                             frames.getClosureDescriptor(),
                             params,
+                            types,
                             defaultVals,
                             doc.isNone() ? "" : doc.pDenotedValue().value.trim(),
                             body,
