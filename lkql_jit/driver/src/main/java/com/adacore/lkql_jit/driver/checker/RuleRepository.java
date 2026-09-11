@@ -26,7 +26,7 @@ public final class RuleRepository {
     // ----- Attributes -----
 
     /** A map associating rules to their names. */
-    private final Map<String, Rule> rules;
+    public final Map<String, Rule> rules;
 
     // ----- Constructors -----
 
