@@ -68,8 +68,18 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
         )
         public Boolean missingFileIsError = false;
 
+        @CommandLine.Option(
+            names = { "-t", "--typecheck-mode" },
+            description = "Whether to typecheck LKQL V2 rules (default is WARN)." +
+                "%nPossible values: ${COMPLETION-CANDIDATES}"
+        )
+        public LKQLOptions.TypecheckingMode typecheckingMode = LKQLOptions.TypecheckingMode.WARN;
+
         public void fillEngineOptions(LKQLOptions.Builder optionsBuilder) {
-            optionsBuilder.charset(charset).missingFileIsError(missingFileIsError);
+            optionsBuilder
+                .charset(charset)
+                .missingFileIsError(missingFileIsError)
+                .typecheckingMode(typecheckingMode);
         }
     }
 

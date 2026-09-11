@@ -47,7 +47,7 @@ public record LKQLOptions(
     List<String> ignores,
     List<String> additionalLkqlPaths,
     boolean missingFileIsError,
-    boolean typecheck,
+    TypecheckingMode typecheckingMode,
 
     // GPR options
     List<String> additionalProjectPaths,
@@ -70,6 +70,14 @@ public record LKQLOptions(
     Map<String, String> scenarioVariables,
     boolean hideProjectDiagnostics
 ) {
+    // ----- Nested types -----
+
+    public enum TypecheckingMode {
+        DISABLE,
+        WARN,
+        STRICT,
+    }
+
     // ----- Constructors -----
 
     public LKQLOptions {
@@ -142,7 +150,7 @@ public record LKQLOptions(
                 .map(e -> (String) e)
                 .toList(),
             jsonLKQLOptions.getBoolean("missingFileIsError"),
-            jsonLKQLOptions.getBoolean("typecheck"),
+            jsonLKQLOptions.getEnum(TypecheckingMode.class, "typecheckingMode"),
             // GPR options
             jsonLKQLOptions
                 .getJSONArray("additionalProjectPaths")
@@ -196,7 +204,7 @@ public record LKQLOptions(
             .put("ignores", new JSONArray(ignores))
             .put("additionalLkqlPaths", new JSONArray(additionalLkqlPaths))
             .put("missingFileIsError", missingFileIsError)
-            .put("typecheck", typecheck)
+            .put("typecheckingMode", typecheckingMode)
             .put("additionalProjectPaths", new JSONArray(additionalProjectPaths))
             .put("autoconf", autoconf.orElse(null))
             .put("configFile", configFile.orElse(null))
@@ -231,7 +239,7 @@ public record LKQLOptions(
         private List<String> ignores = new ArrayList<>();
         private List<String> additionalLkqlPaths = new ArrayList<>();
         private boolean missingFileIsError = false;
-        private boolean typecheck = false;
+        private TypecheckingMode typecheckingMode = TypecheckingMode.WARN;
 
         // GPR options
         private List<String> additionalProjectPaths = new ArrayList<>();
@@ -288,8 +296,8 @@ public record LKQLOptions(
             return this;
         }
 
-        public Builder typecheck(boolean tc) {
-            typecheck = tc;
+        public Builder typecheckingMode(TypecheckingMode mode) {
+            typecheckingMode = mode;
             return this;
         }
 
@@ -399,7 +407,7 @@ public record LKQLOptions(
                 ignores,
                 additionalLkqlPaths,
                 missingFileIsError,
-                typecheck,
+                typecheckingMode,
                 additionalProjectPaths,
                 autoconf,
                 configFile,

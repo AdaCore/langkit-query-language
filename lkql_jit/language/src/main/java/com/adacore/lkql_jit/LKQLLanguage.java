@@ -18,13 +18,16 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
+import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.GlobalScope;
+import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.SourceSectionUtils;
 import com.adacore.lkql_jit.values.LKQLNamespace;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Option;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.source.Source;
+import java.io.File;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
@@ -74,7 +77,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> options = new OptionKey<>("");
 
     Liblkqllang.AnalysisContext lkqlAnalysisContext;
-    Liblktlang.AnalysisContext lktAnalysisContext;
+    private Liblktlang.AnalysisContext lktAnalysisContext;
 
     // ----- Constructors -----
 
@@ -93,16 +96,29 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             1
         );
 
-        this.lktAnalysisContext = Liblktlang.AnalysisContext.create(
-            null,
-            null,
-            Liblktlang.UnitProvider.createDefault(Liblktlang.LanguageMode.LKQL),
-            null,
-            true,
-            1
-        );
         // Set the color support flag
         SUPPORT_COLOR = System.getenv("TERM") != null && System.console() != null;
+    }
+
+    /** Return the Lkt analysis context initialized with all LKQL search dirs */
+    public Liblktlang.AnalysisContext getLktAnalysisContext() {
+        if (lktAnalysisContext == null) {
+            lktAnalysisContext = Liblktlang.AnalysisContext.create(
+                null,
+                null,
+                Liblktlang.UnitProvider.createFromDirectories(
+                    Liblktlang.LanguageMode.LKQL,
+                    FileUtils.lkqlSearchDirs()
+                        .stream()
+                        .map(File::getAbsolutePath)
+                        .toArray(String[]::new)
+                ),
+                null,
+                true,
+                1
+            );
+        }
+        return lktAnalysisContext;
     }
 
     // ----- Class methods -----
@@ -178,7 +194,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     }
 
     private void loadPrelude() {
-        final var unit = lktAnalysisContext.getUnitFromBuffer(
+        final var unit = getLktAnalysisContext().getUnitFromBuffer(
             Prelude.getPreludeText(),
             "__prelude"
         );
@@ -231,7 +247,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         final var langkitCtx = switch (sourceType) {
             case LKQL -> lkqlAnalysisContext;
-            case LKT -> lktAnalysisContext;
+            case LKT -> getLktAnalysisContext();
         };
 
         // Create a static error collector
@@ -311,9 +327,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         LKQLStaticErrors errors
     ) {
         var options = getContext(null).getOptions();
+        var typecheckingMode = options.typecheckingMode();
 
-        if (options.typecheck()) {
-            LktPasses.Typecheck.check(source, lktRoot, errors);
+        if (typecheckingMode != LKQLOptions.TypecheckingMode.DISABLE) {
+            LktPasses.Typecheck.check(source, lktRoot, typecheckingMode, errors);
             if (!errors.diagnostics.isEmpty()) throw errors;
         }
 

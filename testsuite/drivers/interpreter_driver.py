@@ -42,7 +42,9 @@ class InterpreterDriver(BaseDriver):
         project = self.test_env.get("project", None)
 
         if typecheck:
-            args += ["--typecheck"]
+            args += ["--typecheck-mode=STRICT"]
+        else:
+            args += ["--typecheck-mode=DISABLE"]
 
         if project:
             args += ["-P", project]

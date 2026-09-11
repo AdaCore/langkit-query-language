@@ -12,7 +12,6 @@ import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.values.LKQLNamespace;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -131,25 +130,13 @@ public final class Import extends Expr {
     private File getModuleFile(LKQLStaticErrors errors) {
         // Create the module file name
         final String moduleFileName = this.name + Constants.LKQL_EXTENSION;
-        final String lkqlPath = System.getenv().getOrDefault(Constants.LKQL_PATH, "");
-        final List<File> searchDirs = new ArrayList<>();
+        final var searchDirs = FileUtils.lkqlSearchDirs();
 
         // Add the current directory to the searching dirs if the location is not null
         var currentPath = getSourceSection().getSource().getPath();
         if (currentPath != null) {
             searchDirs.add(new File(currentPath).getParentFile());
         }
-
-        // Compute the directories to import from
-        searchDirs.addAll(
-            Arrays.stream(StringUtils.splitPaths(lkqlPath))
-                .filter(s -> !s.isBlank())
-                .map(File::new)
-                .toList()
-        );
-        searchDirs.addAll(
-            LKQLLanguage.getContext(this).getAdditionalLkqlPaths().stream().map(File::new).toList()
-        );
 
         // Search in the importable directories
         SortedSet<File> matchingFiles = new TreeSet<>();

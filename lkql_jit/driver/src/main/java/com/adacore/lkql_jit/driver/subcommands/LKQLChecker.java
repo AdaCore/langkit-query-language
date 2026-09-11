@@ -171,31 +171,38 @@ public class LKQLChecker extends BaseSubcommand {
                 verbose
             );
 
-            // Get analysis context and specified unit from the LKQL engine
-            LKQLBaseNamespace namespace = context
-                .eval(Constants.LKQL_ID, "val unts = specified_units()\nval ctx = context()")
-                .as(LKQLBaseNamespace.class);
-            LKQLList units = (LKQLList) namespace.getUncached("unts");
-            LangkitSupport.AnalysisContextInterface analysisContext =
-                (LangkitSupport.AnalysisContextInterface) namespace.getUncached("ctx");
+            // Make sure PolyglotExceptions are properly handled in the code below. In particular,
+            // the evaluation of the anonymous LKQL code block may fail with an exception if
+            // `stdlib.lkql` contains type errors and the current typechecking mode is STRICT.
+            try {
+                // Get analysis context and specified unit from the LKQL engine
+                LKQLBaseNamespace namespace = context
+                    .eval(Constants.LKQL_ID, "val unts = specified_units()\nval ctx = context()")
+                    .as(LKQLBaseNamespace.class);
+                LKQLList units = (LKQLList) namespace.getUncached("unts");
+                LangkitSupport.AnalysisContextInterface analysisContext =
+                    (LangkitSupport.AnalysisContextInterface) namespace.getUncached("ctx");
 
-            // Create the specified units list
-            List<LangkitSupport.AnalysisUnit> specifiedUnits = Arrays.stream(units.getContent())
-                .map(o -> (LangkitSupport.AnalysisUnit) o)
-                .toList();
+                // Create the specified units list
+                List<LangkitSupport.AnalysisUnit> specifiedUnits = Arrays.stream(units.getContent())
+                    .map(o -> (LangkitSupport.AnalysisUnit) o)
+                    .toList();
 
-            // Create a new checker run with the gathered configuration
-            CheckerRun checkerRun = new CheckerRun(
-                debug,
-                ruleInstances,
-                context,
-                analysisContext,
-                specifiedUnits,
-                autoFixMode,
-                disableFormatting,
-                reportFormat == ReportFormat.SARIF
-            );
-            checkerRun.start(diagnostics);
+                // Create a new checker run with the gathered configuration
+                CheckerRun checkerRun = new CheckerRun(
+                    debug,
+                    ruleInstances,
+                    context,
+                    analysisContext,
+                    specifiedUnits,
+                    autoFixMode,
+                    disableFormatting,
+                    reportFormat == ReportFormat.SARIF
+                );
+                checkerRun.start(diagnostics);
+            } catch (PolyglotException e) {
+                diagnostics.handleException(e);
+            }
 
             // Display all diagnostics in the required format
             switch (reportFormat) {
