@@ -23,6 +23,10 @@
     @builtin @property fun text(): String
     @builtin @property fun start_line(): Int
     @builtin @property fun end_line(): Int
+    @builtin @property fun start_column(): Int
+    @builtin @property fun end_column(): Int
+    @builtin @property fun is_trivia(): Bool
+    @builtin fun is_equivalent(other: Token): Bool
     @builtin @property fun unit(): AnalysisUnit
     @builtin fun previous(): Token
     @builtin fun next(): Token
@@ -66,9 +70,12 @@ generic[T] struct Stream implements Sized, Indexable[T], Iterable[T] {
     @builtin @property fun to_list(): List[T]
 }
 
+@builtin
 struct AnalysisUnit {
     root: Node
     name: String
+    tokens: List[Token]
+    text: String
 }
 
 @builtin class Node {
