@@ -31,6 +31,8 @@ public class SarifReflectionFeature implements Feature {
             Result.class,
             Result.Level.class,
             Result.Kind.class,
+            Result.BaselineState.class,
+            Fingerprints.class,
             Fix.class,
             Replacement.class,
             Notification.class,
