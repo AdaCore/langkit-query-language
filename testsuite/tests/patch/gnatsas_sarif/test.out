@@ -1,0 +1,25 @@
+Warning: this report provides neither digest nor deleted text snippet, fixes will be applied without checking the sources have not changed since it was created.
+
+[1/2] positional parameters: positional parameter association (fix: Use named parameter associations)
+  at main.adb:7:14
+-> applied
+
+[2/2] positional parameters: positional parameter association (fix: Use named parameter associations)
+  at main.adb:7:17
+-> applied
+
+Patched 1 file(s): 2 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+2 fix(es) applied without verifying the targeted sources.
+
+Resulting files
+===============
+
+== main.adb ==
+procedure Main is
+   function Add (X, Y : Integer) return Integer
+   is (X + Y);
+
+   I : Integer;
+begin
+   I := Add (X => 1, Y => 2);
+end Main;

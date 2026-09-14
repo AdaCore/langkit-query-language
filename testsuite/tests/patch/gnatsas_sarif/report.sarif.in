@@ -1,0 +1,207 @@
+{
+    "version": "2.1.0",
+    "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "GNATSAS",
+                    "organization": "AdaCore",
+                    "product": "GNAT Static Analysis Suite",
+                    "version": "24.0w (unknown_date)",
+                    "downloadUri": "https://www.adacore.com/static-analysis/codepeer",
+                    "informationUri": "https://www.adacore.com/documentation#GNAT-SAS",
+                    "rules": [
+                        {
+                            "id": "positional parameters",
+                            "name": "GNATcheck - positional parameters",
+                            "shortDescription": {
+                                "text": "positional parameter association"
+                            }
+                        }
+                    ],
+                    "isComprehensive": false,
+                    "properties": {
+                        "reviewStatuses": {
+                            "Bug": [
+                                "Bug"
+                            ],
+                            "Not_a_bug": [
+                                "False Positive",
+                                "Intentional",
+                                "Not A Bug"
+                            ],
+                            "Pending": [
+                                "Pending"
+                            ],
+                            "Uncategorized": [
+                                "Uncategorized"
+                            ]
+                        }
+                    }
+                },
+                "extensions": [
+                    {
+                        "name": "GNATcheck",
+                        "properties": {
+                            "commandLine": "gnatcheck -P prj.gpr -m0 -q -l -o /home/fumex/gnatsas/prj/obj/gnatsas/prj.gnatcheck/gnatcheck.out --sarif /home/fumex/gnatsas/prj/obj/gnatsas/prj.gnatcheck/gnatcheck.sarif --emit-fixes --subdirs=gnatsas/prj.gnatcheck -files=obj/gnatsas/prj.gnatsas/sources.txt"
+                        }
+                    }
+                ]
+            },
+            "invocations": [
+                {
+                    "commandLine": "gnatsas analyze --gnatcheck-only --emit-fixes",
+                    "arguments": [
+                        "analyze",
+                        "--gnatcheck-only",
+                        "--emit-fixes"
+                    ],
+                    "executionSuccessful": true,
+                    "workingDirectory": {
+                        "uri": "file://@TEST_DIR@/"
+                    },
+                    "startTimeUtc": "2026-09-14T09:35:22.000000Z"
+                }
+            ],
+            "originalUriBaseIds": {
+                "URI_BASE_DIR": {
+                    "uri": "file://@TEST_DIR@/",
+                    "description": {
+                        "text": "The absolute path to a base directory for source URIs (the '--root DIR' value for that drive, the project directory, or an auto-detected source root). On Windows there is one such directory per drive."
+                    }
+                }
+            },
+            "results": [
+                {
+                    "ruleId": "positional parameters",
+                    "level": "warning",
+                    "message": {
+                        "text": "positional parameter association"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "main.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 7,
+                                    "startColumn": 14,
+                                    "sourceLanguage": "Ada"
+                                }
+                            },
+                            "logicalLocations": [
+                                {
+                                    "fullyQualifiedName": "main()",
+                                    "kind": "function"
+                                }
+                            ]
+                        }
+                    ],
+                    "fingerprints": {
+                        "checksum": "5b64ec49866bba81a445d92bd046e0ae"
+                    },
+                    "baselineState": "unchanged",
+                    "fixes": [
+                        {
+                            "description": {
+                                "text": "Use named parameter associations"
+                            },
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "main.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 7,
+                                                "startColumn": 14,
+                                                "endLine": 7,
+                                                "endColumn": 14,
+                                                "sourceLanguage": "Ada"
+                                            },
+                                            "insertedContent": {
+                                                "text": "X => "
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "properties": {
+                        "engine": "Gnatcheck"
+                    }
+                },
+                {
+                    "ruleId": "positional parameters",
+                    "level": "warning",
+                    "message": {
+                        "text": "positional parameter association"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "main.adb",
+                                    "uriBaseId": "URI_BASE_DIR"
+                                },
+                                "region": {
+                                    "startLine": 7,
+                                    "startColumn": 17,
+                                    "sourceLanguage": "Ada"
+                                }
+                            },
+                            "logicalLocations": [
+                                {
+                                    "fullyQualifiedName": "main()",
+                                    "kind": "function"
+                                }
+                            ]
+                        }
+                    ],
+                    "fingerprints": {
+                        "checksum": "d4c63ddc467a7adf517c520a9341eb8f"
+                    },
+                    "baselineState": "unchanged",
+                    "fixes": [
+                        {
+                            "description": {
+                                "text": "Use named parameter associations"
+                            },
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uri": "main.adb",
+                                        "uriBaseId": "URI_BASE_DIR"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 7,
+                                                "startColumn": 17,
+                                                "endLine": 7,
+                                                "endColumn": 17,
+                                                "sourceLanguage": "Ada"
+                                            },
+                                            "insertedContent": {
+                                                "text": "Y => "
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "properties": {
+                        "engine": "Gnatcheck"
+                    }
+                }
+            ]
+        }
+    ]
+}
