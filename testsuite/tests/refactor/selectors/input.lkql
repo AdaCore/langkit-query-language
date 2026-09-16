@@ -20,3 +20,6 @@ selector infinite_sequence
         nb # Add nb to the result list
     )
 
+@memoized
+selector bar
+    | Baz => null
