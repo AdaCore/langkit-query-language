@@ -420,7 +420,7 @@ public final class TranslationPass
                 Level.WARNING,
                 "'is' syntax is deprecated for patterns. Please consider migrating your" +
                     " code via 'lkql refactor -r IS_TO_COLON path/to/your/rule_file.lkql'.",
-                new LogLocation(new LogLocation.TruffleLocation(loc(patternDetailDelimiterIs)))
+                LogLocation.from(loc(patternDetailDelimiterIs))
             );
         return null;
     }

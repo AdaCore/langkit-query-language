@@ -96,11 +96,9 @@ public final class LktPasses {
                             .log(
                                 Level.WARNING,
                                 diagnosticMsg,
-                                new LogLocation(
-                                    new LogLocation.LangkitLocation(
-                                        diag.location.getUnit(),
-                                        diag.location.getSourceLocationRange()
-                                    )
+                                LogLocation.from(
+                                    diag.location.getUnit(),
+                                    diag.location.getSourceLocationRange()
                                 )
                             );
                     }
