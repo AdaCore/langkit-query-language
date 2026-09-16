@@ -13,12 +13,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.graalvm.collections.EconomicMap;
 import org.graalvm.collections.Pair;
 
 /** This abstract class materialize the concept of a "source" under a unified interface. */
-public abstract sealed class Source
-    permits SourceFile, SourceBuffer, TruffleSourceWrapper, PolyglotSourceWrapper {
+public abstract sealed class Source permits SourceFile, SourceBuffer {
 
     // ----- Attributes -----
 
@@ -27,29 +27,39 @@ public abstract sealed class Source
 
     // ----- Constructors -----
 
-    public static Source from(Path file) {
+    private static Source from(Path file) {
         return new SourceFile(file);
     }
 
-    public static Source from(String name, String content) {
+    private static Source from(String name, String content) {
         return new SourceBuffer(name, content);
     }
 
-    public static Source from(LangkitSupport.AnalysisUnit analysisUnit) {
-        var unitFile = Paths.get(analysisUnit.getFileName(true));
-        if (Files.isRegularFile(unitFile)) {
-            return from(unitFile);
+    private static Source fromFileOrElse(
+        Optional<Path> maybeFile,
+        Supplier<String> fallbackName,
+        Supplier<CharSequence> fallbackContent
+    ) {
+        if (maybeFile.isPresent() && Files.isRegularFile(maybeFile.get())) {
+            return from(maybeFile.get());
         } else {
-            return from(analysisUnit.getFileName(false), analysisUnit.getText());
+            return from(fallbackName.get(), fallbackContent.get().toString());
         }
     }
 
+    public static Source from(LangkitSupport.AnalysisUnit analysisUnit) {
+        var file = Optional.of(Paths.get(analysisUnit.getFileName(true)));
+        return fromFileOrElse(file, () -> analysisUnit.getFileName(false), analysisUnit::getText);
+    }
+
     public static Source from(com.oracle.truffle.api.source.Source truffleSource) {
-        return new TruffleSourceWrapper(truffleSource);
+        var maybeFile = Optional.ofNullable(truffleSource.getPath()).map(Paths::get);
+        return fromFileOrElse(maybeFile, truffleSource::getName, truffleSource::getCharacters);
     }
 
     public static Source from(org.graalvm.polyglot.Source polyglotSource) {
-        return new PolyglotSourceWrapper(polyglotSource);
+        var maybeFile = Optional.ofNullable(polyglotSource.getPath()).map(Paths::get);
+        return fromFileOrElse(maybeFile, polyglotSource::getName, polyglotSource::getCharacters);
     }
 
     // ----- Instance methods -----
