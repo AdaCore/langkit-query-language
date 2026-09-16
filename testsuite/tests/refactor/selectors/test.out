@@ -45,3 +45,12 @@ fun infinite_sequence_body(this : Any) : Any = match this {
 }
 
 
+@memoized
+fun bar(this : Any, depth : Int = -1, min_depth : Int = -1, max_depth : Int = -1) : Any =
+    unfold_check_cycles(bar_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1, [])
+
+@memoized
+fun bar_body(this : Any) : Any = match this {
+    case Baz => Rec([], [])
+}
+

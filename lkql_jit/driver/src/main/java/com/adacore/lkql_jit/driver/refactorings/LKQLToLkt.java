@@ -451,8 +451,12 @@ public class LKQLToLkt implements TreeBasedRefactoring {
         // Handle selectors defined in blocks
         if (!(selectorDecl.parent() instanceof Liblkqllang.TopLevelList)) s += ";";
 
+        s += "\n\n";
+
+        if (isMemoized) s += "@memoized\n";
+
         s +=
-            "\n\nfun " +
+            "fun " +
             name_body +
             "(this : Any) : Any = match this {" +
             whitespace +
