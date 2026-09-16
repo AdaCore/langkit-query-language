@@ -211,6 +211,22 @@ public class StubsGenerator {
         }
         output.append("{\n");
 
+        // Specialize types for RootNode
+        if (superNodeType == Object.class) {
+            output
+                .append("    @builtin @property fun parent(): ")
+                .append(nodeType.className())
+                .append("\n");
+            output
+                .append("    @builtin fun parents(include_self: Bool = false): List[")
+                .append(nodeType.className())
+                .append("]\n");
+            output
+                .append("    @builtin @property fun children(): List[")
+                .append(nodeType.className())
+                .append("]\n");
+        }
+
         // Emit the "to_rewriting" property
         output
             .append("    @builtin @property fun to_rewriting(): rewriting.")
