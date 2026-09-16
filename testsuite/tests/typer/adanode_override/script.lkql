@@ -1,0 +1,10 @@
+# lkql version: 2
+
+from libadalang import *
+
+val xs = from all_nodes match a@AdaNode
+
+val _: List[AdaNode] = xs.head.children
+val _: AdaNode       = xs.head.parent
+val _: List[AdaNode] = xs.head.parents()
+
