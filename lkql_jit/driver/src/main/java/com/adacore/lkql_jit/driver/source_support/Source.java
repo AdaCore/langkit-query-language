@@ -55,16 +55,19 @@ public abstract sealed class Source permits SourceFile, SourceBuffer {
         }
     }
 
+    /** Create a new source from a Langkit analysis unit. */
     public static Source from(LangkitSupport.AnalysisUnit analysisUnit) {
         var file = Optional.of(Paths.get(analysisUnit.getFileName(true)));
         return fromFileOrElse(file, () -> analysisUnit.getFileName(false), analysisUnit::getText);
     }
 
+    /** Create a new source from a Truffle source. */
     public static Source from(com.oracle.truffle.api.source.Source truffleSource) {
         var maybeFile = Optional.ofNullable(truffleSource.getPath()).map(Paths::get);
         return fromFileOrElse(maybeFile, truffleSource::getName, truffleSource::getCharacters);
     }
 
+    /** Create a new source from a Polyglot source. */
     public static Source from(org.graalvm.polyglot.Source polyglotSource) {
         var maybeFile = Optional.ofNullable(polyglotSource.getPath()).map(Paths::get);
         return fromFileOrElse(maybeFile, polyglotSource::getName, polyglotSource::getCharacters);
