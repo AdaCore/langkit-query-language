@@ -6,6 +6,7 @@
 package com.adacore.lkql_jit.driver.source_support;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.lkql_jit.driver.ListComparator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,7 +17,7 @@ import org.graalvm.collections.EconomicMap;
 import org.graalvm.collections.Pair;
 
 /** This abstract class materialize the concept of a "source" under a unified interface. */
-public abstract sealed class Source permits SourceFile, SourceBuffer {
+public abstract sealed class Source implements Comparable<Source> permits SourceFile, SourceBuffer {
 
     // ----- Attributes -----
 
@@ -115,7 +116,7 @@ public abstract sealed class Source permits SourceFile, SourceBuffer {
     }
 
     /** Get the sequence in the provided text that is used to separate lines. */
-    public static String getLineSeparator(CharSequence text) {
+    protected static String getLineSeparator(CharSequence text) {
         for (int i = 0; i < text.length(); i++) {
             var c = text.charAt(i);
             if (c == '\n') {
@@ -126,6 +127,33 @@ public abstract sealed class Source permits SourceFile, SourceBuffer {
 
         // By default, return the system dependent line separator
         return System.lineSeparator();
+    }
+
+    @Override
+    public int compareTo(Source other) {
+        // First compare source names
+        var comparator = Comparator.comparing(Source::getName);
+
+        // If both sources are defined by a source file, compare their absolute paths
+        if (getFile().isPresent() && other.getFile().isPresent()) {
+            comparator = comparator.thenComparing(s -> s.getFile().get());
+        }
+        // Otherwise, compare source contents
+        else {
+            comparator = comparator.thenComparing(
+                Source::getLines,
+                new ListComparator<>(String::compareTo)
+            );
+        }
+
+        return comparator.compare(this, other);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof Source other)) return false;
+        return compareTo(other) == 0;
     }
 
     // ----- Inner classes -----

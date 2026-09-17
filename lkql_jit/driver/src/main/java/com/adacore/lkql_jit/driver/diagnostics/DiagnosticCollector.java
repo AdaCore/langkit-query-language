@@ -15,10 +15,10 @@ import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.oracle.truffle.api.TruffleStackTrace;
 import com.oracle.truffle.api.TruffleStackTraceElement;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import org.graalvm.polyglot.PolyglotException;
 
@@ -28,12 +28,12 @@ public final class DiagnosticCollector implements Iterable<BaseDiagnostic> {
     // ----- Attributes -----
 
     /** Collected diagnostics. */
-    public final List<BaseDiagnostic> diagnostics;
+    public final TreeSet<BaseDiagnostic> diagnostics;
 
     // ----- Constructors -----
 
     public DiagnosticCollector() {
-        this.diagnostics = new ArrayList<>();
+        this.diagnostics = new TreeSet<>();
     }
 
     // ----- Instance methods -----

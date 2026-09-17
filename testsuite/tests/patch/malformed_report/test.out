@@ -3,11 +3,11 @@
 -> applied
 
 Patched 1 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 0 error(s).
+warning: Skipping an empty result of the report
+
 warning: Skipping an empty run of the report
 
 warning: Skipping an unusable artifact of the report: incomplete location
-
-warning: Skipping an empty result of the report
 
 warning: Skipping an unusable fix of "some_rule": incomplete location
 

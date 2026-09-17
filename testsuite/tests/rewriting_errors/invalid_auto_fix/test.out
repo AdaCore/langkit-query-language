@@ -1,3 +1,5 @@
+error: Unknown rule name "custom"
+
 custom.lkql:1:1: error: Auto fix value must be callable
   1 |  @check(
     | _^
@@ -6,6 +8,4 @@ custom.lkql:1:1: error: Auto fix value must be callable
     ||
   4 || )
     ||_^
-
-error: Unknown rule name "custom"
 

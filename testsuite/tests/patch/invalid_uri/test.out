@@ -7,9 +7,9 @@
 -> applied
 
 Patched 1 file(s): 1 fix(es) applied, 0 skipped, 0 conflict(s), 1 error(s).
-warning: Skipping an unusable fix of "nul_in_uri": invalid path "ma/u0000in.adb"
-
 error: Cannot read "<working-dir>": is a directory
+
+warning: Skipping an unusable fix of "nul_in_uri": invalid path "ma/u0000in.adb"
 
 
 Resulting files
