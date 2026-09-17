@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 import org.graalvm.collections.EconomicMap;
 import org.graalvm.collections.Pair;
@@ -22,13 +20,23 @@ public abstract sealed class Source permits SourceFile, SourceBuffer {
 
     // ----- Attributes -----
 
+    /**
+     * A cache containing already created sources, this is used to associate only one Source
+     * instance for each source name/absolute path.
+     */
+    protected static Map<Path, Source> SOURCE_CACHE = new HashMap<>();
+
     /** A cache used to fetch and cache lines of source files. */
     protected static SourceLinesCache SOURCE_LINES_CACHE = new SourceLinesCache();
 
     // ----- Constructors -----
 
     private static Source from(Path file) {
-        return new SourceFile(file);
+        var normalizedFile = file.normalize();
+        if (!SOURCE_CACHE.containsKey(normalizedFile)) {
+            SOURCE_CACHE.put(normalizedFile, new SourceFile(normalizedFile));
+        }
+        return SOURCE_CACHE.get(normalizedFile);
     }
 
     private static Source from(String name, String content) {
