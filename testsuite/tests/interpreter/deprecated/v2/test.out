@@ -1,0 +1,8 @@
+v2.lkql:5:9: warning: Usage of the deprecated function "always_deprecated"
+  5 | val _ = mod.always_deprecated()
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+
+v2.lkql:6:9: warning: Usage of the deprecated function "deprecated_from_v2"
+  6 | val _ = mod.deprecated_from_v2()
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^
+

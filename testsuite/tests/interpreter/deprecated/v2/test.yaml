@@ -1,0 +1,4 @@
+driver: interpreter
+script: v2.lkql
+sync_trees:
+  - ../common

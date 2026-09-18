@@ -1,0 +1,4 @@
+import mod
+
+mod.always_deprecated()
+mod.deprecated_from_v2()

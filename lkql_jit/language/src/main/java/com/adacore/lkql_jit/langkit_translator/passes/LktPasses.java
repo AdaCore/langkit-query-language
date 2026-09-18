@@ -688,6 +688,7 @@ public final class LktPasses {
                             loc(callExpr),
                             calleeNode instanceof Liblktlang.DotExpr dot &&
                                 dot.fNullCond().pAsBool(),
+                            2,
                             Arrays.stream(arguments.getArgs())
                                 .map(Arg::getArgExpr)
                                 .toArray(Expr[]::new),

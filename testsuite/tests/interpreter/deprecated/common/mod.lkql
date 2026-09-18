@@ -1,0 +1,7 @@
+# lkql version: 2
+
+@deprecated
+fun always_deprecated(): Unit = Unit()
+
+@deprecated(2)
+fun deprecated_from_v2(): Unit = Unit()

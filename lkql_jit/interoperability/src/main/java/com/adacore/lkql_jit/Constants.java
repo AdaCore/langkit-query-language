@@ -55,6 +55,9 @@ public class Constants {
     /** The memoization annotation string value. */
     public static final String ANNOTATION_MEMOIZED = "memoized";
 
+    /** The deprecation annotation name. */
+    public static final String ANNOTATION_DEPRECATED = "deprecated";
+
     /** The node checker annotation string value. */
     public static final String ANNOTATION_NODE_CHECK = "check";
 

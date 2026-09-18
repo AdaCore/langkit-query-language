@@ -1175,6 +1175,7 @@ public final class TranslationPass
         return FunCallNodeGen.create(
             loc(funCall),
             isSafe,
+            1,
             Arrays.stream(arguments.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
             Arrays.stream(arguments.getArgs()).map(Arg::getArgStringName).toArray(String[]::new),
             callee
