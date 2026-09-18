@@ -48,9 +48,6 @@ public class LKQLChecker extends BaseSubcommand {
     @CommandLine.Mixin
     GPRArgs gprArgs;
 
-    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-    public boolean verbose;
-
     @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
     public boolean debug;
 
@@ -165,8 +162,7 @@ public class LKQLChecker extends BaseSubcommand {
             RuleRepository repository = new RuleRepository(context, searchingDirs(), diagnostics);
             List<RuleInstance> ruleInstances = Utils.postProcessInstances(
                 diagnostics,
-                this.getRuleInstances(context, repository),
-                verbose
+                this.getRuleInstances(context, repository)
             );
 
             // Make sure PolyglotExceptions are properly handled in the code below. In particular,
@@ -205,11 +201,12 @@ public class LKQLChecker extends BaseSubcommand {
             // Display all diagnostics in the required format
             switch (reportFormat) {
                 case TEXT -> diagnostics.createReport(
-                    new TextReportCreator(System.out, supportAnsi)
+                    new TextReportCreator(engineArgs.verbosityLevel, System.out, supportAnsi)
                 );
                 case SARIF -> {
                     var sarifReport = new SarifSchema210();
                     var sarifReportCreator = new SarifReportCreator(
+                        engineArgs.verbosityLevel,
                         sarifReport,
                         spec.parent().version()[0],
                         ruleInstances,

@@ -10,11 +10,12 @@ import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Exception;
 import com.adacore.lkql_jit.driver.diagnostics.variants.*;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
+import com.adacore.lkql_jit.driver.subcommands.BaseSubcommand;
 import java.io.PrintStream;
 import java.util.function.Consumer;
 
 /** This class provide a callable interface to create a text report from a diagnostic collector. */
-public final class TextReportCreator implements Consumer<BaseDiagnostic> {
+public final class TextReportCreator extends BaseReportCreator {
 
     // ----- Attributes -----
 
@@ -26,7 +27,12 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
 
     // ----- Constructors -----
 
-    public TextReportCreator(PrintStream output, boolean withStyle) {
+    public TextReportCreator(
+        BaseSubcommand.VerbosityLevel verbosityLevel,
+        PrintStream output,
+        boolean withStyle
+    ) {
+        super(verbosityLevel);
         this.output = output;
         this.withStyle = withStyle;
     }
@@ -35,6 +41,16 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
 
     @Override
     public void accept(BaseDiagnostic diagnostic) {
+        // Filter the diagnostic out according to the verbosity level
+        switch (verbosityLevel) {
+            case ERROR -> {
+                if (diagnostic instanceof Warning || diagnostic instanceof Info) return;
+            }
+            case WARNING -> {
+                if (diagnostic instanceof Info) return;
+            }
+        }
+
         // Create variant part from the diagnostic information
         var locationName = diagnostic.location.map(l -> l.shortImage() + ": ");
         Styling.StylingFunction kindStyle = switch (diagnostic) {

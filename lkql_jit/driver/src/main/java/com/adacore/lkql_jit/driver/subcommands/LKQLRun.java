@@ -129,7 +129,9 @@ public class LKQLRun extends BaseSubcommand {
             }
 
             // If an error occurred, display it and exit
-            diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+            diagnostics.createReport(
+                new TextReportCreator(engineArgs.verbosityLevel, System.err, supportAnsi)
+            );
             if (diagnostics.hasError()) {
                 return 0;
             }
@@ -155,7 +157,13 @@ public class LKQLRun extends BaseSubcommand {
                         return 12;
                     } catch (PolyglotException e) {
                         diagnostics.handleException(e);
-                        diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+                        diagnostics.createReport(
+                            new TextReportCreator(
+                                engineArgs.verbosityLevel,
+                                System.err,
+                                supportAnsi
+                            )
+                        );
                         diagnostics.clear();
                     }
                 }

@@ -11,12 +11,12 @@ import com.adacore.lkql_jit.driver.diagnostics.variants.Error;
 import com.adacore.lkql_jit.driver.diagnostics.variants.Exception;
 import com.adacore.lkql_jit.driver.diagnostics.variants.*;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
+import com.adacore.lkql_jit.driver.subcommands.BaseSubcommand;
 import de.jcup.sarif_2_1_0.model.Stack;
 import de.jcup.sarif_2_1_0.model.*;
 import java.util.*;
-import java.util.function.Consumer;
 
-public class SarifReportCreator implements Consumer<BaseDiagnostic> {
+public final class SarifReportCreator extends BaseReportCreator {
 
     // ----- Attributes -----
 
@@ -29,11 +29,13 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
     // ----- Constructors -----
 
     public SarifReportCreator(
+        BaseSubcommand.VerbosityLevel verbosityLevel,
         SarifSchema210 output,
         String version,
         List<RuleInstance> instances,
         boolean executionSuccessful
     ) {
+        super(verbosityLevel);
         this.results = new ArrayList<>();
         this.notifications = new ArrayList<>();
 
@@ -129,6 +131,16 @@ public class SarifReportCreator implements Consumer<BaseDiagnostic> {
 
     @Override
     public void accept(BaseDiagnostic diagnostic) {
+        // Filter the diagnostic out according to the verbosity level
+        switch (verbosityLevel) {
+            case ERROR -> {
+                if (diagnostic instanceof Warning || diagnostic instanceof Info) return;
+            }
+            case WARNING -> {
+                if (diagnostic instanceof Info) return;
+            }
+        }
+
         // Create the message object
         var message = new Message();
         message.setText(diagnostic.message);

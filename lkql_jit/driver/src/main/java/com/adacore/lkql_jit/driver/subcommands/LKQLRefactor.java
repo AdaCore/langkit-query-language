@@ -124,13 +124,17 @@ public class LKQLRefactor extends BaseSubcommand {
                         )
                     );
                 }
-                diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+                diagnostics.createReport(
+                    new TextReportCreator(VerbosityLevel.INFO, System.err, supportAnsi)
+                );
                 return 1;
             }
 
             var result = getRefactoring(unit).apply(unit, diagnostics);
 
-            diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+            diagnostics.createReport(
+                new TextReportCreator(VerbosityLevel.INFO, System.err, supportAnsi)
+            );
 
             if (inPlace) {
                 try (var writer = new PrintWriter(unit.getFileName(), StandardCharsets.UTF_8)) {

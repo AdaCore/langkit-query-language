@@ -46,9 +46,6 @@ public class GNATcheckWorker extends BaseSubcommand {
     @CommandLine.Mixin
     GPRArgs gprArgs;
 
-    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-    public boolean verbose;
-
     @CommandLine.Option(names = "-d", description = "Enable the debug mode")
     public boolean debug;
 
@@ -222,8 +219,7 @@ public class GNATcheckWorker extends BaseSubcommand {
                             ruleRepository,
                             lkqlConfigToProcess == null ? rulesFrom : lkqlConfigToProcess,
                             soleArgProcessor
-                        ),
-                        verbose
+                        )
                     )
                 );
             }
@@ -268,6 +264,7 @@ public class GNATcheckWorker extends BaseSubcommand {
             // In any case, create and emit the SARIF report
             var sarifReport = new SarifSchema210();
             var sarifReportCreator = new SarifReportCreator(
+                engineArgs.verbosityLevel,
                 sarifReport,
                 spec.parent().version()[0],
                 ruleInstances,

@@ -116,7 +116,9 @@ public class LKQLPasses extends BaseSubcommand {
                 }
             } catch (PolyglotException e) {
                 diagnostics.handleException(e);
-                diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+                diagnostics.createReport(
+                    new TextReportCreator(engineArgs.verbosityLevel, System.err, supportAnsi)
+                );
             }
             return 0;
         } catch (IOException e) {

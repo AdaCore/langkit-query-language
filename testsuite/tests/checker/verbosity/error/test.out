@@ -1,0 +1,9 @@
+rules.lkql:1:13: error: Unknown rule name "not_a_rule"
+  1 |  val rules = @{
+    | _____________^
+    ||
+    || ~~~ 5 other lines ~~~
+    ||
+  7 || }
+    ||_^
+
