@@ -18,12 +18,14 @@ import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.values.sets.LKQLOrderedHashSet;
 import com.adacore.lkql_jit.values.streams.BaseCachedStream;
 import com.adacore.lkql_jit.values.streams.LKQLArrayStream;
 import com.adacore.lkql_jit.values.streams.LKQLEnumerateResult;
 import com.adacore.lkql_jit.values.streams.LKQLFlattenResult;
 import com.adacore.lkql_jit.values.streams.LKQLMapResult;
 import com.adacore.lkql_jit.values.streams.LKQLWithIndexResult;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -31,6 +33,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import java.util.ArrayList;
+import java.util.List;
 
 /** This class contains all built-in methods for the iterable type in the LKQL language. */
 @BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.LKQL_STREAM, LKQLTypesHelper.LKQL_LIST })
@@ -103,6 +106,29 @@ public class IterableMethods {
         @Specialization
         public LKQLStream doGeneric(LKQLArrayList self) {
             return new LKQLArrayStream(self.content);
+        }
+    }
+
+    @BuiltInMethod(name = "to_set", doc = "Transform into a set", isProperty = true)
+    abstract static class ToSetExpr extends BuiltInBody {
+
+        @CompilerDirectives.TruffleBoundary
+        @Specialization
+        public LKQLOrderedHashSet onArrayList(LKQLArrayList self) {
+            var set = new LKQLOrderedHashSet();
+            set.internalSet.addAll(List.of(self.content));
+            return set;
+        }
+
+        @CompilerDirectives.TruffleBoundary
+        @Specialization
+        public LKQLOrderedHashSet onIterable(Iterable self) {
+            var set = new LKQLOrderedHashSet();
+            var it = self.iterator();
+            while (it.hasNext()) {
+                set.internalSet.add(it.next());
+            }
+            return set;
         }
     }
 

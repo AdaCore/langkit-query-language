@@ -43,6 +43,7 @@
 
 @builtin generic[T] trait Iterable {
     @builtin @property fun unique(): Stream[T]
+    @builtin @property fun to_set(): Set[T]
     @builtin @property fun with_index(): Stream[Pair[Int, T]]
     @builtin generic[U] fun map(map_fn: (T)->U): Stream[U]
     @builtin generic[U] fun flat_map(map_fn: (T)->Stream[U]): Stream[U]
@@ -67,6 +68,15 @@ generic[T] struct Stream implements Sized, Indexable[T], Iterable[T] {
     @builtin @property fun head(): T
     @builtin fun head_or(default: T): T
     @builtin @property fun tail(): Stream[T]
+    @builtin @property fun to_list(): List[T]
+}
+
+@builtin
+generic[T] struct Set {
+    @builtin fun contains(x: T): Bool
+    @builtin fun add(x: T): Set[T]
+    @builtin fun union(other: Set[T]): Set[T]
+    @builtin fun inter(other: Set[T]): Set[T]
     @builtin @property fun to_list(): List[T]
 }
 
