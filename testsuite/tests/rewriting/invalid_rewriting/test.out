@@ -1,0 +1,13 @@
+main.adb:3:4: rule violation: Custom rule violation
+3 |    goto lbl;  -- FLAG
+  |    ^^^^^^^^^
+fix proposal: Quick Fix
+  in main.adb:
+  1  procedure Main is
+  2  begin
+  3 -   goto lbl;  -- FLAG
+  4 -   <<lbl>>
+    +   True<<lbl>>
+  5  end Main;
+  6  
+

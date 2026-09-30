@@ -1,0 +1,18 @@
+main.adb:3:4: rule violation: Custom rule violation
+3 |     if False then  -- FLAG
+  | ____^
+  ||
+  || ~~~ 1 other lines ~~~
+  ||
+5 ||    end if;
+  ||__________^
+fix proposal: Quick Fix
+  in main.adb:
+  1  procedure Main is
+  2  begin
+  3 -   if False then  -- FLAG
+    +   if REPLACED then
+    +      -- FLAG
+  4        null;
+  5     end if;
+

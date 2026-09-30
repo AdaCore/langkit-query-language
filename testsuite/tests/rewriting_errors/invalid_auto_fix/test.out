@@ -1,0 +1,11 @@
+custom.lkql:1:1: error: Auto fix value must be callable
+  1 |  @check(
+    | _^
+    ||
+    || ~~~ 2 other lines ~~~
+    ||
+  4 || )
+    ||_^
+
+error: Unknown rule name "custom"
+
