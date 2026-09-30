@@ -79,4 +79,15 @@ public final class LKQLOrderedHashSet extends LKQLValue {
         builder.append("}");
         return builder.toString();
     }
+
+    @CompilerDirectives.TruffleBoundary
+    public boolean equals(Object o) {
+        if (o instanceof LKQLOrderedHashSet other) return internalSet.equals(other.internalSet);
+        return false;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public int hashCode() {
+        return internalSet.hashCode();
+    }
 }
