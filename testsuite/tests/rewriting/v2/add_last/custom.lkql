@@ -1,0 +1,12 @@
+# lkql version: 2
+
+from libadalang import *
+
+@check(
+    message="Custom rule violation",
+    auto_fix=(n: AdaNode, ctx: RewritingContext) => ctx.add_last(
+        n.parent.to_rewriting,
+        rewriting.NullStmt()
+    )
+)
+fun custom(node: AdaNode): Bool = node is GotoStmt

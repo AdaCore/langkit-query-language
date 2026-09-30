@@ -88,6 +88,21 @@ struct AnalysisUnit {
     text: String
 }
 
+@builtin
+class RewritingContext {
+    @builtin fun replace(old: RewritingNode, new: RewritingNode): RewritingContext
+    @builtin fun insert_before(reference: RewritingNode, new: RewritingNode): RewritingContext
+    @builtin fun insert_after(reference: RewritingNode, new: RewritingNode): RewritingContext
+    @builtin fun add_first(list_node: RewritingNode, new: RewritingNode): RewritingContext
+    @builtin fun add_last(list_node: RewritingNode, new: RewritingNode): RewritingContext
+    @builtin fun remove(to_remove: RewritingNode): RewritingContext
+    @builtin fun create_from_template(
+        template: String,
+        grammar_rule: String,
+        template_args: List[RewritingNode]
+    ): RewritingNode
+}
+
 @builtin class Node {
     @builtin @property fun token_start(): Token
     @builtin @property fun token_end(): Token
