@@ -1,0 +1,16 @@
+val ns = select DottedName
+
+print("n")
+print([n for n in ns].to_list)
+
+print("n.parent")
+print([n.parent for n in ns].to_list)
+
+print("n.parents()")
+print([n.parents() for n in ns].to_list)
+
+print("n.parents(false)")
+print([n.parents(false) for n in ns].to_list)
+
+print("n.parents(true)")
+print([n.parents(true) for n in ns].to_list)

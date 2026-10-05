@@ -137,6 +137,11 @@ public class LKQLNull extends LKQLValue implements LangkitSupport.NodeInterface,
         return new LKQLNull();
     }
 
+    @Override
+    public LangkitSupport.NodeInterface[] parents(boolean includeSelf) {
+        return includeSelf ? new LKQLNull[] { this } : new LKQLNull[0];
+    }
+
     // ----- Value methods -----
 
     /** Get the displayable string for the interop library. */

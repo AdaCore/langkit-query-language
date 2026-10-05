@@ -218,7 +218,7 @@ public class StubsGenerator {
                 .append(nodeType.className())
                 .append("\n");
             output
-                .append("    @builtin fun parents(include_self: Bool = false): List[")
+                .append("    @builtin fun parents(include_self: Bool = true): List[")
                 .append(nodeType.className())
                 .append("]\n");
             output

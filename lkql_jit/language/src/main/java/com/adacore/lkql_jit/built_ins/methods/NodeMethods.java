@@ -12,6 +12,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
+import com.adacore.lkql_jit.annotations.DefaultVal;
 import com.adacore.lkql_jit.built_ins.BuiltInBody;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
@@ -55,6 +56,16 @@ public final class NodeMethods {
         public NodeInterface onNode(NodeInterface self) {
             NodeInterface parent = self.parent();
             return parent.isNone() ? LKQLNull.INSTANCE : parent;
+        }
+    }
+
+    @BuiltInMethod(name = "parents", doc = "Return the node's parents (includes itself by default)")
+    abstract static class ParentsExpr extends BuiltInBody {
+
+        @Specialization
+        public LKQLArrayList onNode(NodeInterface self, @DefaultVal("true") Boolean includeSelf) {
+            NodeInterface[] parents = self.parents(includeSelf);
+            return new LKQLArrayList(parents);
         }
     }
 

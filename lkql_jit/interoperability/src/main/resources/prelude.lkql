@@ -93,7 +93,7 @@ struct AnalysisUnit {
     @builtin @property fun token_end(): Token
     @builtin @property fun text(): String
     @builtin @property fun parent(): Node
-    @builtin fun parents(include_self: Bool = false): List[Node]
+    @builtin fun parents(include_self: Bool = true): List[Node]
     @builtin @property fun children(): List[Node]
     @builtin @property fun children_count(): Int
     @builtin fun previous_sibling(): Node
