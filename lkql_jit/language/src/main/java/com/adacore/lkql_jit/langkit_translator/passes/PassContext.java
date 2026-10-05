@@ -36,9 +36,7 @@ public class PassContext {
 
     // Public API
 
-    /**
-     * Update the context by adding new classes and field declared in an `add` block
-     */
+    /** Update the context by adding new classes and field declared in an `add` block. */
     public void update(AddBlock add) {
         for (var clazz : add.classes) {
             addClass(clazz.name, clazz.fields);
@@ -48,9 +46,7 @@ public class PassContext {
         }
     }
 
-    /**
-     * Update the context by deleting classes and field declared in a `del` block
-     */
+    /** Update the context by deleting classes and field declared in a `del` block. */
     public void update(DelBlock del) {
         for (var clazz : del.classes) {
             deleteClass(clazz);
@@ -62,9 +58,7 @@ public class PassContext {
 
     // Private methods
 
-    /**
-     * Add a new class to the context
-     */
+    /** Add a new class to the context. */
     private void addClass(String className, Collection<String> fields) {
         if (env.containsKey(className)) throw LKQLEngineException.create(
             "invalid add class: " + className
@@ -73,8 +67,9 @@ public class PassContext {
     }
 
     /**
-     * Delete a class from the context
-     * @throws if context does not contains className
+     * Delete a class from the context.
+     *
+     * @throws LKQLEngineException If context does not contains className.
      */
     private void deleteClass(String className) {
         if (env.remove(className) == null) throw LKQLEngineException.create(
@@ -83,9 +78,10 @@ public class PassContext {
     }
 
     /**
-     * Add a new field to an existing class already in the context
-     * @throws if context does not contains className
-     *         or if className already contains fieldName
+     * Add a new field to an existing class already in the context.
+     *
+     * @throws LKQLEngineException If context does not contains className or if className already
+     *                             contains fieldName.
      */
     private void addField(String className, String fieldName) {
         final ClassDescriptor existing = env.get(className);
@@ -95,9 +91,10 @@ public class PassContext {
     }
 
     /**
-     * Delete a field from a class of the context
-     * @throws if context does not contains className
-     *            or if className does not contains fieldName
+     * Delete a field from a class of the context.
+     *
+     * @throws LKQLEngineException If context does not contains className or if className does
+     *                             not contains fieldName.
      */
     private void deleteField(String className, String fieldName) {
         final var existing = env.get(className);

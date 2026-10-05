@@ -25,11 +25,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import java.util.ArrayList;
 
-/**
- * This class contains all built-in methods for the node type in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This class contains all built-in methods for the "Node" type in the LKQL language. */
 @BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.NODE_INTERFACE })
 public final class NodeMethods {
 

@@ -12,11 +12,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
-/**
- * This node represents the arithmetic unary "plus" operation in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an arithmetic unary "plus" operation. */
 public abstract class UnPlus extends UnOp {
 
     // ----- Constructors -----
@@ -32,33 +28,19 @@ public abstract class UnPlus extends UnOp {
 
     // ----- Execution methods -----
 
-    /**
-     * Return the positivated long value.
-     *
-     * @param arg The value to positivate.
-     * @return The positivated value.
-     */
+    /** Return the long value unchanged. */
     @Specialization
     protected long getLong(long arg) {
         return arg;
     }
 
-    /**
-     * Return the positivated big integer value.
-     *
-     * @param arg The value to positivate.
-     * @return The positivated value.
-     */
+    /** Return the big integer value unchanged. */
     @Specialization
     protected BigInteger getBigInteger(BigInteger arg) {
         return arg;
     }
 
-    /**
-     * Fallback error method when the argument is a non-integer value.
-     *
-     * @param arg The non-integer argument.
-     */
+    /** Fallback error method when the argument is a non-integer value. */
     @Fallback
     protected void notNumber(Object arg) {
         throw LKQLRuntimeError.wrongType(
@@ -70,9 +52,6 @@ public abstract class UnPlus extends UnOp {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

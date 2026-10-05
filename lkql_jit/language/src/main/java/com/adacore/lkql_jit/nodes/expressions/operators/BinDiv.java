@@ -14,11 +14,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
-/**
- * This node represents the "division" operation in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a division operation. */
 public abstract class BinDiv extends BinOp {
 
     // ----- Constructors -----
@@ -34,13 +30,7 @@ public abstract class BinDiv extends BinOp {
 
     // ----- Execution methods -----
 
-    /**
-     * Divide two longs.
-     *
-     * @param left The left long value.
-     * @param right The right long value.
-     * @return The division of two longs (round to inferior).
-     */
+    /** Divide two longs (rounded to inferior). */
     @Specialization
     protected long divLongs(long left, long right) {
         if (right == 0L) {
@@ -49,13 +39,7 @@ public abstract class BinDiv extends BinOp {
         return Math.floorDiv(left, right);
     }
 
-    /**
-     * Divide two big integers.
-     *
-     * @param left The left big integer value.
-     * @param right The right big integer value.
-     * @return The division of two big integers (round to inferior).
-     */
+    /** Divide two big integers (rounded to inferior). */
     @Specialization
     protected BigInteger divBigIntegers(BigInteger left, BigInteger right) {
         if (BigIntegerUtils.equals(right, BigInteger.ZERO)) {
@@ -64,12 +48,7 @@ public abstract class BinDiv extends BinOp {
         return BigIntegerUtils.divide(left, right);
     }
 
-    /**
-     * Raise a type exception if there is a non-integer operand.
-     *
-     * @param left The left value.
-     * @param right The right value.
-     */
+    /** Raise a type exception if there is a non-integer operand. */
     @Fallback
     protected void notNumbers(Object left, Object right) {
         if (!LKQLTypeSystemGen.isLong(left) && !LKQLTypeSystemGen.isBigInteger(left)) {
@@ -89,9 +68,6 @@ public abstract class BinDiv extends BinOp {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

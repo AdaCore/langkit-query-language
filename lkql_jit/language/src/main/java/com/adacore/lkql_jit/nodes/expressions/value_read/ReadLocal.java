@@ -9,11 +9,7 @@ import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a local variable reading in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a local variable reading. */
 public final class ReadLocal extends BaseRead {
 
     // ----- Constructors -----
@@ -22,7 +18,7 @@ public final class ReadLocal extends BaseRead {
      * Create a new local value reading node.
      *
      * @param location The location of the node in the source.
-     * @param slot The slot index to read in the frame.
+     * @param slot The slot index to read.
      */
     public ReadLocal(final SourceSection location, final int slot) {
         super(location, slot);
@@ -30,10 +26,6 @@ public final class ReadLocal extends BaseRead {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return FrameUtils.readLocal(frame, this.slot);
@@ -41,9 +33,6 @@ public final class ReadLocal extends BaseRead {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

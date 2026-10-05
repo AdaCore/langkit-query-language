@@ -22,11 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-/**
- * This node represents the import statement in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an import statement. */
 public final class Import extends Expr {
 
     // ----- Attributes -----
@@ -47,7 +43,6 @@ public final class Import extends Expr {
      *
      * @param location The location of the node in the source.
      * @param name The name of the module to import.
-     * @param slot The slot to put the namespace in.
      * @param errors Static error collector to handle possible construction errors.
      */
     public Import(SourceSection location, String name, LKQLStaticErrors errors) {
@@ -59,10 +54,6 @@ public final class Import extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeNamespace(frame);
@@ -79,10 +70,9 @@ public final class Import extends Expr {
     }
 
     /**
-     * Get the namespace of a module from a Java file.
+     * Get the namespace of a module from an LKQL file.
      *
-     * @param moduleFile The module file to import.
-     * @return The namespace of the module.
+     * @param moduleFile File of the module to import.
      * @throws IOException If Truffle cannot create a source from the file.
      */
     @CompilerDirectives.TruffleBoundary
@@ -122,11 +112,7 @@ public final class Import extends Expr {
 
     // ----- Internal methods -----
 
-    /**
-     * Get a module file from the module name.
-     *
-     * @return The file representing the module or null.
-     */
+    /** Get the file corresponding to the module name, or null if it cannot be resolved. */
     private File getModuleFile(LKQLStaticErrors errors) {
         // Create the module file name
         final String moduleFileName = this.name + Constants.LKQL_EXTENSION;
@@ -170,10 +156,6 @@ public final class Import extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

@@ -10,8 +10,8 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.util.HashMap;
 
 /**
- * A dynamically typed runtime representation of an AST node
- * used in all nanopasses but the first one (see {@link AdaNodeProxy})
+ * A dynamically typed runtime representation of an AST node used in all nanopasses but the first
+ * one (see {@link AdaNodeProxy}).
  */
 public class DynamicAdaNode extends LKQLValue {
 
@@ -20,10 +20,7 @@ public class DynamicAdaNode extends LKQLValue {
     public final HashMap<String, Object> fields;
     public final boolean isList;
 
-    /**
-     * This constructor is the one used during lowering
-     * and should be the default one
-     */
+    /** This constructor is the one used during lowering and should be the default one. */
     @TruffleBoundary
     public DynamicAdaNode(
         String kind,
@@ -37,10 +34,7 @@ public class DynamicAdaNode extends LKQLValue {
         this.isList = isList;
     }
 
-    /**
-     * This constructor is used only in the context of a nanopass
-     * by a constructor call
-     */
+    /** This constructor is used only in the context of a nanopass by a constructor call. */
     @TruffleBoundary
     public DynamicAdaNode(String kind, Object[] args, String[] argnames) {
         this.kind = kind;

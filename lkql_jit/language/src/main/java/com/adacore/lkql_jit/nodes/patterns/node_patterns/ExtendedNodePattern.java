@@ -13,11 +13,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a pattern that access fields or properties of nodes.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a pattern that access fields or properties of nodes. */
 public final class ExtendedNodePattern extends Pattern {
 
     // ----- Children -----
@@ -52,9 +48,6 @@ public final class ExtendedNodePattern extends Pattern {
 
     // ----- Execution methods -----
 
-    /**
-     * @see Pattern#executeValue(VirtualFrame, Object)
-     */
     @Override
     @ExplodeLoop
     public boolean executeValue(VirtualFrame frame, Object value) {
@@ -95,9 +88,6 @@ public final class ExtendedNodePattern extends Pattern {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

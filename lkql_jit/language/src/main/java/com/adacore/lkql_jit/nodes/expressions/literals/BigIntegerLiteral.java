@@ -10,11 +10,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
-/**
- * This node represents a literal integer that cannot be contained in a java long.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an integer literal that cannot be contained in a Java long. */
 public final class BigIntegerLiteral extends Expr {
 
     // ----- Attributes -----
@@ -37,19 +33,11 @@ public final class BigIntegerLiteral extends Expr {
 
     // ----- Execute methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.value;
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeBigInteger(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public BigInteger executeBigInteger(VirtualFrame frame) {
         return this.value;
@@ -57,9 +45,6 @@ public final class BigIntegerLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

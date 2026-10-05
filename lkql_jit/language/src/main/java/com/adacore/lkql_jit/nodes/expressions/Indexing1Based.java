@@ -25,10 +25,8 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
- * This node represents the indexing operation in the LKQL language.
- * It's an LKQL V1 expression and should not be used in V2.
- *
- * @author Hugo GUERRIER
+ * This node represents an indexing operation. It's an LKQL V1 expression and should not be used
+ * in V2.
  */
 @NodeChild(value = "collection", type = Expr.class)
 @NodeChild(value = "index", type = Expr.class)
@@ -54,14 +52,7 @@ public abstract class Indexing1Based extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * Execute the indexing operation on a truffle tuple.
-     *
-     * @param tuple The tuple to index
-     * @param index The index of the element to get.
-     * @return The element at the given index in the tuple, unit if the index is invalid and the
-     *     indexing is safe else raise a runtime error.
-     */
+    /** Execute the indexing operation on a tuple value. */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object indexTuple(
         final LKQLTuple tuple,
@@ -81,13 +72,7 @@ public abstract class Indexing1Based extends Expr {
         }
     }
 
-    /**
-     * Get a value in the collection with a long index.
-     *
-     * @param collection The collection to get the element from.
-     * @param index The index of the wanted element.
-     * @return The element of the collection.
-     */
+    /** Get a value in the collection with a long index. */
     @Specialization
     protected Object indexIndexable(Indexable collection, long index) {
         Object res = null;
@@ -105,13 +90,7 @@ public abstract class Indexing1Based extends Expr {
         return res;
     }
 
-    /**
-     * Specialization for the indexing operation on a node.
-     *
-     * @param node The node to get the child from.
-     * @param index The index of the child to get.
-     * @return The child or null if there is none.
-     */
+    /** Specialization for the indexing operation on a node. */
     @Specialization
     protected Object indexNode(LangkitSupport.NodeInterface node, long index) {
         final var effectiveIndex = index - 1;
@@ -124,12 +103,7 @@ public abstract class Indexing1Based extends Expr {
         return res.isNone() ? LKQLNull.INSTANCE : res;
     }
 
-    /**
-     * Fallback methods when the indexing operation cannot be performed.
-     *
-     * @param collection The maybe invalid collection.
-     * @param index The maybe invalid index.
-     */
+    /** Fallback methods when the indexing operation cannot be performed. */
     @Fallback
     protected void indexError(Object collection, Object index) {
         if (!LKQLTypeSystemGen.isIndexable(collection)) {
@@ -149,9 +123,6 @@ public abstract class Indexing1Based extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

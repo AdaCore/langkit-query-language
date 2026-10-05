@@ -18,12 +18,12 @@ import com.adacore.lkql_jit.utils.functions.SourceSectionUtils;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
-/** This class represents the framing pass for the Langkit AST translation process. */
+/** This class contains the pass to create frames from an LKQL parsing tree. */
 public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     // ----- Attributes -----
 
-    /** Truffle source of the AST. */
+    /** Truffle source from which the framed parsing tree is fetched. */
     private final Source source;
 
     /** Script frames builder object. */
@@ -34,11 +34,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     // ----- Attributes -----
 
-    /**
-     * Create a new framing pass for the given source.
-     *
-     * @param source The Truffle source.
-     */
     public FramingPass(Source source, LKQLStaticErrors errors) {
         this.source = source;
         this.scriptFramesBuilder = new ScriptFramesBuilder();
@@ -59,8 +54,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     /**
-     * Check that the given symbol doesn't exist in the current bindings. Fill the errors collector
+     * Check that the given symbol doesn't exist in the current bindings. Emit an error diagnostic
      * if it does.
+     *
      * Returns whether the check succeeded.
      */
     private boolean checkDuplicateBindings(final String symbol, final Liblkqllang.LkqlNode node) {
@@ -72,8 +68,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     /**
-     * Check that the given parameter doesn't exist in the current function parameters. Fill the
-     * errors collector if it does.
+     * Check that the given parameter doesn't exist in the current function parameters. Emit an
+     * error diagnostic if it does.
+     *
      * Returns whether the check succeeded.
      */
     private boolean checkDuplicateParameters(final String symbol, final Liblkqllang.LkqlNode node) {
@@ -84,11 +81,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return true;
     }
 
-    /**
-     * Traverse the children of the given node.
-     *
-     * @param node The node to traverse the children of.
-     */
+    /** Traverse the children of the given node. */
     private void traverseChildren(final Liblkqllang.LkqlNode node) {
         int childrenCount = node.getChildrenCount();
         for (int i = 0; i < childrenCount; i++) {
@@ -103,22 +96,13 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     // --- Top level nodes
 
-    /**
-     * Visit a raw LKQL node. Always raise an exception
-     *
-     * @param lkqlNode The raw LKQL node.
-     */
+    /** Visit a raw LKQL node, always raise an exception. */
     @Override
     public Void visit(Liblkqllang.LkqlNode lkqlNode) {
         throw LKQLEngineException.shouldNotReachHere();
     }
 
-    /**
-     * Create the frame description for a top level list.
-     *
-     * @param topLevelList The Langkit top level list node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a top level list. */
     @Override
     public Void visit(Liblkqllang.TopLevelList topLevelList) {
         this.scriptFramesBuilder.openFrame(topLevelList);
@@ -132,12 +116,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     // --- Symbol introducer nodes
 
-    /**
-     * Create the frame description for a value declaration.
-     *
-     * @param valDecl The Langkit value declaration node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a value declaration. */
     @Override
     public Void visit(Liblkqllang.ValDecl valDecl) {
         final String symbol = valDecl.fIdentifier().getText();
@@ -152,12 +131,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a function declaration.
-     *
-     * @param funDecl The Langkit function declaration node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a function declaration. */
     @Override
     public Void visit(Liblkqllang.FunDecl funDecl) {
         final String symbol = funDecl.fName().getText();
@@ -172,12 +146,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a selector arm.
-     *
-     * @param selectorArm The Langkit selector arm node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a selector arm. */
     @Override
     public Void visit(Liblkqllang.SelectorArm selectorArm) {
         this.scriptFramesBuilder.openVirtualFrame(selectorArm);
@@ -187,12 +156,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a selector declaration.
-     *
-     * @param selectorDecl The Langkit function selector node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a selector declaration. */
     @Override
     public Void visit(Liblkqllang.SelectorDecl selectorDecl) {
         // Add the symbol to the current bindings
@@ -216,12 +180,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for an import.
-     *
-     * @param anImport The Langkit import node.
-     * @return Nothing.
-     */
+    /** Create the frame description for an import. */
     @Override
     public Void visit(Liblkqllang.Import anImport) {
         final String symbol = anImport.fName().getText();
@@ -231,12 +190,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a parameter declaration.
-     *
-     * @param parameterDecl The Langkit parameter declaration node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a parameter declaration. */
     @Override
     public Void visit(Liblkqllang.ParameterDecl parameterDecl) {
         final Liblkqllang.Expr defaultExpr = parameterDecl.fDefaultExpr();
@@ -250,24 +204,14 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a selector call.
-     *
-     * @param selectorCall The Langkit selector call node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a selector call. */
     @Override
     public Void visit(Liblkqllang.SelectorCall selectorCall) {
         selectorCall.fSelectorCall().accept(this);
         return null;
     }
 
-    /**
-     * Create the frame description for a complex pattern.
-     *
-     * @param complexPattern The Langkit complex pattern node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a complex pattern. */
     @Override
     public Void visit(Liblkqllang.ComplexPattern complexPattern) {
         if (!complexPattern.fBinding().isNone()) {
@@ -288,12 +232,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     // --- Frame opening nodes
 
-    /**
-     * Create the frame description for an anonymous function.
-     *
-     * @param anonymousFunction The Langkit anonymous function node.
-     * @return Nothing.
-     */
+    /** Create the frame description for an anonymous function. */
     @Override
     public Void visit(Liblkqllang.AnonymousFunction anonymousFunction) {
         this.scriptFramesBuilder.openFrame(anonymousFunction);
@@ -303,12 +242,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a named function.
-     *
-     * @param namedFunction The Langkit named function node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a named function. */
     @Override
     public Void visit(Liblkqllang.NamedFunction namedFunction) {
         this.scriptFramesBuilder.openFrame(namedFunction);
@@ -318,12 +252,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a list comprehension.
-     *
-     * @param listComprehension The Langkit list comprehension node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a list comprehension. */
     @Override
     public Void visit(Liblkqllang.ListComprehension listComprehension) {
         // Visit all generator expressions
@@ -348,12 +277,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a block expression.
-     *
-     * @param blockExpr The Langkit block expression node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a block expression. */
     @Override
     public Void visit(Liblkqllang.BlockExpr blockExpr) {
         this.scriptFramesBuilder.openVirtualFrame(blockExpr);
@@ -363,12 +287,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a query.
-     *
-     * @param query The Langkit query node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a query. */
     @Override
     public Void visit(Liblkqllang.Query query) {
         this.scriptFramesBuilder.openVirtualFrame(query);
@@ -391,12 +310,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a match arm.
-     *
-     * @param matchArm The Langkit match arm node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a match arm. */
     @Override
     public Void visit(Liblkqllang.MatchArm matchArm) {
         this.scriptFramesBuilder.openVirtualFrame(matchArm);
@@ -406,12 +320,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for an is clause.
-     *
-     * @param isClause The Langkit is clause node.
-     * @return Nothing.
-     */
+    /** Create the frame description for an is clause. */
     @Override
     public Void visit(Liblkqllang.IsClause isClause) {
         isClause.fNodeExpr().accept(this);
@@ -421,12 +330,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a node pattern selector.
-     *
-     * @param nodePatternSelector The Langkit node pattern selector node.
-     * @return Nothing.
-     */
+    /** Create the frame description for a node pattern selector. */
     @Override
     public Void visit(Liblkqllang.NodePatternSelector nodePatternSelector) {
         nodePatternSelector.fCall().accept(this);

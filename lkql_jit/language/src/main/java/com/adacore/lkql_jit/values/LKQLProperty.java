@@ -19,7 +19,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Optional;
 
-/** This class represents a Libadalang property access in LKQL. */
+/** This class represents a native Langkit property access. */
 @ExportLibrary(InteropLibrary.class)
 public class LKQLProperty extends LKQLCallable {
 

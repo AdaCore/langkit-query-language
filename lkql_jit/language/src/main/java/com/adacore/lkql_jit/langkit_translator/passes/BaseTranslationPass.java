@@ -39,6 +39,13 @@ public class BaseTranslationPass {
 
     // ----- Constructors -----
 
+    /**
+     * Create a base translation pass, configuring it with provided arguments.
+     *
+     * @param source Truffle source that the tree to translate is coming from.
+     * @param frames Frames created from the parsing tree.
+     * @param errors Collector for errors that may happen during the translation.
+     */
     public BaseTranslationPass(Source source, ScriptFrames frames, LKQLStaticErrors errors) {
         this.source = source;
         this.frames = frames;
@@ -47,24 +54,19 @@ public class BaseTranslationPass {
 
     // ----- Instance methods -----
 
-    /**
-     * Create the source location for the given node.
-     *
-     * @param node The node to create the source location for.
-     * @return The source location.
-     */
+    /** Create the source location for the given node. */
     public SourceSection loc(LangkitSupport.NodeInterface node) {
         return SourceSectionUtils.createSection(node.getSourceLocationRange(), this.source);
     }
 
     /**
-     * Process arguments into a list, verifying that
-     * all named args are placed after unnamed args and
-     * no named arg is repeated.
+     * Process arguments into a list, verifying that all named args are placed after unnamed args
+     * and no named arg is repeated.
+     *
+     * Then return a new argument list node with them.
      *
      * @param args The list of args to be processed.
-     * @param loc  The source location for the ArgList to have.
-     * @return The processed argument list.
+     * @param loc The source location for the ArgList to have.
      */
     public ArgList buildArgs(List<Arg> args, SourceSection loc) {
         // Visit all arguments to create the argument list and perform static checks
@@ -87,6 +89,7 @@ public class BaseTranslationPass {
         return new ArgList(loc, args.toArray(new Arg[0]));
     }
 
+    /** Create a symbol reading expression accessing the provided symbol. */
     public Expr buildRead(String symbol, SourceSection loc) {
         // First look for the symbol in the frame local bindings
         if (this.frames.isBinding(symbol) && this.frames.isBindingDeclared(symbol)) {
@@ -123,7 +126,10 @@ public class BaseTranslationPass {
         return null;
     }
 
-    /** Get the reflection description for the node corresponding to the provided name. */
+    /**
+     * Get the reflection description for the node corresponding to the provided name. Emitting a
+     * diagnostic if the provide name doesn't lead to an existing node type.
+     */
     protected LangkitSupport.Reflection.Node getNodeDescription(
         LangkitSupport.NodeInterface nodeKindId
     ) {

@@ -18,6 +18,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** Util node that combine two values. */
 @GenerateInline(false)
 public abstract class ValueCombiner extends Node {
 

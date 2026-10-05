@@ -14,11 +14,7 @@ import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the "in" clause in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an inclusion clause. */
 public abstract class InClause extends BinOp {
 
     // ----- Constructors -----
@@ -34,13 +30,7 @@ public abstract class InClause extends BinOp {
 
     // ----- Execution methods -----
 
-    /**
-     * Execute the "in" clause, return true if the element is in the collection.
-     *
-     * @param elem The element to search in the list.
-     * @param iterable The list to search in.
-     * @return True the iterable value contains the element, false else.
-     */
+    /** Execute the inclusion clause, return true if the element is in the iterable. */
     @Specialization
     protected boolean inIterable(Object elem, Iterable iterable) {
         Iterator iterator = iterable.iterator();
@@ -50,12 +40,7 @@ public abstract class InClause extends BinOp {
         return false;
     }
 
-    /**
-     * Fallback method when user try to do an "in" clause on a non-iterable value.
-     *
-     * @param elem The element to search in the list.
-     * @param notIterable The non-iterable value.
-     */
+    /** Fallback method when user try to do an inclusion clause on a non-iterable value. */
     @Fallback
     protected void notIterable(@SuppressWarnings("unused") Object elem, Object notIterable) {
         throw LKQLRuntimeError.wrongType(
@@ -67,9 +52,6 @@ public abstract class InClause extends BinOp {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -6,24 +6,14 @@
 package com.adacore.lkql_jit.values.interfaces;
 
 /**
- * This interface defines custom and generic iterators because the native one is not suitable for
- * JIT compilation.
- *
- * @author Hugo GUERRIER
+ * Custom interface for iterator objects. We don't use the Java one for Truffle compilation
+ * concerns.
  */
 public interface Iterator {
-    /**
-     * Get if the iterator has a next element.
-     *
-     * @return True if there is a next element, false else.
-     */
+    /** Get whether the iterator has a next element. */
     boolean hasNext();
 
-    /**
-     * Get the next element by consuming the iterable.
-     *
-     * @return The next element.
-     */
+    /** Get the next element by consuming the iterator. */
     Object next();
 
     /** Reset the iterator to the start. */

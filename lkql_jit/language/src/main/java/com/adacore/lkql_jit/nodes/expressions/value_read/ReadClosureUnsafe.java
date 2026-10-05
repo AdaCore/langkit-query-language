@@ -11,9 +11,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
- * This node represents a value reading in the closure when we don't know if the value is defined.
- *
- * @author Hugo GUERRIER
+ * This node represents a read in the closure when we don't know whether the value is already
+ * initialized.
  */
 public final class ReadClosureUnsafe extends BaseRead {
 
@@ -29,7 +28,7 @@ public final class ReadClosureUnsafe extends BaseRead {
      *
      * @param location The location of the node in the source.
      * @param slot The closure slot to read.
-     * @param name The name of the closure symbol.
+     * @param name The read symbol.
      */
     public ReadClosureUnsafe(final SourceSection location, final int slot, final String name) {
         super(location, slot);
@@ -38,10 +37,6 @@ public final class ReadClosureUnsafe extends BaseRead {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         var res = (((Closure) frame.getArguments()[0]).content[slot]).getRef();

@@ -20,10 +20,9 @@ import com.oracle.truffle.api.source.SourceSection;
 import java.util.*;
 
 /**
- * This class is a runtime instance of a rewriting pass.
- * At the runtime passes are represented as functions AST -> AST.
- * A pass expr is the body of the synthesized function and contains
- * all the logic needed to execute a pass.
+ * This class is a runtime instance of a rewriting pass. At the runtime passes are represented as
+ * functions AST -> AST. A pass expr is the body of the synthesized function and contains all the
+ * logic needed to execute a pass.
  */
 @NodeChild(value = "readInput", type = ReadParameter.class)
 public abstract class PassExpr extends Expr {

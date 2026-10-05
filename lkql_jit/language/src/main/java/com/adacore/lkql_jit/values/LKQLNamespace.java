@@ -25,7 +25,7 @@ import com.oracle.truffle.api.source.SourceSection;
 import java.util.HashMap;
 import java.util.Map;
 
-/** This class represents the namespaces in the LKQL language. */
+/** This class represents the namespace of a module. */
 @ExportLibrary(InteropLibrary.class)
 public class LKQLNamespace extends LKQLBaseNamespace {
 

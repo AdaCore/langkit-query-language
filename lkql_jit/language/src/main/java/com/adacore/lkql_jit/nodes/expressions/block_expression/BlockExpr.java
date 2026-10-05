@@ -10,7 +10,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
-/** This node represents a block expression in the LKQL language */
+/** This node represents a block expression. */
 public final class BlockExpr extends Expr {
 
     // ----- Children -----
@@ -41,11 +41,6 @@ public final class BlockExpr extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     *     (VirtualFrame)
-     */
     @Override
     @ExplodeLoop
     public Object executeGeneric(VirtualFrame frame) {
@@ -60,9 +55,6 @@ public final class BlockExpr extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -20,11 +20,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the call of a selector in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents the call of a selector in a pattern detail. */
 public final class SelectorCall extends LKQLNode {
 
     // ----- Attributes -----
@@ -68,10 +64,6 @@ public final class SelectorCall extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLEngineException.shouldNotReachHere();
@@ -79,7 +71,7 @@ public final class SelectorCall extends LKQLNode {
 
     /**
      * Execute the selector on the given node and return if the tree traversal valid the given
-     * pattern. TODO: Move this method and logic in the NodePatternSelector node.
+     * pattern.
      *
      * @param frame The frame to execute in.
      * @param node The node to execute the selector on.
@@ -184,7 +176,7 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Verify if all node verify the pattern.
+     * Verify if all values returned by the selector verify the pattern.
      *
      * @param frame The frame to execute in.
      * @param selectorListValue The stream representing traversal of the selector.
@@ -203,7 +195,7 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Verify if any of the node verify the pattern.
+     * Verify if any of the values returned by the selector verify the pattern.
      *
      * @param frame The frame to execute in.
      * @param selectorListValue The stream representing traversal of the selector.
@@ -226,9 +218,6 @@ public final class SelectorCall extends LKQLNode {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

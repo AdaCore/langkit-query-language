@@ -17,18 +17,34 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a pattern to match object values. */
 public abstract class ObjectPattern extends Pattern {
 
+    // ----- Children -----
+
+    /** Ordered sub-patterns to execute on values inside the object. */
     @Node.Children
     private final Pattern[] patterns;
 
-    private final Shape shape;
-
+    /** The splat pattern to match remaining keys. */
     @Node.Child
     private SplatPattern splat;
 
+    // ----- Attributes -----
+
+    /** Ordered keys to match. */
     private final String[] keys;
 
+    /** Dummy shape to create the remaining values object if there is a splat pattern. */
+    private final Shape shape;
+
+    // ----- Constructors -----
+
+    /**
+     * Create a new object pattern.
+     *
+     * @param location The location of the node in the source.
+     */
     protected ObjectPattern(
         SourceSection location,
         Pattern[] patterns,
@@ -43,10 +59,7 @@ public abstract class ObjectPattern extends Pattern {
         this.shape = Shape.newBuilder().build();
     }
 
-    @Override
-    public String toString(int indentLevel) {
-        return this.nodeRepresentation(indentLevel);
-    }
+    // ----- Execution methods -----
 
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     public boolean onObject(
@@ -111,5 +124,12 @@ public abstract class ObjectPattern extends Pattern {
         @SuppressWarnings("unused") Object other
     ) {
         return false;
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public String toString(int indentLevel) {
+        return this.nodeRepresentation(indentLevel);
     }
 }

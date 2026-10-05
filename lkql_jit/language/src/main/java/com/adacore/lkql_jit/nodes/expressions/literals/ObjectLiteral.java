@@ -17,11 +17,7 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the literal node for an LKQL object.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an LKQL object literal. */
 public final class ObjectLiteral extends Expr {
 
     // ----- Attributes -----
@@ -63,19 +59,11 @@ public final class ObjectLiteral extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeObject(frame);
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeObject(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     @ExplodeLoop
     public LKQLObject executeObject(final VirtualFrame frame) {
@@ -91,9 +79,6 @@ public final class ObjectLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(final int indentLevel) {
         return this.nodeRepresentation(indentLevel);

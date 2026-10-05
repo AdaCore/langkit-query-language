@@ -11,11 +11,7 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents an annotation associated with a declaration in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an annotation associated to a declaration. */
 public final class Annotation extends LKQLNode {
 
     // ----- Attributes -----
@@ -57,10 +53,6 @@ public final class Annotation extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLEngineException.shouldNotReachHere();
@@ -68,10 +60,6 @@ public final class Annotation extends LKQLNode {
 
     // ----- Override methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

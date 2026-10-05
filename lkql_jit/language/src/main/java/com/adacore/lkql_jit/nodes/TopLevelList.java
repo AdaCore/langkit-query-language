@@ -17,8 +17,6 @@ import com.oracle.truffle.api.source.SourceSection;
 /**
  * This node represents the list of all top level instructions of a LKQL program. It's the "highest"
  * node in a LKQL AST and is the starting point of the program.
- *
- * @author Hugo GUERRIER
  */
 public final class TopLevelList extends LKQLNode {
 
@@ -46,6 +44,8 @@ public final class TopLevelList extends LKQLNode {
      * @param location The location of the node in the source.
      * @param frameDescriptor The frame descriptor for the top level.
      * @param nodes The nodes to execute in the top level.
+     * @param isInteractive Whether the node is for an interactive context.
+     * @param doc The documentation of the module defined by this node.
      */
     public TopLevelList(
         SourceSection location,
@@ -69,10 +69,6 @@ public final class TopLevelList extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     @ExplodeLoop
     public Object executeGeneric(VirtualFrame frame) {
@@ -110,9 +106,6 @@ public final class TopLevelList extends LKQLNode {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

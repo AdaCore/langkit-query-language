@@ -10,14 +10,10 @@ import com.adacore.lkql_jit.nodes.patterns.SelectorCall;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a pattern detail on a selector in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a pattern detail on a selector. */
 public final class NodePatternSelector extends NodePatternDetail {
 
-    // ----- Children ------
+    // ----- Children -----
 
     /** The selector call for the detail. */
     @Child
@@ -35,8 +31,8 @@ public final class NodePatternSelector extends NodePatternDetail {
      * Create a new node pattern selector detail node.
      *
      * @param location The location of the node in the source.
-     * @param call The selector call.
-     * @param pattern The pattern to check the selector.
+     * @param call The selector to use for iteration.
+     * @param pattern The pattern to match values against.
      */
     public NodePatternSelector(SourceSection location, SelectorCall call, Pattern pattern) {
         super(location);
@@ -46,11 +42,6 @@ public final class NodePatternSelector extends NodePatternDetail {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.node_patterns.NodePatternDetail#executeDetail(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.langkit_support.LangkitSupport.NodeInterface)
-     */
     @Override
     public boolean executeDetail(VirtualFrame frame, Object node) {
         return this.call.executeVerification(frame, node, this.pattern);
@@ -58,9 +49,6 @@ public final class NodePatternSelector extends NodePatternDetail {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -12,11 +12,7 @@ import com.adacore.lkql_jit.runtime.GlobalScope;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This class is a builder class to extract framing scheme from an LKQL Langkit AST.
- *
- * @author Hugo GUERRIER
- */
+/** Builder class to construct frames for an LKQL script. */
 public final class ScriptFramesBuilder {
 
     // ----- Attributes -----
@@ -42,7 +38,7 @@ public final class ScriptFramesBuilder {
     /**
      * Open a new non-virtual frame builder with its associated node.
      *
-     * @param node The node associated with the frame builder.
+     * @param node The node that opens the frame.
      */
     public void openFrame(final NodeInterface node) {
         openFrame(node, false);
@@ -51,18 +47,13 @@ public final class ScriptFramesBuilder {
     /**
      * Open a new virtual frame builder with its associated node.
      *
-     * @param node the node associated with the frame builder
+     * @param node The node that opens the frame.
      */
     public void openVirtualFrame(final NodeInterface node) {
         openFrame(node, true);
     }
 
-    /**
-     * Internal function to factorize frame builder opening.
-     *
-     * @param node The node associated with the frame builder.
-     * @param isVirtual If the frame is virtual.
-     */
+    /** Internal function to factorize frame builder opening. */
     private void openFrame(final NodeInterface node, final boolean isVirtual) {
         // Create the new frame
         final NodeFrameBuilder newFrame = new NodeFrameBuilder(node, this.current, isVirtual);
@@ -94,12 +85,7 @@ public final class ScriptFramesBuilder {
 
     // --- Symbol methods
 
-    /**
-     * Get if the current bindings contains the given symbol.
-     *
-     * @param symbol The symbol to look for in the bindings.
-     * @return True if the current bindings contains the given symbol, false else.
-     */
+    /** Get whether the current frame contains the given symbol in its bindings. */
     public boolean bindingExists(final String symbol) {
         if (this.current.parent == null) {
             return (
@@ -111,41 +97,24 @@ public final class ScriptFramesBuilder {
         }
     }
 
-    /**
-     * Add the given symbol to the current bindings.
-     *
-     * @param symbol The symbol to add to the current bindings.
-     */
+    /** Add the given symbol to the current bindings. */
     public void addBinding(final String symbol) {
         this.current.bindings.add(symbol);
     }
 
-    /**
-     * Get if the current parameters contains the given symbol
-     *
-     * @param symbol The symbol to verify.
-     * @return True if the current parameters contains the given symbol, false else.
-     */
+    /** Get whether parameters in the current frame contains the given symbol. */
     public boolean parameterExists(final String symbol) {
         return this.current.parameters.contains(symbol);
     }
 
-    /**
-     * Add the given symbol to the current parameters.
-     *
-     * @param symbol The symbol to add to the current parameters.
-     */
+    /** Add the given symbol to the current parameters. */
     public void addParameter(final String symbol) {
         this.current.parameters.add(symbol);
     }
 
     // --- Building methods
 
-    /**
-     * Build the script frames and get them.
-     *
-     * @return The script frames.
-     */
+    /** Build script frames described by this builder and return them. */
     public ScriptFrames build(GlobalScope globalScope) {
         if (this.current != this.root) {
             throw LKQLEngineException.create("Framing pass didn't close all opened frames");
@@ -201,9 +170,9 @@ public final class ScriptFramesBuilder {
         /**
          * Create a new node frame builder with all required information.
          *
-         * @param node Associated node.
-         * @param parent Parent node frame builder, can be null.
-         * @param isVirtual If the frame is a virtual one.
+         * @param node The node that opens the frame.
+         * @param parent Parent frame builder, can be null.
+         * @param isVirtual Whether the frame is a virtual one.
          */
         private NodeFrameBuilder(
             final NodeInterface node,
@@ -220,11 +189,7 @@ public final class ScriptFramesBuilder {
 
         // ----- Instance methods -----
 
-        /**
-         * Build the node frame builder and return the result.
-         *
-         * @return The built node frame.
-         */
+        /** Build the frame described by this builder and return it. */
         public ScriptFrames.AbstractNodeFrame build(final ScriptFrames.AbstractNodeFrame parent) {
             // Create the result node frame
             final ScriptFrames.AbstractNodeFrame res = this.isVirtual

@@ -7,11 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
 import java.util.Map;
 
-/**
- * This class represents the description of a closure.
- *
- * @author Hugo GUERRIER
- */
+/** This class represents the description of a closure. */
 public final class ClosureDescriptor {
 
     public enum DestKind {
@@ -26,9 +22,7 @@ public final class ClosureDescriptor {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new closure descriptor with its values.
-     */
+    /** Create a new closure descriptor with its values. */
     public ClosureDescriptor(
         final int closureSize,
         final Map<Integer, Integer> closingLocals,

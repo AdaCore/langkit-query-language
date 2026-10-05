@@ -9,11 +9,7 @@ import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a named argument in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a named argument in a call expression. */
 public final class NamedArg extends Arg {
 
     // ----- Constructor -----
@@ -21,9 +17,9 @@ public final class NamedArg extends Arg {
     /**
      * Create a new named argument node.
      *
-     * @param location The location of the node in the sources.
-     * @param name The name of the argument.
-     * @param expr The expression of the argument.
+     * @param location The location of the node in the source.
+     * @param name Name of the argument.
+     * @param expr Expression of the argument.
      */
     public NamedArg(SourceSection location, Identifier name, Expr expr) {
         super(location, name, expr);
@@ -31,9 +27,6 @@ public final class NamedArg extends Arg {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return nodeRepresentation(

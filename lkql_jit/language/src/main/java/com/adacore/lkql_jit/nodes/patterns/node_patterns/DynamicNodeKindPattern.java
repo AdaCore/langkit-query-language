@@ -13,10 +13,9 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
- * This node represents the pattern that filters by node kind in the LKQL language.
- * It is used only in the context of a nanopass, contrary to
- * {@link NodeKindPattern}. The type of node is decided in the lowering
- * pass, thanks to a flag set when entering a pass node.
+ * This node represents the pattern that filters by node kind in the LKQL language. It is used only
+ * in the context of a nanopass, contrary to {@link NodeKindPattern}. The type of node is decided
+ * in the lowering pass, thanks to a flag set when entering a pass node.
  */
 public final class DynamicNodeKindPattern extends Pattern {
 
@@ -40,9 +39,6 @@ public final class DynamicNodeKindPattern extends Pattern {
 
     // ----- Execution methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeValue(VirtualFrame, Object)
-     */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
         if (LKQLTypeSystemGen.isDynamicAdaNode(value)) {
@@ -58,9 +54,6 @@ public final class DynamicNodeKindPattern extends Pattern {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

@@ -11,11 +11,7 @@ import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-/**
- * This root node represents the root execution of an LKQL program.
- *
- * @author Hugo GUERRIER
- */
+/** This root node represents the execution of an LKQL script. */
 public final class TopLevelRootNode extends BaseRootNode {
 
     // ----- Attributes -----
@@ -38,11 +34,16 @@ public final class TopLevelRootNode extends BaseRootNode {
         this.program = program;
     }
 
+    // ----- Getters -----
+
+    @Override
+    public String getName() {
+        return program.getSourceSection().getSource().getName();
+    }
+
     // ----- Execution methods -----
 
-    /**
-     * Execute the LKQL program and return the namespace, result of this program execution.
-     */
+    /** Execute the LKQL program and return its namespace, result of this program execution. */
     @Override
     public Object execute(VirtualFrame frame) {
         // Initialize the frame
@@ -60,13 +61,10 @@ public final class TopLevelRootNode extends BaseRootNode {
         }
     }
 
+    //  ----- Override methods -----
+
     @Override
     public String toString() {
         return "<" + program.getSourceSection().getSource().getName() + ">";
-    }
-
-    @Override
-    public String getName() {
-        return program.getSourceSection().getSource().getName();
     }
 }

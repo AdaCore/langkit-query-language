@@ -15,11 +15,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents an association in a list comprehension in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an association in a list comprehension. */
 public final class ComprehensionAssoc extends LKQLNode {
 
     // ----- Attributes -----
@@ -62,21 +58,12 @@ public final class ComprehensionAssoc extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLEngineException.shouldNotReachHere();
     }
 
-    /**
-     * Execute the collection expression and return its result.
-     *
-     * @param frame The frame to execute in.
-     * @return The collection result of the expression result.
-     */
+    /** Execute the collection expression and return its result. */
     public Iterable executeCollection(VirtualFrame frame) {
         try {
             return this.collection.executeIterable(frame);
@@ -91,9 +78,6 @@ public final class ComprehensionAssoc extends LKQLNode {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

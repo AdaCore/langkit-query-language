@@ -38,10 +38,10 @@ import java.util.*;
 
     <pre>.
       A B C D E
-    A x        
-    B x x      
-    C x   x    
-    D x   x x  
+    A x
+    B x x
+    C x   x
+    D x   x x
     E x   x   x
     </pre>
 
@@ -76,9 +76,7 @@ public class Hierarchy {
         this.classNamesToIndex = index;
     }
 
-    /**
-     * Computes a hierarchy of currently available classes in the Lkt bindings.
-     */
+    /** Computes a hierarchy of currently available classes in the Lkt bindings. */
     @SuppressWarnings("unchecked")
     @TruffleBoundary
     public static Hierarchy initial() {
@@ -110,9 +108,7 @@ public class Hierarchy {
         return res;
     }
 
-    /**
-     * The number of classes present in the hierarchy
-     */
+    /** The number of classes present in the hierarchy. */
     public int size() {
         return classCount;
     }
@@ -130,17 +126,13 @@ public class Hierarchy {
         classNamesToIndex.get(classY)];
     }
 
-    /**
-     * Add a new class to the hierarchy, with no superclass nor subclass.
-     */
+    /** Add a new class to the hierarchy, with no superclass nor subclass. */
     @TruffleBoundary
     public void add(String classX) {
         addAll(Collections.singleton(classX));
     }
 
-    /**
-     * Add new classes to the hierarchy, with no superclasses nor subclasses.
-     */
+    /** Add new classes to the hierarchy, with no superclasses nor subclasses. */
     @TruffleBoundary
     public void addAll(Collection<String> classes) {
         final int size = this.size() + classes.size();
@@ -167,9 +159,7 @@ public class Hierarchy {
         become(size, matrix, index);
     }
 
-    /**
-     * Add a new X ≤ Y relation to the hierarchy.
-     */
+    /** Add a new X ≤ Y relation to the hierarchy. */
     @TruffleBoundary
     public void addInstanceOfRelation(String classX, String classY) {
         final int x = classNamesToIndex.get(classX);
@@ -187,17 +177,13 @@ public class Hierarchy {
         }
     }
 
-    /**
-     * Remove a class and all its subclasses from the hierarchy.
-     */
+    /** Remove a class and all its subclasses from the hierarchy. */
     @TruffleBoundary
     public void remove(String classX) {
         removeAll(Collections.singleton(classX));
     }
 
-    /**
-     * Remove all classes and all their subclasses from the hierarchy.
-     */
+    /** Remove all classes and all their subclasses from the hierarchy. */
     @TruffleBoundary
     public void removeAll(Collection<String> classes) {
         // Compute all the subtypes of X to mask wich row/column to keep

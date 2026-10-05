@@ -11,7 +11,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.util.HashMap;
 
 /**
- * This class is a proxy to a typed (native libadalang) ada node.
+ * This class is a proxy to a typed (native Libadalang) Ada node.
  * This allows the rewriting code to handle the native nodes and the dynamic
  * nodes transparently.
  * It's used only in the first nanopasss (see {@link DynamicAdaNode} for the

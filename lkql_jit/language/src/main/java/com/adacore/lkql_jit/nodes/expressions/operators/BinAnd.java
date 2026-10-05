@@ -14,6 +14,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.InlinedConditionProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a "and" boolean operation. */
 public abstract class BinAnd extends Expr {
 
     // ----- Children -----
@@ -29,6 +30,11 @@ public abstract class BinAnd extends Expr {
 
     // ----- Constructors -----
 
+    /**
+     * Create a "and" operation node.
+     *
+     * @param location The location of the node in the source.
+     */
     protected BinAnd(SourceSection location, Expr left, Expr right) {
         super(location);
         this.left = left;

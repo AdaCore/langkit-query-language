@@ -12,11 +12,7 @@ import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents an arm from a match expression in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an arm from a match expression. */
 public class MatchArm extends LKQLNode {
 
     // ----- Children -----
@@ -48,21 +44,12 @@ public class MatchArm extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
         throw LKQLEngineException.shouldNotReachHere();
     }
 
-    /**
-     * Verify the pattern of the arm and if matched, execute the arm expression.
-     *
-     * @param toMatch The node to match.
-     * @return The result of the arm expression if the pattern is valid, null else.
-     */
+    /** Verify the pattern of the arm and if matched, execute the arm expression. */
     public Object executeArm(VirtualFrame frame, Object toMatch) {
         if (this.pattern.executeValue(frame, toMatch)) {
             return this.expr.executeGeneric(frame);
@@ -73,9 +60,6 @@ public class MatchArm extends LKQLNode {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

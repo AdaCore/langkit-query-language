@@ -9,7 +9,7 @@ import com.adacore.lkql_jit.values.interop.LKQLIterator;
 import com.adacore.lkql_jit.values.interop.LKQLList;
 import com.adacore.lkql_jit.values.iterators.LKQLListIterator;
 
-/** This class represents an array list in the LKQL language. */
+/** This class represents an array list. */
 public final class LKQLArrayList extends LKQLList {
 
     // ----- Attributes -----

@@ -9,6 +9,7 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** Util functions to manipulate source sections. */
 public class SourceSectionUtils {
 
     /**

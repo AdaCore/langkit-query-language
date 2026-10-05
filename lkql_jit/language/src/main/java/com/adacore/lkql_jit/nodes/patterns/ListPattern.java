@@ -13,16 +13,28 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
+/** This node represents a pattern to match list values. */
 public abstract class ListPattern extends Pattern {
+
+    // ----- Children -----
 
     /** The sub-patterns for this list pattern. */
     @Node.Children
     private final Pattern[] patterns;
 
+    // ----- Constructors -----
+
+    /**
+     * Create a new list pattern node.
+     *
+     * @param location The location of the node in the source.
+     */
     public ListPattern(SourceSection location, Pattern[] patterns) {
         super(location);
         this.patterns = patterns;
     }
+
+    // ----- Execution methods -----
 
     @Specialization
     public boolean onList(VirtualFrame frame, LKQLArrayList list) {
@@ -64,6 +76,8 @@ public abstract class ListPattern extends Pattern {
     ) {
         return false;
     }
+
+    // ----- Override methods -----
 
     @Override
     public String toString(int indentLevel) {

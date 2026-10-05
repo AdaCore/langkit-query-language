@@ -15,13 +15,13 @@ import com.oracle.truffle.api.nodes.RootNode;
 
 /**
  * This class represents either
- * - a list comprehension value
- * - a query expression
- * in the LKQL language.
+ *   - a list comprehension value
+ *   - a query expression
+ *
  * It allows iterating on a source and
- * - pattern matching values from it
- * - checking against a boolean guard
- * - mapping to another value
+ *   - pattern matching values from it
+ *   - checking against a boolean guard
+ *   - mapping to another value
  * and returns the result as a stream.
  */
 public final class LKQLQueryComprehension extends BaseCachedStream {

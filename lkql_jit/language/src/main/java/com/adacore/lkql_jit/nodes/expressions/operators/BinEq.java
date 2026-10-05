@@ -21,11 +21,7 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
-/**
- * This node represents the equality verification in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an equality operation. */
 public abstract class BinEq extends BinOp {
 
     // ----- Constructors -----
@@ -41,13 +37,7 @@ public abstract class BinEq extends BinOp {
 
     // ----- Execution methods -----
 
-    /**
-     * Do the equality verification on unit values, always true.
-     *
-     * @param left The left unit value.
-     * @param right The right unit value.
-     * @return True, unit is always equals to unit.
-     */
+    /** Do the equality verification on unit values, always true. */
     @Specialization
     protected boolean eqUnit(
         @SuppressWarnings("unused") final LKQLUnit left,
@@ -56,97 +46,49 @@ public abstract class BinEq extends BinOp {
         return true;
     }
 
-    /**
-     * Do the equality verification on longs.
-     *
-     * @param left The left long value.
-     * @param right The right long value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on longs. */
     @Specialization
     protected boolean eqLongs(long left, long right) {
         return left == right;
     }
 
-    /**
-     * Do the equality verification on big integers.
-     *
-     * @param left The left big integer value.
-     * @param right The right big integer value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on big integers. */
     @Specialization
     protected boolean eqBigIntegers(BigInteger left, BigInteger right) {
         return BigIntegerUtils.equals(left, right);
     }
 
-    /**
-     * Do the equality verification on strings.
-     *
-     * @param left The left string value.
-     * @param right The right string value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on strings. */
     @Specialization
     protected boolean eqStrings(String left, String right) {
         return left.equals(right);
     }
 
-    /**
-     * Do the equality verification on patterns.
-     *
-     * @param left The left pattern value.
-     * @param right The right pattern value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on patterns. */
     @Specialization
     protected boolean eqPatterns(LKQLPattern left, LKQLPattern right) {
         return left.equals(right);
     }
 
-    /**
-     * Do the equality verification on functions.
-     *
-     * @param left The left function value.
-     * @param right The right function value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on functions. */
     @Specialization
     protected boolean eqFunctions(LKQLFunction left, LKQLFunction right) {
         return left.equals(right);
     }
 
-    /**
-     * Do the equality verification on property references.
-     *
-     * @param left The left property reference value.
-     * @param right The right property reference value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on property references. */
     @Specialization
     protected boolean eqPropertyRefs(LKQLProperty left, LKQLProperty right) {
         return left.equals(right);
     }
 
-    /**
-     * Do the equality verification on tuples.
-     *
-     * @param left The left tuple value.
-     * @param right The right tuple value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on tuples. */
     @Specialization
     protected boolean eqTuples(LKQLTuple left, LKQLTuple right) {
         return left.equals(right);
     }
 
-    /**
-     * Do the equality verification on lists.
-     *
-     * @param left The left list value.
-     * @param right The right list value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on lists. */
     @Specialization
     protected boolean eqLists(LKQLArrayList left, LKQLArrayList right) {
         return left.equals(right);
@@ -165,13 +107,7 @@ public abstract class BinEq extends BinOp {
         return left.internalSet.equals(right.internalSet);
     }
 
-    /**
-     * Do the equality verification on nodes.
-     *
-     * @param left The left node value.
-     * @param right The right node value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on nodes. */
     @Specialization
     @CompilerDirectives.TruffleBoundary
     protected boolean eqNodes(
@@ -181,13 +117,7 @@ public abstract class BinEq extends BinOp {
         return left.equals(right);
     }
 
-    /**
-     * Do the equality verification on tokens.
-     *
-     * @param left The left token value.
-     * @param right The right token value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on tokens. */
     @Specialization
     protected boolean eqTokens(
         LangkitSupport.TokenInterface left,
@@ -196,25 +126,13 @@ public abstract class BinEq extends BinOp {
         return left.equals(right);
     }
 
-    /**
-     * Do the equality verification on booleans.
-     *
-     * @param left The left boolean value.
-     * @param right The right boolean value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on booleans. */
     @Specialization
     protected boolean eqBooleans(boolean left, boolean right) {
         return left == right;
     }
 
-    /**
-     * Do the equality verification on objects.
-     *
-     * @param left The left object value.
-     * @param right The right object value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on objects. */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqObjects(
         LKQLObject left,
@@ -225,13 +143,7 @@ public abstract class BinEq extends BinOp {
         return LKQLDynamicObject.compareWithLib(left, right, leftLib, rightLib);
     }
 
-    /**
-     * Do the equality verification on namespace.
-     *
-     * @param left The left namespace value.
-     * @param right The right namespace value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on namespace. */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected boolean eqNamespaces(
         LKQLNamespace left,
@@ -242,13 +154,7 @@ public abstract class BinEq extends BinOp {
         return LKQLDynamicObject.compareWithLib(left, right, leftLib, rightLib);
     }
 
-    /**
-     * Do the equality verification on analysis units.
-     *
-     * @param left The left analysis unit value.
-     * @param right The right analysis unit value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification on analysis units. */
     @Specialization
     protected boolean eqAnalysisUnits(
         LangkitSupport.AnalysisUnit left,
@@ -257,13 +163,7 @@ public abstract class BinEq extends BinOp {
         return left.equals(right);
     }
 
-    /**
-     * Do the equality verification on not comparable values.
-     *
-     * @param left The left value.
-     * @param right The right value.
-     * @return Always false because it's not comparable.
-     */
+    /** Do the equality verification on not comparable values. */
     @Fallback
     protected boolean eqNotComparable(
         @SuppressWarnings("unused") Object left,
@@ -274,9 +174,6 @@ public abstract class BinEq extends BinOp {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -11,11 +11,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a list literal node in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a list literal. */
 public final class ListLiteral extends Expr {
 
     // ----- Children -----
@@ -39,19 +35,11 @@ public final class ListLiteral extends Expr {
 
     // ----- Execute methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeList(frame);
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeList(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     @ExplodeLoop
     public LKQLArrayList executeList(VirtualFrame frame) {
@@ -67,9 +55,6 @@ public final class ListLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

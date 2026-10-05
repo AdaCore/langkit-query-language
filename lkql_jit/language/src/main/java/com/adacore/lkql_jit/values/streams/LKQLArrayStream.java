@@ -10,9 +10,7 @@ import com.adacore.lkql_jit.values.interfaces.Iterator;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.iterators.LKQLStreamIterator;
 
-/**
- * This class represents a static list viewed as a stream.
- */
+/** This class represents a static list viewed as a stream. */
 public class LKQLArrayStream extends LKQLStream {
 
     // ----- Attributes -----

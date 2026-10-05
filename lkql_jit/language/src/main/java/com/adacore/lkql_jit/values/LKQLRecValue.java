@@ -12,6 +12,9 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
 
+/**
+ * This class represents a recursion value used by a selector to fill its recurse list and results.
+ */
 @ExportLibrary(InteropLibrary.class)
 public class LKQLRecValue extends LKQLValue {
 

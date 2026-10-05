@@ -9,11 +9,7 @@ import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a binding pattern in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a binding pattern. */
 public final class BindingPattern extends Pattern {
 
     // ----- Attributes -----
@@ -34,8 +30,8 @@ public final class BindingPattern extends Pattern {
      * Create a new binding pattern node.
      *
      * @param location The location of the node in the source.
-     * @param slot The frame slot to put the node in.
-     * @param pattern The pattern to bind in.
+     * @param slot The frame slot to put the bound value in.
+     * @param pattern The pattern to execute after.
      */
     public BindingPattern(SourceSection location, int slot, Pattern pattern) {
         super(location);
@@ -45,9 +41,6 @@ public final class BindingPattern extends Pattern {
 
     // ----- Execution methods -----
 
-    /**
-     * @see Pattern#executeValue(VirtualFrame, Object)
-     */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
         // Do the node binding
@@ -59,9 +52,6 @@ public final class BindingPattern extends Pattern {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

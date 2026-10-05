@@ -12,6 +12,7 @@ import com.oracle.truffle.api.dsl.Executed;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a casting. */
 public class CastExpr extends Expr {
 
     // ----- Children -----
@@ -22,13 +23,27 @@ public class CastExpr extends Expr {
     @SuppressWarnings("FieldMayBeFinal")
     protected Expr expr;
 
+    // ----- Attributes -----
+
     /** The node type it should be cast to. */
     protected final Class<? extends LangkitSupport.NodeInterface> nodeClass;
 
-    /** Whether the execution should raise an exception if the cast fails, rather
-     * than returning the null node. */
+    /**
+     * Whether the execution should raise an exception if the cast fails, rather than returning
+     * the null node.
+     */
     protected final boolean strict;
 
+    // ----- Constructors -----
+
+    /**
+     * Create a new casting expression node.
+     *
+     * @param location The location of the node in the source.
+     * @param expr The expression to cast.
+     * @param nodeClass The class to cast the expression to.
+     * @param strict Whether the node should raise an exception if casting fails.
+     */
     public CastExpr(
         SourceSection location,
         Expr expr,
@@ -59,9 +74,8 @@ public class CastExpr extends Expr {
         return executeNode(frame);
     }
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
+    // ----- Override methods -----
+
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -14,11 +14,7 @@ import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.math.BigInteger;
 
-/**
- * This class contains all helper values to manipulate LKQL types.
- *
- * @author Hugo GUERRIER
- */
+/** This class contains all helper values to manipulate LKQL types. */
 public final class LKQLTypesHelper {
 
     // ----- Static values -----
@@ -118,12 +114,7 @@ public final class LKQLTypesHelper {
 
     // ----- Class methods -----
 
-    /**
-     * Create a type union from the given atomic types.
-     *
-     * @param types The types to union.
-     * @return The string representing the union.
-     */
+    /** Create a type union from the given atomic types. */
     @CompilerDirectives.TruffleBoundary
     public static String typeUnion(String... types) {
         return String.join(" | ", types);
@@ -134,22 +125,16 @@ public final class LKQLTypesHelper {
         return LKQL_LIST + "[" + elementType + "]";
     }
 
-    /**
-     * Get the LKQL type in a string from the Java type.
-     *
-     * @param obj The java object to get the LKQL type from.
-     * @return The LKQL type in a string.
-     */
+    /** Get the LKQL type of the provided value as a string. */
     public static String fromJava(Object obj) {
         return fromJava(obj, "unbound_java_type");
     }
 
     /**
-     * Get the string representation of the Java type for the LKQL language.
+     * Get the LKQL type of the provided value as a string.
      *
-     * @param obj The object to get the type for.
+     * @param obj The object to get the type representation for.
      * @param defaultValue The default value to return.
-     * @return The string representing the type in the LKQL language.
      */
     @CompilerDirectives.TruffleBoundary
     public static String fromJava(Object obj, String defaultValue) {
@@ -198,12 +183,7 @@ public final class LKQLTypesHelper {
         }
     }
 
-    /**
-     * Get the debug name for the given Java type.
-     *
-     * @param type The type to get the debug name for.
-     * @return The type debug name.
-     */
+    /** Get the debug name of the given Java type. */
     public static String debugName(Class<?> type) {
         if (type == Boolean.class || type == boolean.class) {
             return "Bool";
@@ -212,12 +192,7 @@ public final class LKQLTypesHelper {
         }
     }
 
-    /**
-     * Convert a Java value into a LKQL value.
-     *
-     * @param javaValue The Java object.
-     * @return The LKQL value.
-     */
+    /** Convert a Java value to an LKQL value. */
     @CompilerDirectives.TruffleBoundary
     public static Object toLKQLValue(Object javaValue) {
         // If the source is a boolean
@@ -306,12 +281,7 @@ public final class LKQLTypesHelper {
         }
     }
 
-    /**
-     * Get a java value from an LKQL value.
-     *
-     * @param lkqlValue The lkql source value.
-     * @return The java value.
-     */
+    /** Get a Java value from an LKQL value. */
     public static Object fromLKQLValue(Object lkqlValue) {
         // If the source is nullish
         if (LKQLTypeSystemGen.isNullish(lkqlValue)) {

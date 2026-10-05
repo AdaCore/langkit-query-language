@@ -9,11 +9,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a boolean literal in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a boolean literal. */
 public final class BooleanLiteral extends Expr {
 
     // ----- Attributes -----
@@ -36,10 +32,6 @@ public final class BooleanLiteral extends Expr {
 
     // ----- Execute methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.value;
@@ -47,9 +39,6 @@ public final class BooleanLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

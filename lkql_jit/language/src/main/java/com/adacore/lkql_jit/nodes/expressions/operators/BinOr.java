@@ -14,6 +14,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.InlinedConditionProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a "or" boolean operation. */
 public abstract class BinOr extends Expr {
 
     // ----- Children -----
@@ -29,6 +30,11 @@ public abstract class BinOr extends Expr {
 
     // ----- Constructors -----
 
+    /**
+     * Create a "or" operation node.
+     *
+     * @param location The location of the node in the source.
+     */
     protected BinOr(SourceSection location, Expr left, Expr right) {
         super(location);
         this.left = left;

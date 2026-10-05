@@ -15,11 +15,12 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
- * This node is the base of all LKQL root nodes.
- *
- * @author Hugo GUERRIER
+ * This node is the base of all LKQL root nodes. A root node represents an execution unit, an
+ * entry point of the execution thread.
  */
 public abstract class BaseRootNode extends RootNode {
+
+    // ----- Attributes -----
 
     /** Source location where this root node has been defined. */
     public final SourceSection location;
@@ -48,11 +49,7 @@ public abstract class BaseRootNode extends RootNode {
 
     // ----- Instance methods -----
 
-    /**
-     * Initialize the frame slots at empty cells.
-     *
-     * @param frame The frame to initialize.
-     */
+    /** Initialize the frame by creating new cells in each slot. */
     @ExplodeLoop
     protected void initFrame(VirtualFrame frame) {
         for (int i = 0; i < frameSize; i++) {

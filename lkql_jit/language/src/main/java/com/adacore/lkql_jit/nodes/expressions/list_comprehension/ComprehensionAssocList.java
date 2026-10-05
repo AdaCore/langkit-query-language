@@ -13,11 +13,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a list of list comprehension association in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a list of list comprehension association. */
 public final class ComprehensionAssocList extends LKQLNode {
 
     // ----- Children -----
@@ -47,10 +43,6 @@ public final class ComprehensionAssocList extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLEngineException.shouldNotReachHere();
@@ -58,9 +50,6 @@ public final class ComprehensionAssocList extends LKQLNode {
 
     /**
      * Get the collections to iterate on in the list comprehension.
-     *
-     * @param frame The frame to execute the in.
-     * @return The collection array.
      */
     @ExplodeLoop
     public Iterable[] executeCollections(VirtualFrame frame) {
@@ -79,9 +68,6 @@ public final class ComprehensionAssocList extends LKQLNode {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

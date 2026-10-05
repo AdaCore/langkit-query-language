@@ -11,11 +11,7 @@ import com.adacore.lkql_jit.values.LKQLUnit;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This class represents a value declaration in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a value declaration. */
 public final class ValueDeclaration extends Declaration {
 
     // ----- Attributes -----
@@ -47,10 +43,6 @@ public final class ValueDeclaration extends Declaration {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         FrameUtils.writeLocal(frame, this.slot, this.value.executeGeneric(frame));
@@ -59,9 +51,6 @@ public final class ValueDeclaration extends Declaration {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

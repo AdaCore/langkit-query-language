@@ -19,11 +19,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a pattern detail on a property in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a pattern detail on a property. */
 public abstract class NodePatternProperty extends NodePatternDetail {
 
     // ----- Attributes -----
@@ -47,6 +43,8 @@ public abstract class NodePatternProperty extends NodePatternDetail {
 
     /**
      * Create a new pattern detail on a property.
+     *
+     * @param location The location of the node in the source.
      */
     public NodePatternProperty(
         SourceSection location,
@@ -62,14 +60,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
 
     // ----- Execution methods -----
 
-    /**
-     * Execute the property detail with the cached path.
-     *
-     * @param frame The frame to execute in.
-     * @param node The node get the property from.
-     * @param property The cached property reference.
-     * @return True if the detail is valid, false else.
-     */
+    /** Execute the property detail with the cached path. */
     @Specialization(
         guards = { "node == property.node", "property.description != null" },
         limit = Constants.SPECIALIZED_LIB_LIMIT
@@ -93,13 +84,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
         );
     }
 
-    /**
-     * Execute the property detail with the un-cached path.
-     *
-     * @param frame The frame to execute in.
-     * @param node The node get the property from.
-     * @return True if the detail is valid, false else.
-     */
+    /** Execute the property detail with the un-cached path. */
     @Specialization(replaces = "propertyCached")
     protected boolean propertyUncached(VirtualFrame frame, LangkitSupport.NodeInterface node) {
         // Get the property methods
@@ -114,6 +99,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
         return this.propertyCached(frame, node, property);
     }
 
+    /** Execute the property detail on a dynamic node. */
     @Specialization
     protected boolean propertyAdaNodeProxy(VirtualFrame frame, AdaNodeProxy node) {
         return this.propertyUncached(frame, node.base);
@@ -121,9 +107,6 @@ public abstract class NodePatternProperty extends NodePatternDetail {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

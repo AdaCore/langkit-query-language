@@ -21,6 +21,7 @@ import org.json.JSONObject;
  *                            importing a module.
  * @param missingFileIsError If a file is missing from the analysis, whether to consider this event
  *                           as an error.
+ * @param typecheckingMode Mode to apply when running the type checker.
  * @param additionalProjectPaths Directories to search GPR projects in.
  * @param autoconf Autoconf option to forward to GPR2.
  * @param configFile Config file to forward to GPR2.
@@ -39,6 +40,8 @@ import org.json.JSONObject;
  * @param subdirs Subdirs to forward to GPR2.
  * @param target Target to use when loading a GPR project.
  * @param scenarioVariables Scenario variables to forward to GPR2 when loading a project.
+ * @param hideProjectDiagnostics Whether to hide diagnostic raised during the loading of the
+ *                               specified project.
  */
 public record LKQLOptions(
     // LKQL specific options

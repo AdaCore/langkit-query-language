@@ -11,11 +11,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a tuple literal declaration in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a tuple literal. */
 public final class TupleLiteral extends Expr {
 
     // ----- Children -----
@@ -39,19 +35,11 @@ public final class TupleLiteral extends Expr {
 
     // ----- Execute methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeTuple(frame);
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeTuple(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     @ExplodeLoop
     public LKQLTuple executeTuple(VirtualFrame frame) {
@@ -67,9 +55,6 @@ public final class TupleLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

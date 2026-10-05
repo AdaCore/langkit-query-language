@@ -10,11 +10,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the concatenation operation in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a concatenation operation. */
 public abstract class BinConcat extends BinOp {
 
     // ----- Constructors -----
@@ -37,9 +33,6 @@ public abstract class BinConcat extends BinOp {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

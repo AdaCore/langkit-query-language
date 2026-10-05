@@ -25,7 +25,7 @@ public abstract class RewritingNodeConverter extends Node {
      *
      * @param value The value to convert.
      * @param ensureUntied Whether to make sure the returned node is untied. If not, a clone is
-     *     created.
+     *                     created.
      * @param usageLocation The location of the conversion in the LKQL sources.
      */
     public abstract LangkitSupport.RewritingNodeInterface execute(

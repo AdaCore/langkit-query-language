@@ -9,11 +9,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a literal integer that fit in a long java value.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a integer literal that fits in a long Java value. */
 public final class LongLiteral extends Expr {
 
     // ----- Attributes -----

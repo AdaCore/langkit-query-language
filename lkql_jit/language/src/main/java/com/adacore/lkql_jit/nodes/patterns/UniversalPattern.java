@@ -8,11 +8,7 @@ package com.adacore.lkql_jit.nodes.patterns;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the universal pattern in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents the universal pattern that matches all values. */
 public final class UniversalPattern extends Pattern {
 
     // ----- Constructors -----
@@ -28,9 +24,6 @@ public final class UniversalPattern extends Pattern {
 
     // ----- Execution methods -----
 
-    /**
-     * @see Pattern#executeValue(VirtualFrame, Object)
-     */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
         return true;
@@ -38,9 +31,6 @@ public final class UniversalPattern extends Pattern {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -20,7 +20,7 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.SourceSection;
 
-/** This class represents an object value in the LKQL language. */
+/** This class represents an object value. */
 @ExportLibrary(InteropLibrary.class)
 public final class LKQLObject extends LKQLDynamicObject {
 

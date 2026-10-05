@@ -21,6 +21,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a lazy query comprehension. */
 @NodeChild(value = "source", type = Expr.class)
 public abstract class QueryComprehension extends Expr {
 
@@ -36,6 +37,16 @@ public abstract class QueryComprehension extends Expr {
 
     // -----  Constructors -----
 
+    /**
+     * Create a new query comprehension node.
+     *
+     * @param location The location of the node in the source.
+     * @param frameDescriptor Description of the frame to execute the processing in.
+     * @param closureDescriptor Description of closed values read in this execution.
+     * @param pattern The pattern to filter value in the source.
+     * @param guard The guard to filter values.
+     * @param result Mapping expression.
+     */
     @SuppressWarnings("this-escape")
     protected QueryComprehension(
         final SourceSection location,
@@ -57,6 +68,10 @@ public abstract class QueryComprehension extends Expr {
         this.createClosureNode = new CreateClosureNode(closureDescriptor);
     }
 
+    // ----- Getters -----
+
+    abstract Expr getSource();
+
     // ----- Execution methods -----
 
     @Specialization
@@ -73,15 +88,8 @@ public abstract class QueryComprehension extends Expr {
         );
     }
 
-    // ----- Class methods -----
-
-    abstract Expr getSource();
-
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

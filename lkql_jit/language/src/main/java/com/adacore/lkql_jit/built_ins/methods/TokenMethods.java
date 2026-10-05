@@ -13,11 +13,7 @@ import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.dsl.Specialization;
 
-/**
- * This class contains all built-in methods for the token type in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This class contains all built-in methods for the "Token" type in the LKQL language. */
 @BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.TOKEN })
 public final class TokenMethods {
 

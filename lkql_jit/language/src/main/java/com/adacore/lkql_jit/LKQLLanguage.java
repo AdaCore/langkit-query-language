@@ -36,12 +36,7 @@ import org.graalvm.options.OptionDescriptors;
 import org.graalvm.options.OptionKey;
 import org.graalvm.options.OptionStability;
 
-/**
- * This class represents the registration and the entry point of the LKQL language Truffle
- * implementation.
- *
- * @author Hugo GUERRIER
- */
+/** Entry point and registration of the LKQL language in the Truffle framework. */
 @TruffleLanguage.Registration(
     id = Constants.LKQL_ID,
     name = "Langkit Query Language",
@@ -54,9 +49,14 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     // ----- Static variables -----
 
-    /** The reference to the LKQL language. */
     private static final LanguageReference<LKQLLanguage> LANGUAGE_REFERENCE =
         LanguageReference.create(LKQLLanguage.class);
+
+    // ----- Attributes -----
+
+    private final Liblkqllang.AnalysisContext lkqlAnalysisContext;
+
+    private Liblktlang.AnalysisContext lktAnalysisContext;
 
     // ----- Options -----
 
@@ -68,9 +68,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     )
     static final OptionKey<String> options = new OptionKey<>("");
 
-    Liblkqllang.AnalysisContext lkqlAnalysisContext;
-    private Liblktlang.AnalysisContext lktAnalysisContext;
-
     // ----- Constructors -----
 
     /** A simple constructor for the library loading. */
@@ -80,8 +77,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // columns counting is based on characters:
         // https://www.graalvm.org/truffle/javadoc/com/oracle/truffle/api/source/Source.html#createSection(int,int,int,int)
         this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create(
-            (String) null,
-            (Liblkqllang.FileReader) null,
+            null,
+            null,
             null,
             null,
             true,
@@ -112,31 +109,19 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     // ----- Class methods -----
 
-    /**
-     * Get the language instance for the given node.
-     *
-     * @param node The node to get the language instance from.
-     * @return The LKQLLanguage instance for the node.
-     */
+    /** Get the language instance associated to the given node. */
     public static LKQLLanguage get(LKQLNode node) {
         return LANGUAGE_REFERENCE.get(node);
     }
 
     // ----- Language methods -----
 
-    /**
-     * @see
-     *     com.oracle.truffle.api.TruffleLanguage#createContext(com.oracle.truffle.api.TruffleLanguage.Env)
-     */
     @Override
     protected LKQLContext createContext(Env env) {
         // Return the new context
         return new LKQLContext(env, new GlobalScope());
     }
 
-    /**
-     * @see com.oracle.truffle.api.TruffleLanguage#initializeContext(Object)
-     */
     @Override
     protected void initializeContext(LKQLContext context) {
         // Set output and error encoding to UTF_8, in the future, user should be able to choose
@@ -147,26 +132,17 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         context.initSources();
     }
 
-    /**
-     * @see com.oracle.truffle.api.TruffleLanguage#patchContext(Object, Env)
-     */
     @Override
     protected boolean patchContext(LKQLContext context, Env newEnv) {
         context.patchContext(newEnv);
         return true;
     }
 
-    /**
-     * @see com.oracle.truffle.api.TruffleLanguage#finalizeContext(Object)
-     */
     @Override
     protected void finalizeContext(LKQLContext context) {
         context.finalizeContext();
     }
 
-    /**
-     * @see com.oracle.truffle.api.TruffleLanguage#getOptionDescriptors()
-     */
     @Override
     protected OptionDescriptors getOptionDescriptors() {
         return new LKQLLanguageOptionDescriptors();
@@ -217,9 +193,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      *
      * <p>The trigger is a simple string match, so the comment needs to match exactly that. We might
      * relax those constraints at a later stage.
-     *
-     * @param source The Truffle source of the AST.
-     * @return The translated LKQL Truffle AST.
      */
     public TopLevelList translateSource(final Source source) {
         final var sourceType = SourceType.of(source);

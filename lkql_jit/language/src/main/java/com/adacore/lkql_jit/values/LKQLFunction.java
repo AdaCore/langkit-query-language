@@ -23,7 +23,7 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Optional;
 
-/** This class represents the function values in LKQL. */
+/** This class represents a functional value. */
 @ExportLibrary(InteropLibrary.class)
 public class LKQLFunction extends LKQLCallable {
 

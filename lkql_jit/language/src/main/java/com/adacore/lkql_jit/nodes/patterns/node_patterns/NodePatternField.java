@@ -16,11 +16,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a pattern detail on a field in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a pattern detail on a field. */
 public abstract class NodePatternField extends NodePatternDetail {
 
     // ----- Attributes -----
@@ -41,8 +37,6 @@ public abstract class NodePatternField extends NodePatternDetail {
      * Create a new node pattern field detail node.
      *
      * @param location The location of the node in the source.
-     * @param fieldName The name of the field to get.
-     * @param expected The expected value for the field.
      */
     protected NodePatternField(SourceSection location, String fieldName, Pattern expected) {
         super(location);
@@ -52,14 +46,7 @@ public abstract class NodePatternField extends NodePatternDetail {
 
     // ----- Execution methods -----
 
-    /**
-     * Execute the field detail with the cached path.
-     *
-     * @param frame The frame to execute in.
-     * @param node The node get the field from.
-     * @param property The cached property reference.
-     * @return True if the detail is valid, false else.
-     */
+    /** Execute the field detail with the cached path. */
     @Specialization(
         guards = { "node == property.node", "property.description != null" },
         limit = Constants.SPECIALIZED_LIB_LIMIT
@@ -76,13 +63,7 @@ public abstract class NodePatternField extends NodePatternDetail {
         return this.expected.executeValue(frame, value);
     }
 
-    /**
-     * Execute the field detail with the un-cached path.
-     *
-     * @param frame The frame to execute in.
-     * @param node The node get the field from.
-     * @return True if the detail is valid, false else.
-     */
+    /** Execute the field detail with the un-cached path. */
     @Specialization(replaces = "fieldCached")
     protected boolean fieldUncached(VirtualFrame frame, LangkitSupport.NodeInterface node) {
         // Get the field property reference
@@ -97,6 +78,7 @@ public abstract class NodePatternField extends NodePatternDetail {
         return this.fieldCached(frame, node, property);
     }
 
+    /** Execute the field detail on a dynamic node. */
     @Specialization
     protected boolean fieldDynamic(VirtualFrame frame, DynamicAdaNode node) {
         return this.expected.executeValue(frame, node.getField(fieldName));
@@ -104,9 +86,6 @@ public abstract class NodePatternField extends NodePatternDetail {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

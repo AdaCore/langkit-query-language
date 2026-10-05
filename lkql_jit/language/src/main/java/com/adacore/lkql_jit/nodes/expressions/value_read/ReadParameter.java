@@ -8,10 +8,16 @@ package com.adacore.lkql_jit.nodes.expressions.value_read;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a parameter read. */
 public final class ReadParameter extends BaseRead {
 
     // ----- Constructors -----
 
+    /**
+     * Create a new parameter read node.
+     *
+     * @param location The location of the node in the source.
+     */
     public ReadParameter(final SourceSection location, final int slot) {
         super(location, slot);
     }

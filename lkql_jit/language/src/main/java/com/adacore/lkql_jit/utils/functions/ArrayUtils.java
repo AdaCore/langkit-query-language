@@ -8,11 +8,7 @@ package com.adacore.lkql_jit.utils.functions;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.*;
 
-/**
- * Util functions to manipulate the arrays in the JIT implementation.
- *
- * @author Hugo GUERRIER
- */
+/** Util functions to manipulate the arrays with Truffle boundaries. */
 public final class ArrayUtils {
 
     /**

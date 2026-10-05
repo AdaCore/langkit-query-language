@@ -13,8 +13,7 @@ import com.oracle.truffle.api.source.SourceSection;
 import java.util.List;
 
 /**
- * This class is a POJO, it needs to be an LKQLNode
- * to simplify lowering and the resolution pass
+ * This class is a POJO, it needs to be an LKQLNode to simplify lowering and the resolution pass
  * (see {@link ResolutionPass})
  */
 public class RewriteBlock extends LKQLNode {

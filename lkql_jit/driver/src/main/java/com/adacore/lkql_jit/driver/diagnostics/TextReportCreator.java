@@ -31,7 +31,7 @@ public final class TextReportCreator implements Consumer<BaseDiagnostic> {
         this.withStyle = withStyle;
     }
 
-    // ----- Instance methods ------
+    // ----- Instance methods -----
 
     @Override
     public void accept(BaseDiagnostic diagnostic) {

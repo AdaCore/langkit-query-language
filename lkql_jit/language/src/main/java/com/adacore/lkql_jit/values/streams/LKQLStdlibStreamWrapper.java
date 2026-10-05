@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 
 /**
- * This class is a wrapper from a Java Stream to an LKQLStream.
- * It is currently only used to wrap the units() builtin.
+ * This class is a wrapper from a Java Stream to an LKQLStream. It is currently only used to wrap
+ * the units() builtin.
  */
 public class LKQLStdlibStreamWrapper extends BaseCachedStream {
 

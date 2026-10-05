@@ -11,11 +11,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a pattern matching expression in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a pattern matching expression. */
 public final class Match extends Expr {
 
     // ----- Children -----
@@ -46,10 +42,6 @@ public final class Match extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     @ExplodeLoop
     public Object executeGeneric(VirtualFrame frame) {
@@ -71,9 +63,6 @@ public final class Match extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

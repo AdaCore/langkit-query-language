@@ -18,14 +18,12 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
-/**
- * This root node represents a function in the LKQL function.
- */
+/** This root node represents an LKQL function execution unit. */
 public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Arguments, Object> {
 
     // ----- Attributes -----
 
-    /** Whether the function is memoized. */
+    /** Whether this function is memoized. */
     @CompilerDirectives.CompilationFinal
     private boolean isMemoized;
 
@@ -93,6 +91,11 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
         return this.defaultParameters;
     }
 
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
     public Expr getBody() {
         return this.body;
     }
@@ -109,9 +112,6 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
 
     // ----- Execution methods -----
 
-    /**
-     * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object execute(VirtualFrame frame) {
         // Initialize the frame
@@ -164,13 +164,21 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
         }
     }
 
+    // ----- Override methods -----
+
+    @Override
+    public String toString() {
+        // If the function's body is a built-in, then there is no LKQL source location to refer to
+        var pfx = this.body instanceof BuiltInBody
+            ? "<builtin>"
+            : body.getSourceName() + ":" + body.getSourceSection().getStartLine();
+
+        return pfx + "::" + this.name;
+    }
+
     // ----- Inner classes -----
 
-    /**
-     * Wraps the arguments of a function in a class for the memoization.
-     *
-     * @param args The arguments.
-     */
+    /** Wraps the arguments of a function in a class for the memoization. */
     protected record Arguments(Object[] args) {
         @Override
         public boolean equals(Object o) {
@@ -183,20 +191,5 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
         public int hashCode() {
             return Arrays.hashCode(this.args);
         }
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String toString() {
-        // If the function's body is a built-in, then there is no LKQL source location to refer to
-        var pfx = this.body instanceof BuiltInBody
-            ? "<builtin>"
-            : body.getSourceName() + ":" + body.getSourceSection().getStartLine();
-
-        return pfx + "::" + this.name;
     }
 }

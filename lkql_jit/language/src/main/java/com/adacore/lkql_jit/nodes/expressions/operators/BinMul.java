@@ -14,11 +14,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
-/**
- * This node represents the multiplication operation in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a multiplication operation. */
 public abstract class BinMul extends BinOp {
 
     // ----- Constructors -----
@@ -34,36 +30,19 @@ public abstract class BinMul extends BinOp {
 
     // ----- Execution methods -----
 
-    /**
-     * Multiply two longs.
-     *
-     * @param left The left long value.
-     * @param right The right long value.
-     * @return The multiplication of two longs.
-     */
+    /** Multiply two longs. */
     @Specialization(rewriteOn = ArithmeticException.class)
     protected long mulLongs(long left, long right) {
         return Math.multiplyExact(left, right);
     }
 
-    /**
-     * Multiply two big integers.
-     *
-     * @param left The left big integer value.
-     * @param right The right big integer value.
-     * @return The multiplication of two big integers.
-     */
+    /** Multiply two big integers. */
     @Specialization(replaces = "mulLongs")
     protected BigInteger mulBigIntegers(BigInteger left, BigInteger right) {
         return BigIntegerUtils.multiply(left, right);
     }
 
-    /**
-     * Raise a type exception if there is a non-integer operand.
-     *
-     * @param left The left value.
-     * @param right The right value.
-     */
+    /** Raise a type exception if there is a non-integer operand. */
     @Fallback
     protected void notNumbers(Object left, Object right) {
         if (!LKQLTypeSystemGen.isLong(left) && !LKQLTypeSystemGen.isBigInteger(left)) {
@@ -83,9 +62,6 @@ public abstract class BinMul extends BinOp {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

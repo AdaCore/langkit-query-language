@@ -24,9 +24,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
- * Special annotation to specify the entry point for the nanopass framework.
- * The pass designated by the associate identifier and all its transitive
- * dependencies are going to be executed.
+ * Special annotation to specify the entry point for the nanopass framework. The pass designated by
+ * the associate identifier and all its transitive dependencies are going to be executed.
  */
 public class RunPass extends LKQLNode {
 

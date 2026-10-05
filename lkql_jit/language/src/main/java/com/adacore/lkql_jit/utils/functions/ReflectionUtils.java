@@ -20,18 +20,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Util functions to perform reflection operations and facilitate the libadalang usage.
- *
- * @author Hugo GUERRIER
- */
+/** Util functions to perform reflection operations and facilitate Langkit library usage. */
 public final class ReflectionUtils {
 
     /**
-     * Refine the LKQL argument in a langkit argument.
+     * Refine the LKQL argument in a Langkit argument.
      *
      * @param source The source argument to refine.
-     * @param type The type that the langkit library awaits.
+     * @param type The type that the Langkit library awaits.
      * @param argument The argument node (for debug purpose).
      * @return The refined argument.
      */
@@ -88,9 +84,7 @@ public final class ReflectionUtils {
         return res;
     }
 
-    /**
-     * Call a property on a node and get the result.
-     */
+    /** Call a property on a node and get the result. */
     @CompilerDirectives.TruffleBoundary
     public static Object callProperty(
         LangkitSupport.NodeInterface node,
@@ -170,8 +164,7 @@ public final class ReflectionUtils {
     }
 
     /**
-     * Get the field description corresponding to the provided name in the given node
-     * description.
+     * Get the field description corresponding to the provided name in the given node description.
      */
     @CompilerDirectives.TruffleBoundary
     public static LangkitSupport.Reflection.Field getField(
@@ -181,12 +174,7 @@ public final class ReflectionUtils {
         return description.fieldDescriptions().get(fieldName);
     }
 
-    /**
-     * Get the class simple name of an object.
-     *
-     * @param obj The object to get the simple name from.
-     * @return The simple name of the object class.
-     */
+    /** Get the class simple name of an object. */
     @CompilerDirectives.TruffleBoundary
     public static String getClassSimpleName(Object obj) {
         return obj.getClass().getSimpleName();
@@ -195,9 +183,8 @@ public final class ReflectionUtils {
     /**
      * Get all declared fields for a given class including the inherited ones.
      *
-     * @param startClass The class to get the field from.
-     * @param exclusiveParent The class to gu up maximum.
-     * @return An iterable on the class fields.
+     * @param startClass The class to get the field from, recursively going up in its hierarchy.
+     * @param exclusiveParent The limit class to stop the recursion to.
      */
     @CompilerDirectives.TruffleBoundary
     public static List<Field> getFieldsUpTo(Class<?> startClass, Class<?> exclusiveParent) {
