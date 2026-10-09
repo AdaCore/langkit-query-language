@@ -1,0 +1,29 @@
+# lkql version: 2
+
+val x = ["a", "b", "c", "d", "e"].to_set
+val y = ["d", "e", "f", "g", "h"].to_set
+
+val _ = print(x)
+val _ = print(y.to_list)
+
+val _ = print(x.contains("a"))
+val _ = print(y.contains("a"))
+
+val _ = print(x.add("a"))
+val _ = print(y.add("a"))
+
+val _ = print(x.union(y))
+val _ = print(y.union(x))
+
+val _ = print(x.inter(y))
+val _ = print(y.inter(x))
+
+val e = nil().to_set
+val _ = print(e)
+val _ = print(e == [].to_set)
+
+val x2 = ("a" :: "b" :: "c" :: "d" :: "e" :: nil()).to_set
+val _ = print(x2 == x)
+
+val x3 = e.add("a").add("b").add("c").add("d").add("e")
+val _ = print(x3 == x)

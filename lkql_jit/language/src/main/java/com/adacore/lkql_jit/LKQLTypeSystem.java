@@ -14,6 +14,7 @@ import com.adacore.lkql_jit.values.interfaces.Nullish;
 import com.adacore.lkql_jit.values.interop.LKQLList;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.values.sets.LKQLOrderedHashSet;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
@@ -38,6 +39,7 @@ import java.math.BigInteger;
         LKQLProperty.class,
         LKQLTuple.class,
         LKQLArrayList.class,
+        LKQLOrderedHashSet.class,
         LKQLStream.class,
         LKQLList.class,
         Indexable.class,

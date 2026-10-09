@@ -12,6 +12,7 @@ import com.adacore.lkql_jit.values.*;
 import com.adacore.lkql_jit.values.interop.LKQLDynamicObject;
 import com.adacore.lkql_jit.values.interop.LKQLStream;
 import com.adacore.lkql_jit.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.values.sets.LKQLOrderedHashSet;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -155,6 +156,13 @@ public abstract class BinEq extends BinOp {
     @Specialization
     protected boolean eqStreams(final LKQLStream left, final LKQLStream right) {
         return left == right;
+    }
+
+    /** Do the equality verification on sets. */
+    @Specialization
+    @CompilerDirectives.TruffleBoundary
+    protected boolean eqSets(final LKQLOrderedHashSet left, final LKQLOrderedHashSet right) {
+        return left.internalSet.equals(right.internalSet);
     }
 
     /**

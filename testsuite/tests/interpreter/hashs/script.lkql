@@ -1,0 +1,7 @@
+# lkql version: 2
+
+val _ = print([123, 123].to_set)
+val _ = print(["a", "a"].to_set)
+val _ = print([[1], [1]].to_set)
+val _ = print([[1].to_set, [1].to_set].to_set)
+val _ = print([Pair(1,2), Pair(1,2)].to_set)

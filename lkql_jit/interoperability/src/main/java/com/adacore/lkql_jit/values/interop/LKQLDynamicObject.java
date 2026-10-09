@@ -178,6 +178,6 @@ public abstract class LKQLDynamicObject extends DynamicObject {
 
     @Override
     public int hashCode() {
-        return System.identityHashCode(this);
+        return this.asMap().hashCode();
     }
 }

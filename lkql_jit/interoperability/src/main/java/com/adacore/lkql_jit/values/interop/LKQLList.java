@@ -14,6 +14,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.util.Arrays;
 
 /** This class represents the base of collection like values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -134,8 +135,9 @@ public abstract class LKQLList extends LKQLValue implements Iterable, Indexable 
         return true;
     }
 
+    @CompilerDirectives.TruffleBoundary
     @Override
     public int hashCode() {
-        return Utils.hashCode(this.getContent());
+        return Arrays.hashCode(this.getContent());
     }
 }
