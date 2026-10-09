@@ -48,7 +48,7 @@ public abstract class BaseStreamOp extends Expr {
         this.tail = tail;
         this.tailFrameDescriptor = tailFrameDescriptor;
         this.tailLazyValue = new LazyCell(
-            LKQLLanguage.getLanguage(this),
+            LKQLLanguage.get(this),
             this.tailFrameDescriptor,
             this.tail
         );

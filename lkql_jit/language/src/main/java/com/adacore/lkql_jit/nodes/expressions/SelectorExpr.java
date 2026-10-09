@@ -40,7 +40,7 @@ public final class SelectorExpr extends Expr {
         super(location);
         this.rootNode = new FunctionRootNode(
             location,
-            LKQLLanguage.getLanguage(this),
+            LKQLLanguage.get(this),
             frameDescriptor,
             isMemoized,
             true,

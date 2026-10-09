@@ -48,7 +48,7 @@ public abstract class QueryComprehension extends Expr {
         super(location);
         this.rootNode = new QueryComprehensionRootNode(
             location,
-            LKQLLanguage.getLanguage(this),
+            LKQLLanguage.get(this),
             frameDescriptor,
             pattern,
             guard,

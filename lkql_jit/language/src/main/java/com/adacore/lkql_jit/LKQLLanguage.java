@@ -118,7 +118,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * @param node The node to get the language instance from.
      * @return The LKQLLanguage instance for the node.
      */
-    public static LKQLLanguage getLanguage(LKQLNode node) {
+    public static LKQLLanguage get(LKQLNode node) {
         return LANGUAGE_REFERENCE.get(node);
     }
 
