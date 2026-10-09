@@ -131,7 +131,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     @Override
     protected LKQLContext createContext(Env env) {
         // Return the new context
-        return new LKQLContext(env, new GlobalScope(), this);
+        return new LKQLContext(env, new GlobalScope());
     }
 
     /**

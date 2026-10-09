@@ -35,7 +35,6 @@ public final class LKQLContext {
 
     private static final TruffleLanguage.ContextReference<LKQLContext> CONTEXT_REFERENCE =
         TruffleLanguage.ContextReference.create(LKQLLanguage.class);
-    private final LKQLLanguage language;
 
     // ----- Attributes -----
 
@@ -136,18 +135,12 @@ public final class LKQLContext {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new LKQL context.
-     *
-     * @param env The environment.
-     * @param global The initialized global values.
-     */
-    public LKQLContext(TruffleLanguage.Env env, GlobalScope global, LKQLLanguage language) {
+    /** Create a new LKQL context. */
+    public LKQLContext(TruffleLanguage.Env env, GlobalScope global) {
         this.env = env;
         this.global = global;
         this.specifiedSourceFiles = new ArrayList<>();
         this.allSourceFiles = new ArrayList<>();
-        this.language = language;
     }
 
     // ----- Destructors -----
