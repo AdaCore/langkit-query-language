@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -31,7 +31,7 @@ public class ReadDynamic extends Expr {
 
     @CompilerDirectives.TruffleBoundary
     public Object getObject() {
-        return LKQLLanguage.getContext(this).getGlobal().getGlobalObjects().get(this.name);
+        return LKQLContext.get(this).getGlobal().getGlobalObjects().get(this.name);
     }
 
     @Override

@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.nodes.Identifier;
@@ -148,7 +148,7 @@ public final class ConstructorCall extends Expr {
     @ExplodeLoop
     public LangkitSupport.RewritingNodeInterface executeRewritingNode(VirtualFrame frame) {
         // Get the rewriting context from the language global context
-        final var rewritingContext = LKQLLanguage.getContext(this).getRewritingContext();
+        final var rewritingContext = LKQLContext.get(this).getRewritingContext();
 
         // If the created node is a token one, evaluate the sole argument as a string then call the
         // creation method.

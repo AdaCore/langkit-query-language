@@ -5,6 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
@@ -48,7 +49,7 @@ public final class TopLevelRootNode extends BaseRootNode {
         this.initFrame(frame);
 
         // Push the source corresponding to this top level list on the execution stack
-        var context = LKQLLanguage.getContext(this.program);
+        var context = LKQLContext.get(this.program);
         context.pushSourceToStack(FileUtils.sourcePathOrName(getSourceSection().getSource()));
 
         // Execute the program and in all cases, pop the source from the stack

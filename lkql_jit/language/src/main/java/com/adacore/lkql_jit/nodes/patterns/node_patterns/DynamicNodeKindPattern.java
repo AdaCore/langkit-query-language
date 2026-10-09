@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.values.AdaNodeProxy;
@@ -46,14 +46,12 @@ public final class DynamicNodeKindPattern extends Pattern {
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
         if (LKQLTypeSystemGen.isDynamicAdaNode(value)) {
-            return LKQLLanguage.getContext(this)
+            return LKQLContext.get(this)
                 .getTypingContext()
                 .isInstance(LKQLTypeSystemGen.asDynamicAdaNode(value).kind, kindName);
         } else if (LKQLTypeSystemGen.isNodeInterface(value)) {
             final var dynNode = AdaNodeProxy.convertAST(LKQLTypeSystemGen.asNodeInterface(value));
-            return LKQLLanguage.getContext(this)
-                .getTypingContext()
-                .isInstance(dynNode.kind, kindName);
+            return LKQLContext.get(this).getTypingContext().isInstance(dynNode.kind, kindName);
         }
         return false;
     }

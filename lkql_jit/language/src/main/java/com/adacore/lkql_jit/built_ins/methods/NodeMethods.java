@@ -9,7 +9,7 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.langkit_support.LangkitSupport.AnalysisUnit;
 import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.annotations.DefaultVal;
@@ -91,7 +91,7 @@ public final class NodeMethods {
 
         @Specialization
         public LKQLUnit onNode(NodeInterface self) {
-            LKQLLanguage.getContext(this).print(self.dumpTree());
+            LKQLContext.get(this).print(self.dumpTree());
             return LKQLUnit.INSTANCE;
         }
     }

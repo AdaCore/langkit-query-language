@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
@@ -136,7 +136,7 @@ public final class Query extends Expr {
 
     private LangkitSupport.NodeInterface[] executeFromNodes(VirtualFrame frame) {
         // If there is no "from" expression, we get the default roots
-        if (fromExpr == null) return LKQLLanguage.getContext(pattern).allUnitsRoots();
+        if (fromExpr == null) return LKQLContext.get(pattern).allUnitsRoots();
 
         // If there is a "from" expression
         Object fromObject = fromExpr.executeGeneric(frame);

@@ -10,6 +10,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LogLocation;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
+import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -30,6 +31,10 @@ import org.json.JSONTokener;
  */
 public final class LKQLContext {
 
+    // ----- Static variables -----
+
+    private static final TruffleLanguage.ContextReference<LKQLContext> CONTEXT_REFERENCE =
+        TruffleLanguage.ContextReference.create(LKQLLanguage.class);
     private final LKQLLanguage language;
 
     // ----- Attributes -----
@@ -152,6 +157,16 @@ public final class LKQLContext {
         eventHandler.close();
         if (analysisContext != null) analysisContext.close();
         if (projectManager != null) projectManager.close();
+    }
+
+    // ----- Class methods -----
+
+    /**
+     * Get the LKQL execution context associated to the provided node, or the default one if the
+     * latter is null.
+     */
+    public static LKQLContext get(LKQLNode node) {
+        return CONTEXT_REFERENCE.get(node);
     }
 
     // ----- Getters -----

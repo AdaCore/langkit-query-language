@@ -58,11 +58,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     private static final LanguageReference<LKQLLanguage> LANGUAGE_REFERENCE =
         LanguageReference.create(LKQLLanguage.class);
 
-    /** The reference to the LKQL context. */
-    private static final ContextReference<LKQLContext> CONTEXT_REFERENCE = ContextReference.create(
-        LKQLLanguage.class
-    );
-
     // ----- Options -----
 
     /** The JSON encoded LKQL engine options. */
@@ -116,16 +111,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     }
 
     // ----- Class methods -----
-
-    /**
-     * Get the context for a given node.
-     *
-     * @param node The node to get the context from.
-     * @return The LKQLContext for the node.
-     */
-    public static LKQLContext getContext(LKQLNode node) {
-        return CONTEXT_REFERENCE.get(node);
-    }
 
     /**
      * Get the language instance for the given node.
@@ -206,13 +191,13 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         final var namespace = (LKQLNamespace) new TopLevelRootNode(truffleTree, this)
             .getCallTarget()
             .call();
-        getContext(truffleTree).getGlobal().loadPreludeNamespace(namespace);
+        LKQLContext.get(truffleTree).getGlobal().loadPreludeNamespace(namespace);
     }
 
     @Override
     protected CallTarget parse(ParsingRequest request) {
         // Ensure the prelude is loaded first
-        if (getContext(null).getGlobal().prelude == null) {
+        if (LKQLContext.get(null).getGlobal().prelude == null) {
             loadPrelude();
         }
 
@@ -308,7 +293,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         lkqlRoot.accept(framingPass);
         final ScriptFrames scriptFrames = framingPass
             .getScriptFramesBuilder()
-            .build(CONTEXT_REFERENCE.get(null).getGlobal());
+            .build(LKQLContext.get(null).getGlobal());
 
         // Do the translation pass and return the result
         final TranslationPass translationPass = new TranslationPass(source, scriptFrames, errors);
@@ -320,7 +305,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         Liblktlang.LangkitRoot lktRoot,
         LKQLStaticErrors errors
     ) {
-        var options = getContext(null).getOptions();
+        var options = LKQLContext.get(null).getOptions();
         var typecheckingMode = options.typecheckingMode();
 
         if (typecheckingMode != LKQLOptions.TypecheckingMode.DISABLE) {
@@ -330,7 +315,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         // Create frames for the Lkt script
         final ScriptFrames frames = LktPasses.Frames.buildFrames(lktRoot).build(
-            CONTEXT_REFERENCE.get(null).getGlobal()
+            LKQLContext.get(null).getGlobal()
         );
 
         // Then translate the Lkt parsing tree to a Truffle tree

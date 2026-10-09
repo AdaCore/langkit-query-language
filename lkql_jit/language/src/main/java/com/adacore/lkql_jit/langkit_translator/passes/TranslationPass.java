@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.exceptions.LogLocation;
@@ -557,7 +557,7 @@ public final class TranslationPass
 
     @Override
     public LKQLNode visit(Liblkqllang.PatternDetailDelimiterIs patternDetailDelimiterIs) {
-        LKQLLanguage.getContext(null)
+        LKQLContext.get(null)
             .getLogger()
             .log(
                 Level.WARNING,

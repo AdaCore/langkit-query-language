@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.nodes;
 
 import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.values.LKQLNamespace;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -87,7 +86,7 @@ public final class TopLevelList extends LKQLNode {
         }
 
         // Get the language context and initialize it
-        final LKQLContext context = LKQLLanguage.getContext(this);
+        final LKQLContext context = LKQLContext.get(this);
 
         if (this.isInteractive) {
             // In interactive mode, return the last evaluated value, and add the namespace values
@@ -104,7 +103,7 @@ public final class TopLevelList extends LKQLNode {
 
     @CompilerDirectives.TruffleBoundary
     private void updateGlobals(LKQLNamespace namespace) {
-        var context = LKQLLanguage.getContext(this);
+        var context = LKQLContext.get(this);
         var globalObjects = context.getGlobal().getGlobalObjects();
         globalObjects.putAll(namespace.asMap());
     }

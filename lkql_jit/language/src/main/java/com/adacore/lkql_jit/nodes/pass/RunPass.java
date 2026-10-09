@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.pass;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -39,7 +39,7 @@ public class RunPass extends LKQLNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        final var ctx = LKQLLanguage.getContext(this);
+        final var ctx = LKQLContext.get(this);
 
         // Build pass call-chain
         final Deque<LKQLFunction> callChain = new ArrayDeque<>();

@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
@@ -87,7 +87,7 @@ public final class Import extends Expr {
      */
     @CompilerDirectives.TruffleBoundary
     private LKQLNamespace importModule(File moduleFile) throws IOException {
-        final var context = LKQLLanguage.getContext(this);
+        final var context = LKQLContext.get(this);
 
         // Prepare the source object from the LKQL file absolute path
         Source source = Source.newBuilder(

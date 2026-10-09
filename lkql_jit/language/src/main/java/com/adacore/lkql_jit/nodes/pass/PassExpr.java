@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.pass;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
@@ -64,7 +64,7 @@ public abstract class PassExpr extends Expr {
 
     @Specialization
     public Object onDynamicAdaNode(VirtualFrame frame, DynamicAdaNode input) {
-        final var typingContext = LKQLLanguage.getContext(this).getTypingContext();
+        final var typingContext = LKQLContext.get(this).getTypingContext();
         for (var c : add.classes) {
             typingContext.add(c.name);
         }

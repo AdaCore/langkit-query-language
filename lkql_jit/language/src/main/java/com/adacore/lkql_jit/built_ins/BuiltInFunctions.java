@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.built_ins;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.annotations.*;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
@@ -79,11 +79,7 @@ public class BuiltInFunctions {
         protected LKQLPattern onValidArgs(String regex, @DefaultVal("true") boolean caseSensitive) {
             // Call the TRegex language to create the pattern value
             try {
-                return LKQLPattern.create(
-                    regex,
-                    caseSensitive,
-                    LKQLLanguage.getContext(this).getEnv()
-                );
+                return LKQLPattern.create(regex, caseSensitive, LKQLContext.get(this).getEnv());
             } catch (AbstractTruffleException e) {
                 throw LKQLRuntimeError.regexSyntaxError(regex, this);
             }
@@ -102,13 +98,9 @@ public class BuiltInFunctions {
             @CachedLibrary("toPrint") InteropLibrary printingLibrary
         ) {
             if (newLine) {
-                LKQLLanguage.getContext(null).println(
-                    (String) printingLibrary.toDisplayString(toPrint)
-                );
+                LKQLContext.get(null).println((String) printingLibrary.toDisplayString(toPrint));
             } else {
-                LKQLLanguage.getContext(null).print(
-                    (String) printingLibrary.toDisplayString(toPrint)
-                );
+                LKQLContext.get(null).print((String) printingLibrary.toDisplayString(toPrint));
             }
             return LKQLUnit.INSTANCE;
         }
@@ -457,7 +449,7 @@ public class BuiltInFunctions {
 
         @Specialization
         protected Object onCallable(LKQLCallable callable) {
-            LKQLLanguage.getContext(this).println(
+            LKQLContext.get(this).println(
                 StringUtils.concat(callable.profile(), "\n", callable.documentation)
             );
             return LKQLUnit.INSTANCE;
@@ -465,7 +457,7 @@ public class BuiltInFunctions {
 
         @Fallback
         protected Object onAny(Object obj) {
-            LKQLLanguage.getContext(this).println("No help available");
+            LKQLContext.get(this).println("No help available");
             return LKQLUnit.INSTANCE;
         }
     }
@@ -476,7 +468,7 @@ public class BuiltInFunctions {
         @Specialization
         @CompilerDirectives.TruffleBoundary
         protected LKQLStream alwaysTrue() {
-            return new LKQLStdlibStreamWrapper(LKQLLanguage.getContext(this).getAllUnits());
+            return new LKQLStdlibStreamWrapper(LKQLContext.get(this).getAllUnits());
         }
     }
 
@@ -490,7 +482,7 @@ public class BuiltInFunctions {
         @Specialization
         protected Object onStrings(String name, String kind) {
             try {
-                var res = LKQLLanguage.getContext(this)
+                var res = LKQLContext.get(this)
                     .getAnalysisContext()
                     .getUnitFromProvider(name, kind);
                 return res == null ? LKQLNull.INSTANCE : res;
@@ -508,7 +500,7 @@ public class BuiltInFunctions {
         @Specialization
         @CompilerDirectives.TruffleBoundary
         protected LKQLArrayList alwaysTrue() {
-            var units = LKQLLanguage.getContext(this)
+            var units = LKQLContext.get(this)
                 .getSpecifiedUnits()
                 .toArray(LangkitSupport.AnalysisUnit[]::new);
             return new LKQLArrayList(units);
@@ -521,7 +513,7 @@ public class BuiltInFunctions {
         @Specialization
         @CompilerDirectives.TruffleBoundary
         protected LangkitSupport.AnalysisContextInterface alwaysTrue() {
-            return LKQLLanguage.getContext(this).getAnalysisContext();
+            return LKQLContext.get(this).getAnalysisContext();
         }
     }
 

@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.utils.functions;
 
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
@@ -50,7 +50,7 @@ public final class FileUtils {
                 .toList()
         );
         searchDirs.addAll(
-            LKQLLanguage.getContext(null).getAdditionalLkqlPaths().stream().map(File::new).toList()
+            LKQLContext.get(null).getAdditionalLkqlPaths().stream().map(File::new).toList()
         );
 
         return searchDirs;
