@@ -174,7 +174,10 @@ public class LKQLDocRules implements Callable<Integer> {
                     rule,
                     "Missing type annotation for parameter " + paramName
                 );
-                var paramType = maybeParamType.get();
+
+                // Transform to lowercase and remove generic parameter to support types from LKQL
+                // V2.
+                var paramType = maybeParamType.get().toLowerCase().split("\\[")[0];
 
                 // Check that the parameter type is valid
                 if (!VALID_PARAM_TYPES.contains(paramType)) errorInDoc(
