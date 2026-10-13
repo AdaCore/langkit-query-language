@@ -20,7 +20,7 @@ fun super_types(this : BaseTypeDecl, depth : Int = -1, min_depth : Int = -1, max
 
 fun super_types_body(this : BaseTypeDecl) : Rec[BaseTypeDecl, BaseTypeDecl] = match this {
     case BaseTypeDecl => { val _tmp = this.p_base_types(); Rec(_tmp, _tmp) }
-    case _ => Rec[BaseTypeDecl, BaseTypeDecl]([], [])
+    case _ => Rec([], [])
 }
 
 
@@ -41,7 +41,7 @@ fun complete_super_types_body(this : BaseTypeDecl) : Rec[BaseTypeDecl, BaseTypeD
     }
     case BaseTypeDecl =>
         { val _tmp = this.p_base_types(); Rec(_tmp, _tmp) }
-    case _ => Rec[BaseTypeDecl, BaseTypeDecl]([], [])
+    case _ => Rec([], [])
 }
 
 
@@ -50,7 +50,7 @@ fun semantic_parent(this : AdaNode, depth : Int = -1, min_depth : Int = -1, max_
     unfold(semantic_parent_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun semantic_parent_body(this : AdaNode) : Rec[AdaNode, AdaNode] = match this {
-    case null     => Rec[AdaNode, AdaNode]([], [])
+    case null     => Rec([], [])
     case _        => { val _tmp = non_null(this.p_semantic_parent()); Rec(_tmp, _tmp) }
 }
 
@@ -334,7 +334,7 @@ fun parent_decl_chain(this : AdaNode, depth : Int = -1, min_depth : Int = -1, ma
     unfold(parent_decl_chain_body, make_depth_predicate(depth, min_depth, max_depth), [this], 1)
 
 fun parent_decl_chain_body(this : AdaNode) : Rec[AdaNode, AdaNode] = match this {
-    case null => Rec[AdaNode, AdaNode]([], [])
+    case null => Rec([], [])
     case decl@(BaseSubpBody | PackageBody) => {
         val _tmp = non_null({
             val prev_part = decl.p_decl_part();
@@ -875,13 +875,13 @@ fun component_types(this : BasicDecl, depth : Int = -1, min_depth : Int = -1, ma
 
 fun component_types_body(this : BasicDecl) : Rec[BasicDecl, BaseTypeDecl] = match this {
     case TypeDecl(f_type_def: d @ RecordTypeDef) =>
-        Rec[BasicDecl, BaseTypeDecl](
+        Rec(
             [],
             (from subtree(d) match cd@ComponentDecl).to_list
         )
     case td@TypeDecl(f_type_def: DerivedTypeDef(f_record_extension:
                                             def @ BaseRecordDef)) =>
-        Rec[BasicDecl, BaseTypeDecl](
+        Rec(
             [],
             [td.p_base_type().as[BasicDecl]]
             & (from subtree(def) match cd@ComponentDecl).to_list
@@ -908,7 +908,7 @@ fun component_types_body(this : BasicDecl) : Rec[BasicDecl, BaseTypeDecl] = matc
         Rec[BasicDecl, BaseTypeDecl](_tmp, _tmp)
     }
     case _ =>
-        Rec[BasicDecl, BaseTypeDecl]([], [])
+        Rec([], [])
 }
 
 
@@ -929,7 +929,7 @@ fun full_parent_types_body(this : BaseTypeDecl) : Rec[BaseTypeDecl, BaseTypeDecl
         val _tmp = this.p_full_view().p_base_types();
         Rec(_tmp, _tmp)
     }
-    case _ => Rec[BaseTypeDecl, BaseTypeDecl]([], [])
+    case _ => Rec([], [])
 }
 
 fun follow_generics(this: Node): Stream[AdaNode] = match this {
@@ -948,7 +948,7 @@ fun follow_generics(this: Node): Stream[AdaNode] = match this {
         ).flat_map(follow_generics)
     case n@AdaNode =>
         n :: this.children.flat_map(follow_generics)
-    case _ => nil[AdaNode]()
+    case _ => nil()
 }
 
-fun concat_str(strs: List[String]): String = strs.reduce[String]((a: String,b: String) => a & b, "")
+fun concat_str(strs: List[String]): String = strs.reduce((a: String, b: String) => a & b, "")

@@ -8,7 +8,7 @@ fun children_no_nested_implem(this : Pair[AdaNode, Bool], depth : Int = -1, min_
 
 fun children_no_nested_implem_body(this : Pair[AdaNode, Bool]) : Rec[Pair[AdaNode, Bool], AdaNode] = match this {
     # Don't recurse on bodies except if it's the root node (depth == 0)
-    case Pair(fst: BodyNode, snd: false) => Rec[Pair[AdaNode, Bool], AdaNode]([], [])
+    case Pair(fst: BodyNode, snd: false) => Rec([], [])
     case Pair(fst: n @ AdaNode, snd: _) => Rec(
         (from n.children match c@AdaNode select c).to_list,
         (from n.children match c@AdaNode select Pair(c, false)).to_list
@@ -16,7 +16,7 @@ fun children_no_nested_implem_body(this : Pair[AdaNode, Bool]) : Rec[Pair[AdaNod
 
     # TODO: This branch shouldn't ever be taken, but we miss a raise expression
     # to verify it
-    case _ => Rec[Pair[AdaNode, Bool], AdaNode]([], [])
+    case _ => Rec([], [])
 
 }
 

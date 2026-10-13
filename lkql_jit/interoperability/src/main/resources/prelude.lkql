@@ -132,7 +132,7 @@ struct Pair {
 fun subtree(this: Node): Stream[Node] =
     match this {
         case Node => this :: this.children.flat_map(subtree)
-        case _ => nil[Node]()
+        case _ => nil()
     }
 
 val all_nodes = units().flat_map((unit) => subtree(unit.root))
@@ -161,23 +161,23 @@ fun non_null(value: T): List[T] = if value is null then [] else [value]
 
 generic[In, Out]
 fun unfold(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: List[In], depth: Int): Stream[Out] = match nxt.length {
-    case 0 => nil[Out]()
+    case 0 => nil()
     case _ => {
-        val rec = nxt.map(fn).reduce[Rec[In, Out]]((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec[In, Out]([], []));
-        val prefix = if p(depth) then rec.ret.to_stream else nil[Out]();
-        prefix ::: unfold[In, Out](fn, p, rec.nxt, depth+1)
+        val rec = nxt.map(fn).reduce((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec([], []));
+        val prefix = if p(depth) then rec.ret.to_stream else nil();
+        prefix ::: unfold(fn, p, rec.nxt, depth+1)
     }
 }
 
 generic[In, Out]
 fun unfold_check_cycles(fn: (In) -> Rec[In, Out], p: (Int) -> Bool, nxt: List[In], depth: Int, seen: List[In]): Stream[Out] = match nxt.length {
-    case 0 => nil[Out]()
+    case 0 => nil()
     case _ => {
-        val rec = nxt.map(fn).reduce[Rec[In, Out]]((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec[In, Out]([], []));
-        val prefix = if p(depth) then rec.ret.to_stream else nil[Out]();
+        val rec = nxt.map(fn).reduce((a: Rec[In,Out], b: Rec[In,Out]) => Rec(a.ret & b.ret, a.nxt & b.nxt), Rec([], []));
+        val prefix = if p(depth) then rec.ret.to_stream else nil();
         val seen_next = (seen & rec.nxt).to_set.to_list;
         val next = seen_next.span(seen.length, seen_next.length);
-        prefix ::: unfold_check_cycles[In, Out](fn, p, next, depth+1, seen_next)
+        prefix ::: unfold_check_cycles(fn, p, next, depth+1, seen_next)
     }
 }
 
@@ -190,7 +190,7 @@ fun children(this: Node, depth: Int = -1, min_depth: Int = -1, max_depth: Int = 
 
 fun children_body(this: Node): Rec[Node, Node] = match this {
     case Node => Rec(this.children, this.children)
-    case _ => Rec[Node, Node]([], [])
+    case _ => Rec([], [])
 }
 
 
@@ -200,7 +200,7 @@ fun next_siblings(this: Node, depth: Int = -1, min_depth: Int = -1, max_depth: I
 
 fun next_siblings_body(this: Node): Rec[Node, Node] = match this {
     case Node => Rec(non_null(this.next_sibling()), non_null(this.next_sibling()))
-    case _ => Rec[Node, Node]([], [])
+    case _ => Rec([], [])
 }
 
 
@@ -210,7 +210,7 @@ fun parent(this: Node, depth: Int = -1, min_depth: Int = -1, max_depth: Int = -1
 
 fun parent_body(this: Node): Rec[Node, Node] = match this {
     case Node => Rec(non_null(this.parent), non_null(this.parent))
-    case _ => Rec[Node, Node]([], [])
+    case _ => Rec([], [])
 }
 
 
@@ -220,5 +220,5 @@ fun prev_siblings(this: Node, depth: Int = -1, min_depth: Int = -1, max_depth: I
 
 fun prev_siblings_body(this: Node): Rec[Node, Node] = match this {
     case Node => Rec(non_null(this.previous_sibling()), non_null(this.previous_sibling()))
-    case _ => Rec[Node, Node]([], [])
+    case _ => Rec([], [])
 }
