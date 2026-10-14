@@ -989,11 +989,8 @@ public final class TranslationPass
      */
     @Override
     public LKQLNode visit(Liblkqllang.ParenPattern parenPattern) {
-        // Translate the parented pattern
-        final Pattern pattern = (Pattern) parenPattern.fPattern().accept(this);
-
-        // Return the new parented pattern node
-        return new ParenPattern(loc(parenPattern), pattern);
+        // Just return the translation of the inner pattern
+        return parenPattern.fPattern().accept(this);
     }
 
     /**

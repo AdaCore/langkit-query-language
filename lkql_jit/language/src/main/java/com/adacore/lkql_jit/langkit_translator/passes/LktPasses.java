@@ -44,7 +44,6 @@ import com.adacore.lkql_jit.nodes.patterns.FilteredPattern;
 import com.adacore.lkql_jit.nodes.patterns.NotPattern;
 import com.adacore.lkql_jit.nodes.patterns.NullPattern;
 import com.adacore.lkql_jit.nodes.patterns.OrPattern;
-import com.adacore.lkql_jit.nodes.patterns.ParenPattern;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.nodes.patterns.UniversalPattern;
 import com.adacore.lkql_jit.nodes.patterns.*;
@@ -1001,8 +1000,7 @@ public final class LktPasses {
                     regex = regex.substring(1, regex.length() - 1);
                     yield RegexPatternNodeGen.create(loc(regexPattern), regex);
                 case Liblktlang.ParenPattern parenPattern:
-                    final Pattern p = buildPattern(parenPattern.fSubPattern());
-                    yield new ParenPattern(loc(parenPattern), p);
+                    yield buildPattern(parenPattern.fSubPattern());
                 case Liblktlang.OrPattern orPattern:
                     yield new OrPattern(
                         loc(orPattern),
