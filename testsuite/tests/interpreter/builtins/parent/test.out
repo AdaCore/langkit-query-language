@@ -1,0 +1,10 @@
+n
+[<DottedName main.adb:1:6-1:17>, <DottedName main.adb:1:23-1:34>]
+n.parent
+[<NameList main.adb:1:6-1:17>, <NameList main.adb:1:23-1:34>]
+n.parents()
+[[<DottedName main.adb:1:6-1:17>, <NameList main.adb:1:6-1:17>, <WithClause main.adb:1:1-1:18>, <AdaNodeList main.adb:1:1-1:35>, <CompilationUnit main.adb:1:1-8:10>], [<DottedName main.adb:1:23-1:34>, <NameList main.adb:1:23-1:34>, <UsePackageClause main.adb:1:19-1:35>, <AdaNodeList main.adb:1:1-1:35>, <CompilationUnit main.adb:1:1-8:10>]]
+n.parents(false)
+[[<NameList main.adb:1:6-1:17>, <WithClause main.adb:1:1-1:18>, <AdaNodeList main.adb:1:1-1:35>, <CompilationUnit main.adb:1:1-8:10>], [<NameList main.adb:1:23-1:34>, <UsePackageClause main.adb:1:19-1:35>, <AdaNodeList main.adb:1:1-1:35>, <CompilationUnit main.adb:1:1-8:10>]]
+n.parents(true)
+[[<DottedName main.adb:1:6-1:17>, <NameList main.adb:1:6-1:17>, <WithClause main.adb:1:1-1:18>, <AdaNodeList main.adb:1:1-1:35>, <CompilationUnit main.adb:1:1-8:10>], [<DottedName main.adb:1:23-1:34>, <NameList main.adb:1:23-1:34>, <UsePackageClause main.adb:1:19-1:35>, <AdaNodeList main.adb:1:1-1:35>, <CompilationUnit main.adb:1:1-8:10>]]
