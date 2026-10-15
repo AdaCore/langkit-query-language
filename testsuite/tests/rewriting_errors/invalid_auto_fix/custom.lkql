@@ -1,0 +1,5 @@
+@check(
+    message="Custom rule violation",
+    auto_fix="WHAT?"
+)
+fun custom(node) = node is GotoStmt

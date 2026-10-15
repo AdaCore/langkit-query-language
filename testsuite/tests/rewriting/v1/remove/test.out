@@ -1,0 +1,11 @@
+main.adb:4:4: rule violation: Custom rule violation
+4 |    goto lbl;  -- FLAG
+  |    ^^^^^^^^^
+fix proposal: Quick Fix
+  in main.adb:
+  2  begin
+  3     null;
+  4 -   goto lbl;  -- FLAG
+  5     null;
+  6  
+
