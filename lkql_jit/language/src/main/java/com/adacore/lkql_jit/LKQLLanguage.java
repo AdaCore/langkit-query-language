@@ -63,9 +63,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         LKQLLanguage.class
     );
 
-    /** Whether the current language spawning support the color. */
-    public static boolean SUPPORT_COLOR = false;
-
     // ----- Options -----
 
     /** The JSON encoded LKQL engine options. */
@@ -95,9 +92,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             true,
             1
         );
-
-        // Set the color support flag
-        SUPPORT_COLOR = System.getenv("TERM") != null && System.console() != null;
     }
 
     /** Return the Lkt analysis context initialized with all LKQL search dirs */
