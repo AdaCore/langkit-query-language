@@ -59,7 +59,7 @@ public class LKQLDocRules implements Callable<Integer> {
     // ----- Constructor -----
 
     public LKQLDocRules() {
-        this.supportAnsi = System.getenv("TERM") != null && System.console() != null;
+        this.supportAnsi = CommandLine.Help.Ansi.AUTO.enabled();
     }
 
     // ----- Class methods -----

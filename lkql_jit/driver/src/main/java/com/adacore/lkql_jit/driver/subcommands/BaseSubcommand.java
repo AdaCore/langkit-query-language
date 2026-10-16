@@ -33,7 +33,7 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
     // ----- Constructors -----
 
     protected BaseSubcommand() {
-        this.supportAnsi = System.getenv("TERM") != null && System.console() != null;
+        this.supportAnsi = CommandLine.Help.Ansi.AUTO.enabled();
         this.diagnostics = new DiagnosticCollector();
         this.logHandler = new DiagnosticLogHandler(diagnostics);
     }
