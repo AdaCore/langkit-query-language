@@ -10,7 +10,7 @@ import static com.adacore.liblktlang.Liblktlang.*;
 import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.liblktlang.Liblktlang;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.exceptions.LogLocation;
@@ -44,7 +44,6 @@ import com.adacore.lkql_jit.nodes.patterns.FilteredPattern;
 import com.adacore.lkql_jit.nodes.patterns.NotPattern;
 import com.adacore.lkql_jit.nodes.patterns.NullPattern;
 import com.adacore.lkql_jit.nodes.patterns.OrPattern;
-import com.adacore.lkql_jit.nodes.patterns.ParenPattern;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
 import com.adacore.lkql_jit.nodes.patterns.UniversalPattern;
 import com.adacore.lkql_jit.nodes.patterns.*;
@@ -92,7 +91,7 @@ public final class LktPasses {
                             )
                         );
                     } else {
-                        LKQLLanguage.getContext(null)
+                        LKQLContext.get(null)
                             .getLogger()
                             .log(
                                 Level.WARNING,
@@ -1001,8 +1000,7 @@ public final class LktPasses {
                     regex = regex.substring(1, regex.length() - 1);
                     yield RegexPatternNodeGen.create(loc(regexPattern), regex);
                 case Liblktlang.ParenPattern parenPattern:
-                    final Pattern p = buildPattern(parenPattern.fSubPattern());
-                    yield new ParenPattern(loc(parenPattern), p);
+                    yield buildPattern(parenPattern.fSubPattern());
                 case Liblktlang.OrPattern orPattern:
                     yield new OrPattern(
                         loc(orPattern),

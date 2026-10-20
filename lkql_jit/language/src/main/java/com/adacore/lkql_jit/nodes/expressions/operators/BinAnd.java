@@ -11,11 +11,13 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Executed;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.InlinedConditionProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a "and" boolean operation. */
 public abstract class BinAnd extends Expr {
 
-    // TODO: Use InlinedConditionProfile when switching to Graal 23
+    // ----- Children -----
 
     /** The left operand expression. */
     @Child
@@ -26,15 +28,28 @@ public abstract class BinAnd extends Expr {
     @Child
     protected Expr right;
 
-    BinAnd(SourceSection location, Expr left, Expr right) {
+    // ----- Constructors -----
+
+    /**
+     * Create a "and" operation node.
+     *
+     * @param location The location of the node in the source.
+     */
+    protected BinAnd(SourceSection location, Expr left, Expr right) {
         super(location);
         this.left = left;
         this.right = right;
     }
 
+    // ----- Execution methods -----
+
     @Specialization
-    protected Object doBoolean(VirtualFrame frame, boolean leftValue) {
-        if (!leftValue) {
+    protected Object doBoolean(
+        VirtualFrame frame,
+        boolean leftValue,
+        @Cached @Cached.Shared InlinedConditionProfile p
+    ) {
+        if (p.profile(this, !leftValue)) {
             return leftValue;
         } else {
             return right.executeGeneric(frame);
@@ -45,14 +60,17 @@ public abstract class BinAnd extends Expr {
     protected Object doGeneric(
         VirtualFrame frame,
         Object leftValue,
-        @Cached LKQLToBoolean toBoolean
+        @Cached LKQLToBoolean toBoolean,
+        @Cached @Cached.Shared InlinedConditionProfile p
     ) {
-        if (!toBoolean.execute(leftValue)) {
+        if (p.profile(this, !toBoolean.execute(leftValue))) {
             return leftValue;
         } else {
             return right.executeGeneric(frame);
         }
     }
+
+    // ----- Override methods -----
 
     @Override
     public String toString(int indentLevel) {

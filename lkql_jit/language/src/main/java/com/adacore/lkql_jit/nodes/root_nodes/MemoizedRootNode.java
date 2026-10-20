@@ -11,11 +11,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.HashMap;
 
-/**
- * This root node is the base of all root node which can be memoized in LKQL.
- *
- * @author Hugo GUERRIER
- */
+/** This root node is the base of all root node that can be memoized. */
 public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
 
     // ----- Attributes -----
@@ -47,34 +43,19 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
 
     // ----- Instance methods -----
 
-    /**
-     * Get if the given key is a memoized call.
-     *
-     * @param key The key of the call.
-     * @return True if the call has been done and the result is in the cache, false else.
-     */
+    /** Get whether the given key is in the memoization cache. */
     @CompilerDirectives.TruffleBoundary
     protected boolean alreadyMemoized(final K key) {
         return this.memoizationCache.containsKey(key);
     }
 
-    /**
-     * Get the result of the root node call for the given key.
-     *
-     * @param key The key of the call.
-     * @return The result of the call with the key, null if it doesn't exist.
-     */
+    /** Get the result of the root node execution in the memoization cache for the given key. */
     @CompilerDirectives.TruffleBoundary
     protected V getMemoized(final K key) {
         return this.memoizationCache.get(key);
     }
 
-    /**
-     * Associate the given call key with the given call value in the memoization cache.
-     *
-     * @param key The key to store in the cache.
-     * @param value The value of the call with the key.
-     */
+    /** Associate the given key to the provided execution result in the memoization cache. */
     @CompilerDirectives.TruffleBoundary
     protected void putMemoized(final K key, final V value) {
         this.memoizationCache.put(key, value);

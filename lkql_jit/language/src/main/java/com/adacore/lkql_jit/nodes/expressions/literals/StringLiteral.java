@@ -9,11 +9,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a string literal in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a string literal. */
 public final class StringLiteral extends Expr {
 
     // ----- Attributes -----
@@ -36,19 +32,11 @@ public final class StringLiteral extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.value;
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeString(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public String executeString(VirtualFrame frame) {
         return this.value;
@@ -56,9 +44,6 @@ public final class StringLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

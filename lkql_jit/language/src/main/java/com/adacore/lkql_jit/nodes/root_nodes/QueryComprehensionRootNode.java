@@ -14,7 +14,10 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents the execution of a query comprehension body. */
 public final class QueryComprehensionRootNode extends BaseRootNode {
+
+    // ----- Children -----
 
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -50,10 +53,6 @@ public final class QueryComprehensionRootNode extends BaseRootNode {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.root_nodes.BaseRootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object execute(VirtualFrame frame) {
         this.initFrame(frame);
@@ -72,6 +71,8 @@ public final class QueryComprehensionRootNode extends BaseRootNode {
         // else default to arg
         return this.result != null ? this.result.executeGeneric(frame) : arg;
     }
+
+    // ----- Override methods -----
 
     @Override
     public String toString() {

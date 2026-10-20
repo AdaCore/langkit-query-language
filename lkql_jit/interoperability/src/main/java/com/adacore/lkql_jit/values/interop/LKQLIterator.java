@@ -17,7 +17,6 @@ public abstract class LKQLIterator extends LKQLValue implements Iterator {
 
     // ----- Constructors -----
 
-    /** The protected constructor. */
     protected LKQLIterator() {}
 
     // ----- Iterator required methods -----

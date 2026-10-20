@@ -11,7 +11,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
-/** This class represents the unit value in the LKQL language. */
+/** This class represents the unit value. */
 @ExportLibrary(InteropLibrary.class)
 public class LKQLUnit extends LKQLValue implements Nullish {
 

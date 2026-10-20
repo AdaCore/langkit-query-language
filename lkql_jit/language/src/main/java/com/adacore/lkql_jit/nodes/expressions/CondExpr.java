@@ -11,6 +11,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a conditional expression. */
 public abstract class CondExpr extends Expr {
 
     // ----- Children -----
@@ -31,6 +32,13 @@ public abstract class CondExpr extends Expr {
     @SuppressWarnings("FieldMayBeFinal")
     protected Expr alternative;
 
+    // ----- Constructors -----
+
+    /**
+     * Create a new conditional expression.
+     *
+     * @param location The location of the node in the source.
+     */
     public CondExpr(SourceSection location, Expr condition, Expr consequence, Expr alternative) {
         super(location);
         this.condition = condition;
@@ -60,9 +68,8 @@ public abstract class CondExpr extends Expr {
         return doBoolean(frame, toBooleanNode.execute(conditionResult));
     }
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
+    // ----- Override methods -----
+
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

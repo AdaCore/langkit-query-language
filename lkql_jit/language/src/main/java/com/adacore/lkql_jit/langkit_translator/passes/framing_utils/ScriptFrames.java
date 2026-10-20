@@ -17,15 +17,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This class represents the description of the frames of an LKQL script.
- *
- * @author Hugo GUERRIER
- */
+/** This class represents the description of the frames of an LKQL script. */
 public final class ScriptFrames {
 
-    // Store information about a closure access, the slot, and whether the
-    // access is global (package top-level), and thus can be optimized.
+    /**
+     * Store information about a closure access, the slot, and whether the access is global
+     * (package top-level), and thus can be optimized.
+     */
     public record ClosureSlotInfo(int slot, boolean isGlobal) {}
 
     // ----- Attributes -----
@@ -36,15 +34,12 @@ public final class ScriptFrames {
     /** Pointer to the current node frame. */
     private AbstractNodeFrame current;
 
+    /** Scope containing all global symbols. */
     private final GlobalScope globalScope;
 
     // ----- Constructors -----
 
-    /**
-     * Create a new script frames description.
-     *
-     * @param root The root node frame of the script frames description.
-     */
+    /** Create a new script frames description. */
     public ScriptFrames(final AbstractNodeFrame root, GlobalScope globalScope) {
         this.globalScope = globalScope;
         this.root = root;
@@ -90,11 +85,7 @@ public final class ScriptFrames {
         }
     }
 
-    /**
-     * Get the Truffle frame descriptor of the current frame.
-     *
-     * @return The Truffle frame descriptor.
-     */
+    /** Get the Truffle frame descriptor of the current frame. */
     public FrameDescriptor getFrameDescriptor() {
         if (this.current instanceof VirtualNodeFrame) {
             throw LKQLEngineException.create("Cannot get frame descriptor for a virtual frame");
@@ -102,11 +93,7 @@ public final class ScriptFrames {
         return ((NodeFrame) this.current).frameDescriptorBuilder.build();
     }
 
-    /**
-     * Get the closure descriptor of the current frame.
-     *
-     * @return The closure descriptor.
-     */
+    /** Get the closure descriptor of the current frame. */
     public ClosureDescriptor getClosureDescriptor() {
         if (this.current instanceof VirtualNodeFrame) {
             throw LKQLEngineException.create("Cannot get closure descriptor for a virtual frame");
@@ -114,99 +101,57 @@ public final class ScriptFrames {
         return ((NodeFrame) this.current).getClosureDescriptor();
     }
 
+    /** Get whether the provided symbol is in the prelude. */
     public boolean isPrelude(final String symbol) {
         return globalScope.preludeMap == null ? false : globalScope.preludeMap.containsKey(symbol);
     }
 
+    /** Get the value in the prelude associated to the given symbol. */
     public int getPrelude(final String symbol) {
         return globalScope.preludeMap.get(symbol);
     }
 
-    /**
-     * Get if the given symbol is in the current frame bindings.
-     *
-     * @param symbol The symbol to look for.
-     * @return True if the symbol is in the bindings, false else.
-     */
+    /** Get whether the given symbol is in the current frame bindings. */
     public boolean isBinding(final String symbol) {
         return this.current.getBinding(symbol).slot > -1;
     }
 
-    /**
-     * Get if the given binding symbol was declared at this stage.
-     *
-     * @param symbol The symbol to get the declaration state for.
-     * @return True if the symbol has been declared, false else.
-     */
+    /** Get whether the given binding symbol was declared at this stage. */
     public boolean isBindingDeclared(final String symbol) {
         return this.current.getBinding(symbol).declared;
     }
 
-    /**
-     * Get the binding slot of the given symbol.
-     *
-     * @param symbol The symbol to get the slot of.
-     * @return The binding slot.
-     */
+    /** Get the slot the given symbol is bound to. */
     public int getBinding(final String symbol) {
         return this.current.getBinding(symbol).slot;
     }
 
-    /**
-     * Flag the given symbol as declared in the current bindings.
-     *
-     * @param symbol The symbol to flag as declared.
-     */
+    /** Flag the given symbol as declared in the current bindings. */
     public void declareBinding(final String symbol) {
         this.current.declareBinding(symbol);
     }
 
-    /**
-     * Get if the given symbol is in the parameters of the current frame.
-     *
-     * @param symbol The symbol to look for.
-     * @return True if the symbol is in the parameters, false else.
-     */
+    /** Get whether the given symbol is in the parameters of the current frame. */
     public boolean isParameter(final String symbol) {
         return this.current.getParameter(symbol) > -1;
     }
 
-    /**
-     * Get the parameter slot of the given symbol.
-     *
-     * @param symbol The symbol to get the slot of.
-     * @return The parameter slot.
-     */
+    /** Get the parameter slot of the given symbol. */
     public int getParameter(final String symbol) {
         return this.current.getParameter(symbol);
     }
 
-    /**
-     * Get if the symbol is accessible in the closure of the current frame.
-     *
-     * @param symbol The symbol to look for.
-     * @return True if the symbol is accessible in the closure, false otherwise.
-     */
+    /** Get whether the symbol is accessible in the closure of the current frame. */
     public boolean isClosure(final String symbol) {
         return this.current.getClosure(symbol).slot > -1;
     }
 
-    /**
-     * Get if the symbol is declared in the closure of the current frame.
-     *
-     * @param symbol The symbol to look for.
-     * @return True if the symbol is declared in the closure, false else.
-     */
+    /** Get whether the symbol is declared in the closure of the current frame. */
     public boolean isClosureDeclared(final String symbol) {
         return this.current.isClosureDeclared(symbol);
     }
 
-    /**
-     * Get the closure slot of the given symbol.
-     *
-     * @param symbol The symbol to get the slot of.
-     * @return The closure slot.
-     */
+    /** Get the closure slot of the given symbol. */
     public ClosureSlotInfo getClosure(final String symbol) {
         return this.current.getClosure(symbol);
     }
@@ -262,12 +207,7 @@ public final class ScriptFrames {
 
         // ----- Constructors -----
 
-        /**
-         * Create a new node frame with its associated node and its parent.
-         *
-         * @param node Associated node.
-         * @param parent The parent of the node frame.
-         */
+        /** Create a new node frame with its associated node and its parent. */
         protected AbstractNodeFrame(final NodeInterface node, final AbstractNodeFrame parent) {
             this.node = node;
             this.parent = parent;
@@ -279,26 +219,13 @@ public final class ScriptFrames {
 
         // --- Symbol methods
 
-        /**
-         * Get the binding slot of the given symbol.
-         *
-         * @param symbol The symbol to get the slot of.
-         * @return The binding slot or -1 if the bindings doesn't exist.
-         */
+        /** Get the information bound to the given symbol. */
         public abstract BindingInfo getBinding(String symbol);
 
-        /**
-         * Add the given symbol to the frame bindings.
-         *
-         * @param symbol The symbol to add.
-         */
+        /** Add the given symbol to the frame bindings. */
         public abstract void addBinding(String symbol);
 
-        /**
-         * Flag the given symbol as declared in the bindings map.
-         *
-         * @param symbol The symbol to flag as declared.
-         */
+        /** Flag the given symbol as declared in the bindings map. */
         public void declareBinding(final String symbol) {
             if (!this.bindings.containsKey(symbol)) {
                 throw LKQLEngineException.create(
@@ -308,56 +235,32 @@ public final class ScriptFrames {
             this.bindings.get(symbol).declared = true;
         }
 
-        /**
-         * Get the parameter slot of the given symbol.
-         *
-         * @param symbol The symbol to get the slot of.
-         * @return The parameter slot or -1 if the parameter doesn't exist.
-         */
+        /** Get the parameter slot associated to the given symbol, or -1 if it doesn't exist. */
         public abstract int getParameter(String symbol);
 
-        /**
-         * Add the given symbol to the frame parameters.
-         *
-         * @param symbol The symbol to add.
-         */
+        /** Add the given symbol to the frame parameters. */
         public abstract void addParameter(String symbol);
 
         /**
-         * Get if the given symbol is declared in its real frame. This method assume that the given
-         * symbol is already in the frame closure.
-         *
-         * @param symbol The symbol to look for.
-         * @return True if the symbol is declared in its real frame, false else.
+         * Get whether the given symbol is declared in its real frame. This method assume that the
+         * given symbol is already in the frame closure.
          */
         public abstract boolean isClosureDeclared(String symbol);
 
         /**
-         * Get the closure slot for the given symbol. Modify the closure descriptions by getting the
-         * symbol.
-         *
-         * @param symbol The symbol to get the slot of.
-         * @return The closure slot or -1 if the symbol doesn't exist in the closure.
+         * Get the closure slot associated to the given symbol. Modify the closure descriptions by
+         * getting the symbol.
          */
         public abstract ClosureSlotInfo getClosure(String symbol);
 
         // --- Children methods
 
-        /**
-         * Add the given child to the children list.
-         *
-         * @param child The child to add.
-         */
+        /** Add the given child to the children list. */
         public void addChild(final AbstractNodeFrame child) {
             this.children.put(child.node, child);
         }
 
-        /**
-         * Get an available slot for the given child.
-         *
-         * @param child The child to get the slot for.
-         * @return An available slot in the frame.
-         */
+        /** Get an available slot for the given child frame. */
         protected abstract int getSlotForChild(AbstractNodeFrame child);
     }
 
@@ -401,12 +304,7 @@ public final class ScriptFrames {
 
         // ----- Constructors -----
 
-        /**
-         * Create a new frame description associated to a node.
-         *
-         * @param node The node associated with the frame description.
-         * @param parent The parent node frame description, this can be null.
-         */
+        /** Create a new frame associated to a node with its parent. */
         public NodeFrame(final NodeInterface node, final AbstractNodeFrame parent) {
             super(node, parent);
             this.parameters = new HashMap<>();
@@ -425,11 +323,7 @@ public final class ScriptFrames {
 
         // --- Frame methods
 
-        /**
-         * Create and return a closure descriptor of the frame.
-         *
-         * @return The closure descriptor.
-         */
+        /** Create and return a closure descriptor of the frame. */
         public ClosureDescriptor getClosureDescriptor() {
             return new ClosureDescriptor(
                 this.closureCounter,
@@ -606,12 +500,7 @@ public final class ScriptFrames {
 
         // ----- Constructors -----
 
-        /**
-         * Create a new virtual node frame with its node and parent.
-         *
-         * @param node The node associated to the frame.
-         * @param parent The node frame parent.
-         */
+        /** Create a new virtual node frame with its node and parent. */
         public VirtualNodeFrame(final NodeInterface node, final AbstractNodeFrame parent) {
             super(node, parent);
         }

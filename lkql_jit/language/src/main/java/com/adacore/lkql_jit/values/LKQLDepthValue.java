@@ -12,9 +12,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
-/**
- * This class represents an LKQL Value with the depth information.
- */
+/** This class represents an LKQL Value with the depth information. */
 @ExportLibrary(InteropLibrary.class)
 @CompilerDirectives.ValueType
 public final class LKQLDepthValue extends LKQLValue {

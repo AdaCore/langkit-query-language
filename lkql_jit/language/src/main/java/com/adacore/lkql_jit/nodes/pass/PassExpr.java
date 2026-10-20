@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.pass;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.value_read.ReadParameter;
@@ -20,10 +20,9 @@ import com.oracle.truffle.api.source.SourceSection;
 import java.util.*;
 
 /**
- * This class is a runtime instance of a rewriting pass.
- * At the runtime passes are represented as functions AST -> AST.
- * A pass expr is the body of the synthesized function and contains
- * all the logic needed to execute a pass.
+ * This class is a runtime instance of a rewriting pass. At the runtime passes are represented as
+ * functions AST -> AST. A pass expr is the body of the synthesized function and contains all the
+ * logic needed to execute a pass.
  */
 @NodeChild(value = "readInput", type = ReadParameter.class)
 public abstract class PassExpr extends Expr {
@@ -64,7 +63,7 @@ public abstract class PassExpr extends Expr {
 
     @Specialization
     public Object onDynamicAdaNode(VirtualFrame frame, DynamicAdaNode input) {
-        final var typingContext = LKQLLanguage.getContext(this).getTypingContext();
+        final var typingContext = LKQLContext.get(this).getTypingContext();
         for (var c : add.classes) {
             typingContext.add(c.name);
         }

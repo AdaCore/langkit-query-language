@@ -8,11 +8,7 @@ package com.adacore.lkql_jit.nodes.arguments;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents an unnamed argument in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an unnamed argument in a call expression. */
 public final class ExprArg extends Arg {
 
     // ----- Constructor -----
@@ -29,9 +25,6 @@ public final class ExprArg extends Arg {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

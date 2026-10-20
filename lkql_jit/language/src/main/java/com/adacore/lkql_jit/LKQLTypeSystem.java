@@ -22,11 +22,7 @@ import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
 import java.math.BigInteger;
 
-/**
- * This class represents the type system of LKQL that contains type casts and checks.
- *
- * @author Hugo GUERRIER
- */
+/** The LKQL type system formalization. */
 @TypeSystem(
     {
         LKQLUnit.class,
@@ -61,23 +57,13 @@ public abstract class LKQLTypeSystem {
 
     // ----- Unit value methods -----
 
-    /**
-     * Check if a value is unit.
-     *
-     * @param value The value to test.
-     * @return True if the value is unit, false else.
-     */
+    /** Get whether a value is a unit instance. */
     @TypeCheck(LKQLUnit.class)
     public static boolean isUnit(final Object value) {
         return value == LKQLUnit.INSTANCE;
     }
 
-    /**
-     * Cast a value to unit.
-     *
-     * @param value The value to cast.
-     * @return The unit value.
-     */
+    /** Cast a value to the unit instance. */
     @TypeCast(LKQLUnit.class)
     public static LKQLUnit asUnit(@SuppressWarnings("unused") final Object value) {
         return LKQLUnit.INSTANCE;
@@ -85,12 +71,7 @@ public abstract class LKQLTypeSystem {
 
     // ----- Nullish values -----
 
-    /**
-     * Check if a value is nullish.
-     *
-     * @param value The value to check.
-     * @return True if the value si nullish, false else.
-     */
+    /** Get whether a value is nullish. */
     @TypeCheck(Nullish.class)
     public static boolean isNullish(final Object value) {
         return value == LKQLUnit.INSTANCE || value == LKQLNull.INSTANCE;
@@ -98,12 +79,7 @@ public abstract class LKQLTypeSystem {
 
     // ----- Integer value methods -----
 
-    /**
-     * Cast a long value to a big integer value.
-     *
-     * @param value The long value to cast.
-     * @return The value in big integer.
-     */
+    /** Cast a long value to a big integer. */
     @ImplicitCast
     @CompilerDirectives.TruffleBoundary
     public static BigInteger longToBigInteger(long value) {

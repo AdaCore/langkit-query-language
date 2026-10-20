@@ -9,11 +9,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node is the base of all binary operations in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node is the base of all binary operations. */
 @NodeChild(value = "left", type = Expr.class)
 @NodeChild(value = "right", type = Expr.class)
 public abstract class BinOp extends Expr {

@@ -10,11 +10,7 @@ import com.adacore.lkql_jit.values.LKQLUnit;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the unit literal in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents the unit literal. */
 public final class UnitLiteral extends Expr {
 
     // ----- Constructors -----
@@ -30,19 +26,11 @@ public final class UnitLiteral extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return LKQLUnit.INSTANCE;
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeUnit(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public LKQLUnit executeUnit(VirtualFrame frame) {
         return LKQLUnit.INSTANCE;
@@ -50,9 +38,6 @@ public final class UnitLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

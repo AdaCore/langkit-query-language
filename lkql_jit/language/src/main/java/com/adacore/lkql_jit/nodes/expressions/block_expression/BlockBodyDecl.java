@@ -9,11 +9,7 @@ import com.adacore.lkql_jit.nodes.declarations.Declaration;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a declaration part of a block expression.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a declaration part in a block expression. */
 public final class BlockBodyDecl extends BlockBody {
 
     // ----- Children -----
@@ -38,10 +34,6 @@ public final class BlockBodyDecl extends BlockBody {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.decl.executeGeneric(frame);
@@ -49,9 +41,6 @@ public final class BlockBodyDecl extends BlockBody {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -13,13 +13,10 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This root node represents a list comprehension execution (expression and predicate) in the LKQL
- * language.
- *
- * @author Hugo GUERRIER
- */
+/** This root node represents a list comprehension body execution (expression and predicate). */
 public final class ListComprehensionRootNode extends BaseRootNode {
+
+    // ----- Children -----
 
     /** The predicate of the list comprehension. */
     @Child
@@ -59,10 +56,6 @@ public final class ListComprehensionRootNode extends BaseRootNode {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.root_nodes.BaseRootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object execute(VirtualFrame frame) {
         // Initialize the frame

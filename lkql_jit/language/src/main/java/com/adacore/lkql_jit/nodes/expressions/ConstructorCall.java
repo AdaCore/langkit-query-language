@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.nodes.Identifier;
@@ -22,9 +22,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a constructor call in the LKQL language. For example new IntLiteral("42").
- */
+/** This node represents a constructor call. For example new IntLiteral("42"). */
 public final class ConstructorCall extends Expr {
 
     // ----- Children -----
@@ -133,22 +131,16 @@ public final class ConstructorCall extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeRewritingNode(frame);
     }
 
-    /**
-     * @see Expr#executeRewritingNode(VirtualFrame)
-     */
     @Override
     @ExplodeLoop
     public LangkitSupport.RewritingNodeInterface executeRewritingNode(VirtualFrame frame) {
         // Get the rewriting context from the language global context
-        final var rewritingContext = LKQLLanguage.getContext(this).getRewritingContext();
+        final var rewritingContext = LKQLContext.get(this).getRewritingContext();
 
         // If the created node is a token one, evaluate the sole argument as a string then call the
         // creation method.
@@ -212,9 +204,6 @@ public final class ConstructorCall extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return nodeRepresentation(

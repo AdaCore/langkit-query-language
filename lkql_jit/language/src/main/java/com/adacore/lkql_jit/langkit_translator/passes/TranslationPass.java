@@ -7,7 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLStaticErrors;
 import com.adacore.lkql_jit.exceptions.LogLocation;
@@ -50,11 +50,7 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-/**
- * This class represents the translation pass to get a Truffle AST from a Langkit AST.
- *
- * @author Hugo GUERRIER
- */
+/** This class contains the pass to create a Truffle tree from an LKQL parsing tree. */
 public final class TranslationPass
     extends BaseTranslationPass
     implements Liblkqllang.BasicVisitor<LKQLNode> {
@@ -66,12 +62,7 @@ public final class TranslationPass
 
     // ----- Constructors -----
 
-    /**
-     * Create a new translation pass.
-     *
-     * @param source The source of the AST to translate.
-     * @param frames The descriptions of the script frames.
-     */
+    /** Create a new LKQL translation pass. */
     public TranslationPass(
         final Source source,
         final ScriptFrames frames,
@@ -80,12 +71,7 @@ public final class TranslationPass
         super(source, frames, errors);
     }
 
-    /**
-     * Get the string content from a string literal node.
-     *
-     * @param stringLiteral The string literal node.
-     * @return The string content of it.
-     */
+    /** Get the string content from a string literal node. */
     private String parseStringLiteral(final Liblkqllang.BaseStringLiteral stringLiteral) {
         // Prepare the result
         final String res;
@@ -129,22 +115,12 @@ public final class TranslationPass
 
     // --- Top level nodes
 
-    /**
-     * Visit a raw LKQL node. Always raise an exception.
-     *
-     * @param lkqlNode The node to visit.
-     */
+    /** Visit a raw LKQL node. Always raise an exception. */
     @Override
     public LKQLNode visit(Liblkqllang.LkqlNode lkqlNode) {
         throw LKQLEngineException.shouldNotReachHere();
     }
 
-    /**
-     * Visit a declaration annotation node.
-     *
-     * @param declAnnotation The declaration annotation node from Langkit.
-     * @return The declaration annotation node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.DeclAnnotation declAnnotation) {
         // Translate the annotation fields
@@ -160,12 +136,6 @@ public final class TranslationPass
         return null;
     }
 
-    /**
-     * Visit the top level node list, this what all LKQL programs start with.
-     *
-     * @param topLevelList The base TopLevelList node from Langkit.
-     * @return The TopLevelList node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.TopLevelList topLevelList) {
         // Enter the top level frame
@@ -226,45 +196,21 @@ public final class TranslationPass
 
     // --- Literals
 
-    /**
-     * Visit a true boolean literal node.
-     *
-     * @param boolLiteralTrue The boolean literal node from Langkit.
-     * @return The boolean literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.BoolLiteralTrue boolLiteralTrue) {
         return new BooleanLiteral(loc(boolLiteralTrue), true);
     }
 
-    /**
-     * Visit a false boolean literal node.
-     *
-     * @param boolLiteralFalse The boolean literal node from Langkit.
-     * @return The boolean literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.BoolLiteralFalse boolLiteralFalse) {
         return new BooleanLiteral(loc(boolLiteralFalse), false);
     }
 
-    /**
-     * Visit an identifier node.
-     *
-     * @param identifier The identifier node from Langkit.
-     * @return The identifier node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.Identifier identifier) {
         return buildRead(identifier.getText(), loc(identifier));
     }
 
-    /**
-     * Visit a integer literal node.
-     *
-     * @param integerLiteral The integer literal node from Langkit.
-     * @return The integer literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.IntegerLiteral integerLiteral) {
         try {
@@ -277,45 +223,21 @@ public final class TranslationPass
         }
     }
 
-    /**
-     * Visit a string literal node.
-     *
-     * @param stringLiteral The string literal node from Langkit.
-     * @return The string literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.StringLiteral stringLiteral) {
         return new StringLiteral(loc(stringLiteral), parseStringLiteral(stringLiteral));
     }
 
-    /**
-     * Visit a block string literal node.
-     *
-     * @param blockStringLiteral The block string literal node from Langkit.
-     * @return The block string literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.BlockStringLiteral blockStringLiteral) {
         return new StringLiteral(loc(blockStringLiteral), parseStringLiteral(blockStringLiteral));
     }
 
-    /**
-     * Visit a unit literal node.
-     *
-     * @param unitLiteral The unit literal node from Langkit.
-     * @return The unit literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.UnitLiteral unitLiteral) {
         return new UnitLiteral(loc(unitLiteral));
     }
 
-    /**
-     * Visit a null literal node.
-     *
-     * @param nullLiteral The null literal node from Langkit.
-     * @return The null literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.NullLiteral nullLiteral) {
         return new NullLiteral(loc(nullLiteral));
@@ -343,12 +265,6 @@ public final class TranslationPass
 
     // --- If then else node
 
-    /**
-     * Visit an "if then else" node.
-     *
-     * @param condExpr The "if then else" node from Langkit.
-     * @return The "if then else" node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.CondExpr condExpr) {
         // Translate the if then else fields
@@ -366,12 +282,6 @@ public final class TranslationPass
 
     // --- Unwrap node
 
-    /**
-     * Visit an unwrap node.
-     *
-     * @param unwrap The unwrap node from Langkit.
-     * @return The unwrap node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.Unwrap unwrap) {
         // Translate the unwrap field
@@ -383,12 +293,6 @@ public final class TranslationPass
 
     // --- Arguments
 
-    /**
-     * Visit an expression argument node.
-     *
-     * @param exprArg The expression argument node from Langkit.
-     * @return The expression argument node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.ExprArg exprArg) {
         // Translate the argument fields
@@ -398,12 +302,6 @@ public final class TranslationPass
         return new ExprArg(loc(exprArg), argExpr);
     }
 
-    /**
-     * Visit a named argument node.
-     *
-     * @param namedArg The named argument node from Langkit.
-     * @return The named argument node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.NamedArg namedArg) {
         // Translate the argument fields
@@ -414,24 +312,12 @@ public final class TranslationPass
         return new NamedArg(loc(namedArg), new Identifier(loc(namedArg.fArgName()), name), argExpr);
     }
 
-    /**
-     * Visit a synthetic named argument node.
-     *
-     * @param synthNamedArg The synthetic named argument node from Langkit.
-     * @return The synthetic named argument node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.SynthNamedArg synthNamedArg) {
         // For now, do the exact same thing as a simple named argument
         return this.visit((Liblkqllang.NamedArg) synthNamedArg);
     }
 
-    /**
-     * Visit an argument list node.
-     *
-     * @param argList The argument list node from Langkit.
-     * @return The argument list node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.ArgList argList) {
         var args = Arrays.stream(argList.children())
@@ -442,12 +328,6 @@ public final class TranslationPass
 
     // --- Parameters
 
-    /**
-     * Visit a parameter declaration node.
-     *
-     * @param parameterDecl The parameter declaration node from Langkit
-     * @return The parameter declaration node for Truffle
-     */
     @Override
     public LKQLNode visit(Liblkqllang.ParameterDecl parameterDecl) {
         return null;
@@ -460,12 +340,6 @@ public final class TranslationPass
 
     // --- Binary operations
 
-    /**
-     * Visit a binary operation node.
-     *
-     * @param binOp The binary operation node from Langkit.
-     * @return The binary operation node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.BinOp binOp) {
         // Translate the binary operands
@@ -496,24 +370,12 @@ public final class TranslationPass
         };
     }
 
-    /**
-     * Visit an arithmetic binary operation node
-     *
-     * @param arithBinOp The base ArithBinOp node from Langkit
-     * @return The BinOp node for Truffle
-     */
     @Override
     public LKQLNode visit(Liblkqllang.ArithBinOp arithBinOp) {
         // Pass the arithmetic operation to the general binary operation visitor
         return this.visit((Liblkqllang.BinOp) arithBinOp);
     }
 
-    /**
-     * Visit a relational binary operation node.
-     *
-     * @param relBinOp The relational binary operation node from Langkit.
-     * @return The relational binary operation node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.RelBinOp relBinOp) {
         // Pass the relational operation to the general binary operation visitor
@@ -522,12 +384,6 @@ public final class TranslationPass
 
     // --- Unary operations
 
-    /**
-     * Visit a unary operation node.
-     *
-     * @param unOp The unary operation node from Langkit.
-     * @return The unary operation node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.UnOp unOp) {
         // Translate the unary operator argument
@@ -557,7 +413,7 @@ public final class TranslationPass
 
     @Override
     public LKQLNode visit(Liblkqllang.PatternDetailDelimiterIs patternDetailDelimiterIs) {
-        LKQLLanguage.getContext(null)
+        LKQLContext.get(null)
             .getLogger()
             .log(
                 Level.WARNING,
@@ -635,12 +491,6 @@ public final class TranslationPass
 
     // --- Value declaration
 
-    /**
-     * Visit a variable declaration node.
-     *
-     * @param valDecl The value declaration node from Langkit.
-     * @return The value declaration node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.ValDecl valDecl) {
         // Translate the declaration fields
@@ -662,12 +512,6 @@ public final class TranslationPass
         return DotAccessWrapperNodeGen.create(dotAccess.getSourceSection(), dotAccess);
     }
 
-    /**
-     * Visit a dot access node.
-     *
-     * @param dotAccess The dot access node from Langkit.
-     * @return The dot access node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.DotAccess dotAccess) {
         // Translate the dot access fields
@@ -684,12 +528,6 @@ public final class TranslationPass
         );
     }
 
-    /**
-     * Visit a safe dot access node.
-     *
-     * @param safeAccess The safe dot access node from Langkit.
-     * @return The safe dot access node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.SafeAccess safeAccess) {
         // Translate the dot access fields
@@ -706,7 +544,6 @@ public final class TranslationPass
         );
     }
 
-    /** Visit an upper dot-access node and translate it into a member reference access. */
     @Override
     public LKQLNode visit(Liblkqllang.UpperDotAccess upperDotAccess) {
         final var receiver = upperDotAccess.fReceiver();
@@ -727,12 +564,6 @@ public final class TranslationPass
 
     // --- In clause
 
-    /**
-     * Visit a "in" clause node.
-     *
-     * @param inClause The "in" clause node from Langkit.
-     * @return The "in" clause node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.InClause inClause) {
         // Translate the in clause fields
@@ -745,12 +576,6 @@ public final class TranslationPass
 
     // --- Indexing
 
-    /**
-     * Visit an indexing node.
-     *
-     * @param indexing The indexing node from Langkit.
-     * @return The indexing node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.Indexing indexing) {
         // Translate the indexing fields
@@ -761,12 +586,6 @@ public final class TranslationPass
         return Indexing1BasedNodeGen.create(loc(indexing), false, collection, index);
     }
 
-    /**
-     * Visit a safe indexing node.
-     *
-     * @param safeIndexing The safe indexing node from Langkit.
-     * @return The safe indexing node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.SafeIndexing safeIndexing) {
         // Translate the safe indexing fields
@@ -875,12 +694,6 @@ public final class TranslationPass
         return new SplatPattern(loc(splatPattern), slot);
     }
 
-    /**
-     * Visit a "is" clause node.
-     *
-     * @param isClause The "is" claus node from Langkit.
-     * @return The "is" clause node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.IsClause isClause) {
         // Translate the is clause node expression
@@ -899,12 +712,6 @@ public final class TranslationPass
         return IsClauseNodeGen.create(loc(isClause), pattern, nodeExpr);
     }
 
-    /**
-     * Visit a null pattern node.
-     *
-     * @param nullPattern The null pattern node from Langkit.
-     * @return The null pattern node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.NullPattern nullPattern) {
         // Just return the null pattern node
@@ -942,24 +749,12 @@ public final class TranslationPass
         );
     }
 
-    /**
-     * Visit a universal pattern node.
-     *
-     * @param universalPattern The universal pattern node from Langkit.
-     * @return The universal pattern node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.UniversalPattern universalPattern) {
         // Just return the universal pattern node
         return new UniversalPattern(loc(universalPattern));
     }
 
-    /**
-     * Visit a regex pattern node.
-     *
-     * @param regexPattern The base regex pattern node from Langkit.
-     * @return The regex pattern node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.RegexPattern regexPattern) {
         // Get the regex string
@@ -981,27 +776,12 @@ public final class TranslationPass
         return TuplePatternNodeGen.create(loc(tuplePattern), tuplePatterns.toArray(new Pattern[0]));
     }
 
-    /**
-     * Visit a parented pattern node.
-     *
-     * @param parenPattern The parented pattern node from Langkit.
-     * @return The parented pattern node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.ParenPattern parenPattern) {
-        // Translate the parented pattern
-        final Pattern pattern = (Pattern) parenPattern.fPattern().accept(this);
-
-        // Return the new parented pattern node
-        return new ParenPattern(loc(parenPattern), pattern);
+        // Just return the translation of the inner pattern
+        return parenPattern.fPattern().accept(this);
     }
 
-    /**
-     * Visit an or pattern node.
-     *
-     * @param orPattern The or pattern node from Langkit.
-     * @return The or pattern node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.OrPattern orPattern) {
         // Translate the or pattern fields
@@ -1012,12 +792,6 @@ public final class TranslationPass
         return new OrPattern(loc(orPattern), left, right);
     }
 
-    /**
-     * Visit a not pattern node.
-     *
-     * @param notPattern The not pattern node from Langkit
-     * @return The not pattern node for Truffle
-     */
     @Override
     public LKQLNode visit(Liblkqllang.NotPattern notPattern) {
         // Translate the not pattern fields
@@ -1039,12 +813,6 @@ public final class TranslationPass
         return null;
     }
 
-    /**
-     * Visit a query node.
-     *
-     * @param query The query node from Langkit.
-     * @return The query node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.Query query) {
         // Enter the query frame
@@ -1094,12 +862,6 @@ public final class TranslationPass
 
     // --- Lists
 
-    /**
-     * Visit a list literal node.
-     *
-     * @param listLiteral The list literal node from Langkit.
-     * @return The list literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.ListLiteral listLiteral) {
         // Create the expressions of the list
@@ -1127,12 +889,6 @@ public final class TranslationPass
         return null;
     }
 
-    /**
-     * Visit a list comprehension node.
-     *
-     * @param listComprehension The list comprehension node from Langkit.
-     * @return The list comprehension node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.ListComprehension listComprehension) {
         // Translate the list comprehension collections
@@ -1200,12 +956,6 @@ public final class TranslationPass
         return null;
     }
 
-    /**
-     * Visit an object literal node.
-     *
-     * @param objectLiteral The object literal node from Langkit.
-     * @return The object literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.ObjectLiteral objectLiteral) {
         // Get the association list and prepare the keys and values
@@ -1244,12 +994,6 @@ public final class TranslationPass
         return null;
     }
 
-    /**
-     * Visit an at object literal node.
-     *
-     * @param atObjectLiteral The at object literal node from Langkit.
-     * @return The equivalent object literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.AtObjectLiteral atObjectLiteral) {
         // Get the association list and prepare the keys and values
@@ -1285,12 +1029,6 @@ public final class TranslationPass
 
     // --- Block expressions
 
-    /**
-     * Visit a block body declaration node.
-     *
-     * @param blockBodyDecl The block body declaration node from Langkit.
-     * @return The block body declaration node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.BlockBodyDecl blockBodyDecl) {
         // Translate the block body fields
@@ -1300,12 +1038,6 @@ public final class TranslationPass
         return new BlockBodyDecl(loc(blockBodyDecl), declaration);
     }
 
-    /**
-     * Visit a block body expression node.
-     *
-     * @param blockBodyExpr The block body expression node from Langkit.
-     * @return The block body expression node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.BlockBodyExpr blockBodyExpr) {
         // Translate the block body fields
@@ -1320,12 +1052,6 @@ public final class TranslationPass
         return null;
     }
 
-    /**
-     * Visit a block expression node.
-     *
-     * @param blockExpr The block expression node from Langkit.
-     * @return The block expression node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.BlockExpr blockExpr) {
         // Enter the block expression frame
@@ -1349,12 +1075,6 @@ public final class TranslationPass
 
     // --- Function declarations
 
-    /**
-     * Visit a named function node.
-     *
-     * @param namedFunction The named function node from Langkit.
-     * @return The named function node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.NamedFunction namedFunction) {
         return this.functionExprHelper(
@@ -1363,23 +1083,11 @@ public final class TranslationPass
         );
     }
 
-    /**
-     * Visit an anonymous function node.
-     *
-     * @param anonymousFunction The anonymous function node from Langkit.
-     * @return The anonymous function node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.AnonymousFunction anonymousFunction) {
         return this.functionExprHelper(anonymousFunction, "<anonymous>");
     }
 
-    /**
-     * Helper function to visit named and anonymous function the same way.
-     *
-     * @param baseFunction The base function node from Langkit.
-     * @return The function expression node for Truffle.
-     */
     private FunExpr functionExprHelper(Liblkqllang.BaseFunction baseFunction, String name) {
         // Enter the function frame
         this.frames.enterFrame(baseFunction);
@@ -1416,12 +1124,6 @@ public final class TranslationPass
         return res;
     }
 
-    /**
-     * Visit a function declaration node.
-     *
-     * @param funDecl The function declaration node from Langkit.
-     * @return The function declaration node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.FunDecl funDecl) {
         // Get the current slot of the name
@@ -1461,12 +1163,6 @@ public final class TranslationPass
 
     // --- Function calling
 
-    /**
-     * Visit a function call node.
-     *
-     * @param funCall The function call node from Langkit.
-     * @return The function call node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.FunCall funCall) {
         // Translate the function call fields
@@ -1487,11 +1183,9 @@ public final class TranslationPass
     /**
      * Visit a constructor call node. For now constructor is only available for rewriting nodes,
      * thus we can statically determine required children and their order.
-     * If the node is encountered while parsing a 'pass', it is instead instanciated
-     * as a dynamic constructor call (creating a dynamically typed node).
      *
-     * @param constructorCall The constructor call from Langkit.
-     * @return The constructor call node for Truffle.
+     * If the node is encountered while parsing a 'pass', it is instead instantiated as a dynamic
+     * constructor call (creating a dynamically typed node).
      */
     @Override
     public LKQLNode visit(Liblkqllang.ConstructorCall constructorCall) {
@@ -1536,12 +1230,6 @@ public final class TranslationPass
         return null;
     }
 
-    /**
-     * Visit a selector declaration node.
-     *
-     * @param selectorDecl The selector declaration node from Langkit.
-     * @return The selector declaration node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.SelectorDecl selectorDecl) {
         // Get the name, documentation and annotation for the selector declaration
@@ -1624,12 +1312,6 @@ public final class TranslationPass
         return new FunctionDeclaration(loc(selectorDecl), annotation, slot, selectorFunction);
     }
 
-    /**
-     * Visit a selector call node.
-     *
-     * @param selectorCall The selector call node from Langkit.
-     * @return The selector call node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.SelectorCall selectorCall) {
         // Translate the selector call fields
@@ -1657,12 +1339,6 @@ public final class TranslationPass
 
     // --- Node patterns
 
-    /**
-     * Visit a node kind pattern node.
-     *
-     * @param nodeKindPattern The node kind pattern node from Langkit.
-     * @return The node kind pattern node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.NodeKindPattern nodeKindPattern) {
         if (inPass) {
@@ -1678,12 +1354,6 @@ public final class TranslationPass
         }
     }
 
-    /**
-     * Visit a node pattern field node.
-     *
-     * @param nodePatternField The node pattern field node from Langkit.
-     * @return The node pattern field node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.NodePatternField nodePatternField) {
         // Translate the node pattern detail fields
@@ -1696,12 +1366,6 @@ public final class TranslationPass
         return NodePatternFieldNodeGen.create(loc(nodePatternField), name, expected);
     }
 
-    /**
-     * Visit a node pattern property node.
-     *
-     * @param nodePatternProperty The base node pattern property node from Langkit.
-     * @return The node pattern property node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.NodePatternProperty nodePatternProperty) {
         // Translate the node pattern detail fields
@@ -1720,12 +1384,6 @@ public final class TranslationPass
         );
     }
 
-    /**
-     * Visit a node pattern selector node.
-     *
-     * @param nodePatternSelector The node pattern selector node from Langkit.
-     * @return The node pattern selector node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.NodePatternSelector nodePatternSelector) {
         // Translate the node pattern selector
@@ -1753,12 +1411,6 @@ public final class TranslationPass
 
     // --- Pattern matching
 
-    /**
-     * Visit a match arm node.
-     *
-     * @param matchArm The match arm node from Langkit.
-     * @return The match arm node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.MatchArm matchArm) {
         // Enter the match arm frame
@@ -1780,12 +1432,6 @@ public final class TranslationPass
         return null;
     }
 
-    /**
-     * Visit a match node.
-     *
-     * @param match The match node from Langkit.
-     * @return The match node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.Match match) {
         // Translate the match fields
@@ -1803,12 +1449,6 @@ public final class TranslationPass
 
     // --- Imports
 
-    /**
-     * Visit a import node.
-     *
-     * @param anImport The import node from Langkit.
-     * @return The import node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.Import anImport) {
         // Get the name of the import
@@ -1824,12 +1464,6 @@ public final class TranslationPass
 
     // --- Tuples
 
-    /**
-     * Visit a tuple literal node.
-     *
-     * @param tuple The tuple literal node from Langkit.
-     * @return The tuple literal node for Truffle.
-     */
     @Override
     public LKQLNode visit(Liblkqllang.Tuple tuple) {
         // Get the expressions inside the tuple

@@ -11,6 +11,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.values.interfaces.Iterable;
 import com.adacore.lkql_jit.values.interfaces.Iterator;
 
+/** This class represents the result of a flatten operation called on a stream. */
 public final class LKQLFlattenResult extends BaseCachedStream {
 
     /** Collection that is flatten. */

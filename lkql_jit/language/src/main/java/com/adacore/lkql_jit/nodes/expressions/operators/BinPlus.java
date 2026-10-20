@@ -14,11 +14,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
-/**
- * This node represents the addition operation in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an addition operation. */
 public abstract class BinPlus extends BinOp {
 
     // ----- Constructors -----
@@ -34,36 +30,19 @@ public abstract class BinPlus extends BinOp {
 
     // ----- Execution methods -----
 
-    /**
-     * Add two longs.
-     *
-     * @param left The left long value.
-     * @param right The right long value.
-     * @return The addition of two longs.
-     */
+    /** Add two longs. */
     @Specialization(rewriteOn = ArithmeticException.class)
     protected long addLongs(long left, long right) {
         return Math.addExact(left, right);
     }
 
-    /**
-     * Add two big integers.
-     *
-     * @param left The left long value.
-     * @param right The right long value.
-     * @return The addition of two big integers.
-     */
+    /** Add two big integers. */
     @Specialization(replaces = "addLongs")
     protected BigInteger addBigIntegers(BigInteger left, BigInteger right) {
         return BigIntegerUtils.add(left, right);
     }
 
-    /**
-     * Raise a type exception if there is a non-integer parameter.
-     *
-     * @param left The left value.
-     * @param right The right value.
-     */
+    /** Raise a type exception if there is a non-integer parameter. */
     @Fallback
     protected void notNumbers(Object left, Object right) {
         if (!LKQLTypeSystemGen.isLong(left) && !LKQLTypeSystemGen.isBigInteger(left)) {
@@ -83,9 +62,6 @@ public abstract class BinPlus extends BinOp {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

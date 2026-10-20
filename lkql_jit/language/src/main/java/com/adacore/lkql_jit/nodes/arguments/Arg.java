@@ -11,7 +11,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/** This node represents all type of arguments in the LKQL language. */
+/** This node is the base of all argument nodes. */
 public abstract sealed class Arg extends LKQLNode permits NamedArg, ExprArg {
 
     // ----- Attributes -----
@@ -32,7 +32,7 @@ public abstract sealed class Arg extends LKQLNode permits NamedArg, ExprArg {
      * Create a new argument node.
      *
      * @param location The location of the argument in the sources.
-     * @param argName The name of the argument.
+     * @param argName The name of the argument, if there is one, null otherwise.
      * @param argExpr The expression of the argument.
      */
     protected Arg(SourceSection location, Identifier argName, Expr argExpr) {
@@ -53,10 +53,6 @@ public abstract sealed class Arg extends LKQLNode permits NamedArg, ExprArg {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.argExpr.executeGeneric(frame);

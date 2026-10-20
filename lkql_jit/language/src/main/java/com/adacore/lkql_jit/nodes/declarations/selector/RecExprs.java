@@ -22,14 +22,10 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.ArrayList;
 
-/**
- * Container class: contains every node class for rec expressions in selectors.
- */
+/** Container class: contains every node class for rec expressions in selectors. */
 public class RecExprs {
 
-    /**
-     * Node for rec expression with only one parameter.
-     */
+    /** Node for rec expression with only one parameter. */
     @NodeChild(value = "expr", type = Expr.class)
     public abstract static class UnaryRecExpr extends Expr {
 
@@ -156,9 +152,7 @@ public class RecExprs {
         }
     }
 
-    /**
-     * Rec expr with both a recurse and a result sub-expression.
-     */
+    /** Rec expr with both a recurse and a result sub-expression. */
     public static class BinaryRecExpr extends Expr {
 
         @Child

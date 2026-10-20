@@ -15,11 +15,7 @@ import com.adacore.lkql_jit.values.LKQLPattern;
 import com.adacore.lkql_jit.values.lists.LKQLArrayList;
 import com.oracle.truffle.api.dsl.Specialization;
 
-/**
- * This class contains all built-in methods for the string type in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This class contains all built-in methods for the "String" type in the LKQL language. */
 @BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.LKQL_STRING })
 public class StrMethods {
 

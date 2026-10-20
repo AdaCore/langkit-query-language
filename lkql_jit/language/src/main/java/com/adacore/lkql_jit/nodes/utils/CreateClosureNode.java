@@ -14,9 +14,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 
-/**
- * Node to optimize the creation of a closure.
- */
+/** Util node to optimize the creation of a closure. */
 public class CreateClosureNode extends Node {
 
     @CompilerDirectives.CompilationFinal(dimensions = 1)

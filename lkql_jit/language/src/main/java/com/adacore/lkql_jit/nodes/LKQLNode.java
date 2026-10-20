@@ -18,11 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * The base node of the LKQL implementation in Truffle, all other nodes come from it.
- *
- * @author Hugo GUERRIER
- */
+/** The base node of the LKQL implementation in Truffle, all other node types derive from it. */
 @TypeSystemReference(LKQLTypeSystem.class)
 public abstract class LKQLNode extends Node {
 
@@ -52,16 +48,15 @@ public abstract class LKQLNode extends Node {
     // ----- Execution methods -----
 
     /**
-     * Execute the node as a generic value, it returns an untyped java object.
+     * Execute the node as a generic value and return the value it evaluates to.
      *
      * @param frame The frame to execute the node in.
-     * @return The result of the node execution wrapped in an object.
      */
     public abstract Object executeGeneric(VirtualFrame frame);
 
     // ----- Instance methods -----
 
-    /** Get a string representing the source this node has been defined in. */
+    /** Get a string representing the source this node comes from. */
     public String getSourceName() {
         var source = getSourceSection().getSource();
         return Optional.ofNullable(source.getPath())
@@ -72,21 +67,19 @@ public abstract class LKQLNode extends Node {
     /**
      * Create the string representation of the node with its children.
      *
-     * @param indentLevel The level of indentation.
-     * @return The string representation of the node.
+     * @param indentLevel The initial level of indentation.
      */
     protected String nodeRepresentation(int indentLevel) {
         return this.nodeRepresentation(indentLevel, new String[0], new Object[0]);
     }
 
     /**
-     * Create a node string representation with its name and fields, THIS AUTOMATICALLY INCLUDE
+     * Create a string representation of the node with its name and fields, THIS AUTOMATICALLY INCLUDE
      * NODE'S CHILDREN.
      *
      * @param indentLevel The level of indentation.
      * @param fields The field names.
      * @param values The field values.
-     * @return The string representation of the node.
      */
     @CompilerDirectives.TruffleBoundary
     protected String nodeRepresentation(int indentLevel, String[] fields, Object[] values) {
@@ -129,12 +122,7 @@ public abstract class LKQLNode extends Node {
         return builder.toString();
     }
 
-    /**
-     * Indent the builder with the correct level.
-     *
-     * @param indentLevel The indent level.
-     * @param builder The builder to indent.
-     */
+    /** Indent the builder with the correct level. */
     private void indent(int indentLevel, StringBuilder builder) {
         builder.append("   ".repeat(Math.max(0, indentLevel)));
     }
@@ -143,7 +131,6 @@ public abstract class LKQLNode extends Node {
      * Get a list containing the node children representation associated with their name.
      *
      * @param indentLevel The level of indentation of children nodes.
-     * @return The list of children representation.
      */
     private List<String> getChildrenRepresentations(int indentLevel) {
         // Prepare the result
@@ -238,10 +225,8 @@ public abstract class LKQLNode extends Node {
     }
 
     /**
-     * Get the tree representation of the node in a string.
-     *
-     * @param indentLevel The indent level of this node.
-     * @return The tree representation of the node in a string.
+     * Get the string representation of the node as a tree with the provided initial indent
+     * level.
      */
     public abstract String toString(int indentLevel);
 }

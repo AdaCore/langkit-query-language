@@ -9,7 +9,7 @@ import com.adacore.langkit_support.LangkitSupport;
 import com.adacore.langkit_support.LangkitSupport.AnalysisUnit;
 import com.adacore.langkit_support.LangkitSupport.NodeInterface;
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.annotations.BuiltInMethod;
 import com.adacore.lkql_jit.annotations.BuiltinMethodContainer;
 import com.adacore.lkql_jit.annotations.DefaultVal;
@@ -25,11 +25,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import java.util.ArrayList;
 
-/**
- * This class contains all built-in methods for the node type in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This class contains all built-in methods for the "Node" type in the LKQL language. */
 @BuiltinMethodContainer(targetTypes = { LKQLTypesHelper.NODE_INTERFACE })
 public final class NodeMethods {
 
@@ -91,7 +87,7 @@ public final class NodeMethods {
 
         @Specialization
         public LKQLUnit onNode(NodeInterface self) {
-            LKQLLanguage.getContext(this).print(self.dumpTree());
+            LKQLContext.get(this).print(self.dumpTree());
             return LKQLUnit.INSTANCE;
         }
     }

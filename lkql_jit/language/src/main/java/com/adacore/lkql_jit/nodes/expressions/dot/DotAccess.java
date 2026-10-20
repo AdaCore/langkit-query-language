@@ -20,7 +20,7 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.source.SourceSection;
 
-/** This node represents the dot access in the LKQL language. */
+/** This node represents a dot access. */
 public abstract class DotAccess extends BaseDotAccess {
 
     // ----- Constructors -----
@@ -76,9 +76,7 @@ public abstract class DotAccess extends BaseDotAccess {
         throw LKQLRuntimeError.noSuchMember(this);
     }
 
-    /**
-     * Execute the dot access on a node with the cached strategy.
-     */
+    /** Execute the dot access on a node with the cached strategy. */
     @Specialization(
         guards = {
             "!receiver.isNone()",
@@ -103,9 +101,7 @@ public abstract class DotAccess extends BaseDotAccess {
         }
     }
 
-    /**
-     * Execute the dot access on a node with the un-cached strategy.
-     */
+    /** Execute the dot access on a node with the un-cached strategy. */
     @Specialization(replaces = "onNodeCached")
     protected Object onNodeUncached(LangkitSupport.NodeInterface receiver) {
         // Try the built_in

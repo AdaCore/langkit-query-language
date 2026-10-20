@@ -20,11 +20,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 import java.math.BigInteger;
 
-/**
- * This node is the base of all expressions in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node is the base of all expressions nodes. */
 public abstract class Expr extends LKQLNode {
 
     // ----- Constructors -----
@@ -43,8 +39,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as the unit value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as unit.
      * @throws UnexpectedResultException If the node cannot be evaluated as a unit value.
      */
     @SuppressWarnings("unused")
@@ -55,8 +49,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a nullish value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as nullish.
      * @throws UnexpectedResultException If the node cannot be evaluated as a nullish value.
      */
     @SuppressWarnings("unused")
@@ -67,8 +59,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a long.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a long.
      * @throws UnexpectedResultException If the node cannot be evaluated as a long.
      */
     @SuppressWarnings("unused")
@@ -79,8 +69,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a big integer.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a big integer.
      * @throws UnexpectedResultException If the node cannot be evaluated as a big integer.
      */
     @SuppressWarnings("unused")
@@ -91,8 +79,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a string.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a string.
      * @throws UnexpectedResultException If the node cannot be evaluated as a string.
      */
     @SuppressWarnings("unused")
@@ -103,8 +89,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a function value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a function value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a function.
      */
     @SuppressWarnings("unused")
@@ -115,8 +99,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a property reference value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a property reference value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a property reference.
      */
     @SuppressWarnings("unused")
@@ -127,8 +109,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a tuple value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a tuple value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a tuple.
      */
     @SuppressWarnings("unused")
@@ -139,8 +119,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a list value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a list value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a list.
      */
     @SuppressWarnings("unused")
@@ -148,7 +126,11 @@ public abstract class Expr extends LKQLNode {
         return LKQLTypeSystemGen.expectLKQLList(executeGeneric(frame));
     }
 
-    /** Execute the expression and expect a stream. */
+    /**
+     * Execute the expression as a stream value.
+     *
+     * @throws UnexpectedResultException If the node cannot be evaluated as a stream.
+     */
     public LKQLStream executeStream(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLStream(executeGeneric(frame));
     }
@@ -156,8 +138,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as an indexable value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as an indexable value.
      * @throws UnexpectedResultException If the node cannot be evaluated as an indexable.
      */
     @SuppressWarnings("unused")
@@ -168,8 +148,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as an iterable value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as an iterable value.
      * @throws UnexpectedResultException If the node cannot be evaluated as an iterable.
      */
     @SuppressWarnings("unused")
@@ -180,8 +158,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as an object value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as an object value.
      * @throws UnexpectedResultException If the node cannot be evaluated as an object.
      */
     @SuppressWarnings("unused")
@@ -192,8 +168,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a namespace value.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a namespace value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a namespace.
      */
     @SuppressWarnings("unused")
@@ -204,8 +178,6 @@ public abstract class Expr extends LKQLNode {
     /**
      * Execute the expression as a node.
      *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as an node.
      * @throws UnexpectedResultException If the node cannot be evaluated as a node.
      */
     @SuppressWarnings("unused")

@@ -12,9 +12,9 @@ import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * This node represents a constructor call in the LKQL language.
- * It is used only in the context of a nanopass, contrary to
- * {@link ConstructorCall}. The type of node is decided in the lowering
- * pass, thanks to a flag set when entering a pass node.
+ *
+ * It is used only in the context of a nanopass, contrary to {@link ConstructorCall}. The type of
+ * node is decided in the lowering pass, thanks to a flag set when entering a pass node.
  */
 public final class DynamicConstructorCall extends Expr {
 
@@ -30,12 +30,19 @@ public final class DynamicConstructorCall extends Expr {
 
     // ----- Constructors -----
 
+    /**
+     * Create a new dynamic constructor call.
+     *
+     * @param location The location of the node in the source.
+     */
     public DynamicConstructorCall(SourceSection location, String nodeKind, ArgList argList) {
         super(location);
         // Get the node kind and if this is a token node
         this.nodeKind = nodeKind;
         this.args = argList;
     }
+
+    // ----- Getters -----
 
     public int arity() {
         return this.args.getArgs().length;

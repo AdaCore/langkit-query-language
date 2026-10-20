@@ -10,11 +10,7 @@ import com.adacore.lkql_jit.nodes.expressions.LKQLToBoolean;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the logic unary negation in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a logic unary negation. */
 @NodeChild(value = "arg", type = Expr.class)
 public abstract class UnNot extends UnOp {
 
@@ -22,10 +18,14 @@ public abstract class UnNot extends UnOp {
 
     /**
      * Create a logic unary negation node.
+     *
+     * @param location The location of the node in the source.
      */
     protected UnNot(SourceSection location) {
         super(location);
     }
+
+    // ----- Execution methods -----
 
     @Specialization
     protected boolean negateBoolean(boolean arg) {
@@ -36,6 +36,8 @@ public abstract class UnNot extends UnOp {
     protected boolean notBoolean(Object arg, @Cached LKQLToBoolean toBoolean) {
         return !toBoolean.execute(arg);
     }
+
+    // ----- Override methods -----
 
     @Override
     public String toString(int indentLevel) {

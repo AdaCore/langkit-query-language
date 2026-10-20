@@ -18,7 +18,7 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
-/** This class represents a tuple in LKQL. */
+/** This class represents a tuple. */
 @ExportLibrary(InteropLibrary.class)
 public class LKQLTuple extends LKQLValue implements Indexable {
 

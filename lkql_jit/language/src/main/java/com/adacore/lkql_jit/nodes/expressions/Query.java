@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.nodes.patterns.Pattern;
@@ -21,11 +21,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.ArrayList;
 
-/**
- * This node represents a query in the LKQL language
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a query. */
 public final class Query extends Expr {
 
     // ----- Attributes -----
@@ -53,14 +49,14 @@ public final class Query extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new query node
+     * Create a new query node.
      *
-     * @param location The location of the node in the source
-     * @param kind The kind of the query
-     * @param followGenerics Whether the tree traversal should follow the generic instantiations
-     * @param throughExpr The expression of the "through" element
-     * @param fromExpr The "from" expression (might be null)
-     * @param pattern The pattern of the query node
+     * @param location The location of the node in the source.
+     * @param kind The kind of the query.
+     * @param followGenerics Whether the tree traversal should follow the generic instantiations.
+     * @param throughExpr The expression of the "through" element.
+     * @param fromExpr The "from" expression (might be null).
+     * @param pattern The pattern of the query node.
      */
     public Query(
         SourceSection location,
@@ -78,10 +74,6 @@ public final class Query extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         final var through = executeThrough(frame);
@@ -136,7 +128,7 @@ public final class Query extends Expr {
 
     private LangkitSupport.NodeInterface[] executeFromNodes(VirtualFrame frame) {
         // If there is no "from" expression, we get the default roots
-        if (fromExpr == null) return LKQLLanguage.getContext(pattern).allUnitsRoots();
+        if (fromExpr == null) return LKQLContext.get(pattern).allUnitsRoots();
 
         // If there is a "from" expression
         Object fromObject = fromExpr.executeGeneric(frame);
@@ -169,12 +161,12 @@ public final class Query extends Expr {
     // ----- Class methods -----
 
     /**
-     * Create a node iterator with the given root and the given through method
+     * Create a node iterator with the given root and the given through method.
      *
-     * @param root The root of the iterator
+     * @param root The root of the iterator.
      * @param through The method to go through the iteration, if null this is a default children
-     *     exploration
-     * @return The iterator for the node exploration
+     *                exploration.
+     * @return The iterator for the node exploration.
      */
     private Iterator createNodeIterator(LangkitSupport.NodeInterface root, LKQLFunction through) {
         var selectorList = through.getCallTarget().call(null, through.closure, root, -1l, -1l, -1l);
@@ -191,9 +183,6 @@ public final class Query extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

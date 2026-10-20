@@ -15,6 +15,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents the body of a selector. */
 public final class SelectorExpr extends Expr {
 
     // ----- Attributes -----
@@ -40,7 +41,7 @@ public final class SelectorExpr extends Expr {
         super(location);
         this.rootNode = new FunctionRootNode(
             location,
-            LKQLLanguage.getLanguage(this),
+            LKQLLanguage.get(this),
             frameDescriptor,
             isMemoized,
             true,

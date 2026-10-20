@@ -12,7 +12,7 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.RootNode;
 
-/** This class represents a list comprehension value in the LKQL language. */
+/** This class represents a list comprehension value. */
 public final class LKQLListComprehension extends BaseCachedStream {
 
     // ----- Attributes -----
@@ -71,11 +71,7 @@ public final class LKQLListComprehension extends BaseCachedStream {
         return pullCount > sources.length;
     }
 
-    /**
-     * Populates the arguments attribute.
-     *
-     * @return true only if succeeded.
-     */
+    /** Populates the arguments attributes, then return whether it succeeded. */
     private boolean updateArgs() {
         if (reachedEnd()) return false;
         for (int i = 0; i < pullCount; i++) {

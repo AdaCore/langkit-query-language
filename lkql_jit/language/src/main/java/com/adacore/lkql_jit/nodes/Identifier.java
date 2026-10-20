@@ -11,9 +11,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
- * This class represents an identifier in the LKQL language. Note that it extends Expr even though
- * it is not an executable node. This is used to use `Identifier` as a valid location for errors in
- * runtime exceptions.
+ * This class represents an textual identifier. Note that it extends Expr even though it is not an
+ * executable node. This node is used to associate a location to a symbol.
  */
 public final class Identifier extends Expr {
 
@@ -24,12 +23,7 @@ public final class Identifier extends Expr {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new identifier with the parameters.
-     *
-     * @param location The location of the identifier in the source.
-     * @param name The name of the identifier.
-     */
+    /** Create a new identifier. */
     public Identifier(SourceSection location, String name) {
         super(location);
         this.name = name;

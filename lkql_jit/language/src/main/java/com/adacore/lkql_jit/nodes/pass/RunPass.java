@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.pass;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -24,9 +24,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
- * Special annotation to specify the entry point for the nanopass framework.
- * The pass designated by the associate identifier and all its transitive
- * dependencies are going to be executed.
+ * Special annotation to specify the entry point for the nanopass framework. The pass designated by
+ * the associate identifier and all its transitive dependencies are going to be executed.
  */
 public class RunPass extends LKQLNode {
 
@@ -39,7 +38,7 @@ public class RunPass extends LKQLNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        final var ctx = LKQLLanguage.getContext(this);
+        final var ctx = LKQLContext.get(this);
 
         // Build pass call-chain
         final Deque<LKQLFunction> callChain = new ArrayDeque<>();

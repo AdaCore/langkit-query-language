@@ -36,12 +36,7 @@ import org.graalvm.options.OptionDescriptors;
 import org.graalvm.options.OptionKey;
 import org.graalvm.options.OptionStability;
 
-/**
- * This class represents the registration and the entry point of the LKQL language Truffle
- * implementation.
- *
- * @author Hugo GUERRIER
- */
+/** Entry point and registration of the LKQL language in the Truffle framework. */
 @TruffleLanguage.Registration(
     id = Constants.LKQL_ID,
     name = "Langkit Query Language",
@@ -54,14 +49,14 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     // ----- Static variables -----
 
-    /** The reference to the LKQL language. */
     private static final LanguageReference<LKQLLanguage> LANGUAGE_REFERENCE =
         LanguageReference.create(LKQLLanguage.class);
 
-    /** The reference to the LKQL context. */
-    private static final ContextReference<LKQLContext> CONTEXT_REFERENCE = ContextReference.create(
-        LKQLLanguage.class
-    );
+    // ----- Attributes -----
+
+    private final Liblkqllang.AnalysisContext lkqlAnalysisContext;
+
+    private Liblktlang.AnalysisContext lktAnalysisContext;
 
     // ----- Options -----
 
@@ -73,9 +68,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     )
     static final OptionKey<String> options = new OptionKey<>("");
 
-    Liblkqllang.AnalysisContext lkqlAnalysisContext;
-    private Liblktlang.AnalysisContext lktAnalysisContext;
-
     // ----- Constructors -----
 
     /** A simple constructor for the library loading. */
@@ -85,8 +77,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // columns counting is based on characters:
         // https://www.graalvm.org/truffle/javadoc/com/oracle/truffle/api/source/Source.html#createSection(int,int,int,int)
         this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create(
-            (String) null,
-            (Liblkqllang.FileReader) null,
+            null,
+            null,
             null,
             null,
             true,
@@ -117,41 +109,19 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     // ----- Class methods -----
 
-    /**
-     * Get the context for a given node.
-     *
-     * @param node The node to get the context from.
-     * @return The LKQLContext for the node.
-     */
-    public static LKQLContext getContext(LKQLNode node) {
-        return CONTEXT_REFERENCE.get(node);
-    }
-
-    /**
-     * Get the language instance for the given node.
-     *
-     * @param node The node to get the language instance from.
-     * @return The LKQLLanguage instance for the node.
-     */
-    public static LKQLLanguage getLanguage(LKQLNode node) {
+    /** Get the language instance associated to the given node. */
+    public static LKQLLanguage get(LKQLNode node) {
         return LANGUAGE_REFERENCE.get(node);
     }
 
     // ----- Language methods -----
 
-    /**
-     * @see
-     *     com.oracle.truffle.api.TruffleLanguage#createContext(com.oracle.truffle.api.TruffleLanguage.Env)
-     */
     @Override
     protected LKQLContext createContext(Env env) {
         // Return the new context
-        return new LKQLContext(env, new GlobalScope(), this);
+        return new LKQLContext(env, new GlobalScope());
     }
 
-    /**
-     * @see com.oracle.truffle.api.TruffleLanguage#initializeContext(Object)
-     */
     @Override
     protected void initializeContext(LKQLContext context) {
         // Set output and error encoding to UTF_8, in the future, user should be able to choose
@@ -162,26 +132,17 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         context.initSources();
     }
 
-    /**
-     * @see com.oracle.truffle.api.TruffleLanguage#patchContext(Object, Env)
-     */
     @Override
     protected boolean patchContext(LKQLContext context, Env newEnv) {
         context.patchContext(newEnv);
         return true;
     }
 
-    /**
-     * @see com.oracle.truffle.api.TruffleLanguage#finalizeContext(Object)
-     */
     @Override
     protected void finalizeContext(LKQLContext context) {
         context.finalizeContext();
     }
 
-    /**
-     * @see com.oracle.truffle.api.TruffleLanguage#getOptionDescriptors()
-     */
     @Override
     protected OptionDescriptors getOptionDescriptors() {
         return new LKQLLanguageOptionDescriptors();
@@ -206,13 +167,13 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         final var namespace = (LKQLNamespace) new TopLevelRootNode(truffleTree, this)
             .getCallTarget()
             .call();
-        getContext(truffleTree).getGlobal().loadPreludeNamespace(namespace);
+        LKQLContext.get(truffleTree).getGlobal().loadPreludeNamespace(namespace);
     }
 
     @Override
     protected CallTarget parse(ParsingRequest request) {
         // Ensure the prelude is loaded first
-        if (getContext(null).getGlobal().prelude == null) {
+        if (LKQLContext.get(null).getGlobal().prelude == null) {
             loadPrelude();
         }
 
@@ -232,9 +193,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      *
      * <p>The trigger is a simple string match, so the comment needs to match exactly that. We might
      * relax those constraints at a later stage.
-     *
-     * @param source The Truffle source of the AST.
-     * @return The translated LKQL Truffle AST.
      */
     public TopLevelList translateSource(final Source source) {
         final var sourceType = SourceType.of(source);
@@ -308,7 +266,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         lkqlRoot.accept(framingPass);
         final ScriptFrames scriptFrames = framingPass
             .getScriptFramesBuilder()
-            .build(CONTEXT_REFERENCE.get(null).getGlobal());
+            .build(LKQLContext.get(null).getGlobal());
 
         // Do the translation pass and return the result
         final TranslationPass translationPass = new TranslationPass(source, scriptFrames, errors);
@@ -320,7 +278,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         Liblktlang.LangkitRoot lktRoot,
         LKQLStaticErrors errors
     ) {
-        var options = getContext(null).getOptions();
+        var options = LKQLContext.get(null).getOptions();
         var typecheckingMode = options.typecheckingMode();
 
         if (typecheckingMode != LKQLOptions.TypecheckingMode.DISABLE) {
@@ -330,7 +288,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         // Create frames for the Lkt script
         final ScriptFrames frames = LktPasses.Frames.buildFrames(lktRoot).build(
-            CONTEXT_REFERENCE.get(null).getGlobal()
+            LKQLContext.get(null).getGlobal()
         );
 
         // Then translate the Lkt parsing tree to a Truffle tree

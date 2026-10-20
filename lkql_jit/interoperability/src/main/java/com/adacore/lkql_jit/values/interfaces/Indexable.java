@@ -5,17 +5,11 @@
 
 package com.adacore.lkql_jit.values.interfaces;
 
-/**
- * This class defines the indexable interface for all the indexable LKQL types.
- *
- * @author Hugo GUERRIER
- */
+/** This class defines the indexable interface for all the indexable LKQL types. */
 public interface Indexable {
     /**
      * Get the element at the given index.
      *
-     * @param index The index to get.
-     * @return The element at the position.
      * @throws IndexOutOfBoundsException If the index is not valid.
      */
     Object get(long index) throws IndexOutOfBoundsException;

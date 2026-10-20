@@ -11,11 +11,7 @@ import com.adacore.lkql_jit.values.LKQLNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a null literal in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a null literal */
 public final class NullLiteral extends Expr {
 
     // ----- Constructors -----
@@ -31,19 +27,11 @@ public final class NullLiteral extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return LKQLNull.INSTANCE;
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeNode(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public LangkitSupport.NodeInterface executeNode(VirtualFrame frame) {
         return LKQLNull.INSTANCE;
@@ -51,10 +39,6 @@ public final class NullLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

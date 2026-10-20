@@ -5,16 +5,13 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-/**
- * This root node represents the root execution of an LKQL program.
- *
- * @author Hugo GUERRIER
- */
+/** This root node represents the execution of an LKQL script. */
 public final class TopLevelRootNode extends BaseRootNode {
 
     // ----- Attributes -----
@@ -37,18 +34,23 @@ public final class TopLevelRootNode extends BaseRootNode {
         this.program = program;
     }
 
+    // ----- Getters -----
+
+    @Override
+    public String getName() {
+        return program.getSourceSection().getSource().getName();
+    }
+
     // ----- Execution methods -----
 
-    /**
-     * Execute the LKQL program and return the namespace, result of this program execution.
-     */
+    /** Execute the LKQL program and return its namespace, result of this program execution. */
     @Override
     public Object execute(VirtualFrame frame) {
         // Initialize the frame
         this.initFrame(frame);
 
         // Push the source corresponding to this top level list on the execution stack
-        var context = LKQLLanguage.getContext(this.program);
+        var context = LKQLContext.get(this.program);
         context.pushSourceToStack(FileUtils.sourcePathOrName(getSourceSection().getSource()));
 
         // Execute the program and in all cases, pop the source from the stack
@@ -59,13 +61,10 @@ public final class TopLevelRootNode extends BaseRootNode {
         }
     }
 
+    //  ----- Override methods -----
+
     @Override
     public String toString() {
         return "<" + program.getSourceSection().getSource().getName() + ">";
-    }
-
-    @Override
-    public String getName() {
-        return program.getSourceSection().getSource().getName();
     }
 }

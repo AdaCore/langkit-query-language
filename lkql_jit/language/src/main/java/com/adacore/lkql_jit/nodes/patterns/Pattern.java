@@ -10,37 +10,23 @@ import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the base for all patterns in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents the base for all patterns in the LKQL language.  */
 public abstract class Pattern extends LKQLNode {
 
-    /**
-     * Create a new base pattern node.
-     *
-     * @param location The location of the node in the source.
-     */
+    // ----- Constructors -----
+
+    /** Create a new base pattern node. */
     protected Pattern(SourceSection location) {
         super(location);
     }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
+    // ----- Execution methods -----
+
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
         throw LKQLEngineException.shouldNotReachHere();
     }
 
-    /**
-     * Execute the pattern and get if the node fulfills it.
-     *
-     * @param frame The frame to execute the pattern in.
-     * @param value The node to verify.
-     * @return True of the node verify the pattern, false else.
-     */
+    /** Execute the pattern and return whether the node fulfills it. */
     public abstract boolean executeValue(VirtualFrame frame, Object value);
 }

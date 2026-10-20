@@ -9,23 +9,22 @@ import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a pattern that splat remaining values in a collection. */
 public class SplatPattern extends Pattern {
 
+    // ----- Attributes -----
+
+    /** The slot to place the constructed object in. */
     private final int slot;
+
+    // ----- Constructors -----
 
     public SplatPattern(SourceSection location, int slot) {
         super(location);
         this.slot = slot;
     }
 
-    public boolean hasBinding() {
-        return this.slot != -1;
-    }
-
-    @Override
-    public String toString(int indentLevel) {
-        return this.nodeRepresentation(indentLevel);
-    }
+    // ----- Execution methods -----
 
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
@@ -36,5 +35,18 @@ public class SplatPattern extends Pattern {
 
         // Splat pattern always matches
         return true;
+    }
+
+    // ----- Instance methods -----
+
+    public boolean hasBinding() {
+        return this.slot != -1;
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public String toString(int indentLevel) {
+        return this.nodeRepresentation(indentLevel);
     }
 }

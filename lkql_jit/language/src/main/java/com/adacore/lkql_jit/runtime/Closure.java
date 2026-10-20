@@ -9,11 +9,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
 import java.util.Arrays;
 
-/**
- * This class represents a closure in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This class represents a closure. */
 public final class Closure implements TruffleObject {
 
     // ----- Class attributes -----
@@ -28,11 +24,7 @@ public final class Closure implements TruffleObject {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new closure from its content.
-     *
-     * @param content The content of the closure.
-     */
+    /** Create a new closure from its content. */
     public Closure(final Cell[] content) {
         this.content = content;
     }

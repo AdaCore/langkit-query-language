@@ -20,11 +20,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a list comprehension in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a list comprehension. */
 public final class ListComprehension extends Expr {
 
     // ----- Children -----
@@ -49,8 +45,8 @@ public final class ListComprehension extends Expr {
      * @param location The location of the node in the source.
      * @param frameDescriptor The frame descriptor for the root node.
      * @param closureDescriptor The descriptor for the closure.
-     * @param expr The result expression of the list comprehension.
      * @param generators The generators of the list comprehension.
+     * @param expr The result expression of the list comprehension.
      * @param guard The guard of the list comprehension.
      */
     public ListComprehension(
@@ -65,7 +61,7 @@ public final class ListComprehension extends Expr {
         this.generators = generators;
         this.rootNode = new ListComprehensionRootNode(
             location,
-            LKQLLanguage.getLanguage(this),
+            LKQLLanguage.get(this),
             frameDescriptor,
             guard,
             expr
@@ -103,9 +99,6 @@ public final class ListComprehension extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -5,16 +5,8 @@
 
 package com.adacore.lkql_jit.values.interfaces;
 
-/**
- * This interface defines the iterable interface for all the iterable LKQL types.
- *
- * @author Hugo GUERRIER
- */
+/** Interface for iterable LKQL values. */
 public interface Iterable {
-    /**
-     * Get the iterator for the iterable object.
-     *
-     * @return The iterator.
-     */
+    /** Get an object to iterate on values stored in this iterable value. */
     Iterator iterator();
 }

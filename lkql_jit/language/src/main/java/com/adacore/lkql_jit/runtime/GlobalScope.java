@@ -15,8 +15,6 @@ import java.util.Map;
 /**
  * This class represents a global LKQL scope which is common to all LKQL scripts. This is shared
  * between all scripts during an execution.
- *
- * @author Hugo GUERRIER
  */
 public final class GlobalScope {
 

@@ -10,15 +10,21 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/** Pattern to match a boolean value */
+/** Pattern to match a boolean value. */
 public abstract class BoolPattern extends Pattern {
 
+    // ----- Attributes -----
+
     private final boolean toMatch;
+
+    // ----- Constructors -----
 
     protected BoolPattern(SourceSection location, boolean toMatch) {
         super(location);
         this.toMatch = toMatch;
     }
+
+    // ----- Execution methods -----
 
     @Specialization
     public boolean onBool(@SuppressWarnings("unused") VirtualFrame frame, boolean val) {
@@ -32,6 +38,8 @@ public abstract class BoolPattern extends Pattern {
     ) {
         return false;
     }
+
+    // ----- Override methods -----
 
     @Override
     public String toString(int indentLevel) {

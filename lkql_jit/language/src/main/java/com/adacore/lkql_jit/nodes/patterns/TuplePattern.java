@@ -13,16 +13,28 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node represents a pattern that match tuple values. */
 public abstract class TuplePattern extends Pattern {
+
+    // ----- Children -----
 
     /** The sub-patterns for this tuple pattern. */
     @Node.Children
     private final Pattern[] patterns;
 
+    // ----- Constructors -----
+
+    /**
+     * Create a new tuple pattern.
+     *
+     * @param location The location of the node in the source.
+     */
     public TuplePattern(SourceSection location, Pattern[] patterns) {
         super(location);
         this.patterns = patterns;
     }
+
+    // ----- Execution methods -----
 
     @Specialization
     @ExplodeLoop
@@ -46,6 +58,8 @@ public abstract class TuplePattern extends Pattern {
     ) {
         return false;
     }
+
+    // ----- Override methods -----
 
     @Override
     public String toString(int indentLevel) {

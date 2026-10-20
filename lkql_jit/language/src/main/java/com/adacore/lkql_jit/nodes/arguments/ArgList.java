@@ -11,26 +11,22 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Optional;
 
-/**
- * This node represents a list of arguments in a function call.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a list of arguments in a function call. */
 public final class ArgList extends LKQLNode {
 
     // ----- Children -----
 
-    /** The arguments in the list. */
+    /** Arguments in an array. */
     @Children
     private final Arg[] args;
 
     // ----- Constructors -----
 
     /**
-     * Create a new argument list with its arguments.
+     * Create a new argument list.
      *
-     * @param location The location of the argument list in the source.
-     * @param args The arguments in the list.
+     * @param location The location of the node.
+     * @param args Arguments of this list.
      */
     public ArgList(SourceSection location, Arg[] args) {
         super(location);
@@ -45,10 +41,6 @@ public final class ArgList extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLEngineException.shouldNotReachHere();
@@ -68,9 +60,6 @@ public final class ArgList extends LKQLNode {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -15,6 +15,7 @@ import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
 
+/** This utils node can be used to concatenate values. */
 @GenerateInline(false)
 public abstract class ConcatenationNode extends Node {
 

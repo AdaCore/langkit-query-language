@@ -11,11 +11,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the "unwrap" operation in the LKQL language
- *
- * @author Hugo GUERRIER
- */
+/** This node represents an "unwrap" operation. */
 public final class Unwrap extends Expr {
 
     // ----- Children -----
@@ -31,7 +27,6 @@ public final class Unwrap extends Expr {
      * Create a new unwrap node with parameters.
      *
      * @param location The location of the node in the source.
-     * @param expr The node expression.
      */
     public Unwrap(SourceSection location, Expr expr) {
         super(location);
@@ -40,10 +35,6 @@ public final class Unwrap extends Expr {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Evaluate the node value and test it
@@ -62,9 +53,6 @@ public final class Unwrap extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

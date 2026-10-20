@@ -23,11 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This node represents a function declaration in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a function declaration. */
 public final class FunctionDeclaration extends Declaration {
 
     // ----- Attributes -----
@@ -43,10 +39,6 @@ public final class FunctionDeclaration extends Declaration {
     /** Expression to get the function value from. */
     @Child
     private FunExpr functionExpression;
-
-    public FunExpr getFunctionExpression() {
-        return functionExpression;
-    }
 
     // ----- Constructors -----
 
@@ -75,6 +67,12 @@ public final class FunctionDeclaration extends Declaration {
         } else {
             this.isMemoized = false;
         }
+    }
+
+    // ----- Getters -----
+
+    public FunExpr getFunctionExpression() {
+        return functionExpression;
     }
 
     // ----- Class methods -----
@@ -135,9 +133,6 @@ public final class FunctionDeclaration extends Declaration {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

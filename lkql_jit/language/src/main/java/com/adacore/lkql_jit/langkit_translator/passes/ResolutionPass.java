@@ -33,8 +33,7 @@ public final class ResolutionPass {
     }
 
     /**
-     * This is the main entry point of the pass and the only
-     * public method that should be called
+     * This is the main entry point of the pass and the only public method that should be called.
      */
     public void passEntry(Node treeRoot) {
         slotMap = collectOfType(FunctionDeclaration.class, treeRoot)
@@ -60,10 +59,8 @@ public final class ResolutionPass {
     }
 
     /**
-     * checks validity of a pass, for now only constructor name and
-     * arity are checked but this could be extended in the future
-     * @param passExpr
-     * @param ctx
+     * Checks validity of a pass, for now only constructor name and arity are checked but this
+     * could be extended in the future.
      */
     private void checkRewritingPass(PassExpr passExpr, PassContext ctx) {
         // First check dependency

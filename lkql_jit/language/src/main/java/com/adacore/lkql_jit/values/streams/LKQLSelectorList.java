@@ -17,7 +17,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 
-/** This class represents the stream returned by a selector call in the LKQL language. */
+/** This class represents the stream returned by a selector call. */
 public class LKQLSelectorList extends BaseCachedStream {
 
     // ----- Attributes -----

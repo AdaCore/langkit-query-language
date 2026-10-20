@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.langkit_support.LangkitSupport;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
 import com.adacore.lkql_jit.values.LKQLNull;
 import com.adacore.lkql_jit.values.LKQLPattern;
@@ -16,16 +16,12 @@ import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a regular expression pattern in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a regular expression pattern. */
 public abstract class RegexPattern extends Pattern {
 
     // ----- Attributes -----
 
-    /** The regex pattern to match the node text with. */
+    /** The regex pattern to match the value against. */
     private final LKQLPattern pattern;
 
     // ----- Constructors -----
@@ -41,11 +37,13 @@ public abstract class RegexPattern extends Pattern {
         super(location);
         // Call the TRegex language to create the pattern value
         try {
-            this.pattern = LKQLPattern.create(regex, true, LKQLLanguage.getContext(this).getEnv());
+            this.pattern = LKQLPattern.create(regex, true, LKQLContext.get(this).getEnv());
         } catch (AbstractTruffleException e) {
             throw LKQLRuntimeError.regexSyntaxError(regex, this);
         }
     }
+
+    // ----- Execution methods -----
 
     @Specialization
     public boolean onNode(
@@ -70,9 +68,6 @@ public abstract class RegexPattern extends Pattern {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

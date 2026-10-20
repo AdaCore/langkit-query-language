@@ -11,11 +11,7 @@ import com.adacore.lkql_jit.values.LKQLNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents the pattern that filters by node kind in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents the pattern that filters by node kinds. */
 public final class NodeKindPattern extends Pattern {
 
     // ----- Attributes -----
@@ -41,9 +37,6 @@ public final class NodeKindPattern extends Pattern {
 
     // ----- Execution methods -----
 
-    /**
-     * @see Pattern#executeValue(VirtualFrame, Object)
-     */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
         return this.nodeClazz.isInstance(value) && value != LKQLNull.INSTANCE;
@@ -51,9 +44,6 @@ public final class NodeKindPattern extends Pattern {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

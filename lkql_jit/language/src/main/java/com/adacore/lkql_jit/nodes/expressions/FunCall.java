@@ -35,11 +35,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
-/**
- * This node represents a function call node in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a function call. */
 @NodeChild(value = "callee", type = Expr.class)
 public abstract class FunCall extends Expr {
 
@@ -49,6 +45,8 @@ public abstract class FunCall extends Expr {
     protected final boolean isSafe;
 
     public final String[] argNames;
+
+    // ----- Children -----
 
     @Children
     public final Expr[] args;
@@ -69,13 +67,13 @@ public abstract class FunCall extends Expr {
         this.argNames = argNames;
     }
 
+    // ----- Getters -----
+
     public abstract Expr getCallee();
 
-    /**
-     * Execute the function call node when the callee is a built-in method value.
-     *
-     * @return The result of the method call.
-     */
+    // ----- Execution methods -----
+
+    /** Execute the function call node when the callee is a built-in method value. */
     @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
     protected Object onBuiltinMethod(
         VirtualFrame frame,
@@ -163,9 +161,7 @@ public abstract class FunCall extends Expr {
         );
     }
 
-    /**
-     * Execute the function call on a property reference value.
-     */
+    /** Execute the function call on a property reference value. */
     @Specialization
     @ExplodeLoop
     protected Object onProperty(VirtualFrame frame, LKQLProperty property) {
@@ -187,22 +183,13 @@ public abstract class FunCall extends Expr {
         );
     }
 
-    /**
-     * If the function call is executed on a nullish value and is safe.
-     *
-     * @param value The value that is not used.
-     * @return The unit value.
-     */
+    /** If the function call is executed on a nullish value and is safe. */
     @Specialization(guards = "isSafe")
     protected Object onNullish(@SuppressWarnings("unused") final Nullish value) {
         return LKQLUnit.INSTANCE;
     }
 
-    /**
-     * If the function call is done on a non-executable value.
-     *
-     * @param nonExec The non-executable value.
-     */
+    /** If the function call is done on a non-executable value. */
     @Fallback
     protected void nonExecutable(Object nonExec) {
         throw LKQLRuntimeError.wrongType(
@@ -267,9 +254,6 @@ public abstract class FunCall extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

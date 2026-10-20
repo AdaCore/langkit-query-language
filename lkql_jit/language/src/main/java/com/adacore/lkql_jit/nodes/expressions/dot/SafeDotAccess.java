@@ -33,7 +33,6 @@ public abstract class SafeDotAccess extends BaseDotAccess {
      *
      * @param property The cached property reference.
      * @param isField The cached value if the property is a field.
-     * @return The property reference or the field value.
      */
     @Specialization(
         guards = {
@@ -59,11 +58,7 @@ public abstract class SafeDotAccess extends BaseDotAccess {
         }
     }
 
-    /**
-     * Execute the safe dot access on a node with the un-cached strategy.
-     *
-     * @return The property reference or the field value.
-     */
+    /** Execute the safe dot access on a node with the un-cached strategy. */
     @Specialization(replaces = "onNodeCached")
     protected Object onNodeUncached(LangkitSupport.NodeInterface receiver) {
         // Try the built_in

@@ -12,10 +12,10 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This class represents a closure value reading in the LKQL language.
- */
+/** This node represents a closure value reading. */
 public abstract class ReadClosure extends BaseRead {
+
+    // ----- Attributes -----
 
     /**
      * Whether the accessed entity is known to be package global or not. If it
@@ -24,19 +24,22 @@ public abstract class ReadClosure extends BaseRead {
      */
     public final boolean isPackageGlobal;
 
+    // ----- Constructors -----
+
     protected ReadClosure(final SourceSection location, final int slot, boolean isPackageGlobal) {
         super(location, slot);
         this.isPackageGlobal = isPackageGlobal;
     }
 
+    // ----- Execution methods -----
+
     /*
      * Optimization strategy:
      *
-     * 1. If the entity is package global, read only once, and then always return this result
+     * 1. If the entity is package global, read only once, and then always return this result.
      * 2. Otherwise, we cache the closure object and optimize the read. We
      *    re-read the slot only if the closure object changes.
      */
-
     @Specialization(guards = "isPackageGlobal == true")
     public Object onGlobal(
         VirtualFrame frame,
@@ -63,13 +66,15 @@ public abstract class ReadClosure extends BaseRead {
         return onCachedClosure(frame, closure, getValue(closure));
     }
 
-    public Object getValue(Closure closure) {
+    protected Object getValue(Closure closure) {
         return closure.content[this.slot].getRef();
     }
 
     protected Closure getClosure(VirtualFrame frame) {
         return (Closure) frame.getArguments()[0];
     }
+
+    // ----- Override methods -----
 
     @Override
     public String toString(int indentLevel) {

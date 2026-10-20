@@ -10,6 +10,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LogLocation;
 import com.adacore.lkql_jit.langkit_translator.passes.Hierarchy;
+import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.options.LKQLOptions;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -23,14 +24,13 @@ import java.util.stream.Stream;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-/**
- * This class represents the execution context of an LKQL script.
- *
- * @author Hugo GUERRIER
- */
+/** The execution context of LKQL. */
 public final class LKQLContext {
 
-    private final LKQLLanguage language;
+    // ----- Static variables -----
+
+    private static final TruffleLanguage.ContextReference<LKQLContext> CONTEXT_REFERENCE =
+        TruffleLanguage.ContextReference.create(LKQLLanguage.class);
 
     // ----- Attributes -----
 
@@ -38,21 +38,21 @@ public final class LKQLContext {
     @CompilerDirectives.CompilationFinal
     private TruffleLanguage.Env env;
 
-    /** The global values of the LKQL execution. */
+    /** LKQL global values. */
     private final GlobalScope global;
 
-    /** The stack representing the current LKQL source chain. */
+    /** The stack representing the current LKQL importation chain. */
     public final Stack<String> fromStack = new Stack<>();
 
     // ----- Ada project attributes -----
 
-    /** The analysis context for the ada files. */
+    /** The analysis context used to parse sources. */
     private LangkitSupport.AnalysisContextInterface analysisContext;
 
-    /** The project manager for the ada project. */
+    /** The manager used to process the project provided to the LKQL engine. */
     private Libadalang.ProjectManager projectManager;
 
-    /** Event handler for the project manager. */
+    /** Langkit event handler to process notifications from the analysis library. */
     private final Libadalang.EventHandler eventHandler = Libadalang.EventHandler.create(
         (ctx, name, from, found, notFoundIsError) -> {
             if (!found && notFoundIsError) {
@@ -120,38 +120,40 @@ public final class LKQLContext {
 
     // ----- Option caches -----
 
-    /** Options object passed to the LKQL engine. */
+    /** Options passed to the LKQL engine. */
     @CompilerDirectives.CompilationFinal
     private LKQLOptions options = null;
 
     // ----- Nanopass typing context -----
 
-    /** Typing context used by pattern-matching during a rewriting pass */
+    /** Typing context used by pattern-matching during a rewriting pass. */
     private Hierarchy typingContext = null;
 
     // ----- Constructors -----
 
-    /**
-     * Create a new LKQL context.
-     *
-     * @param env The environment.
-     * @param global The initialized global values.
-     */
-    public LKQLContext(TruffleLanguage.Env env, GlobalScope global, LKQLLanguage language) {
+    public LKQLContext(TruffleLanguage.Env env, GlobalScope global) {
         this.env = env;
         this.global = global;
         this.specifiedSourceFiles = new ArrayList<>();
         this.allSourceFiles = new ArrayList<>();
-        this.language = language;
     }
 
     // ----- Destructors -----
 
-    /** Finalize the LKQL context to close libadalang context. */
     public void finalizeContext() {
         eventHandler.close();
         if (analysisContext != null) analysisContext.close();
         if (projectManager != null) projectManager.close();
+    }
+
+    // ----- Class methods -----
+
+    /**
+     * Get the LKQL execution context associated to the provided node, or the default one if the
+     * latter is null.
+     */
+    public static LKQLContext get(LKQLNode node) {
+        return CONTEXT_REFERENCE.get(node);
     }
 
     // ----- Getters -----
@@ -248,34 +250,28 @@ public final class LKQLContext {
         return this.options;
     }
 
-    /** Return true if the engine should keep running when a required file is not found. */
+    /** Get whether the engine should keep running when a required file is not found. */
     public boolean missingFileIsError() {
         return this.getOptions().missingFileIsError();
     }
 
+    /** Get the logger instance to use for message emission during the engine execution. */
     @CompilerDirectives.TruffleBoundary
     public TruffleLogger getLogger() {
         return TruffleLogger.getLogger(Constants.LKQL_ID);
     }
 
-    /**
-     * Get the files to analyse.
-     *
-     * @return The files to analyse in an array.
-     */
+    /** Get all files to analyze. */
     public String[] getFiles() {
         return this.getOptions().files().toArray(new String[0]);
     }
 
-    /**
-     * Get the Ada file to ignore during the analysis.
-     *
-     * @return The array containing all Ada files to ignore.
-     */
+    /** Get files to ignore during the analysis. */
     public String[] getIgnores() {
         return this.getOptions().ignores().toArray(new String[0]);
     }
 
+    /** Get additional paths to look for LKQL scripts in. */
     public List<String> getAdditionalLkqlPaths() {
         return this.getOptions().additionalLkqlPaths();
     }
@@ -292,27 +288,19 @@ public final class LKQLContext {
 
     // ----- IO methods -----
 
-    /**
-     * Display the given string.
-     *
-     * @param toPrint The string to print.
-     */
+    /** Display the given string. */
     @CompilerDirectives.TruffleBoundary
     public void print(String toPrint) {
         System.out.print(toPrint);
     }
 
-    /**
-     * Display the given string with a newline.
-     *
-     * @param toPrint The string to print.
-     */
+    /** Display the given string with a newline at the end. */
     @CompilerDirectives.TruffleBoundary
     public void println(String toPrint) {
         System.out.println(toPrint);
     }
 
-    /** Initialize the Ada sources. */
+    /** Initialize sources to analyze. */
     public void initSources() {
         // Clear the context caches
         this.specifiedSourceFiles.clear();

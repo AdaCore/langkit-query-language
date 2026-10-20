@@ -6,7 +6,7 @@
 package com.adacore.lkql_jit.utils.functions;
 
 import com.adacore.lkql_jit.Constants;
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
@@ -14,19 +14,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Util functions for the file java class manipulation in the JIT implementation.
- *
- * @author Hugo GUERRIER
- */
+/** Util functions to manipulate files with Truffle boundaries. */
 public final class FileUtils {
 
-    /**
-     * Get a file base name from a file path.
-     *
-     * @param filePath The file path.
-     * @return The file base name.
-     */
+    /** Get a file base name from a file path. */
     @CompilerDirectives.TruffleBoundary
     public static String baseName(String filePath) {
         return new File(filePath).getName();
@@ -50,7 +41,7 @@ public final class FileUtils {
                 .toList()
         );
         searchDirs.addAll(
-            LKQLLanguage.getContext(null).getAdditionalLkqlPaths().stream().map(File::new).toList()
+            LKQLContext.get(null).getAdditionalLkqlPaths().stream().map(File::new).toList()
         );
 
         return searchDirs;

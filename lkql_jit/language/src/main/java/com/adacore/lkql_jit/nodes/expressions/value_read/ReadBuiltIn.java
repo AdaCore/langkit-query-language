@@ -5,15 +5,11 @@
 
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a built-in reading in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a built-in reading. */
 public final class ReadBuiltIn extends BaseRead {
 
     // ----- Constructors -----
@@ -30,20 +26,13 @@ public final class ReadBuiltIn extends BaseRead {
 
     // ----- Execution methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return LKQLLanguage.getContext(this).getGlobal().getBuiltIn(this.slot);
+        return LKQLContext.get(this).getGlobal().getBuiltIn(this.slot);
     }
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

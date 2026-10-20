@@ -12,8 +12,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
- * This is a POJO, it needs to be an LKQLNode
- * to simplify lowering and the resolution pass
+ * This is a POJO, it needs to be an LKQLNode to simplify lowering and the resolution pass
  * (see {@link ResolutionPass})
  */
 public class PrefixField extends LKQLNode {

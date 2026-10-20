@@ -19,17 +19,13 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
+/** This node is a util to convert an LKQL value to a boolean. */
 @GenerateInline(false)
 public abstract class LKQLToBoolean extends Node {
 
-    public abstract boolean execute(Object value);
+    // ----- Execution methods -----
 
-    @Override
-    public SourceSection getSourceSection() {
-        // Since this node is inline it's not practical to give it a location
-        // explicitly, so we just return the parent's location.
-        return this.getParent().getSourceSection();
-    }
+    public abstract boolean execute(Object value);
 
     @Specialization
     protected boolean onBoolean(boolean val) {
@@ -73,5 +69,14 @@ public abstract class LKQLToBoolean extends Node {
             LKQLTypesHelper.fromJava(other),
             this
         );
+    }
+
+    // ----- Override methods -----
+
+    @Override
+    public SourceSection getSourceSection() {
+        // Since this node is inline it's not practical to give it a location
+        // explicitly, so we just return the parent's location.
+        return this.getParent().getSourceSection();
     }
 }

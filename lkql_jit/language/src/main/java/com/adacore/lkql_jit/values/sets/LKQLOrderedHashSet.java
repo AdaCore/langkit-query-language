@@ -17,7 +17,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.LinkedHashSet;
 
-/** This class represents a set in the LKQL language. */
+/** This class represents a ordered set. */
 @ExportLibrary(InteropLibrary.class)
 public final class LKQLOrderedHashSet extends LKQLValue {
 

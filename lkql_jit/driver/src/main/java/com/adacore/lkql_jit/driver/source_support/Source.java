@@ -153,7 +153,7 @@ public abstract sealed class Source
         /**
          * Return the sequence used to separate lines in the file designated by the provided path.
          *
-         * @param sourcePath Path to the file to get the lines of.
+         * @param sourcePath Path to the file to get the line separator from.
          */
         protected String getLineSeparator(Path sourcePath) {
             return getCacheEntry(sourcePath).getRight();

@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -17,12 +17,19 @@ import com.oracle.truffle.api.source.SourceSection;
  */
 public class ReadDynamic extends Expr {
 
+    // ----- Attributes -----
+
+    /** The symbol to read. */
     private final String name;
+
+    // ----- Constructors -----
 
     public ReadDynamic(final SourceSection location, String name) {
         super(location);
         this.name = name;
     }
+
+    // ----- Execution methods -----
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -31,8 +38,10 @@ public class ReadDynamic extends Expr {
 
     @CompilerDirectives.TruffleBoundary
     public Object getObject() {
-        return LKQLLanguage.getContext(this).getGlobal().getGlobalObjects().get(this.name);
+        return LKQLContext.get(this).getGlobal().getGlobalObjects().get(this.name);
     }
+
+    // ----- Override methods -----
 
     @Override
     public String toString(int indentLevel) {

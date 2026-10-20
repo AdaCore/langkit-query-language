@@ -11,11 +11,7 @@ import com.adacore.lkql_jit.nodes.expressions.LKQLToBooleanNodeGen;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * This node represents a pattern with a filter in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a pattern with a predicate expression. */
 public final class FilteredPattern extends Pattern {
 
     // ----- Children -----
@@ -51,9 +47,6 @@ public final class FilteredPattern extends Pattern {
 
     // ----- Execution methods -----
 
-    /**
-     * @see Pattern#executeValue(VirtualFrame, Object)
-     */
     @Override
     public boolean executeValue(VirtualFrame frame, Object value) {
         // If the pattern match, execute the predicate

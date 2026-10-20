@@ -56,7 +56,7 @@ public interface TokenBasedRefactoring extends Refactoring {
          * 'hashCode' method on Tokens is wrong. This should be fixed at the Langkit level. See
          * eng/libadalang/langkit#857.
          *
-         * @return the id as a string
+         * @return The token identifier as a string.
          */
         private String getTokenId(Liblkqllang.Token token) {
             return (

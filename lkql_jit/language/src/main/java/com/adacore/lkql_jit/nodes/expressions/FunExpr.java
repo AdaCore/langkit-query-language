@@ -16,11 +16,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.Arrays;
 
-/**
- * This node represents a function expression in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** This node represents a function expression. */
 public final class FunExpr extends Expr {
 
     // ----- Attributes -----
@@ -28,9 +24,9 @@ public final class FunExpr extends Expr {
     /**
      * The root node representing the function execution.
      *
-     * This field doesn't need to be a child for execution purposes,
-     * but this is temporarilly needed until the {@link ResolutionPass}
-     * is removed and the nanopass framework rellies on static typing only.
+     * This field doesn't need to be a child for execution purposes, but this is temporarily needed
+     * until the {@link ResolutionPass} is removed and the nanopass framework relies on static
+     * typing only.
      */
     @Child
     private FunctionRootNode functionRootNode;
@@ -54,13 +50,11 @@ public final class FunExpr extends Expr {
     public final String name;
 
     @Child
-    CreateClosureNode createClosureNode;
+    private CreateClosureNode createClosureNode;
 
     // ----- Constructors -----
 
-    /**
-     * Create a new function expression node.
-     */
+    /** Create a new function expression node. */
     public FunExpr(
         SourceSection location,
         FrameDescriptor frameDescriptor,
@@ -75,7 +69,7 @@ public final class FunExpr extends Expr {
         super(location);
         this.functionRootNode = new FunctionRootNode(
             location,
-            LKQLLanguage.getLanguage(this),
+            LKQLLanguage.get(this),
             frameDescriptor,
             false,
             true,

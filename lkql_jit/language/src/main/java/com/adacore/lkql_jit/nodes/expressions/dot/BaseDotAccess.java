@@ -6,7 +6,6 @@
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
 import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodValue;
 import com.adacore.lkql_jit.nodes.Identifier;
@@ -31,6 +30,12 @@ public abstract class BaseDotAccess extends Expr {
 
     // ----- Constructors -----
 
+    /**
+     * Create a new base dot access node.
+     *
+     * @param location Location of the node in the source.
+     * @param member Name of the member to access.
+     */
     public BaseDotAccess(SourceSection location, Identifier member) {
         super(location);
         this.member = member;
@@ -42,15 +47,11 @@ public abstract class BaseDotAccess extends Expr {
 
     // ----- Instance methods -----
 
-    /**
-     * Get the built-in method for the receiver.
-     *
-     * @return The member if it exists, null else.
-     */
+    /** Get the built-in method on the receiver type, null if there isn't. */
     @CompilerDirectives.TruffleBoundary
     protected BuiltInMethodValue getBuiltIn(Object receiver) {
         // Get the LKQL context
-        LKQLContext context = LKQLLanguage.getContext(this);
+        LKQLContext context = LKQLContext.get(this);
         Map<String, BuiltInMethodFactory> metaTable = context
             .getGlobal()
             .getMetaTable(LKQLTypesHelper.fromJava(receiver));
@@ -65,9 +66,6 @@ public abstract class BaseDotAccess extends Expr {
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

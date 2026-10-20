@@ -5,11 +5,7 @@
 
 package com.adacore.lkql_jit.runtime;
 
-/**
- * This class represents a storing cell in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
+/** A storing cell, used to share closed values from a frame to another. */
 public final class Cell {
 
     // ----- Attributes -----
@@ -24,11 +20,7 @@ public final class Cell {
         this.ref = null;
     }
 
-    /**
-     * Create a new cell with its reference.
-     *
-     * @param obj The object to store in the cell.
-     */
+    /** Create a new cell with its content. */
     public Cell(Object obj) {
         this.ref = obj;
     }
