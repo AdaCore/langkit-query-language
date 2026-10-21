@@ -81,6 +81,22 @@ test:
     matrix:
       - PLAN_ENTRY: [lkql_jit, lkql_native_jit]
 
+# Windows testing
+test-win:
+  <<: *common-test-part
+  services:
+    - image:visual-studio-2022
+    - platform:x86_64-windows-2022
+    - cpu:8
+    - mem:16
+    - disk:100
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  timeout: 2 hours
+  parallel:
+    matrix:
+      - PLAN_ENTRY: [lkql_jit, lkql_native_jit]
+
 # CIs that are triggered manually
 optional:
   <<: *common-test-part
