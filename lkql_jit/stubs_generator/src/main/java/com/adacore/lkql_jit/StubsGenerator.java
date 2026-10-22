@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * This class is the main entry point of the LKQL stubs generator. Its role is to take a Lkt spec
@@ -173,6 +174,10 @@ public class StubsGenerator {
      * buffer.
      */
     private static void emitEnum(LangkitSupport.Reflection.Enum enumType, StringBuilder output) {
+        // Start by emitting the doc-string if there is one
+        enumType.doc().ifPresent(d -> emitDocstring(d, "", output));
+
+        // Then emit the enumeration type
         output.append("enum ").append(enumType.clazz().getSimpleName()).append(" {\n    case ");
         for (var val : enumType.values()) {
             output.append(val.name()).append(", ");
@@ -188,18 +193,31 @@ public class StubsGenerator {
         LangkitSupport.Reflection.Struct structType,
         StringBuilder output
     ) {
+        // Emit doc-string for the structure type
+        structType.doc().ifPresent(d -> emitDocstring(d, "", output));
+
+        // Then emit the structure type
         output.append("struct ").append(toLktType(structType.clazz())).append(" {\n");
+        var fieldPrefix = "    ";
         for (var field : structType.fields()) {
-            output.append("    ").append(field.name()).append(": ").append(toLktType(field.type()));
+            field.doc().ifPresent(d -> emitDocstring(d, fieldPrefix, output));
+            output
+                .append(fieldPrefix)
+                .append(field.name())
+                .append(": ")
+                .append(toLktType(field.type()));
             field.defaultValue().ifPresent(v -> output.append(" = ").append(toLktLiteral(v)));
-            output.append('\n');
+            output.append("\n\n");
         }
         output.append("}\n\n");
     }
 
     /** Util function to emit the Lkt stubs for the provided node type in the output buffer. */
     private static void emitNode(LangkitSupport.Reflection.Node nodeType, StringBuilder output) {
-        // Start by emitting the class declaration
+        // Start by emitting the node docstring
+        nodeType.doc().ifPresent(d -> emitDocstring(d, "", output));
+
+        // Then emit the class declaration
         output.append("class ").append(nodeType.className()).append(": ");
 
         // Now handle the inheritance part
@@ -229,9 +247,10 @@ public class StubsGenerator {
 
         // Emit the "to_rewriting" property
         output
+            .append("    |\" Get a handle to this node for the rewriting API.\n")
             .append("    @builtin @property fun to_rewriting(): rewriting.")
             .append(nodeType.className())
-            .append('\n');
+            .append("\n\n");
 
         // Emit all fields and properties to represent
         nodeType
@@ -315,10 +334,16 @@ public class StubsGenerator {
         LangkitSupport.Reflection.Field field,
         StringBuilder output
     ) {
-        output.append("    ");
+        var fieldPrefix = "    ";
+
+        // Start by emitting the docstring of the field
+        field.doc().ifPresent(d -> emitDocstring(d, fieldPrefix, output));
+
+        // Indent the field declaration
+        output.append(fieldPrefix);
 
         if (fieldName.startsWith("f_")) {
-            // Emit fields for parsing fields
+            // Emit the field as a parsing one
             output.append("@parse_field ");
             if (field.isNullable()) output.append("@nullable ");
             output.append(fieldName);
@@ -337,7 +362,58 @@ public class StubsGenerator {
         }
 
         // Then add the field type or the function return type
-        output.append(": ").append(toLktType(field.javaMethod().getReturnType())).append('\n');
+        output.append(": ").append(toLktType(field.javaMethod().getReturnType())).append("\n\n");
+    }
+
+    /**
+     * Emit in the specified output an LKQL docstring with the provided documentation, each line
+     * being prefixed by a given prefix.
+     */
+    private static void emitDocstring(String documentation, String prefix, StringBuilder output) {
+        // Process Ada RM link instructions
+        var rmLinkPattern = Pattern.compile(":rmlink:`([^`]+)`");
+        var processedDoc = rmLinkPattern
+            .matcher(documentation)
+            .replaceAll(m -> {
+                var sectionName = m.group(1);
+                var sectionRef = sectionName.replace('.', '-');
+                return (
+                    "[RM " +
+                    sectionName +
+                    "](http://www.ada-auth.org/standards/2xrm/html/RM-" +
+                    sectionRef +
+                    ".html)"
+                );
+            });
+
+        // Process GNAT RM instructions
+        var gnatRmPattern = Pattern.compile(":gnat_rm:`([^`]+)`");
+        processedDoc = gnatRmPattern
+            .matcher(processedDoc)
+            .replaceAll(m -> {
+                var sectionRef = m.group(1);
+                var sectionName = sectionRef.replace('-', ' ');
+                return (
+                    "[GNAT RM (" +
+                    sectionName +
+                    ")](https://docs.adacore.com/gnat_rm-docs/html/gnat_rm/gnat_rm/gnat_language_extensions.html#" +
+                    sectionRef +
+                    ')'
+                );
+            });
+
+        // Now process type references
+        var typeRefPattern = Pattern.compile(":(typeref|ref):`([^`]+)`");
+        processedDoc = typeRefPattern
+            .matcher(processedDoc)
+            .replaceAll(m -> "``" + m.group(2) + "``");
+
+        // Finally, format the docstring to an LKQL block string literal
+        var docLines = processedDoc.split("\n");
+        for (var line : docLines) {
+            var docLine = "|\" " + line;
+            output.append(prefix).append(docLine.stripTrailing()).append('\n');
+        }
     }
 
     /**
