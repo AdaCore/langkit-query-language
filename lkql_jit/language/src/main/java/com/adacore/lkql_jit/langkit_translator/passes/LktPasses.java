@@ -179,7 +179,7 @@ public final class LktPasses {
             switch (node) {
                 case Liblktlang.Import importStmt -> {
                     for (var importedName : importStmt.fImportedNames()) {
-                        builder.addBinding(
+                        builder.addImportedBinding(
                             (!importedName.fRenaming().isNone())
                                 ? importedName.fRenaming().getText()
                                 : importedName.fOriginalName().getText()
@@ -188,7 +188,7 @@ public final class LktPasses {
                 }
                 case Liblktlang.ImportFrom importFromStmt -> {
                     for (var importedName : importFromStmt.fImportedNames()) {
-                        builder.addBinding(
+                        builder.addImportedBinding(
                             (!importedName.fRenaming().isNone())
                                 ? importedName.fRenaming().getText()
                                 : importedName.fOriginalName().getText()
@@ -198,7 +198,9 @@ public final class LktPasses {
                 case Liblktlang.ImportAllFrom importAllStmt -> {
                     var unit = importAllStmt.pReferencedUnits()[0];
                     var root = (Liblktlang.LangkitRoot) unit.getRoot();
-                    recurseBuildFrames(root.fDecls(), builder);
+                    for (var decl : root.fDecls()) {
+                        builder.addImportedBinding(decl.fDecl().fSynName().getText());
+                    }
                 }
                 case LangkitRoot _ -> {}
                 case FunParamDecl funParamDecl -> {
