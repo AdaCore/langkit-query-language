@@ -13,6 +13,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
+import java.util.Set;
 
 /**
  * This node represents the list of all top level instructions of a LKQL program. It's the "highest"
@@ -24,6 +25,9 @@ public final class TopLevelList extends LKQLNode {
 
     /** Descriptor of the top level frame. */
     private final FrameDescriptor frameDescriptor;
+
+    /** Array of symbols that the module represented by this top level list exports. */
+    private final Set<String> exportedSymbols;
 
     /** Documentation for the toplevel list */
     private final String doc;
@@ -43,6 +47,7 @@ public final class TopLevelList extends LKQLNode {
      *
      * @param location The location of the node in the source.
      * @param frameDescriptor The frame descriptor for the top level.
+     * @param exportedSymbols Array of symbols exported by this top level.
      * @param nodes The nodes to execute in the top level.
      * @param isInteractive Whether the node is for an interactive context.
      * @param doc The documentation of the module defined by this node.
@@ -50,12 +55,14 @@ public final class TopLevelList extends LKQLNode {
     public TopLevelList(
         SourceSection location,
         FrameDescriptor frameDescriptor,
+        Set<String> exportedSymbols,
         LKQLNode[] nodes,
         boolean isInteractive,
         String doc
     ) {
         super(location);
         this.frameDescriptor = frameDescriptor;
+        this.exportedSymbols = exportedSymbols;
         this.program = nodes;
         this.isInteractive = isInteractive;
         this.doc = doc;
@@ -84,16 +91,22 @@ public final class TopLevelList extends LKQLNode {
         // Get the language context and initialize it
         final LKQLContext context = LKQLContext.get(this);
 
+        // Create the module namespace
+        var namespace = LKQLNamespace.createUncached(
+            frame.materialize(),
+            exportedSymbols,
+            doc,
+            this.location
+        );
+
         if (this.isInteractive) {
             // In interactive mode, return the last evaluated value, and add the namespace values
             // to the global namespace
-            this.updateGlobals(
-                LKQLNamespace.createUncached(frame.materialize(), doc, this.location)
-            );
+            this.updateGlobals(namespace);
             return context.getEnv().asGuestValue(val);
         } else {
             // Else return the namespace corresponding to the program execution
-            return LKQLNamespace.createUncached(frame.materialize(), doc, this.location);
+            return namespace;
         }
     }
 

@@ -12,10 +12,8 @@ import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /** This class represents the description of the frames of an LKQL script. */
 public final class ScriptFrames {
@@ -154,6 +152,15 @@ public final class ScriptFrames {
     /** Get the closure slot of the given symbol. */
     public ClosureSlotInfo getClosure(final String symbol) {
         return this.current.getClosure(symbol);
+    }
+
+    /** Get all symbols declared in the current frame and local to it (removing imported ones). */
+    public Set<String> getLocalSymbols() {
+        return this.current.bindings.entrySet()
+            .stream()
+            .filter(b -> !b.getValue().imported)
+            .map(b -> b.getKey())
+            .collect(Collectors.toSet());
     }
 
     // ----- Override methods -----

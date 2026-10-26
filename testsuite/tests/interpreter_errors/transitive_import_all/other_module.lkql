@@ -1,0 +1,2 @@
+# lkql version: 2
+fun foo(): Bool = true

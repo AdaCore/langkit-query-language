@@ -1,0 +1,2 @@
+# lkql version: 2
+from other_module import *

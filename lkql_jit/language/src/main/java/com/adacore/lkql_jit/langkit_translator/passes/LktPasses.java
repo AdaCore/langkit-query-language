@@ -475,6 +475,7 @@ public final class LktPasses {
             return new TopLevelList(
                 loc(root),
                 frames.getFrameDescriptor(),
+                frames.getLocalSymbols(),
                 topLevelNodes.toArray(new LKQLNode[0]),
                 source.isInteractive(),
                 root.fDoc().isNone() ? "" : root.fDoc().pDenotedValue().value.trim()

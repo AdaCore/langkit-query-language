@@ -1,0 +1,4 @@
+script.lkql:2:7: error: No such member
+  2 | print(module.other_module)
+    |       ^^^^^^^^^^^^^^^^^^^
+
