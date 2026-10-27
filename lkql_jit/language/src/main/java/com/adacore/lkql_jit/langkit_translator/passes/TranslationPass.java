@@ -188,6 +188,7 @@ public final class TranslationPass
         return new TopLevelList(
             loc(topLevelList),
             this.frames.getFrameDescriptor(),
+            this.frames.getLocalSymbols(),
             topLevelNodes.toArray(new LKQLNode[0]),
             this.source.isInteractive(),
             doc

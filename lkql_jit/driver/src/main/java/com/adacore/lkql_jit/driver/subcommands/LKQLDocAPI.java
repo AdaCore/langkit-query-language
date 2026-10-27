@@ -108,15 +108,21 @@ public class LKQLDocAPI implements Callable<Integer> {
             TextWriter moduleDoc = new TextWriter(new StringWriter());
             TextWriter functionsDoc = new TextWriter(new StringWriter());
         ) {
-            // First get the namespace object representing the module to document
+            // First get the namespace object representing the module to document. Create a
+            // synthetic LKQL source that import the module and assign it to a local symbol in
+            // order to fetch it from the resulting namespace.
             LKQLBaseNamespace namespace = context
                 .eval(
-                    Source.newBuilder(Constants.LKQL_ID, "import " + module, "<module_resolution>")
+                    Source.newBuilder(
+                        Constants.LKQL_ID,
+                        "import " + module + " val m = " + module,
+                        "<module_resolution>"
+                    )
                         .uri(Paths.get("").toUri())
                         .build()
                 )
                 .as(LKQLBaseNamespace.class);
-            LKQLBaseNamespace moduleNamespace = (LKQLBaseNamespace) namespace.getUncached(module);
+            LKQLBaseNamespace moduleNamespace = (LKQLBaseNamespace) namespace.getUncached("m");
 
             // Add the module's name as a header
             var header = module + "'s API doc";

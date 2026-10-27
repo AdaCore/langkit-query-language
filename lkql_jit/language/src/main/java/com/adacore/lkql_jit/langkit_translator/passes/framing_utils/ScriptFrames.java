@@ -12,10 +12,8 @@ import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /** This class represents the description of the frames of an LKQL script. */
 public final class ScriptFrames {
@@ -156,6 +154,15 @@ public final class ScriptFrames {
         return this.current.getClosure(symbol);
     }
 
+    /** Get all symbols declared in the current frame and local to it (removing imported ones). */
+    public Set<String> getLocalSymbols() {
+        return this.current.bindings.entrySet()
+            .stream()
+            .filter(b -> !b.getValue().imported)
+            .map(b -> b.getKey())
+            .collect(Collectors.toSet());
+    }
+
     // ----- Override methods -----
 
     @Override
@@ -173,13 +180,18 @@ public final class ScriptFrames {
         /** Pseudo mutable record to store information about a binding. */
         public static final class BindingInfo {
 
-            private static final BindingInfo NONE = new BindingInfo(-1);
+            private static final BindingInfo NONE = new BindingInfo(-1, false);
 
             private final int slot;
+
+            /** Whether the binding is local access to a foreign value. */
+            private final boolean imported;
+
             private boolean declared;
 
-            private BindingInfo(int slot) {
+            private BindingInfo(int slot, boolean imported) {
                 this.slot = slot;
+                this.imported = imported;
                 this.declared = false;
             }
 
@@ -223,7 +235,7 @@ public final class ScriptFrames {
         public abstract BindingInfo getBinding(String symbol);
 
         /** Add the given symbol to the frame bindings. */
-        public abstract void addBinding(String symbol);
+        public abstract void addBinding(String symbol, boolean imported);
 
         /** Flag the given symbol as declared in the bindings map. */
         public void declareBinding(final String symbol) {
@@ -341,7 +353,7 @@ public final class ScriptFrames {
         }
 
         @Override
-        public void addBinding(final String symbol) {
+        public void addBinding(final String symbol, boolean imported) {
             // Get a new slot in the frame descriptor builder
             final int slot;
             if (
@@ -354,7 +366,7 @@ public final class ScriptFrames {
             }
 
             // Put the slot with the name in the bindings map
-            this.bindings.put(symbol, new BindingInfo(slot));
+            this.bindings.put(symbol, new BindingInfo(slot, imported));
         }
 
         @Override
@@ -519,8 +531,8 @@ public final class ScriptFrames {
         }
 
         @Override
-        public void addBinding(final String symbol) {
-            this.bindings.put(symbol, new BindingInfo(this.parent.getSlotForChild(this)));
+        public void addBinding(final String symbol, boolean imported) {
+            this.bindings.put(symbol, new BindingInfo(this.parent.getSlotForChild(this), imported));
         }
 
         @Override

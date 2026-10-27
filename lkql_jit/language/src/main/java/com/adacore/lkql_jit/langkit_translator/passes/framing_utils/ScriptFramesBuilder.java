@@ -87,19 +87,20 @@ public final class ScriptFramesBuilder {
 
     /** Get whether the current frame contains the given symbol in its bindings. */
     public boolean bindingExists(final String symbol) {
-        if (this.current.parent == null) {
-            return (
-                this.current.bindings.contains(symbol) ||
-                AllBuiltIns.functions().containsKey(symbol)
-            );
-        } else {
-            return this.current.bindings.contains(symbol);
-        }
+        return (
+            this.current.bindings.stream().anyMatch(b -> b.symbol.equals(symbol)) ||
+            (current.parent == null && AllBuiltIns.functions().containsKey(symbol))
+        );
     }
 
     /** Add the given symbol to the current bindings. */
     public void addBinding(final String symbol) {
-        this.current.bindings.add(symbol);
+        this.current.bindings.add(new BindingInfoBuilder(symbol, false));
+    }
+
+    /** Add the given symbol to the current bindings, flagging it as imported. */
+    public void addImportedBinding(String symbol) {
+        current.bindings.add(new BindingInfoBuilder(symbol, true));
     }
 
     /** Get whether parameters in the current frame contains the given symbol. */
@@ -154,7 +155,7 @@ public final class ScriptFramesBuilder {
         private final List<NodeFrameBuilder> children;
 
         /** Bindings in the current frame. */
-        private final List<String> bindings;
+        private final List<BindingInfoBuilder> bindings;
 
         /** Parameters of the current frame. */
         private final List<String> parameters;
@@ -197,8 +198,8 @@ public final class ScriptFramesBuilder {
                 : new ScriptFrames.NodeFrame(this.node, parent);
 
             // Add all bindings to the node frame
-            for (String binding : this.bindings) {
-                res.addBinding(binding);
+            for (var binding : this.bindings) {
+                res.addBinding(binding.symbol, binding.imported);
             }
 
             // Add all parameters to the node frame
@@ -232,4 +233,7 @@ public final class ScriptFramesBuilder {
             );
         }
     }
+
+    /** Information related to a registered binding. */
+    public static record BindingInfoBuilder(String symbol, boolean imported) {}
 }

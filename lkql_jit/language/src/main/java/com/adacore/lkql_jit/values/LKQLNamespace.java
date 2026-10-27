@@ -22,8 +22,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.SourceSection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 /** This class represents the namespace of a module. */
 @ExportLibrary(InteropLibrary.class)
@@ -38,29 +37,29 @@ public class LKQLNamespace extends LKQLBaseNamespace {
 
     // ----- Class methods -----
 
-    /** Create a namespace from the given Truffle frame and its store values. */
+    /**
+     * Create a namespace from the given Truffle frame and its store values.
+     *
+     * @param optInSymbols Include in the created namespace only symbols that are contained in
+     *                     this set.
+     */
     @CompilerDirectives.TruffleBoundary
     public static LKQLNamespace createUncached(
         MaterializedFrame frame,
+        Set<String> optInSymbols,
         String doc,
         SourceSection creationLocation
     ) {
         // Prepare the map for the symbols
-        final Map<String, Object> symbols = new HashMap<>();
+        var res = new LKQLNamespace(Shape.newBuilder().build(), creationLocation, doc);
 
         // Get the frame descriptor and iterate on the frame slots to get the symbols
         final FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
         for (int i = 0; i < frameDescriptor.getNumberOfSlots(); i++) {
             final String name = (String) frameDescriptor.getSlotName(i);
-            if (name != null) {
-                symbols.put(name, ((Cell) frame.getObject(i)).getRef());
+            if (name != null && optInSymbols.contains(name)) {
+                uncachedObjectLibrary.put(res, name, ((Cell) frame.getObject(i)).getRef());
             }
-        }
-
-        // Return the new namespace
-        LKQLNamespace res = new LKQLNamespace(Shape.newBuilder().build(), creationLocation, doc);
-        for (String key : symbols.keySet()) {
-            uncachedObjectLibrary.put(res, key, symbols.get(key));
         }
         return res;
     }
