@@ -5,9 +5,11 @@
 
 package com.adacore.lkql_jit.driver.diagnostics;
 
+import com.adacore.lkql_jit.driver.ListComparator;
 import com.adacore.lkql_jit.driver.Styling;
 import com.adacore.lkql_jit.driver.source_support.Source;
 import com.github.difflib.DiffUtils;
+import com.github.difflib.patch.AbstractDelta;
 import com.github.difflib.patch.Patch;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
@@ -15,6 +17,7 @@ import de.jcup.sarif_2_1_0.model.*;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,14 +27,32 @@ import java.util.stream.Collectors;
  * @param description Short description of what the fix does.
  * @param changes Changes to apply to the sources, one per modified source.
  */
-public record AutoFix(String description, List<Change> changes) {
+public record AutoFix(String description, List<Change> changes) implements Comparable<AutoFix> {
+    // ----- Instance methods -----
+
+    @Override
+    public int compareTo(AutoFix other) {
+        return Comparator.comparing(AutoFix::changes, new ListComparator<>(Change::compareTo))
+            .thenComparing(AutoFix::description)
+            .compare(this, other);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof AutoFix other)) return false;
+        return compareTo(other) == 0;
+    }
+
+    // ----- Constructors -----
+
     /**
      * Change of a single source.
      *
      * @param targetSource Source to apply the patch to.
      * @param patch The patch computed from the auto-fix function.
      */
-    public record Change(Source targetSource, Patch<String> patch) {
+    public record Change(Source targetSource, Patch<String> patch) implements Comparable<Change> {
         // ----- Attributes -----
 
         /** Generator used to turn patches into diff rows. */
@@ -328,6 +349,34 @@ public record AutoFix(String description, List<Change> changes) {
 
             // Finally, return the result
             return res;
+        }
+
+        @Override
+        public int compareTo(Change other) {
+            var stringListComparator = new ListComparator<>(String::compareTo);
+            return Comparator.comparing((Change c) -> c.targetSource)
+                .thenComparing(
+                    c -> c.patch.getDeltas(),
+                    new ListComparator<>(
+                        Comparator.comparingInt((AbstractDelta<String> d) ->
+                            d.getSource().getPosition()
+                        )
+                            .thenComparingInt(d -> d.getSource().last())
+                            .thenComparing(d -> d.getSource().getLines(), stringListComparator)
+                            .thenComparingInt(d -> d.getTarget().getPosition())
+                            .thenComparingInt(d -> d.getTarget().last())
+                            .thenComparing(d -> d.getTarget().getLines(), stringListComparator)
+                            .thenComparing(AbstractDelta::getType)
+                    )
+                )
+                .compare(this, other);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null) return false;
+            if (!(o instanceof Change other)) return false;
+            return compareTo(other) == 0;
         }
 
         // ----- Inner classes -----

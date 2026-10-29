@@ -2,4 +2,4 @@ driver: checker
 rule_file: rules.lkql
 sources:
   - main.adb
-verbose: True
+verbosity: INFO

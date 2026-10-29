@@ -75,6 +75,13 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
         )
         public LKQLOptions.TypecheckingMode typecheckingMode = LKQLOptions.TypecheckingMode.WARN;
 
+        @CommandLine.Option(
+            names = { "-v", "--verbosity" },
+            description = "Level from which to show diagnostics (default is WARNING)." +
+                "%nPossible values: ${COMPLETION-CANDIDATES}"
+        )
+        public VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
+
         public void fillEngineOptions(LKQLOptions.Builder optionsBuilder) {
             optionsBuilder
                 .charset(charset)
@@ -216,5 +223,14 @@ public abstract class BaseSubcommand extends AbstractLanguageLauncher implements
                 .target(target)
                 .scenarioVariables(x);
         }
+    }
+
+    // ----- Inner classes -----
+
+    /** From which severity diagnostics should be shown. */
+    public enum VerbosityLevel {
+        ERROR,
+        WARNING,
+        INFO,
     }
 }

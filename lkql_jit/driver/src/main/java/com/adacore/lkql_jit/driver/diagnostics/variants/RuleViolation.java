@@ -5,8 +5,10 @@
 
 package com.adacore.lkql_jit.driver.diagnostics.variants;
 
+import com.adacore.lkql_jit.driver.ListComparator;
 import com.adacore.lkql_jit.driver.checker.RuleInstance;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,5 +48,19 @@ public final class RuleViolation extends BaseDiagnostic {
         List<SourceSection> genericTrace
     ) {
         this(violatedInstance.instantiatedRule.message(), violatedInstance, location, genericTrace);
+    }
+
+    // ----- Instance methods -----
+
+    @Override
+    public int compareTo(BaseDiagnostic other) {
+        var superRes = super.compareTo(other);
+        if (other instanceof RuleViolation otherViolation && superRes == 0) {
+            return Comparator.comparing((RuleViolation v) -> v.violatedInstance.identifier())
+                .thenComparing(v -> v.genericTrace, new ListComparator<>(SourceSection::compareTo))
+                .compare(this, otherViolation);
+        } else {
+            return superRes;
+        }
     }
 }

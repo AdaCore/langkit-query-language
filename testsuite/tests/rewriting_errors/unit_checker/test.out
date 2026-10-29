@@ -1,3 +1,5 @@
+error: Unknown rule name "custom"
+
 custom.lkql:1:1: error: Auto fixes not available for unit checks
   1 |  @unit_check(
     | _^
@@ -6,6 +8,4 @@ custom.lkql:1:1: error: Auto fixes not available for unit checks
     ||
   4 || )
     ||_^
-
-error: Unknown rule name "custom"
 

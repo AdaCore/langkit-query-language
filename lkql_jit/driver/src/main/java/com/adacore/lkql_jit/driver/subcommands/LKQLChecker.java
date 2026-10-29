@@ -48,17 +48,13 @@ public class LKQLChecker extends BaseSubcommand {
     @CommandLine.Mixin
     GPRArgs gprArgs;
 
-    @CommandLine.Option(names = { "-v", "--verbose" }, description = "Enable the verbose mode")
-    public boolean verbose;
-
     @CommandLine.Option(names = { "-d", "--debug" }, description = "Enable the debug mode")
     public boolean debug;
 
     @CommandLine.Option(
         names = { "-f", "--format" },
         description = "Select the output format (default is TEXT)" +
-            "%nPossible values: ${COMPLETION-CANDIDATES}",
-        completionCandidates = ReportFormat.Completion.class
+            "%nPossible values: ${COMPLETION-CANDIDATES}"
     )
     public ReportFormat reportFormat = ReportFormat.TEXT;
 
@@ -100,8 +96,7 @@ public class LKQLChecker extends BaseSubcommand {
     @CommandLine.Option(
         names = { "--auto-fix-mode" },
         description = "For rules with an available auto-fixing function, how to apply it (default" +
-            " is DISABLED)%nPossible values: ${COMPLETION-CANDIDATES}",
-        completionCandidates = AutoFixModeCompletion.class
+            " is DISABLED)%nPossible values: ${COMPLETION-CANDIDATES}"
     )
     public CheckerRun.AutoFixMode autoFixMode = CheckerRun.AutoFixMode.DISABLED;
 
@@ -167,8 +162,7 @@ public class LKQLChecker extends BaseSubcommand {
             RuleRepository repository = new RuleRepository(context, searchingDirs(), diagnostics);
             List<RuleInstance> ruleInstances = Utils.postProcessInstances(
                 diagnostics,
-                this.getRuleInstances(context, repository),
-                verbose
+                this.getRuleInstances(context, repository)
             );
 
             // Make sure PolyglotExceptions are properly handled in the code below. In particular,
@@ -207,11 +201,12 @@ public class LKQLChecker extends BaseSubcommand {
             // Display all diagnostics in the required format
             switch (reportFormat) {
                 case TEXT -> diagnostics.createReport(
-                    new TextReportCreator(System.out, supportAnsi)
+                    new TextReportCreator(engineArgs.verbosityLevel, System.out, supportAnsi)
                 );
                 case SARIF -> {
                     var sarifReport = new SarifSchema210();
                     var sarifReportCreator = new SarifReportCreator(
+                        engineArgs.verbosityLevel,
                         sarifReport,
                         spec.parent().version()[0],
                         ruleInstances,
@@ -329,23 +324,6 @@ public class LKQLChecker extends BaseSubcommand {
     /** Enum used to select the checker output format. */
     public enum ReportFormat {
         TEXT,
-        SARIF;
-
-        public static class Completion implements Iterable<String> {
-
-            @Override
-            public Iterator<String> iterator() {
-                return Arrays.stream(ReportFormat.values()).map(Object::toString).iterator();
-            }
-        }
-    }
-
-    /** Utility class to provide auto-complete for the auto-fix mode. */
-    public static class AutoFixModeCompletion implements Iterable<String> {
-
-        @Override
-        public Iterator<String> iterator() {
-            return Arrays.stream(CheckerRun.AutoFixMode.values()).map(Object::toString).iterator();
-        }
+        SARIF,
     }
 }

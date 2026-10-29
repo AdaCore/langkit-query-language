@@ -1,0 +1,6 @@
+# lkql version: 2
+
+import mod
+
+val _ = mod.always_deprecated()
+val _ = mod.deprecated_from_v2()

@@ -186,7 +186,9 @@ public class LKQLPatch extends BaseSubcommand {
     @Override
     public Integer call() {
         final var returnCode = patch();
-        diagnostics.createReport(new TextReportCreator(System.err, supportAnsi));
+        diagnostics.createReport(
+            new TextReportCreator(VerbosityLevel.INFO, System.err, supportAnsi)
+        );
         return returnCode;
     }
 

@@ -85,12 +85,7 @@ public final class LKQLContext {
                 this.getLogger().log(
                     missingFileIsError() ? Level.SEVERE : Level.WARNING,
                     "File " + adaFileName + " not found",
-                    new LogLocation(
-                        new LogLocation.LangkitLocation(
-                            from,
-                            reportLocationNode.getSourceLocationRange()
-                        )
-                    )
+                    LogLocation.from(from, reportLocationNode.getSourceLocationRange())
                 );
             }
         },
@@ -99,9 +94,7 @@ public final class LKQLContext {
             this.getLogger().log(
                 Level.SEVERE,
                 message,
-                new LogLocation(
-                    new LogLocation.LangkitLocation(unit, unit.getRoot().getSourceLocationRange())
-                )
+                LogLocation.from(unit, unit.getRoot().getSourceLocationRange())
             );
         }
     );

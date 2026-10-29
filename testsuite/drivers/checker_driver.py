@@ -26,8 +26,7 @@ class CheckerDriver(BaseDriver):
           the checker.
         - ``disable_formatting`` (bool): Whether to skip partial
           formatting when emitting auto-fixes.
-        - ``verbose`` (bool): Whether to provide the verbosity flag when
-          spawning the checker.
+        - ``verbosity`` (str): Verbosity level to forward to the checker.
     """
 
     perf_supported = True
@@ -50,8 +49,7 @@ class CheckerDriver(BaseDriver):
             self.working_dir(),
         ]
 
-        if self.test_env.get("verbose", False):
-            args.append("--verbose")
+        args.append(f"-v={self.test_env.get('verbosity', 'WARNING')}")
 
         if self.test_env.get("rule_file"):
             args += ["--rule-file", self.test_env["rule_file"]]

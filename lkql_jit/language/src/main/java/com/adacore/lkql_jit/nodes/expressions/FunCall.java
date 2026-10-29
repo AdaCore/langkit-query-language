@@ -6,12 +6,11 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.Constants;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodValue;
 import com.adacore.lkql_jit.exceptions.LKQLEngineException;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeError;
-import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.nodes.arguments.Arg;
-import com.adacore.lkql_jit.nodes.arguments.ArgList;
+import com.adacore.lkql_jit.exceptions.LogLocation;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
@@ -33,7 +32,7 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
-import java.util.Arrays;
+import java.util.logging.Level;
 
 /** This node represents a function call. */
 @NodeChild(value = "callee", type = Expr.class)
@@ -43,6 +42,9 @@ public abstract class FunCall extends Expr {
 
     /** Whether the function call is safe access. */
     protected final boolean isSafe;
+
+    /** LKQL version this node is coming from */
+    public final int fromVersion;
 
     public final String[] argNames;
 
@@ -60,9 +62,16 @@ public abstract class FunCall extends Expr {
      * @param location The location of the node in the source.
      * @param isSafe Whether the function call is protected with a safe operator.
      */
-    protected FunCall(SourceSection location, boolean isSafe, Expr[] args, String[] argNames) {
+    protected FunCall(
+        SourceSection location,
+        boolean isSafe,
+        int fromVersion,
+        Expr[] args,
+        String[] argNames
+    ) {
         super(location);
         this.isSafe = isSafe;
+        this.fromVersion = fromVersion;
         this.args = args;
         this.argNames = argNames;
     }
@@ -73,21 +82,21 @@ public abstract class FunCall extends Expr {
 
     // ----- Execution methods -----
 
-    /** Execute the function call node when the callee is a built-in method value. */
-    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
-    protected Object onBuiltinMethod(
+    @Specialization(
+        limit = Constants.SPECIALIZED_LIB_LIMIT,
+        guards = { "method.rootNode == cachedMethod.rootNode" }
+    )
+    @ExplodeLoop
+    protected Object onCachedMethod(
         VirtualFrame frame,
         BuiltInMethodValue method,
-        @CachedLibrary("method") InteropLibrary methodLibrary
+        @CachedLibrary("method") InteropLibrary methodLibrary,
+        @Cached("method") @SuppressWarnings("unused") LKQLFunction cachedMethod,
+        @Cached("deprecatedFrom(method)") long deprecatedFrom,
+        @Cached("orderArgList(method)") Expr[] argExprs
     ) {
-        var defaultVals = method.getParameterDefaultValues();
-        // Execute the argument list with the "this" value
-        Expr[] argExprs = orderArgList(
-            Arrays.copyOfRange(method.parameterNames, 1, method.parameterNames.length),
-            argNames,
-            args,
-            this
-        );
+        // Emit a warning if the method is deprecated
+        if (deprecatedFrom > 0 && deprecatedFrom <= fromVersion) logDeprecation(method);
 
         Object[] argVals = new Object[argExprs.length + 1];
         argVals[0] = method.thisValue;
@@ -105,6 +114,22 @@ public abstract class FunCall extends Expr {
         }
     }
 
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT, replaces = "onCachedMethod")
+    protected Object onUncachedMethod(
+        VirtualFrame frame,
+        BuiltInMethodValue method,
+        @CachedLibrary("method") InteropLibrary methodLibrary
+    ) {
+        return onCachedMethod(
+            frame,
+            method,
+            methodLibrary,
+            method,
+            deprecatedFrom(method),
+            orderArgList(method)
+        );
+    }
+
     @Specialization(
         limit = Constants.SPECIALIZED_LIB_LIMIT,
         guards = { "function.rootNode == cachedFunction.rootNode" }
@@ -115,14 +140,18 @@ public abstract class FunCall extends Expr {
         LKQLFunction function,
         @CachedLibrary("function") InteropLibrary functionLibrary,
         @Cached("function") @SuppressWarnings("unused") LKQLFunction cachedFunction,
+        @Cached("deprecatedFrom(function)") long deprecatedFrom,
         @Cached("function.hasClosure()") boolean hasClosure,
-        @Cached("orderThisArgList(function)") Expr[] argExprs
+        @Cached("orderArgList(function)") Expr[] argExprs
     ) {
         // Assert that the number of arguments is constant from the POV of the
         // compiler, which will allow to unroll the loop and inline the call
         // below.
         CompilerAsserts.compilationConstant(argExprs.length);
         CompilerAsserts.compilationConstant(hasClosure);
+
+        // Emit a warning if the method is deprecated
+        if (deprecatedFrom > 0 && deprecatedFrom <= fromVersion) logDeprecation(function);
 
         Object[] argVals;
         if (hasClosure) {
@@ -156,8 +185,9 @@ public abstract class FunCall extends Expr {
             function,
             functionLibrary,
             function,
+            deprecatedFrom(function),
             function.hasClosure(),
-            orderThisArgList(function)
+            orderArgList(function)
         );
     }
 
@@ -199,45 +229,41 @@ public abstract class FunCall extends Expr {
         );
     }
 
-    public Expr[] orderThisArgList(LKQLFunction function) {
-        return orderArgList(function.parameterNames, argNames, args, this);
+    protected Expr[] orderArgList(LKQLFunction function) {
+        return orderArgList(function.parameterNames, 0, argNames, args);
     }
 
-    @CompilerDirectives.TruffleBoundary
-    public static Expr[] orderArgList(String[] paramNames, ArgList argList) {
-        return orderArgList(
-            paramNames,
-            Arrays.stream(argList.getArgs()).map(Arg::getArgStringName).toArray(String[]::new),
-            Arrays.stream(argList.getArgs()).map(Arg::getArgExpr).toArray(Expr[]::new),
-            argList
-        );
+    protected Expr[] orderArgList(BuiltInMethodValue method) {
+        return orderArgList(method.parameterNames, 1, argNames, args);
     }
 
-    public static Expr[] orderArgList(
+    private Expr[] orderArgList(
         String[] paramNames,
+        int startFrom,
         String[] argNames,
-        Expr[] args,
-        LKQLNode caller
+        Expr[] args
     ) {
+        var realLength = paramNames.length - startFrom;
+
         // Verify the arity
-        if (paramNames.length < args.length) {
-            throw LKQLRuntimeError.wrongArity(paramNames.length, args.length, caller);
+        if (realLength < args.length) {
+            throw LKQLRuntimeError.wrongArity(realLength, args.length, this);
         }
 
         // Prepare the result
-        Expr[] res = new Expr[paramNames.length];
+        Expr[] res = new Expr[realLength];
 
         // Fill the result
         for (int i = 0; i < args.length; i++) {
             // Prepare the turn
             Expr arg = args[i];
             int index = i;
-
             String argName = null;
+
             // If the current argument is a named arg
             if (argNames[i] != null) {
                 argName = argNames[i];
-                index = ArrayUtils.indexOf(paramNames, argName);
+                index = ArrayUtils.indexOf(paramNames, argName) - startFrom;
             }
 
             // There is no corresponding parameter
@@ -250,6 +276,33 @@ public abstract class FunCall extends Expr {
 
         // Return the result array
         return res;
+    }
+
+    protected long deprecatedFrom(LKQLFunction function) {
+        for (var annotation : function.annotations) {
+            if (annotation.name().equals(Constants.ANNOTATION_DEPRECATED)) {
+                if (!annotation.positionalArguments().isEmpty()) return (long) annotation
+                    .positionalArguments()
+                    .getFirst();
+                else return 1;
+            }
+        }
+
+        // By default, return -1
+        return -1;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private void logDeprecation(LKQLFunction function) {
+        var kind = function instanceof BuiltInMethodValue ? "method" : "function";
+        var context = LKQLContext.get(this);
+        context
+            .getLogger()
+            .log(
+                Level.WARNING,
+                "Usage of the deprecated " + kind + " \"" + function.name + '"',
+                LogLocation.from(this.location)
+            );
     }
 
     // ----- Override methods -----

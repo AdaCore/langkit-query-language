@@ -6,50 +6,72 @@
 package com.adacore.lkql_jit.driver.source_support;
 
 import com.adacore.langkit_support.LangkitSupport;
+import com.adacore.lkql_jit.driver.ListComparator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Supplier;
 import org.graalvm.collections.EconomicMap;
 import org.graalvm.collections.Pair;
 
 /** This abstract class materialize the concept of a "source" under a unified interface. */
-public abstract sealed class Source
-    permits SourceFile, SourceBuffer, TruffleSourceWrapper, PolyglotSourceWrapper {
+public abstract sealed class Source implements Comparable<Source> permits SourceFile, SourceBuffer {
 
     // ----- Attributes -----
+
+    /**
+     * A cache containing already created sources, this is used to associate only one Source
+     * instance for each source name/absolute path.
+     */
+    protected static Map<Path, Source> SOURCE_CACHE = new HashMap<>();
 
     /** A cache used to fetch and cache lines of source files. */
     protected static SourceLinesCache SOURCE_LINES_CACHE = new SourceLinesCache();
 
     // ----- Constructors -----
 
-    public static Source from(Path file) {
-        return new SourceFile(file);
+    private static Source from(Path file) {
+        var normalizedFile = file.normalize();
+        if (!SOURCE_CACHE.containsKey(normalizedFile)) {
+            SOURCE_CACHE.put(normalizedFile, new SourceFile(normalizedFile));
+        }
+        return SOURCE_CACHE.get(normalizedFile);
     }
 
-    public static Source from(String name, String content) {
+    private static Source from(String name, String content) {
         return new SourceBuffer(name, content);
     }
 
-    public static Source from(LangkitSupport.AnalysisUnit analysisUnit) {
-        var unitFile = Paths.get(analysisUnit.getFileName(true));
-        if (Files.isRegularFile(unitFile)) {
-            return from(unitFile);
+    private static Source fromFileOrElse(
+        Optional<Path> maybeFile,
+        Supplier<String> fallbackName,
+        Supplier<CharSequence> fallbackContent
+    ) {
+        if (maybeFile.isPresent() && Files.isRegularFile(maybeFile.get())) {
+            return from(maybeFile.get());
         } else {
-            return from(analysisUnit.getFileName(false), analysisUnit.getText());
+            return from(fallbackName.get(), fallbackContent.get().toString());
         }
     }
 
-    public static Source from(com.oracle.truffle.api.source.Source truffleSource) {
-        return new TruffleSourceWrapper(truffleSource);
+    /** Create a new source from a Langkit analysis unit. */
+    public static Source from(LangkitSupport.AnalysisUnit analysisUnit) {
+        var file = Optional.of(Paths.get(analysisUnit.getFileName(true)));
+        return fromFileOrElse(file, () -> analysisUnit.getFileName(false), analysisUnit::getText);
     }
 
+    /** Create a new source from a Truffle source. */
+    public static Source from(com.oracle.truffle.api.source.Source truffleSource) {
+        var maybeFile = Optional.ofNullable(truffleSource.getPath()).map(Paths::get);
+        return fromFileOrElse(maybeFile, truffleSource::getName, truffleSource::getCharacters);
+    }
+
+    /** Create a new source from a Polyglot source. */
     public static Source from(org.graalvm.polyglot.Source polyglotSource) {
-        return new PolyglotSourceWrapper(polyglotSource);
+        var maybeFile = Optional.ofNullable(polyglotSource.getPath()).map(Paths::get);
+        return fromFileOrElse(maybeFile, polyglotSource::getName, polyglotSource::getCharacters);
     }
 
     // ----- Instance methods -----
@@ -94,7 +116,7 @@ public abstract sealed class Source
     }
 
     /** Get the sequence in the provided text that is used to separate lines. */
-    public static String getLineSeparator(CharSequence text) {
+    protected static String getLineSeparator(CharSequence text) {
         for (int i = 0; i < text.length(); i++) {
             var c = text.charAt(i);
             if (c == '\n') {
@@ -105,6 +127,33 @@ public abstract sealed class Source
 
         // By default, return the system dependent line separator
         return System.lineSeparator();
+    }
+
+    @Override
+    public int compareTo(Source other) {
+        // First compare source names
+        var comparator = Comparator.comparing(Source::getName);
+
+        // If both sources are defined by a source file, compare their absolute paths
+        if (getFile().isPresent() && other.getFile().isPresent()) {
+            comparator = comparator.thenComparing(s -> s.getFile().get());
+        }
+        // Otherwise, compare source contents
+        else {
+            comparator = comparator.thenComparing(
+                Source::getLines,
+                new ListComparator<>(String::compareTo)
+            );
+        }
+
+        return comparator.compare(this, other);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof Source other)) return false;
+        return compareTo(other) == 0;
     }
 
     // ----- Inner classes -----

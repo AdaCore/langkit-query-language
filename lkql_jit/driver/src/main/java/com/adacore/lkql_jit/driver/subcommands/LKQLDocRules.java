@@ -269,7 +269,11 @@ public class LKQLDocRules implements Callable<Integer> {
         var diagnostics = new DiagnosticCollector();
 
         // Create a text report creator to display potential diagnostics
-        var reporter = new TextReportCreator(System.out, supportAnsi);
+        var reporter = new TextReportCreator(
+            verbose ? BaseSubcommand.VerbosityLevel.INFO : BaseSubcommand.VerbosityLevel.WARNING,
+            System.out,
+            supportAnsi
+        );
 
         // Now create a context to get all rules
         var contextBuilder = Context.newBuilder(Constants.LKQL_ID)

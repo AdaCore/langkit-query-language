@@ -26,9 +26,22 @@ public final class LogLocation extends Throwable {
 
     // ----- Constructors -----
 
-    public LogLocation(LocationWrapper location) {
+    private LogLocation(LocationWrapper location) {
         super(null, null, false, false);
         this.location = location;
+    }
+
+    /** Create a log location from a Truffle source section. */
+    public static LogLocation from(SourceSection sourceSection) {
+        return new LogLocation(new TruffleLocation(sourceSection));
+    }
+
+    /** Create a log location from a Langkit source location range. */
+    public static LogLocation from(
+        LangkitSupport.AnalysisUnit unit,
+        LangkitSupport.SourceLocationRange locationRange
+    ) {
+        return new LogLocation(new LangkitLocation(unit, locationRange));
     }
 
     // ----- Inner classes -----

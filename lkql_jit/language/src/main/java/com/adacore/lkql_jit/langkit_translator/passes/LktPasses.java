@@ -96,11 +96,9 @@ public final class LktPasses {
                             .log(
                                 Level.WARNING,
                                 diagnosticMsg,
-                                new LogLocation(
-                                    new LogLocation.LangkitLocation(
-                                        diag.location.getUnit(),
-                                        diag.location.getSourceLocationRange()
-                                    )
+                                LogLocation.from(
+                                    diag.location.getUnit(),
+                                    diag.location.getSourceLocationRange()
                                 )
                             );
                     }
@@ -690,6 +688,7 @@ public final class LktPasses {
                             loc(callExpr),
                             calleeNode instanceof Liblktlang.DotExpr dot &&
                                 dot.fNullCond().pAsBool(),
+                            2,
                             Arrays.stream(arguments.getArgs())
                                 .map(Arg::getArgExpr)
                                 .toArray(Expr[]::new),

@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.driver.source_support;
 
 import com.adacore.langkit_support.LangkitSupport;
 import com.oracle.truffle.api.nodes.Node;
+import java.util.Comparator;
 import java.util.List;
 
 /** Represents a section in a source. */
@@ -16,7 +17,7 @@ public record SourceSection(
     int startColumn,
     int endLine,
     int endColumn
-) {
+) implements Comparable<SourceSection> {
     // ----- Constructors -----
 
     /** Create a new source section from a Langkit token. */
@@ -94,5 +95,22 @@ public record SourceSection(
      */
     public List<String> getLines() {
         return source.getLines(startLine - 1, endLine);
+    }
+
+    @Override
+    public int compareTo(SourceSection other) {
+        return Comparator.comparing((SourceSection s) -> s.source)
+            .thenComparingInt(SourceSection::startLine)
+            .thenComparingInt(SourceSection::startColumn)
+            .thenComparingInt(SourceSection::endLine)
+            .thenComparingInt(SourceSection::endColumn)
+            .compare(this, other);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof SourceSection other)) return false;
+        return compareTo(other) == 0;
     }
 }

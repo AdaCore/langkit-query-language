@@ -1,0 +1,24 @@
+rules.lkql:1:13: error: Unknown rule name "not_a_rule"
+  1 |  val rules = @{
+    | _____________^
+    ||
+    || ~~~ 5 other lines ~~~
+    ||
+  7 || }
+    ||_^
+
+rules.lkql:3:9: warning: Instance "goto_stmt" is running the same check as instance "same_check"
+  3 |         {only_unconditional: true},
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+rules.lkql:4:9: hint: Instance "same_check" was declared here
+  4 |         {only_unconditional: true, instance_name: "same_check"}
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+rules.lkql:3:9: info: Register new instance "goto_stmt"
+  3 |         {only_unconditional: true},
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+rules.lkql:4:9: info: Register new instance "same_check"
+  4 |         {only_unconditional: true, instance_name: "same_check"}
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

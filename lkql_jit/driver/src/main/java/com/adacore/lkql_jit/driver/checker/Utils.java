@@ -319,8 +319,7 @@ public class Utils {
      */
     public static List<RuleInstance> postProcessInstances(
         DiagnosticCollector diagnostics,
-        List<RuleInstance> instances,
-        boolean verbose
+        List<RuleInstance> instances
     ) {
         // Prepare the result list and a unicity map
         var unicityMap = new HashMap<String, RuleInstance>();
@@ -365,14 +364,12 @@ public class Utils {
                     return false;
                 } else {
                     unicityMap.put(instance.identifier(), instance);
-                    if (verbose) {
-                        diagnostics.add(
-                            new Info(
-                                "Register new instance \"" + instance.name() + '"',
-                                instance.instanceLocation
-                            )
-                        );
-                    }
+                    diagnostics.add(
+                        new Info(
+                            "Register new instance \"" + instance.name() + '"',
+                            instance.instanceLocation
+                        )
+                    );
                     return true;
                 }
             })

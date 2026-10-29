@@ -1,0 +1,4 @@
+v1.lkql:3:1: warning: Usage of the deprecated function "always_deprecated"
+  3 | mod.always_deprecated()
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+

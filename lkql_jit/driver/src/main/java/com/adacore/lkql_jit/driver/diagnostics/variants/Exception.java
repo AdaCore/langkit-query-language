@@ -5,10 +5,9 @@
 
 package com.adacore.lkql_jit.driver.diagnostics.variants;
 
+import com.adacore.lkql_jit.driver.ListComparator;
 import com.adacore.lkql_jit.driver.source_support.SourceSection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /** This class represents an exception diagnostic. */
 public final class Exception extends BaseDiagnostic {
@@ -39,10 +38,32 @@ public final class Exception extends BaseDiagnostic {
         callStack.add(new JavaFrame(traceElement));
     }
 
+    @Override
+    public int compareTo(BaseDiagnostic other) {
+        var superRes = super.compareTo(other);
+        if (other instanceof Exception otherException && superRes == 0) {
+            return Comparator.comparing(
+                (Exception e) -> e.callStack,
+                new ListComparator<>(StackFrame::compareTo)
+            )
+                .thenComparing(e -> e.kind)
+                .compare(this, otherException);
+        } else {
+            return superRes;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof Exception other)) return false;
+        return compareTo(other) == 0;
+    }
+
     // ----- Inner classes -----
 
     /** This class is used to give information about what an exception diagnostic is reporting. */
-    public static final class Kind {
+    public static final class Kind implements Comparable<Kind> {
 
         // ----- Attributes -----
 
@@ -67,16 +88,30 @@ public final class Exception extends BaseDiagnostic {
 
         /** Error kind when there is an error in the LKQL engine. */
         public static final Kind LKQL_ENGINE = new Kind("LKQL engine error");
+
+        // ----- Instance methods -----
+
+        @Override
+        public int compareTo(Exception.Kind other) {
+            return kindName.compareTo(other.kindName);
+        }
     }
 
     /** This class represents the abstract concept of a stack frame. */
-    public abstract static sealed class StackFrame {
+    public abstract static sealed class StackFrame implements Comparable<StackFrame> {
 
         /** Get an image of the location where the call has been made. */
         public abstract String locationImage();
 
         /** Get the name of the context the call has been made into. */
         public abstract String callContext();
+
+        @Override
+        public int compareTo(Exception.StackFrame other) {
+            return Comparator.comparing(StackFrame::locationImage)
+                .thenComparing(StackFrame::callContext)
+                .compare(this, other);
+        }
     }
 
     /** A stack frame represented by a custom call context and a precise location. */

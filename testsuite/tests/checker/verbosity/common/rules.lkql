@@ -1,0 +1,7 @@
+val rules = @{
+    Goto_Stmt: [
+        {only_unconditional: true},
+        {only_unconditional: true, instance_name: "same_check"}
+    ],
+    Not_A_Rule
+}
