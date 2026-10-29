@@ -14,6 +14,7 @@ variables:
   JAVA_VENDOR: graalvm
   MAVEN_VERSION: 3.9.9
   NODEJS_VERSION: 20.19.4
+  OPEN_DEPRECATION_ISSUE: false
 
 stages:
   - checkstyle
@@ -108,3 +109,14 @@ optional:
   parallel:
     matrix:
       - PLAN_ENTRY: [gnatcheck_internal_testsuite]
+
+# CI that run annually
+annual:
+  stage: test
+  services:
+    - image:e3
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $OPEN_DEPRECATION_ISSUE == 'true'
+  interruptible: false
+  script:
+    - python utils/open_deprecation_issue.py
