@@ -728,7 +728,8 @@ fun strip_conversions(node : Expr) : Expr = match node {
     # Strip type qualifications
     case qe@QualExpr  => strip_conversions(qe.f_suffix)
     # Strip type conversions
-    case CallExpr(p_kind(): "type_conversion", f_suffix: args@AssocList) =>
+    # TODO: simplify when clause with an enum pattern (langkit#1061)
+    case CallExpr(p_kind(): kind, f_suffix: args@AssocList) when kind == CallExprKind.type_conversion =>
         strip_conversions(args.children[0].as[ParamAssoc].f_r_expr)
     case _ => node
 }
@@ -829,8 +830,8 @@ fun is_tasking_construct(node : AdaNode) : Bool =
         | SelectStmt
         | DelayStmt
         | AbortStmt
-        | ObjectDecl(p_type_expression: TypeExpr(p_designated_type_decl(): (ProtectedTypeDecl | TaskTypeDecl)))
-        | Name(p_is_call: true, p_referenced_decl: d @ BasicDecl when ultimate_subprogram_alias(d) is (
+        | ObjectDecl(p_type_expression(): TypeExpr(p_designated_type_decl(): (ProtectedTypeDecl | TaskTypeDecl)))
+        | Name(p_is_call(): true, p_referenced_decl(): d @ BasicDecl when ultimate_subprogram_alias(d) is (
                 EntryDecl
                 | node @ BasicSubpDecl when parent(node).any((n) => n is ProtectedTypeDecl | ProtectedBody | SingleProtectedDecl)
             ))
